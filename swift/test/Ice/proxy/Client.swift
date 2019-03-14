@@ -474,5 +474,276 @@ public class Client: TestHelperI {
         try prop.setProperty(key: "\(propertyPrefix).Context.c2", value: "")
 
         writer.writeLine("ok")
+
+        writer.write("testing proxyToProperty... ")
+
+        b1 = try communicator.stringToProxy(str: "test")
+        b1 = try b1!.ice_collocationOptimized(collocated: true)
+        b1 = try b1!.ice_connectionCached(cached: true)
+        b1 = try b1!.ice_preferSecure(preferSecure: false)
+        b1 = try b1!.ice_endpointSelection(type: Ice.EndpointSelectionType.Ordered)
+        b1 = try b1!.ice_locatorCacheTimeout(timeout: 100)
+        b1 = try b1!.ice_invocationTimeout(timeout: 1234)
+        b1 = b1!.ice_encodingVersion(encoding: Ice.EncodingVersion(major: 1, minor: 0))
+
+        var router = try communicator.stringToProxy(str: "router")
+        router = try router!.ice_collocationOptimized(collocated: false)
+        router = try router!.ice_connectionCached(cached: true)
+        router = try router!.ice_preferSecure(preferSecure: true)
+        router = try router!.ice_endpointSelection(type: Ice.EndpointSelectionType.Random)
+        router = try router!.ice_locatorCacheTimeout(timeout: 200)
+        router = try router!.ice_invocationTimeout(timeout: 1500)
+
+        var locator = try communicator.stringToProxy(str: "locator")
+        locator = try locator!.ice_collocationOptimized(collocated: true)
+        locator = try locator!.ice_connectionCached(cached: false)
+        locator = try locator!.ice_preferSecure(preferSecure: true)
+        locator = try locator!.ice_endpointSelection(type: Ice.EndpointSelectionType.Random)
+        locator = try locator!.ice_locatorCacheTimeout(timeout: 300)
+        locator = try locator!.ice_invocationTimeout(timeout: 1500)
+
+        locator = try locator!.ice_router(router: uncheckedCast(prx: router!, type: Ice.RouterPrx.self))
+        b1 = try b1!.ice_locator(locator: uncheckedCast(prx: locator!, type: Ice.LocatorPrx.self))
+
+        let proxyProps = try communicator.proxyToProperty(proxy: b1!, property: "Test")
+        try test(proxyProps.count == 21)
+
+        try test(proxyProps["Test"] == "test -t -e 1.0")
+        try test(proxyProps["Test.CollocationOptimized"] == "1")
+        try test(proxyProps["Test.ConnectionCached"] == "1")
+        try test(proxyProps["Test.PreferSecure"] == "0")
+        try test(proxyProps["Test.EndpointSelection"] == "Ordered")
+        try test(proxyProps["Test.LocatorCacheTimeout"] == "100")
+        try test(proxyProps["Test.InvocationTimeout"] == "1234")
+
+        try test(proxyProps["Test.Locator"] ==
+            "locator -t -e " + Ice.encodingVersionToString(encoding: currentEncoding))
+        // Locator collocation optimization is always disabled.
+        //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
+        try test(proxyProps["Test.Locator.ConnectionCached"] == "0")
+        try test(proxyProps["Test.Locator.PreferSecure"] == "1")
+        try test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
+        try test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
+        try test(proxyProps["Test.Locator.InvocationTimeout"] == "1500")
+
+        try test(proxyProps["Test.Locator.Router"] ==
+            "router -t -e " + Ice.encodingVersionToString(encoding: Ice.currentEncoding))
+        try test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
+        try test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
+        try test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
+        try test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
+        try test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
+        try test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500")
+
+        writer.writeLine("ok")
+
+        writer.write("testing ice_getCommunicator... ")
+        try test(baseProxy!.ice_getCommunicator() === communicator)
+        writer.writeLine("ok")
+
+        writer.write("testing proxy methods... ")
+        try test(baseProxy!.ice_facet(facet: "facet").ice_getFacet() == "facet")
+        try test(baseProxy!.ice_adapterId(id: "id").ice_getAdapterId() == "id")
+        try test(baseProxy!.ice_twoway().ice_isTwoway())
+        try test(baseProxy!.ice_oneway().ice_isOneway())
+        try test(baseProxy!.ice_batchOneway().ice_isBatchOneway())
+        try test(baseProxy!.ice_datagram().ice_isDatagram())
+        try test(baseProxy!.ice_batchDatagram().ice_isBatchDatagram())
+        try test(baseProxy!.ice_secure(secure: true).ice_isSecure())
+        try test(!baseProxy!.ice_secure(secure: false).ice_isSecure())
+        try test(baseProxy!.ice_collocationOptimized(collocated: true)!.ice_isCollocationOptimized())
+        try test(!baseProxy!.ice_collocationOptimized(collocated: false)!.ice_isCollocationOptimized())
+        try test(baseProxy!.ice_preferSecure(preferSecure: true).ice_isPreferSecure())
+        try test(!baseProxy!.ice_preferSecure(preferSecure: false).ice_isPreferSecure())
+
+        do {
+            _ = try baseProxy!.ice_timeout(timeout: 0)
+            try test(false)
+        } catch {
+            // TODO handle argument_exception
+        }
+
+        do {
+            _ = try baseProxy!.ice_timeout(timeout: -1)
+        } catch {
+            // TODO handle argument_exception
+            try test(false)
+        }
+
+        do {
+            _ = try baseProxy!.ice_timeout(timeout: -2)
+            try test(false)
+        } catch {
+            // TODO handle argument_exception
+        }
+
+        do {
+            _ = try baseProxy!.ice_invocationTimeout(timeout: 0)
+            try test(false)
+        } catch {
+            // TODO handle argument_exception
+        }
+
+        do {
+            _ = try baseProxy!.ice_invocationTimeout(timeout: -1)
+            _ = try baseProxy!.ice_invocationTimeout(timeout: -2)
+        } catch {
+            // TODO handle argument_exception
+            try test(false)
+        }
+
+        do {
+            _ = try baseProxy!.ice_invocationTimeout(timeout: -3)
+            try test(false)
+        } catch {
+            // TODO handle argument_exception
+        }
+
+        do {
+            _ = try baseProxy!.ice_locatorCacheTimeout(timeout: 0)
+        } catch {
+            // TODO handle argument_exception
+            try test(false)
+        }
+
+        do {
+            _ = try baseProxy!.ice_locatorCacheTimeout(timeout: -1)
+        } catch {
+            // TODO handle argument_exception
+            try test(false)
+        }
+
+        do {
+            _ = try baseProxy!.ice_locatorCacheTimeout(timeout: -2)
+            try test(false)
+        } catch {
+            // TODO handle argument_exception
+        }
+
+        writer.writeLine("ok")
+
+        writer.write("testing proxy comparison... ")
+
+        try test(communicator.stringToProxy(str: "foo") == communicator.stringToProxy(str: "foo"))
+        try test(communicator.stringToProxy(str: "foo") != communicator.stringToProxy(str: "foo2"))
+
+        var compObj = try communicator.stringToProxy(str: "foo")
+
+        try test(compObj!.ice_facet(facet: "facet") == compObj!.ice_facet(facet: "facet"))
+        try test(compObj!.ice_facet(facet: "facet") != compObj!.ice_facet(facet: "facet1"))
+
+        try test(compObj!.ice_oneway() == compObj!.ice_oneway())
+        try test(compObj!.ice_oneway() != compObj!.ice_twoway())
+
+        try test(compObj!.ice_secure(secure: true) == compObj!.ice_secure(secure: true))
+        try test(compObj!.ice_secure(secure: false) != compObj!.ice_secure(secure: true))
+
+        try test(compObj!.ice_collocationOptimized(collocated: true) == compObj!.ice_collocationOptimized(collocated: true))
+        try test(compObj!.ice_collocationOptimized(collocated: false) != compObj!.ice_collocationOptimized(collocated: true))
+
+        try test(compObj!.ice_connectionCached(cached: true) == compObj!.ice_connectionCached(cached: true))
+        try test(compObj!.ice_connectionCached(cached: false) != compObj!.ice_connectionCached(cached: true))
+
+        try test(compObj!.ice_endpointSelection(type: Ice.EndpointSelectionType.Random) ==
+                 compObj!.ice_endpointSelection(type: Ice.EndpointSelectionType.Random))
+        try test(compObj!.ice_endpointSelection(type: Ice.EndpointSelectionType.Random) !=
+                 compObj!.ice_endpointSelection(type: Ice.EndpointSelectionType.Ordered))
+
+        try test(compObj!.ice_connectionId(id: "id2") == compObj!.ice_connectionId(id: "id2"))
+        try test(compObj!.ice_connectionId(id: "id1") != compObj!.ice_connectionId(id: "id2"))
+        try test(compObj!.ice_connectionId(id: "id1").ice_getConnectionId() == "id1")
+        try test(compObj!.ice_connectionId(id: "id2").ice_getConnectionId() == "id2")
+
+        try test(compObj!.ice_compress(compress: true) == compObj!.ice_compress(compress: true))
+        try test(compObj!.ice_compress(compress: false) != compObj!.ice_compress(compress: true))
+
+        try test(compObj!.ice_getCompress() == nil)
+        try test(compObj!.ice_compress(compress: true).ice_getCompress() == true)
+        try test(compObj!.ice_compress(compress: false).ice_getCompress() == false)
+
+        try test(compObj!.ice_timeout(timeout: 20) == compObj!.ice_timeout(timeout: 20))
+        try test(compObj!.ice_timeout(timeout: 10) != compObj!.ice_timeout(timeout: 20))
+
+        try test(compObj!.ice_getTimeout() == nil)
+        try test(compObj!.ice_timeout(timeout: 10).ice_getTimeout() == 10)
+        try test(compObj!.ice_timeout(timeout: 20).ice_getTimeout() == 20)
+
+        let loc1 = uncheckedCast(prx: try communicator.stringToProxy(str: "loc1:default -p 10000")!,
+                                 type: Ice.LocatorPrx.self)
+        let loc2 = uncheckedCast(prx: try communicator.stringToProxy(str: "loc2:default -p 10000")!,
+                                 type: Ice.LocatorPrx.self)
+
+        try test(compObj!.ice_locator(locator: nil) == compObj!.ice_locator(locator: nil))
+        try test(compObj!.ice_locator(locator: loc1) == compObj!.ice_locator(locator: loc1))
+        try test(compObj!.ice_locator(locator: loc1) != compObj!.ice_locator(locator: nil))
+        try test(compObj!.ice_locator(locator: nil) != compObj!.ice_locator(locator: loc2))
+        try test(compObj!.ice_locator(locator: loc1) != compObj!.ice_locator(locator: loc2))
+
+        let rtr1 = uncheckedCast(prx: try communicator.stringToProxy(str: "rtr1:default -p 10000")!,
+                                 type: Ice.RouterPrx.self)
+        let rtr2 = uncheckedCast(prx: try communicator.stringToProxy(str: "rtr2:default -p 10000")!,
+                                 type: Ice.RouterPrx.self)
+
+        try test(compObj!.ice_router(router: nil) == compObj!.ice_router(router: nil))
+        try test(compObj!.ice_router(router: rtr1) == compObj!.ice_router(router: rtr1))
+        try test(compObj!.ice_router(router: rtr1) != compObj!.ice_router(router: nil))
+        try test(compObj!.ice_router(router: nil) != compObj!.ice_router(router: rtr2))
+        try test(compObj!.ice_router(router: rtr1) != compObj!.ice_router(router: rtr2))
+
+        let ctx1 = ["ctx1": "v1"]
+        let ctx2 = ["ctx2": "v2"]
+
+        try test(compObj!.ice_context(context: Ice.Context()) == compObj!.ice_context(context: Ice.Context()))
+        try test(compObj!.ice_context(context: ctx1) == compObj!.ice_context(context: ctx1))
+        try test(compObj!.ice_context(context: ctx1) != compObj!.ice_context(context: Ice.Context()))
+        try test(compObj!.ice_context(context: Ice.Context()) != compObj!.ice_context(context: ctx2))
+        try test(compObj!.ice_context(context: ctx1) != compObj!.ice_context(context: ctx2))
+
+        try test(compObj!.ice_preferSecure(preferSecure: true) == compObj!.ice_preferSecure(preferSecure: true))
+        try test(compObj!.ice_preferSecure(preferSecure: true) != compObj!.ice_preferSecure(preferSecure: false))
+
+        var compObj1 = try communicator.stringToProxy(str: "foo:tcp -h 127.0.0.1 -p 10000")
+        var compObj2 = try communicator.stringToProxy(str: "foo:tcp -h 127.0.0.1 -p 10001")
+        try test(compObj1 != compObj2)
+
+        compObj1 = try communicator.stringToProxy(str: "foo@MyAdapter1")
+        compObj2 = try communicator.stringToProxy(str: "foo@MyAdapter2")
+        try test(compObj1 != compObj2)
+
+        try test(compObj1!.ice_locatorCacheTimeout(timeout: 20) == compObj1!.ice_locatorCacheTimeout(timeout: 20))
+        try test(compObj1!.ice_locatorCacheTimeout(timeout: 10) != compObj1!.ice_locatorCacheTimeout(timeout: 20))
+
+        try test(compObj1!.ice_invocationTimeout(timeout: 20) == compObj1!.ice_invocationTimeout(timeout: 20))
+        try test(compObj1!.ice_invocationTimeout(timeout: 10) != compObj1!.ice_invocationTimeout(timeout: 20))
+
+        compObj1 = try communicator.stringToProxy(str: "foo:tcp -h 127.0.0.1 -p 1000")
+        compObj2 = try communicator.stringToProxy(str: "foo@MyAdapter1")
+        try test(compObj1 != compObj2)
+
+        let endpts1 = try communicator.stringToProxy(str: "foo:tcp -h 127.0.0.1 -p 10000")!.ice_getEndpoints()
+        let endpts2 = try communicator.stringToProxy(str: "foo:tcp -h 127.0.0.1 -p 10001")!.ice_getEndpoints()
+
+        try test(endpts1[0] != endpts2[0])
+        try test(endpts1[0] == communicator.stringToProxy(str: "foo:tcp -h 127.0.0.1 -p 10000")!.ice_getEndpoints()[0])
+
+        let baseConnection = try baseProxy!.ice_getConnection()
+        if baseConnection != nil {
+            let baseConnection2 = try baseProxy!.ice_connectionId(id: "base2").ice_getConnection()
+            compObj1 = try compObj1!.ice_fixed(connection: baseConnection!)
+            compObj2 = try compObj2!.ice_fixed(connection: baseConnection2!)
+            try test(compObj1 != compObj2)
+        }
+        writer.writeLine("ok")
+
+        writer.write("testing checked cast... ")
+        let cl = try checkedCast(prx: baseProxy!, type: MyClassPrx.self)
+        try test(cl != nil)
+        let derived = try checkedCast(prx: cl!, type: MyDerivedClassPrx.self)
+        try test(derived != nil)
+        try test(cl == baseProxy)
+        try test(derived == baseProxy)
+        try test(cl == derived)
+        writer.writeLine("ok")
+
     }
 }
