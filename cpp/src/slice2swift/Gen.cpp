@@ -975,7 +975,7 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     out << nl << "mode: " << modeToString(op->mode()) << ",";
     out << nl << "twowayOnly: " << (twowayOnly ? "true" : "false") << ",";
     out << nl << "inParams: ostr,";
-    out << nl << "hasOutParams: " << (useInputStream ? "false" : "true") << ",";
+    out << nl << "hasOutParams: " << (useInputStream ? "true" : "false") << ",";
     out << nl << "exceptions: ";
     out << "[";
     for(ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
