@@ -167,4 +167,10 @@ static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
     *major = encoding.major;
     *minor = encoding.minor;
 }
+
++(NSString*) encodingVersionToString:(UInt8)major minor:(UInt8)minor
+{
+    Ice::EncodingVersion v {major, minor};
+    return toNSString(Ice::encodingVersionToString(v));
+}
 @end

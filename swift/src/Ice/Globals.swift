@@ -85,3 +85,7 @@ public func identityToString(identity: Identity, mode: ToStringMode = ToStringMo
 
 public let Encoding_1_0 = Protocol.Encoding_1_0
 public let Encoding_1_1 = Protocol.Encoding_1_1
+
+public func encodingVersionToString(encoding: EncodingVersion) -> String {
+    return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
+}
