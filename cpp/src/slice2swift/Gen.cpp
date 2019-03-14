@@ -894,11 +894,14 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     out << sp;
     out << nl << "func " << opName;
     out << spar;
+    const string omitLabel = inParams.size() == 1 ? "_ " : "";
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
         ParamDeclPtr param = *q;
-        out << (param->name() + ": " + typeToString(param->type(), param));
+        out << (omitLabel + param->name() + ": " + typeToString(param->type(), param));
     }
+    // context
+    out << "context: Context? = nil";
     out << epar;
 
     out << " throws";
@@ -985,7 +988,8 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
             out << ',';
         }
     }
-    out << "]";
+    out << "],";
+    out << nl << "context: context";
     out <<  ")";
     out.restoreIndent();
     out << nl;
@@ -1007,21 +1011,24 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
             returnVals.push_back((*q)->name());
         }
 
+        // If the return type is optional we unmarshal it with the rest of the optional params (in order)
         if(returnType && !op->returnIsOptional())
         {
             writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false);
             returnVals.push_front("ret");
         }
 
+        bool optReturnUnmarshaled = false;
         for(ParamDeclList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
         {
             ParamDeclPtr param = *q;
             assert(param->optional());
 
-            if(returnType && op->returnIsOptional() && op->returnTag() < param->tag())
+            if(returnType && op->returnIsOptional() && !optReturnUnmarshaled && (op->returnTag() < param->tag()))
             {
                 writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, op->returnTag());
                 returnVals.push_front("ret");
+                optReturnUnmarshaled = true;
             }
 
             ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
