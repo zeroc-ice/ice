@@ -861,13 +861,130 @@ public class Client: TestHelperI {
 
         ref10 = "test -p 1.0:\(self.getTestEndpoint(num: 0))"
         cl10 = try uncheckedCast(prx: communicator.stringToProxy(str: ref10)!, type: MyClassPrx.self)!
-        try cl10.ice_ping();
-        
+        try cl10.ice_ping()
+
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
         ref13 = "test -p 1.3:\(self.getTestEndpoint(num: 0))"
         cl13 = try uncheckedCast(prx: communicator.stringToProxy(str: ref13)!, type: MyClassPrx.self)!
         try cl13.ice_ping()
         writer.writeLine("ok")
+
+        writer.write("testing opaque endpoints... ")
+        do {
+            // Invalid -x option
+            _ = try communicator.stringToProxy(str: "id:opaque -t 99 -v abcd -x abc")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Missing -t and -v
+            _ = try communicator.stringToProxy(str: "id:opaque")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Repeated -t
+            _ = try communicator.stringToProxy(str: "id:opaque -t 1 -t 1 -v abcd")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Repeated -v
+            _ = try communicator.stringToProxy(str: "id:opaque -t 1 -v abcd -v abcd")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Missing -t
+            _ = try communicator.stringToProxy(str: "id:opaque -v abcd")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Missing -v
+            _ = try communicator.stringToProxy(str: "id:opaque -t 1")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Missing arg for -t
+            _ = try communicator.stringToProxy(str: "id:opaque -t -v abcd")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Missing arg for -v
+            _ = try communicator.stringToProxy(str: "id:opaque -t 1 -v")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Not a number for -t
+            _ = try communicator.stringToProxy(str: "id:opaque -t x -v abcd")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // < 0 for -t
+            _ = try communicator.stringToProxy(str: "id:opaque -t -1 -v abcd")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        do {
+            // Invalid char for -v
+            _ = try communicator.stringToProxy(str: "id:opaque -t 99 -v x?c")
+            try test(false)
+        } catch is Ice.EndpointParseException {}
+
+        // Legal TCP endpoint expressed as opaque endpoint
+        var p1 = try communicator.stringToProxy(str: "test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")!
+        var pstr = try communicator.proxyToString(obj: p1)
+        try test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
+
+        // Opaque endpoint encoded with 1.1 encoding.
+        let p2 = try communicator.stringToProxy(str: "test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")!
+        try test(communicator.proxyToString(obj: p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
+
+        if communicator.getProperties().getPropertyAsInt(key: "Ice.IPv6") == 0 {
+            // Working?
+            let ssl = communicator.getProperties().getProperty(key: "Ice.Default.Protocol") == "ssl"
+            let tcp = communicator.getProperties().getProperty(key: "Ice.Default.Protocol") == "tcp"
+
+            // Two legal TCP endpoints expressed as opaque endpoints
+            p1 = try communicator.stringToProxy(str: "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")!
+            pstr = try communicator.proxyToString(obj: p1)
+            try test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
+
+            // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
+            p1 = try communicator.stringToProxy(str: "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch")!
+            pstr = try communicator.proxyToString(obj: p1)
+            if ssl {
+                try test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
+            } else if tcp {
+                try test(pstr ==
+                    "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+            }
+        }
+
+        writer.writeLine("ok")
+
+        writer.write("testing communicator shutdown/destroy... ")
+        do {
+            let com = try Ice.initialize()
+            com.shutdown()
+            try test(com.isShutdown())
+            com.waitForShutdown()
+            com.destroy()
+            com.shutdown()
+            try test(com.isShutdown())
+            com.waitForShutdown()
+            com.destroy()
+        }
+        writer.writeLine("ok")
+
+        do {
+            try cl?.shutdown()
+        }
     }
 }
