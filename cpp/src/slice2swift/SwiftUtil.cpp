@@ -1287,6 +1287,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
             out << " istr in";
         }
         out << sp;
+        out << nl << "try istr.startEncapsulation()";
         StringList returnVals;
         for(ParamDeclList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
         {
@@ -1320,6 +1321,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
             writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, param->tag());
             returnVals.push_back((*q)->name());
         }
+        out << nl << "try istr.endEncapsulation()";
 
         out << sp;
         out << nl << "return ";
