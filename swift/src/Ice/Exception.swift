@@ -67,6 +67,19 @@ public extension UserException {
     }
 }
 
+// Used to wrap C++ std::exception messages
+public struct RuntimeError: Error, CustomStringConvertible {
+    let message: String
+
+    public var description: String {
+        return message
+    }
+
+    init(_ message: String) {
+        self.message = message
+    }
+}
+
 #warning("TODO: CustomStringConvertible impl")
 // TODO: All LocalExceptions should be CustomStringConvertible and print detailed messages
 // like C++ (by calling IceUtilInternal::errorToString from ObjC)

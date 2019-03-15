@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "IceObjcLocalException.h"
+#import "IceObjcException.h"
 #import "IceObjcIceUtil.h"
 #import "IceObjcUtil.h"
 
@@ -28,11 +28,11 @@ convertException(const std::exception_ptr& excPtr)
 NSError*
 convertException(const std::exception& exc)
 {
+    Class<ICEExceptionFactory> factory = [ICEUtil exceptionFactory];
+
     if(dynamic_cast<const Ice::LocalException*>(&exc))
     {
         auto iceEx = dynamic_cast<const Ice::LocalException*>(&exc);
-
-        Class<ICELocalExceptionFactory> factory = [ICEUtil localExceptionFactory];
 
         try
         {
@@ -308,6 +308,10 @@ convertException(const std::exception& exc)
         {
             return [factory localException:toNSString(e.ice_file()) line:e.ice_line()];
         }
+    }
+    else
+    {
+        return [factory runtimeError:toNSString(exc.what())];
     }
 
     return nil;

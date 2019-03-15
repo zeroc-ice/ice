@@ -6,7 +6,7 @@ module IceObjc {
   header "IceObjcIceUtil.h"
   header "IceObjcImplicitContext.h"
   header "IceObjcInputStream.h"
-  header "IceObjcLocalException.h"
+  header "IceObjcException.h"
   header "IceObjcLocalObject.h"
   header "IceObjcLogger.h"
   header "IceObjcObjectPrx.h"

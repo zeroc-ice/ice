@@ -10,7 +10,7 @@
 #import "IceObjcCommunicator.h"
 #import "IceObjcConnection.h"
 #import "IceObjcEndpoint.h"
-#import "IceObjcLocalException.h"
+#import "IceObjcException.h"
 #import "IceObjcLogger.h"
 #import "IceObjcProperties.h"
 
@@ -20,15 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 // Utility methods
 //
 @interface ICEUtil: NSObject
-@property (class, nonatomic, readonly) Class<ICELocalExceptionFactory> localExceptionFactory;
+@property (class, nonatomic, readonly) Class<ICEExceptionFactory> exceptionFactory;
 @property (class, nonatomic, readonly) Class<ICEConnectionInfoFactory> connectionInfoFactory;
 @property (class, nonatomic, readonly) Class<ICEEndpointInfoFactory> endpointInfoFactory;
 
 //This method should only be called once to guarenteed thread safety
-+(BOOL) registerFactories:(Class<ICELocalExceptionFactory>)localException
++(BOOL) registerFactories:(Class<ICEExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
-NS_SWIFT_NAME(registerFactories(localException:connectionInfo:endpointInfo:));
+NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:));
 
 +(nullable ICECommunicator*) initialize:(NSArray*)swiftArgs
                              properties:(ICEProperties* _Null_unspecified)properties

@@ -9,7 +9,7 @@
 
 import IceObjc
 
-class LocalExceptionFactory: ICELocalExceptionFactory {
+class ExceptionFactory: ICEExceptionFactory {
     static func initializationException(_ reason: String, file: String, line: Int) -> Error {
         return InitializationException(reason: reason, file: file, line: line)
     }
@@ -301,5 +301,9 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
 
     static func protocolException(_ reason: String, file: String, line: Int) -> Error {
         return ProtocolException(reason: reason, file: file, line: line)
+    }
+
+    static func runtimeError(_ message: String) -> Error {
+        return RuntimeError(message)
     }
 }

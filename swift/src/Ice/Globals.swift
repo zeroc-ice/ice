@@ -11,7 +11,7 @@ import IceObjc
 
 // Factories are registed once, when this file is loaded
 private let initialized: Bool = {
-    ICEUtil.registerFactories(localException: LocalExceptionFactory.self,
+    ICEUtil.registerFactories(exception: ExceptionFactory.self,
                               connectionInfo: ConnectionInfoFactory.self,
                               endpointInfo: EndpointInfoFactory.self)
     return true

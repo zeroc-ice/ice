@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ICELocalExceptionFactory
+@protocol ICEExceptionFactory
 +(NSError*) initializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) pluginInitializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) collocationOptimizationException:(NSString*)file line:(size_t)line;
@@ -89,6 +89,9 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSError*) encapsulationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) marshalException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) protocolException:(NSString*)reason file:(NSString*)file line:(size_t)line;
+
+// For generic std::exception
++(NSError*) runtimeError:(NSString*)message;
 @end
 
 NS_ASSUME_NONNULL_END

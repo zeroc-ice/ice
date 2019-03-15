@@ -31,13 +31,13 @@ namespace
 }
 
 @implementation ICEUtil
-static Class<ICELocalExceptionFactory> _localExceptionFactory;
+static Class<ICEExceptionFactory> _exceptionFactory;
 static Class<ICEConnectionInfoFactory> _connectionInfoFactory;
 static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
 
-+(Class<ICELocalExceptionFactory>) localExceptionFactory
++(Class<ICEExceptionFactory>) exceptionFactory
 {
-    return _localExceptionFactory;
+    return _exceptionFactory;
 
 }
 
@@ -51,11 +51,11 @@ static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
     return _endpointInfoFactory;
 }
 
-+(BOOL) registerFactories:(Class<ICELocalExceptionFactory>)localException
++(BOOL) registerFactories:(Class<ICEExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
 {
-    _localExceptionFactory = localException;
+    _exceptionFactory = exception;
     _connectionInfoFactory = connectionInfo;
     _endpointInfoFactory = endpointInfo;
     return true;
