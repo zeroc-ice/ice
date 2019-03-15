@@ -15,6 +15,9 @@
 
 #include "IceObjcUtil.h"
 
+#include <Ice/Instance.h>
+#include <Ice/DefaultsAndOverrides.h>
+
 @implementation ICECommunicator
 
 -(instancetype) initWithCppCommunicator:(std::shared_ptr<Ice::Communicator>)communicator
@@ -207,4 +210,15 @@
     return [[ICEProperties alloc] initWithCppProperties:props];
 }
 
+-(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor
+{
+    auto defaultEncoding = IceInternal::getInstance(_communicator)->defaultsAndOverrides()->defaultEncoding;
+    *major = defaultEncoding.major;
+    *minor = defaultEncoding.minor;
+}
+
+-(uint8_t) getDefaultFormat
+{
+    return static_cast<uint8_t>(IceInternal::getInstance(_communicator)->defaultsAndOverrides()->defaultFormat);
+}
 @end

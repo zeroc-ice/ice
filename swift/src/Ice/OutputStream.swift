@@ -19,17 +19,17 @@ public class OutputStream {
     private var encapsStack: Encaps!
     private var encapsCache: Encaps?
 
-    public init(communicator: Communicator, encoding: EncodingVersion = currentEncoding) {
+    public convenience init(communicator: Communicator) {
+        let encoding = (communicator as! CommunicatorI).defaultsAndOverrides.defaultEncoding
+        self.init(communicator: communicator, encoding: encoding)
+    }
+
+    public init(communicator: Communicator, encoding: EncodingVersion) {
         self.communicator = communicator
         self.encoding = encoding
         self.encoding_1_0 = (encoding.major == 1 && encoding.minor == 0)
-        buf = Buffer()
-
-        if communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Default.SlicedFormat", value: 0) > 0 {
-            format = FormatType.SlicedFormat
-        } else {
-            format = FormatType.CompactFormat
-        }
+        self.buf = Buffer()
+        self.format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
     }
 
     public func startEncapsulation() {

@@ -184,8 +184,8 @@ public class Client: TestHelperI {
             try test(o2!.bo == o.bo)
             try test(o2!.by == o.by)
             if communicator.getProperties().getProperty(key: "Ice.Default.EncodingVersion") == "1.0" {
-                try test(o2!.sh != nil)
-                try test(o2!.i != nil)
+                try test(o2!.sh == nil)
+                try test(o2!.i == nil)
             } else {
                 try test(o2!.sh == o.sh)
                 try test(o2!.i == o.i)

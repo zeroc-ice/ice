@@ -27,9 +27,18 @@ public class InputStream {
     private var minSeqSize: Int32 = 0
     public var sliceValues: Bool = true
 
-    public init(communicator: Communicator,
-                encoding: EncodingVersion = currentEncoding,
-                bytes: [UInt8]) {
+    public convenience init(communicator: Communicator) {
+        self.init(communicator: communicator, bytes: [])
+    }
+
+    public convenience init(communicator: Communicator, bytes: [UInt8]) {
+        let encoding = (communicator as! CommunicatorI).defaultsAndOverrides.defaultEncoding
+        self.init(communicator: communicator, encoding: encoding, bytes: bytes)
+    }
+
+    public required init(communicator: Communicator,
+                         encoding: EncodingVersion,
+                         bytes: [UInt8]) {
         self.communicator = communicator
         self.encoding = encoding
         self.bytes = bytes
@@ -39,11 +48,9 @@ public class InputStream {
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
     }
 
-    init(communicator: Communicator,
-         encoding: EncodingVersion = currentEncoding,
-         inputStream handle: ICEInputStream) {
+    init(communicator: Communicator, inputStream handle: ICEInputStream) {
         self.communicator = communicator
-        self.encoding = encoding
+        self.encoding = currentEncoding // TODO should we get encoding from ICEInputStream?
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0

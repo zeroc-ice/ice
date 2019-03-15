@@ -15,6 +15,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     let initData: InitializationData
     let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
+    let defaultsAndOverrides: DefaultsAndOverrides
 
     //    required init(initData: InitializationData) {
     //        if let enc = initData.properties?.getProperty(key: "Ice.Default.EncodingVersion"), !enc.isEmpty {
@@ -33,6 +34,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     init(handle: ICECommunicator, initData: InitializationData) {
         self.initData = initData
+        self.defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         super.init(handle: handle)
     }
 
@@ -189,4 +191,18 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         // TODO:
         preconditionFailure("Not yet implemented")
     }
+}
+
+public class DefaultsAndOverrides {
+
+    public init(handle: ICECommunicator) {
+
+        var defaultEncoding = EncodingVersion()
+        handle.getDefaultEncoding(major: &defaultEncoding.major, minor: &defaultEncoding.minor)
+        self.defaultEncoding = defaultEncoding
+        self.defaultFormat = FormatType(rawValue: handle.getDefaultFormat())!
+    }
+
+    public let defaultEncoding: EncodingVersion
+    public let defaultFormat: FormatType
 }
