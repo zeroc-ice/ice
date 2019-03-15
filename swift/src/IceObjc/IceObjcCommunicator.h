@@ -39,6 +39,11 @@ NS_SWIFT_NAME(propertyToProxy(property:));
 
 -(ICEProperties*) getProperties;
 
+// DefaultsAndOverrides
+-(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor
+    NS_SWIFT_NAME(getDefaultEncoding(major:minor:));
+-(uint8_t) getDefaultFormat;
+
 @end
 
 #ifdef __cplusplus
