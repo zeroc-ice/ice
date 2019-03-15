@@ -14,15 +14,15 @@ class ImplicitContextI: LocalObject<ICEImplicitContext>, ImplicitContext {
         return _handle.getContext()
     }
 
-    func setContext(newContext: Context) {
+    func setContext(_ newContext: Context) {
         _handle.setContext(newContext)
     }
 
-    func containsKey(key: String) -> Bool {
+    func containsKey(_ key: String) -> Bool {
         return _handle.containsKey(key)
     }
 
-    func get(key: String) -> String {
+    func get(_ key: String) -> String {
         return _handle.get(key)
     }
 
@@ -30,7 +30,7 @@ class ImplicitContextI: LocalObject<ICEImplicitContext>, ImplicitContext {
         return _handle.put(key, value: value)
     }
 
-    func remove(key: String) -> String {
+    func remove(_ key: String) -> String {
         return _handle.remove(key)
     }
 }

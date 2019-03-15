@@ -10,7 +10,7 @@
 import IceObjc
 
 class PropertiesI: LocalObject<ICEProperties>, Properties {
-    public func getProperty(key: String) -> String {
+    public func getProperty(_ key: String) -> String {
         return _handle.getProperty(key)
     }
 
@@ -18,7 +18,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         return _handle.getPropertyWithDefault(key, value: value)
     }
 
-    public func getPropertyAsInt(key: String) -> Int32 {
+    public func getPropertyAsInt(_ key: String) -> Int32 {
         return _handle.getPropertyAsInt(key)
     }
 
@@ -26,7 +26,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         return _handle.getPropertyAsInt(withDefault: key, value: value)
     }
 
-    public func getPropertyAsList(key: String) -> StringSeq {
+    public func getPropertyAsList(_ key: String) -> StringSeq {
         return _handle.getPropertyAsList(key)
     }
 
@@ -34,7 +34,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         return _handle.getPropertyAsList(withDefault: key, value: value)
     }
 
-    public func getPropertiesForPrefix(prefix: String) -> PropertyDict {
+    public func getPropertiesForPrefix(_ prefix: String) -> PropertyDict {
         return _handle.getPropertiesForPrefix(prefix)
     }
 
@@ -54,13 +54,13 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         }
     }
 
-    public func parseIceCommandLineOptions(options: StringSeq) throws -> StringSeq {
+    public func parseIceCommandLineOptions(_ options: StringSeq) throws -> StringSeq {
         return try autoreleasepool {
             try _handle.parseIceCommandLineOptions(options)
         }
     }
 
-    public func load(file: String) throws {
+    public func load(_ file: String) throws {
         return try autoreleasepool {
             try _handle.load(file)
         }

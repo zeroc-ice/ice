@@ -21,7 +21,7 @@ class ValueFactoryManagerI: ValueFactoryManager {
         }
     }
 
-    func find(id: String) -> ValueFactory? {
+    func find(_ id: String) -> ValueFactory? {
         return mutex.sync {
             factories[id]
         }

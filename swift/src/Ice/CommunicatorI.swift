@@ -54,7 +54,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return _handle.isShutdown()
     }
 
-    func stringToProxy(str: String) throws -> ObjectPrx? {
+    func stringToProxy(_ str: String) throws -> ObjectPrx? {
         return try autoreleasepool {
             guard let prxHandle = try _handle.string(toProxy: str) as? ICEObjectPrx else {
                 return nil
@@ -63,11 +63,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func proxyToString(obj: ObjectPrx) throws -> String {
+    func proxyToString(_ obj: ObjectPrx) throws -> String {
         return try _handle.proxy(toString: obj.impl.handle)
     }
 
-    func propertyToProxy(property: String) throws -> ObjectPrx? {
+    func propertyToProxy(_ property: String) throws -> ObjectPrx? {
         return try autoreleasepool {
             guard let handle = try _handle.propertyToProxy(property: property) as? ICEObjectPrx else {
                 return nil
@@ -80,15 +80,15 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return try _handle.proxy(toProperty: proxy.impl.handle, property: property)
     }
 
-    func stringToIdentity(str: String) throws -> Identity {
+    func stringToIdentity(_ str: String) throws -> Identity {
         return try Ice.stringToIdentity(string: str)
     }
 
-    func identityToString(ident: Identity) throws -> String {
+    func identityToString(_ ident: Identity) throws -> String {
         return try Ice.identityToString(identity: ident)
     }
 
-    func createObjectAdapter(name _: String) throws -> ObjectAdapter {
+    func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
         preconditionFailure("TODO")
 //        return try _handle.createObjectAdapter(name)
     }
@@ -139,7 +139,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return _RouterPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
-    func setDefaultRouter(rtr: RouterPrx?) throws {
+    func setDefaultRouter(_ rtr: RouterPrx?) throws {
         try _handle.setDefaultRouter((rtr as? _RouterPrxI)?.handle)
     }
 
@@ -150,7 +150,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return _LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
-    func setDefaultLocator(loc: LocatorPrx?) throws {
+    func setDefaultLocator(_ loc: LocatorPrx?) throws {
         try _handle.setDefaultRouter((loc as? _LocatorPrxI)?.handle)
     }
 
@@ -158,7 +158,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return valueFactoryManager
     }
 
-    func flushBatchRequests(compress: CompressBatch) throws {
+    func flushBatchRequests(_ compress: CompressBatch) throws {
         try _handle.flushBatchRequests(compress.rawValue)
     }
 
@@ -177,12 +177,12 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         preconditionFailure("Not yet implemented")
     }
 
-    func removeAdminFacet(facet _: String) throws -> Object {
+    func removeAdminFacet(_ facet: String) throws -> Object {
         // TODO:
         preconditionFailure("Not yet implemented")
     }
 
-    func findAdminFacet(facet _: String) throws -> Object? {
+    func findAdminFacet(_ facet: String) throws -> Object? {
         // TODO:
         preconditionFailure("Not yet implemented")
     }

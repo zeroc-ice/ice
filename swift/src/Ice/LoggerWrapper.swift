@@ -17,55 +17,55 @@ class LoggerWrapper: ICELoggerProtocol {
         self.impl = impl
     }
 
-    func print(message: String) {
-        impl.print(message: message)
+    func print(_ message: String) {
+        impl.print(message)
     }
 
     func trace(category: String, message: String) {
         impl.trace(category: category, message: message)
     }
 
-    func warning(message: String) {
-        impl.warning(message: message)
+    func warning(_ message: String) {
+        impl.warning(message)
     }
 
-    func error(message: String) {
-        impl.error(message: message)
+    func error(_ message: String) {
+        impl.error(message)
     }
 
     func getPrefix() -> String {
         return impl.getPrefix()
     }
 
-    func cloneWithPrefix(prefix: String) -> Any {
-        return impl.cloneWithPrefix(prefix: prefix)
+    func cloneWithPrefix(_ prefix: String) -> Any {
+        return impl.cloneWithPrefix(prefix)
     }
 }
 
 // Wrapps Ice C++ logger
 class ObjcLoggerWrapper: LocalObject<ICELogger>, Logger {
-    func print(message: String) {
-        _handle.print(message: message)
+    func print(_ message: String) {
+        _handle.print(message)
     }
 
     func trace(category: String, message: String) {
         _handle.trace(category: category, message: message)
     }
 
-    func warning(message: String) {
-        _handle.warning(message: message)
+    func warning(_ message: String) {
+        _handle.warning(message)
     }
 
-    func error(message: String) {
-        _handle.error(message: message)
+    func error(_ message: String) {
+        _handle.error(message)
     }
 
     func getPrefix() -> String {
         return _handle.getPrefix()
     }
 
-    func cloneWithPrefix(prefix: String) -> Logger {
+    func cloneWithPrefix(_ prefix: String) -> Logger {
         // swiftlint:disable force_cast
-        return ObjcLoggerWrapper(handle: _handle.cloneWithPrefix(prefix: prefix) as! ICELogger)
+        return ObjcLoggerWrapper(handle: _handle.cloneWithPrefix(prefix) as! ICELogger)
     }
 }

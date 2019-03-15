@@ -11,11 +11,11 @@ public class Client: TestHelperI {
         do {
             writer.write("testing load properties from UTF-8 path... ")
             let (properties, _) = try Ice.createProperties()
-            try properties.load(file: "./config/中国_client.config")
-            try test(properties.getProperty(key: "Ice.Trace.Network") == "1")
-            try test(properties.getProperty(key: "Ice.Trace.Protocol") == "1")
-            try test(properties.getProperty(key: "Config.Path") == "./config/中国_client.config")
-            try test(properties.getProperty(key: "Ice.ProgramName") == "PropertiesClient")
+            try properties.load("./config/中国_client.config")
+            try test(properties.getProperty("Ice.Trace.Network") == "1")
+            try test(properties.getProperty("Ice.Trace.Protocol") == "1")
+            try test(properties.getProperty("Config.Path") == "./config/中国_client.config")
+            try test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
             writer.writeLine("ok")
         }
 
@@ -23,9 +23,9 @@ public class Client: TestHelperI {
             writer.write("testing using Ice.Config with multiple config files... ")
             let args1 = ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
             let (properties, _) = try Ice.createProperties(args: args1)
-            try test(properties.getProperty(key: "Config1") == "Config1")
-            try test(properties.getProperty(key: "Config2") == "Config2")
-            try test(properties.getProperty(key: "Config3") == "Config3")
+            try test(properties.getProperty("Config1") == "Config1")
+            try test(properties.getProperty("Config2") == "Config2")
+            try test(properties.getProperty("Config3") == "Config3")
             writer.writeLine("ok")
         }
 
@@ -57,7 +57,7 @@ public class Client: TestHelperI {
                          ("BServer", "\\server\\dir")]
 
             for prop in props {
-                try test(properties.getProperty(key: prop.0) == prop.1)
+                try test(properties.getProperty(prop.0) == prop.1)
             }
             writer.writeLine("ok")
         }

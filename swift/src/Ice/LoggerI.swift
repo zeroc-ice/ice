@@ -21,7 +21,7 @@ class LoggerI: Logger {
         self.prefix = prefix
     }
 
-    func print(message: String) {
+    func print(_ message: String) {
         os_log("%{public}s", log: log, type: .default, message)
     }
 
@@ -30,11 +30,11 @@ class LoggerI: Logger {
         os_log("%{public}s", log: tLog, type: .info, message)
     }
 
-    func warning(message: String) {
+    func warning(_ message: String) {
         os_log("%{public}s", log: log, type: .error, message)
     }
 
-    func error(message: String) {
+    func error(_ message: String) {
         os_log("%{public}s", log: log, type: .fault, message)
     }
 
@@ -42,7 +42,7 @@ class LoggerI: Logger {
         return prefix
     }
 
-    func cloneWithPrefix(prefix: String) -> Logger {
+    func cloneWithPrefix(_ prefix: String) -> Logger {
         return LoggerI(prefix: prefix)
     }
 }
@@ -50,7 +50,7 @@ class LoggerI: Logger {
 // This extension adds an additional clone so that LoggerI cann be used with ObjC's ICELogger
 // without needing to use LoggerWrapper
 extension LoggerI: ICELoggerProtocol {
-    func cloneWithPrefix(prefix: String) -> Any {
+    func cloneWithPrefix(_ prefix: String) -> Any {
         return LoggerI(prefix: prefix)
     }
 }

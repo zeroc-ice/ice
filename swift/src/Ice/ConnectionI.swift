@@ -14,11 +14,11 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         return toString()
     }
 
-    public func close(mode: ConnectionClose) {
+    public func close(_ mode: ConnectionClose) {
         _handle.close(mode.rawValue)
     }
 
-    public func createProxy(id: Identity) throws -> ObjectPrx? {
+    public func createProxy(_ id: Identity) throws -> ObjectPrx? {
         return try autoreleasepool {
             //
             // Returns Any which is either NSNull or ICEObjectPrx
@@ -30,7 +30,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
-    public func setAdapter(adapter _: ObjectAdapter?) throws {
+    public func setAdapter(_ adapter: ObjectAdapter?) throws {
         return autoreleasepool {
             preconditionFailure("not implemented yet")
         }
@@ -44,13 +44,13 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         return EndpointI(handle: _handle.getEndpoint())
     }
 
-    public func flushBatchRequests(compress: CompressBatch) throws {
+    public func flushBatchRequests(_ compress: CompressBatch) throws {
         return try autoreleasepool {
             try _handle.flushBatchRequests(compress.rawValue)
         }
     }
 
-    public func setCloseCallback(callback: CloseCallback?) throws {
+    public func setCloseCallback(_ callback: CloseCallback?) throws {
         return try autoreleasepool {
             guard let cb = callback else {
                 try _handle.setCloseCallback(nil)
@@ -64,7 +64,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
-    public func setHeartbeatCallback(callback: HeartbeatCallback?) throws {
+    public func setHeartbeatCallback(_ callback: HeartbeatCallback?) throws {
         return try autoreleasepool {
             guard let cb = callback else {
                 try _handle.setHeartbeatCallback(nil)

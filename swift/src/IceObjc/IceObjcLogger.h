@@ -12,12 +12,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol ICELoggerProtocol
--(void) print:(NSString*)message NS_SWIFT_NAME(print(message:));
+-(void) print:(NSString*)message NS_SWIFT_NAME(print(_:));
 -(void) trace:(NSString*)category message:(NSString*)message NS_SWIFT_NAME(trace(category:message:));
--(void) warning:(NSString*)message NS_SWIFT_NAME(warning(message:));
--(void) error:(NSString*)message NS_SWIFT_NAME(error(message:));
+-(void) warning:(NSString*)message NS_SWIFT_NAME(warning(_:));
+-(void) error:(NSString*)message NS_SWIFT_NAME(error(_:));
 -(NSString*) getPrefix;
--(id) cloneWithPrefix:(NSString*)prefix NS_SWIFT_NAME(cloneWithPrefix(prefix:));
+-(id) cloneWithPrefix:(NSString*)prefix NS_SWIFT_NAME(cloneWithPrefix(_:));
 @end
 
 @interface ICELogger: ICELocalObject<ICELoggerProtocol>

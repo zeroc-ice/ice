@@ -147,7 +147,7 @@ public class Client: TestHelperI {
             s.d = 6.0
             s.str = "7"
             s.e = MyEnum.enum2
-            s.p = uncheckedCast(prx: try communicator.stringToProxy(str: "test:default")!,
+            s.p = uncheckedCast(prx: try communicator.stringToProxy("test:default")!,
                                 type: MyInterfacePrx.self)
             outS.write(s)
             let data = outS.finished()
@@ -183,7 +183,7 @@ public class Client: TestHelperI {
             try inS.readPendingValues()
             try test(o2!.bo == o.bo)
             try test(o2!.by == o.by)
-            if communicator.getProperties().getProperty(key: "Ice.Default.EncodingVersion") == "1.0" {
+            if communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0" {
                 try test(o2!.sh == nil)
                 try test(o2!.i == nil)
             } else {
@@ -386,7 +386,7 @@ public class Client: TestHelperI {
             smallStructArray[i].d = 6.0
             smallStructArray[i].str = "7"
             smallStructArray[i].e = MyEnum.enum2
-            smallStructArray[i].p = uncheckedCast(prx: try communicator.stringToProxy(str: "test:default")!,
+            smallStructArray[i].p = uncheckedCast(prx: try communicator.stringToProxy("test:default")!,
                                                   type: MyInterfacePrx.self)
         }
 

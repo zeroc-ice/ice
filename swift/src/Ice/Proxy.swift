@@ -13,35 +13,35 @@ import PromiseKit
 public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getCommunicator() -> Communicator
     func ice_getIdentity() -> Identity
-    func ice_identity(id: Identity) throws -> Self
+    func ice_identity(_ id: Identity) throws -> Self
     func ice_getContext() -> Context
-    func ice_context(context: Context) -> Self
+    func ice_context(_ context: Context) -> Self
     func ice_getFacet() -> String
-    func ice_facet(facet: String) -> ObjectPrx
+    func ice_facet(_ facet: String) -> ObjectPrx
     func ice_getAdapterId() -> String
-    func ice_adapterId(id: String) throws -> Self
+    func ice_adapterId(_ id: String) throws -> Self
     func ice_getEndpoints() -> [Endpoint]
-    func ice_endpoints(endpoints: [Endpoint]) throws -> Self
+    func ice_endpoints(_ endpoints: [Endpoint]) throws -> Self
     func ice_getLocatorCacheTimeout() -> Int32
-    func ice_locatorCacheTimeout(timeout: Int32) throws -> Self
+    func ice_locatorCacheTimeout(_ timeout: Int32) throws -> Self
     func ice_getInvocationTimeout() -> Int32
-    func ice_invocationTimeout(timeout: Int32) throws -> Self
+    func ice_invocationTimeout(_ timeout: Int32) throws -> Self
     func ice_getConnectionId() -> String
-    func ice_connectionId(id: String) throws -> Self
+    func ice_connectionId(_ id: String) throws -> Self
     func ice_isConnectionCached() -> Bool
-    func ice_connectionCached(cached: Bool) throws -> Self
+    func ice_connectionCached(_ cached: Bool) throws -> Self
     func ice_getEndpointSelection() -> EndpointSelectionType
-    func ice_endpointSelection(type: EndpointSelectionType) throws -> Self
+    func ice_endpointSelection(_ type: EndpointSelectionType) throws -> Self
     func ice_getEncodingVersion() -> EncodingVersion
-    func ice_encodingVersion(encoding: EncodingVersion) -> Self
+    func ice_encodingVersion(_ encoding: EncodingVersion) -> Self
     func ice_getRouter() -> RouterPrx?
-    func ice_router(router: RouterPrx?) throws -> Self
+    func ice_router(_ router: RouterPrx?) throws -> Self
     func ice_getLocator() -> LocatorPrx?
-    func ice_locator(locator: LocatorPrx?) throws -> Self
+    func ice_locator(_ locator: LocatorPrx?) throws -> Self
     func ice_isSecure() -> Bool
-    func ice_secure(secure: Bool) -> Self
+    func ice_secure(_ secure: Bool) -> Self
     func ice_isPreferSecure() -> Bool
-    func ice_preferSecure(preferSecure: Bool) throws -> Self
+    func ice_preferSecure(_ preferSecure: Bool) throws -> Self
     func ice_isTwoway() -> Bool
     func ice_twoway() -> Self
     func ice_isOneway() -> Bool
@@ -53,16 +53,16 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_isBatchDatagram() -> Bool
     func ice_batchDatagram() -> Self
     func ice_getCompress() -> Bool?
-    func ice_compress(compress: Bool) -> Self
+    func ice_compress(_ compress: Bool) -> Self
     func ice_getTimeout() -> Int32?
-    func ice_timeout(timeout: Int32) throws -> Self
-    func ice_fixed(connection: Connection) throws -> ObjectPrx?
+    func ice_timeout(_ timeout: Int32) throws -> Self
+    func ice_fixed(_ connection: Connection) throws -> ObjectPrx?
     func ice_getConnection() throws -> Connection?
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
-    func ice_collocationOptimized(collocated: Bool) throws -> ObjectPrx?
+    func ice_collocationOptimized(_ collocated: Bool) throws -> ObjectPrx?
 
     func ice_invoke(operation: String,
                     mode: OperationMode,
@@ -275,7 +275,7 @@ open class _ObjectPrxI: ObjectPrx {
         return Identity(name: name as String, category: category as String)
     }
 
-    public func ice_identity(id: Identity) throws -> Self {
+    public func ice_identity(_ id: Identity) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category))
         }
@@ -285,7 +285,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_getContext() as Context
     }
 
-    public func ice_context(context: Context) -> Self {
+    public func ice_context(_ context: Context) -> Self {
         return fromICEObjectPrx(handle.ice_context(context))
     }
 
@@ -293,7 +293,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_getFacet()
     }
 
-    public func ice_facet(facet: String) -> ObjectPrx {
+    public func ice_facet(_ facet: String) -> ObjectPrx {
         return fromICEObjectPrx(handle.ice_facet(facet))
     }
 
@@ -301,7 +301,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_getAdapterId()
     }
 
-    public func ice_adapterId(id: String) throws -> Self {
+    public func ice_adapterId(_ id: String) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_adapterId(id))
         }
@@ -313,7 +313,7 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    public func ice_endpoints(endpoints: [Endpoint]) throws -> Self {
+    public func ice_endpoints(_ endpoints: [Endpoint]) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_endpoints(endpoints.map { ($0 as! EndpointI)._handle }))
         }
@@ -323,7 +323,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_getLocatorCacheTimeout()
     }
 
-    public func ice_locatorCacheTimeout(timeout: Int32) throws -> Self {
+    public func ice_locatorCacheTimeout(_ timeout: Int32) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout))
         }
@@ -333,7 +333,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_getInvocationTimeout()
     }
 
-    public func ice_invocationTimeout(timeout: Int32) throws -> Self {
+    public func ice_invocationTimeout(_ timeout: Int32) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_invocationTimeout(timeout))
         }
@@ -343,7 +343,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_getConnectionId()
     }
 
-    public func ice_connectionId(id: String) throws -> Self {
+    public func ice_connectionId(_ id: String) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_connectionId(id))
         }
@@ -353,7 +353,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_isConnectionCached()
     }
 
-    public func ice_connectionCached(cached: Bool) throws -> Self {
+    public func ice_connectionCached(_ cached: Bool) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_connectionCached(cached))
         }
@@ -363,7 +363,7 @@ open class _ObjectPrxI: ObjectPrx {
         return EndpointSelectionType(rawValue: handle.ice_getEndpointSelection())!
     }
 
-    public func ice_endpointSelection(type: EndpointSelectionType) throws -> Self {
+    public func ice_endpointSelection(_ type: EndpointSelectionType) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_endpointSelection(type.rawValue))
         }
@@ -373,7 +373,7 @@ open class _ObjectPrxI: ObjectPrx {
         return encoding
     }
 
-    public func ice_encodingVersion(encoding: EncodingVersion) -> Self {
+    public func ice_encodingVersion(_ encoding: EncodingVersion) -> Self {
         return fromICEObjectPrx(handle.ice_encodingVersion(encoding.major, minor: encoding.minor))
     }
 
@@ -384,7 +384,7 @@ open class _ObjectPrxI: ObjectPrx {
         return fromICEObjectPrx(routerHandle) as _RouterPrxI
     }
 
-    public func ice_router(router: RouterPrx?) throws -> Self {
+    public func ice_router(_ router: RouterPrx?) throws -> Self {
         return try autoreleasepool {
             let r = router as? _RouterPrxI
             return try fromICEObjectPrx(handle.ice_router(r?.handle ?? nil))
@@ -398,7 +398,7 @@ open class _ObjectPrxI: ObjectPrx {
         return fromICEObjectPrx(locatorHandle) as _LocatorPrxI
     }
 
-    public func ice_locator(locator: LocatorPrx?) throws -> Self {
+    public func ice_locator(_ locator: LocatorPrx?) throws -> Self {
         return try autoreleasepool {
             let l = locator as? _LocatorPrxI
             return try fromICEObjectPrx(handle.ice_locator(l?.handle ?? nil))
@@ -409,7 +409,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_isSecure()
     }
 
-    public func ice_secure(secure: Bool) -> Self {
+    public func ice_secure(_ secure: Bool) -> Self {
         return fromICEObjectPrx(handle.ice_secure(secure))
     }
 
@@ -417,7 +417,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_isPreferSecure()
     }
 
-    public func ice_preferSecure(preferSecure: Bool) throws -> Self {
+    public func ice_preferSecure(_ preferSecure: Bool) throws -> Self {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_preferSecure(preferSecure))
         }
@@ -470,7 +470,7 @@ open class _ObjectPrxI: ObjectPrx {
         return compress
     }
 
-    public func ice_compress(compress: Bool) -> Self {
+    public func ice_compress(_ compress: Bool) -> Self {
         return fromICEObjectPrx(handle.ice_compress(compress))
     }
 
@@ -481,11 +481,11 @@ open class _ObjectPrxI: ObjectPrx {
         return timeout
     }
 
-    public func ice_timeout(timeout: Int32) throws -> Self {
+    public func ice_timeout(_ timeout: Int32) throws -> Self {
         return try fromICEObjectPrx(handle.ice_timeout(timeout))
     }
 
-    public func ice_fixed(connection: Connection) throws -> ObjectPrx? {
+    public func ice_fixed(_ connection: Connection) throws -> ObjectPrx? {
         return try autoreleasepool {
             try fromICEObjectPrx(handle.ice_fixed((connection as! ConnectionI)._handle)) as _ObjectPrxI
         }
@@ -528,7 +528,7 @@ open class _ObjectPrxI: ObjectPrx {
         return handle.ice_isCollocationOptimized()
     }
 
-    public func ice_collocationOptimized(collocated: Bool) throws -> ObjectPrx? {
+    public func ice_collocationOptimized(_ collocated: Bool) throws -> ObjectPrx? {
         return try fromICEObjectPrx(handle.ice_collocationOptimized(collocated))
     }
 
@@ -704,7 +704,7 @@ open class _ObjectPrxI: ObjectPrx {
                                               facet: String? = nil,
                                               context: Context? = nil) throws -> ProxyImpl?
         where ProxyImpl: _ObjectPrxI {
-        let objPrx = facet != nil ? prx.ice_facet(facet: facet!) : prx
+        let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
         guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
             return nil
         }
@@ -714,7 +714,7 @@ open class _ObjectPrxI: ObjectPrx {
     public static func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
                                                 facet: String? = nil,
                                                 context _: Context? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
-        let objPrx = facet != nil ? prx.ice_facet(facet: facet!) : prx
+        let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
         return ProxyImpl(from: objPrx)
     }
 }

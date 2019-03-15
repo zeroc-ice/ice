@@ -36,7 +36,7 @@ public func initialize(args: StringSeq = [],
         }
 
         if configFile != nil {
-            try initData.properties!.load(file: configFile!)
+            try initData.properties!.load(configFile!)
         }
 
         let propsHandle = (initData.properties as? PropertiesI)?._handle
@@ -87,6 +87,6 @@ public func identityToString(identity: Identity, mode: ToStringMode = ToStringMo
 public let Encoding_1_0 = Protocol.Encoding_1_0
 public let Encoding_1_1 = Protocol.Encoding_1_1
 
-public func encodingVersionToString(encoding: EncodingVersion) -> String {
+public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
     return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
 }

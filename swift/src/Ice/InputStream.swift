@@ -888,7 +888,7 @@ extension EncapsDecoder {
         //
         // Try to find a factory registered for the specific type.
         //
-        if let factory = valueFactoryManager.find(id: typeId) {
+        if let factory = valueFactoryManager.find(typeId) {
             if let v = factory(typeId) {
                 return v
             }
@@ -898,7 +898,7 @@ extension EncapsDecoder {
         // If that fails, invoke the default factory if one has been
         // registered.
         //
-        if let factory = valueFactoryManager.find(id: "") {
+        if let factory = valueFactoryManager.find("") {
             if let v = factory(typeId) {
                 return v
             }

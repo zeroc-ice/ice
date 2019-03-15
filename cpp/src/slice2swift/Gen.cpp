@@ -1231,23 +1231,25 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
 {
     const string name = fixIdent(p->name());
     ParamDeclList params = p->parameters();
+    ParamDeclList inParams = p->inParameters();
 
     int typeCtx = TypeContextInParam | TypeContextLocal;
 
     out << sp;
     out << nl << "func " << name;
     out << spar;
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)
     {
         ParamDeclPtr param = *i;
-        if(!param->isOutParam())
+        TypePtr type = param->type();
+        ostringstream s;
+        if(inParams.size() == 1)
         {
-            TypePtr type = param->type();
-            ostringstream s;
-            s << fixIdent(param->name()) << ": "
-              << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
-            out << s.str();
+            s << "_ ";
         }
+        s << fixIdent(param->name()) << ": "
+          << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
+        out << s.str();
     }
     out << epar;
 
