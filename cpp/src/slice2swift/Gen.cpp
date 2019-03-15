@@ -20,6 +20,7 @@ using namespace Slice;
 using namespace IceUtilInternal;
 
 Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
+    _out(false), // No break before opening block in Swift
     _includePaths(includePaths)
 {
     _fileBase = base;
@@ -804,6 +805,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string prx = name + "Prx";
     const string prxI = "_" + name + "PrxI";
 
+    out << sp;
     out << nl << "public protocol " << prx << ": "
         << (baseClass ? fixIdent(baseClass->name()) : getUnqualified("Ice.ObjectPrx", swiftModule));
     out << sb;

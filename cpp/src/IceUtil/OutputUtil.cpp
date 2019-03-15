@@ -235,27 +235,30 @@ IceUtilInternal::OutputBase::operator!() const
 // Output
 // ----------------------------------------------------------------------
 
-IceUtilInternal::Output::Output() :
+IceUtilInternal::Output::Output(bool breakBeforeBlock) :
     OutputBase(),
     _blockStart("{"),
     _blockEnd("}"),
-    _par(-1)
+    _par(-1),
+    _breakBeforeBlock(breakBeforeBlock)
 {
 }
 
-IceUtilInternal::Output::Output(ostream& os) :
+IceUtilInternal::Output::Output(ostream& os, bool breakBeforeBlock) :
     OutputBase(os),
     _blockStart("{"),
     _blockEnd("}"),
-    _par(-1)
+    _par(-1),
+    _breakBeforeBlock(breakBeforeBlock)
 {
 }
 
-IceUtilInternal::Output::Output(const char* s) :
+IceUtilInternal::Output::Output(const char* s, bool breakBeforeBlock) :
     OutputBase(s),
     _blockStart("{"),
     _blockEnd("}"),
-    _par(-1)
+    _par(-1),
+    _breakBeforeBlock(breakBeforeBlock)
 {
 }
 
@@ -277,7 +280,14 @@ IceUtilInternal::Output::sb()
 {
     if(_blockStart.length())
     {
-        newline();
+        if(_breakBeforeBlock)
+        {
+            newline();
+        }
+        else
+        {
+            _out << ' ';
+        }
         _out << _blockStart;
     }
     ++_pos;
