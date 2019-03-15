@@ -47,7 +47,7 @@ internal final class Buffer {
         _position += bytes.count
     }
 
-    func skip<T>(count: T) throws where T: BinaryInteger {
+    func skip<T>(_ count: T) throws where T: BinaryInteger {
         let c = Int(count)
         //
         // Skip is allowed to jump to the "end" of the buffer (c + position == capacity)
@@ -64,7 +64,11 @@ internal final class Buffer {
     }
 
     func position<T>(_ count: T) throws where T: BinaryInteger {
-        guard count >= 0, count < capacity  else {
+        //
+        // Position is allowed to jump to the "end" of the buffer (count == capacity)
+        // No more bytes can be read after this
+        //
+        guard count >= 0, count <= capacity  else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to set position outiside buffer")
         }
         _position = Int(count)

@@ -168,7 +168,7 @@ public class InputStream {
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
             //
-            try buf.position(buf.position() + sz + 6)
+            try buf.skip(sz - 6)
         }
     }
 
@@ -276,13 +276,13 @@ public class InputStream {
     }
 
     public func skip(_ count: Int32) throws {
-        try buf.skip(count: Int(count))
+        try buf.skip(count)
     }
 
     public func skipSize() throws {
         let b: UInt8 = try read()
         if b == 255 {
-            try buf.skip(count: 4)
+            try buf.skip(4)
         }
     }
 

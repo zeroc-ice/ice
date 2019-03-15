@@ -557,7 +557,7 @@ open class _ObjectPrxI: ObjectPrx {
 
         // Since the proxy was read in C++ we need to skip over the bytes which were read
         // We avoid using a defer statment for this since you can not throw from one
-        try buf.skip(count: bytesRead)
+        try buf.skip(bytesRead)
 
         guard let handle = handleOpt else {
             return nil
