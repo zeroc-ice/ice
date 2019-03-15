@@ -1112,12 +1112,247 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
     return true;
 }
 
+void
+SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const OperationPtr& op, bool async)
+{
+    const string opName = fixIdent(op->name()) + (async ? "Async" : "");
+    TypePtr returnType = op->returnType();
+
+    ParamDeclList paramList = op->parameters();
+    ParamDeclList inParams = op->inParameters();
+    ParamDeclList outParams = op->outParameters();
+
+    ParamDeclList requiredInParams, optionalInParams;
+    ParamDeclList requiredOutParams, optionalOutParams;
+    op->inParameters(requiredInParams, optionalInParams);
+    op->outParameters(requiredOutParams, optionalOutParams);
+
+    ExceptionList throws = op->throws();
+    throws.sort();
+    throws.unique();
+
+    const bool twowayOnly = op->returnsData();
+    const bool useInputStream = !op->outParameters().empty() || returnType;
+
+    out << sp;
+    out << nl << "func " << opName;
+    out << spar;
+    const string omitLabel = inParams.size() == 1 ? "_ " : "";
+    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        out << (omitLabel + param->name() + ": " + typeToString(param->type(), param));
+    }
+    // context
+    out << "context: Context? = nil";
+    if(async)
+    {
+        out << "sent: ((Bool) -> Void)? = nil";
+    }
+    out << epar;
+
+    out << " throws";
+    if(useInputStream || async)
+    {
+        out << " -> ";
+        // Async operations always return a Promise
+        if(async)
+        {
+            out << "PromiseKit.Promise<";
+        }
+    }
+
+    if(useInputStream)
+    {
+        StringList returnTypes;
+        if(returnType) // return parameter first
+        {
+            returnTypes.push_back(typeToString(returnType, op));
+        }
+        for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            ParamDeclPtr param = *q;
+            returnTypes.push_back(typeToString(param->type(), param, param->getMetaData(), param->optional()));
+        }
+
+        if(returnTypes.size() == 1)
+        {
+            out << returnTypes.front();
+        }
+        else
+        {
+            out << spar;
+            if(returnType)
+            {
+                out << typeToString(returnType, op);
+            }
+            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                ParamDeclPtr param = *q;
+                out << typeToString(param->type(), param, param->getMetaData(), param->optional());
+            }
+            out << epar;
+        }
+
+        if(async)
+        {
+            out << ">";
+        }
+    }
+    else if(async)
+    {
+        out << "Void>";
+    }
+
+    out << sb;
+
+    //
+    // Marshal parameters
+    // 1. required
+    // 2. optional
+    //
+    out << nl << "let ostr = impl._createOutputStream()";
+    out << nl << "ostr.startEncapsulation()";
+    for(ParamDeclList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true);
+    }
+    for(ParamDeclList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        assert(param->optional());
+        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true, param->tag());
+    }
+    out << nl << "ostr.endEncapsulation()";
+
+    //
+    // Invoke
+    //
+    out << sp;
+    out << nl;
+
+    if(async)
+    {
+         out << "return impl._invokeAsync(";
+    }
+    else
+    {
+        out << "let " << (useInputStream ? "istr " : "_ ");
+        out << "= try impl._invoke(";
+    }
+
+    out.useCurrentPosAsIndent();
+    out << "operation: \"" << fixIdent(op->name()) << "\",";
+    out << nl << "mode: " << modeToString(op->mode()) << ",";
+    out << nl << "twowayOnly: " << (twowayOnly ? "true" : "false") << ",";
+    out << nl << "inParams: ostr,";
+    out << nl << "hasOutParams: " << (useInputStream ? "true" : "false") << ",";
+    out << nl << "exceptions: ";
+    out << "[";
+    for(ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
+    {
+        ExceptionPtr ex = *q;
+        const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(ex)));
+        out << getUnqualified(getAbsolute(ex), swiftModule) << ".self";
+        if(q != throws.end())
+        {
+            out << ',';
+        }
+    }
+    out << "],";
+    out << nl << "context: context";
+    out <<  ")";
+    out.restoreIndent();
+
+    //
+    // Unmarshal parameters
+    // 1. required
+    // 2. return
+    // 3. optional (including optional return)
+    //
+    if(async && !useInputStream)
+    {
+        out << sb;
+        out << " _ in";
+        out << eb;
+    }
+    if(useInputStream)
+    {
+        if(async)
+        {
+            out << sb;
+            out << " istr in";
+        }
+        out << sp;
+        StringList returnVals;
+        for(ParamDeclList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+        {
+            ParamDeclPtr param = *q;
+            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+            writeMarshalUnmarshalCode(out, param, topLevel, false, true, false);
+            returnVals.push_back((*q)->name());
+        }
+
+        // If the return type is optional we unmarshal it with the rest of the optional params (in order)
+        if(returnType && !op->returnIsOptional())
+        {
+            writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false);
+            returnVals.push_front("ret");
+        }
+
+        bool optReturnUnmarshaled = false;
+        for(ParamDeclList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+        {
+            ParamDeclPtr param = *q;
+            assert(param->optional());
+
+            if(returnType && op->returnIsOptional() && !optReturnUnmarshaled && (op->returnTag() < param->tag()))
+            {
+                writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, op->returnTag());
+                returnVals.push_front("ret");
+                optReturnUnmarshaled = true;
+            }
+
+            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+            writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, param->tag());
+            returnVals.push_back((*q)->name());
+        }
+
+        out << sp;
+        out << nl << "return ";
+        if(returnVals.size() == 1)
+        {
+            out << returnVals.front();
+        }
+        else
+        {
+            out << spar;
+            for(StringList::const_iterator q = returnVals.begin(); q != returnVals.end(); ++q)
+            {
+                out << *q;
+            }
+            out << epar;
+        }
+
+        if(async)
+        {
+            out << eb;
+        }
+    }
+
+    out << eb;
+}
+
 bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     validate(p);
     return true;
 }
+
 bool
 SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {

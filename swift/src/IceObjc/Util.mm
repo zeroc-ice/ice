@@ -12,6 +12,20 @@
 #import "IceObjcUtil.h"
 
 NSError*
+convertException(const std::exception_ptr& excPtr)
+{
+    try
+    {
+        std::rethrow_exception(excPtr);
+    }
+    catch(const std::exception& exc)
+    {
+        return convertException(exc);
+    }
+    assert(false);
+}
+
+NSError*
 convertException(const std::exception& exc)
 {
     if(dynamic_cast<const Ice::LocalException*>(&exc))

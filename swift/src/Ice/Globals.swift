@@ -10,17 +10,18 @@
 import IceObjc
 
 // Factories are registed once, when this file is loaded
-let factoriesInitialized: Bool = {
+private let initialized: Bool = {
     ICEUtil.registerFactories(localException: LocalExceptionFactory.self,
                               connectionInfo: ConnectionInfoFactory.self,
                               endpointInfo: EndpointInfoFactory.self)
+    return true
 }()
 
 public func initialize(args: StringSeq = [],
                        initData userInitData: InitializationData? = nil,
                        configFile: String? = nil) throws -> Communicator {
     // Ensure factores are initialized
-    precondition(factoriesInitialized)
+    precondition(initialized)
 
     return try autoreleasepool {
         var initData = userInitData ?? InitializationData()

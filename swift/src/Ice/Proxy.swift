@@ -97,48 +97,103 @@ public extension ObjectPrx {
                              hasOutParams: false)
     }
 
+    func ice_pingAsync() -> Promise<Void> {
+        return impl._invokeAsync(operation: "ice_ping",
+                                        mode: OperationMode.Nonmutating,
+                                        twowayOnly: false,
+                                        inParams: nil,
+                                        hasOutParams: false) { _ in }
+    }
+
     func ice_isA(id: String, context: Context? = nil) throws -> Bool {
         let impl = self as! _ObjectPrxI
         let os = impl._createOutputStream()
         os.startEncapsulation()
         os.write(id)
         os.endEncapsulation()
-        let ins = try impl._invoke(operation: "ice_isA",
+        let istr = try impl._invoke(operation: "ice_isA",
                                    mode: .Nonmutating,
                                    twowayOnly: true,
                                    inParams: os,
                                    hasOutParams: true,
                                    context: context)
-        try ins.startEncapsulation()
-        let r: Bool = try ins.read()
-        try ins.endEncapsulation()
+        try istr.startEncapsulation()
+        let r: Bool = try istr.read()
+        try istr.endEncapsulation()
         return r
     }
 
+    func ice_isAAsync(id: String, context: Context? = nil) -> Promise<Bool> {
+        let impl = self as! _ObjectPrxI
+        let os = impl._createOutputStream()
+        os.startEncapsulation()
+        os.write(id)
+        os.endEncapsulation()
+        return impl._invokeAsync(operation: "ice_isA",
+                                 mode: .Nonmutating,
+                                 twowayOnly: true,
+                                 inParams: os,
+                                 hasOutParams: true,
+                                 context: context) { istr in
+                                    try istr.startEncapsulation()
+                                    let r: Bool = try istr.read()
+                                    try istr.endEncapsulation()
+                                    return r
+        }
+    }
+
     func ice_id(context: Context? = nil) throws -> String {
-        let ins = try impl._invoke(operation: "ice_id",
+        let istr = try impl._invoke(operation: "ice_id",
                                    mode: .Nonmutating,
                                    twowayOnly: true,
                                    inParams: nil,
                                    hasOutParams: true,
                                    context: context)
-        try ins.startEncapsulation()
-        let id: String = try ins.read()
-        try ins.endEncapsulation()
+        try istr.startEncapsulation()
+        let id: String = try istr.read()
+        try istr.endEncapsulation()
         return id
     }
 
+    func ice_idAsync(context: Context? = nil) -> Promise<String> {
+        return impl._invokeAsync(operation: "ice_id",
+                                   mode: .Nonmutating,
+                                   twowayOnly: true,
+                                   inParams: nil,
+                                   hasOutParams: true,
+                                   context: context) { istr in
+            try istr.startEncapsulation()
+            let id: String = try istr.read()
+            try istr.endEncapsulation()
+            return id
+        }
+    }
+
     func ice_ids(context: Context? = nil) throws -> StringSeq {
-        let ins = try impl._invoke(operation: "ice_ids",
+        let istr = try impl._invoke(operation: "ice_ids",
                                    mode: .Nonmutating,
                                    twowayOnly: true,
                                    inParams: nil,
                                    hasOutParams: true,
                                    context: context)
-        try ins.startEncapsulation()
-        let id: StringSeq = try ins.read()
-        try ins.endEncapsulation()
+        try istr.startEncapsulation()
+        let id: StringSeq = try istr.read()
+        try istr.endEncapsulation()
         return id
+    }
+
+    func ice_idsAsync(context: Context? = nil) -> Promise<StringSeq> {
+        return impl._invokeAsync(operation: "ice_ids",
+                          mode: .Nonmutating,
+                          twowayOnly: true,
+                          inParams: nil,
+                          hasOutParams: true,
+                          context: context) { istr in
+                            try istr.startEncapsulation()
+                            let id: StringSeq = try istr.read()
+                            try istr.endEncapsulation()
+                            return id
+        }
     }
 }
 
@@ -456,7 +511,7 @@ open class _ObjectPrxI: ObjectPrx {
         return try fromICEObjectPrx(handle.ice_collocationOptimized(collocated))
     }
 
-    public static func ice_read(from ins: InputStream) throws -> Self? {
+    public static func ice_read(from istr: InputStream) throws -> Self? {
         //
         // Unmarshaling of proxies is done in C++. Since we don't know how big this proxy will
         // be we pass the current buffer position and remaining buffer capacity.
@@ -465,9 +520,9 @@ open class _ObjectPrxI: ObjectPrx {
         // The number of bytes consumed reading the proxy
         var bytesRead: Int = 0
 
-        let buf = ins.getBuffer()
-        let encoding = ins.getEncoding()
-        let communicator = ins.getCommunicator()
+        let buf = istr.getBuffer()
+        let encoding = istr.getEncoding()
+        let communicator = istr.getCommunicator()
 
         //
         // Returns Any which is either NSNull or ICEObjectPrx
@@ -507,38 +562,122 @@ open class _ObjectPrxI: ObjectPrx {
             }
 
             var ok = Bool()
-            let ins = try InputStream(communicator: self.communicator,
-                                      inputStream: handle.iceInvoke(op, mode: Int(mode.rawValue),
-                                                                    inParams: inParams?.getBytes(),
-                                                                    inSize: inParams?.getCount() ?? 0,
-                                                                    context: context,
-                                                                    returnValue: &ok))
+            let istrHandle = try handle.iceInvoke(op, mode: Int(mode.rawValue),
+                                              inParams: inParams?.getBytes(),
+                                              inSize: inParams?.getCount() ?? 0,
+                                              context: context,
+                                              returnValue: &ok)
+
+            let istr = InputStream(communicator: self.communicator, inputStream: istrHandle)
+
             if self.isTwoway {
-                if !ok {
-                    do {
-                        try ins.startEncapsulation()
-                        try ins.throwException()
-                    } catch let error as UserException {
-                        try ins.endEncapsulation()
-                        for exceptionType in exceptions {
-                            if exceptionType.isBase(of: type(of: error)) {
-                                throw error
-                            }
-                        }
-                        throw UnknownUserException(unknown: error.ice_id())
-                    }
-                    //
-                    // We let any all other error types propagate
-                    //
+                guard ok else {
+                    throw try _ObjectPrxI.unmarshalUserException(stream: istr, exceptions: exceptions)
                 }
                 if !hasOutParams {
-                    try ins.skipEmptyEncapsulation()
+                    try istr.skipEmptyEncapsulation()
                 }
             }
+            return istr
+        }
+    }
 
-            return ins
+    public func _invokeAsync<T>(operation op: String,
+                                mode: OperationMode,
+                                twowayOnly: Bool,
+                                inParams: OutputStream?,
+                                hasOutParams: Bool,
+                                exceptions: [UserException.Type] = [],
+                                context: Context? = nil,
+                                sent sendCallback: ((Bool) -> Void)? = nil,
+                                unmarshalResult: @escaping ((InputStream) throws -> T)) -> Promise<T> {
+
+        if twowayOnly, !self.isTwoway {
+            return Promise(error: TwowayOnlyException(operation: op))
         }
 
+        //
+        // Create a pending promise. This way we can call into ObjC++ using the current thread
+        //
+        let (promise, resolver) = Promise<T>.pending()
+
+        //
+        // Response callback
+        //
+        func response(ok: Bool, inputStream istrHandle: ICEInputStream) {
+            do {
+                let istr = InputStream(communicator: self.communicator, inputStream: istrHandle)
+                if self.isTwoway {
+                    guard ok else {
+                        throw try _ObjectPrxI.unmarshalUserException(stream: istr, exceptions: exceptions)
+                    }
+                    if !hasOutParams {
+                        try istr.skipEmptyEncapsulation()
+                    }
+                }
+                try resolver.fulfill(unmarshalResult(istr))
+            } catch let error {
+                resolver.reject(error)
+            }
+        }
+
+        //
+        // Exception callback
+        //
+        func exception(error: Error) {
+            resolver.reject(error)
+        }
+
+        //
+        // Sent callback (optional)
+        //
+        var sent: ((Bool) -> Void)?
+
+        if let s = sendCallback {
+            sent = { (sentSynchronously: Bool) -> Void in
+                //
+                // Use PromiseKit's return queue if not nil, otherwise use call with the current thread
+                //
+                if let queue = PromiseKit.conf.Q.return {
+                    queue.async {
+                        s(sentSynchronously)
+                    }
+                }
+                s(sentSynchronously)
+            }
+        }
+
+        do {
+            try autoreleasepool {
+                try handle.iceInvokeAsync(op, mode: Int(mode.rawValue),
+                                          inParams: inParams?.getBytes(),
+                                          inSize: inParams?.getCount() ?? 0,
+                                          context: context,
+                                          response: response, exception: exception, sent: sent)
+            }
+        } catch let error {
+            resolver.reject(error)
+        }
+
+        return promise
+
+    }
+
+    static func unmarshalUserException(stream istr: InputStream,
+                                       exceptions: [UserException.Type]) throws -> Error {
+        do {
+            try istr.startEncapsulation()
+            try istr.throwException()
+        } catch let error as UserException {
+            try istr.endEncapsulation()
+            for exceptionType in exceptions {
+                if exceptionType.isBase(of: type(of: error)) {
+                    return error
+                }
+            }
+            return UnknownUserException(unknown: error.ice_id())
+        }
+        return UnknownUserException(unknown: "")
     }
 
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,

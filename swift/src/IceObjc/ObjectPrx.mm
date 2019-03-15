@@ -586,6 +586,64 @@ encodingMinor:(uint8_t)minor
     }
 }
 
+-(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
+                  mode:(NSInteger)mode
+              inParams:(void* _Null_unspecified)inParams
+                inSize:(NSInteger)inSize
+               context:(NSDictionary* _Nullable)context
+              response:(void (^)(bool, ICEInputStream*))response
+             exception:(void (^)(NSError*))exception
+                  sent:(void (^_Nullable)(bool))sent
+                 error:(NSError* _Nullable * _Nullable)error
+{
+    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    params.first = reinterpret_cast<Ice::Byte*>(inParams);
+    params.second = params.first + inSize;
+
+    try
+    {
+        Ice::Context ctx;
+        if(context)
+        {
+            fromNSDictionary(context, ctx);
+        }
+        else
+        {
+            ctx = Ice::noExplicitContext;
+        }
+
+        //
+        // It is possible to throw a CommunicatorDestroyedException
+        //
+        _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
+                                            [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
+                                            {
+                                                // Makes a copy
+                                                std::vector<Ice::Byte> r(outParams.first, outParams.second);
+                                                response(ok, [[ICEInputStream alloc] initWithBytes:std::move(r)]);
+                                            },
+                                            [exception](std::exception_ptr e)
+                                            {
+                                                exception(convertException(e));
+                                            },
+                                            [sent](bool sentSynchronously)
+                                            {
+                                                if(sent)
+                                                {
+                                                    sent(sentSynchronously);
+                                                }
+                                            },
+                                            ctx);
+
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
 -(bool) isEqual:(ICEObjectPrx*)other
 {
     return Ice::targetEqualTo(_prx, other.prx);

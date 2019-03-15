@@ -21,6 +21,7 @@ namespace IceSSL
     class Certificate;
 };
 
+NSError* convertException(const std::exception_ptr&);
 NSError* convertException(const std::exception&);
 
 template<typename T>

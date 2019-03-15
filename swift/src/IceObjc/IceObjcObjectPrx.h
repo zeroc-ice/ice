@@ -101,6 +101,16 @@ NS_ASSUME_NONNULL_BEGIN
                           returnValue:(bool*)returnValue
                                 error:(NSError* _Nullable * _Nullable)error;
 
+-(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
+                  mode:(NSInteger)mode
+              inParams:(void* _Null_unspecified)inParams
+                inSize:(NSInteger)inSize
+               context:(NSDictionary* _Nullable)context
+              response:(void (^)(bool, ICEInputStream*))response
+             exception:(void (^)(NSError*))exception
+                  sent:(void (^_Nullable)(bool))sent
+                 error:(NSError* _Nullable * _Nullable)error;
+
 -(bool) isEqual:(ICEObjectPrx* _Nullable)prx ;
 @end
 

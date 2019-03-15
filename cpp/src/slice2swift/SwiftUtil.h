@@ -96,6 +96,10 @@ protected:
                                    bool,
                                    int = -1);
 
+    void writeProxyOperation(::IceUtilInternal::Output&,
+                              const OperationPtr&,
+                              bool);
+
 private:
 
     class MetaDataVisitor : public ParserVisitor
