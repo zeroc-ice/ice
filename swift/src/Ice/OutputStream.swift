@@ -58,7 +58,7 @@ public class OutputStream {
 
         encapsStack.format = format
         encapsStack.setEncoding(encoding)
-        encapsStack.start = buf.size
+        encapsStack.start = buf.position()
 
         write(Int32(0)) // Placeholder for the encapsulation length.
         write(encapsStack.encoding)
@@ -67,7 +67,7 @@ public class OutputStream {
     public func endEncapsulation() {
         // Size includes size and version.
         let start = encapsStack.start
-        let sz = Int32(buf.size - start)
+        let sz = Int32(buf.position() - start)
         write(bytesOf: sz, at: start)
 
         let curr = encapsStack!
@@ -86,7 +86,7 @@ public class OutputStream {
     }
 
     func getCount() -> Int {
-        return buf.size
+        return buf.position()
     }
 
     func write<T>(bytesOf value: T, at: Int) where T: Numeric {
@@ -158,7 +158,7 @@ public class OutputStream {
 
     public func finished() -> [UInt8] {
         // Create a copy
-        return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.size))
+        return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.position()))
     }
 
     public func startSlice(typeId: String, compactId: Int32, last: Bool) {
@@ -395,14 +395,14 @@ public extension OutputStream {
     }
 
     func startSize() -> Int32 {
-        let pos = buf.size
+        let pos: Int32 = buf.position()
         write(Int32(0)) // Placeholder for 32-bit size
-        return Int32(pos)
+        return pos
     }
 
     func endSize(position: Int32) {
         precondition(position > 0)
-        write(bytesOf: Int32(buf.position - position - 4), at: Int(position))
+        write(bytesOf: (buf.position() - position - 4), at: Int(position))
     }
 
     func write(enum val: UInt8, maxValue: Int32) {

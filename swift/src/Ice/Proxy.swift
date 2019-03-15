@@ -548,8 +548,8 @@ open class _ObjectPrxI: ObjectPrx {
         //
         // Returns Any which is either NSNull or ICEObjectPrx
         //
-        let handleOpt = try ICEObjectPrx.iceRead(buf.baseAddress!.advanced(by: buf.size),
-                                                    size: buf.capacity - buf.size,
+        let handleOpt = try ICEObjectPrx.iceRead(buf.baseAddress!.advanced(by: buf.position()),
+                                                    size: buf.capacity - buf.position(),
                                                     communicator: (communicator as! CommunicatorI)._handle,
                                                     encodingMajor: encoding.major,
                                                     encodingMinor: encoding.minor,

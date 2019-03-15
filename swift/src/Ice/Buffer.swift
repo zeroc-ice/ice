@@ -11,14 +11,10 @@ internal final class Buffer {
     private var storage: UnsafeMutableRawBufferPointer
     private let owner: Bool
 
+    private var _position: Int = 0
+
     var capacity: Int {
         return storage.count
-    }
-
-    var size = 0
-
-    var position: Int32 {
-        return Int32(size)
     }
 
     var baseAddress: UnsafeMutableRawPointer? {
@@ -47,26 +43,35 @@ internal final class Buffer {
 
     func append(bytes: UnsafeRawBufferPointer) {
         ensure(bytesNeeded: bytes.count)
-        write(bytes: bytes, at: size)
-        size += bytes.count
+        write(bytes: bytes, at: _position)
+        _position += bytes.count
     }
 
-    func skip(count: Int) throws {
-        guard count + self.size <= capacity else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+    func skip<T>(count: T) throws where T: BinaryInteger {
+        let c = Int(count)
+        //
+        // Skip is allowed to jump to the "end" of the buffer (c + position == capacity)
+        // No more bytes can be read after this
+        //
+        guard count > 0, c + _position <= capacity else {
+            throw UnmarshalOutOfBoundsException(reason: "attempting to set position outside buffer")
         }
-        self.size += count
+        _position += c
     }
 
-    func position(_ count: Int) throws {
-        guard count > capacity else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+    func position<T>() -> T where T: BinaryInteger {
+        return T(_position)
+    }
+
+    func position<T>(_ count: T) throws where T: BinaryInteger {
+        guard count >= 0, count < capacity  else {
+            throw UnmarshalOutOfBoundsException(reason: "attempting to set position outiside buffer")
         }
-        self.size = count
+        _position = Int(count)
     }
 
     func load(bytes: UnsafeRawBufferPointer) throws {
-        return try read(from: size, into: UnsafeMutableRawBufferPointer(mutating: bytes))
+        return try read(from: _position, into: UnsafeMutableRawBufferPointer(mutating: bytes))
     }
 
     func load<T>(as _: T.Type) throws -> T {
@@ -82,31 +87,31 @@ internal final class Buffer {
     }
 
     func read(from: Int, into bytes: UnsafeMutableRawBufferPointer) throws {
-        guard from + size <= capacity else {
+        guard from + _position <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
         let rebase = UnsafeRawBufferPointer(rebasing: storage[from ..< from + bytes.count])
         bytes.copyMemory(from: rebase)
-        size += bytes.count
+        _position += bytes.count
     }
 
     func read(count: Int) throws -> UnsafeRawBufferPointer {
-        guard count + self.size <= capacity else {
+        guard count + _position <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
-        let rebase = UnsafeRawBufferPointer(rebasing: storage[self.size ..< self.size + count])
-        self.size += count
+        let rebase = UnsafeRawBufferPointer(rebasing: storage[_position ..< _position + count])
+        _position += count
         return rebase
     }
 
     func expand(bytesNeeded: Int) {
         precondition(owner, "can only expand owned buffer")
 
-        guard size + bytesNeeded > capacity else {
+        guard _position + bytesNeeded > capacity else {
             return
         }
 
-        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: max(size + bytesNeeded, capacity * 2),
+        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: max(_position + bytesNeeded, capacity * 2),
                                                            alignment: MemoryLayout<UInt8>.alignment)
         bytes.copyBytes(from: storage)
         storage.deallocate()
@@ -114,7 +119,7 @@ internal final class Buffer {
     }
 
     func ensure(bytesNeeded: Int) {
-        if size + bytesNeeded > capacity {
+        if _position + bytesNeeded > capacity {
             expand(bytesNeeded: bytesNeeded)
         }
     }
