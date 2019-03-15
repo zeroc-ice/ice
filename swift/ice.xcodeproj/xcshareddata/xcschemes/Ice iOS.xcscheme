@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "94F680C9E5079F0A09669534"
+               BlueprintIdentifier = "1960142B39477AC1851EA567"
                BuildableName = "Ice.framework"
                BlueprintName = "Ice iOS"
                ReferencedContainer = "container:ice.xcodeproj">
