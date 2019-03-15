@@ -736,7 +736,7 @@ public class Client: TestHelperI {
         writer.writeLine("ok")
 
         writer.write("testing checked cast... ")
-        let cl = try checkedCast(prx: baseProxy!, type: MyClassPrx.self)
+        var cl = try checkedCast(prx: baseProxy!, type: MyClassPrx.self)
         try test(cl != nil)
         let derived = try checkedCast(prx: cl!, type: MyDerivedClassPrx.self)
         try test(derived != nil)
@@ -745,5 +745,129 @@ public class Client: TestHelperI {
         try test(cl == derived)
         writer.writeLine("ok")
 
+        writer.write("testing checked cast with context... ")
+        var c = try cl!.getContext()
+        try test(c.isEmpty)
+        c = ["one": "hello", "two": "world"]
+        cl = try checkedCast(prx: baseProxy!, type: MyClassPrx.self, context: c)
+        let c2 = try cl!.getContext()
+        try test(c == c2)
+        writer.writeLine("ok")
+
+        writer.write("testing ice_fixed... ")
+        do {
+            let connection = try cl!.ice_getConnection()
+            if connection != nil {
+                let prx = try cl!.ice_fixed(connection: connection!)
+                try prx!.ice_ping()
+                try test(cl!.ice_secure(secure: true).ice_fixed(connection: connection!)!.ice_isSecure())
+                try test(cl!.ice_facet(facet: "facet").ice_fixed(connection: connection!)!.ice_getFacet() == "facet")
+                try test(cl!.ice_oneway().ice_fixed(connection: connection!)!.ice_isOneway())
+                let ctx = ["one": "hello", "two": "world"]
+                try test(cl!.ice_fixed(connection: connection!)!.ice_getContext().isEmpty)
+                try test(cl!.ice_context(context: ctx).ice_fixed(connection: connection!)!.ice_getContext().count == 2)
+                try test(cl!.ice_fixed(connection: connection!)!.ice_getInvocationTimeout() == -1)
+                try test(cl!.ice_invocationTimeout(timeout: 10).ice_fixed(connection: connection!)!.ice_getInvocationTimeout() == 10)
+                try test(cl!.ice_fixed(connection: connection!)!.ice_getConnection() === connection)
+                try test(cl!.ice_fixed(connection: connection!)!.ice_fixed(connection: connection!)!.ice_getConnection() === connection)
+                try test(cl!.ice_fixed(connection: connection!)!.ice_getTimeout() == nil)
+                try test(cl!.ice_compress(compress: true).ice_fixed(connection: connection!)!.ice_getCompress()!)
+                let fixedConnection = try cl!.ice_connectionId(id: "ice_fixed").ice_getConnection()
+                try test(cl!.ice_fixed(connection: connection!)!.ice_fixed(connection: fixedConnection!)!.ice_getConnection() ===
+                         fixedConnection)
+                do {
+                    try cl!.ice_secure(secure: !connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection: connection!)!.ice_ping()
+                } catch is Ice.NoEndpointException {}
+
+                do {
+                    try cl!.ice_datagram().ice_fixed(connection: connection!)!.ice_ping()
+                } catch is Ice.NoEndpointException {}
+            } else {
+                do {
+                    _ = try cl!.ice_fixed(connection: connection!)
+                    try test(false)
+                } catch {
+                    // Expected with null connection.
+                }
+            }
+        }
+        writer.writeLine("ok")
+
+        writer.write("testing encoding versioning... ")
+        var ref20 = "test -e 2.0:\(self.getTestEndpoint(num: 0))"
+        var cl20 = try uncheckedCast(prx: communicator.stringToProxy(str: ref20)!, type: MyClassPrx.self)!
+        do {
+            try cl20.ice_ping()
+            try test(false)
+        } catch is Ice.UnsupportedEncodingException {
+            // Server 2.0 endpoint doesn't support 1.1 version.
+        }
+
+        var ref10 = "test -e 1.0:\(self.getTestEndpoint(num: 0))"
+        var cl10 = try uncheckedCast(prx: communicator.stringToProxy(str: ref10)!, type: MyClassPrx.self)!
+        try cl10.ice_ping()
+        try cl10.ice_encodingVersion(encoding: Ice.Encoding_1_0).ice_ping()
+        try cl!.ice_encodingVersion(encoding: Ice.Encoding_1_0).ice_ping()
+
+        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
+        // call will use the 1.1 encoding
+        var ref13 = "test -e 1.3:\(getTestEndpoint(num: 0))"
+        var cl13 = try uncheckedCast(prx: communicator.stringToProxy(str: ref13)!, type: MyClassPrx.self)!
+        try cl13.ice_ping()
+
+        do {
+            // Send request with bogus 1.2 encoding.
+            let version = Ice.EncodingVersion(major: 1, minor: 2)
+            let os = Ice.OutputStream(communicator: communicator)
+            os.startEncapsulation()
+            os.endEncapsulation()
+            var inEncaps = os.finished()
+            inEncaps[4] = version.major
+            inEncaps[5] = version.minor
+
+            _ = try cl!.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+            try test(false)
+        } catch let ex as Ice.UnknownLocalException {
+            // The server thrown an UnsupportedEncodingException
+            try test(ex.unknown.contains("UnsupportedEncodingException"))
+        }
+
+        do {
+            // Send request with bogus 2.0 encoding.
+            let version = Ice.EncodingVersion(major: 2, minor: 0)
+            let os = Ice.OutputStream(communicator: communicator)
+            os.startEncapsulation()
+            os.endEncapsulation()
+            var inEncaps = os.finished()
+            inEncaps[4] = version.major
+            inEncaps[5] = version.minor
+            _ = try cl!.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+            try test(false)
+        } catch let ex as Ice.UnknownLocalException {
+            // The server thrown an UnsupportedEncodingException
+            try test(ex.unknown.contains("UnsupportedEncodingException"))
+        }
+        writer.writeLine("ok")
+
+        writer.write("testing protocol versioning... ")
+        ref20 = "test -p 2.0:\(self.getTestEndpoint(num: 0))"
+        cl20 = try uncheckedCast(prx: communicator.stringToProxy(str: ref20)!, type: MyClassPrx.self)!
+        do {
+            try cl20.ice_ping()
+            try test(false)
+        } catch is Ice.UnsupportedProtocolException {
+            // Server 2.0 proxy doesn't support 1.0 version.
+        }
+
+        ref10 = "test -p 1.0:\(self.getTestEndpoint(num: 0))"
+        cl10 = try uncheckedCast(prx: communicator.stringToProxy(str: ref10)!, type: MyClassPrx.self)!
+        try cl10.ice_ping();
+        
+        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
+        // call will use the 1.1 protocol
+        ref13 = "test -p 1.3:\(self.getTestEndpoint(num: 0))"
+        cl13 = try uncheckedCast(prx: communicator.stringToProxy(str: ref13)!, type: MyClassPrx.self)!
+        try cl13.ice_ping()
+        writer.writeLine("ok")
     }
 }

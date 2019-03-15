@@ -25,6 +25,10 @@ internal final class Buffer {
         return storage.baseAddress
     }
 
+    var constBaseAddress: UnsafeRawPointer? {
+        return UnsafeRawBufferPointer(storage).baseAddress
+    }
+
     init(start: UnsafeMutableRawPointer, count: Int) {
         storage = UnsafeMutableRawBufferPointer(start: start, count: count)
         owner = false

@@ -230,7 +230,7 @@ convertException(const std::exception& exc)
         }
         catch(const Ice::UnsupportedEncodingException& e)
         {
-            return [factory unsupportedProtocolException:toNSString(e.reason) badMajor:e.bad.major badMinor:e.bad.minor supportedMajor:e.supported.major supportedMinor:e.supported.minor file:toNSString(e.ice_file()) line:e.ice_line()];
+            return [factory unsupportedEncodingException:toNSString(e.reason) badMajor:e.bad.major badMinor:e.bad.minor supportedMajor:e.supported.major supportedMinor:e.supported.minor file:toNSString(e.ice_file()) line:e.ice_line()];
         }
         catch(const Ice::UnknownMessageException& e)
         {

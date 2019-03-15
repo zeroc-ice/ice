@@ -81,6 +81,10 @@ public class OutputStream {
         return buf.baseAddress
     }
 
+    func getConstBytes() -> UnsafeRawPointer? {
+        return buf.constBaseAddress
+    }
+
     func getCount() -> Int {
         return buf.size
     }

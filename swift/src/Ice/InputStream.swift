@@ -64,6 +64,10 @@ public class InputStream {
         return buf.baseAddress
     }
 
+    func getConstBytes() -> UnsafeRawPointer? {
+        return buf.constBaseAddress
+    }
+
     func getSize() -> Int {
         return buf.size
     }
@@ -74,6 +78,24 @@ public class InputStream {
 
     func getCommunicator() -> Communicator {
         return communicator
+    }
+
+    public func readEncapsulation() throws -> (bytes: [UInt8], encoding: EncodingVersion) {
+        let sz = try readSize()
+        if sz < 6 {
+            throw UnmarshalOutOfBoundsException(reason: "Invalid size")
+        }
+
+        if sz - 4 > buf.capacity {
+            throw UnmarshalOutOfBoundsException(reason: "Invalid size")
+        }
+
+        let _: EncodingVersion = try read()
+        try self.buf.position(Int(self.buf.position) - 6)
+
+        let start = self.buf.baseAddress?.bindMemory(to: UInt8.self, capacity: Int(sz))
+        let bytes = [UInt8](UnsafeBufferPointer(start: start, count: Int(sz)))
+        return (bytes, encoding)
     }
 
     public func startEncapsulation() throws {

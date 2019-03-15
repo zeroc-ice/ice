@@ -63,6 +63,11 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
     func ice_collocationOptimized(collocated: Bool) throws -> ObjectPrx?
+
+    func ice_invoke(operation: String,
+                    mode: OperationMode,
+                    inEncaps: [UInt8],
+                    context: Context?) throws -> (Bool, [UInt8])
 }
 
 public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
@@ -184,24 +189,40 @@ public extension ObjectPrx {
 
     func ice_idsAsync(context: Context? = nil) -> Promise<StringSeq> {
         return impl._invokeAsync(operation: "ice_ids",
-                          mode: .Nonmutating,
-                          twowayOnly: true,
-                          inParams: nil,
-                          hasOutParams: true,
-                          context: context) { istr in
-                            try istr.startEncapsulation()
-                            let id: StringSeq = try istr.read()
-                            try istr.endEncapsulation()
-                            return id
+                                 mode: .Nonmutating,
+                                 twowayOnly: true,
+                                 inParams: nil,
+                                 hasOutParams: true,
+                                 context: context) { istr in
+                                    try istr.startEncapsulation()
+                                    let id: StringSeq = try istr.read()
+                                    try istr.endEncapsulation()
+                                    return id
+        }
+    }
+
+    public func ice_invoke(operation: String,
+                           mode: OperationMode,
+                           inEncaps: [UInt8],
+                           context: Context? = nil) throws -> (Bool, [UInt8]) {
+        return try inEncaps.withUnsafeBufferPointer {
+            var ok = Bool()
+            let ins = try InputStream(communicator: impl.communicator,
+                                      inputStream: impl.handle.iceInvoke(operation, mode: Int(mode.rawValue),
+                                                                    inParams: $0.baseAddress,
+                                                                    inSize: inEncaps.count,
+                                                                    context: context,
+                                                                    returnValue: &ok))
+            return impl.isTwoway ? (ok, try ins.readEncapsulation().bytes) : (ok, [UInt8]())
         }
     }
 }
 
 open class _ObjectPrxI: ObjectPrx {
     let handle: ICEObjectPrx
-    private let communicator: Communicator
+    fileprivate let communicator: Communicator
     private let encoding: EncodingVersion
-    private let isTwoway: Bool
+    fileprivate let isTwoway: Bool
 
     public var description: String {
         return handle.ice_toString()
@@ -563,13 +584,12 @@ open class _ObjectPrxI: ObjectPrx {
 
             var ok = Bool()
             let istrHandle = try handle.iceInvoke(op, mode: Int(mode.rawValue),
-                                              inParams: inParams?.getBytes(),
+                                              inParams: inParams?.getConstBytes(),
                                               inSize: inParams?.getCount() ?? 0,
                                               context: context,
                                               returnValue: &ok)
 
             let istr = InputStream(communicator: self.communicator, inputStream: istrHandle)
-
             if self.isTwoway {
                 guard ok else {
                     throw try _ObjectPrxI.unmarshalUserException(stream: istr, exceptions: exceptions)

@@ -553,14 +553,14 @@ encodingMinor:(uint8_t)minor
 
 -(ICEInputStream*) iceInvoke:(NSString*)op
                          mode:(NSInteger)mode
-                     inParams:(void*)inParams
+                     inParams:(const void*)inParams
                        inSize:(NSInteger)inSize
                       context:(NSDictionary*)context
                   returnValue:(bool*)returnValue
                         error:(NSError**)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = reinterpret_cast<Ice::Byte*>(inParams);
+    params.first = reinterpret_cast<const Ice::Byte*>(inParams);
     params.second = params.first + inSize;
 
     try

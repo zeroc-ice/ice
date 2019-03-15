@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(nullable ICEInputStream*) iceInvoke:(NSString* _Nonnull)op
                                  mode:(NSInteger)mode
-                             inParams:(void* _Null_unspecified)inParams
+                             inParams:(const void* _Null_unspecified)inParams
                                inSize:(NSInteger)inSize
                               context:(NSDictionary* _Nullable)context
                           returnValue:(bool*)returnValue
