@@ -1212,12 +1212,21 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
             out << spar;
             if(returnType)
             {
-                out << typeToString(returnType, op);
+                string returnValueS = "returnValue";
+
+                for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    if((*q)->name() == "returnValue")
+                    {
+                        returnValueS = "_returnValue";
+                    }
+                }
+                out << (returnValueS + ": " + typeToString(returnType, op));
             }
             for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
             {
                 ParamDeclPtr param = *q;
-                out << typeToString(param->type(), param, param->getMetaData(), param->optional());
+                out << (param->name() + ": " + typeToString(param->type(), param, param->getMetaData(), param->optional()));
             }
             out << epar;
         }
