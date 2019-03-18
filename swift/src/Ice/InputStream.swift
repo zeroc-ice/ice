@@ -244,7 +244,7 @@ public class InputStream {
         case .FSize:
             try skip(read() as Int32)
         case .Class:
-            try read(value: UnknownSlicedValue.self, cb: nil)
+            try read(UnknownSlicedValue.self, cb: nil)
         }
     }
 
@@ -756,6 +756,14 @@ public extension InputStream {
         return try read() as ProxyImpl?
     }
 
+    func read(_ prx: ObjectPrx.Protocol) throws -> ObjectPrx? {
+        return try read() as _ObjectPrxI?
+    }
+
+    func read(tag: Int32, prx: ObjectPrx.Protocol) throws -> ObjectPrx? {
+        return try read(tag: tag) as _ObjectPrxI?
+    }
+
     func read(tag: Int32) throws -> ObjectPrx? {
         return try read(tag: tag) as _ObjectPrxI?
     }
@@ -771,7 +779,7 @@ public extension InputStream {
         }
     }
 
-    func read<ValueType>(value cls: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
+    func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
             var throwValue: Value?
@@ -789,7 +797,7 @@ public extension InputStream {
 
             // Don't throw inside the readValue callback as it's not marked with throws
             if let v = throwValue {
-                try InputStream.throwUOE(expectedType: cls, v: v)
+                try InputStream.throwUOE(expectedType: value, v: v)
             }
         } else {
             try encaps.decoder.readValue(cb: nil)

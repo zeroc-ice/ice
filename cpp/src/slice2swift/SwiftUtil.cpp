@@ -843,7 +843,17 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-                    out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ") as _ObjectPrxI?";
+                    // proxy reads requires an additional parameter
+                    const string prxType = getUnqualified(getAbsolute(type), swiftModule) + ".self";
+                    if(unmarshalParam.empty())
+                    {
+                        unmarshalParam = prxType;
+                    }
+                    else
+                    {
+                        unmarshalParam += ", prx: " + prxType;
+                    }
+                    out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
                 }
                 break;
             }
@@ -905,15 +915,16 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             else
             {
-                out << nl << "try " << stream << "read";
-                out << spar;
-                if(!unmarshalParam.empty())
-                {
-                    out << unmarshalParam;
-                }
                 const string className = getUnqualified(getAbsolute(type), swiftModule);
-                out << ("value: " + className + ".self");
-                out << epar;
+                if(unmarshalParam.empty())
+                {
+                    unmarshalParam = className + ".self";
+                }
+                else
+                {
+                    unmarshalParam += ", value: " + className + ".self";
+                }
+                out << nl << "try " << stream << "read(" << unmarshalParam << ")";
                 out << sb;
                 out << nl;
                 if(!declareParam)
@@ -949,8 +960,17 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            const string prxI = "_" + getUnqualified(getAbsolute(type), swiftModule) + "I?";
-            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ") as " << prxI ;
+            // proxy reads requires an additional parameter
+            const string prxType = getUnqualified(getAbsolute(type), swiftModule) + ".self";
+            if(unmarshalParam.empty())
+            {
+                unmarshalParam = prxType;
+            }
+            else
+            {
+                unmarshalParam += ", prx: " + prxType;
+            }
+            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
         }
         return;
     }
