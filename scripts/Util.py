@@ -3783,7 +3783,11 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
     def _getDefaultSource(self, processType):
         return { "client" : "Client.ts", "serveramd" : "ServerAMD.ts", "server" : "Server.ts" }[processType]
 
-class SwiftMapping(Mapping):
+class SwiftMapping(CppBasedClientMapping):
+
+    class Config(CppBasedClientMapping.Config):
+        mappingName = "swift"
+        mappingDesc = "Swift"
 
     def getCommandLine(self, current, process, exe, args):
         testdir = self.component.getTestDir(self)
@@ -3797,11 +3801,8 @@ class SwiftMapping(Mapping):
             args)
 
     def _getDefaultSource(self, processType):
-        return {
-            "client" : "Client.swift",
-            "server" : "Server.swift",
-            "serveramd" : "AMDServer.swift",
-            "collocated" : "Collocated.swift",
+        return { "client" : "Client.swift",
+                 "server" : "Server.swift"
         }[processType]
 
 #
