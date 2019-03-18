@@ -546,7 +546,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "v.reserveCapacity(sz)";
     out << nl << "for _ in 0 ..< sz";
     out << sb;
-    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "j", false, true, false);
+    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "j", p, false, true, false);
     out << nl << "v.append(j)";
     out << eb;
     out << nl << "return v";
@@ -575,7 +575,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "ostr.write(size: v.count)";
     out << nl << "v.forEach";
     out << sb;
-    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "$0", false, false, true);
+    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "$0", p, false, false, true);
     out << eb;
     out << eb;
 
@@ -642,8 +642,10 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "var v = " << name << "()";
     out << nl << "for _ in 0 ..< sz";
     out << sb;
-    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", false, true, false);
-    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", false, true, false);
+    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", p,
+                              false, true, false);
+    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", p,
+                              false, true, false);
     out << nl << "v[key] = value";
     out << eb;
     out << nl << "return v";
@@ -673,8 +675,10 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "v.forEach";
     out << sb;
     out << "key, value in";
-    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", false, false, true);
-    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", false, false, true);
+    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", p,
+                              false, false, true);
+    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", p,
+                              false, false, true);
     out << eb;
     out << eb;
 
@@ -806,8 +810,22 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string prxI = "_" + name + "PrxI";
 
     out << sp;
-    out << nl << "public protocol " << prx << ": "
-        << (baseClass ? fixIdent(baseClass->name()) : getUnqualified("Ice.ObjectPrx", swiftModule));
+    out << nl << "public protocol " << prx << ":";
+    if(bases.empty())
+    {
+        out << " " << getUnqualified("Ice.ObjectPrx", swiftModule);
+    }
+    else
+    {
+        for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+        {
+            out << " " << getUnqualified(getAbsolute(*i), swiftModule) << "Prx";
+            if(++i != bases.end())
+            {
+                out << ",";
+            }
+        }
+    }
     out << sb;
     out << eb;
 

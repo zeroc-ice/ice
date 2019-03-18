@@ -767,23 +767,23 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
     string typeStr = typeToString(type, topLevel, member->getMetaData(), member->optional());
     string param = member->name();
 
-    writeMarshalUnmarshalCode(out, type, typeStr, param, insideStream, declareParam, marshal, tag);
+    writeMarshalUnmarshalCode(out, type, typeStr, param, topLevel, insideStream, declareParam, marshal, tag);
 }
 
 void
 SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                                           const ParamDeclPtr& param,
-                                          const ContainedPtr& topLevel,
                                           bool insideStream,
                                           bool declareParam,
                                           bool marshal,
                                           int tag)
 {
+    ContainedPtr topLevel = ContainedPtr::dynamicCast(param->container());
     TypePtr type = param->type();
     string typeStr = typeToString(type, topLevel, param->getMetaData(), param->optional());
     string name = param->name();
 
-    writeMarshalUnmarshalCode(out, type, typeStr, name, insideStream, declareParam, marshal, tag);
+    writeMarshalUnmarshalCode(out, type, typeStr, name, topLevel, insideStream, declareParam, marshal, tag);
 }
 
 void
@@ -791,6 +791,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                                           const TypePtr& type,
                                           const string& typeStr,
                                           const string& param,
+                                          const ContainedPtr& topLevel,
                                           bool insideStream,
                                           bool declareParam,
                                           bool marshal,
@@ -801,6 +802,8 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
     string marshalParam = insideStream ? ("v." + param) : param;
     string unmarshalParam;
     string stream = insideStream ? "" : (streamName + ".");
+
+    string swiftModule = getSwiftModule(getTopLevelModule(topLevel));
 
     if(tag >= 0)
     {
@@ -908,7 +911,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     out << unmarshalParam;
                 }
-                const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(type)));
                 const string className = getUnqualified(getAbsolute(type), swiftModule);
                 out << ("value: " + className + ".self");
                 out << epar;
@@ -1131,6 +1133,8 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     throws.sort();
     throws.unique();
 
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+
     const bool twowayOnly = op->returnsData();
     const bool useInputStream = !op->outParameters().empty() || returnType;
 
@@ -1216,15 +1220,13 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     for(ParamDeclList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
     {
         ParamDeclPtr param = *q;
-        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
-        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true);
+        writeMarshalUnmarshalCode(out, param, false, false, true);
     }
     for(ParamDeclList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
     {
         ParamDeclPtr param = *q;
         assert(param->optional());
-        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
-        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true, param->tag());
+        writeMarshalUnmarshalCode(out, param, false, false, true, param->tag());
     }
     out << nl << "ostr.endEncapsulation()";
 
@@ -1255,7 +1257,6 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     for(ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
     {
         ExceptionPtr ex = *q;
-        const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(ex)));
         out << getUnqualified(getAbsolute(ex), swiftModule) << ".self";
         if(q != throws.end())
         {
@@ -1292,15 +1293,16 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
         for(ParamDeclList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
         {
             ParamDeclPtr param = *q;
-            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
-            writeMarshalUnmarshalCode(out, param, topLevel, false, true, false);
+            writeMarshalUnmarshalCode(out, param, false, true, false);
             returnVals.push_back((*q)->name());
         }
 
         // If the return type is optional we unmarshal it with the rest of the optional params (in order)
         if(returnType && !op->returnIsOptional())
         {
-            writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false);
+            writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret",
+                                      ContainedPtr::dynamicCast(op->container()), false,
+                                      true, false);
             returnVals.push_front("ret");
         }
 
@@ -1312,13 +1314,13 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
 
             if(returnType && op->returnIsOptional() && !optReturnUnmarshaled && (op->returnTag() < param->tag()))
             {
-                writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, op->returnTag());
+                writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret",
+                                          ContainedPtr::dynamicCast(op->container()), false,
+                                          true, false, op->returnTag());
                 returnVals.push_front("ret");
                 optReturnUnmarshaled = true;
             }
-
-            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
-            writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, param->tag());
+            writeMarshalUnmarshalCode(out, param, false, true, false, param->tag());
             returnVals.push_back((*q)->name());
         }
         out << nl << "try istr.endEncapsulation()";

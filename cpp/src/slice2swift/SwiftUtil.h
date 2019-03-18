@@ -77,17 +77,18 @@ protected:
                                    const TypePtr&,
                                    const std::string&,
                                    const std::string&,
+                                   const ContainedPtr&,
                                    bool,
                                    bool,
                                    bool,
                                    int = -1);
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
                                    const ParamDeclPtr&,
-                                   const ContainedPtr&,
                                    bool,
                                    bool,
                                    bool,
                                    int = -1);
+
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
                                    const DataMemberPtr&,
                                    const ContainedPtr&,
