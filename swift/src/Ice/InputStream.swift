@@ -756,11 +756,11 @@ public extension InputStream {
         return try read() as ProxyImpl?
     }
 
-    func read(_ prx: ObjectPrx.Protocol) throws -> ObjectPrx? {
+    func read(_ type: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read() as _ObjectPrxI?
     }
 
-    func read(tag: Int32, prx: ObjectPrx.Protocol) throws -> ObjectPrx? {
+    func read(tag: Int32, type: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read(tag: tag) as _ObjectPrxI?
     }
 

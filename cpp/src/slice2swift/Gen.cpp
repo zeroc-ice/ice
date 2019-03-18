@@ -867,19 +867,28 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     //
+    // ice_staticId
+    //
+    out << sp;
+    out << nl << "public func ice_staticId" << spar << ("_ type: " + prx + ".Protocol") << epar << " -> Swift.String";
+    out << sb;
+    out << nl << "return " << prxI << ".ice_staticId()";
+    out << eb;
+
+    //
     // InputStream extension
     //
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
-    out << nl << "func read(_ prx: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read() as " << prxI << "?";
     out << eb;
 
     out << sp;
-    out << nl << "func read(tag: Int32, prx: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << nl << "func read(tag: Int32, type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read(tag: tag) as " << prxI << "?";
     out << eb;

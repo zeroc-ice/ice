@@ -851,7 +851,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                     }
                     else
                     {
-                        unmarshalParam += ", prx: " + prxType;
+                        unmarshalParam += ", type: " + prxType;
                     }
                     out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
                 }
@@ -968,7 +968,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             else
             {
-                unmarshalParam += ", prx: " + prxType;
+                unmarshalParam += ", type: " + prxType;
             }
             out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
         }
