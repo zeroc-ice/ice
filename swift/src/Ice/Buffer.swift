@@ -53,7 +53,7 @@ internal final class Buffer {
         // Skip is allowed to jump to the "end" of the buffer (c + position == capacity)
         // No more bytes can be read after this
         //
-        guard count > 0, c + _position <= capacity else {
+        guard count >= 0, c + _position <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to set position outside buffer")
         }
         _position += c
