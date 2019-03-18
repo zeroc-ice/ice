@@ -610,77 +610,72 @@ open class _ObjectPrxI: ObjectPrx {
                                 exceptions: [UserException.Type] = [],
                                 context: Context? = nil,
                                 sent sendCallback: ((Bool) -> Void)? = nil,
+                                sentOn: DispatchQueue? = PromiseKit.conf.Q.map,
                                 unmarshalResult: @escaping ((InputStream) throws -> T)) -> Promise<T> {
 
         if twowayOnly, !self.isTwoway {
             return Promise(error: TwowayOnlyException(operation: op))
         }
 
-        //
-        // Create a pending promise. This way we can call into ObjC++ using the current thread
-        //
-        let (promise, resolver) = Promise<T>.pending()
+        return Promise<T> { seal in
+            //
+            // Response callback
+            //
+            func response(ok: Bool, inputStream istrHandle: ICEInputStream) {
+                do {
+                    let istr = InputStream(communicator: self.communicator, inputStream: istrHandle)
+                    if self.isTwoway {
+                        guard ok else {
+                            throw try _ObjectPrxI.unmarshalUserException(stream: istr, exceptions: exceptions)
+                        }
+                        if !hasOutParams {
+                            try istr.skipEmptyEncapsulation()
+                        }
+                    }
+                    try seal.fulfill(unmarshalResult(istr))
+                } catch let error {
+                    seal.reject(error)
+                }
+            }
 
-        //
-        // Response callback
-        //
-        func response(ok: Bool, inputStream istrHandle: ICEInputStream) {
+            //
+            // Exception callback
+            //
+            func exception(error: Error) {
+                seal.reject(error)
+            }
+
+            //
+            // Sent callback (optional)
+            //
+            var sent: ((Bool) -> Void)?
+
+            if let s = sendCallback {
+                sent = { (sentSynchronously: Bool) -> Void in
+                    //
+                    // Use PromiseKit's map queue if not nil, otherwise use call with the current thread
+                    //
+                    if let queue = PromiseKit.conf.Q.map {
+                        queue.async {
+                            s(sentSynchronously)
+                        }
+                    }
+                    s(sentSynchronously)
+                }
+            }
+
             do {
-                let istr = InputStream(communicator: self.communicator, inputStream: istrHandle)
-                if self.isTwoway {
-                    guard ok else {
-                        throw try _ObjectPrxI.unmarshalUserException(stream: istr, exceptions: exceptions)
-                    }
-                    if !hasOutParams {
-                        try istr.skipEmptyEncapsulation()
-                    }
+                try autoreleasepool {
+                    try handle.iceInvokeAsync(op, mode: Int(mode.rawValue),
+                                              inParams: inParams?.getBytes(),
+                                              inSize: inParams?.getCount() ?? 0,
+                                              context: context,
+                                              response: response, exception: exception, sent: sent)
                 }
-                try resolver.fulfill(unmarshalResult(istr))
             } catch let error {
-                resolver.reject(error)
+                seal.reject(error)
             }
         }
-
-        //
-        // Exception callback
-        //
-        func exception(error: Error) {
-            resolver.reject(error)
-        }
-
-        //
-        // Sent callback (optional)
-        //
-        var sent: ((Bool) -> Void)?
-
-        if let s = sendCallback {
-            sent = { (sentSynchronously: Bool) -> Void in
-                //
-                // Use PromiseKit's return queue if not nil, otherwise use call with the current thread
-                //
-                if let queue = PromiseKit.conf.Q.return {
-                    queue.async {
-                        s(sentSynchronously)
-                    }
-                }
-                s(sentSynchronously)
-            }
-        }
-
-        do {
-            try autoreleasepool {
-                try handle.iceInvokeAsync(op, mode: Int(mode.rawValue),
-                                          inParams: inParams?.getBytes(),
-                                          inSize: inParams?.getCount() ?? 0,
-                                          context: context,
-                                          response: response, exception: exception, sent: sent)
-            }
-        } catch let error {
-            resolver.reject(error)
-        }
-
-        return promise
-
     }
 
     static func unmarshalUserException(stream istr: InputStream,

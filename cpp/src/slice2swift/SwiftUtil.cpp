@@ -1150,9 +1150,12 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     }
     // context
     out << "context: Context? = nil";
+
+    // extra async params
     if(async)
     {
         out << "sent: ((Bool) -> Void)? = nil";
+        out << "sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.map";
     }
     out << epar;
 
@@ -1266,6 +1269,14 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     }
     out << "],";
     out << nl << "context: context";
+
+    // extra async params
+    if(async)
+    {
+        out << ", ";
+        out << nl << "sent: sent,";
+        out << nl << "sentOn: sentOn";
+    }
     out <<  ")";
     out.restoreIndent();
 
