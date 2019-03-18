@@ -949,7 +949,8 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
+            const string prxI = "_" + getUnqualified(getAbsolute(type), swiftModule) + "I?";
+            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ") as " << prxI ;
         }
         return;
     }
