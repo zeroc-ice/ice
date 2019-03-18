@@ -15,228 +15,224 @@ public class Client: TestHelperI {
             communicator.destroy()
         }
         let rf = "test:\(self.getTestEndpoint(num: 0))"
-        let baseProxy = try communicator.stringToProxy(rf)
-        try test(baseProxy != nil)
-        var b1 = try communicator.stringToProxy("test")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getAdapterId().isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
-        b1 = try communicator.stringToProxy("test ")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getAdapterId().isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
-        b1 = try communicator.stringToProxy(" test ")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getAdapterId().isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
-        b1 = try communicator.stringToProxy(" test")
-        try test(b1!.ice_getIdentity().name == "test" &&
-            b1!.ice_getIdentity().category.isEmpty &&
-            b1!.ice_getAdapterId().isEmpty &&
-            b1!.ice_getFacet().isEmpty)
-        b1 = try communicator.stringToProxy("'test -f facet'")
-        try test(b1!.ice_getIdentity().name == "test -f facet" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
+        let baseProxy = try communicator.stringToProxy(rf)!
+        var b1 = try communicator.stringToProxy("test")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getAdapterId().isEmpty &&
+                 b1.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy("test ")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getAdapterId().isEmpty &&
+                 b1.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy(" test ")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getAdapterId().isEmpty &&
+                 b1.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy(" test")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getAdapterId().isEmpty &&
+                 b1.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy("'test -f facet'")!
+        try test(b1.ice_getIdentity().name == "test -f facet" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet().isEmpty)
 
         do {
-            b1 = try communicator.stringToProxy("\"test -f facet'")
+            _ = try communicator.stringToProxy("\"test -f facet'")
             try test(false)
         } catch is Ice.ProxyParseException {}
 
-        b1 = try communicator.stringToProxy("\"test -f facet\"")
-        try test(b1!.ice_getIdentity().name == "test -f facet" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy("\"test -f facet\"")!
+        try test(b1.ice_getIdentity().name == "test -f facet" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet().isEmpty)
 
-        b1 = try communicator.stringToProxy("\"test -f facet@test\"")
-        try test(b1!.ice_getIdentity().name == "test -f facet@test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy("\"test -f facet@test\"")!
+        try test(b1.ice_getIdentity().name == "test -f facet@test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet().isEmpty)
 
-        b1 = try communicator.stringToProxy("\"test -f facet@test @test\"")
-        try test(b1!.ice_getIdentity().name == "test -f facet@test @test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
+        b1 = try communicator.stringToProxy("\"test -f facet@test @test\"")!
+        try test(b1.ice_getIdentity().name == "test -f facet@test @test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet().isEmpty)
 
         do {
-            b1 = try communicator.stringToProxy("test test")
+            _ = try communicator.stringToProxy("test test")
             try test(false)
         } catch is Ice.ProxyParseException {}
 
-        b1 = try communicator.stringToProxy("test\\040test")
-        try test(b1!.ice_getIdentity().name == "test test" &&
-                 b1!.ice_getIdentity().category.isEmpty)
+        b1 = try communicator.stringToProxy("test\\040test")!
+        try test(b1.ice_getIdentity().name == "test test" &&
+                 b1.ice_getIdentity().category.isEmpty)
         do {
-            b1 = try communicator.stringToProxy("test\\777")
+            _ = try communicator.stringToProxy("test\\777")
             try test(false)
         } catch is Ice.IdentityParseException {}
 
-        b1 = try communicator.stringToProxy("test\\40test")
-        try test(b1!.ice_getIdentity().name == "test test")
+        b1 = try communicator.stringToProxy("test\\40test")!
+        try test(b1.ice_getIdentity().name == "test test")
 
         // Test some octal and hex corner cases.
-        b1 = try communicator.stringToProxy("test\\4test")
-        try test(b1!.ice_getIdentity().name == "test\u{0004}test")
-        b1 = try communicator.stringToProxy("test\\04test")
-        try test(b1!.ice_getIdentity().name == "test\u{0004}test")
-        b1 = try communicator.stringToProxy("test\\004test")
-        try test(b1!.ice_getIdentity().name == "test\u{0004}test")
-        b1 = try communicator.stringToProxy("test\\1114test")
-        try test(b1!.ice_getIdentity().name == "test\u{0049}4test")
+        b1 = try communicator.stringToProxy("test\\4test")!
+        try test(b1.ice_getIdentity().name == "test\u{0004}test")
+        b1 = try communicator.stringToProxy("test\\04test")!
+        try test(b1.ice_getIdentity().name == "test\u{0004}test")
+        b1 = try communicator.stringToProxy("test\\004test")!
+        try test(b1.ice_getIdentity().name == "test\u{0004}test")
+        b1 = try communicator.stringToProxy("test\\1114test")!
+        try test(b1.ice_getIdentity().name == "test\u{0049}4test")
 
-        b1 = try communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test")
-        try test(b1!.ice_getIdentity().name == "test\u{0008}\u{000C}\n\r\t\'\"\\test" &&
-                 b1!.ice_getIdentity().category.isEmpty)
+        b1 = try communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test")!
+        try test(b1.ice_getIdentity().name == "test\u{0008}\u{000C}\n\r\t\'\"\\test" &&
+                 b1.ice_getIdentity().category.isEmpty)
 
-        b1 = try communicator.stringToProxy("category/test")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category" &&
-                 b1!.ice_getAdapterId().isEmpty)
+        b1 = try communicator.stringToProxy("category/test")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category" &&
+                 b1.ice_getAdapterId().isEmpty)
 
-        b1 = try communicator.stringToProxy("")
-        try test(b1 == nil)
-
-        b1 = try communicator.stringToProxy("\"\"")
-        try test(b1 == nil)
+        try test(communicator.stringToProxy("") == nil)
+        try test(communicator.stringToProxy("\"\"") == nil)
 
         do {
-            b1 = try communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
+            _ = try communicator.stringToProxy("\"\" test") // Invalid trailing characters.
             try test(false)
         } catch is Ice.ProxyParseException {}
 
         do {
-            b1 = try communicator.stringToProxy("test:") // Missing endpoint.
+            _ = try communicator.stringToProxy("test:") // Missing endpoint.
             try test(false)
         } catch is Ice.EndpointParseException {}
 
-        b1 = try communicator.stringToProxy("test@adapter")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getAdapterId() == "adapter")
+        b1 = try communicator.stringToProxy("test@adapter")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getAdapterId() == "adapter")
 
         do {
-            b1 = try communicator.stringToProxy("id@adapter test")
+            _ = try communicator.stringToProxy("id@adapter test")
             try test(false)
         } catch is Ice.ProxyParseException {}
 
-        b1 = try communicator.stringToProxy("category/test@adapter")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category" &&
-                 b1!.ice_getAdapterId() == "adapter")
-        b1 = try communicator.stringToProxy("category/test@adapter:tcp")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category" &&
-                 b1!.ice_getAdapterId() == "adapter:tcp")
-        b1 = try communicator.stringToProxy("'category 1/test'@adapter")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category 1" &&
-                 b1!.ice_getAdapterId() == "adapter")
-        b1 = try communicator.stringToProxy("'category/test 1'@adapter")
-        try test(b1!.ice_getIdentity().name == "test 1" &&
-                 b1!.ice_getIdentity().category == "category" &&
-                 b1!.ice_getAdapterId() == "adapter")
-        b1 = try communicator.stringToProxy("'category/test'@'adapter 1'")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category" &&
-                 b1!.ice_getAdapterId() == "adapter 1")
-        b1 = try communicator.stringToProxy("\"category \\/test@foo/test\"@adapter")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category /test@foo" &&
-                 b1!.ice_getAdapterId() == "adapter")
-        b1 = try communicator.stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category == "category /test@foo" &&
-                 b1!.ice_getAdapterId() == "adapter:tcp")
+        b1 = try communicator.stringToProxy("category/test@adapter")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category" &&
+                 b1.ice_getAdapterId() == "adapter")
+        b1 = try communicator.stringToProxy("category/test@adapter:tcp")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category" &&
+                 b1.ice_getAdapterId() == "adapter:tcp")
+        b1 = try communicator.stringToProxy("'category 1/test'@adapter")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category 1" &&
+                 b1.ice_getAdapterId() == "adapter")
+        b1 = try communicator.stringToProxy("'category/test 1'@adapter")!
+        try test(b1.ice_getIdentity().name == "test 1" &&
+                 b1.ice_getIdentity().category == "category" &&
+                 b1.ice_getAdapterId() == "adapter")
+        b1 = try communicator.stringToProxy("'category/test'@'adapter 1'")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category" &&
+                 b1.ice_getAdapterId() == "adapter 1")
+        b1 = try communicator.stringToProxy("\"category \\/test@foo/test\"@adapter")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category /test@foo" &&
+                 b1.ice_getAdapterId() == "adapter")
+        b1 = try communicator.stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category == "category /test@foo" &&
+                 b1.ice_getAdapterId() == "adapter:tcp")
 
-        b1 = try communicator.stringToProxy("id -f facet")
-        try test(b1!.ice_getIdentity().name == "id" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet")
-        b1 = try communicator.stringToProxy("id -f 'facet x'")
-        try test(b1!.ice_getIdentity().name == "id" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet x")
-        b1 = try communicator.stringToProxy("id -f \"facet x\"")
-        try test(b1!.ice_getIdentity().name == "id" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet x")
+        b1 = try communicator.stringToProxy("id -f facet")!
+        try test(b1.ice_getIdentity().name == "id" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet")
+        b1 = try communicator.stringToProxy("id -f 'facet x'")!
+        try test(b1.ice_getIdentity().name == "id" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet x")
+        b1 = try communicator.stringToProxy("id -f \"facet x\"")!
+        try test(b1.ice_getIdentity().name == "id" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet x")
 
         do {
-            b1 = try communicator.stringToProxy("id -f \"facet x")
+            b1 = try communicator.stringToProxy("id -f \"facet x")!
             try test(false)
         } catch is Ice.ProxyParseException {}
 
         do {
-            b1 = try communicator.stringToProxy("id -f \'facet x")
+            b1 = try communicator.stringToProxy("id -f \'facet x")!
             try test(false)
         } catch is Ice.ProxyParseException {}
 
-        b1 = try communicator.stringToProxy("test -f facet:tcp")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet" &&
-                 b1!.ice_getAdapterId().isEmpty)
-        b1 = try communicator.stringToProxy("test -f \"facet:tcp\"")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet:tcp" &&
-                 b1!.ice_getAdapterId().isEmpty)
-        b1 = try communicator.stringToProxy("test -f facet@test")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                   b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet" &&
-                 b1!.ice_getAdapterId() == "test")
-        b1 = try communicator.stringToProxy("test -f 'facet@test'")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet@test" &&
-                 b1!.ice_getAdapterId().isEmpty)
-        b1 = try communicator.stringToProxy("test -f 'facet@test'@test")
-        try test(b1!.ice_getIdentity().name == "test" &&
-                   b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getFacet() == "facet@test" &&
-                 b1!.ice_getAdapterId() == "test")
+        b1 = try communicator.stringToProxy("test -f facet:tcp")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet" &&
+                 b1.ice_getAdapterId().isEmpty)
+        b1 = try communicator.stringToProxy("test -f \"facet:tcp\"")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet:tcp" &&
+                 b1.ice_getAdapterId().isEmpty)
+        b1 = try communicator.stringToProxy("test -f facet@test")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet" &&
+                 b1.ice_getAdapterId() == "test")
+        b1 = try communicator.stringToProxy("test -f 'facet@test'")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet@test" &&
+                 b1.ice_getAdapterId().isEmpty)
+        b1 = try communicator.stringToProxy("test -f 'facet@test'@test")!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getFacet() == "facet@test" &&
+                 b1.ice_getAdapterId() == "test")
 
         do {
-            b1 = try communicator.stringToProxy("test -f facet@test @test")
+            b1 = try communicator.stringToProxy("test -f facet@test @test")!
             try test(false)
         } catch is Ice.ProxyParseException {}
-        b1 = try communicator.stringToProxy("test")
-        try test(b1!.ice_isTwoway())
-        b1 = try communicator.stringToProxy("test -t")
-        try test(b1!.ice_isTwoway())
-        b1 = try communicator.stringToProxy("test -o")
-        try test(b1!.ice_isOneway())
-        b1 = try communicator.stringToProxy("test -O")
-        try test(b1!.ice_isBatchOneway())
-        b1 = try communicator.stringToProxy("test -d")
-        try test(b1!.ice_isDatagram())
-        b1 = try communicator.stringToProxy("test -D")
-        try test(b1!.ice_isBatchDatagram())
-        b1 = try communicator.stringToProxy("test")
-        try test(!b1!.ice_isSecure())
-        b1 = try communicator.stringToProxy("test -s")
-        try test(b1!.ice_isSecure())
+        b1 = try communicator.stringToProxy("test")!
+        try test(b1.ice_isTwoway())
+        b1 = try communicator.stringToProxy("test -t")!
+        try test(b1.ice_isTwoway())
+        b1 = try communicator.stringToProxy("test -o")!
+        try test(b1.ice_isOneway())
+        b1 = try communicator.stringToProxy("test -O")!
+        try test(b1.ice_isBatchOneway())
+        b1 = try communicator.stringToProxy("test -d")!
+        try test(b1.ice_isDatagram())
+        b1 = try communicator.stringToProxy("test -D")!
+        try test(b1.ice_isBatchDatagram())
+        b1 = try communicator.stringToProxy("test")!
+        try test(!b1.ice_isSecure())
+        b1 = try communicator.stringToProxy("test -s")!
+        try test(b1.ice_isSecure())
 
-        try test(b1!.ice_getEncodingVersion() == Ice.currentEncoding)
+        try test(b1.ice_getEncodingVersion() == Ice.currentEncoding)
 
-        b1 = try communicator.stringToProxy("test -e 1.0")
-        try test(b1!.ice_getEncodingVersion().major == 1 &&
-                 b1!.ice_getEncodingVersion().minor == 0)
+        b1 = try communicator.stringToProxy("test -e 1.0")!
+        try test(b1.ice_getEncodingVersion().major == 1 &&
+                 b1.ice_getEncodingVersion().minor == 0)
 
-        b1 = try communicator.stringToProxy("test -e 6.5")
-        try test(b1!.ice_getEncodingVersion().major == 6 &&
-                 b1!.ice_getEncodingVersion().minor == 5)
+        b1 = try communicator.stringToProxy("test -e 6.5")!
+        try test(b1.ice_getEncodingVersion().major == 6 &&
+                 b1.ice_getEncodingVersion().minor == 5)
 
-        b1 = try communicator.stringToProxy("test -p 1.0 -e 1.0")
-        try test(b1!.ice_toString() == "test -t -e 1.0")
+        b1 = try communicator.stringToProxy("test -p 1.0 -e 1.0")!
+        try test(b1.ice_toString() == "test -t -e 1.0")
 
-        b1 = try communicator.stringToProxy("test -p 6.5 -e 1.0")
-        try test(b1!.ice_toString() == "test -t -p 6.5 -e 1.0")
+        b1 = try communicator.stringToProxy("test -p 6.5 -e 1.0")!
+        try test(b1.ice_toString() == "test -t -p 6.5 -e 1.0")
 
         do {
             _ = try communicator.stringToProxy("test:tcp@adapterId")
@@ -343,18 +339,17 @@ public class Client: TestHelperI {
         writer.writeLine("ok")
 
         writer.write("testing proxyToString... ")
-        b1 = try communicator.stringToProxy(rf)
-        var b2 = try communicator.stringToProxy(communicator.proxyToString(b1!))
+        b1 = try communicator.stringToProxy(rf)!
+        var b2 = try communicator.stringToProxy(communicator.proxyToString(b1))!
 
-        // TODO Proxy equals
-        //try test(b1 == b2)
+        try test(b1 == b2)
 
-        if(try b1!.ice_getConnection() != nil) // not colloc-optimized target
+        if(try b1.ice_getConnection() != nil) // not colloc-optimized target
         {
-            b2 = try b1!.ice_getConnection()!.createProxy(Ice.stringToIdentity(string: "fixed"))
-            let str = try communicator.proxyToString(b2!)
-            try test(b2!.ice_toString() == str)
-            let str2 = try b1!.ice_identity(b2!.ice_getIdentity()).ice_secure(b2!.ice_isSecure()).ice_toString()
+            b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity(string: "fixed"))!
+            let str = try communicator.proxyToString(b2)
+            try test(b2.ice_toString() == str)
+            let str2 = try b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
             // Verify that the stringified fixed proxy is the same as a regular stringified proxy
             // but without endpoints
             try test(str2.hasPrefix("\(str):"))
@@ -365,41 +360,42 @@ public class Client: TestHelperI {
         let prop = communicator.getProperties()
         let propertyPrefix = "Foo.Proxy"
         try prop.setProperty(key: propertyPrefix, value: "test:\(self.getTestEndpoint(num: 0))")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getIdentity().name == "test" &&
-                 b1!.ice_getIdentity().category.isEmpty &&
-                 b1!.ice_getAdapterId().isEmpty &&
-                 b1!.ice_getFacet().isEmpty)
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getIdentity().name == "test" &&
+                 b1.ice_getIdentity().category.isEmpty &&
+                 b1.ice_getAdapterId().isEmpty &&
+                 b1.ice_getFacet().isEmpty)
 
         var property = "\(propertyPrefix).Locator"
-        try test(b1!.ice_getLocator() == nil)
+        try test(b1.ice_getLocator() == nil)
         try prop.setProperty(key: property, value: "locator:default -p 10000")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getLocator() != nil &&
-                 b1!.ice_getLocator()!.ice_getIdentity().name == "locator")
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+
+        try test(b1.ice_getLocator() != nil &&
+                 b1.ice_getLocator()!.ice_getIdentity().name == "locator")
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).LocatorCacheTimeout"
-        try test(b1!.ice_getLocatorCacheTimeout() == -1)
+        try test(b1.ice_getLocatorCacheTimeout() == -1)
         try prop.setProperty(key: property, value: "1")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getLocatorCacheTimeout() == 1)
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getLocatorCacheTimeout() == 1)
         try prop.setProperty(key: property, value: "")
 
         // Now retest with an indirect proxy.
         try prop.setProperty(key: propertyPrefix, value: "test")
         property = "\(propertyPrefix).Locator"
         try prop.setProperty(key: property, value: "locator:default -p 10000")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getLocator() != nil &&
-                 b1!.ice_getLocator()!.ice_getIdentity().name == "locator")
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getLocator() != nil &&
+                 b1.ice_getLocator()!.ice_getIdentity().name == "locator")
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).LocatorCacheTimeout"
-        try test(b1!.ice_getLocatorCacheTimeout() == -1)
+        try test(b1.ice_getLocatorCacheTimeout() == -1)
         try prop.setProperty(key: property, value: "1")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getLocatorCacheTimeout() == 1)
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getLocatorCacheTimeout() == 1)
         try prop.setProperty(key: property, value: "")
 
         // This cannot be tested so easily because the property is cached
@@ -413,62 +409,62 @@ public class Client: TestHelperI {
         try prop.setProperty(key: propertyPrefix, value: "test:\(self.getTestEndpoint(num: 0))")
 
         property = "\(propertyPrefix).Router"
-        try test(b1!.ice_getRouter() == nil)
+        try test(b1.ice_getRouter() == nil)
         try prop.setProperty(key: property, value: "router:default -p 10000")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getRouter() != nil &&
-                 b1!.ice_getRouter()!.ice_getIdentity().name == "router")
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getRouter() != nil &&
+                 b1.ice_getRouter()!.ice_getIdentity().name == "router")
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).PreferSecure"
-        try test(!b1!.ice_isPreferSecure())
+        try test(!b1.ice_isPreferSecure())
         try prop.setProperty(key: property, value: "1")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_isPreferSecure())
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_isPreferSecure())
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).ConnectionCached"
-        try test(b1!.ice_isConnectionCached())
+        try test(b1.ice_isConnectionCached())
         try prop.setProperty(key: property, value: "0")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(!b1!.ice_isConnectionCached())
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(!b1.ice_isConnectionCached())
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).InvocationTimeout"
-        try test(b1!.ice_getInvocationTimeout() == -1)
+        try test(b1.ice_getInvocationTimeout() == -1)
         try prop.setProperty(key: property, value: "1000")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getInvocationTimeout() == 1000)
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getInvocationTimeout() == 1000)
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).EndpointSelection"
-        try test(b1!.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
-        try prop.setProperty(key: property, value: "Random");
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
+        try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
+        try prop.setProperty(key: property, value: "Random")
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
         try prop.setProperty(key: property, value: "Ordered")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).CollocationOptimized"
-        try test(b1!.ice_isCollocationOptimized())
+        try test(b1.ice_isCollocationOptimized())
         try prop.setProperty(key: property, value: "0")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(!b1!.ice_isCollocationOptimized())
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(!b1.ice_isCollocationOptimized())
         try prop.setProperty(key: property, value: "")
 
         property = "\(propertyPrefix).Context.c1"
-        try test(b1!.ice_getContext()["c1"] == nil)
+        try test(b1.ice_getContext()["c1"] == nil)
         try prop.setProperty(key: property, value: "TEST")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getContext()["c1"] == "TEST")
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getContext()["c1"] == "TEST")
 
         property = "\(propertyPrefix).Context.c2"
-        try test(b1!.ice_getContext()["c2"] == nil)
+        try test(b1.ice_getContext()["c2"] == nil)
         try prop.setProperty(key: property, value: "TEST")
-        b1 = try communicator.propertyToProxy(propertyPrefix)
-        try test(b1!.ice_getContext()["c2"] == "TEST")
+        b1 = try communicator.propertyToProxy(propertyPrefix)!
+        try test(b1.ice_getContext()["c2"] == "TEST")
 
         try prop.setProperty(key: "\(propertyPrefix).Context.c1", value: "")
         try prop.setProperty(key: "\(propertyPrefix).Context.c2", value: "")
@@ -477,35 +473,35 @@ public class Client: TestHelperI {
 
         writer.write("testing proxyToProperty... ")
 
-        b1 = try communicator.stringToProxy("test")
-        b1 = try b1!.ice_collocationOptimized(true)
-        b1 = try b1!.ice_connectionCached(true)
-        b1 = try b1!.ice_preferSecure(false)
-        b1 = try b1!.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
-        b1 = try b1!.ice_locatorCacheTimeout(100)
-        b1 = try b1!.ice_invocationTimeout(1234)
-        b1 = b1!.ice_encodingVersion(Ice.EncodingVersion(major: 1, minor: 0))
+        b1 = try communicator.stringToProxy("test")!
+        b1 = try b1.ice_collocationOptimized(true)!
+        b1 = try b1.ice_connectionCached(true)
+        b1 = try b1.ice_preferSecure(false)
+        b1 = try b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+        b1 = try b1.ice_locatorCacheTimeout(100)
+        b1 = try b1.ice_invocationTimeout(1234)
+        b1 = b1.ice_encodingVersion(Ice.EncodingVersion(major: 1, minor: 0))
 
-        var router = try communicator.stringToProxy("router")
-        router = try router!.ice_collocationOptimized(false)
-        router = try router!.ice_connectionCached(true)
-        router = try router!.ice_preferSecure(true)
-        router = try router!.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-        router = try router!.ice_locatorCacheTimeout(200)
-        router = try router!.ice_invocationTimeout(1500)
+        var router = try communicator.stringToProxy("router")!
+        router = try router.ice_collocationOptimized(false)!
+        router = try router.ice_connectionCached(true)
+        router = try router.ice_preferSecure(true)
+        router = try router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+        router = try router.ice_locatorCacheTimeout(200)
+        router = try router.ice_invocationTimeout(1500)
 
-        var locator = try communicator.stringToProxy("locator")
-        locator = try locator!.ice_collocationOptimized(true)
-        locator = try locator!.ice_connectionCached(false)
-        locator = try locator!.ice_preferSecure(true)
-        locator = try locator!.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-        locator = try locator!.ice_locatorCacheTimeout(300)
-        locator = try locator!.ice_invocationTimeout(1500)
+        var locator = try communicator.stringToProxy("locator")!
+        locator = try locator.ice_collocationOptimized(true)!
+        locator = try locator.ice_connectionCached(false)
+        locator = try locator.ice_preferSecure(true)
+        locator = try locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+        locator = try locator.ice_locatorCacheTimeout(300)
+        locator = try locator.ice_invocationTimeout(1500)
 
-        locator = try locator!.ice_router(uncheckedCast(prx: router!, type: Ice.RouterPrx.self))
-        b1 = try b1!.ice_locator(uncheckedCast(prx: locator!, type: Ice.LocatorPrx.self))
+        locator = try locator.ice_router(uncheckedCast(prx: router, type: Ice.RouterPrx.self))
+        b1 = try b1.ice_locator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
-        let proxyProps = try communicator.proxyToProperty(proxy: b1!, property: "Test")
+        let proxyProps = try communicator.proxyToProperty(proxy: b1, property: "Test")
         try test(proxyProps.count == 21)
 
         try test(proxyProps["Test"] == "test -t -e 1.0")
@@ -538,83 +534,83 @@ public class Client: TestHelperI {
         writer.writeLine("ok")
 
         writer.write("testing ice_getCommunicator... ")
-        try test(baseProxy!.ice_getCommunicator() === communicator)
+        try test(baseProxy.ice_getCommunicator() === communicator)
         writer.writeLine("ok")
 
         writer.write("testing proxy methods... ")
-        try test(baseProxy!.ice_facet("facet").ice_getFacet() == "facet")
-        try test(baseProxy!.ice_adapterId("id").ice_getAdapterId() == "id")
-        try test(baseProxy!.ice_twoway().ice_isTwoway())
-        try test(baseProxy!.ice_oneway().ice_isOneway())
-        try test(baseProxy!.ice_batchOneway().ice_isBatchOneway())
-        try test(baseProxy!.ice_datagram().ice_isDatagram())
-        try test(baseProxy!.ice_batchDatagram().ice_isBatchDatagram())
-        try test(baseProxy!.ice_secure(true).ice_isSecure())
-        try test(!baseProxy!.ice_secure(false).ice_isSecure())
-        try test(baseProxy!.ice_collocationOptimized(true)!.ice_isCollocationOptimized())
-        try test(!baseProxy!.ice_collocationOptimized(false)!.ice_isCollocationOptimized())
-        try test(baseProxy!.ice_preferSecure(true).ice_isPreferSecure())
-        try test(!baseProxy!.ice_preferSecure(false).ice_isPreferSecure())
+        try test(baseProxy.ice_facet("facet").ice_getFacet() == "facet")
+        try test(baseProxy.ice_adapterId("id").ice_getAdapterId() == "id")
+        try test(baseProxy.ice_twoway().ice_isTwoway())
+        try test(baseProxy.ice_oneway().ice_isOneway())
+        try test(baseProxy.ice_batchOneway().ice_isBatchOneway())
+        try test(baseProxy.ice_datagram().ice_isDatagram())
+        try test(baseProxy.ice_batchDatagram().ice_isBatchDatagram())
+        try test(baseProxy.ice_secure(true).ice_isSecure())
+        try test(!baseProxy.ice_secure(false).ice_isSecure())
+        try test(baseProxy.ice_collocationOptimized(true)!.ice_isCollocationOptimized())
+        try test(!baseProxy.ice_collocationOptimized(false)!.ice_isCollocationOptimized())
+        try test(baseProxy.ice_preferSecure(true).ice_isPreferSecure())
+        try test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure())
 
         do {
-            _ = try baseProxy!.ice_timeout(0)
+            _ = try baseProxy.ice_timeout(0)
             try test(false)
         } catch {
             // TODO handle argument_exception
         }
 
         do {
-            _ = try baseProxy!.ice_timeout(-1)
+            _ = try baseProxy.ice_timeout(-1)
         } catch {
             // TODO handle argument_exception
             try test(false)
         }
 
         do {
-            _ = try baseProxy!.ice_timeout(-2)
+            _ = try baseProxy.ice_timeout(-2)
             try test(false)
         } catch {
             // TODO handle argument_exception
         }
 
         do {
-            _ = try baseProxy!.ice_invocationTimeout(0)
+            _ = try baseProxy.ice_invocationTimeout(0)
             try test(false)
         } catch {
             // TODO handle argument_exception
         }
 
         do {
-            _ = try baseProxy!.ice_invocationTimeout(-1)
-            _ = try baseProxy!.ice_invocationTimeout(-2)
+            _ = try baseProxy.ice_invocationTimeout(-1)
+            _ = try baseProxy.ice_invocationTimeout(-2)
         } catch {
             // TODO handle argument_exception
             try test(false)
         }
 
         do {
-            _ = try baseProxy!.ice_invocationTimeout(-3)
+            _ = try baseProxy.ice_invocationTimeout(-3)
             try test(false)
         } catch {
             // TODO handle argument_exception
         }
 
         do {
-            _ = try baseProxy!.ice_locatorCacheTimeout(0)
+            _ = try baseProxy.ice_locatorCacheTimeout(0)
         } catch {
             // TODO handle argument_exception
             try test(false)
         }
 
         do {
-            _ = try baseProxy!.ice_locatorCacheTimeout(-1)
+            _ = try baseProxy.ice_locatorCacheTimeout(-1)
         } catch {
             // TODO handle argument_exception
             try test(false)
         }
 
         do {
-            _ = try baseProxy!.ice_locatorCacheTimeout(-2)
+            _ = try baseProxy.ice_locatorCacheTimeout(-2)
             try test(false)
         } catch {
             // TODO handle argument_exception
@@ -627,7 +623,7 @@ public class Client: TestHelperI {
         try test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"))
         try test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"))
 
-        var compObj = try communicator.stringToProxy("foo")
+        let compObj = try communicator.stringToProxy("foo")
 
         try test(compObj!.ice_facet("facet") == compObj!.ice_facet("facet"))
         try test(compObj!.ice_facet("facet") != compObj!.ice_facet("facet1"))
@@ -726,9 +722,9 @@ public class Client: TestHelperI {
         try test(endpts1[0] != endpts2[0])
         try test(endpts1[0] == communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")!.ice_getEndpoints()[0])
 
-        let baseConnection = try baseProxy!.ice_getConnection()
+        let baseConnection = try baseProxy.ice_getConnection()
         if baseConnection != nil {
-            let baseConnection2 = try baseProxy!.ice_connectionId("base2").ice_getConnection()
+            let baseConnection2 = try baseProxy.ice_connectionId("base2").ice_getConnection()
             compObj1 = try compObj1!.ice_fixed(baseConnection!)
             compObj2 = try compObj2!.ice_fixed(baseConnection2!)
             try test(compObj1 != compObj2)
@@ -736,55 +732,53 @@ public class Client: TestHelperI {
         writer.writeLine("ok")
 
         writer.write("testing checked cast... ")
-        var cl = try checkedCast(prx: baseProxy!, type: MyClassPrx.self)
-        try test(cl != nil)
-        let derived = try checkedCast(prx: cl!, type: MyDerivedClassPrx.self)
-        try test(derived != nil)
+        var cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self)!
+        let derived = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
         try test(cl == baseProxy)
         try test(derived == baseProxy)
         try test(cl == derived)
         writer.writeLine("ok")
 
         writer.write("testing checked cast with context... ")
-        var c = try cl!.getContext()
+        var c = try cl.getContext()
         try test(c.isEmpty)
         c = ["one": "hello", "two": "world"]
-        cl = try checkedCast(prx: baseProxy!, type: MyClassPrx.self, context: c)
-        let c2 = try cl!.getContext()
+        cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self, context: c)!
+        let c2 = try cl.getContext()
         try test(c == c2)
         writer.writeLine("ok")
 
         writer.write("testing ice_fixed... ")
         do {
-            let connection = try cl!.ice_getConnection()
+            let connection = try cl.ice_getConnection()
             if connection != nil {
-                let prx = try cl!.ice_fixed(connection!)
-                try prx!.ice_ping()
-                try test(cl!.ice_secure(true).ice_fixed(connection!)!.ice_isSecure())
-                try test(cl!.ice_facet("facet").ice_fixed(connection!)!.ice_getFacet() == "facet")
-                try test(cl!.ice_oneway().ice_fixed(connection!)!.ice_isOneway())
+                let prx = try cl.ice_fixed(connection!)!
+                try prx.ice_ping()
+                try test(cl.ice_secure(true).ice_fixed(connection!)!.ice_isSecure())
+                try test(cl.ice_facet("facet").ice_fixed(connection!)!.ice_getFacet() == "facet")
+                try test(cl.ice_oneway().ice_fixed(connection!)!.ice_isOneway())
                 let ctx = ["one": "hello", "two": "world"]
-                try test(cl!.ice_fixed(connection!)!.ice_getContext().isEmpty)
-                try test(cl!.ice_context(ctx).ice_fixed(connection!)!.ice_getContext().count == 2)
-                try test(cl!.ice_fixed(connection!)!.ice_getInvocationTimeout() == -1)
-                try test(cl!.ice_invocationTimeout(10).ice_fixed(connection!)!.ice_getInvocationTimeout() == 10)
-                try test(cl!.ice_fixed(connection!)!.ice_getConnection() === connection)
-                try test(cl!.ice_fixed(connection!)!.ice_fixed(connection!)!.ice_getConnection() === connection)
-                try test(cl!.ice_fixed(connection!)!.ice_getTimeout() == nil)
-                try test(cl!.ice_compress(true).ice_fixed(connection!)!.ice_getCompress()!)
-                let fixedConnection = try cl!.ice_connectionId("ice_fixed").ice_getConnection()
-                try test(cl!.ice_fixed(connection!)!.ice_fixed(fixedConnection!)!.ice_getConnection() ===
+                try test(cl.ice_fixed(connection!)!.ice_getContext().isEmpty)
+                try test(cl.ice_context(ctx).ice_fixed(connection!)!.ice_getContext().count == 2)
+                try test(cl.ice_fixed(connection!)!.ice_getInvocationTimeout() == -1)
+                try test(cl.ice_invocationTimeout(10).ice_fixed(connection!)!.ice_getInvocationTimeout() == 10)
+                try test(cl.ice_fixed(connection!)!.ice_getConnection() === connection)
+                try test(cl.ice_fixed(connection!)!.ice_fixed(connection!)!.ice_getConnection() === connection)
+                try test(cl.ice_fixed(connection!)!.ice_getTimeout() == nil)
+                try test(cl.ice_compress(true).ice_fixed(connection!)!.ice_getCompress()!)
+                let fixedConnection = try cl.ice_connectionId("ice_fixed").ice_getConnection()
+                try test(cl.ice_fixed(connection!)!.ice_fixed(fixedConnection!)!.ice_getConnection() ===
                          fixedConnection)
                 do {
-                    try cl!.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!)!.ice_ping()
+                    try cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!)!.ice_ping()
                 } catch is Ice.NoEndpointException {}
 
                 do {
-                    try cl!.ice_datagram().ice_fixed(connection!)!.ice_ping()
+                    try cl.ice_datagram().ice_fixed(connection!)!.ice_ping()
                 } catch is Ice.NoEndpointException {}
             } else {
                 do {
-                    _ = try cl!.ice_fixed(connection!)
+                    _ = try cl.ice_fixed(connection!)
                     try test(false)
                 } catch {
                     // Expected with null connection.
@@ -807,7 +801,7 @@ public class Client: TestHelperI {
         var cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)!
         try cl10.ice_ping()
         try cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
-        try cl!.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
+        try cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
@@ -825,7 +819,7 @@ public class Client: TestHelperI {
             inEncaps[4] = version.major
             inEncaps[5] = version.minor
 
-            _ = try cl!.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+            _ = try cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
             try test(false)
         } catch let ex as Ice.UnknownLocalException {
             // The server thrown an UnsupportedEncodingException
@@ -841,7 +835,7 @@ public class Client: TestHelperI {
             var inEncaps = os.finished()
             inEncaps[4] = version.major
             inEncaps[5] = version.minor
-            _ = try cl!.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+            _ = try cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
             try test(false)
         } catch let ex as Ice.UnknownLocalException {
             // The server thrown an UnsupportedEncodingException
@@ -952,12 +946,16 @@ public class Client: TestHelperI {
             let tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp"
 
             // Two legal TCP endpoints expressed as opaque endpoints
-            p1 = try communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")!
+            p1 = try communicator.stringToProxy("test -e 1.0:" +
+                                                "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
+                                                "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")!
             pstr = try communicator.proxyToString(p1)
             try test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
             // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
-            p1 = try communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch")!
+            p1 = try communicator.stringToProxy("test -e 1.0:" +
+                                                "opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:" +
+                                                "opaque -e 1.0 -t 99 -v abch")!
             pstr = try communicator.proxyToString(p1)
             if ssl {
                 try test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
@@ -984,7 +982,7 @@ public class Client: TestHelperI {
         writer.writeLine("ok")
 
         do {
-            try cl?.shutdown()
+            try cl.shutdown()
         }
     }
 }
