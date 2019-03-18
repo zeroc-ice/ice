@@ -20,7 +20,7 @@ public class StdoutWriter: TextWriter {
     }
 }
 
-enum TestFailed: Error {
+public enum TestFailed: Error {
     case testFailed
 }
 
