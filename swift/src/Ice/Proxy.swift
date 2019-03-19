@@ -88,6 +88,62 @@ public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
     }
 }
 
+public func proxyIdentityAndFacetLess(lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    if lhs === rhs {
+        return false
+    } else if lhs === nil && rhs !== nil {
+        return true
+    } else if lhs !== nil || rhs === nil {
+        return false
+    } else {
+        let lhsI = lhs as! _ObjectPrxI
+        let rhsI = rhs as! _ObjectPrxI
+        return lhsI.handle.proxyIdentityAndFacetLess(rhsI.handle)
+    }
+}
+
+public func proxyIdentityAndFacetEqual(lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    if lhs === rhs {
+        return true
+    } else if lhs === nil && rhs === nil {
+        return true
+    } else if lhs === nil || rhs === nil {
+        return false
+    } else {
+        let lhsI = lhs as! _ObjectPrxI
+        let rhsI = rhs as! _ObjectPrxI
+        return lhsI.handle.proxyIdentityAndFacetEqual(rhsI.handle)
+    }
+}
+
+public func proxyIdentityLess(lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    if lhs === rhs {
+        return false
+    } else if lhs === nil && rhs !== nil {
+        return true
+    } else if lhs !== nil || rhs === nil {
+        return false
+    } else {
+        let lhsI = lhs as! _ObjectPrxI
+        let rhsI = rhs as! _ObjectPrxI
+        return lhsI.handle.proxyIdentityLess(rhsI.handle)
+    }
+}
+
+public func proxyIdentityEqual(lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    if lhs === rhs {
+        return true
+    } else if lhs === nil && rhs === nil {
+        return true
+    } else if lhs === nil || rhs === nil {
+        return false
+    } else {
+        let lhsI = lhs as! _ObjectPrxI
+        let rhsI = rhs as! _ObjectPrxI
+        return lhsI.handle.proxyIdentityEqual(rhsI.handle)
+    }
+}
+
 public extension ObjectPrx {
     var impl: _ObjectPrxI {
         // swiftlint:disable force_cast

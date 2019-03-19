@@ -111,7 +111,13 @@ NS_ASSUME_NONNULL_BEGIN
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error;
 
--(bool) isEqual:(ICEObjectPrx* _Nullable)prx ;
+-(bool) isEqual:(ICEObjectPrx* _Nullable)prx;
+
+-(bool) proxyIdentityLess:(ICEObjectPrx* _Nullable)prx;
+-(bool) proxyIdentityEqual:(ICEObjectPrx* _Nullable)prx;
+
+-(bool) proxyIdentityAndFacetLess:(ICEObjectPrx* _Nullable)prx;
+-(bool) proxyIdentityAndFacetEqual:(ICEObjectPrx* _Nullable)prx;
 @end
 
 #ifdef __cplusplus

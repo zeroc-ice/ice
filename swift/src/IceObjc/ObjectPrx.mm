@@ -648,4 +648,24 @@ encodingMinor:(uint8_t)minor
 {
     return Ice::targetEqualTo(_prx, other.prx);
 }
+
+-(bool) proxyIdentityLess:(ICEObjectPrx*)other
+{
+    return Ice::proxyIdentityLess(_prx, other.prx);
+}
+
+-(bool) proxyIdentityEqual:(ICEObjectPrx*)other
+{
+    return Ice::proxyIdentityEqual(_prx, other.prx);
+}
+
+-(bool) proxyIdentityAndFacetLess:(ICEObjectPrx*)other
+{
+    return Ice::proxyIdentityAndFacetLess(_prx, other.prx);
+}
+
+-(bool) proxyIdentityAndFacetEqual:(ICEObjectPrx*)other
+{
+    return Ice::proxyIdentityAndFacetEqual(_prx, other.prx);
+}
 @end
