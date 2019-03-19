@@ -1281,7 +1281,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
 
     out.useCurrentPosAsIndent();
     out << "operation: \"" << fixIdent(op->name()) << "\",";
-    out << nl << "mode: " << modeToString(op->mode()) << ",";
+    out << nl << "mode: " << modeToString(op->sendMode()) << ",";
     out << nl << "twowayOnly: " << (twowayOnly ? "true" : "false") << ",";
     out << nl << "inParams: ostr,";
     out << nl << "hasOutParams: " << (useInputStream ? "true" : "false") << ",";
