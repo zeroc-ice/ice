@@ -665,7 +665,7 @@ open class _ObjectPrxI: ObjectPrx {
                                 hasOutParams: Bool,
                                 exceptions: [UserException.Type] = [],
                                 context: Context? = nil,
-                                sent sendCallback: ((Bool) -> Void)? = nil,
+                                sent: ((Bool) -> Void)? = nil,
                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.map,
                                 unmarshalResult: @escaping ((InputStream) throws -> T)) -> Promise<T> {
 
@@ -694,42 +694,14 @@ open class _ObjectPrxI: ObjectPrx {
                 }
             }
 
-            //
-            // Exception callback
-            //
-            func exception(error: Error) {
-                seal.reject(error)
-            }
-
-            //
-            // Sent callback (optional)
-            //
-            var sent: ((Bool) -> Void)?
-
-            if let s = sendCallback {
-                sent = { (sentSynchronously: Bool) -> Void in
-                    //
-                    // Use PromiseKit's map queue if not nil, otherwise use call with the current thread
-                    //
-                    if let queue = PromiseKit.conf.Q.map {
-                        queue.async {
-                            s(sentSynchronously)
-                        }
-                    }
-                    s(sentSynchronously)
-                }
-            }
-
-            do {
-                try autoreleasepool {
-                    try handle.iceInvokeAsync(op, mode: Int(mode.rawValue),
-                                              inParams: inParams?.getBytes(),
-                                              inSize: inParams?.getCount() ?? 0,
-                                              context: context,
-                                              response: response, exception: exception, sent: sent)
-                }
-            } catch let error {
-                seal.reject(error)
+            try autoreleasepool {
+                try handle.iceInvokeAsync(op, mode: Int(mode.rawValue),
+                                          inParams: inParams?.getBytes(),
+                                          inSize: inParams?.getCount() ?? 0,
+                                          context: context,
+                                          response: response,
+                                          exception: { error in seal.reject(error) },
+                                          sent: createSentCallback(sent: sent, sentOn: sentOn))
             }
         }
     }

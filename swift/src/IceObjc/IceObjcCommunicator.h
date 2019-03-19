@@ -36,6 +36,10 @@ NS_SWIFT_NAME(propertyToProxy(property:));
 -(nullable ICEObjectPrx*) getDefaultLocator;
 -(BOOL) setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError**)error;
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error;
+-(BOOL) flushBatchRequestsAsync:(uint8_t)compress
+                      exception:(void (^)(NSError*))exception
+                           sent:(void (^_Nullable)(bool))sent
+                          error:(NSError**)error;
 
 -(ICEProperties*) getProperties;
 

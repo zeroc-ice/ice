@@ -213,6 +213,34 @@
     }
 }
 
+-(BOOL) flushBatchRequestsAsync:(uint8_t)compress
+                      exception:(void (^)(NSError*))exception
+                           sent:(void (^_Nullable)(bool))sent
+                          error:(NSError**)error
+{
+    try
+    {
+        _communicator->flushBatchRequestsAsync(Ice::CompressBatch(compress),
+                                               [exception](std::exception_ptr e)
+                                               {
+                                                   exception(convertException(e));
+                                               },
+                                               [sent](bool sentSynchronously)
+                                               {
+                                                   if(sent)
+                                                   {
+                                                       sent(sentSynchronously);
+                                                   }
+                                               });
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
 -(ICEProperties*) getProperties
 {
     auto props = _communicator->getProperties();

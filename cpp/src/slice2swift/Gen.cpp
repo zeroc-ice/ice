@@ -123,6 +123,15 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
             _imports.push_back("Ice");
         }
     }
+
+    //
+    // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
+    //
+    if(p->hasNonLocalInterfaceDefs() || p->hasLocalClassDefsWithAsync())
+    {
+        _imports.push_back("PromiseKit");
+    }
+
     return true;
 }
 
@@ -163,15 +172,6 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
         for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
         {
             addImport((*j)->type(), p);
-        }
-    }
-
-    if(!p->isLocal() && p->isInterface())
-    {
-        const string promiseKit = "PromiseKit";
-        if(find(_imports.begin(), _imports.end(), promiseKit) == _imports.end())
-        {
-            _imports.push_back(promiseKit);
         }
     }
 
@@ -1322,5 +1322,33 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
             }
             out << epar;
         }
+    }
+
+    if(p->hasMetaData("async-oneway"))
+    {
+        out << sp;
+        out << nl << "func " << name << "Async";
+        out << spar;
+        for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)
+        {
+            ParamDeclPtr param = *i;
+            TypePtr type = param->type();
+            ostringstream s;
+            if(inParams.size() == 1)
+            {
+                s << "_ ";
+            }
+            s << fixIdent(param->name()) << ": "
+            << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
+            out << s.str();
+        }
+        out << "sent: ((Bool) -> Void)?";
+        out << "sentOn: Dispatch.DispatchQueue?";
+        out << epar;
+
+        out << " -> ";
+
+        assert(!ret && outParams.empty());
+        out << "PromiseKit.Promise<Void>";
     }
 }

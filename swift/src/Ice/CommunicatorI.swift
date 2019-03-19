@@ -8,14 +8,13 @@
 // **********************************************************************
 
 import IceObjc
+import PromiseKit
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
-
     let properties: Properties
     let logger: Logger
     let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
-
 
     init(handle: ICECommunicator, properties: Properties, logger: Logger) {
         self.properties = properties
@@ -131,7 +130,21 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func flushBatchRequests(_ compress: CompressBatch) throws {
-        try _handle.flushBatchRequests(compress.rawValue)
+        try autoreleasepool {
+            try _handle.flushBatchRequests(compress.rawValue)
+        }
+    }
+
+    func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                 sent: ((Bool) -> Void)? = nil,
+                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try _handle.flushBatchRequestsAsync(compress.rawValue,
+                                                    exception: { seal.reject($0) },
+                                                    sent: createSentCallback(sent: sent, sentOn: sentOn))
+            }
+        }
     }
 
     func createAdmin(adminAdapter _: ObjectAdapter, adminId _: Identity) throws -> ObjectPrx {

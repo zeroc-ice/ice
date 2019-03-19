@@ -8,6 +8,7 @@
 // **********************************************************************
 
 import IceObjc
+import PromiseKit
 
 class ConnectionI: LocalObject<ICEConnection>, Connection {
     public var description: String {
@@ -50,6 +51,18 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
+    public func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                        sent: ((Bool) -> Void)? = nil,
+                                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try _handle.flushBatchRequestsAsync(compress.rawValue,
+                                                    exception: {error in seal.reject(error)},
+                                                    sent: createSentCallback(sent: sent, sentOn: sentOn))
+            }
+        }
+    }
+
     public func setCloseCallback(_ callback: CloseCallback?) throws {
         return try autoreleasepool {
             guard let cb = callback else {
@@ -80,6 +93,16 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     public func heartbeat() throws {
         return try autoreleasepool {
             try _handle.heartbeat()
+        }
+    }
+
+    func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
+                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try _handle.heartbeatAsync(exception: {error in seal.reject(error)},
+                                           sent: createSentCallback(sent: sent, sentOn: sentOn))
+            }
         }
     }
 

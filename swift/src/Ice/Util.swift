@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Dispatch
+
 func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
     let (major, minor) = try stringToMajorMinor(s)
     return EncodingVersion(major: major, minor: minor)
@@ -23,4 +25,19 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     }
 
     return (major, minor)
+}
+
+func createSentCallback(sent: ((Bool) -> Void)? = nil, sentOn: DispatchQueue?) -> ((Bool) -> Void)? {
+    var sentCallback: ((Bool) -> Void)?
+    if let s = sent {
+        sentCallback = { (sentSynchronously: Bool) -> Void in
+            if let queue = sentOn {
+                queue.async {
+                    s(sentSynchronously)
+                }
+            }
+            s(sentSynchronously)
+        }
+    }
+    return sentCallback
 }

@@ -76,6 +76,34 @@
     }
 }
 
+-(BOOL) flushBatchRequestsAsync:(uint8_t)compress
+                      exception:(void (^)(NSError*))exception
+                           sent:(void (^_Nullable)(bool))sent
+                          error:(NSError* _Nullable * _Nullable)error
+{
+    try
+    {
+        _connection->flushBatchRequestsAsync(Ice::CompressBatch(compress),
+                                               [exception](std::exception_ptr e)
+                                               {
+                                                   exception(convertException(e));
+                                               },
+                                               [sent](bool sentSynchronously)
+                                               {
+                                                   if(sent)
+                                                   {
+                                                       sent(sentSynchronously);
+                                                   }
+                                               });
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
 -(BOOL) setCloseCallback:(void (^)(ICEConnection*))callback error:(NSError**)error
 {
     try
@@ -133,6 +161,32 @@
     try
     {
         _connection->heartbeat();
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
+-(BOOL) heartbeatAsync:(void (^)(NSError*))exception
+                  sent:(void (^_Nullable)(bool))sent
+                 error:(NSError* _Nullable * _Nullable)error
+{
+    try
+    {
+        _connection->heartbeatAsync([exception](std::exception_ptr e)
+                                    {
+                                        exception(convertException(e));
+                                    },
+                                    [sent](bool sentSynchronously)
+                                    {
+                                        if(sent)
+                                        {
+                                            sent(sentSynchronously);
+                                        }
+                                    });
         return YES;
     }
     catch(const std::exception& ex)
