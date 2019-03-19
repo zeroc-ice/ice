@@ -570,13 +570,10 @@ encodingMinor:(uint8_t)minor
         {
             fromNSDictionary(context, ctx);
         }
-        else
-        {
-            ctx = Ice::noExplicitContext;
-        }
 
         std::vector<Ice::Byte> v;
-        *returnValue = _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, v, ctx);
+        *returnValue = _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, v,
+                                        context ? ctx : Ice::noExplicitContext);
         return [[ICEInputStream alloc] initWithBytes:std::move(v)];
     }
     catch(const std::exception& ex)
@@ -607,10 +604,6 @@ encodingMinor:(uint8_t)minor
         {
             fromNSDictionary(context, ctx);
         }
-        else
-        {
-            ctx = Ice::noExplicitContext;
-        }
 
         //
         // It is possible to throw a CommunicatorDestroyedException
@@ -633,7 +626,7 @@ encodingMinor:(uint8_t)minor
                                                     sent(sentSynchronously);
                                                 }
                                             },
-                                            ctx);
+                              context ? ctx : Ice::noExplicitContext);
 
         return YES;
     }
