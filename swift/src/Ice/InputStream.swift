@@ -327,7 +327,7 @@ public class InputStream {
         }
 
         let logger = communicator.getLogger()
-        let l: ICELoggerProtocol = logger as? LoggerI ?? LoggerWrapper(impl: logger)
+        let l: ICELoggerProtocol = logger as? LoggerI ?? LoggerWrapper(handle: logger)
         ICETraceUtil.traceSlicing(kind: sliceType == SliceType.ExceptionSlice ? "exception" : "object",
                                   typeId: typeId,
                                   slicingCat: "Slicing",

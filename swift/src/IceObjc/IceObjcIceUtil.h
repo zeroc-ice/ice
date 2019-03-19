@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:));
 
 +(nullable ICECommunicator*) initialize:(NSArray*)swiftArgs
-                             properties:(ICEProperties* _Null_unspecified)properties
-                                 logger:(id<ICELoggerProtocol>)logger
+                             properties:(ICEProperties*)properties
+                                 logger:(id<ICELoggerProtocol> _Nullable)logger
                                   error:(NSError* _Nullable * _Nullable)error;
 
 +(nullable ICEProperties*) createProperties:(NSArray* _Nullable)swiftArgs

@@ -70,14 +70,13 @@ static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
     Ice::StringSeq args;
     fromNSArray(swiftArgs, args);
 
+    assert(properties);
+
     //
     // Collect InitializationData members.
     //
     Ice::InitializationData initData;
-    if(properties)
-    {
-        initData.properties = [properties properties];
-    }
+    initData.properties = [properties properties];
 
     if(logger)
     {

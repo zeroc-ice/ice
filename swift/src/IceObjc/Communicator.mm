@@ -13,7 +13,8 @@
 #import "IceObjcImplicitContext.h"
 #import "IceObjcProperties.h"
 
-#include "IceObjcUtil.h"
+#import "LoggerWrapperI.h"
+#import "IceObjcUtil.h"
 
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
@@ -141,9 +142,17 @@
     });
 }
 
+// id<ICELoggerProtocol> may be either a Swift logger or a wrapper around a C++ logger
 -(id<ICELoggerProtocol>) getLogger
 {
     auto logger = _communicator->getLogger();
+
+    auto swiftLogger = std::dynamic_pointer_cast<LoggerWrapperI>(logger);
+    if(swiftLogger)
+    {
+        return swiftLogger->getLogger();
+    }
+
     return createLocalObject<Ice::Logger>(logger, [&logger] () -> id
     {
         return [[ICELogger alloc] initWithCppLogger:logger];

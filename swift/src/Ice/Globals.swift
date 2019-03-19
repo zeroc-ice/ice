@@ -20,16 +20,15 @@ private let initialized: Bool = {
 public func initialize(args: StringSeq = [],
                        initData userInitData: InitializationData? = nil,
                        configFile: String? = nil) throws -> Communicator {
-    // Ensure factores are initialized
+    // Ensure factories are initialized
     precondition(initialized)
 
     return try autoreleasepool {
         var initData = userInitData ?? InitializationData()
 
-        if initData.logger == nil {
-            initData.logger = LoggerI()
-        }
-
+        //
+        // Properties
+        //
         if initData.properties == nil {
             let (props, _) = try Ice.createProperties()
             initData.properties = props
@@ -39,16 +38,55 @@ public func initialize(args: StringSeq = [],
             try initData.properties!.load(configFile!)
         }
 
-        let propsHandle = (initData.properties as? PropertiesI)?._handle
-        // TODO: we should only install LoggerI if the user as not set their own
-        // logger or a logger property (eg. syslog)
-        let logger: ICELoggerProtocol = initData.logger as? LoggerI ?? LoggerWrapper(impl: initData.logger!)
-        let handle = try ICEUtil.initialize(args, properties: propsHandle, logger: logger)
+        //
+        // Logger
+        //
+        // precedence:
+        // - initData.logger
+        // - logger property
+        // - C++ plugin loggers
+        // - Swift logger
+        if initData.logger == nil {
+            if let props = initData.properties {
+                // "Ice.UseSystemdJournal" The SystemD Journal is not supported
+                let hasLoggerProperty = ["Ice.LogFile", "Ice.UseSyslog"].contains {
+                    return !props.getProperty($0).isEmpty
+                }
+
+                // If no logger properties have been specified then use the Swift logger.
+                // This logger may be overwritten by a logger plug-in during initialization
+                if !hasLoggerProperty {
+                    initData.logger = LoggerI()
+                }
+            }
+        }
+
+        var loggerP: ICELoggerProtocol?
+        if let l = initData.logger {
+            loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
+        }
+
+        let propsHandle = (initData.properties as! PropertiesI)._handle
+        let handle = try ICEUtil.initialize(args,
+                                            properties: propsHandle,
+                                            logger: loggerP)
+
         //
         // Update initData.properties reference to point to the properties object
         // created by Ice::initialize.
         //
         initData.properties = PropertiesI(handle: handle.getProperties())
+
+        //
+        // Update initData.logger referecnce in case a C++ logger plug-in installed a different logger
+        //
+        loggerP = handle.getLogger()
+        if let logger = loggerP as? Logger {
+            initData.logger = logger
+        } else if let objcLogger = loggerP as? ICELogger {
+            initData.logger = objcLogger.assign(to: ObjcLoggerWrapper.self) { ObjcLoggerWrapper(handle: objcLogger) }
+        }
+
         return CommunicatorI(handle: handle, initData: initData)
     }
 }

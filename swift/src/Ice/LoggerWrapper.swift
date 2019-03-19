@@ -11,34 +11,34 @@ import IceObjc
 
 // Wrapps Swift Loggers so they can be callbed by ObjC/C++
 class LoggerWrapper: ICELoggerProtocol {
-    let impl: Logger
+    let handle: Logger
 
-    init(impl: Logger) {
-        self.impl = impl
+    init( handle: Logger) {
+        self.handle = handle
     }
 
     func print(_ message: String) {
-        impl.print(message)
+        handle.print(message)
     }
 
     func trace(category: String, message: String) {
-        impl.trace(category: category, message: message)
+        handle.trace(category: category, message: message)
     }
 
     func warning(_ message: String) {
-        impl.warning(message)
+        handle.warning(message)
     }
 
     func error(_ message: String) {
-        impl.error(message)
+        handle.error(message)
     }
 
     func getPrefix() -> String {
-        return impl.getPrefix()
+        return handle.getPrefix()
     }
 
     func cloneWithPrefix(_ prefix: String) -> Any {
-        return impl.cloneWithPrefix(prefix)
+        return handle.cloneWithPrefix(prefix)
     }
 }
 
