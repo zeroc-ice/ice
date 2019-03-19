@@ -36,8 +36,8 @@ public protocol TestHelper {
     func getTestPort(properties: Ice.Properties, num: Int32) -> Int32
     func createTestProperties(args: [String]) throws -> (Ice.Properties, [String])
     func initialize(args: [String]) throws -> (Ice.Communicator, [String])
-    func initialize(properties: Ice.Properties) throws -> Ice.Communicator
-    func initialize(initData: Ice.InitializationData) throws -> Ice.Communicator
+    func initialize(_ properties: Ice.Properties) throws -> Ice.Communicator
+    func initialize(_ initData: Ice.InitializationData) throws -> Ice.Communicator
 
     func test(_ value: Bool, file: String, line: Int) throws
 
@@ -45,6 +45,14 @@ public protocol TestHelper {
     func setWriter(writer: TextWriter)
 
     func communicator() -> Ice.Communicator
+}
+
+public extension TestHelper {
+    public func getTestEndpoint(num: Int32 = 0, prot: String = "") -> String {
+        return getTestEndpoint(properties: communicator().getProperties(),
+                               num: num,
+                               prot: prot)
+    }
 }
 
 open class TestHelperI: TestHelper {
@@ -56,12 +64,6 @@ open class TestHelperI: TestHelper {
     open func run(args _: [String]) throws {
         print("Subclass has not implemented abstract method `run`!")
         abort()
-    }
-
-    public func getTestEndpoint(num: Int32 = 0, prot: String = "") -> String {
-        return getTestEndpoint(properties: _communicator!.getProperties(),
-                               num: num,
-                               prot: prot)
     }
 
     public func getTestEndpoint(properties: Ice.Properties, num: Int32 = 0, prot: String = "") -> String {
@@ -107,17 +109,17 @@ open class TestHelperI: TestHelper {
         var initData = Ice.InitializationData()
         var (props, args) = try createTestProperties(args: args)
         (initData.properties, args) = (props, args)
-        let communicator = try initialize(initData: initData)
+        let communicator = try initialize(initData)
         return (communicator, args)
     }
 
-    public func initialize(properties: Ice.Properties) throws -> Ice.Communicator {
+    public func initialize(_ properties: Ice.Properties) throws -> Ice.Communicator {
         var initData = Ice.InitializationData()
         initData.properties = properties
-        return try initialize(initData: initData)
+        return try initialize(initData)
     }
 
-    public func initialize(initData: Ice.InitializationData) throws -> Ice.Communicator {
+    public func initialize(_ initData: Ice.InitializationData) throws -> Ice.Communicator {
         let communicator = try Ice.initialize(initData: initData)
         if _communicator == nil {
             _communicator = communicator
