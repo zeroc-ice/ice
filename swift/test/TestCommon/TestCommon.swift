@@ -13,10 +13,12 @@ public protocol TextWriter {
 public class StdoutWriter: TextWriter {
     public func write(_ data: String) {
         fputs(data, stdout)
+        fflush(stdout)
     }
 
     public func writeLine(_ data: String) {
         print(data)
+        fflush(stdout)
     }
 }
 

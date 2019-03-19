@@ -91,11 +91,11 @@ public class Twoways {
 
         try p.ice_ping()
 
-        // try test(MyClassPrx.ice_staticId() == "::Test::MyClass")
-        // try test(Ice.ObjectPrx.ice_staticId() == "::Ice::Object")
+        try test(ice_staticId(MyClassPrx.self) == "::Test::MyClass")
+        //TODO try test(ice_staticId(Ice.ObjectPrx.self) == "::Ice::Object")
 
-        // test(p.ice_isA(Test.MyClassDisp_.ice_staticId()));
-        // test(p.ice_id().Equals(Test.MyDerivedClassDisp_.ice_staticId()));
+        try test(p.ice_isA(id: ice_staticId(MyClassPrx.self)))
+        try test(p.ice_id() == ice_staticId(MyDerivedClassPrx.self))
 
         do {
             let ids = try p.ice_ids()
@@ -1159,16 +1159,14 @@ public class Twoways {
             try test(r == "")
             try test(ic.getImplicitContext().get("zero") == "ZERO")
 
-            ctx = ic.getImplicitContext().getContext();
+            ctx = ic.getImplicitContext().getContext()
             try test(p3.opContext() == ctx)
 
             let prxContext = ["one": "UN", "four": "QUATRE"]
 
             var combined = prxContext
-            for (key, value) in ctx {
-                if combined[key] == nil {
+            for (key, value) in ctx where combined[key] == nil {
                     combined[key] = value
-                }
             }
             try test(combined["one"] == "UN")
 
