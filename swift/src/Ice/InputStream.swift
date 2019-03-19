@@ -361,7 +361,8 @@ public extension InputStream {
         return try buf.load(as: type)
     }
 
-    private func readNumeric<Element>(tag: Int32, expectedType: OptionalFormat) throws -> Element? where Element: Numeric {
+    private func readNumeric<Element>(tag: Int32,
+                                      expectedType: OptionalFormat) throws -> Element? where Element: Numeric {
         guard try readOptional(tag: tag, expectedFormat: expectedType) else {
             return nil
         }
@@ -1563,6 +1564,7 @@ private class EncapsDecoder11: EncapsDecoder {
         return false
     }
 
+    //swiftlint:disable cyclomatic_complexity
     func readInstance(index: Int32, cb: Callback?) throws -> Int32 {
         precondition(index > 0)
 

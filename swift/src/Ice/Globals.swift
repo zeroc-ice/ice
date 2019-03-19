@@ -47,7 +47,7 @@ public func initialize(args: StringSeq = [],
         // - C++ plugin loggers
         // - Swift logger
         //
-        // If no user logger or property haas been specified then use the Swift logger.
+        // If no user logger or property has been specified then use the Swift logger.
         // This logger may be overwritten by a logger plug-in during initialization
         if initData.logger == nil,
             initData.properties!.getProperty("Ice.LogFile").isEmpty,
