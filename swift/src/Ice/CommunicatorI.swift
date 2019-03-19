@@ -10,30 +10,16 @@
 import IceObjc
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
-    //    classResolver
-    //    implicitContext
 
-    let initData: InitializationData
+    let properties: Properties
+    let logger: Logger
     let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
 
-    //    required init(initData: InitializationData) {
-    //        if let enc = initData.properties?.getProperty(key: "Ice.Default.EncodingVersion"), !enc.isEmpty {
-    //
-    ////            self.encoding = stringToEncodingVersion(enc)
-    //
-    //
-    //        } else {
-    //            self.encoding = Ice.currentEncoding()
-    //        }
-    //        if isempty(enc)
-    //        obj.encoding = Ice.currentEncoding();
-    //        else
-    //        self.initData = initData
-    //    }
 
-    init(handle: ICECommunicator, initData: InitializationData) {
-        self.initData = initData
+    init(handle: ICECommunicator, properties: Properties, logger: Logger) {
+        self.properties = properties
+        self.logger = logger
         self.defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         super.init(handle: handle)
     }
@@ -111,25 +97,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func getProperties() -> Properties {
-        return initData.properties!
+        return properties
     }
 
     func getLogger() -> Logger {
-        if let l = initData.logger {
-            return l
-        }
-
-        let logger = _handle.getLogger()
-
-        if let l = logger as? Logger {
-            return l
-        }
-
-        if let l = logger as? ICELogger {
-            return ObjcLoggerWrapper(handle: l)
-        }
-
-        preconditionFailure("Unexpected logger type")
+        return logger
     }
 
     func getDefaultRouter() -> RouterPrx? {

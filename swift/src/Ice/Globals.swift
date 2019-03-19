@@ -46,22 +46,20 @@ public func initialize(args: StringSeq = [],
         // - logger property
         // - C++ plugin loggers
         // - Swift logger
-        if initData.logger == nil {
-            if let props = initData.properties {
-                // "Ice.UseSystemdJournal" The SystemD Journal is not supported
-                let hasLoggerProperty = ["Ice.LogFile", "Ice.UseSyslog"].contains {
-                    return !props.getProperty($0).isEmpty
-                }
-
-                // If no logger properties have been specified then use the Swift logger.
-                // This logger may be overwritten by a logger plug-in during initialization
-                if !hasLoggerProperty {
-                    initData.logger = LoggerI()
-                }
-            }
+        //
+        // If no user logger or property haas been specified then use the Swift logger.
+        // This logger may be overwritten by a logger plug-in during initialization
+        if initData.logger == nil,
+            initData.properties!.getProperty("Ice.LogFile").isEmpty,
+            initData.properties!.getProperty("Ice.UseSyslog").isEmpty {
+            initData.logger = LoggerI()
         }
 
         var loggerP: ICELoggerProtocol?
+        if let l = initData.logger {
+            loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
+        }
+
         if let l = initData.logger {
             loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
         }
@@ -78,16 +76,16 @@ public func initialize(args: StringSeq = [],
         initData.properties = PropertiesI(handle: handle.getProperties())
 
         //
-        // Update initData.logger referecnce in case a C++ logger plug-in installed a different logger
+        // Update initData.logger referecnce in case we are using a C++ logger (defined though a property) or
+        //  a C++ logger plug-in installed a new logger
         //
-        loggerP = handle.getLogger()
-        if let logger = loggerP as? Logger {
-            initData.logger = logger
-        } else if let objcLogger = loggerP as? ICELogger {
+        if let objcLogger = handle.getLogger() as? ICELogger {
             initData.logger = objcLogger.assign(to: ObjcLoggerWrapper.self) { ObjcLoggerWrapper(handle: objcLogger) }
         }
 
-        return CommunicatorI(handle: handle, initData: initData)
+        precondition(initData.logger != nil && initData.properties != nil)
+
+        return CommunicatorI(handle: handle, properties: initData.properties!, logger: initData.logger!)
     }
 }
 
