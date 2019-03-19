@@ -325,11 +325,7 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
             // Fine: typically an old client still using the deprecated nonmutating keyword
             //
 
-            //
-            // Note that expected == Nonmutating and received == Idempotent is not ok:
-            // the server may still use the deprecated nonmutating keyword to detect updates
-            // and the client should not break this (deprecated) feature.
-            //
+        	assert(expected != Nonmutating);
         }
         else
         {
