@@ -81,7 +81,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func stringToIdentity(_ str: String) throws -> Identity {
-        return try Ice.stringToIdentity(string: str)
+        return try Ice.stringToIdentity(str)
     }
 
     func identityToString(_ ident: Identity) throws -> String {

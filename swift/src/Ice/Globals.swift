@@ -71,7 +71,7 @@ public var currentEncoding: EncodingVersion {
     return encoding
 }
 
-public func stringToIdentity(string: String) throws -> Identity {
+public func stringToIdentity(_ string: String) throws -> Identity {
     var name = NSString()
     var category = NSString()
     try ICEUtil.stringToIdentity(str: string, name: &name, category: &category)

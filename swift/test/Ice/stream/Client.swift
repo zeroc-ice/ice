@@ -177,7 +177,7 @@ public class Client: TestHelperI {
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             var o2: OptionalClass?
-            try inS.read(value: OptionalClass.self) {
+            try inS.read(OptionalClass.self) {
                 o2 = $0
             }
             try inS.readPendingValues()
@@ -204,7 +204,7 @@ public class Client: TestHelperI {
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, encoding: Ice.Encoding_1_0, bytes: data)
             var o2: OptionalClass?
-            try inS.read(value: OptionalClass.self) {
+            try inS.read(OptionalClass.self) {
                 o2 = $0
             }
             try inS.readPendingValues()

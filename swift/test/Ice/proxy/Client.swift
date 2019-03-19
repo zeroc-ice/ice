@@ -267,32 +267,32 @@ public class Client: TestHelperI {
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         var id = Ice.Identity(name: "test", category: ",X2QNUAzSBcJ_e$AV;E\\")
-        var id2 = try Ice.stringToIdentity(string: communicator.identityToString(id))
+        var id2 = try Ice.stringToIdentity(communicator.identityToString(id))
         try test(id == id2)
 
         id = Ice.Identity(name: "test", category: ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\")
-        id2 = try Ice.stringToIdentity(string: communicator.identityToString(id))
+        id2 = try Ice.stringToIdentity(communicator.identityToString(id))
         try test(id == id2)
 
         id = Ice.Identity(name: "/test", category: "cat/")
         var idStr = try communicator.identityToString(id)
         try test(idStr == "cat\\//\\/test")
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
         // Input string with various pitfalls
-        id = try Ice.stringToIdentity(string: "\\342\\x82\\254\\60\\x9\\60\\")
+        id = try Ice.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\")
         try test(id.name == "€0\t0\\" && id.category == "")
 
         do {
             // Illegal character < 32
-            id = try Ice.stringToIdentity(string: "xx\u{01}FooBar")
+            id = try Ice.stringToIdentity("xx\u{01}FooBar")
             try test(false)
         } catch is Ice.IdentityParseException {}
 
         do {
             // Illegal surrogate
-            id = try Ice.stringToIdentity(string: "xx\\ud911")
+            id = try Ice.stringToIdentity("xx\\ud911")
             try test(false)
         } catch is Ice.IdentityParseException {}
 
@@ -301,21 +301,21 @@ public class Client: TestHelperI {
 
         idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Unicode)
         try test(idStr == "\\u007f€/test")
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
         try test(Ice.identityToString(identity: id) == idStr)
 
         idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.ASCII)
         try test(idStr == "\\u007f\\u20ac/test")
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
         idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Compat)
         try test(idStr == "\\177\\342\\202\\254/test")
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
-        id2 = try Ice.stringToIdentity(string: communicator.identityToString(id))
+        id2 = try Ice.stringToIdentity(communicator.identityToString(id))
         try test(id == id2)
 
         // More unicode character
@@ -324,16 +324,16 @@ public class Client: TestHelperI {
 
         idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Unicode)
         try test(idStr == "greek \u{1016a}/banana \\u000e-\u{1f34c}\u{20ac}\u{00a2}$")
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
         idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.ASCII)
         try test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$")
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
         idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Compat)
-        id2 = try Ice.stringToIdentity(string: idStr)
+        id2 = try Ice.stringToIdentity(idStr)
         try test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$")
         try test(id == id2)
         writer.writeLine("ok")
@@ -346,7 +346,7 @@ public class Client: TestHelperI {
 
         if(try b1.ice_getConnection() != nil) // not colloc-optimized target
         {
-            b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity(string: "fixed"))!
+            b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))!
             let str = try communicator.proxyToString(b2)
             try test(b2.ice_toString() == str)
             let str2 = try b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
