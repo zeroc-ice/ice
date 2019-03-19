@@ -707,8 +707,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public static func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
-                                                facet: String? = nil,
-                                                context _: Context? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
+                                                facet: String? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
         let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
         return ProxyImpl(from: objPrx)
     }

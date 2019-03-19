@@ -860,10 +860,9 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public func uncheckedCast" << spar
         << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol")
-        << ("facet: String? = nil")
-        << ("context: Context? = nil") << epar << " -> " << prx << "?";
+        << ("facet: String? = nil") << epar << " -> " << prx << "?";
     out << sb;
-    out << nl << "return " << prxI << ".uncheckedCast(prx: prx, facet: facet, context: context) as " << prxI << "?";
+    out << nl << "return " << prxI << ".uncheckedCast(prx: prx, facet: facet) as " << prxI << "?";
     out << eb;
 
     //
