@@ -1104,7 +1104,7 @@ public class Twoways {
                 let r = try p.opIntS(s)
                 try test(r.count == lengths[l])
                 for j in 0..<r.count {
-                    try test(r[j] == -j);
+                    try test(r[j] == -j)
                 }
             }
         }
@@ -1119,7 +1119,7 @@ public class Twoways {
 
             do {
                 let r = try p.opContext(context: ctx)
-                try test(p.ice_getContext().count == 0);
+                try test(p.ice_getContext().count == 0)
                 try test(r == ctx)
             }
 
@@ -1154,8 +1154,8 @@ public class Twoways {
             try test(ic.getImplicitContext().getContext() == ctx)
             try test(p3.opContext() == ctx)
 
-            try test(ic.getImplicitContext().containsKey("zero") == false);
-            let r = ic.getImplicitContext().put(key: "zero", value: "ZERO");
+            try test(ic.getImplicitContext().containsKey("zero") == false)
+            let r = ic.getImplicitContext().put(key: "zero", value: "ZERO")
             try test(r == "")
             try test(ic.getImplicitContext().get("zero") == "ZERO")
 
@@ -1166,7 +1166,7 @@ public class Twoways {
 
             var combined = prxContext
             for (key, value) in ctx where combined[key] == nil {
-                    combined[key] = value
+                combined[key] = value
             }
             try test(combined["one"] == "UN")
 
@@ -1177,8 +1177,6 @@ public class Twoways {
 
             ic.getImplicitContext().setContext(ctx)
             try test(p3.opContext() == combined)
-
-            try test(ic.getImplicitContext().remove("one") == "ONE")
 
             ic.destroy()
         }
@@ -1225,7 +1223,7 @@ public class Twoways {
 
         do {
             var p1 = try p.opMStruct1()
-            p1.e = MyEnum.enum3;
+            p1.e = MyEnum.enum3
             let (p3, p2) = try p.opMStruct2(p1)
             try test(p2.e == p1.e)
             try test(p3.e == p1.e)

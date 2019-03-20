@@ -36,6 +36,17 @@ public class Client: TestHelperI {
         try Oneways.oneways(self, derivedProxy)
         writer.writeLine("ok")
 
+        writer.write("testing twoway operations with AMI... ")
+        try TwowaysAMI.twowaysAMI(self, cl)
+        try TwowaysAMI.twowaysAMI(self, derivedProxy)
+        try derivedProxy.opDerived()
+        writer.writeLine("ok")
+
+        writer.write("testing oneway operations with AMI... ")
+        try OnewaysAMI.onewaysAMI(self, cl)
+        try OnewaysAMI.onewaysAMI(self, derivedProxy)
+        writer.writeLine("ok")
+
         writer.write("testing batch oneway operations... ")
         try BatchOneways.batchOneways(self, cl)
         try BatchOneways.batchOneways(self, derivedProxy)
