@@ -1179,7 +1179,11 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     }
     out << epar;
 
-    out << " throws";
+    if(!async)
+    {
+        out << " throws";
+    }
+
     if(useInputStream || async)
     {
         out << " -> ";
