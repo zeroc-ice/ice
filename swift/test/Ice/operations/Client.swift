@@ -4,9 +4,15 @@
 
 import Ice
 import TestCommon
+import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
+
+        PromiseKit.conf.Q.map = .global()
+        PromiseKit.conf.Q.return = .global()
+        PromiseKit.conf.logHandler = { _ in }
+
         let writer = getWriter()
 
         var initData = Ice.InitializationData()
@@ -48,6 +54,11 @@ public class Client: TestHelperI {
         writer.writeLine("ok")
 
         writer.write("testing batch oneway operations... ")
+        try BatchOneways.batchOneways(self, cl)
+        try BatchOneways.batchOneways(self, derivedProxy)
+        writer.writeLine("ok")
+
+        writer.write("testing batch oneway operations with AMI... ")
         try BatchOneways.batchOneways(self, cl)
         try BatchOneways.batchOneways(self, derivedProxy)
         writer.writeLine("ok")
