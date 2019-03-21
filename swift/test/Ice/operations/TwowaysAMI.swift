@@ -9,10 +9,6 @@ import PromiseKit
 public class TwowaysAMI {
     public static func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
-        PromiseKit.conf.Q.map = .global()
-        PromiseKit.conf.Q.return = .global()
-        PromiseKit.conf.logHandler = { _ in }
-
         let communicator = helper.communicator()
 
         try firstly {
