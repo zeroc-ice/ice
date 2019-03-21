@@ -1265,6 +1265,10 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
         assert(param->optional());
         writeMarshalUnmarshalCode(out, param, false, false, true, param->tag());
     }
+    if(op->sendsClasses(false))
+    {
+        out << nl << "ostr.writePendingValues()";
+    }
     out << nl << "ostr.endEncapsulation()";
 
     //
@@ -1367,6 +1371,10 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
             }
             writeMarshalUnmarshalCode(out, param, false, true, false, param->tag());
             returnVals.push_back((*q)->name());
+        }
+        if(op->returnsClasses(false))
+        {
+            out << nl << "try istr.readPendingValues()";
         }
         out << nl << "try istr.endEncapsulation()";
 
