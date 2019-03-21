@@ -60,6 +60,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getConnection() throws -> Connection?
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
+    func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)?, sentOn: DispatchQueue?) -> Promise<Void>
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
     func ice_collocationOptimized(_ collocated: Bool) throws -> ObjectPrx?
@@ -288,6 +289,16 @@ public extension ObjectPrx {
                                                                     context: context,
                                                                     returnValue: &ok))
             return impl.isTwoway ? (ok, try ins.readEncapsulation().bytes) : (ok, [UInt8]())
+        }
+    }
+
+    public func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)? = nil,
+                                            sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try impl.handle.ice_flushBatchRequestsAsync(exception: { seal.reject($0) },
+                                                            sent: createSentCallback(sent: sent, sentOn: sentOn))
+            }
         }
     }
 }

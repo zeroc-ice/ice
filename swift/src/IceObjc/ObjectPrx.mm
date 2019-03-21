@@ -478,6 +478,32 @@
     }
 }
 
+-(BOOL) ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
+                               sent:(void (^_Nullable)(bool))sent
+                              error:(NSError**)error
+{
+    try
+    {
+        _prx->ice_flushBatchRequestsAsync([exception](std::exception_ptr e)
+                                           {
+                                               exception(convertException(e));
+                                           },
+                                           [sent](bool sentSynchronously)
+                                           {
+                                               if(sent)
+                                               {
+                                                   sent(sentSynchronously);
+                                               }
+                                           });
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
 -(bool) ice_isCollocationOptimized
 {
     return _prx->ice_isCollocationOptimized();

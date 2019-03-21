@@ -78,7 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable id) ice_getConnection:(NSError* _Nullable * _Nullable)error; //Either NSNull or ICEConnection
 -(nullable ICEConnection*) ice_getCachedConnection;
 -(BOOL) ice_flushBatchRequests:(NSError* _Nullable * _Nullable)error;
-
+-(BOOL) ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
+                               sent:(void (^_Nullable)(bool))sent
+                              error:(NSError**)error
+    NS_SWIFT_NAME(ice_flushBatchRequestsAsync(exception:sent:));
 -(bool) ice_isCollocationOptimized;
 -(nullable instancetype) ice_collocationOptimized:(bool)collocated
                                             error:(NSError* _Nullable * _Nullable)error;
