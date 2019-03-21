@@ -27,17 +27,21 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     return (major, minor)
 }
 
-func createSentCallback(sent: ((Bool) -> Void)? = nil, sentOn: DispatchQueue?) -> ((Bool) -> Void)? {
-    var sentCallback: ((Bool) -> Void)?
-    if let s = sent {
-        sentCallback = { (sentSynchronously: Bool) -> Void in
-            if let queue = sentOn {
-                queue.async {
-                    s(sentSynchronously)
-                }
-            }
+func createSentCallback(sent: ((Bool) -> Void)?, sentOn: DispatchQueue?) -> ((Bool) -> Void)? {
+    guard let s = sent, let queue = sentOn else {
+        //
+        // This is either a nil sent callback or a sent callback that is dispatch
+        // directly without a queue
+        //
+        return sent
+    }
+
+    //
+    // Create a closure to dispatch the sent callback in the specified queue
+    //
+    return { (sentSynchronously: Bool) -> Void in
+        queue.async {
             s(sentSynchronously)
         }
     }
-    return sentCallback
 }
