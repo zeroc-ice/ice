@@ -6,6 +6,7 @@ import Foundation
 import TestCommon
 import IceProperties
 import IceOperations
+import IceObjects
 import IceProxy
 import IceDefaultValue
 import IceEnums
@@ -18,7 +19,8 @@ let tests: [String: () -> TestHelper] = [
     "Ice.stream.Client": { IceStream.Client() },
     "Ice.enums.Client": { IceEnums.Client() },
     "Ice.enums.Server": { IceEnums.Server() },
-    "Ice.operations.Client": { IceOperations.Client() }
+    "Ice.operations.Client": { IceOperations.Client() },
+    "Ice.objects.Client": { IceObjects.Client() }
 ]
 
 class TestFactory {
