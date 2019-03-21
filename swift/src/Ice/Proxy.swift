@@ -150,20 +150,26 @@ public extension ObjectPrx {
         return self as! _ObjectPrxI
     }
 
-    func ice_ping() throws {
+    func ice_ping(context: Context? = nil) throws {
         _ = try impl._invoke(operation: "ice_ping",
                              mode: OperationMode.Nonmutating,
                              twowayOnly: false,
                              inParams: nil,
-                             hasOutParams: false)
+                             hasOutParams: false,
+                             context: context)
     }
 
-    func ice_pingAsync() -> Promise<Void> {
+    func ice_pingAsync(context: Context? = nil,
+                       sent: ((Bool) -> Void)? = nil,
+                       sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.map) -> Promise<Void> {
         return impl._invokeAsync(operation: "ice_ping",
                                         mode: OperationMode.Nonmutating,
                                         twowayOnly: false,
                                         inParams: nil,
-                                        hasOutParams: false) { _ in }
+                                        hasOutParams: false,
+                                        context: context,
+                                        sent: sent,
+                                        sentOn: sentOn) { _ in }
     }
 
     func ice_isA(id: String, context: Context? = nil) throws -> Bool {
@@ -184,7 +190,9 @@ public extension ObjectPrx {
         return r
     }
 
-    func ice_isAAsync(id: String, context: Context? = nil) -> Promise<Bool> {
+    func ice_isAAsync(id: String, context: Context? = nil,
+                      sent: ((Bool) -> Void)? = nil,
+                      sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.map) -> Promise<Bool> {
         let impl = self as! _ObjectPrxI
         let os = impl._createOutputStream()
         os.startEncapsulation()
@@ -195,11 +203,13 @@ public extension ObjectPrx {
                                  twowayOnly: true,
                                  inParams: os,
                                  hasOutParams: true,
-                                 context: context) { istr in
-                                    try istr.startEncapsulation()
-                                    let r: Bool = try istr.read()
-                                    try istr.endEncapsulation()
-                                    return r
+                                 context: context,
+                                 sent: sent,
+                                 sentOn: sentOn) { istr in
+            try istr.startEncapsulation()
+            let r: Bool = try istr.read()
+            try istr.endEncapsulation()
+            return r
         }
     }
 
@@ -216,13 +226,17 @@ public extension ObjectPrx {
         return id
     }
 
-    func ice_idAsync(context: Context? = nil) -> Promise<String> {
+    func ice_idAsync(context: Context? = nil,
+                     sent: ((Bool) -> Void)? = nil,
+                     sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.map) -> Promise<String> {
         return impl._invokeAsync(operation: "ice_id",
                                    mode: .Nonmutating,
                                    twowayOnly: true,
                                    inParams: nil,
                                    hasOutParams: true,
-                                   context: context) { istr in
+                                   context: context,
+                                   sent: sent,
+                                   sentOn: sentOn) { istr in
             try istr.startEncapsulation()
             let id: String = try istr.read()
             try istr.endEncapsulation()
@@ -243,17 +257,21 @@ public extension ObjectPrx {
         return id
     }
 
-    func ice_idsAsync(context: Context? = nil) -> Promise<StringSeq> {
+    func ice_idsAsync(context: Context? = nil,
+                      sent: ((Bool) -> Void)? = nil,
+                      sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.map) -> Promise<StringSeq> {
         return impl._invokeAsync(operation: "ice_ids",
                                  mode: .Nonmutating,
                                  twowayOnly: true,
                                  inParams: nil,
                                  hasOutParams: true,
-                                 context: context) { istr in
-                                    try istr.startEncapsulation()
-                                    let id: StringSeq = try istr.read()
-                                    try istr.endEncapsulation()
-                                    return id
+                                 context: context,
+                                 sent: sent,
+                                 sentOn: sentOn) { istr in
+            try istr.startEncapsulation()
+            let id: StringSeq = try istr.read()
+            try istr.endEncapsulation()
+            return id
         }
     }
 
