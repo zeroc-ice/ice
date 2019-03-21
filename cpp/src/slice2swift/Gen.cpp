@@ -811,7 +811,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     out << nl << "public protocol " << prx << ":";
-    if(bases.empty())
+    if(bases.empty() || (baseClass && baseClass->allOperations().empty()))
     {
         out << " " << getUnqualified("Ice.ObjectPrx", swiftModule);
     }
