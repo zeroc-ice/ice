@@ -20,7 +20,7 @@ tests = [
 #     "Ice/inheritance",
 #     "Ice/invoke",
 #     "Ice/location",
-#     "Ice/objects",
+    "Ice/objects",
     "Ice/operations",
 #     "Ice/optional",
     "Ice/properties",
