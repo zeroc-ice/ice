@@ -39,7 +39,7 @@ func createSentCallback(sent: ((Bool) -> Void)?, sentOn: DispatchQueue?) -> ((Bo
     //
     // Create a closure to dispatch the sent callback in the specified queue
     //
-    return { (sentSynchronously: Bool) -> Void in
+    return { sentSynchronously in
         queue.async {
             s(sentSynchronously)
         }
