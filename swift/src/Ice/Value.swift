@@ -50,7 +50,7 @@ public extension Value {
     }
 }
 
-public class InterfaceByValue: Value {
+open class InterfaceByValue: Value {
     var id: String
 
     required public init() {
