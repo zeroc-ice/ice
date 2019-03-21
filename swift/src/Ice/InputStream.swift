@@ -21,7 +21,7 @@ public class InputStream {
     private var encoding: EncodingVersion
     private var traceSlicing: Bool
 
-    private lazy var encaps: Encaps = Encaps()
+    private var encaps: Encaps!
 
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
@@ -99,6 +99,7 @@ public class InputStream {
     }
 
     public func startEncapsulation() throws {
+        encaps = Encaps()
         encaps.start = buf.position()
         //
         // I don't use readSize() and writeSize() for encapsulations,
@@ -125,7 +126,7 @@ public class InputStream {
     }
 
     public func endEncapsulation() throws {
-        if encaps.encoding_1_0 {
+        if !encaps.encoding_1_0 {
             try skipOptionals()
             if buf.position() != encaps.start + encaps.sz {
                 throw EncapsulationException(reason: "buffer size does not match decoded encapsulation size")
@@ -307,8 +308,10 @@ public class InputStream {
     }
 
     func initEncaps() {
-        encaps.setEncoding(self.encoding)
-        encaps.sz = buf.capacity
+        if encaps == nil {
+            encaps.setEncoding(self.encoding)
+            encaps.sz = buf.capacity
+        }
         if encaps.decoder == nil { // Lazy initialization
             let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
@@ -813,15 +816,10 @@ private class Encaps {
     var encoding_1_0: Bool = false
 
     var decoder: EncapsDecoder!
-    var next: Encaps?
-
-    func reset() {
-        decoder = nil
-        next = nil
-    }
 
     func setEncoding(_ encoding: EncodingVersion) {
         self.encoding = encoding
+        self.encoding_1_0 = encoding == Ice.Encoding_1_0
     }
 }
 
@@ -859,6 +857,7 @@ private protocol EncapsDecoder: AnyObject {
     func skipSlice() throws
 
     func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool
+    func readPendingValues() throws
 }
 
 extension EncapsDecoder {

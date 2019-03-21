@@ -584,6 +584,7 @@ private class Encaps {
 
     func setEncoding(_ encoding: EncodingVersion) {
         self.encoding = encoding
+        self.encoding_1_0 = encoding == Ice.Encoding_1_0
     }
 }
 
