@@ -779,7 +779,7 @@ private final class EncapsEncoder10: EncapsEncoder {
                 key.value._iceWrite(to: os)
             }
         }
-        os.write(Int32(0)) // Zero marker indicates end of sequence of sequences of instances.
+        os.write(size: 0) // Zero marker indicates end of sequence of sequences of instances.
     }
 
     func registerValue(_ v: Value) -> Int32 {

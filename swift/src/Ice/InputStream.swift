@@ -309,6 +309,7 @@ public class InputStream {
 
     func initEncaps() {
         if encaps == nil {
+            encaps = Encaps()
             encaps.setEncoding(self.encoding)
             encaps.sz = buf.capacity
         }
