@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class DI : D {
-    public func ice_preMarshal() {
+public class DI: D {
+    override public func ice_preMarshal() {
         preMarshalInvoked = true
     }
 
-    public func ice_postUnmarshal() {
+    override public func ice_postUnmarshal() {
         postUnmarshalInvoked = true
     }
 }

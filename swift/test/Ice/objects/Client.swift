@@ -36,6 +36,39 @@ public class Client: TestHelperI {
         let b1 = try initial.getB1()!
         output.writeLine("ok")
 
+        output.write("getting B2... ")
+        let b2 = try initial.getB2()!
+        output.writeLine("ok")
+
+        output.write("getting C... ")
+        let c = try initial.getC()!
+        output.writeLine("ok")
+
+        output.write("getting D... ")
+        let d = try initial.getD()!
+        output.writeLine("ok")
+
+        output.write("checking consistency... ")
+        try test(b1 !== b2)
+        //test(b1 != c);
+        //test(b1 != d);
+        //test(b2 != c);
+        //test(b2 != d);
+        //test(c != d);
+        try test(b1.theB === b1)
+        try test(b1.theC == nil)
+        try test(b1.theA is B)
+        try test((b1.theA as! B).theA === b1.theA)
+        try test((b1.theA as! B).theB === b1)
+        //test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
+        try test((b1.theA as! B).theC!.theB === b1.theA)
+        try test(b1.preMarshalInvoked)
+        try test(b1.postUnmarshalInvoked)
+        try test(b1.theA!.preMarshalInvoked)
+        try test(b1.theA!.postUnmarshalInvoked)
+        try test((b1.theA as! B).theC!.preMarshalInvoked)
+        try test((b1.theA as! B).theC!.postUnmarshalInvoked)
+
         try initial.shutdown()
     }
 }

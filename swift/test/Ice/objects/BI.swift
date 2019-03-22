@@ -4,11 +4,11 @@
 
 public class BI: B {
 
-    public func ice_preMarshal() {
-        preMarshalInvoked = true
+    override public func ice_preMarshal() {
+        self.preMarshalInvoked = true
     }
 
-    public func ice_postUnmarshal() {
-        postUnmarshalInvoked = true;
+    override public func ice_postUnmarshal() {
+        self.postUnmarshalInvoked = true
     }
 }

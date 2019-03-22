@@ -25,10 +25,6 @@ public extension Value {
         return Self.ice_staticId()
     }
 
-    func ice_preMarshal() {}
-
-    func ice_postUnmarshal() {}
-
     func ice_getSlicedData() -> SlicedData? {
         return nil
     }
@@ -74,4 +70,7 @@ open class InterfaceByValue: Value {
         istr.startSlice(typeId: ice_id(), compactId: -1, last: true)
         istr.endSlice()
     }
+
+    public func ice_preMarshal() {}
+    public func ice_postUnmarshal() {}
 }

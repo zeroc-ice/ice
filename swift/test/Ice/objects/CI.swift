@@ -4,11 +4,11 @@
 
 public class CI : C {
 
-    public func ice_preMarshal() {
+    override public func ice_preMarshal() {
         preMarshalInvoked = true;
     }
 
-    public func ice_postUnmarshal() {
+    override public func ice_postUnmarshal() {
         postUnmarshalInvoked = true;
     }
 }

@@ -1064,6 +1064,22 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     out << eb;
 
+    out << sp;
+    out << nl;
+    if(base)
+    {
+        out << "override ";
+    }
+    out << "public func ice_preMarshal() {}";
+
+    out << sp;
+    out << nl;
+    if(base)
+    {
+        out << "override ";
+    }
+    out << "public func ice_postUnmarshal() {}";
+
     return true;
 }
 

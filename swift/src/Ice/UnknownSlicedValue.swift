@@ -55,4 +55,7 @@ public final class UnknownSlicedValue: Value {
 
     public func _iceWriteImpl(to _: OutputStream) {
     }
+
+    public func ice_preMarshal() {}
+    public func ice_postUnmarshal() {}
 }
