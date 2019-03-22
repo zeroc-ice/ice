@@ -773,6 +773,7 @@ public extension InputStream {
     }
 
     func read(cb: ((Value?) throws -> Void)?) throws {
+        initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
