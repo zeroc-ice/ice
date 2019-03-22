@@ -772,36 +772,19 @@ public extension InputStream {
         return try read(tag: tag) as _ObjectPrxI?
     }
 
-    func read(cb: ((Value?) -> Void)?) throws {
-        initEncaps()
-        if let cb = cb {
-            try encaps.decoder.readValue { value in
-                cb(value)
-            }
-        } else {
-            try encaps.decoder.readValue(cb: nil)
-        }
+    func read(cb: ((Value?) throws -> Void)?) throws {
+        try encaps.decoder.readValue(cb: cb)
     }
 
     func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
-            var throwValue: Value?
-            try encaps.decoder.readValue { value in
-                if let v = value {
-                    if let v = v as? ValueType {
-                        cb(v)
-                    } else {
-                        throwValue = value
-                    }
+            try encaps.decoder.readValue { v in
+                if v == nil || v is ValueType {
+                    cb(v as? ValueType)
                 } else {
-                    cb(nil)
+                    try InputStream.throwUOE(expectedType: value, v: v!)
                 }
-            }
-
-            // Don't throw inside the readValue callback as it's not marked with throws
-            if let v = throwValue {
-                try InputStream.throwUOE(expectedType: value, v: v)
             }
         } else {
             try encaps.decoder.readValue(cb: nil)
@@ -829,7 +812,7 @@ private enum SliceType {
     case ExceptionSlice
 }
 
-private typealias Callback = (Value?) -> Void
+private typealias Callback = (Value?) throws -> Void
 
 private protocol EncapsDecoder: AnyObject {
     var stream: InputStream { get }
@@ -922,7 +905,7 @@ extension EncapsDecoder {
         return nil
     }
 
-    func addPatchEntry(index: Int32, cb: @escaping Callback) {
+    func addPatchEntry(index: Int32, cb: @escaping Callback) throws {
         precondition(index > 0, "invalid index")
 
         //
@@ -930,7 +913,7 @@ extension EncapsDecoder {
         // just invoke the callback and we're done.
         //
         if let obj: Value = unmarshaledMap[index] {
-            cb(obj)
+            try cb(obj)
             return
         }
 
@@ -963,8 +946,8 @@ extension EncapsDecoder {
             //
             // Patch all pointers that refer to the instance.
             //
-            l.forEach { cb in
-                cb(v)
+            try l.forEach { cb in
+                try cb(v)
             }
 
             //
@@ -1037,9 +1020,9 @@ private class EncapsDecoder10: EncapsDecoder {
         index = -index
 
         if index == 0 {
-            cb(nil)
+            try cb(nil)
         } else {
-            addPatchEntry(index: index, cb: cb)
+            try addPatchEntry(index: index, cb: cb)
         }
     }
 
@@ -1298,11 +1281,10 @@ private class EncapsDecoder11: EncapsDecoder {
 
     func readValue(cb: Callback?) throws {
         let index = try stream.readSize()
-
         if index < 0 {
             throw MarshalException(reason: "invalid object id")
         } else if index == 0 {
-            cb?(nil)
+            try cb?(nil)
         } else if current != nil, (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
             //
             // When reading a class instance within a slice and there's an
@@ -1315,8 +1297,8 @@ private class EncapsDecoder11: EncapsDecoder {
             // derive an index into the indirection table that we'll read
             // at the end of the slice.
             //
-            if let c = cb {
-                current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: c))
+            if let cb = cb {
+                current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: cb))
             }
         } else {
             _ = try readInstance(index: index, cb: cb)
@@ -1373,7 +1355,7 @@ private class EncapsDecoder11: EncapsDecoder {
     func endInstance(preserve: Bool) throws -> SlicedData? {
         var slicedData: SlicedData?
         if preserve {
-            slicedData = readSlicedData()
+            slicedData = try readSlicedData()
         }
 
         current.slices.removeAll()
@@ -1476,7 +1458,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 if e.index >= indirectionTable.count {
                     throw MarshalException(reason: "indirection out of range")
                 }
-                addPatchEntry(index: indirectionTable[Int(e.index)], cb: e.cb)
+                try addPatchEntry(index: indirectionTable[Int(e.index)], cb: e.cb)
             }
             current.indirectPatchList.removeAll()
         }
@@ -1569,7 +1551,7 @@ private class EncapsDecoder11: EncapsDecoder {
 
         if index > 1 {
             if let cb = cb {
-                addPatchEntry(index: index, cb: cb)
+                try addPatchEntry(index: index, cb: cb)
             }
             return index
         }
@@ -1682,12 +1664,12 @@ private class EncapsDecoder11: EncapsDecoder {
             throw MarshalException(reason: "index for class received, but no instance")
         }
 
-        cb?(v)
+        try cb?(v)
 
         return index
     }
 
-    func readSlicedData() -> SlicedData? {
+    func readSlicedData() throws -> SlicedData? {
         // No preserved slices.
         if current.slices.isEmpty {
             return nil
@@ -1709,7 +1691,7 @@ private class EncapsDecoder11: EncapsDecoder {
             let m = n
             for j in 0 ..< current.slices[m].instances.count {
                 let k = j
-                addPatchEntry(index: current.indirectionTables[m][j]) { v in
+                try addPatchEntry(index: current.indirectionTables[m][j]) { v in
                     self.current.slices[m].instances[k] = v!
                 }
             }
