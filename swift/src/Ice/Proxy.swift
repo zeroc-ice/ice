@@ -179,10 +179,7 @@ public extension ObjectPrx {
                                  write: { ostr in
                                      ostr.write(id)
                                  },
-                                 read: { istr in
-                                     let r: Bool = try istr.read()
-                                     return r
-                                 },
+                                 read: { istr in try istr.read() as Bool },
                                  context: context)
     }
 
@@ -198,10 +195,7 @@ public extension ObjectPrx {
                                   write: { ostr in
                                       ostr.write(id)
                                   },
-                                  read: { istr in
-                                      let r: Bool = try istr.read()
-                                      return r
-                                  },
+                                  read: { istr in try istr.read() as Bool },
                                   context: context,
                                   sent: sent,
                                   sentOn: sentOn,
@@ -214,10 +208,7 @@ public extension ObjectPrx {
         }
         return try _impl._invoke(operation: "ice_id",
                                  mode: .Nonmutating,
-                                 read: { istr in
-                                     let id: String = try istr.read()
-                                     return id
-                                 },
+                                 read: { istr in try istr.read() as String },
                                  context: context)
     }
 
@@ -230,10 +221,7 @@ public extension ObjectPrx {
         }
         return _impl._invokeAsync(operation: "ice_id",
                                   mode: .Nonmutating,
-                                  read: { istr in
-                                      let id: String = try istr.read()
-                                      return id
-                                  },
+                                  read: { istr in try istr.read() as String },
                                   context: context,
                                   sent: sent,
                                   sentOn: sentOn,
@@ -246,10 +234,7 @@ public extension ObjectPrx {
         }
         return try _impl._invoke(operation: "ice_ids",
                                  mode: .Nonmutating,
-                                 read: { istr in
-                                     let id: StringSeq = try istr.read()
-                                     return id
-                                 },
+                                 read: { istr in try istr.read() as StringSeq },
                                  context: context)
     }
 
@@ -262,10 +247,7 @@ public extension ObjectPrx {
         }
         return _impl._invokeAsync(operation: "ice_ids",
                                   mode: .Nonmutating,
-                                  read: { istr in
-                                      let id: StringSeq = try istr.read()
-                                      return id
-                                  },
+                                  read: { istr in try istr.read() as StringSeq },
                                   context: context,
                                   sent: sent,
                                   sentOn: sentOn,
