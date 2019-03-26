@@ -49,7 +49,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func proxyToString(_ obj: ObjectPrx) throws -> String {
-        return try _handle.proxy(toString: obj.impl.handle)
+        return try _handle.proxy(toString: obj._impl.handle)
     }
 
     func propertyToProxy(_ property: String) throws -> ObjectPrx? {
@@ -62,7 +62,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func proxyToProperty(proxy: ObjectPrx, property: String) throws -> PropertyDict {
-        return try _handle.proxy(toProperty: proxy.impl.handle, property: property)
+        return try _handle.proxy(toProperty: proxy._impl.handle, property: property)
     }
 
     func stringToIdentity(_ str: String) throws -> Identity {
@@ -137,12 +137,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func flushBatchRequestsAsync(_ compress: CompressBatch,
                                  sent: ((Bool) -> Void)? = nil,
-                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try autoreleasepool {
                 try _handle.flushBatchRequestsAsync(compress.rawValue,
                                                     exception: { seal.reject($0) },
-                                                    sent: createSentCallback(sent: sent, sentOn: sentOn))
+                                                    sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
             }
         }
     }

@@ -53,12 +53,13 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
     public func flushBatchRequestsAsync(_ compress: CompressBatch,
                                         sent: ((Bool) -> Void)? = nil,
-                                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+                                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try autoreleasepool {
                 try _handle.flushBatchRequestsAsync(compress.rawValue,
                                                     exception: {error in seal.reject(error)},
-                                                    sent: createSentCallback(sent: sent, sentOn: sentOn))
+                                                    sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
             }
         }
     }
@@ -97,11 +98,12 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     }
 
     func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
-                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return) -> Promise<Void> {
+                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try autoreleasepool {
                 try _handle.heartbeatAsync(exception: {error in seal.reject(error)},
-                                           sent: createSentCallback(sent: sent, sentOn: sentOn))
+                                           sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
             }
         }
     }

@@ -380,7 +380,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             << (!base ? "true" : "false") << ")";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            writeMarshalUnmarshalCode(out, *i, p, false, false, true);
+            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), true);
         }
         out << nl << "ostr.endSlice()";
         if(base)
@@ -400,7 +400,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "try istr.startSlice()";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            writeMarshalUnmarshalCode(out, *i, p, false, false, false);
+            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false);
         }
         out << nl << "try istr.endSlice()";
         if(base)
@@ -455,8 +455,9 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
     const DataMemberList members = p->dataMembers();
 
+    bool isClass = p->hasMetaData("swift:class") || containsClassMembers(p);
     out << sp;
-    out << nl << "public struct " << name;
+    out << nl << "public " << (isClass ? "class " : "struct ") << name;
     if(legalKeyType)
     {
         out << ": Swift.Hashable";
@@ -475,18 +476,13 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << sb;
         out << nl << "func read() throws -> " << name;
         out << sb;
+        out << nl << "var v = " << name << "()";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, *q, p, true, true, false);
+            writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
         }
 
-        out << nl << "return " << name;
-        out << spar;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-        {
-            out << ((*q)->name() + ": " + (*q)->name());
-        }
-        out << epar;
+        out << nl << "return v";
         out << eb;
 
         out << eb;
@@ -498,7 +494,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << "func write(_ v: " << name << ")" << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, *q, p, true, false, true);
+            writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), true);
         }
         out << eb;
 
@@ -542,13 +538,27 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
-    out << nl << "var v = " << name << "()";
-    out << nl << "v.reserveCapacity(sz)";
-    out << nl << "for _ in 0 ..< sz";
-    out << sb;
-    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "j", p, false, true, false);
-    out << nl << "v.append(j)";
-    out << eb;
+
+    if(isClassType(type))
+    {
+        out << nl << "var v = " << name << "(repeating: nil, count: sz)";
+        out << nl << "for i in 0 ..< sz";
+        out << sb;
+        out << nl << "let p = UnsafeMutablePointer<" << typeToString(p->type(), p) << ">(&v[i])";
+        writeMarshalUnmarshalCode(out, type, p, "p.pointee", false);
+        out << eb;
+    }
+    else
+    {
+        out << nl << "var v = " << name << "()";
+        out << nl << "v.reserveCapacity(sz)";
+        out << nl << "for _ in 0 ..< sz";
+        out << sb;
+        string param = "let j: " + typeToString(p->type(), p);
+        writeMarshalUnmarshalCode(out, type, p, param, false);
+        out << nl << "v.append(j)";
+        out << eb;
+    }
     out << nl << "return v";
     out << eb;
 
@@ -573,9 +583,9 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
-    out << nl << "v.forEach";
+    out << nl << "for item in v";
     out << sb;
-    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "$0", p, false, false, true);
+    writeMarshalUnmarshalCode(out, type,  p, "item", true);
     out << eb;
     out << eb;
 
@@ -614,11 +624,10 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
+    const string keyType = typeToString(p->keyType(), p);
+    const string valueType = typeToString(p->valueType(), p);
     out << sp;
-    out << nl << "public typealias " << name << " = ["
-        << typeToString(p->keyType(), p) << ": "
-        << typeToString(p->valueType(), p)
-        << "]";
+    out << nl << "public typealias " << name << " = [" << keyType << ": " << valueType << "]";
 
     if(p->isLocal())
     {
@@ -640,14 +649,39 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << sb;
     out << nl << "let sz = try Int(istr.readSize())";
     out << nl << "var v = " << name << "()";
-    out << nl << "for _ in 0 ..< sz";
-    out << sb;
-    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", p,
-                              false, true, false);
-    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", p,
-                              false, true, false);
-    out << nl << "v[key] = value";
-    out << eb;
+    if(isClassType(p->valueType()))
+    {
+        out << nl << "var entries = [DictionaryEntryReference<" << keyType << ", " << valueType << ">]()";
+        out << nl << "for _ in 0 ..< sz";
+        out << sb;
+        string keyParam = "let key: " + keyType;
+        writeMarshalUnmarshalCode(out, p->keyType(), p, keyParam, false);
+        out << nl << "v[key] = nil as " << valueType;
+        out << nl << "let ref = DictionaryEntryReference(";
+        out.useCurrentPosAsIndent();
+        out << "key: key," << nl;
+        out << "value: UnsafeMutablePointer<" << valueType << ">(&v[key, default:nil]))";
+        out.restoreIndent();
+        out << nl << "entries.append(ref)";
+        writeMarshalUnmarshalCode(out, p->valueType(), p, "ref.value.pointee", false);
+        out << eb;
+
+        out << nl << "for entry in entries" << sb;
+        out << nl << "entry.value = UnsafeMutablePointer<" << valueType << ">(&v[entry.key, default:nil])";
+        out << eb;
+    }
+    else
+    {
+        out << nl << "for _ in 0 ..< sz";
+        out << sb;
+        string keyParam = "let key: " + keyType;
+        writeMarshalUnmarshalCode(out, p->keyType(), p, keyParam, false);
+        string valueParam = "let value: " + typeToString(p->valueType(), p);
+        writeMarshalUnmarshalCode(out, p->valueType(), p, valueParam, false);
+        out << nl << "v[key] = value";
+        out << eb;
+    }
+
     out << nl << "return v";
     out << eb;
 
@@ -675,10 +709,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "v.forEach";
     out << sb;
     out << "key, value in";
-    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", p,
-                              false, false, true);
-    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", p,
-                              false, false, true);
+    writeMarshalUnmarshalCode(out, p->keyType(), p, "key", true);
+    writeMarshalUnmarshalCode(out, p->valueType(), p, "value", true);
     out << eb;
     out << eb;
 
@@ -910,8 +942,8 @@ Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
 void
 Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
 {
-    writeProxyOperation(out, op, false);
-    writeProxyOperation(out, op, true);
+    writeProxyOperation(out, op);
+    writeProxyAsyncOperation(out, op);
 }
 
 Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& o) : out(o)
@@ -1017,15 +1049,14 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
-        TypePtr type = member->type();
         if(!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member, p, false, false, false);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeMarshalUnmarshalCode(out, *d, p, false, false, false, (*d)->tag());
+        writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), false, (*d)->tag());
     }
     out << nl << "try istr.endSlice()";
     if(base)
@@ -1050,12 +1081,12 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr type = member->type();
         if(!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member, p, false, false, true);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeMarshalUnmarshalCode(out, *d, p, false, false, true, (*d)->tag());
+        writeMarshalUnmarshalCode(out, (*d)->type(), p, "self." + fixIdent((*d)->name()), true, (*d)->tag());
     }
     out << nl << "ostr.endSlice()";
     if(base)
@@ -1355,11 +1386,12 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
                 s << "_ ";
             }
             s << fixIdent(param->name()) << ": "
-            << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
+              << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
             out << s.str();
         }
         out << "sent: ((Bool) -> Void)?";
         out << "sentOn: Dispatch.DispatchQueue?";
+        out << "sentFlags: Dispatch.DispatchWorkItemFlags?";
         out << epar;
 
         out << " -> ";

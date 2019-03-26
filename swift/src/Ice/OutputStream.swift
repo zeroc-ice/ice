@@ -832,7 +832,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             return
         }
 
-        if let curr = current, current != nil, encaps.format == FormatType.SlicedFormat {
+        if let current = current, encaps.format == FormatType.SlicedFormat {
             //
             // If writing an instance within a slice and using the sliced
             // format, write an index from the instance indirection
@@ -841,12 +841,12 @@ private final class EncapsEncoder11: EncapsEncoder {
             // unknown).
             //
             let vh = ValueHolder(v)
-            if let index = curr.indirectionMap[vh] {
+            if let index = current.indirectionMap[vh] {
                 os.write(size: index)
             } else {
-                curr.indirectionTable.append(vh)
-                let idx = curr.indirectionTable.count // Position + 1 (0 is reserved for nil)
-                curr.indirectionMap[vh] = Int32(idx)
+                current.indirectionTable.append(vh)
+                let idx = current.indirectionTable.count // Position + 1 (0 is reserved for nil)
+                current.indirectionMap[vh] = Int32(idx)
                 os.write(size: idx)
             }
         } else {

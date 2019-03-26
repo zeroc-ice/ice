@@ -30,6 +30,19 @@ ModulePtr getTopLevelModule(const TypePtr&);
 std::string fixIdent(const std::string&);
 StringList splitScopedName(const std::string&);
 
+struct ParamInfo
+{
+    std::string name;
+    std::string fixedName;
+    TypePtr type;
+    std::string typeStr;
+    bool optional;
+    int tag;
+    ParamDeclPtr param; // 0 == return value
+};
+
+typedef std::list<ParamInfo> ParamInfoList;
+
 class SwiftGenerator : private IceUtil::noncopyable
 {
 public:
@@ -39,6 +52,16 @@ public:
     static void validateMetaData(const UnitPtr&);
 
 protected:
+
+    std::string operationReturnType(const OperationPtr&);
+    bool operationReturnIsTuple(const OperationPtr&);
+    std::string operationReturnTypeLabel(const OperationPtr&);
+
+    ParamInfoList getAllInParams(const OperationPtr&);
+    void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
+
+    ParamInfoList getAllOutParams(const OperationPtr&);
+    void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
     std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false,
                              int = 0);
@@ -62,6 +85,9 @@ protected:
     bool isObjcRepresentable(const TypePtr&);
     bool isObjcRepresentable(const DataMemberList&);
     bool isProxyType(const TypePtr&);
+    bool isClassType(const TypePtr&);
+
+    bool containsClassMembers(const StructPtr&);
 
     void writeConstantValue(IceUtilInternal::Output& out, const TypePtr&, const SyntaxTreeBasePtr&,
                             const std::string&, const StringList&, const std::string&);
@@ -73,33 +99,20 @@ protected:
                                     const StringPairList& = StringPairList());
     void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
+
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
                                    const TypePtr&,
-                                   const std::string&,
-                                   const std::string&,
                                    const ContainedPtr&,
-                                   bool,
-                                   bool,
-                                   bool,
-                                   int = -1);
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                   const ParamDeclPtr&,
-                                   bool,
-                                   bool,
+                                   const std::string&,
                                    bool,
                                    int = -1);
 
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                   const DataMemberPtr&,
-                                   const ContainedPtr&,
-                                   bool,
-                                   bool,
-                                   bool,
-                                   int = -1);
-
-    void writeProxyOperation(::IceUtilInternal::Output&,
-                              const OperationPtr&,
-                              bool);
+    bool usesMarshalHelper(const TypePtr&);
+    void writeMarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeUnmarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr&);
+    void writeProxyOperation(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeProxyAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
 
 private:
 

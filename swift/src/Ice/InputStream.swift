@@ -924,10 +924,15 @@ extension EncapsDecoder {
         // the callback will be called when the instance is
         // unmarshaled.
         //
-        patchMap[index, default: []].append(cb)
+        if var entries = patchMap[index] {
+            entries.append(cb)
+            patchMap[index] = entries
+        } else {
+            patchMap[index] = [cb]
+        }
     }
 
-    func unmarshal(index: Int32, v: inout Value) throws {
+    func unmarshal(index: Int32, v: Value) throws {
         //
         // Add the instance to the map of unmarshaled instances, this must
         // be done before reading the instances (for circular references).
@@ -948,7 +953,7 @@ extension EncapsDecoder {
             //
             // Patch all pointers that refer to the instance.
             //
-            try l.forEach { cb in
+            for cb in l {
                 try cb(v)
             }
 
@@ -1220,7 +1225,7 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         // Unmarshal the instance and add it to the map of unmarshaled instances.
         //
-        try unmarshal(index: index, v: &v)
+        try unmarshal(index: index, v: v)
     }
 }
 
@@ -1656,7 +1661,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Unmarshal the instance.
         //
-        try unmarshal(index: index, v: &v!)
+        try unmarshal(index: index, v: v!)
 
         if current == nil, !patchMap.isEmpty {
             //
@@ -1710,5 +1715,15 @@ private class EncapsDecoder11: EncapsDecoder {
         }
         current.sliceType = sliceType
         current.skipFirstSlice = false
+    }
+}
+
+public class DictionaryEntryReference<K, V> {
+    public let key: K
+    public var value: UnsafeMutablePointer<V>
+
+    public init(key: K, value: UnsafeMutablePointer<V>) {
+        self.key = key
+        self.value = value
     }
 }
