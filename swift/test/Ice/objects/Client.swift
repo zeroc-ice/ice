@@ -4,9 +4,14 @@
 
 import Ice
 import TestCommon
+import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
+        PromiseKit.conf.Q.map = .global()
+        PromiseKit.conf.Q.return = .global()
+        PromiseKit.conf.logHandler = { _ in }
+
         let (communicator, _) = try self.initialize(args: args)
         defer {
             communicator.destroy()
@@ -23,8 +28,8 @@ public class Client: TestHelperI {
         let output = self.getWriter()
 
         output.write("testing stringToProxy... ")
-        let ref = "initial:\(self.getTestEndpoint(num: 0))"
-        let base = try communicator.stringToProxy(ref)!
+        var ref = "initial:\(self.getTestEndpoint(num: 0))"
+        var base = try communicator.stringToProxy(ref)!
         output.writeLine("ok")
 
         output.write("testing checked cast... ")
@@ -33,7 +38,7 @@ public class Client: TestHelperI {
         output.writeLine("ok")
 
         output.write("getting B1... ")
-        let b1 = try initial.getB1()!
+        var b1 = try initial.getB1()!
         output.writeLine("ok")
 
         output.write("getting B2... ")
@@ -135,6 +140,121 @@ public class Client: TestHelperI {
             let (v3, v2) = try initial.opValueMap(["l": L(data: "l")])
             try test((v2["l"]! as! L).data == "l")
             try test((v3["l"]! as! L).data == "l")
+        }
+        output.writeLine("ok")
+
+        output.write("getting D1... ")
+        do {
+            var d1 = D1(a1: A1(name: "a1"),
+                        a2: A1(name: "a2"),
+                        a3: A1(name: "a3"),
+                        a4: A1(name: "a4"))
+            d1 = try initial.getD1(d1)!
+            try test(d1.a1!.name == "a1")
+            try test(d1.a2!.name == "a2")
+            try test(d1.a3!.name == "a3")
+            try test(d1.a4!.name == "a4")
+        }
+        output.writeLine("ok")
+
+        output.write("throw EDerived... ")
+        do {
+            try initial.throwEDerived()
+            try test(false)
+        } catch let ederived as EDerived {
+            try test(ederived.a1!.name == "a1")
+            try test(ederived.a2!.name == "a2")
+            try test(ederived.a3!.name == "a3")
+            try test(ederived.a4!.name == "a4")
+        }
+        output.writeLine("ok")
+
+        output.write("setting G... ")
+        do {
+            try initial.setG(G(theS: S(str: "hello"), str: "g"))
+        } catch is Ice.OperationNotExistException {}
+        output.writeLine("ok")
+
+        output.write("setting I... ")
+        try initial.setI(i)
+        try initial.setI(j)
+        try initial.setI(h)
+        output.writeLine("ok")
+
+        output.write("testing sequences...")
+        do {
+            var (retS, outS) = try initial.opBaseSeq([Base]())
+            (retS, outS) = try initial.opBaseSeq([Base(theS: S(), str: "")])
+            try test(retS.count == 1 && outS.count == 1)
+        } catch is Ice.OperationNotExistException {}
+        output.writeLine("ok")
+
+        output.write("testing recursive type... ")
+        var top = Recursive()
+        var p = top
+        do {
+            for depth in 0..<1000 {
+                  p.v = Recursive()
+                  p = p.v!
+                  if (depth < 10 && (depth % 10) == 0) ||
+                     (depth < 1000 && (depth % 100) == 0) ||
+                     (depth < 10000 && (depth % 1000) == 0) ||
+                     (depth % 10000) == 0 {
+                      try initial.setRecursive(top);
+                  }
+            }
+            try test(!initial.supportsClassGraphDepthMax())
+        } catch is Ice.UnknownLocalException {
+            // Expected marshal exception from the server(max class graph depth reached)
+        } catch is Ice.UnknownException {
+            // Expected stack overflow from the server(Java only)
+        }
+        try initial.setRecursive(Recursive())
+        output.writeLine("ok")
+
+        output.write("testing compact ID...")
+        do {
+            try test(initial.getCompact() != nil)
+        } catch is Ice.OperationNotExistException {}
+        output.writeLine("ok")
+
+        output.write("testing marshaled results...")
+        b1 = try initial.getMB()!
+        try test(b1.theB === b1)
+        b1 = try initial.getAMDMBAsync().wait()!
+        try test(b1.theB === b1)
+        output.writeLine("ok")
+
+        output.write("testing UnexpectedObjectException...")
+        ref = "uoet:\(self.getTestEndpoint(num: 0))"
+        base = try communicator.stringToProxy(ref)!
+        try test(base !== nil);
+        var uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)!
+        do {
+            try uoet.op()
+            try test(false)
+        } catch let ex as Ice.UnexpectedObjectException {
+            try test(ex.type == "::Test::AlsoEmpty")
+            try test(ex.expectedType == "::Test::Empty")
+        } catch {
+            output.writeLine("\(error)")
+            try test(false)
+        }
+        output.writeLine("ok")
+
+        output.write("testing class containing complex dictionary... ")
+        do {
+            let k1 = StructKey(i: 1, s: "1")
+            let k2 = StructKey(i: 2, s: "2")
+            let (m2, m1) = try initial.opM(M(v: [k1: L(data: "one"), k2: L(data: "two")]))
+            try test(m1!.v.count == 2)
+            try test(m2!.v.count == 2)
+
+            try test(m1!.v[k1]!!.data == "one")
+            try test(m2!.v[k1]!!.data == "one")
+
+            try test(m1!.v[k2]!!.data == "two")
+            try test(m2!.v[k2]!!.data == "two")
         }
         output.writeLine("ok")
         try initial.shutdown()
