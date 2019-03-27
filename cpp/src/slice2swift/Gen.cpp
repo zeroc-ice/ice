@@ -321,7 +321,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << sp;
         out << nl << "public extension Ice.ClassResolver";
         out << sb;
-        out << nl << "@objc public static func " << factory.str() << "() -> Ice.UserExceptionTypeResolver";
+        out << nl << "@objc static func " << factory.str() << "() -> Ice.UserExceptionTypeResolver";
         out << sb;
         out << nl << "return " << name << "_TypeResolver()";
         out << eb;
@@ -965,8 +965,33 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         base = bases.front();
     }
 
+    out << sp;
+    out << nl << "public class " << name << "_TypeResolver: Ice.ValueTypeResolver";
+    out << sb;
+    out << nl << "public override func type() -> Ice.Value.Type";
+    out << sb;
+    out << nl << "return " << name << ".self";
+    out << eb;
+    out << eb;
+
+    if(p->compactId() >= 0)
+    {
+        //
+        // For each Value class using a compact id we generate an extension
+        // method in TypeIdResolver.
+        //
+        out << sp;
+        out << nl << "public extension Ice.TypeIdResolver";
+        out << sb;
+        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> String";
+        out << sb;
+        out << nl << "return \"" << p->scoped() << "\"";
+        out << eb;
+        out << eb;
+    }
+
     //
-    // For each Value class we generate a extension in ClassResolver
+    // For each Value class we generate an extension method in ClassResolver
     //
     ostringstream factory;
     StringList parts = splitScopedName(p->scoped());
@@ -980,18 +1005,9 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp;
-    out << nl << "public class " << name << "_TypeResolver: Ice.ValueTypeResolver";
-    out << sb;
-    out << nl << "public override func type() -> Ice.Value.Type";
-    out << sb;
-    out << nl << "return " << name << ".self";
-    out << eb;
-    out << eb;
-
-    out << sp;
     out << nl << "public extension Ice.ClassResolver";
     out << sb;
-    out << nl << "@objc public static func " << factory.str() << "() -> Ice.ValueTypeResolver";
+    out << nl << "@objc static func " << factory.str() << "() -> Ice.ValueTypeResolver";
     out << sb;
     out << nl << "return " << name << "_TypeResolver()";
     out << eb;
@@ -1034,7 +1050,6 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl;
     out << nl;
     if(base)
     {
