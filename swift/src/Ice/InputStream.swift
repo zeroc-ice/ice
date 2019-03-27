@@ -209,7 +209,7 @@ public class InputStream {
     public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
-        } else {
+        } else if encoding == Protocol.Encoding_1_0{
             //
             // If using the 1.0 encoding and no instances were read, we
             // still read an empty sequence of pending instances if
