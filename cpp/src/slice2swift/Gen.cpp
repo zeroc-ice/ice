@@ -651,23 +651,20 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "var v = " << name << "()";
     if(isClassType(p->valueType()))
     {
-        out << nl << "var entries = [DictionaryEntryReference<" << keyType << ", " << valueType << ">]()";
-        out << nl << "for _ in 0 ..< sz";
+        out << nl << "let e = Ice.DictEntryArray<" << keyType << ", " << valueType << ">(size: sz)";
+        out << nl << "for i in 0 ..< sz";
         out << sb;
         string keyParam = "let key: " + keyType;
         writeMarshalUnmarshalCode(out, p->keyType(), p, keyParam, false);
         out << nl << "v[key] = nil as " << valueType;
-        out << nl << "let ref = DictionaryEntryReference(";
-        out.useCurrentPosAsIndent();
-        out << "key: key," << nl;
-        out << "value: UnsafeMutablePointer<" << valueType << ">(&v[key, default:nil]))";
-        out.restoreIndent();
-        out << nl << "entries.append(ref)";
-        writeMarshalUnmarshalCode(out, p->valueType(), p, "ref.value.pointee", false);
+        out << nl << "e.values[i] = Ice.DictEntry<" << keyType << ", " << valueType << ">("
+            << "key: key, "
+            << "value: UnsafeMutablePointer<" << valueType << ">(&v[key, default:nil]))";
+        writeMarshalUnmarshalCode(out, p->valueType(), p, "e.values[i].value.pointee", false);
         out << eb;
 
-        out << nl << "for entry in entries" << sb;
-        out << nl << "entry.value = UnsafeMutablePointer<" << valueType << ">(&v[entry.key, default:nil])";
+        out << nl << "for i in 0..<sz" << sb;
+        out << nl << "e.values[i].value = UnsafeMutablePointer<" << valueType << ">(&v[e.values[i].key, default:nil])";
         out << eb;
     }
     else

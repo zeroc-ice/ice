@@ -1718,12 +1718,20 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 }
 
-public class DictionaryEntryReference<K, V> {
-    public let key: K
-    public var value: UnsafeMutablePointer<V>
+public struct DictEntry<K, V> {
+    public var key: K!
+    public var value: UnsafeMutablePointer<V>!
 
-    public init(key: K, value: UnsafeMutablePointer<V>) {
+    public init(key: K? = nil, value: UnsafeMutablePointer<V>? = nil) {
         self.key = key
         self.value = value
+    }
+}
+
+public class DictEntryArray<K, V> {
+    public var values: [DictEntry<K, V>]
+
+    public init(size: Int) {
+        self.values = [DictEntry<K, V>](repeating: DictEntry<K, V>(), count: size)
     }
 }
