@@ -10,7 +10,7 @@
 public protocol Exception: Error {
 }
 
-public class LocalException: Exception {
+open class LocalException: Exception {
     let _file: String
     let _line: Int
 
