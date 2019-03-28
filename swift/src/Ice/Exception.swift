@@ -28,42 +28,39 @@ open class LocalException: Exception {
     }
 }
 
-public protocol UserException: Exception, CustomStringConvertible {
-    var description: String { get }
+open class UserException: Exception {
 
-    init()
+    public required init() {}
 
-    func _iceReadImpl(from: InputStream) throws
-    func _iceWriteImpl(to: OutputStream)
-    func _usesClasses() -> Bool
+    open func _iceReadImpl(from: InputStream) throws {}
+    open func _iceWriteImpl(to: OutputStream) {}
 
-    func ice_id() -> String
-    static func ice_staticId() -> String
-}
-
-public extension UserException {
-    var description: String {
-        return Self.ice_staticId()
+    open func _usesClasses() -> Bool {
+        return  false
     }
 
-    internal static func isBase(of ex: UserException.Type) -> Bool {
-        return ex is Self
+    open func ice_id() -> String {
+        return "::Ice::UserException"
     }
 
-    func _iceRead(from istr: InputStream) throws {
+    open class func ice_staticId() -> String {
+        return "::Ice::UserException"
+    }
+
+    open func _iceRead(from istr: InputStream) throws {
         istr.startException()
         try _iceReadImpl(from: istr)
         _ = try istr.endException(preserve: false)
     }
 
-    func _iceWrite(to ostr: OutputStream) {
+    open func _iceWrite(to ostr: OutputStream) {
         ostr.startException(data: nil)
         _iceWriteImpl(to: ostr)
         ostr.endException()
     }
 
-    func _usesClasses() -> Bool {
-        return false
+    open func ice_getSlicedData() -> SlicedData? {
+        return nil
     }
 }
 

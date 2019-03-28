@@ -329,7 +329,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
-    out << nl << "public class " << name << ": ";
+    out << nl << "open class " << name << ": ";
     if(base)
     {
         out << getUnqualified(getAbsolute(base), swiftModule);
@@ -355,11 +355,18 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         extraParams.push_back(make_pair("line", "Int = #line"));
     }
 
-    bool rootClass = !base && !p->isLocal();
-    // bool required =
     writeMembers(out, members, p);
 
+    const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
+
+    if(!p->isLocal() && preserved && !basePreserved)
+    {
+        out << nl << "var _slicedData: Ice.SlicedData?";
+    }
+
     // Local exceptions do not need default initializers
+    bool rootClass = !base && !p->isLocal();
     if(!p->isLocal())
     {
         writeDefaultInitializer(out, members, p, rootClass, true);
@@ -369,12 +376,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!p->isLocal())
     {
         out << sp;
-        out << nl;
-        if(base)
-        {
-            out << "override ";
-        }
-        out << "public func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+        out << nl << "override open func _iceWriteImpl(to ostr: "
+            << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
         out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: -1, last: "
             << (!base ? "true" : "false") << ")";
@@ -390,14 +393,10 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << eb;
 
         out << sp;
-        out << nl;
-        if(base)
-        {
-            out << "override ";
-        }
-        out << "public func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+        out << nl << "override open func _iceReadImpl(from istr: "
+            << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
         out << sb;
-        out << nl << "try istr.startSlice()";
+        out << nl << "_ = try istr.startSlice()";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
             writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false);
@@ -412,34 +411,43 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
         {
             out << sp;
-            out << nl;
-            out << "public func _usesClasses() -> Bool";
-            out << sb;
+            out << nl << "override open func _usesClasses() -> Bool" << sb;
             out << nl << "return true";
             out << eb;
         }
-
         out << sp;
-        out << nl;
-        if(base)
-        {
-            out << "override ";
-        }
-        out << "public func ice_id() -> Swift.String";
+        out << nl << "override open func ice_id() -> Swift.String";
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
 
         out << sp;
-        out << nl;
-        if(base)
-        {
-            out << "override ";
-        }
-        out << "public class func ice_staticId() -> Swift.String";
+        out << nl << "override open class func ice_staticId() -> Swift.String";
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
+
+        if(preserved && !basePreserved)
+        {
+            out << sp;
+            out << nl << "override open func ice_getSlicedData() -> Ice.SlicedData?" << sb;
+            out << nl << "return _slicedData";
+            out << eb;
+
+            out << sp;
+            out << nl << "override open func _iceRead(from istr: Ice.InputStream) throws" << sb;
+            out << nl << "istr.startException()";
+            out << nl << "try _iceReadImpl(from: istr)";
+            out << nl << "_slicedData = try istr.endException(preserve: true)";
+            out << eb;
+
+            out << sp;
+            out << nl << "override open func _iceWrite(to ostr: Ice.OutputStream)" << sb;
+            out << nl << "ostr.startException(data: _slicedData)";
+            out << nl << "_iceWriteImpl(to: ostr)";
+            out << nl << "ostr.endException()";
+            out << eb;
+        }
     }
 
     out << eb;
@@ -1014,7 +1022,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public class " << name << ": ";
+    out << nl << "open class " << name << ": ";
     if(base)
     {
         out << getUnqualified(getAbsolute(base), swiftModule);
@@ -1030,34 +1038,29 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-    // TODO:
-    //const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    //const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
 
     writeMembers(out, members, p);
+    if(!p->isLocal() && preserved && !basePreserved)
+    {
+        out << nl << "var _slicedData: Ice.SlicedData?";
+    }
+
     writeDefaultInitializer(out, members, p, !base, true);
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
 
     out << sp;
-    out << nl;
-    if(base)
-    {
-        out << "override ";
-    }
-    out << "public class func ice_staticId() -> Swift.String";
+    out << nl << "override open class func ice_staticId() -> Swift.String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
-    out << nl;
-    if(base)
-    {
-        out << "override ";
-    }
-    out << "public func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+    out << nl << "override open func _iceReadImpl(from istr: "
+        << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
     out << sb;
-    out << nl << "try istr.startSlice()";
+    out << nl << "_ = try istr.startSlice()";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
@@ -1078,12 +1081,8 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl;
-    if(base)
-    {
-        out << "override ";
-    }
-    out << "public func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << nl << "override open func _iceWriteImpl(to ostr: "
+        << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId:" << p->compactId() << ", last: "
         << (!base ? "true" : "false") << ")";
@@ -1107,21 +1106,27 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     out << eb;
 
-    out << sp;
-    out << nl;
-    if(base)
+    if(preserved && !basePreserved)
     {
-        out << "override ";
-    }
-    out << "public func ice_preMarshal() {}";
+        out << sp;
+        out << nl << "override open func ice_getSlicedData() -> Ice.SlicedData?" << sb;
+        out << nl << "return _slicedData";
+        out << eb;
 
-    out << sp;
-    out << nl;
-    if(base)
-    {
-        out << "override ";
+        out << sp;
+        out << nl << "override open func _iceRead(from istr: Ice.InputStream) throws" << sb;
+        out << nl << "istr.startValue()";
+        out << nl << "try _iceReadImpl(from: istr)";
+        out << nl << "_slicedData = try istr.endValue(preserve: true)";
+        out << eb;
+
+        out << sp;
+        out << nl << "override open func _iceWrite(to ostr: Ice.OutputStream)" << sb;
+        out << nl << "ostr.startValue(data: _slicedData)";
+        out << nl << "_iceWriteImpl(to: ostr)";
+        out << nl << "ostr.endValue()";
+        out << eb;
     }
-    out << "public func ice_postUnmarshal() {}";
 
     return true;
 }

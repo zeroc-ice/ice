@@ -95,22 +95,22 @@ public class OutputStream {
         }
     }
 
-    func startValue(data: SlicedData?) {
+    public func startValue(data: SlicedData?) {
         precondition(encapsStack.encoder != nil)
         encapsStack.encoder.startInstance(type: .ValueSlice, data: data)
     }
 
-    func endValue() {
+    public func endValue() {
         precondition(encapsStack.encoder != nil)
         encapsStack.encoder.endInstance()
     }
 
-    func startException(data: SlicedData?) {
+    public func startException(data: SlicedData?) {
         precondition(encapsStack.encoder != nil)
         encapsStack.encoder.startInstance(type: .ExceptionSlice, data: data)
     }
 
-    func endException() {
+    public func endException() {
         precondition(encapsStack.encoder != nil)
         encapsStack.encoder.endInstance()
     }

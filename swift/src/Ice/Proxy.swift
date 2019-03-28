@@ -271,9 +271,9 @@ public extension ObjectPrx {
         }
     }
 
-    public func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)? = nil,
-                                            sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                            sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+    func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)? = nil,
+                                     sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                     sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try _impl.handle.ice_flushBatchRequestsAsync(
               exception: {

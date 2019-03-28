@@ -14,7 +14,7 @@ public final class UnknownSlicedValue: Value {
     private let unknownTypeId: String
     private var slicedData: SlicedData?
 
-    public init() {
+    public required init() {
         unknownTypeId = ""
     }
 
@@ -28,15 +28,15 @@ public final class UnknownSlicedValue: Value {
         slicedData = try ins.endValue(preserve: true)
     }
 
-    public func ice_id() -> String {
+    override public func ice_id() -> String {
         return unknownTypeId
     }
 
-    public static func ice_staticId() -> String {
+    public override class func ice_staticId() -> String {
         return "::Ice::UnknownSlicedValue"
     }
 
-    public func ice_getSlicedData() -> SlicedData? {
+    override public func ice_getSlicedData() -> SlicedData? {
         return slicedData
     }
 
@@ -49,13 +49,4 @@ public final class UnknownSlicedValue: Value {
         os.startValue(data: slicedData)
         os.endValue()
     }
-
-    public func _iceReadImpl(from _: InputStream) throws {
-    }
-
-    public func _iceWriteImpl(to _: OutputStream) {
-    }
-
-    public func ice_preMarshal() {}
-    public func ice_postUnmarshal() {}
 }

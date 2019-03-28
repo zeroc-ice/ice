@@ -464,8 +464,6 @@ public class Client: TestHelperI {
         output.writeLine("ok")
 
         output.write("preserved exceptions... ")
-        // TODO enable after adding ice_getSlicedData
-        /*
         do {
             try testPrx.unknownPreservedAsBase()
             try test(false)
@@ -473,8 +471,7 @@ public class Client: TestHelperI {
             if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
                 try test(ex.ice_getSlicedData() == nil)
             } else {
-                let slicedData = ex.ice_getSlicedData()
-                try test(slicedData != nil)
+                let slicedData = ex.ice_getSlicedData()!
                 try test(slicedData.slices.count == 2)
                 try test(slicedData.slices[1].typeId == "::Test::SPreserved1")
                 try test(slicedData.slices[0].typeId == "::Test::SPreserved2")
@@ -489,13 +486,12 @@ public class Client: TestHelperI {
             if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
                 try test(ex.ice_getSlicedData() == nil)
             } else {
-                let slicedData = ex.ice_getSlicedData()
-                try test(slicedData != nil)
+                let slicedData = ex.ice_getSlicedData()!
                 try test(slicedData.slices.count == 2)
                 try test(slicedData.slices[1].typeId == "::Test::SPreserved1")
                 try test(slicedData.slices[0].typeId == "::Test::SPreserved2")
             }
-        }*/
+        }
 
         // TODO enable once we have finish ported server side
         /* do {
