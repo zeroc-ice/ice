@@ -185,9 +185,9 @@ public class InputStream {
         try buf.position(buf.position() + Int(sz) - 6)
     }
 
-    public func startSlice() throws {
+    public func startSlice() throws -> String {
         precondition(encaps.decoder != nil)
-        try encaps.decoder.startSlice()
+        return try encaps.decoder.startSlice()
     }
 
     public func endSlice() throws {
@@ -837,7 +837,7 @@ private protocol EncapsDecoder: AnyObject {
 
     func startInstance(type: SliceType)
     func endInstance(preserve: Bool) throws -> SlicedData?
-    func startSlice() throws
+    func startSlice() throws -> String
     func endSlice() throws
     func skipSlice() throws
 
@@ -1059,14 +1059,13 @@ private class EncapsDecoder10: EncapsDecoder {
             //
             // Look for user exception
             //
-            var userExceptionType: UserException.Type?
-            userExceptionType = ClassResolver.resolve(typeId: typeId) as UserException.Type?
+            var userExceptionType: UserException.Type? = ClassResolver.resolve(typeId: typeId)
 
             //
             // We found the exception.
             //
-            if let userEx = userExceptionType {
-                let ex = userEx.init()
+            if let type = userExceptionType {
+                let ex = type.init()
                 try ex._iceRead(from: stream)
                 if usesClasses {
                     try readPendingValues()
@@ -1118,14 +1117,14 @@ private class EncapsDecoder10: EncapsDecoder {
         return nil
     }
 
-    func startSlice() throws {
+    func startSlice() throws -> String {
         //
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
         if skipFirstSlice {
             skipFirstSlice = false
-            return
+            return typeId
         }
 
         //
@@ -1134,7 +1133,6 @@ private class EncapsDecoder10: EncapsDecoder {
         // index. For exceptions, the type ID is always encoded as a
         // string.
         //
-        // For exceptions, the type ID is always encoded as a string
         if sliceType == .ValueSlice {
             let isIndex: Bool = try stream.read()
             typeId = try readTypeId(isIndex: isIndex)
@@ -1146,6 +1144,7 @@ private class EncapsDecoder10: EncapsDecoder {
         if sliceSize < 4 {
             throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
         }
+        return typeId
     }
 
     func endSlice() throws {}
@@ -1372,14 +1371,14 @@ private class EncapsDecoder11: EncapsDecoder {
         return slicedData
     }
 
-    func startSlice() throws {
+    func startSlice() throws -> String {
         //
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
         if current.skipFirstSlice {
             current.skipFirstSlice = false
-            return
+            return current.typeId
         }
 
         current.sliceFlags = try stream.read()
@@ -1425,7 +1424,7 @@ private class EncapsDecoder11: EncapsDecoder {
             current.sliceSize = 0
         }
 
-        return
+        return current.typeId
     }
 
     func endSlice() throws {
