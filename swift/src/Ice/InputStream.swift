@@ -1142,7 +1142,7 @@ private class EncapsDecoder10: EncapsDecoder {
             typeId = try stream.read()
         }
 
-        let sliceSize: Int32 = try stream.read()
+        sliceSize = try stream.read()
         if sliceSize < 4 {
             throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
         }
