@@ -39,11 +39,17 @@ public class ClassResolver: NSObject {
     }
 
     static func resolve(typeId: String) -> Value.Type? {
-        return (resolveImpl(typeId: typeId) as! ValueTypeResolver).type()
+        guard let t = resolveImpl(typeId: typeId) as? ValueTypeResolver else {
+            return nil
+        }
+        return t.type()
     }
 
     static func resolve(typeId: String) -> UserException.Type? {
-        return (resolveImpl(typeId: typeId) as! UserExceptionTypeResolver).type()
+        guard let t = resolveImpl(typeId: typeId) as? UserExceptionTypeResolver else {
+            return nil
+        }
+        return t.type()
     }
 }
 
