@@ -151,32 +151,32 @@ public class AllTests
             }
             comm.destroy();
         }
-        {
-            Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Ice.Communicator comm = Ice.Util.initialize(args, initData);
-            Ice.PluginManager pm = comm.getPluginManager();
-            pm.initializePlugins();
-            Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
-            test(obj != null);
-            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(obj);
-            java.util.Map<String, String> d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            d.put("IceSSL.VerifyPeer", "0");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            fact.destroyServer(server);
-            comm.destroy();
-        }
+        // {
+        //     Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+        //     initData.properties.setProperty("Ice.InitPlugins", "0");
+        //     initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        //     Ice.Communicator comm = Ice.Util.initialize(args, initData);
+        //     Ice.PluginManager pm = comm.getPluginManager();
+        //     pm.initializePlugins();
+        //     Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
+        //     test(obj != null);
+        //     ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(obj);
+        //     java.util.Map<String, String> d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        //     d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     d.put("IceSSL.VerifyPeer", "0");
+        //     ServerPrx server = fact.createServer(d);
+        //     try
+        //     {
+        //         server.ice_ping();
+        //     }
+        //     catch(Ice.LocalException ex)
+        //     {
+        //         test(false);
+        //     }
+        //     fact.destroyServer(server);
+        //     comm.destroy();
+        // }
         out.println("ok");
 
         out.print("testing certificate verification... ");
@@ -401,31 +401,31 @@ public class AllTests
             // Test IceSSL.VerifyPeer=1. This should fail because the server
             // does not supply a certificate.
             //
-            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-            comm = Ice.Util.initialize(args, initData);
-            fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            d.put("IceSSL.VerifyPeer", "0");
-            server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-                test(false);
-            }
-            catch(Ice.SecurityException ex)
-            {
-                // Expected.
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            fact.destroyServer(server);
-            comm.destroy();
+            // initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            // initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+            // initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+            // comm = Ice.Util.initialize(args, initData);
+            // fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            // test(fact != null);
+            // d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            // d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+            // d.put("IceSSL.VerifyPeer", "0");
+            // server = fact.createServer(d);
+            // try
+            // {
+            //     server.ice_ping();
+            //     test(false);
+            // }
+            // catch(Ice.SecurityException ex)
+            // {
+            //     // Expected.
+            // }
+            // catch(Ice.LocalException ex)
+            // {
+            //     test(false);
+            // }
+            // fact.destroyServer(server);
+            // comm.destroy();
 
             //
             // This should succeed because the self signed certificate used by the server is
@@ -850,65 +850,65 @@ public class AllTests
 
         out.print("testing custom certificate verifier... ");
         out.flush();
-        {
-            //
-            // ADH is allowed but will not have a certificate.
-            //
-            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Ice.Communicator comm = Ice.Util.initialize(args, initData);
-            IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-            test(plugin != null);
-            CertificateVerifierI verifier = new CertificateVerifierI();
-            plugin.setCertificateVerifier(verifier);
+        // {
+        //     //
+        //     // ADH is allowed but will not have a certificate.
+        //     //
+        //     initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+        //     initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        //     Ice.Communicator comm = Ice.Util.initialize(args, initData);
+        //     IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+        //     test(plugin != null);
+        //     CertificateVerifierI verifier = new CertificateVerifierI();
+        //     plugin.setCertificateVerifier(verifier);
 
-            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            d.put("IceSSL.VerifyPeer", "0");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                String cipherSub = "DH_anon";
-                server.checkCipher(cipherSub);
-                IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.cipher.indexOf(cipherSub) >= 0);
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            test(verifier.invoked());
-            test(!verifier.hadCert());
+        //     ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+        //     test(fact != null);
+        //     d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        //     d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     d.put("IceSSL.VerifyPeer", "0");
+        //     ServerPrx server = fact.createServer(d);
+        //     try
+        //     {
+        //         String cipherSub = "DH_anon";
+        //         server.checkCipher(cipherSub);
+        //         IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+        //         test(info.cipher.indexOf(cipherSub) >= 0);
+        //     }
+        //     catch(Ice.LocalException ex)
+        //     {
+        //         test(false);
+        //     }
+        //     test(verifier.invoked());
+        //     test(!verifier.hadCert());
 
-            //
-            // Have the verifier return false. Close the connection explicitly
-            // to force a new connection to be established.
-            //
-            verifier.reset();
-            verifier.returnValue(false);
-            server.ice_getConnection().close(false);
-            try
-            {
-                server.ice_ping();
-                test(false);
-            }
-            catch(Ice.SecurityException ex)
-            {
-                // Expected.
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            test(verifier.invoked());
-            test(!verifier.hadCert());
+        //     //
+        //     // Have the verifier return false. Close the connection explicitly
+        //     // to force a new connection to be established.
+        //     //
+        //     verifier.reset();
+        //     verifier.returnValue(false);
+        //     server.ice_getConnection().close(false);
+        //     try
+        //     {
+        //         server.ice_ping();
+        //         test(false);
+        //     }
+        //     catch(Ice.SecurityException ex)
+        //     {
+        //         // Expected.
+        //     }
+        //     catch(Ice.LocalException ex)
+        //     {
+        //         test(false);
+        //     }
+        //     test(verifier.invoked());
+        //     test(!verifier.hadCert());
 
-            fact.destroyServer(server);
-            comm.destroy();
-        }
+        //     fact.destroyServer(server);
+        //     comm.destroy();
+        // }
 
         {
             //
@@ -1268,32 +1268,32 @@ public class AllTests
 
         out.print("testing ciphers... ");
         out.flush();
-        {
-            //
-            // The server has a certificate but the client doesn't. They should
-            // negotiate to use ADH since we explicitly enable it.
-            //
-            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Ice.Communicator comm = Ice.Util.initialize(args, initData);
-            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
-            d.put("IceSSL.Ciphers", "ALL");
-            d.put("IceSSL.VerifyPeer", "1");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            fact.destroyServer(server);
-            comm.destroy();
-        }
+        // {
+        //     //
+        //     // The server has a certificate but the client doesn't. They should
+        //     // negotiate to use ADH since we explicitly enable it.
+        //     //
+        //     initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+        //     initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        //     Ice.Communicator comm = Ice.Util.initialize(args, initData);
+        //     ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+        //     test(fact != null);
+        //     d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+        //     d.put("IceSSL.Ciphers", "ALL");
+        //     d.put("IceSSL.VerifyPeer", "1");
+        //     ServerPrx server = fact.createServer(d);
+        //     try
+        //     {
+        //         server.ice_ping();
+        //     }
+        //     catch(Ice.LocalException ex)
+        //     {
+        //         test(false);
+        //     }
+        //     fact.destroyServer(server);
+        //     comm.destroy();
+        // }
         {
             //
             // Configure a server with RSA and DSA certificates.
@@ -1342,33 +1342,33 @@ public class AllTests
             //
             // Next try a client with ADH. This should fail.
             //
-            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            comm = Ice.Util.initialize(args, initData);
-            fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_dsa_ca1", "cacert1");
-            d.put("IceSSL.VerifyPeer", "1");
-            server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-                test(false);
-            }
-            catch(Ice.SecurityException ex)
-            {
-                // Expected.
-            }
-            catch(Ice.ConnectionLostException ex)
-            {
-                // Expected for thread pool.
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            fact.destroyServer(server);
-            comm.destroy();
+            // initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            // initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+            // comm = Ice.Util.initialize(args, initData);
+            // fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            // test(fact != null);
+            // d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_dsa_ca1", "cacert1");
+            // d.put("IceSSL.VerifyPeer", "1");
+            // server = fact.createServer(d);
+            // try
+            // {
+            //     server.ice_ping();
+            //     test(false);
+            // }
+            // catch(Ice.SecurityException ex)
+            // {
+            //     // Expected.
+            // }
+            // catch(Ice.ConnectionLostException ex)
+            // {
+            //     // Expected for thread pool.
+            // }
+            // catch(Ice.LocalException ex)
+            // {
+            //     test(false);
+            // }
+            // fact.destroyServer(server);
+            // comm.destroy();
         }
         {
             //
@@ -1448,6 +1448,8 @@ public class AllTests
             d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.Alias", "dsacert");
             d.put("IceSSL.VerifyPeer", "1");
+            // TLS 1.3 no longer supports DSA so disable TLS 1.3 for this test.
+            d.put("IceSSL.Protocols", "ssl3, tls1_0, tls1_1, tls1_2");
             ServerPrx server = fact.createServer(d);
             try
             {
@@ -1815,62 +1817,62 @@ public class AllTests
             fact.destroyServer(server);
             comm.destroy();
         }
-        {
-            //
-            // Test rejection when client does not supply a certificate.
-            //
-            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+        // {
+        //     //
+        //     // Test rejection when client does not supply a certificate.
+        //     //
+        //     initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+        //     initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        //     Ice.Communicator comm = Ice.Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.TrustOnly",
-                  "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            d.put("IceSSL.VerifyPeer", "0");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-                test(false);
-            }
-            catch(Ice.LocalException ex)
-            {
-            }
-            fact.destroyServer(server);
-            comm.destroy();
-        }
-        {
-            //
-            // Test rejection when client does not supply a certificate.
-            //
-            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+        //     ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+        //     test(fact != null);
+        //     d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        //     d.put("IceSSL.TrustOnly",
+        //           "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+        //     d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     d.put("IceSSL.VerifyPeer", "0");
+        //     ServerPrx server = fact.createServer(d);
+        //     try
+        //     {
+        //         server.ice_ping();
+        //         test(false);
+        //     }
+        //     catch(Ice.LocalException ex)
+        //     {
+        //     }
+        //     fact.destroyServer(server);
+        //     comm.destroy();
+        // }
+        // {
+        //     //
+        //     // Test rejection when client does not supply a certificate.
+        //     //
+        //     initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+        //     initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        //     Ice.Communicator comm = Ice.Util.initialize(args, initData);
 
-            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-            test(fact != null);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d.put("IceSSL.TrustOnly",
-                  "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
-            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
-            d.put("IceSSL.VerifyPeer", "0");
-            ServerPrx server = fact.createServer(d);
-            try
-            {
-                server.ice_ping();
-                test(false);
-            }
-            catch(Ice.LocalException ex)
-            {
-            }
-            fact.destroyServer(server);
-            comm.destroy();
-        }
+        //     ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+        //     test(fact != null);
+        //     d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        //     d.put("IceSSL.TrustOnly",
+        //           "!C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+        //     d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*AES.*)");
+        //     d.put("IceSSL.VerifyPeer", "0");
+        //     ServerPrx server = fact.createServer(d);
+        //     try
+        //     {
+        //         server.ice_ping();
+        //         test(false);
+        //     }
+        //     catch(Ice.LocalException ex)
+        //     {
+        //     }
+        //     fact.destroyServer(server);
+        //     comm.destroy();
+        // }
         {
             //
             // Rejection takes precedence (client).
