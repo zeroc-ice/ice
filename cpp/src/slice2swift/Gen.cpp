@@ -1051,8 +1051,12 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
 
     out << sp;
-    out << nl << "override open class func ice_staticId() -> Swift.String";
-    out << sb;
+    out << nl << "override open func ice_id() -> Swift.String" << sb;
+    out << nl << "return \"" << p->scoped() << "\"";
+    out << eb;
+
+    out << sp;
+    out << nl << "override open class func ice_staticId() -> Swift.String" << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
@@ -1084,7 +1088,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "override open func _iceWriteImpl(to ostr: "
         << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId:" << p->compactId() << ", last: "
+    out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: " << p->compactId() << ", last: "
         << (!base ? "true" : "false") << ")";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
