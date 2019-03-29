@@ -1605,6 +1605,12 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->sendMode()) << ",";
 
+    if(op->format() != DefaultFormat)
+    {
+        out << nl << "format: " << opFormatTypeToString(op);
+        out << ",";
+    }
+
     if(allInParams.size() > 0)
     {
         out << nl << "write: ";
