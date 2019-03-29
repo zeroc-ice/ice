@@ -94,4 +94,41 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSError*) runtimeError:(NSString*)message;
 @end
 
+@interface ICERuntimeException : NSError
+@property NSString* file;
+@property int line;
+@end
+
+//
+// Request Failed exceptions
+//
+@interface ICERequestFailedException : ICERuntimeException
+@property (nonatomic) NSString* name;
+@property (nonatomic) NSString* category;
+@property (nonatomic) NSString* facet;
+@property (nonatomic) NSString* operation;
+@end
+
+@interface ICEObjectNotExistException : ICERequestFailedException
+@end
+
+@interface ICEFacetNotExistException : ICERequestFailedException
+@end
+
+@interface ICEOperationNotExistException : ICERequestFailedException
+@end
+
+//
+// Unknown exceptions
+//
+@interface ICEUnknownException : ICERuntimeException
+@property (nonatomic) NSString* unknown;
+@end
+
+@interface ICEUnknownLocalException : ICEUnknownException
+@end
+
+@interface ICEUnknownUserException : ICEUnknownException
+@end
+
 NS_ASSUME_NONNULL_END

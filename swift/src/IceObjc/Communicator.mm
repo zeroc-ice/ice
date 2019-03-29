@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #import "IceObjcCommunicator.h"
+#import "IceObjcObjectAdapter.h"
 #import "IceObjcObjectPrx.h"
 #import "IceObjcLogger.h"
 #import "IceObjcImplicitContext.h"
@@ -109,29 +110,49 @@
     return toNSDictionary(_communicator->proxyToProperty([prx prx], fromNSString(property)));
 }
 
-//-(ObjectAdapterI*) createObjectAdapter:(NSString*)name error:(NSError* _Nullable * _Nullable)error
-//{
-////    try
-////    {
-//////        communicator->createObjectAdapter(fromNSString(name));
-////    }
-////    catch(const std::exception& ex)
-////    {
-////        *error = convertException(ex);
-////        return nil;
-////    }
-//    assert(false);
-//}
-//
-//-(ObjectAdapterI*) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints error:(NSError* _Nullable * _Nullable)error
-//{
-//    assert(false);
-//}
-//
-//-(ObjectAdapterI*) createObjectAdapterWithRouter:(NSString*)name router:(_RouterPrxI*)router error:(NSError* _Nullable * _Nullable)error
-//{
-//    assert(false);
-//}
+-(ICEObjectAdapter*) createObjectAdapter:(NSString*)name error:(NSError* _Nullable * _Nullable)error
+{
+    try
+    {
+        auto oa = _communicator->createObjectAdapter(fromNSString(name));
+        return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:oa];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
+-(ICEObjectAdapter*) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints error:(NSError* _Nullable * _Nullable)error
+{
+    try
+    {
+        auto oa = _communicator->createObjectAdapterWithEndpoints(fromNSString(name), fromNSString(endpoints));
+        return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:oa];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
+-(ICEObjectAdapter*) createObjectAdapterWithRouter:(NSString*)name router:(ICEObjectPrx*)router error:(NSError* _Nullable * _Nullable)error
+{
+    try
+    {
+        assert(router);
+        auto oa = _communicator->createObjectAdapterWithRouter(fromNSString(name),
+                                                               Ice::uncheckedCast<Ice::RouterPrx>([router prx]));
+        return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:oa];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
 
 -(ICEImplicitContext*) getImplicitContext
 {

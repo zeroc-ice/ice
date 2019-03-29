@@ -79,7 +79,7 @@ local interface ServantLocator
      * @see #finished
      *
      **/
-    ["java:UserException"] Object locate(Current curr, out LocalObject cookie);
+    ["java:UserException", "swift:nonnull"] Object locate(Current curr, out ["swift:nonnull"] LocalObject cookie);
 
     /**
      *
@@ -112,7 +112,9 @@ local interface ServantLocator
      * @see #locate
      *
      **/
-    ["java:UserException"] void finished(Current curr, Object servant, LocalObject cookie);
+    ["java:UserException"] void finished(Current curr,
+                                         ["swift:nonnull"] Object servant,
+                                         ["swift:nonnull"] LocalObject cookie);
 
     /**
      *

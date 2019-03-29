@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ICELocalObject : NSObject
 //
 // We hold a weak referece to the (possile) Swift object which has a handle to
-// this ICELocalObject. That way we can keep recover the Swift object later.
+// this ICELocalObject. That way we can recover the Swift object later.
 //
 @property (weak, nonatomic, nullable) id swiftRef;
 -(instancetype) init ICE_SWIFT_UNAVAILABLE("");

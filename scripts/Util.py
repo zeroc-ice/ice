@@ -3793,12 +3793,21 @@ class SwiftMapping(CppBasedClientMapping):
         testdir = self.component.getTestDir(self)
         assert(current.testcase.getPath(current).startswith(testdir))
         package = current.testcase.getPath(current)[len(testdir) + 1:].replace(os.sep, ".")
-        return "{0}/swift/build/Products/{1}/TestDriver.app/Contents/MacOS/TestDriver {2}.{3} {4}".format(
-            toplevel,
-            current.config.buildConfig,
+
+        xcBuildCmd = "xcodebuild -project ice.xcodeproj -target 'TestDriver {0}' -configuration {1}\
+            -showBuildSettings".format(
+            "macOS",
+            current.config.buildConfig)
+
+        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)",
+            run(xcBuildCmd)).groups(1)[0]
+
+        return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1}.{2} {3}".format(
+            targetBuildDir,
             package,
             exe,
-            args)
+            args
+        )
 
     def _getDefaultSource(self, processType):
         return { "client" : "Client.swift",

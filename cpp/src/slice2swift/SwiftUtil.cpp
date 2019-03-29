@@ -1267,6 +1267,102 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
     return os.str();
 }
 
+std::string
+SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
+{
+    ostringstream os;
+    ParamDeclList outParams = op->outParameters();
+    TypePtr returnType = op->returnType();
+    bool returnIsTuple = operationReturnIsTuple(op);
+
+    if(returnIsTuple)
+    {
+        os << "(";
+    }
+
+    if(returnType)
+    {
+        os << operationReturnTypeLabel(op);
+    }
+
+    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    {
+        if(returnType || q != outParams.begin())
+        {
+            os << ", ";
+        }
+
+        os << (*q)->name();
+    }
+
+    if(returnIsTuple)
+    {
+        os << ")";
+    }
+
+    return os.str();
+}
+
+string
+SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
+{
+    ostringstream os;
+
+    ParamDeclList inParams = op->inParameters();
+    const bool isTuple = inParams.size() > 1;
+
+    if(!inParams.empty())
+    {
+        if(isTuple)
+        {
+            os << "(";
+        }
+        for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            if(q != inParams.begin())
+            {
+                os << ", ";
+            }
+
+            os << "iceP_" + (*q)->name();
+        }
+        if(isTuple)
+        {
+            os << ")";
+        }
+
+        os << ": ";
+
+        if(isTuple)
+        {
+            os << "(";
+        }
+        for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            if(q != inParams.begin())
+            {
+                os << ", ";
+            }
+
+            os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional());
+        }
+        if(isTuple)
+        {
+            os << ")";
+        }
+    }
+
+    return os.str();
+}
+
+bool
+SwiftGenerator::operationIsAmd(const OperationPtr& op)
+{
+    const ContainerPtr container = op->container();
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    return cl->hasMetaData("amd") || op->hasMetaData("amd");
+}
+
 ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
@@ -1386,7 +1482,6 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
 {
     ParamInfoList requiredInParams, optionalInParams;
     getInParams(op, requiredInParams, optionalInParams);
-    const ParamInfoList allInParams = getAllInParams(op);
 
     out << "{ ostr in";
     out.inc();
@@ -1402,6 +1497,38 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
     }
 
     for(ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    {
+        writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true, q->tag);
+    }
+
+    if(op->sendsClasses(false))
+    {
+        out << nl << "ostr.writePendingValues()";
+    }
+    out.dec();
+    out << nl << "}";
+}
+
+void
+SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+{
+    ParamInfoList requiredOutParams, optionalOutParams;
+    getOutParams(op, requiredOutParams, optionalOutParams);
+
+    out << "{ ostr in";
+    out.inc();
+    //
+    // Marshal parameters
+    // 1. required
+    // 2. optional (including optional return)
+    //
+
+    for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+    {
+        writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true);
+    }
+
+    for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
     {
         writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true, q->tag);
     }
@@ -1496,6 +1623,77 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     }
 
     if(allOutParams.size() > 1)
+    {
+        out << epar;
+    }
+
+    out.dec();
+    out << nl << "}";
+}
+
+void
+SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+{
+    ParamInfoList requiredInParams, optionalInParams;
+    getInParams(op, requiredInParams, optionalInParams);
+    const ParamInfoList allInParams = getAllInParams(op);
+    //
+    // Unmarshal parameters
+    // 1. required
+    // 3. optional
+    //
+    out << "{ istr in";
+    out.inc();
+    for(ParamInfoList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
+    {
+        if(q->param)
+        {
+            string param;
+            if(isClassType(q->type))
+            {
+                out << nl << "var " << q->fixedName << ": " << q->typeStr;
+                param = q->fixedName;
+            }
+            else
+            {
+                param = "let " + q->fixedName + ": " + q->typeStr;
+            }
+            writeMarshalUnmarshalCode(out, q->type, op, param, false);
+        }
+    }
+
+    for(ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    {
+        string param;
+        if(isClassType(q->type))
+        {
+            out << nl << "var " << q->fixedName << ": " << q->typeStr;
+            param = q->fixedName;
+        }
+        else
+        {
+            param = "let " + q->fixedName + ": " + q->typeStr;
+        }
+        writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
+    }
+
+    if(op->returnsClasses(false))
+    {
+        out << nl << "try istr.readPendingValues()";
+    }
+
+    out << nl << "return ";
+    if(allInParams.size() > 1)
+    {
+        out << spar;
+    }
+
+    for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    {
+        out << q->fixedName;
+    }
+
+    if(allInParams.size() > 1)
     {
         out << epar;
     }
@@ -1704,6 +1902,150 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     out << nl << "sentOn: sentOn,";
     out << nl << "sentFlags: sentFlags)";
     out.restoreIndent();
+
+    out << eb;
+}
+
+void
+SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
+{
+    const string opName = fixIdent(op->name());
+
+    const ParamInfoList allInParams = getAllInParams(op);
+    const ParamInfoList allOutParams = getAllOutParams(op);
+    const ExceptionList allExceptions = op->throws();
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+
+    out << sp;
+    out << nl << "func iceD_" << opName;
+    out << spar;
+    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
+    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
+    out << epar;
+
+    out << " throws";
+
+    out << sb;
+    if(allInParams.empty())
+    {
+        out << nl << "try inS.readEmptyParams()";
+    }
+    else
+    {
+        out << nl << "let " << operationInParamsDeclaration(op) << " = try inS.read ";
+        writeUnmarshalInParams(out, op);
+    }
+
+    if(op->format() != DefaultFormat)
+    {
+        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
+    }
+
+    out << sp;
+    out << nl;
+    if(!allOutParams.empty())
+    {
+        out << "let " << operationReturnDeclaration(op) << " = ";
+    }
+    out << "try " << opName;
+
+    out << spar;
+    for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    {
+        out << (q->fixedName + ": iceP_" + q->fixedName);
+    }
+    out << "current: current";
+    out << epar;
+
+    out << sp;
+    if(allOutParams.empty())
+    {
+        out << nl << "inS.writeEmptyParams()";
+    }
+    else
+    {
+        out << nl << "inS.write ";
+        writeMarshalOutParams(out, op);
+    }
+
+    out << eb;
+}
+
+void
+SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
+{
+    const string opName = fixIdent(op->name());
+
+    const ParamInfoList allInParams = getAllInParams(op);
+    const ParamInfoList allOutParams = getAllOutParams(op);
+    const ExceptionList allExceptions = op->throws();
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+
+    out << sp;
+    out << nl << "func iceD_" << opName;
+    out << spar;
+    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
+    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
+    out << epar;
+
+    out << " throws";
+
+    out << sb;
+    if(allInParams.empty())
+    {
+        out << nl << "try inS.readEmptyParams()";
+    }
+    else
+    {
+        out << nl << "let " << operationInParamsDeclaration(op) << " = try inS.read ";
+        writeUnmarshalInParams(out, op);
+    }
+
+    if(op->format() != DefaultFormat)
+    {
+        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
+    }
+
+    out << sp;
+    out << nl;
+    out << "firstly";
+    out << sb;
+    out << nl << opName;
+    if(operationIsAmd(op))
+    {
+        out << "Async";
+    }
+    out << spar;
+    for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    {
+        out << (q->fixedName + ": iceP_" + q->fixedName);
+    }
+    out << "current: current";
+    out << epar;
+    out << eb;
+
+    out << ".done(on: nil)";
+    out << sb;
+    if(!allOutParams.empty())
+    {
+        out << " " << operationReturnDeclaration(op) << " in ";
+
+        out << nl << "inS.write ";
+        writeMarshalOutParams(out, op);
+    }
+    else
+    {
+        out << nl << "inS.writeEmptyParams()";
+    }
+    out << eb;
+
+    out << ".catch";
+    out << sb;
+    out << " err in";
+    out << nl << "inS.exception(err)";
+    out << eb;
 
     out << eb;
 }

@@ -57,6 +57,7 @@ private:
 
         void addImport(const TypePtr&, const ContainedPtr&);
         void addImport(const ContainedPtr&, const ContainedPtr&);
+        void addImport(const std::string&);
 
         IceUtilInternal::Output& out;
         std::vector< std::string> _imports;
@@ -119,6 +120,23 @@ private:
     public:
 
         ObjectVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+        IceUtilInternal::Output& out;
+    };
+
+    class ObjectExtVisitor : public SwiftGenerator, public ParserVisitor
+    {
+    public:
+
+        ObjectExtVisitor(::IceUtilInternal::Output&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);

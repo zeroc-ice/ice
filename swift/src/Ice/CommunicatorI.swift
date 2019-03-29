@@ -66,26 +66,36 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func stringToIdentity(_ str: String) throws -> Identity {
-        return try Ice.stringToIdentity(str)
+        return try autoreleasepool {
+            return try Ice.stringToIdentity(str)
+        }
     }
 
-    func identityToString(_ ident: Identity) throws -> String {
-        return try Ice.identityToString(identity: ident)
+    func identityToString(_ id: Identity) throws -> String {
+        return try autoreleasepool {
+            return try Ice.identityToString(id: id)
+        }
     }
 
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
-        preconditionFailure("TODO")
-//        return try _handle.createObjectAdapter(name)
+        return try autoreleasepool {
+            let handle = try _handle.createObjectAdapter(name)
+            return ObjectAdapterI(handle: handle, communicator: self)
+        }
     }
 
-    func createObjectAdapterWithEndpoints(name _: String, endpoints _: String) throws -> ObjectAdapter {
-        preconditionFailure("TODO")
-//        return try _handle.createObjectAdapterWithEndpoints(name, endpoints: endpoints)
+    func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter {
+        return try autoreleasepool {
+            let handle = try _handle.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
+            return ObjectAdapterI(handle: handle, communicator: self)
+        }
     }
 
-    func createObjectAdapterWithRouter(name _: String, rtr _: RouterPrx) throws -> ObjectAdapter {
-        preconditionFailure("TODO")
-//        return try _handle.createObjectAdapterWithRouter(name, router: rtr as! _RouterPrxI)
+    func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
+        return try autoreleasepool {
+            let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl.handle)
+            return ObjectAdapterI(handle: handle, communicator: self)
+        }
     }
 
     func getImplicitContext() -> ImplicitContext {
@@ -111,7 +121,9 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func setDefaultRouter(_ rtr: RouterPrx?) throws {
-        try _handle.setDefaultRouter((rtr as? _RouterPrxI)?.handle)
+        try autoreleasepool {
+            try _handle.setDefaultRouter((rtr as? _RouterPrxI)?.handle)
+        }
     }
 
     func getDefaultLocator() -> LocatorPrx? {
@@ -122,7 +134,9 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func setDefaultLocator(_ loc: LocatorPrx?) throws {
-        try _handle.setDefaultRouter((loc as? _LocatorPrxI)?.handle)
+        try autoreleasepool {
+            try _handle.setDefaultRouter((loc as? _LocatorPrxI)?.handle)
+        }
     }
 
     func getValueFactoryManager() -> ValueFactoryManager {
@@ -143,7 +157,9 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
             try autoreleasepool {
                 try _handle.flushBatchRequestsAsync(compress.rawValue,
                                                     exception: { seal.reject($0) },
-                                                    sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                                                    sent: createSentCallback(sent: sent,
+                                                                             sentOn: sentOn,
+                                                                             sentFlags: sentFlags))
             }
         }
     }
@@ -176,6 +192,32 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func findAllAdminFacets() throws -> FacetMap {
         // TODO:
         preconditionFailure("Not yet implemented")
+    }
+}
+
+public extension Communicator {
+    func createObjectAdapter(name: String, queue: DispatchQueue) throws -> ObjectAdapter {
+        return try autoreleasepool {
+            let handle = try (self as! CommunicatorI)._handle.createObjectAdapter(name)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
+        }
+    }
+
+    func createObjectAdapterWithEndpoints(name: String,
+                                          endpoints: String, queue: DispatchQueue) throws -> ObjectAdapter {
+        return try autoreleasepool {
+            let handle = try (self as! CommunicatorI)._handle.createObjectAdapterWithEndpoints(name: name,
+                                                                                               endpoints: endpoints)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
+        }
+    }
+
+    func createObjectAdapterWithRouter(name: String, rtr: RouterPrx, queue: DispatchQueue) throws -> ObjectAdapter {
+        return try autoreleasepool {
+            let handle = try (self as! CommunicatorI)._handle.createObjectAdapterWithRouter(name: name,
+                                                                                            router: rtr._impl.handle)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
+        }
     }
 }
 

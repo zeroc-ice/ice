@@ -47,15 +47,20 @@ NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:));
 +(nullable NSString*) identityToString:(NSString*)name
                               category:(NSString*)category
                                   mode:(uint8_t)mode
-                                 error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(identityToString(name:category:mode:));
+                                 error:(NSError* _Nullable * _Nullable)error
+    NS_SWIFT_NAME(identityToString(name:category:mode:));
 
 +(void) currentEncoding:(UInt8*)major
-                  minor:(UInt8*)minor
-    NS_SWIFT_NAME(currentEncoding(major:minor:));
+                  minor:(UInt8*)minor NS_SWIFT_NAME(currentEncoding(major:minor:));
 
 +(NSString*) encodingVersionToString:(UInt8)major
-                                        minor:(UInt8)minor
-    NS_SWIFT_NAME(encodingVersionToString(major:minor:));
+                               minor:(UInt8)minor NS_SWIFT_NAME(encodingVersionToString(major:minor:));
+
++(nullable NSString*) escapeString:(NSString*)string
+                           special:(NSString*)special
+                              communicator:(ICECommunicator*)communicator
+                             error:(NSError* _Nullable * _Nullable)error
+    NS_SWIFT_NAME(escapeString(string:special:communicator:));
 @end
 
 NS_ASSUME_NONNULL_END

@@ -77,6 +77,11 @@ public class OutputStream {
         encapsCache!.reset()
     }
 
+    func writeEmptyEncapsulation(_ encoding: EncodingVersion) {
+        write(Int32(6)) // Size
+        write(encoding)
+    }
+
     func getBytes() -> UnsafeMutableRawPointer? {
         return buf.baseAddress
     }
@@ -390,6 +395,7 @@ public extension OutputStream {
     }
 
     func write(size: Int) {
+        // TODO: should this really throw instead?
         precondition(size <= Int32.max, "Size is too large")
         write(size: Int32(size))
     }

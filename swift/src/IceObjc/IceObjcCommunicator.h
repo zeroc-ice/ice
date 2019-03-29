@@ -12,6 +12,7 @@
 @class ICEObjectPrx;
 @class ICEImplicitContext;
 @class ICEProperties;
+@class ICEObjectAdapter;
 @protocol ICELoggerProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,9 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable id) propertyToProxy:(NSString*)property error:(NSError**)error
 NS_SWIFT_NAME(propertyToProxy(property:));
 -(nullable NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError**)error;
-//-(nullable ObjectAdapterI*) createObjectAdapter:(NSString*)name error:(NSError**)error;
-//-(nullable ObjectAdapterI*) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints error:(NSError**)error;
-//-(nullable ObjectAdapterI*) createObjectAdapterWithRouter:(NSString*)name router:(ObjectPrxObjc*)router error:(NSError**)error;
+-(nullable ICEObjectAdapter*) createObjectAdapter:(NSString*)name error:(NSError**)error;
+-(nullable ICEObjectAdapter*) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithEndpoints(name:endpoints:));;
+-(nullable ICEObjectAdapter*) createObjectAdapterWithRouter:(NSString*)name router:(ICEObjectPrx*)router error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithRouter(name:router:));;
 -(ICEImplicitContext*) getImplicitContext;
 -(id<ICELoggerProtocol>) getLogger;
 -(nullable ICEObjectPrx*) getDefaultRouter;

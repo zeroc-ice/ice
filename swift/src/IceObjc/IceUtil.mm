@@ -13,6 +13,9 @@
 #import "IceObjcUtil.h"
 #import "LoggerWrapperI.h"
 
+#import <Ice/Instance.h>
+#import <Ice/StringUtil.h>
+
 namespace
 {
     class Init
@@ -171,5 +174,25 @@ static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
 {
     Ice::EncodingVersion v {major, minor};
     return toNSString(Ice::encodingVersionToString(v));
+}
+
++(NSString*) escapeString:(NSString *)string
+                  special:(NSString *)special
+                     communicator:(ICECommunicator*)communicator error:(NSError *__autoreleasing  _Nullable *)error
+{
+    try
+    {
+
+        auto instance = IceInternal::getInstance([communicator communicator]);
+        return toNSString(IceInternal::escapeString(fromNSString(string),
+                                                    fromNSString(special),
+                                                    instance->toStringMode()));
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+
 }
 @end

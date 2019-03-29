@@ -247,8 +247,7 @@ public class Client: TestHelperI {
         //
         // Test invalid endpoint syntax
         //
-        // TODO enable this once Ice.ObjectAdapter is ported to Swift
-        /*do {
+        do {
             _ = try communicator.createObjectAdapterWithEndpoints(name: "BadAdapter", endpoints: " : ")
             try test(false)
         } catch is Ice.EndpointParseException {}
@@ -261,7 +260,7 @@ public class Client: TestHelperI {
         do {
             _ = try communicator.createObjectAdapterWithEndpoints(name: "BadAdapter", endpoints: ":tcp")
             try test(false)
-        } catch is Ice.EndpointParseException {}*/
+        } catch is Ice.EndpointParseException {}
 
         //
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
@@ -299,18 +298,18 @@ public class Client: TestHelperI {
         // Testing bytes 127(\x7F, \177) and €
         id = Ice.Identity(name: "test", category: "\u{007f}€")
 
-        idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Unicode)
+        idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
         try test(idStr == "\\u007f€/test")
         id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
-        try test(Ice.identityToString(identity: id) == idStr)
+        try test(Ice.identityToString(id: id) == idStr)
 
-        idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.ASCII)
+        idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
         try test(idStr == "\\u007f\\u20ac/test")
         id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
-        idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Compat)
+        idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
         try test(idStr == "\\177\\342\\202\\254/test")
         id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
@@ -322,17 +321,17 @@ public class Client: TestHelperI {
         id = Ice.Identity(name: "banana \u{000E}-\u{1f34c}\u{20ac}\u{00a2}\u{0024}",
                           category: "greek \u{1016a}")
 
-        idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Unicode)
+        idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
         try test(idStr == "greek \u{1016a}/banana \\u000e-\u{1f34c}\u{20ac}\u{00a2}$")
         id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
-        idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.ASCII)
+        idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
         try test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$")
         id2 = try Ice.stringToIdentity(idStr)
         try test(id == id2)
 
-        idStr = try Ice.identityToString(identity: id, mode: Ice.ToStringMode.Compat)
+        idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
         id2 = try Ice.stringToIdentity(idStr)
         try test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$")
         try test(id == id2)

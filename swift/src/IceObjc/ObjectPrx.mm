@@ -578,9 +578,9 @@ encodingMinor:(uint8_t)minor
 }
 
 -(ICEInputStream*) iceInvoke:(NSString*)op
-                         mode:(NSInteger)mode
+                         mode:(uint8_t)mode
                      inParams:(const void*)inParams
-                       inSize:(NSInteger)inSize
+                       inSize:(size_t)inSize
                       context:(NSDictionary*)context
                   returnValue:(bool*)returnValue
                         error:(NSError**)error

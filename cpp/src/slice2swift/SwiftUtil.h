@@ -56,6 +56,10 @@ protected:
     std::string operationReturnType(const OperationPtr&);
     bool operationReturnIsTuple(const OperationPtr&);
     std::string operationReturnTypeLabel(const OperationPtr&);
+    std::string operationReturnDeclaration(const OperationPtr&);
+    std::string operationInParamsDeclaration(const OperationPtr&);
+
+    bool operationIsAmd(const OperationPtr&);
 
     ParamInfoList getAllInParams(const OperationPtr&);
     void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
@@ -100,7 +104,6 @@ protected:
                                     const StringPairList& = StringPairList());
     void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
-
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
                                    const TypePtr&,
                                    const ContainedPtr&,
@@ -110,10 +113,14 @@ protected:
 
     bool usesMarshalHelper(const TypePtr&);
     void writeMarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeMarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeUnmarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr&);
     void writeProxyOperation(::IceUtilInternal::Output&, const OperationPtr&);
     void writeProxyAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeDispatchOperation(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeDispatchAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
 
 private:
 

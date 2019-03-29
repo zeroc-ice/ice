@@ -108,16 +108,20 @@ public var currentEncoding: EncodingVersion {
 }
 
 public func stringToIdentity(_ string: String) throws -> Identity {
-    var name = NSString()
-    var category = NSString()
-    try ICEUtil.stringToIdentity(str: string, name: &name, category: &category)
-    return Identity(name: name as String, category: category as String)
+    return try autoreleasepool {
+        var name = NSString()
+        var category = NSString()
+        try ICEUtil.stringToIdentity(str: string, name: &name, category: &category)
+        return Identity(name: name as String, category: category as String)
+    }
 }
 
-public func identityToString(identity: Identity, mode: ToStringMode = ToStringMode.Unicode) throws -> String {
-    return try ICEUtil.identityToString(name: identity.name,
-                                        category: identity.category,
-                                        mode: mode.rawValue) as String
+public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) throws -> String {
+    return try autoreleasepool {
+        return try ICEUtil.identityToString(name: id.name,
+                                            category: id.category,
+                                            mode: mode.rawValue)
+    }
 }
 
 public let Encoding_1_0 = Protocol.Encoding_1_0

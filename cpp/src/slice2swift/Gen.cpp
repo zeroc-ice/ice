@@ -9,6 +9,7 @@
 
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -78,6 +79,12 @@ Gen::generate(const UnitPtr& p)
     ValueVisitor valueVisitor(_out);
     p->visit(&valueVisitor, false);
 
+    ObjectVisitor objectVisitor(_out);
+    p->visit(&objectVisitor, false);
+
+    ObjectExtVisitor objectExtVisitor(_out);
+    p->visit(&objectExtVisitor, false);
+
     LocalObjectVisitor localObjectVisitor(_out);
     p->visit(&localObjectVisitor, false);
 }
@@ -120,7 +127,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
         string swiftModule = getSwiftModule(p);
         if(swiftModule != "Ice")
         {
-            _imports.push_back("Ice");
+            addImport("Ice");
         }
     }
 
@@ -129,7 +136,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
     //
     if(p->hasNonLocalInterfaceDefs() || p->hasLocalClassDefsWithAsync())
     {
-        _imports.push_back("PromiseKit");
+        addImport("PromiseKit");
     }
 
     return true;
@@ -272,6 +279,15 @@ Gen::ImportVisitor::addImport(const ContainedPtr& definition, const ContainedPtr
     if(swiftM1 != swiftM2 && find(_imports.begin(), _imports.end(), swiftM1) == _imports.end())
     {
         _imports.push_back(swiftM1);
+    }
+}
+
+void
+Gen::ImportVisitor::addImport(const string& module)
+{
+    if(find(_imports.begin(), _imports.end(), module) == _imports.end())
+    {
+        _imports.push_back(module);
     }
 }
 
@@ -517,11 +533,12 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
+    int typeCtx = p->isLocal() ? TypeContextLocal : 0;
 
     const TypePtr type = p->type();
 
     out << sp;
-    out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p) << "]";
+    out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx) << "]";
 
     if(p->isLocal())
     {
@@ -631,9 +648,10 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
+    int typeCtx = p->isLocal() ? TypeContextLocal : 0;
 
-    const string keyType = typeToString(p->keyType(), p);
-    const string valueType = typeToString(p->valueType(), p);
+    const string keyType = typeToString(p->keyType(), p, p->keyMetaData(), false, typeCtx);
+    const string valueType = typeToString(p->valueType(), p, p->valueMetaData(), false, typeCtx);
     out << sp;
     out << nl << "public typealias " << name << " = [" << keyType << ": " << valueType << "]";
 
@@ -1162,21 +1180,204 @@ Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr&)
+Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    {
+        return false;
+    }
+
+    ClassList bases = p->bases();
+    ClassDefPtr baseClass;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        baseClass = bases.front();
+    }
+
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = baseClass ? baseClass->allDataMembers() : DataMemberList();
+    const DataMemberList allMembers = p->allDataMembers();
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule) + (!p->isInterface() ? "Disp" : "");
+
+    out << sp;
+    out << nl << "public protocol " << name << ":";
+
+    if(bases.empty() || (baseClass && baseClass->allOperations().empty()))
+    {
+        out << " " << getUnqualified("Ice.Object", swiftModule);
+    }
+    else
+    {
+        for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+        {
+            out << " " << getUnqualified(getAbsolute(*i), swiftModule);
+            if(++i != bases.end())
+            {
+                out << ",";
+            }
+        }
+    }
+
     out << sb;
-    out << eb;
+
     return true;
 }
 
 void
 Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
+    out << eb;
 }
 
 void
-Gen::ObjectVisitor::visitOperation(const OperationPtr&)
+Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 {
+    const bool isAmd = operationIsAmd(op);
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string opName = fixIdent(op->name()) + (isAmd ? "Async" : "");
+    const ParamInfoList allInParams = getAllInParams(op);
+    const ParamInfoList allOutParams = getAllOutParams(op);
+    const ExceptionList allExceptions = op->throws();
+
+    out << sp;
+    out << nl << "func " << opName;
+    out << spar;
+    for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    {
+        ostringstream s;
+        s << q->name << ": " << q->typeStr;
+        out << s.str();
+    }
+    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
+    out << epar;
+
+    if(!isAmd)
+    {
+        out << " throws";
+    }
+
+    if(isAmd || allOutParams.size() > 0)
+    {
+        out << " -> ";
+    }
+
+    if(isAmd)
+    {
+        out << "PromiseKit.Promise<";
+    }
+
+    if(allOutParams.size() > 0)
+    {
+        out << operationReturnType(op);
+    }
+    else if (isAmd)
+    {
+        out << "Void";
+    }
+
+    if(isAmd)
+    {
+        out << ">";
+    }
+}
+
+Gen::ObjectExtVisitor::ObjectExtVisitor(::IceUtilInternal::Output& o) : out(o)
+{
+}
+
+bool
+Gen::ObjectExtVisitor::visitModuleStart(const ModulePtr&)
+{
+    return true;
+}
+
+void
+Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+bool
+Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    {
+        return false;
+    }
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule) + (!p->isInterface() ? "Disp" : "");
+
+    out << sp;
+    out << nl << "public extension " << name;
+
+    out << sb;
+
+    return true;
+}
+
+void
+Gen::ObjectExtVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+
+    const OperationList allOps = p->allOperations();
+
+    StringList allOpNames;
+    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
+
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+    allOpNames.sort();
+    allOpNames.unique();
+
+    out << sp;
+    out << nl;
+    out << "func iceDispatch";
+    out << spar;
+    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
+    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
+    out << epar;
+    out << " throws";
+
+    out << sb;
+    out << nl << "switch current.operation";
+
+    out << sb;
+    for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+    {
+        const string opName = *q;
+        out << nl << "case \"" << opName << "\":";
+        out.inc();
+        out << nl << "try iceD_" << fixIdent(opName) << "(incoming: inS, current: current)";
+        out.dec();
+    }
+    out << nl << "default:";
+    out.inc();
+    out << nl << "throw OperationNotExistException(id: current.id, facet: current.facet, operation: current.operation)";
+    out.dec();
+    out << eb;
+
+    out << eb;
+
+    out << eb;
+}
+
+void
+Gen::ObjectExtVisitor::visitOperation(const OperationPtr& op)
+{
+    if(operationIsAmd(op))
+    {
+        writeDispatchAsyncOperation(out, op);
+    }
+    else
+    {
+        writeDispatchOperation(out, op);
+    }
 }
 
 Gen::LocalObjectVisitor::LocalObjectVisitor(::IceUtilInternal::Output& o) : out(o)
@@ -1381,7 +1582,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
             }
 
             out << spar;
-            out << (returnValueS + ": " + typeToString(ret, p, p->getMetaData(), p->returnIsOptional()));
+            out << (returnValueS + ": " + typeToString(ret, p, p->getMetaData(), p->returnIsOptional(), typeCtx));
             for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
             {
                 ParamDeclPtr param = *i;

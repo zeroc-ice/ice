@@ -98,7 +98,7 @@ public class InputStream {
         return (bytes, encoding)
     }
 
-    public func startEncapsulation() throws {
+    public func startEncapsulation() throws -> EncodingVersion {
         encaps = Encaps()
         encaps.start = buf.position()
         //
@@ -123,6 +123,8 @@ public class InputStream {
 
         try Protocol.checkSupportedEncoding(encoding)
         encaps.setEncoding(encoding)
+
+        return encoding
     }
 
     public func endEncapsulation() throws {
@@ -146,7 +148,7 @@ public class InputStream {
         }
     }
 
-    func skipEmptyEncapsulation() throws {
+    func skipEmptyEncapsulation() throws -> EncodingVersion {
         let sz: Int32 = try read()
 
         if sz < 6 {
@@ -171,18 +173,22 @@ public class InputStream {
             //
             try buf.skip(sz - 6)
         }
+
+        return encoding
     }
 
-    func skipEncapsulation() throws {
+    func skipEncapsulation() throws -> EncodingVersion {
         let sz: Int32 = try read()
 
         if sz < 6 {
             throw EncapsulationException(reason: "invalid size")
         }
 
-        _ = try read() as EncodingVersion
+        let encodingVersion: EncodingVersion = try read()
 
         try buf.position(buf.position() + Int(sz) - 6)
+
+        return encodingVersion
     }
 
     public func startSlice() throws -> String {
@@ -209,7 +215,7 @@ public class InputStream {
     public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
-        } else if encoding == Protocol.Encoding_1_0{
+        } else if encoding == Protocol.Encoding_1_0 {
             //
             // If using the 1.0 encoding and no instances were read, we
             // still read an empty sequence of pending instances if

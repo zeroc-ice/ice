@@ -15,6 +15,7 @@
 #include <string>
 
 @class LocalException;
+@class ICERuntimeException;
 
 namespace IceSSL
 {
@@ -23,6 +24,7 @@ namespace IceSSL
 
 NSError* convertException(const std::exception_ptr&);
 NSError* convertException(const std::exception&);
+std::exception_ptr convertException(ICERuntimeException*);
 
 template<typename T>
 id createLocalObject(std::shared_ptr<T> cppObj, std::function<id()> initializer)
@@ -38,14 +40,6 @@ id createLocalObject(std::shared_ptr<T> cppObj, std::function<id()> initializer)
     }
     return obj;
 }
-
-template<typename T>
-std::shared_ptr<T>
-deref(void* p)
-{
-    assert(p);
-    return *reinterpret_cast<std::shared_ptr<T>*>(p);
-};
 
 inline NSString*
 toNSString(const std::string& s)

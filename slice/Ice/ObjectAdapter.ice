@@ -32,6 +32,9 @@
 module Ice
 {
 
+#ifdef __SLICE2SWIFT__
+    local interface DispatchQueue;
+#endif
 /**
  *
  * The object adapter provides an up-call interface from the Ice
@@ -65,7 +68,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:noexcept"] Communicator getCommunicator();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"] Communicator getCommunicator();
 
     /**
      *
@@ -199,7 +202,7 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    Object* add(Object servant, ["objc:param:identity"] Identity id);
+    ["swift:nonnull"] Object* add(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id);
 
     /**
      *
@@ -223,7 +226,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    Object* addFacet(Object servant, ["objc:param:identity"] Identity id, string facet);
+    ["swift:nonnull"] Object* addFacet(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id, string facet);
 
     /**
      *
@@ -244,7 +247,7 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    Object* addWithUUID(Object servant);
+    ["swift:nonnull"] Object* addWithUUID(["swift:nonnull"] Object servant);
 
     /**
      *
@@ -267,7 +270,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    Object* addFacetWithUUID(Object servant, string facet);
+    ["swift:nonnull"] Object* addFacetWithUUID(["swift:nonnull"] Object servant, string facet);
 
     /**
      *
@@ -307,7 +310,7 @@ local interface ObjectAdapter
      * @see #findDefaultServant
      *
      **/
-    void addDefaultServant(Object servant, string category);
+    void addDefaultServant(["swift:nonnull"] Object servant, string category);
 
     /**
      *
@@ -327,7 +330,7 @@ local interface ObjectAdapter
      * @see #addWithUUID
      *
      **/
-    Object remove(Identity id);
+    ["swift:nonnull"] Object remove(Identity id);
 
     /**
      *
@@ -346,7 +349,7 @@ local interface ObjectAdapter
      * @see #addFacetWithUUID
      *
      **/
-    Object removeFacet(Identity id, string facet);
+    ["swift:nonnull"] Object removeFacet(Identity id, string facet);
 
     /**
      *
@@ -380,7 +383,7 @@ local interface ObjectAdapter
      * @see #findDefaultServant
      *
      **/
-    Object removeDefaultServant(string category);
+    ["swift:nonnull"] Object removeDefaultServant(string category);
 
     /**
      *
@@ -463,7 +466,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["cpp:const"] Object findByProxy(Object* proxy);
+    ["cpp:const"] Object findByProxy(["swift:nonnull"] Object* proxy);
 
     /**
      *
@@ -511,7 +514,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    void addServantLocator(ServantLocator locator, string category);
+    void addServantLocator(["swift:nonnull"] ServantLocator locator, string category);
 
     /**
      *
@@ -530,7 +533,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    ServantLocator removeServantLocator(string category);
+    ["swift:nonnull"] ServantLocator removeServantLocator(string category);
 
     /**
      *
@@ -583,7 +586,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    ["cpp:const"] Object* createProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createProxy(Identity id);
 
     /**
      *
@@ -598,7 +601,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    ["cpp:const"] Object* createDirectProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createDirectProxy(Identity id);
 
     /**
      *
@@ -614,7 +617,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    ["cpp:const"] Object* createIndirectProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createIndirectProxy(Identity id);
 
     /**
      * Set an Ice locator for this object adapter. By doing so, the
@@ -692,6 +695,11 @@ local interface ObjectAdapter
      *
      **/
     void setPublishedEndpoints(EndpointSeq newEndpoints);
+
+#ifdef __SLICE2SWIFT__
+    // Get the dispatch queue associated with this Object Adapter
+    ["swift:noexcept", "swift:nonnull"] DispatchQueue getDispatchQueue();
+#endif
 }
 
 }

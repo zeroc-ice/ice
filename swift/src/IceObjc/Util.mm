@@ -317,6 +317,69 @@ convertException(const std::exception& exc)
     return nil;
 }
 
+std::exception_ptr
+convertException(ICERuntimeException* exc)
+{
+    const auto file = fromNSString([exc file]);
+    const auto line = [exc line];
+
+    @try
+    {
+        @throw exc;
+    }
+    @catch(ICEObjectNotExistException* e)
+    {
+        return std::make_exception_ptr(Ice::ObjectNotExistException(file.c_str(),
+                                                                    line,
+                                                                    Ice::Identity{fromNSString([e name]),
+                                                                        fromNSString([e category])},
+                                                                    fromNSString([e facet]),
+                                                                    fromNSString([e operation])));
+    }
+    @catch(ICEFacetNotExistException* e)
+    {
+        return std::make_exception_ptr(Ice::FacetNotExistException(file.c_str(),
+                                                                    line,
+                                                                    Ice::Identity{fromNSString([e name]),
+                                                                        fromNSString([e category])},
+                                                                    fromNSString([e facet]),
+                                                                    fromNSString([e operation])));
+    }
+    @catch(ICEOperationNotExistException* e)
+    {
+        return std::make_exception_ptr(Ice::OperationNotExistException(file.c_str(),
+                                                                    line,
+                                                                    Ice::Identity{fromNSString([e name]),
+                                                                        fromNSString([e category])},
+                                                                    fromNSString([e facet]),
+                                                                    fromNSString([e operation])));
+    }
+    @catch(ICEUnknownUserException* e)
+    {
+        return std::make_exception_ptr(Ice::UnknownUserException(file.c_str(),
+                                                                 line,
+                                                                 fromNSString([e unknown])));
+    }
+    @catch(ICEUnknownLocalException* e)
+    {
+        return std::make_exception_ptr(Ice::UnknownLocalException(file.c_str(),
+                                                                  line,
+                                                                  fromNSString([e unknown])));
+    }
+    @catch(ICEUnknownException* e)
+    {
+        return std::make_exception_ptr(Ice::UnknownException(file.c_str(),
+                                                             line,
+                                                             fromNSString([e unknown])));
+    }
+    @catch(...)
+    {
+        return std::make_exception_ptr(Ice::UnknownException(file.c_str(),
+                                                             line,
+                                                             fromNSString([exc className])));
+    }
+}
+
 NSObject*
 toObjC(const std::shared_ptr<Ice::Endpoint>& endpoint)
 {

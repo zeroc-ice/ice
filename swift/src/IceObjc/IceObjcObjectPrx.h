@@ -97,9 +97,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) iceWrite:(id<ICEOutputStreamHelper>)os;
 
 -(nullable ICEInputStream*) iceInvoke:(NSString* _Nonnull)op
-                                 mode:(NSInteger)mode
+                                 mode:(uint8_t)mode
                              inParams:(const void* _Null_unspecified)inParams
-                               inSize:(NSInteger)inSize
+                               inSize:(size_t)inSize
                               context:(NSDictionary* _Nullable)context
                           returnValue:(bool*)returnValue
                                 error:(NSError* _Nullable * _Nullable)error;

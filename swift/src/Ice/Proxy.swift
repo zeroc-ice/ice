@@ -262,7 +262,7 @@ public extension ObjectPrx {
             var ok = Bool()
             let ins = try InputStream(communicator: _impl.communicator,
                                       inputStream: _impl.handle.iceInvoke(operation,
-                                                                          mode: Int(mode.rawValue),
+                                                                          mode: mode.rawValue,
                                                                           inParams: $0.baseAddress,
                                                                           inSize: inEncaps.count,
                                                                           context: context,
@@ -636,7 +636,7 @@ open class _ObjectPrxI: ObjectPrx {
                         format: FormatType = FormatType.DefaultFormat,
                         write: ((OutputStream) -> Void)? = nil,
                         userException: ((UserException) throws -> Void)? = nil,
-                        context: Context? = nil) throws -> Void {
+                        context: Context? = nil) throws {
 
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
@@ -646,7 +646,7 @@ open class _ObjectPrxI: ObjectPrx {
         }
         var ok = Bool()
         let istrHandle = try handle.iceInvoke(operation,
-                                              mode: Int(mode.rawValue),
+                                              mode: mode.rawValue,
                                               inParams: ostr.getConstBytes(),
                                               inSize: ostr.getCount(),
                                               context: context,
@@ -678,7 +678,7 @@ open class _ObjectPrxI: ObjectPrx {
 
         var ok = Bool()
         let istrHandle = try handle.iceInvoke(operation,
-                                              mode: Int(mode.rawValue),
+                                              mode: mode.rawValue,
                                               inParams: ostr.getConstBytes(),
                                               inSize: ostr.getCount(),
                                               context: context,

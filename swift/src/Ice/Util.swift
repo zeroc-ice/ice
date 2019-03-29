@@ -8,6 +8,7 @@
 // **********************************************************************
 
 import Dispatch
+import IceObjc
 
 func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
     let (major, minor) = try stringToMajorMinor(s)
@@ -53,5 +54,13 @@ func createSentCallback(sent: ((Bool) -> Void)?,
                 s(sentSynchronously)
             }
         }
+    }
+}
+
+func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
+    return try autoreleasepool {
+        return try ICEUtil.escapeString(string: string,
+                                        special: special,
+                                        communicator: (communicator as! CommunicatorI)._handle)
     }
 }
