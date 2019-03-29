@@ -560,6 +560,13 @@ public extension OutputStream {
         }
         return false
     }
+
+    //
+    // Raw Bytes
+    //
+    func write(raw v: [UInt8]) {
+        v.withUnsafeBytes { self.buf.append(bytes: $0) }
+    }
 }
 
 extension OutputStream: ICEOutputStreamHelper {
@@ -1010,7 +1017,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             //
             // Write the bytes associated with this slice.
             //
-            os.write(info.bytes)
+            os.write(raw: info.bytes)
 
             if info.hasOptionalMembers {
                 current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue
@@ -1020,7 +1027,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             // Make sure to also re-write the instance indirection table.
             //
             for o in info.instances {
-                current.indirectionTable.append(ValueHolder(o))
+                current.indirectionTable.append(ValueHolder(o!))
             }
 
             endSlice()

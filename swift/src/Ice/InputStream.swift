@@ -1695,10 +1695,12 @@ private class EncapsDecoder11: EncapsDecoder {
             // enclosing instance.
 
             let m = n
+            let sz = current.indirectionTables[m].count
+            current.slices[m].instances = [Ice.Value?](repeating: nil, count: sz)
             for j in 0 ..< current.slices[m].instances.count {
                 let k = j
                 try addPatchEntry(index: current.indirectionTables[m][j]) { v in
-                    self.current.slices[m].instances[k] = v!
+                    self.current.slices[m].instances[k] = v
                 }
             }
         }
