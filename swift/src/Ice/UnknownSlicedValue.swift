@@ -22,12 +22,6 @@ public final class UnknownSlicedValue: Value {
         self.unknownTypeId = unknownTypeId
     }
 
-    public init(from ins: InputStream) throws {
-        ins.startValue()
-        unknownTypeId = ""
-        slicedData = try ins.endValue(preserve: true)
-    }
-
     override public func ice_id() -> String {
         return unknownTypeId
     }
@@ -40,12 +34,12 @@ public final class UnknownSlicedValue: Value {
         return slicedData
     }
 
-    public func ice_read(from ins: InputStream) throws {
+    override public func _iceRead(from ins: InputStream) throws {
         ins.startValue()
         slicedData = try ins.endValue(preserve: true)
     }
 
-    public func ice_write(to os: OutputStream) {
+    override public func _iceWrite(to os: OutputStream) {
         os.startValue(data: slicedData)
         os.endValue()
     }
