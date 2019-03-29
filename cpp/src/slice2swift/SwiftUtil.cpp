@@ -62,6 +62,31 @@ replace(string s, string patt, string val)
     return r;
 }
 
+string
+opFormatTypeToString(const OperationPtr& op )
+{
+    switch(op->format())
+    {
+        case DefaultFormat:
+        {
+            return ".DefaultFormat";
+        }
+        case CompactFormat:
+        {
+            return ".CompactFormat";
+        }
+        case SlicedFormat:
+        {
+            return ".SlicedFormat";
+        }
+        default:
+        {
+            assert(false);
+        }
+    }
+    return "???";
+}
+
 }
 
 //
@@ -460,17 +485,17 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
     {
         case Operation::Normal:
         {
-            mode = "Ice.OperationMode.Normal";
+            mode = ".Normal";
             break;
         }
         case Operation::Nonmutating:
         {
-            mode = "Ice.OperationMode.Nonmutating";
+            mode = ".Nonmutating";
             break;
         }
         case Operation::Idempotent:
         {
-            mode = "Ice.OperationMode.Idempotent";
+            mode = ".Idempotent";
             break;
         }
         default:
@@ -1490,6 +1515,12 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->sendMode()) << ",";
+
+    if(op->format() != DefaultFormat)
+    {
+        out << nl << "format: " << opFormatTypeToString(op);
+        out << ",";
+    }
 
     if(allInParams.size() > 0)
     {

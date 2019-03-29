@@ -633,13 +633,14 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func _invoke(operation: String,
                         mode: OperationMode,
+                        format: FormatType = FormatType.DefaultFormat,
                         write: ((OutputStream) -> Void)? = nil,
                         userException: ((UserException) throws -> Void)? = nil,
                         context: Context? = nil) throws -> Void {
 
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation()
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
@@ -662,6 +663,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func _invoke<T>(operation: String,
                            mode: OperationMode,
+                           format: FormatType = FormatType.DefaultFormat,
                            write: ((OutputStream) -> Void)? = nil,
                            read: (InputStream) throws -> T,
                            userException: ((UserException) throws -> Void)? = nil,
@@ -669,7 +671,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(self.isTwoway)
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation()
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
@@ -693,6 +695,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func _invokeAsync(operation: String,
                              mode: OperationMode,
+                             format: FormatType = FormatType.DefaultFormat,
                              write: ((OutputStream) -> Void)? = nil,
                              userException: ((UserException) throws -> Void)? = nil,
                              context: Context? = nil,
@@ -702,7 +705,7 @@ open class _ObjectPrxI: ObjectPrx {
 
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation()
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
@@ -736,6 +739,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func _invokeAsync<T>(operation: String,
                                 mode: OperationMode,
+                                format: FormatType = FormatType.DefaultFormat,
                                 write: ((OutputStream) -> Void)? = nil,
                                 read: @escaping (InputStream) throws -> T,
                                 userException: ((UserException) throws -> Void)? = nil,
@@ -747,7 +751,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(self.isTwoway)
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation()
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
