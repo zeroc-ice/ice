@@ -976,7 +976,7 @@ extension EncapsDecoder {
                 // unmarshaled in order to ensure that any instance data members
                 // have been properly patched.
                 //
-                valueList.forEach { p in
+                for p in valueList {
                     p.ice_postUnmarshal()
                 }
                 valueList.removeAll()
@@ -1459,7 +1459,7 @@ private class EncapsDecoder11: EncapsDecoder {
             //
             // Convert indirect references into direct references.
             //
-            try current.indirectPatchList.forEach { e in
+            for e in current.indirectPatchList {
                 precondition(e.index >= 0)
                 if e.index >= indirectionTable.count {
                     throw MarshalException(reason: "indirection out of range")

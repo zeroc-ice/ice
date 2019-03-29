@@ -191,7 +191,7 @@ public extension OutputStream {
     private func writeNumeric<Element>(_ v: [Element]) where Element: Numeric {
         write(size: v.count)
         if v.count > 0 {
-            v.forEach { e in
+            for e in v {
                 writeNumeric(e)
             }
         }
@@ -236,7 +236,7 @@ public extension OutputStream {
     func write(_ v: [Bool]) {
         write(size: v.count)
         if v.count > 0 {
-            v.forEach { e in
+            for e in v {
                 write(e)
             }
         }
@@ -453,8 +453,8 @@ public extension OutputStream {
 
     func write(_ v: [String]) {
         write(size: v.count)
-        v.forEach {
-            write($0)
+        for s in v {
+            write(s)
         }
     }
 
@@ -757,7 +757,7 @@ private final class EncapsEncoder10: EncapsEncoder {
             // marshaled instances" into _toBeMarshaledMap while writing
             // instances.
             //
-            toBeMarshaledMap.forEach { key, value in
+            for (key, value) in toBeMarshaledMap {
                 marshaledMap[key] = value
             }
 
@@ -765,7 +765,7 @@ private final class EncapsEncoder10: EncapsEncoder {
             toBeMarshaledMap = [ValueHolder: Int32]()
             os.write(size: savedMap.count)
 
-            savedMap.forEach { key, value in
+            for (key, value) in savedMap {
                 //
                 // Consider the to be marshalled instances as marshaled now,
                 // this is necessary to avoid adding again the "to be
@@ -966,7 +966,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             // Write the indirection instance table.
             //
             os.write(size: current.indirectionTable.count)
-            current.indirectionTable.forEach { v in
+            for v in current.indirectionTable {
                 writeInstance(v.value)
             }
 
@@ -1000,11 +1000,11 @@ private final class EncapsEncoder11: EncapsEncoder {
         // essentially "slices" the instance into the most-derived type
         // known by the sender.
         //
-        guard encaps.format == FormatType.SlicedFormat else {
+        guard encaps.format == .SlicedFormat else {
             return
         }
 
-        slicedData.slices.forEach { info in
+        for info in slicedData.slices {
             startSlice(typeId: info.typeId, compactId: info.compactId, last: info.isLastSlice)
 
             //
@@ -1019,7 +1019,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             //
             // Make sure to also re-write the instance indirection table.
             //
-            info.instances.forEach { o in
+            for o in info.instances {
                 current.indirectionTable.append(ValueHolder(o))
             }
 
