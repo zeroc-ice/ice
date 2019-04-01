@@ -255,6 +255,68 @@ getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const strin
 
 }
 
+string
+SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                return "false";
+            }
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                return "0";
+            }
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            {
+                return "0.0";
+            }
+            case Builtin::KindString:
+            {
+                return "\"\"";
+            }
+            default:
+            {
+                return "nil";
+            }
+        }
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        return "." + fixIdent((*en->enumerators().begin())->name());
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        return getUnqualified(getAbsolute(type), swiftModule) + "()";
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        return getUnqualified(getAbsolute(type), swiftModule) + "()";
+    }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        return getUnqualified(getAbsolute(type), swiftModule) + "()";
+    }
+
+    return "nil";
+}
+
 void
 SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type,
                                    const SyntaxTreeBasePtr& valueType, const string& value,
@@ -267,24 +329,31 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
     }
     else
     {
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        EnumPtr ep = EnumPtr::dynamicCast(type);
-        if(bp && bp->kind() == Builtin::KindString)
+        if(valueType)
         {
-            out << "\"";
-            out << toStringLiteral(value, "\n\r\t", "", EC6UCN, 0);
-            out << "\"";
-        }
-        else if(ep)
-        {
-            assert(valueType);
-            EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
-            assert(enumerator);
-            out << getUnqualified(getAbsolute(ep), swiftModule) << "." << enumerator->name();
+            BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+            EnumPtr ep = EnumPtr::dynamicCast(type);
+            if(bp && bp->kind() == Builtin::KindString)
+            {
+                out << "\"";
+                out << toStringLiteral(value, "\n\r\t", "", EC6UCN, 0);
+                out << "\"";
+            }
+            else if(ep)
+            {
+                assert(valueType);
+                EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
+                assert(enumerator);
+                out << getUnqualified(getAbsolute(ep), swiftModule) << "." << enumerator->name();
+            }
+            else
+            {
+                out << value;
+            }
         }
         else
         {
-            out << value;
+            out << getValue(swiftModule, type);
         }
     }
 }
@@ -694,8 +763,8 @@ SwiftGenerator::containsClassMembers(const StructPtr& s)
 
 void
 SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
-                                        const DataMemberList& members,
-                                        const ContainedPtr& p,
+                                        const DataMemberList&,
+                                        const ContainedPtr&,
                                         bool rootClass,
                                         bool required)
 {
@@ -711,23 +780,6 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
     }
     out << "init()";
     out << sb;
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-    {
-        DataMemberPtr member = *q;
-        TypePtr type = member->type();
-        if(!member->defaultValueType())
-        {
-            out << nl << "self." << fixIdent(member->name()) << " = ";
-            if(isNullableType(type))
-            {
-                out << "nil";
-            }
-            else
-            {
-                out << typeToString(type, p) << "()";
-            }
-        }
-    }
 
     if(!rootClass)
     {
@@ -820,7 +872,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         {
             out << " { get }";
         }
-        else if(!defaultValue.empty())
+        else
         {
             out << " = ";
             writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule);
