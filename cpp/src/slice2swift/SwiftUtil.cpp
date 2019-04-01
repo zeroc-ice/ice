@@ -658,20 +658,35 @@ SwiftGenerator::containsClassMembers(const StructPtr& s)
     DataMemberList dm = s->dataMembers();
     for(DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast((*i)->type());
+        if(isClassType((*i)->type()))
+        {
+            return true;
+        }
 
-        if(builtin && (builtin->kind() == Builtin::KindObject ||
-                       builtin->kind() == Builtin::KindValue))
+        StructPtr st = StructPtr::dynamicCast((*i)->type());
+        if(st && containsClassMembers(st))
         {
             return true;
         }
-        else if(ClassDefPtr::dynamicCast((*i)->type()))
+
+        SequencePtr seq = SequencePtr::dynamicCast((*i)->type());
+        if(seq)
         {
-            return true;
+            st = StructPtr::dynamicCast(seq->type());
+            if(isClassType(seq->type()) || (st && containsClassMembers(st)))
+            {
+                return true;
+            }
         }
-        else if(StructPtr::dynamicCast((*i)->type()) && containsClassMembers(StructPtr::dynamicCast((*i)->type())))
+
+        DictionaryPtr dict = DictionaryPtr::dynamicCast((*i)->type());
+        if(dict)
         {
-            return true;
+            st = StructPtr::dynamicCast(dict->valueType());
+            if(isClassType(dict->valueType()) || (st && containsClassMembers(st)))
+            {
+                return true;
+            }
         }
     }
     return false;
