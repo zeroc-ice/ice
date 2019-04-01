@@ -1194,10 +1194,6 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         baseClass = bases.front();
     }
 
-    const DataMemberList members = p->dataMembers();
-    const DataMemberList baseMembers = baseClass ? baseClass->allDataMembers() : DataMemberList();
-    const DataMemberList allMembers = p->allDataMembers();
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule) + (!p->isInterface() ? "Disp" : "");
 
@@ -1272,7 +1268,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     {
         out << operationReturnType(op);
     }
-    else if (isAmd)
+    else if(isAmd)
     {
         out << "Void";
     }
