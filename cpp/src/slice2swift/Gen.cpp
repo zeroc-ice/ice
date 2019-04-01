@@ -1232,7 +1232,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 {
     const bool isAmd = operationIsAmd(op);
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
-    const string opName = fixIdent(op->name()) + (isAmd ? "Async" : "");
+    const string opName = fixIdent(op->name() + (isAmd ? "Async" : ""));
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
     const ExceptionList allExceptions = op->throws();
@@ -1249,33 +1249,17 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
 
-    if(!isAmd)
+    if(isAmd)
+    {
+        out << " -> PromiseKit.Promise<" << (allOutParams.size() > 0 ? operationReturnType(op) : "Void") << ">";
+    }
+    else
     {
         out << " throws";
-    }
-
-    if(isAmd || allOutParams.size() > 0)
-    {
-        out << " -> ";
-    }
-
-    if(isAmd)
-    {
-        out << "PromiseKit.Promise<";
-    }
-
-    if(allOutParams.size() > 0)
-    {
-        out << operationReturnType(op);
-    }
-    else if(isAmd)
-    {
-        out << "Void";
-    }
-
-    if(isAmd)
-    {
-        out << ">";
+        if(allOutParams.size() > 0)
+        {
+            out << " -> " << operationReturnType(op);
+        }
     }
 }
 
