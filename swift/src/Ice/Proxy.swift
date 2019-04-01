@@ -254,10 +254,10 @@ public extension ObjectPrx {
                                   sentFlags: sentFlags)
     }
 
-    public func ice_invoke(operation: String,
-                           mode: OperationMode,
-                           inEncaps: [UInt8],
-                           context: Context? = nil) throws -> (Bool, [UInt8]) {
+    func ice_invoke(operation: String,
+                    mode: OperationMode,
+                    inEncaps: [UInt8],
+                    context: Context? = nil) throws -> (Bool, [UInt8]) {
         return try inEncaps.withUnsafeBufferPointer {
             var ok = Bool()
             let ins = try InputStream(communicator: _impl.communicator,

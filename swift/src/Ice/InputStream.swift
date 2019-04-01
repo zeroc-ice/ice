@@ -1052,14 +1052,14 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        try startSlice()
+        _ = try startSlice()
         let mostDerivedId = typeId!
 
         while true {
             //
             // Look for user exception
             //
-            var userExceptionType: UserException.Type? = ClassResolver.resolve(typeId: typeId)
+            let userExceptionType: UserException.Type? = ClassResolver.resolve(typeId: typeId)
 
             //
             // We found the exception.
@@ -1078,7 +1078,7 @@ private class EncapsDecoder10: EncapsDecoder {
             //
             try skipSlice()
             do {
-                try startSlice()
+                _ = try startSlice()
             } catch let ex as UnmarshalOutOfBoundsException {
                 //
                 // An oversight in the 1.0 encoding means there is no marker to indicate
