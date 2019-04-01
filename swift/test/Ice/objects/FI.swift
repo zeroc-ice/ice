@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class FI : F {
-
+public class FI: F {
     public required init() {
         super.init()
     }
 
-    public init(e:E) {
+    public init(e: E) {
         super.init(e1: e, e2: e)
     }
 

@@ -200,7 +200,7 @@ public class Client: TestHelperI {
                      (depth < 1000 && (depth % 100) == 0) ||
                      (depth < 10000 && (depth % 1000) == 0) ||
                      (depth % 10000) == 0 {
-                      try initial.setRecursive(top);
+                      try initial.setRecursive(top)
                   }
             }
             try test(!initial.supportsClassGraphDepthMax())
@@ -228,7 +228,7 @@ public class Client: TestHelperI {
         output.write("testing UnexpectedObjectException...")
         ref = "uoet:\(self.getTestEndpoint(num: 0))"
         base = try communicator.stringToProxy(ref)!
-        try test(base !== nil);
+        try test(base !== nil)
         var uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)!
         do {
             try uoet.op()

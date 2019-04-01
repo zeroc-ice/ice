@@ -3,7 +3,6 @@
 //
 
 public class BI: B {
-
     override public func ice_preMarshal() {
         self.preMarshalInvoked = true
     }

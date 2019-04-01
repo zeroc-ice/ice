@@ -50,7 +50,7 @@ public protocol TestHelper {
 }
 
 public extension TestHelper {
-    public func getTestEndpoint(num: Int32 = 0, prot: String = "") -> String {
+    func getTestEndpoint(num: Int32 = 0, prot: String = "") -> String {
         return getTestEndpoint(properties: communicator().getProperties(),
                                num: num,
                                prot: prot)
