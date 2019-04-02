@@ -1195,7 +1195,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = getUnqualified(getAbsolute(p), swiftModule) + (!p->isInterface() ? "Disp" : "");
+    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + (p->isInterface() ? "" : "Disp"));
 
     out << sp;
     out << nl << "public protocol " << name << ":";
@@ -1208,7 +1208,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
         {
-            out << " " << getUnqualified(getAbsolute(*i), swiftModule);
+            out << " " << fixIdent(getUnqualified(getAbsolute(*i), swiftModule) + ((*i)->isInterface() ? "" : "Disp"));
             if(++i != bases.end())
             {
                 out << ",";
