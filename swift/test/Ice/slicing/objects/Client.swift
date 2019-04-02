@@ -24,6 +24,12 @@ class PNodeI: PNode {
     static var counter: Int32 = 0
 }
 
+open class TestFactoryI: TestFactory {
+    public class func create() -> TestHelper {
+        return Client()
+    }
+}
+
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
 

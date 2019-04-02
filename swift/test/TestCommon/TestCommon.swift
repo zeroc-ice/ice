@@ -26,6 +26,10 @@ public enum TestFailed: Error {
     case testFailed
 }
 
+public protocol TestFactory {
+    static func create() -> TestHelper
+}
+
 public protocol TestHelper {
     func run(args: [String]) throws
     func getTestEndpoint(num: Int32, prot: String) -> String
