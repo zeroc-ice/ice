@@ -399,7 +399,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             << (!base ? "true" : "false") << ")";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), true);
+            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), true, (*i)->tag());
         }
         out << nl << "ostr.endSlice()";
         if(base)
@@ -478,6 +478,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool containsSequence;
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
     const DataMemberList members = p->dataMembers();
+    const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
     out << nl << "public " << (containsClassMembers(p) ? "class " : "struct ") << name;
@@ -497,6 +498,8 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
         out << sb;
+
+        out << sp;
         out << nl << "func read() throws -> " << name;
         out << sb;
         out << nl << "var v = " << name << "()";
@@ -504,8 +507,25 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
         }
-
         out << nl << "return v";
+        out << eb;
+
+        out << sp;
+        out << nl << "func read(tag: Int32) throws -> " << name << "?";
+        out << sb;
+        out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+        out << sb;
+        out << nl << "return nil";
+        out << eb;
+        if(p->isVariableLength())
+        {
+            out << nl << "try skip(4)";
+        }
+        else
+        {
+            out << nl << "try skipSize()";
+        }
+        out << nl << "return try read() as " << name;
         out << eb;
 
         out << eb;
@@ -519,6 +539,24 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), true);
         }
+        out << eb;
+
+        out << sp;
+        out << nl << "func write(tag: Int32, value: " << name << "?)" << sb;
+        out << nl << "if let v = value" << sb;
+        out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
+
+        if(p->isVariableLength())
+        {
+            out << nl << "let pos = startSize()";
+        }
+        else
+        {
+            out << nl << "write(size: " << p->minWireSize() << ")";
+        }
+        out << nl << "write(v)";
+        out << eb;
+        out << eb;
         out << eb;
 
         out << eb;
@@ -772,6 +810,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "UInt8" : "Int32";
+    const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
     out << nl << "public enum " << name << ": " << enumType;
@@ -792,6 +831,8 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
+
+    out << sp;
     out << nl << "func read() throws -> " << name;
     out << sb;
     out << nl << "var rawValue = " << enumType << "()";
@@ -803,14 +844,36 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "return val";
     out << eb;
 
+    out << sp;
+    out << nl << "func read(tag: Int32) throws -> " << name << "?";
+    out << sb;
+    out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << sb;
+    out << nl << "return nil";
+    out << eb;
+    out << nl << "return try read() as " << name;
+    out << eb;
+
     out << eb;
 
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     out << sb;
+
+    out << sp;
     out << nl << "func write(_ v: " << name << ")";
     out << sb;
     out << nl << "write(enum: v.rawValue, maxValue: " << p->maxValue() << ")";
+    out << eb;
+
+    out << sp;
+    out << nl << "func write(tag: Int32, value: " << name << "?)";
+    out << sb;
+    out << nl << "guard let v = value else";
+    out << sb;
+    out << nl << "return";
+    out << eb;
+    out << nl << "write(tag: tag, val: v.rawValue, maxValue: " << p->maxValue() << ")";
     out << eb;
 
     out << eb;

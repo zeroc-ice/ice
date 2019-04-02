@@ -784,6 +784,12 @@ public extension InputStream {
         try encaps.decoder.readValue(cb: cb)
     }
 
+    func read(tag: Int32, cb: ((Value?) throws -> Void)?) throws {
+        if try readOptional(tag: tag, expectedFormat: OptionalFormat.Class) {
+            try read(cb: cb)
+        }
+    }
+
     func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
@@ -796,6 +802,12 @@ public extension InputStream {
             }
         } else {
             try encaps.decoder.readValue(cb: nil)
+        }
+    }
+
+    func read<ValueType>(tag: Int32, value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
+        if try readOptional(tag: tag, expectedFormat: OptionalFormat.Class) {
+            try read(value, cb: cb)
         }
     }
 }
@@ -1557,7 +1569,6 @@ private class EncapsDecoder11: EncapsDecoder {
         return false
     }
 
-    //swiftlint:disable cyclomatic_complexity
     func readInstance(index: Int32, cb: Callback?) throws -> Int32 {
         precondition(index > 0)
 

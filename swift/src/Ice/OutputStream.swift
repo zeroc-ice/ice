@@ -425,6 +425,12 @@ public extension OutputStream {
         }
     }
 
+    func write(tag: Int32, val: UInt8, maxValue: Int32) {
+        if writeOptional(tag: tag, format: OptionalFormat.Size) {
+            write(enum: val, maxValue: maxValue)
+        }
+    }
+
     func write(enum val: Int32, maxValue: Int32) {
         if encoding == Protocol.Encoding_1_0 {
             if maxValue < 127 {
@@ -436,6 +442,12 @@ public extension OutputStream {
             }
         } else {
             write(size: val)
+        }
+    }
+
+    func write(tag: Int32, val: Int32, maxValue: Int32) {
+        if writeOptional(tag: tag, format: OptionalFormat.Size) {
+            write(enum: val, maxValue: maxValue)
         }
     }
 
