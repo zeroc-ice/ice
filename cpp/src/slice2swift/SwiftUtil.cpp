@@ -778,14 +778,17 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
     {
         out << "override ";
     }
-    out << "init()";
-    out << sb;
 
-    if(!rootClass)
+    if(rootClass)
     {
-        out << nl << "super.init()";
+        out << "init() {}";
     }
-    out << eb;
+    else
+    {
+        out << "init()" << sb;
+        out << nl << "super.init()";
+        out << eb;
+    }
 }
 
 void
