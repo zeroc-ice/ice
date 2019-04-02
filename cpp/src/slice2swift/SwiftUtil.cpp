@@ -42,7 +42,7 @@ lookupKwd(const string& name)
                                Slice::CICompare());
     if(found)
     {
-        return "_" + name;
+        return "`" + name + "`";
     }
 
     return name;
@@ -1956,7 +1956,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << (q->fixedName + ": iceP_" + q->fixedName);
+        out << (q->name + ": iceP_" + q->name);
     }
     out << "current: current";
     out << epar;
@@ -2019,7 +2019,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << (q->fixedName + ": iceP_" + q->fixedName);
+        out << (q->name + ": iceP_" + q->name);
     }
     out << "current: current";
     out << epar;
