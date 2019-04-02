@@ -657,7 +657,7 @@ open class _ObjectPrxI: ObjectPrx {
             if ok == false {
                 try self.throwUserException(istr: istr, userException: userException)
             }
-            try istr.skipEmptyEncapsulation()
+            _ = try istr.skipEmptyEncapsulation()
         }
     }
 
@@ -687,7 +687,7 @@ open class _ObjectPrxI: ObjectPrx {
         if ok == false {
             try self.throwUserException(istr: istr, userException: userException)
         }
-        try istr.startEncapsulation()
+        _ = try istr.startEncapsulation()
         let l =  try read(istr)
         try istr.endEncapsulation()
         return l
@@ -723,7 +723,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                   if ok == false {
                                                       try self.throwUserException(istr: istr, userException: userException)
                                                   }
-                                                  try istr.skipEmptyEncapsulation()
+                                                  _ = try istr.skipEmptyEncapsulation()
                                               }
                                               p.fulfill(())
                                           } catch {
@@ -768,7 +768,7 @@ open class _ObjectPrxI: ObjectPrx {
                                               if ok == false {
                                                   try self.throwUserException(istr: istr, userException: userException)
                                               }
-                                              try istr.startEncapsulation()
+                                              _ = try istr.startEncapsulation()
                                               let l =  try read(istr)
                                               try istr.endEncapsulation()
                                               p.fulfill(l)
@@ -785,7 +785,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     func throwUserException(istr: InputStream, userException: ((UserException) throws -> Void)?) throws {
         do {
-            try istr.startEncapsulation()
+            _ = try istr.startEncapsulation()
             try istr.throwException()
         } catch let error as UserException {
             try istr.endEncapsulation()

@@ -60,7 +60,7 @@ public class Client: TestHelperI {
         //     try second.deactivate()
         // } catch is Ice.AlreadyRegisteredException {}
         // try first.deactivate()
-        output.writeLine("ok");
+        output.writeLine("ok")
 
         output.write("testing servant registration exceptions... ")
         // try communicator.getProperties().setProperty(key: "TestAdapter1.Endpoints", value: "tcp -h *")

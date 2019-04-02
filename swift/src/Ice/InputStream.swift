@@ -1111,7 +1111,7 @@ private class EncapsDecoder10: EncapsDecoder {
         // Read the Ice::Value slice.
         //
         if sliceType == .ValueSlice {
-            try startSlice()
+            _ = try startSlice()
             let sz = try stream.readSize() // For compatibility with the old AFM.
             if sz != 0 {
                 throw MarshalException(reason: "invalid Object slice")
@@ -1324,7 +1324,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        try startSlice()
+        _ = try startSlice()
         let mostDerivedId = current.typeId!
         while true {
             //
@@ -1355,7 +1355,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 }
             }
 
-            try startSlice()
+            _ = try startSlice()
         }
     }
 
@@ -1581,7 +1581,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        try startSlice()
+        _ = try startSlice()
         let mostDerivedId = current.typeId!
 
         var v: Value?

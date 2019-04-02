@@ -52,7 +52,7 @@ public class Client: TestHelperI {
         output.writeLine("ok")
 
         output.write("getting C... ")
-        let c = try initial.getC()!
+        _ = try initial.getC()!
         output.writeLine("ok")
 
         output.write("getting D... ")
@@ -196,7 +196,7 @@ public class Client: TestHelperI {
         output.writeLine("ok")
 
         output.write("testing recursive type... ")
-        var top = Recursive()
+        let top = Recursive()
         var p = top
         do {
             for depth in 0..<1000 {
@@ -234,10 +234,9 @@ public class Client: TestHelperI {
         output.write("testing UnexpectedObjectException...")
         ref = "uoet:\(self.getTestEndpoint(num: 0))"
         base = try communicator.stringToProxy(ref)!
-        try test(base !== nil)
-        var uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)!
+        let uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)!
         do {
-            try uoet.op()
+            _ = try uoet.op()
             try test(false)
         } catch let ex as Ice.UnexpectedObjectException {
             try test(ex.type == "::Test::AlsoEmpty")

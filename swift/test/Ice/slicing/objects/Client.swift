@@ -1429,9 +1429,9 @@ public class Client: TestHelperI {
         // the Ice run time will install its own internal factory for Preserved upon receiving the
         // first instance.
         //
-        try communicator.getValueFactoryManager().add(factory: {
-                                                          id in Preserved.ice_staticId() == id ? PreservedI() : nil },
-                                                      id: Preserved.ice_staticId())
+        try communicator.getValueFactoryManager().add(
+            factory: { id in Preserved.ice_staticId() == id ? PreservedI() : nil },
+                 id: Preserved.ice_staticId())
         do {
             //
             // Server knows the most-derived class PDerived.
@@ -1680,7 +1680,7 @@ public class Client: TestHelperI {
             pcd.pbs = [pcd]
 
             firstly {
-                try testPrx.exchangePBaseAsync(pcd)
+                testPrx.exchangePBaseAsync(pcd)
             }.done { ret in
                 let r = ret!
                 if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
@@ -1860,7 +1860,7 @@ public class Client: TestHelperI {
             do {
                 try test(PreservedI.counter == 0)
                 do {
-                    try testPrx.throwPreservedException();
+                    try testPrx.throwPreservedException()
                 } catch is PreservedException {
                     try test(PreservedI.counter == 1)
                 }
