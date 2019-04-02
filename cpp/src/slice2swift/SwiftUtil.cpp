@@ -1912,7 +1912,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
 void
 SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    const string opName = fixIdent(op->name());
+    const string opName = op->name();
 
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
@@ -1951,7 +1951,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     {
         out << "let " << operationReturnDeclaration(op) << " = ";
     }
-    out << "try " << opName;
+    out << "try " << fixIdent(opName);
 
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
@@ -1978,15 +1978,13 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
 void
 SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    const string opName = fixIdent(op->name() + (operationIsAmd(op) ? "Async" : ""));
-
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
 
     out << sp;
-    out << nl << "func iceD_" <<  fixIdent(op->name());
+    out << nl << "func iceD_" << op->name();
     out << spar;
     out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
@@ -2014,7 +2012,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     out << nl;
     out << "firstly";
     out << sb;
-    out << nl << opName;
+    out << nl << fixIdent(op->name() + (operationIsAmd(op) ? "Async" : ""));
 
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)

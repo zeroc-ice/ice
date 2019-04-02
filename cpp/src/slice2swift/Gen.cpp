@@ -1333,7 +1333,7 @@ Gen::ObjectExtVisitor::visitClassDefEnd(const ClassDefPtr& p)
         const string opName = *q;
         out << nl << "case \"" << opName << "\":";
         out.inc();
-        out << nl << "try iceD_" << fixIdent(opName) << "(incoming: inS, current: current)";
+        out << nl << "try iceD_" << opName << "(incoming: inS, current: current)";
         out.dec();
     }
     out << nl << "default:";
