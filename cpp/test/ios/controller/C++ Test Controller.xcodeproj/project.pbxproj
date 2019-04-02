@@ -55,7 +55,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).cpp",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper --cpp";
+			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper --cpp\n";
 		};
 		14E3982D1E01B14B00A89291 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -369,6 +369,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
