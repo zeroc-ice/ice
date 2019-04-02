@@ -430,7 +430,15 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
     }
     else if(prx)
     {
-        t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
+        ClassDefPtr def = prx->_class()->definition();
+        if(def->isInterface() || def->allOperations().size() > 0)
+        {
+            t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
+        }
+        else
+        {
+            t = getUnqualified("Ice.ObjectPrx", currentModule);
+        }
     }
     else if(cont)
     {
@@ -1049,7 +1057,16 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             {
                 args += ", type: ";
             }
-            args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
+
+            ClassDefPtr def = prx->_class()->definition();
+            if(def->isInterface() || def->allOperations().size() > 0)
+            {
+                args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
+            }
+            else
+            {
+                args += getUnqualified("Ice.ObjectPrx", swiftModule) + ".self";
+            }
             out << nl << param << " = try " << stream << ".read(" << args << ")";
         }
         return;
