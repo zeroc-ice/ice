@@ -479,9 +479,8 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
     const DataMemberList members = p->dataMembers();
 
-    bool isClass = p->hasMetaData("swift:class") || containsClassMembers(p);
     out << sp;
-    out << nl << "public " << (isClass ? "class " : "struct ") << name;
+    out << nl << "public " << (containsClassMembers(p) ? "class " : "struct ") << name;
     if(legalKeyType)
     {
         out << ": Swift.Hashable";
