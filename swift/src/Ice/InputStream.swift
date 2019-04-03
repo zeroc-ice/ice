@@ -81,7 +81,7 @@ public class InputStream {
     }
 
     public func readEncapsulation() throws -> (bytes: [UInt8], encoding: EncodingVersion) {
-        let sz = try readSize()
+        let sz: Int32 = try read()
         if sz < 6 {
             throw UnmarshalOutOfBoundsException(reason: "Invalid size")
         }
