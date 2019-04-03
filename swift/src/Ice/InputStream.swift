@@ -467,6 +467,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
+        try skipSize()
         return try read()
     }
 
@@ -492,6 +493,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
+        try skipSize()
         return try read()
     }
 
@@ -517,6 +519,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
+        try skipSize()
         return try read()
     }
 
@@ -528,7 +531,7 @@ public extension InputStream {
     }
 
     func read(tag: Int32) throws -> Float? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F4) else {
             return nil
         }
         return try read() as Float
@@ -542,6 +545,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
+        try skipSize()
         return try read()
     }
 
@@ -567,6 +571,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
+        try skipSize()
         return try read()
     }
 
@@ -752,6 +757,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.FSize) else {
             return nil
         }
+        try skip(4)
         return try read() as [String]
     }
 

@@ -222,7 +222,7 @@ public extension OutputStream {
             return
         }
 
-        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 1) {
+        if writeOptional(tag: tag, format: .VSize) {
             write(val)
         }
     }
@@ -255,7 +255,7 @@ public extension OutputStream {
             return
         }
 
-        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 1) {
+        if writeOptional(tag: tag, format: .VSize) {
             write(val)
         }
     }
@@ -565,6 +565,7 @@ public extension OutputStream {
     }
 
     func writeOptionalVSize(tag: Int32, len: Int, elemSize: Int) -> Bool {
+        precondition(elemSize > 1)
         if writeOptional(tag: tag, format: OptionalFormat.VSize) {
             write(size: len == 0 ? 1 : (len * elemSize) + (len > 254 ? 5 : 1))
             return true

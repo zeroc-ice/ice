@@ -577,7 +577,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const TypePtr type = p->type();
 
     out << sp;
-    out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx) << "]";
+    out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx)
+        << "]";
 
     if(p->isLocal())
     {
@@ -593,7 +594,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
 
-    const string optionalFormat = getUnqualified(getOptionalFormat(p->type()), swiftModule);
+    const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
 
     out << sp;
     out << nl << "public struct " << name << "Helper";
@@ -671,9 +672,16 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << nl << "if ostr.writeOptionalVSize(tag: tag, len: val.count, elemSize: " << p->type()->minWireSize() << ")";
+        if(p->type()->minWireSize() == 1)
+        {
+            out << nl << "if ostr.writeOptional(tag: tag, format: .VSize)";
+        }
+        else
+        {
+            out << nl << "if ostr.writeOptionalVSize(tag: tag, len: val.count, elemSize: "
+                << p->type()->minWireSize() << ")";
+        }
         out << sb;
-        out << nl << "ostr.write(size: val.count)";
         out << nl << "write(to: ostr, value: val)";
         out << eb;
     }
@@ -768,9 +776,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
-    out << nl << "v.forEach";
+    out << nl << "for (key, value) in v";
     out << sb;
-    out << "key, value in";
     writeMarshalUnmarshalCode(out, p->keyType(), p, "key", true);
     writeMarshalUnmarshalCode(out, p->valueType(), p, "value", true);
     out << eb;
@@ -796,7 +803,6 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     {
         out << nl << "if ostr.writeOptionalVSize(tag: tag, len: val.count, elemSize: " << minWireSize << ")";
         out << sb;
-        out << nl << "ostr.write(size: val.count)";
         out << nl << "write(to: ostr, value: val)";
         out << eb;
     }
