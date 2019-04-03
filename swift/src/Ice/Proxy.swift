@@ -70,7 +70,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_invoke(operation: String,
                     mode: OperationMode,
                     inEncaps: [UInt8],
-                    context: Context?) throws -> (Bool, [UInt8])
+                    context: Context?) throws -> (ok: Bool, outEncaps: [UInt8])
 }
 
 public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
@@ -257,7 +257,7 @@ public extension ObjectPrx {
     func ice_invoke(operation: String,
                     mode: OperationMode,
                     inEncaps: [UInt8],
-                    context: Context? = nil) throws -> (Bool, [UInt8]) {
+                    context: Context? = nil) throws -> (ok: Bool, outEncaps: [UInt8]) {
         return try inEncaps.withUnsafeBufferPointer {
             var ok = Bool()
             let ins = try InputStream(communicator: _impl.communicator,
