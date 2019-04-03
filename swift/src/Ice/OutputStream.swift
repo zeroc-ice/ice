@@ -222,7 +222,7 @@ public extension OutputStream {
             return
         }
 
-        if writeOptional(tag: tag, format: OptionalFormat.VSize) {
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 1) {
             write(val)
         }
     }
@@ -235,7 +235,10 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: Bool?) {
-        writeNumeric(tag, UInt8(v == true ? 1 : 0), OptionalFormat.F1)
+        guard let val = v else {
+            return
+        }
+        writeNumeric(tag, UInt8(val == true ? 1 : 0), OptionalFormat.F1)
     }
 
     func write(_ v: [Bool]) {
@@ -251,7 +254,8 @@ public extension OutputStream {
         guard let val = v else {
             return
         }
-        if writeOptional(tag: tag, format: OptionalFormat.VSize) {
+
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 1) {
             write(val)
         }
     }
@@ -389,7 +393,7 @@ public extension OutputStream {
             write(size)
         } else {
             // pre-allocate size memory
-            buf.ensure(bytesNeeded: Int(1 + size))
+            buf.ensure(bytesNeeded: Int(1))
             write(UInt8(size))
         }
     }
@@ -562,19 +566,8 @@ public extension OutputStream {
 
     func writeOptionalVSize(tag: Int32, len: Int, elemSize: Int) -> Bool {
         if writeOptional(tag: tag, format: OptionalFormat.VSize) {
-            if len == 0 {
-                write(size: 1)
-                write(size: 0)
-            } else {
-                var sz = len * elemSize
-                if len > 254 {
-                    sz += 5
-                } else {
-                    sz += 1
-                }
-                write(size: sz)
-                return true
-            }
+            write(size: len == 0 ? 1 : (len * elemSize) + (len > 254 ? 5 : 1))
+            return true
         }
         return false
     }

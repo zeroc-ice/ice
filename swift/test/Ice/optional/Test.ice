@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h", "suppress-warning:deprecated"]]
+[["suppress-warning:deprecated"]]
 
 module Test
 {
@@ -34,7 +34,7 @@ struct VarStruct
     string m;
 }
 
-["cpp:class"] struct ClassVarStruct
+struct ClassVarStruct
 {
     int a;
 }
@@ -49,9 +49,9 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-["cpp:type:std::list< ::Test::SmallStruct>"] sequence<SmallStruct> SmallStructList;
+sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-["cpp:type:std::list< ::Test::FixedStruct>"] sequence<FixedStruct> FixedStructList;
+sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
@@ -66,7 +66,7 @@ dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
 dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 
-["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
+dictionary<int, string> IntStringDict;
 
 class MultiOptional
 {

@@ -320,7 +320,7 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
 void
 SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type,
                                    const SyntaxTreeBasePtr& valueType, const string& value,
-                                   const StringList&, const string& swiftModule)
+                                   const StringList&, const string& swiftModule, bool optional)
 {
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
@@ -350,6 +350,10 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
             {
                 out << value;
             }
+        }
+        else if(optional)
+        {
+            out << "nil";
         }
         else
         {
@@ -886,7 +890,8 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         else
         {
             out << " = ";
-            writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule);
+            writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
+                               member->optional());
         }
     }
 }

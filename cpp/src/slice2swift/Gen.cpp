@@ -549,12 +549,14 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         if(p->isVariableLength())
         {
             out << nl << "let pos = startSize()";
+            out << nl << "write(v)";
+            out << nl << "endSize(position: pos)";
         }
         else
         {
             out << nl << "write(size: " << p->minWireSize() << ")";
+            out << nl << "write(v)";
         }
-        out << nl << "write(v)";
         out << eb;
         out << eb;
         out << eb;
