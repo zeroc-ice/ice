@@ -59,6 +59,14 @@ public extension TestHelper {
                                num: num,
                                prot: prot)
     }
+
+    func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
+        if !value {
+            let writer = getWriter()
+            writer.writeLine("Test failed File: \(file): Line: \(line)")
+            throw TestFailed.testFailed
+        }
+    }
 }
 
 open class TestHelperI: TestHelper {
@@ -142,14 +150,6 @@ open class TestHelperI: TestHelper {
 
     public func setWriter(writer: TextWriter) {
         _writer = writer
-    }
-
-    public func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
-        if !value {
-            let writer = getWriter()
-            writer.writeLine("Test failed File: \(file): Line: \(line)")
-            throw TestFailed.testFailed
-        }
     }
 
     public func communicator() -> Communicator {
