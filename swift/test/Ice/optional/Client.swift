@@ -11,6 +11,184 @@ open class TestFactoryI: TestFactory {
     }
 }
 
+class TestValueReader: Ice.Value {
+    public override func _iceRead(from istr: Ice.InputStream) throws {
+        istr.startValue()
+        _ = try istr.startSlice()
+        try istr.endSlice()
+        _ = try istr.endValue(preserve: false)
+    }
+}
+
+class BValueReader: Ice.Value {
+    public override func _iceRead(from istr: Ice.InputStream) throws {
+        istr.startValue()
+        // ::Test::B
+        _ = try istr.startSlice()
+        _ = try istr.read() as Int32
+        try istr.endSlice()
+        // ::Test::A
+        _ = try istr.startSlice()
+        _ = try istr.read() as Int32
+        try istr.endSlice()
+        _ = try istr.endValue(preserve: false)
+    }
+}
+
+class CValueReader: Ice.Value {
+    public override func _iceRead(from istr: Ice.InputStream) throws {
+        istr.startValue()
+        // ::Test::C
+        _ = try istr.startSlice()
+        try istr.skipSlice()
+        // ::Test::B
+        _ = try istr.startSlice()
+        _ = try istr.read() as Int32
+        try istr.endSlice()
+        // ::Test::A
+        _ = try istr.startSlice()
+        _ = try istr.read() as Int32
+        try istr.endSlice()
+        _ = try istr.endValue(preserve: false)
+    }
+}
+
+class DValueWriter: Ice.Value {
+    public override func _iceWrite(to ostr: Ice.OutputStream) {
+        ostr.startValue(data: nil)
+        // ::Test::D
+        ostr.startSlice(typeId: "::Test::D", compactId: -1, last: false)
+        let s = "test"
+        ostr.write(s)
+        _ = ostr.writeOptional(tag: 1, format: .FSize)
+        let o = ["test1", "test2", "test3", "test4"]
+        let pos = ostr.startSize()
+        ostr.write(o)
+        ostr.endSize(position: pos)
+        let a = A()
+        a.mc = 18
+        _ = ostr.writeOptional(tag: 1000, format: .Class)
+        ostr.write(a)
+        ostr.endSlice()
+        // ::Test::B
+        ostr.startSlice(typeId: B.ice_staticId(), compactId: -1, last: false)
+        let v: Int32 = 14
+        ostr.write(v)
+        ostr.endSlice()
+        // ::Test::A
+        ostr.startSlice(typeId: A.ice_staticId(), compactId: -1, last: true)
+        ostr.write(v)
+        ostr.endSlice()
+        ostr.endValue()
+    }
+}
+
+class DValueReader: Ice.Value {
+
+    var a: A?
+    var helper: TestHelper?
+
+    required init() {
+        super.init()
+    }
+
+    init(helper: TestHelper) {
+        self.helper = helper
+    }
+
+    public override func _iceRead(from istr: Ice.InputStream) throws {
+        istr.startValue()
+        // ::Test::D
+        _ = try istr.startSlice()
+        let s: String = try istr.read()
+        try helper!.test(s == "test")
+        try helper!.test(istr.readOptional(tag: 1, expectedFormat: .FSize))
+        try istr.skip(4)
+        let o: [String] = try istr.read()
+        try helper!.test(o.count == 4 &&
+                           o[0] == "test1" &&
+                           o[1] == "test2" &&
+                           o[2] == "test3" &&
+                           o[3] == "test4")
+        try istr.read(tag: 1000, value: A.self) { self.a = $0}
+        try istr.endSlice()
+        // ::Test::B
+        _ = try istr.startSlice()
+        _ = try istr.read() as Int32
+        try istr.endSlice()
+        // ::Test::A
+        _ = try istr.startSlice()
+        _ = try istr.read() as Int32
+        try istr.endSlice()
+        _ = try istr.endValue(preserve: false)
+    }
+
+    func check() throws {
+        try helper!.test(a!.mc == 18)
+    }
+}
+
+class FValueReader: Ice.Value {
+
+    public required init() {
+        _f = F()
+        super.init()
+    }
+    public override func _iceRead(from istr: Ice.InputStream) throws {
+        _f = F()
+        _ = istr.startValue()
+        _ = try istr.startSlice()
+        // Don't read af on purpose
+        //in.read(1, _f.af);
+        try istr.endSlice()
+        _ = try istr.startSlice()
+        try istr.read(A.self) { self._f.ae = $0 }
+        try istr.endSlice()
+        _ = try istr.endValue(preserve: false)
+    }
+
+    public func getF() -> F? {
+        return _f
+    }
+
+    var _f: F
+}
+
+class FactoryI {
+
+    init() {
+        _enabled = false
+    }
+
+    func create(_ typeId: String) -> Ice.Value? {
+        guard _enabled else {
+            return nil
+        }
+        switch typeId {
+        case OneOptional.ice_staticId():
+            return TestValueReader()
+        case MultiOptional.ice_staticId():
+            return TestValueReader()
+        case B.ice_staticId():
+            return BValueReader()
+        case C.ice_staticId():
+            return CValueReader()
+        case "::Test::D":
+            return DValueReader()
+        case "::Test::F":
+            return FValueReader()
+        default:
+            return nil
+        }
+    }
+
+    func setEnabled(enabled: Bool) {
+        _enabled = enabled
+    }
+
+    var _enabled: Bool
+}
+
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
 
@@ -18,6 +196,9 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
+
+        let factory = FactoryI()
+        try communicator.getValueFactoryManager().add(factory: { id in factory.create(id) }, id: "")
 
         let output = self.getWriter()
         output.write("testing stringToProxy... ")
@@ -338,89 +519,93 @@ public class Client: TestHelperI {
         // any of the optional members. This ensures the optional members
         // are skipped even if the receiver knows nothing about them.
         //
-        /*factory.setEnabled(true)
+        factory.setEnabled(enabled: true)
         do {
-            let ostr = Ice.OutputStream(communicator)
+            let ostr = Ice.OutputStream(communicator: communicator)
             ostr.startEncapsulation()
-            ostr.writeValue(oo1)
+            ostr.write(oo1)
             ostr.endEncapsulation()
-            let inEncaps = os.finished()
-            let result = initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps)
+            let inEncaps = ostr.finished()
+            let result = try initial.ice_invoke(operation: "pingPong",
+                                                mode: Ice.OperationMode.Normal,
+                                                inEncaps: inEncaps)
             try test(result.ok)
 
-            let istr = InputStream(communicator, result.outEncaps)
-            istr.startEncapsulation()
+            let istr = InputStream(communicator: communicator, bytes: result.outEncaps)
+            _ = try istr.startEncapsulation()
 
-            ReadValueCallbackI cb = new ReadValueCallbackI()
-            @in.readValue(cb.invoke)
-            @in.endEncapsulation()
-            test(cb.obj != null && cb.obj is TestValueReader)
+            var v: Ice.Value?
+            try istr.read { v = $0  }
+            try istr.endEncapsulation()
+            try test(v != nil && v is TestValueReader)
         }
 
         do {
-            ostr = Ice.OutputStream(communicator)
+            let ostr = Ice.OutputStream(communicator: communicator)
             ostr.startEncapsulation()
-            ostr.writeValue(mo1)
+            ostr.write(mo1)
             ostr.endEncapsulation()
-            inEncaps = ostr.finished()
-            let result = initial.ice_invoke("pingPong", Ice.OperationMode.Normal, inEncaps)
-            try test(result.ok);
-            let istr = Ice.InputStream(communicator, outEncaps)
-            istr.startEncapsulation()
-            istr.readValue(cb.invoke)
-            istr.endEncapsulation()
-            try test(cb.obj != null && cb.obj is TestValueReader)
+            let inEncaps = ostr.finished()
+            let result = try initial.ice_invoke(operation: "pingPong",
+                                                mode: .Normal,
+                                                inEncaps: inEncaps)
+            try test(result.ok)
+            let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+            _ = try istr.startEncapsulation()
+            var v: Ice.Value?
+            try istr.read { v = $0 }
+            try istr.endEncapsulation()
+            try test(v != nil && v is TestValueReader)
         }
-        factory.setEnabled(false)
+        factory.setEnabled(enabled: false)
 
         //
         // Use the 1.0 encoding with operations whose only class parameters are optional.
         //
-        var oo = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
-        initial.sendOptionalClass(true, oo);
-        Test.InitialPrx initial2 =(Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
-        initial2.sendOptionalClass(true, oo);
+        var oo: OneOptional? = OneOptional(a: 53)
+        try initial.sendOptionalClass(req: true, o: oo)
+        let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
+        try initial2.sendOptionalClass(req: true, o: oo)
 
-        initial.returnOptionalClass(true, out oo);
-        test(oo.HasValue);
-        initial2.returnOptionalClass(true, out oo);
-        test(!oo.HasValue);
+        oo = try initial.returnOptionalClass(true)
+        try test(oo != nil)
+        oo = try initial2.returnOptionalClass(true)
+        try test(oo == nil)
 
-        Test.Recursive[] recursive1 = new Test.Recursive[1];
-        recursive1[0] = new Test.Recursive();
-        Test.Recursive[] recursive2 = new Test.Recursive[1];
-        recursive2[0] = new Test.Recursive();
-        recursive1[0].value = recursive2;
-        Test.Recursive outer = new Test.Recursive();
-        outer.value = recursive1;
-        initial.pingPong(outer);
+        let recursive1 = [Recursive()]
+        let recursive2 = [Recursive()]
+        recursive1[0].value = recursive2
+        let outer = Recursive()
+        outer.value = recursive1
+        _ = try initial.pingPong(outer)
 
-        Test.G g = new Test.G();
-        g.gg1Opt = new Ice.Optional<Test.G1>(new Test.G1("gg1Opt"));
-        g.gg2 = new Test.G2(10);
-        g.gg2Opt = new Ice.Optional<Test.G2>(new Test.G2(20));
-        g.gg1 = new Test.G1("gg1");
-        g = initial.opG(g);
-        test("gg1Opt".Equals(g.gg1Opt.Value.a));
-        test(10 == g.gg2.a);
-        test(20 == g.gg2Opt.Value.a);
-        test("gg1".Equals(g.gg1.a));
+        var g: G! = G()
+        g.gg1Opt = G1(a: "gg1Opt")
+        g.gg2 = G2(a: 10)
+        g.gg2Opt = G2(a: 20)
+        g.gg1 = G1(a: "gg1")
+        g = try initial.opG(g)
+        try test("gg1Opt" == g.gg1Opt!.a)
+        try test(10 == g.gg2!.a)
+        try test(20 == g.gg2Opt!.a)
+        try test("gg1" == g.gg1!.a)
 
-        initial.opVoid();
+        try initial.opVoid()
 
-        os = new Ice.OutputStream(communicator);
-        os.startEncapsulation();
-        os.writeOptional(1, Ice.OptionalFormat.F4);
-        os.writeInt(15);
-        os.writeOptional(1, Ice.OptionalFormat.VSize);
-        os.writeString("test");
-        os.endEncapsulation();
-        inEncaps = os.finished();
-        test(initial.ice_invoke("opVoid", Ice.OperationMode.Normal, inEncaps, out outEncaps));
+        let ostr = OutputStream(communicator: communicator)
+        ostr.startEncapsulation()
+        _ = ostr.writeOptional(tag: 1, format: .F4)
+        ostr.write(Int32(15))
+        _ = ostr.writeOptional(tag: 1, format: .VSize)
+        ostr.write("test")
+        ostr.endEncapsulation()
+        let inEncaps = ostr.finished()
+        let result = try initial.ice_invoke(operation: "opVoid", mode: .Normal, inEncaps: inEncaps)
+        try test(result.ok)
 
-        output.WriteLine("ok");
+        output.writeLine("ok")
 
-        output.Write("testing marshaling of large containers with fixed size elements... ");
+        /*output.Write("testing marshaling of large containers with fixed size elements... ");
         output.Flush();
         Test.MultiOptional mc = new Test.MultiOptional();
 
