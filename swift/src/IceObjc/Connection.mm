@@ -9,6 +9,7 @@
 
 #import "IceObjcConnection.h"
 #import "IceObjcEndpoint.h"
+#import "IceObjcObjectAdapter.h"
 #import "IceObjcObjectPrx.h"
 #import "IceObjcIceUtil.h"
 #import "IceObjcUtil.h"
@@ -46,17 +47,27 @@
     }
 }
 
-// TODO:
-//-(BOOL) setAdapter:(ObjectAdapterI*)oa error:(NSError**)error
-//{
-//
-// }
+-(BOOL) setAdapter:(ICEObjectAdapter*)oa error:(NSError* _Nullable * _Nullable)error;
+{
+    try
+    {
+        _connection->setAdapter([oa objectAdapter]);
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
 
-//TODO??
-//-(ObjectAdapterI*) getAdapter
-// {
+-(nullable ICEObjectAdapter*) getAdapter
+{
+    auto cppAdapter = _connection->getAdapter();
 
-// }
+    auto adapter = [ICEObjectAdapter fromLocalObject:cppAdapter.get()];
+    return adapter ? adapter : [[ICEObjectAdapter alloc] initWithCppObjectAdapter:cppAdapter];
+}
 
 -(ICEEndpoint*) getEndpoint
 {

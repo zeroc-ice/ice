@@ -379,7 +379,7 @@ public extension InputStream {
         return try readNumeric(Element.self)
     }
 
-    private func readNumeric<Element>(minSize: Int32) throws -> [Element] where Element: Numeric {
+    private func readNumeric<Element>(minSize: Int) throws -> [Element] where Element: Numeric {
         let sz = try readAndCheckSeqSize(minSize: minSize)
         var a = [Element]()
         a.reserveCapacity(sz)

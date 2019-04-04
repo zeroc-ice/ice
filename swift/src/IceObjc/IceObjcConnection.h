@@ -10,14 +10,15 @@
 #import "IceObjcLocalObject.h"
 
 @class ICEEndpoint;
+@class ICEObjectAdapter;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEConnection : ICELocalObject
 -(void) close:(uint8_t)mode;
 -(nullable id) createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error;
-//-(BOOL) setAdapter:(ObjectAdapterI*)oa error:(NSError* _Nullable * _Nullable)error;
-//-(nullable ObjectAdapterI*) getAdapter;
+-(BOOL) setAdapter:(ICEObjectAdapter*)oa error:(NSError* _Nullable * _Nullable)error;
+-(nullable ICEObjectAdapter*) getAdapter;
 -(ICEEndpoint*) getEndpoint;
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable * _Nullable)error;
 -(BOOL) flushBatchRequestsAsync:(uint8_t)compress

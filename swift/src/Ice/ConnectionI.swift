@@ -31,14 +31,20 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
-    public func setAdapter(_: ObjectAdapter?) throws {
-        return autoreleasepool {
-            preconditionFailure("not implemented yet")
+    public func setAdapter(_ oa: ObjectAdapter?) throws {
+        try autoreleasepool {
+            try _handle.setAdapter((oa as! ObjectAdapterI)._handle)
         }
     }
 
     public func getAdapter() -> ObjectAdapter? {
-        preconditionFailure("not implemented yet")
+        guard let handle = _handle.getAdapter() else {
+            return nil
+        }
+
+        return handle.assign(to: ObjectAdapterI.self) {
+            ObjectAdapterI(handle: handle)
+        }
     }
 
     public func getEndpoint() -> Endpoint {

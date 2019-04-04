@@ -35,6 +35,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         handle.registerDefaultServant(self)
     }
 
+    convenience init(handle: ICEObjectAdapter, queue: DispatchQueue = serialQueue) {
+        self.init(handle: handle, communicator: handle.getCommunicator().to(type: CommunicatorI.self), queue: queue)
+    }
+
     func getName() -> String {
         return _handle.getName()
     }
