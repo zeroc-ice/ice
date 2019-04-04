@@ -480,8 +480,9 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
 
+    bool isClass = containsClassMembers(p);
     out << sp;
-    out << nl << "public " << (containsClassMembers(p) ? "class " : "struct ") << name;
+    out << nl << "public " << (isClass ? "class " : "struct ") << name;
     if(legalKeyType)
     {
         out << ": Swift.Hashable";
@@ -502,7 +503,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << sp;
         out << nl << "func read() throws -> " << name;
         out << sb;
-        out << nl << "var v = " << name << "()";
+        out << nl << (isClass ? "let" : "var") << " v = " << name << "()";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
