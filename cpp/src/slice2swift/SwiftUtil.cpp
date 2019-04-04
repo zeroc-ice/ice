@@ -363,8 +363,10 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
-                             const StringList& metadata, bool optional,
+SwiftGenerator::typeToString(const TypePtr& type,
+                             const ContainedPtr& toplevel,
+                             const StringList& metadata,
+                             bool optional,
                              int typeCtx)
 {
     static const char* builtinTable[] =
@@ -1768,7 +1770,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + typeToString(q->type, op));
+        out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
     }
     out << "context: Context? = nil";
 
@@ -1855,7 +1857,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + typeToString(q->type, op));
+        out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
     }
     out << "context: Context? = nil";
     out << "sent: ((Bool) -> Void)? = nil";
