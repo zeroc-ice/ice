@@ -50,7 +50,7 @@ public class InputStream {
 
     init(communicator: Communicator, inputStream handle: ICEInputStream) {
         self.communicator = communicator
-        self.encoding = currentEncoding // TODO should we get encoding from ICEInputStream?
+        encoding = currentEncoding // TODO: should we get encoding from ICEInputStream?
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
@@ -91,9 +91,9 @@ public class InputStream {
         }
 
         let _: EncodingVersion = try read()
-        try self.buf.position(self.buf.position() - 6)
+        try buf.position(buf.position() - 6)
 
-        let start = self.buf.baseAddress?.bindMemory(to: UInt8.self, capacity: Int(sz))
+        let start = buf.baseAddress?.bindMemory(to: UInt8.self, capacity: Int(sz))
         let bytes = [UInt8](UnsafeBufferPointer(start: start, count: Int(sz)))
         return (bytes, encoding)
     }
@@ -316,7 +316,7 @@ public class InputStream {
     func initEncaps() {
         if encaps == nil {
             encaps = Encaps()
-            encaps.setEncoding(self.encoding)
+            encaps.setEncoding(encoding)
             encaps.sz = buf.capacity
         }
         if encaps.decoder == nil { // Lazy initialization
@@ -380,7 +380,7 @@ public extension InputStream {
     }
 
     private func readNumeric<Element>(minSize: Int32) throws -> [Element] where Element: Numeric {
-        let sz = try readAndCheckSeqSize(minSize: 1)
+        let sz = try readAndCheckSeqSize(minSize: minSize)
         var a = [Element]()
         a.reserveCapacity(sz)
         for _ in 0 ..< sz {
@@ -432,7 +432,7 @@ public extension InputStream {
         let sz = try readAndCheckSeqSize(minSize: 1)
         var a = [Bool]()
         a.reserveCapacity(sz)
-        for _ in 0..<sz {
+        for _ in 0 ..< sz {
             a.append(try readNumeric(UInt8.self) == 1)
         }
         return a
@@ -773,11 +773,11 @@ public extension InputStream {
         return try read() as ProxyImpl?
     }
 
-    func read(_ type: ObjectPrx.Protocol) throws -> ObjectPrx? {
+    func read(_: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read() as _ObjectPrxI?
     }
 
-    func read(tag: Int32, type: ObjectPrx.Protocol) throws -> ObjectPrx? {
+    func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read(tag: tag) as _ObjectPrxI?
     }
 
@@ -828,7 +828,7 @@ private class Encaps {
 
     func setEncoding(_ encoding: EncodingVersion) {
         self.encoding = encoding
-        self.encoding_1_0 = encoding == Ice.Encoding_1_0
+        encoding_1_0 = encoding == Ice.Encoding_1_0
     }
 }
 
@@ -1182,7 +1182,7 @@ private class EncapsDecoder10: EncapsDecoder {
         var num: Int32
         repeat {
             num = try stream.readSize()
-            for _ in 0..<num {
+            for _ in 0 ..< num {
                 try readInstance()
             }
         } while num > 0
@@ -1756,6 +1756,6 @@ public class DictEntryArray<K, V> {
     public var values: [DictEntry<K, V>]
 
     public init(size: Int) {
-        self.values = [DictEntry<K, V>](repeating: DictEntry<K, V>(), count: size)
+        values = [DictEntry<K, V>](repeating: DictEntry<K, V>(), count: size)
     }
 }

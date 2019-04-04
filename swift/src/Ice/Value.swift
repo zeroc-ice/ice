@@ -8,16 +8,15 @@
 // **********************************************************************
 
 open class Value {
-
     public required init() {}
 
     open func ice_id() -> String {
         return "::Ice::Value"
     }
 
-    open func _iceReadImpl(from: InputStream) throws {}
+    open func _iceReadImpl(from _: InputStream) throws {}
 
-    open func _iceWriteImpl(to: OutputStream) {}
+    open func _iceWriteImpl(to _: OutputStream) {}
 
     open func ice_preMarshal() {}
 
@@ -49,22 +48,23 @@ open class InterfaceByValue: Value {
 
     public required init() {
         precondition(false, "Not supported")
-        self.id = ""
+        id = ""
     }
+
     public init(id: String) {
         self.id = id
     }
 
-    override open func ice_id() -> String {
+    open override func ice_id() -> String {
         return id
     }
 
-    override open func _iceReadImpl(from ostr: InputStream) throws {
+    open override func _iceReadImpl(from ostr: InputStream) throws {
         _ = try ostr.startSlice()
         try ostr.endSlice()
     }
 
-    override open func _iceWriteImpl(to istr: OutputStream) {
+    open override func _iceWriteImpl(to istr: OutputStream) {
         istr.startSlice(typeId: ice_id(), compactId: -1, last: true)
         istr.endSlice()
     }

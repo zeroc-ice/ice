@@ -28,8 +28,7 @@ open class UserExceptionTypeResolver: NSObject {
 //
 
 public class ClassResolver: NSObject {
-
-    static private func resolveImpl(typeId: String) -> AnyObject? {
+    private static func resolveImpl(typeId: String) -> AnyObject? {
         let start = typeId.index(typeId.startIndex, offsetBy: 2)
         let selector = Selector(typeId[start...].replacingOccurrences(of: "::", with: "_"))
         guard ClassResolver.responds(to: selector) else {

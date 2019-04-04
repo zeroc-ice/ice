@@ -146,23 +146,21 @@ class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}
 
 #if os(iOS) || os(watchOS) || os(tvOS)
 
-//
-// IceIAP (iOS only)
-//
-class IAPEndpointInfoI: EndpointInfoI, IAPEndpointInfo {
-    var manufacturer: String
-    var modelNumber: String
-    var name: String
-    var _protocol: String
+    // IceIAP (iOS only)
+    class IAPEndpointInfoI: EndpointInfoI, IAPEndpointInfo {
+        var manufacturer: String
+        var modelNumber: String
+        var name: String
+        var _protocol: String
 
-    public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool,
-                manufacturer: String, modelNumber: String, name: String, protocol: String) {
-        self.manufacturer = manufacturer
-        self.modelNumber = modelNumber
-        self.name = name
-        self._protocol = `protocol`
-        super.init(handle: handle, underlying: underlying, timeout: timeout, compress: compress)
+        public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool,
+                    manufacturer: String, modelNumber: String, name: String, protocol: String) {
+            self.manufacturer = manufacturer
+            self.modelNumber = modelNumber
+            self.name = name
+            _protocol = `protocol`
+            super.init(handle: handle, underlying: underlying, timeout: timeout, compress: compress)
+        }
     }
-}
 
 #endif

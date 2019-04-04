@@ -7,16 +7,15 @@
 //
 // **********************************************************************
 
-public protocol Exception: Error {
-}
+public protocol Exception: Error {}
 
 open class LocalException: Exception {
     let _file: String
     let _line: Int
 
     public init(file: String = #file, line: Int = #line) {
-        self._file = file
-        self._line = line
+        _file = file
+        _line = line
     }
 
     public func ice_file() -> String {
@@ -29,14 +28,13 @@ open class LocalException: Exception {
 }
 
 open class UserException: Exception {
-
     public required init() {}
 
-    open func _iceReadImpl(from: InputStream) throws {}
-    open func _iceWriteImpl(to: OutputStream) {}
+    open func _iceReadImpl(from _: InputStream) throws {}
+    open func _iceWriteImpl(to _: OutputStream) {}
 
     open func _usesClasses() -> Bool {
-        return  false
+        return false
     }
 
     open func ice_id() -> String {

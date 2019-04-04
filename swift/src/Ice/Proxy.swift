@@ -276,10 +276,11 @@ public extension ObjectPrx {
                                      sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try _impl.handle.ice_flushBatchRequestsAsync(
-              exception: {
-                  seal.reject($0)
-              },
-              sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                exception: {
+                    seal.reject($0)
+                },
+                sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+            )
         }
     }
 }
@@ -614,11 +615,11 @@ open class _ObjectPrxI: ObjectPrx {
         // Returns Any which is either NSNull or ICEObjectPrx
         //
         let handleOpt = try ICEObjectPrx.iceRead(buf.baseAddress!.advanced(by: buf.position()),
-                                                    size: buf.capacity - buf.position(),
-                                                    communicator: (communicator as! CommunicatorI)._handle,
-                                                    encodingMajor: encoding.major,
-                                                    encodingMinor: encoding.minor,
-                                                    bytesRead: &bytesRead) as? ICEObjectPrx
+                                                 size: buf.capacity - buf.position(),
+                                                 communicator: (communicator as! CommunicatorI)._handle,
+                                                 encodingMajor: encoding.major,
+                                                 encodingMinor: encoding.minor,
+                                                 bytesRead: &bytesRead) as? ICEObjectPrx
 
         // Since the proxy was read in C++ we need to skip over the bytes which were read
         // We avoid using a defer statment for this since you can not throw from one
@@ -637,7 +638,6 @@ open class _ObjectPrxI: ObjectPrx {
                         write: ((OutputStream) -> Void)? = nil,
                         userException: ((UserException) throws -> Void)? = nil,
                         context: Context? = nil) throws {
-
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
@@ -652,10 +652,10 @@ open class _ObjectPrxI: ObjectPrx {
                                               context: context,
                                               returnValue: &ok)
 
-        if self.isTwoway {
+        if isTwoway {
             let istr = InputStream(communicator: communicator, inputStream: istrHandle)
             if ok == false {
-                try self.throwUserException(istr: istr, userException: userException)
+                try throwUserException(istr: istr, userException: userException)
             }
             _ = try istr.skipEmptyEncapsulation()
         }
@@ -668,7 +668,7 @@ open class _ObjectPrxI: ObjectPrx {
                            read: (InputStream) throws -> T,
                            userException: ((UserException) throws -> Void)? = nil,
                            context: Context? = nil) throws -> T {
-        precondition(self.isTwoway)
+        precondition(isTwoway)
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
@@ -685,10 +685,10 @@ open class _ObjectPrxI: ObjectPrx {
                                               returnValue: &ok)
         let istr = InputStream(communicator: communicator, inputStream: istrHandle)
         if ok == false {
-            try self.throwUserException(istr: istr, userException: userException)
+            try throwUserException(istr: istr, userException: userException)
         }
         _ = try istr.startEncapsulation()
-        let l =  try read(istr)
+        let l = try read(istr)
         try istr.endEncapsulation()
         return l
     }
@@ -702,7 +702,6 @@ open class _ObjectPrxI: ObjectPrx {
                              sent: ((Bool) -> Void)? = nil,
                              sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                              sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
@@ -747,8 +746,7 @@ open class _ObjectPrxI: ObjectPrx {
                                 sent: ((Bool) -> Void)? = nil,
                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<T> {
-
-        precondition(self.isTwoway)
+        precondition(isTwoway)
         let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
@@ -769,7 +767,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                   try self.throwUserException(istr: istr, userException: userException)
                                               }
                                               _ = try istr.startEncapsulation()
-                                              let l =  try read(istr)
+                                              let l = try read(istr)
                                               try istr.endEncapsulation()
                                               p.fulfill(l)
                                           } catch {

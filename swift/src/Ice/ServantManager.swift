@@ -31,7 +31,7 @@ class ServantManager {
                 }
                 m[facet] = servant
             } else {
-                servantMapMap[ident] = [ facet: servant ]
+                servantMapMap[ident] = [facet: servant]
             }
         }
     }
@@ -100,7 +100,7 @@ class ServantManager {
 
     func findDefaultServant(category: String) -> Object? {
         return mutex.sync {
-            return defaultServantMap[category]
+            defaultServantMap[category]
         }
     }
 
@@ -116,7 +116,7 @@ class ServantManager {
 
     func hasServant(id: Identity) -> Bool {
         return mutex.sync {
-            return servantMapMap[id] != nil
+            servantMapMap[id] != nil
         }
     }
 
@@ -144,7 +144,7 @@ class ServantManager {
 
     func findServantLocator(category: String) -> ServantLocator? {
         return mutex.sync {
-            return locatorMap[category]
+            locatorMap[category]
         }
     }
 
@@ -163,11 +163,11 @@ class ServantManager {
             } catch let e {
                 let logger = communicator.getLogger()
                 logger.error("""
-                    exception during locator deactivation:
-                    object adapter: `\(adapterName)'
-                    locator category: `\(category)'
-                    \(e)
-                    """)
+                exception during locator deactivation:
+                object adapter: `\(adapterName)'
+                locator category: `\(category)'
+                \(e)
+                """)
             }
         }
     }

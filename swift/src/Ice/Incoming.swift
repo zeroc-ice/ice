@@ -13,7 +13,6 @@ typealias IceObjcResponse = (Bool, UnsafeRawPointer?, Int) -> Void
 typealias IceObjcException = (ICERuntimeException) -> Void
 
 public final class Incoming {
-
     var current: Current
     var format: FormatType
     var istr: InputStream
@@ -28,11 +27,11 @@ public final class Incoming {
     init(istr: InputStream, response: @escaping IceObjcResponse, exception: @escaping IceObjcException,
          current: Current) {
         self.istr = istr
-        self.format = .DefaultFormat
-        self.responseCallback = response
-        self.exceptionCallback = exception
+        format = .DefaultFormat
+        responseCallback = response
+        exceptionCallback = exception
         self.current = current
-        self.ostr = OutputStream(communicator: istr.getCommunicator(), encoding: current.encoding)
+        ostr = OutputStream(communicator: istr.getCommunicator(), encoding: current.encoding)
     }
 
     public func readEmptyParams() throws {
@@ -112,7 +111,7 @@ public final class Incoming {
             if let locator = locator {
                 do {
                     let locatorReturn = try locator.locate(current)
-                    (self.servant, self.cookie) = (locatorReturn.returnValue, locatorReturn.cookie)
+                    (servant, cookie) = (locatorReturn.returnValue, locatorReturn.cookie)
                 } catch let err {
                     exceptionCallback(convertException(err))
                     return

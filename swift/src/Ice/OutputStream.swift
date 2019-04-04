@@ -27,9 +27,9 @@ public class OutputStream {
     public init(communicator: Communicator, encoding: EncodingVersion) {
         self.communicator = communicator
         self.encoding = encoding
-        self.encoding_1_0 = (encoding.major == 1 && encoding.minor == 0)
-        self.buf = Buffer()
-        self.format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
+        encoding_1_0 = (encoding.major == 1 && encoding.minor == 0)
+        buf = Buffer()
+        format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
     }
 
     public func startEncapsulation() {
@@ -147,7 +147,7 @@ public class OutputStream {
     }
 
     public func writePendingValues() {
-        if encapsStack != nil && encapsStack.encoder != nil {
+        if encapsStack != nil, encapsStack.encoder != nil {
             encapsStack.encoder.writePendingValues()
         } else if encoding_1_0 {
             // If using the 1.0 encoding and no instances were written, we
@@ -178,7 +178,6 @@ public class OutputStream {
 }
 
 public extension OutputStream {
-
     private func writeNumeric<Element>(_ v: Element) where Element: Numeric {
         withUnsafeBytes(of: v) {
             self.buf.append(bytes: $0)
@@ -412,7 +411,7 @@ public extension OutputStream {
 
     func endSize(position: Int32) {
         precondition(position > 0)
-        write(bytesOf: (buf.position() - position - 4), at: Int(position))
+        write(bytesOf: buf.position() - position - 4, at: Int(position))
     }
 
     func write(enum val: UInt8, maxValue: Int32) {
@@ -603,7 +602,7 @@ private class Encaps {
 
     func setEncoding(_ encoding: EncodingVersion) {
         self.encoding = encoding
-        self.encoding_1_0 = encoding == Ice.Encoding_1_0
+        encoding_1_0 = encoding == Ice.Encoding_1_0
     }
 }
 

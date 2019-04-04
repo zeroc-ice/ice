@@ -13,7 +13,7 @@ import IceObjc
 class LoggerWrapper: ICELoggerProtocol {
     let handle: Logger
 
-    init( handle: Logger) {
+    init(handle: Logger) {
         self.handle = handle
     }
 

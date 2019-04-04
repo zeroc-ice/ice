@@ -31,7 +31,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
-    public func setAdapter(_ adapter: ObjectAdapter?) throws {
+    public func setAdapter(_: ObjectAdapter?) throws {
         return autoreleasepool {
             preconditionFailure("not implemented yet")
         }
@@ -58,8 +58,10 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         return Promise<Void> { seal in
             try autoreleasepool {
                 try _handle.flushBatchRequestsAsync(compress.rawValue,
-                                                    exception: {error in seal.reject(error)},
-                                                    sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                                                    exception: { error in seal.reject(error) },
+                                                    sent: createSentCallback(sent: sent,
+                                                                             sentOn: sentOn,
+                                                                             sentFlags: sentFlags))
             }
         }
     }
@@ -102,7 +104,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                         sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try autoreleasepool {
-                try _handle.heartbeatAsync(exception: {error in seal.reject(error)},
+                try _handle.heartbeatAsync(exception: { error in seal.reject(error) },
                                            sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
             }
         }

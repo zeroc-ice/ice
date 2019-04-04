@@ -59,8 +59,8 @@ func createSentCallback(sent: ((Bool) -> Void)?,
 
 func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
     return try autoreleasepool {
-        return try ICEUtil.escapeString(string: string,
-                                        special: special,
-                                        communicator: (communicator as! CommunicatorI)._handle)
+        try ICEUtil.escapeString(string: string,
+                                 special: special,
+                                 communicator: (communicator as! CommunicatorI)._handle)
     }
 }

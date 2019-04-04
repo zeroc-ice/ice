@@ -19,26 +19,26 @@ public protocol Object {
 }
 
 public extension Object {
-    func ice_id(current: Current) throws -> String {
+    func ice_id(current _: Current) throws -> String {
         return "::Ice::Object"
     }
 
-    func ice_ids(current: Current) throws -> [String] {
+    func ice_ids(current _: Current) throws -> [String] {
         return ["::Ice::Object"]
     }
 
-    func ice_isA(s: String, current: Current) throws -> Bool {
+    func ice_isA(s: String, current _: Current) throws -> Bool {
         return s == "::Ice::Object"
     }
 
-    func ice_ping(current: Current) throws {
+    func ice_ping(current _: Current) throws {
         // Do nothing
     }
 
     func iceD_ice_id(incoming inS: Incoming, current: Current) throws {
         try inS.readEmptyParams()
 
-        let returnValue = try self.ice_id(current: current)
+        let returnValue = try ice_id(current: current)
 
         inS.write { ostr in
             ostr.write(returnValue)
@@ -48,7 +48,7 @@ public extension Object {
     func iceD_ice_ids(incoming inS: Incoming, current: Current) throws {
         try inS.readEmptyParams()
 
-        let returnValue = try self.ice_ids(current: current)
+        let returnValue = try ice_ids(current: current)
 
         inS.write { ostr in
             ostr.write(returnValue)
@@ -57,10 +57,10 @@ public extension Object {
 
     func iceD_ice_isA(incoming inS: Incoming, current: Current) throws {
         let ident: String = try inS.read { istr in
-            return try istr.read()
+            try istr.read()
         }
 
-        let returnValue = try self.ice_isA(s: ident, current: current)
+        let returnValue = try ice_isA(s: ident, current: current)
 
         inS.write { ostr in
             ostr.write(returnValue)
@@ -69,7 +69,7 @@ public extension Object {
 
     func iceD_ice_ping(incoming inS: Incoming, current: Current) throws {
         try inS.readEmptyParams()
-        try self.ice_ping(current: current)
+        try ice_ping(current: current)
         inS.writeEmptyParams()
     }
 

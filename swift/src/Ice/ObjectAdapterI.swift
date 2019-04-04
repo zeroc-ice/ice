@@ -276,7 +276,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     func facadeRemoved() {
         mutex.sync {
             self.state = .dead
-            // todo clear state
             servantManager.destroy()
             locator = nil
         }
