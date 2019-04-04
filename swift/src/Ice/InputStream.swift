@@ -275,7 +275,7 @@ public class InputStream {
             }
 
             if v >> 3 == 30 {
-                try skipSlice()
+                try skipSize()
             }
 
             try skipOptional(format: format)
