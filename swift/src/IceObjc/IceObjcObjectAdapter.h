@@ -15,28 +15,13 @@
 @class ICEInputStream;
 @class ICEConnection;
 @class ICERuntimeException;
+@protocol ICEBlobjectFacade;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ICEObjectAdapterFacade
--(void) facadeInvoke:(ICEInputStream*)is
-                 con:(ICEConnection*)con
-                name:(NSString*)name
-            category:(NSString*)category
-               facet:(NSString*)facet
-           operation:(NSString*)operation
-                mode:(uint8_t)mode
-             context:(NSDictionary<NSString*, NSString*>*)context
-           requestId:(int32_t)requestId
-       encodingMajor:(uint8_t)encodingMajor
-       encodingMinor:(uint8_t)encodingMinor
-            response:(void (^)(bool, const void* _Null_unspecified, size_t))response
-           exception:(void (^)(ICERuntimeException*))exception;
--(void) facadeRemoved;
-@end
-
 @interface ICEObjectAdapter: ICELocalObject
- -(NSString*) getName;
+-(NSString*) getName;
+-(ICECommunicator*) getCommunicator;
 -(BOOL) activate:(NSError* _Nullable * _Nullable)error;
 -(BOOL) hold:(NSError* _Nullable * _Nullable)error;
 -(BOOL) waitForHold:(NSError* _Nullable * _Nullable)error;
@@ -52,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSArray<ICEEndpoint*>*) getPublishedEndpoints;
 -(BOOL) setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable * _Nullable)error;
 
--(void) registerFacade:(id<ICEObjectAdapterFacade>)facade NS_SWIFT_NAME(registerFacade(_:));
+-(void) registerDefaultServant:(id<ICEBlobjectFacade>)facade NS_SWIFT_NAME(registerDefaultServant(_:));
 @end
 
 #ifdef __cplusplus

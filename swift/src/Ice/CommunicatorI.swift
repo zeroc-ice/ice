@@ -11,15 +11,28 @@ import IceObjc
 import PromiseKit
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
-    let properties: Properties
-    let logger: Logger
     let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
+    let initData: InitializationData
 
-    init(handle: ICECommunicator, properties: Properties, logger: Logger) {
-        self.properties = properties
-        self.logger = logger
-        self.defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
+    var mutex: Mutex = Mutex()
+    var _adminAdapter: ObjectAdapter?
+    var adminAdapter: ObjectAdapter? {
+        get {
+            return mutex.sync {
+                _adminAdapter
+            }
+        }
+        set(newAdapter) {
+            mutex.sync {
+                _adminAdapter = newAdapter
+            }
+        }
+    }
+
+    init(handle: ICECommunicator, initData: InitializationData) {
+        defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
+        self.initData = initData
         super.init(handle: handle)
     }
 
@@ -67,13 +80,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func stringToIdentity(_ str: String) throws -> Identity {
         return try autoreleasepool {
-            return try Ice.stringToIdentity(str)
+            try Ice.stringToIdentity(str)
         }
     }
 
     func identityToString(_ id: Identity) throws -> String {
         return try autoreleasepool {
-            return try Ice.identityToString(id: id)
+            try Ice.identityToString(id: id)
         }
     }
 
@@ -106,11 +119,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func getProperties() -> Properties {
-        return properties
+        return initData.properties!
     }
 
     func getLogger() -> Logger {
-        return logger
+        return initData.logger!
     }
 
     func getDefaultRouter() -> RouterPrx? {
@@ -164,34 +177,59 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func createAdmin(adminAdapter _: ObjectAdapter, adminId _: Identity) throws -> ObjectPrx {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+    func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx {
+        return try autoreleasepool {
+            let handle = try _handle.createAdmin((adminAdapter as! ObjectAdapterI)._handle,
+                                                 name: adminId.name,
+                                                 category: adminId.category)
+            self.adminAdapter = adminAdapter
+
+            return _ObjectPrxI(handle: handle, communicator: self)
+        }
     }
 
     func getAdmin() throws -> ObjectPrx? {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+        return try autoreleasepool {
+            guard let handle = try _handle.getAdmin() as? ICEObjectPrx else {
+                return nil
+            }
+
+            return _ObjectPrxI(handle: handle, communicator: self)
+        }
     }
 
-    func addAdminFacet(servant _: Object, facet _: String) throws {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+    func addAdminFacet(servant: Object, facet: String) throws {
+        try autoreleasepool {
+            try _handle.addAdminFacet(AdminFacetFacade(communicator: self, servant: servant), facet: facet)
+        }
     }
 
     func removeAdminFacet(_ facet: String) throws -> Object {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+        return try autoreleasepool {
+            guard let facade = try _handle.removeAdminFacet(facet) as? AdminFacetFacade else {
+                preconditionFailure()
+            }
+
+            return facade.servant
+        }
     }
 
     func findAdminFacet(_ facet: String) throws -> Object? {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+        return try autoreleasepool {
+            guard let facade = try _handle.findAdminFacet(facet) as? AdminFacetFacade else {
+                return nil
+            }
+
+            return facade.servant
+        }
     }
 
     func findAllAdminFacets() throws -> FacetMap {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+        return try autoreleasepool {
+            try _handle.findAllAdminFacets().mapValues { facade in
+                (facade as! AdminFacetFacade).servant
+            }
+        }
     }
 }
 
@@ -219,16 +257,28 @@ public extension Communicator {
             return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
         }
     }
+
+    func getAdminDispatchQueue() -> DispatchQueue {
+        let impl = (self as! CommunicatorI)
+
+        if let adapter = impl.adminAdapter {
+            return adapter.getDispatchQueue()
+        }
+
+        if let queue = impl.initData.adminDispatchQueue {
+            return queue
+        }
+
+        return serialQueue
+    }
 }
 
 public class DefaultsAndOverrides {
-
     public init(handle: ICECommunicator) {
-
         var defaultEncoding = EncodingVersion()
         handle.getDefaultEncoding(major: &defaultEncoding.major, minor: &defaultEncoding.minor)
         self.defaultEncoding = defaultEncoding
-        self.defaultFormat = FormatType(rawValue: handle.getDefaultFormat())!
+        defaultFormat = FormatType(rawValue: handle.getDefaultFormat())!
     }
 
     public let defaultEncoding: EncodingVersion

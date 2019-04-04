@@ -13,7 +13,8 @@ import IceObjc
 private let initialized: Bool = {
     ICEUtil.registerFactories(exception: ExceptionFactory.self,
                               connectionInfo: ConnectionInfoFactory.self,
-                              endpointInfo: EndpointInfoFactory.self)
+                              endpointInfo: EndpointInfoFactory.self,
+                              adminFacet: AdminFacetFactory.self)
     return true
 }()
 
@@ -85,7 +86,8 @@ public func initialize(args: StringSeq = [],
 
         precondition(initData.logger != nil && initData.properties != nil)
 
-        return CommunicatorI(handle: handle, properties: initData.properties!, logger: initData.logger!)
+        return CommunicatorI(handle: handle,
+                             initData: initData)
     }
 }
 
@@ -118,9 +120,9 @@ public func stringToIdentity(_ string: String) throws -> Identity {
 
 public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) throws -> String {
     return try autoreleasepool {
-        return try ICEUtil.identityToString(name: id.name,
-                                            category: id.category,
-                                            mode: mode.rawValue)
+        try ICEUtil.identityToString(name: id.name,
+                                     category: id.category,
+                                     mode: mode.rawValue)
     }
 }
 

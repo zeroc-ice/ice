@@ -14,6 +14,7 @@
 @class ICEProperties;
 @class ICEObjectAdapter;
 @protocol ICELoggerProtocol;
+@protocol ICEBlobjectFacade;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +42,15 @@ NS_SWIFT_NAME(propertyToProxy(property:));
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
                           error:(NSError**)error;
+-(nullable ICEObjectPrx*) createAdmin:(ICEObjectAdapter* _Nullable)adminAdapter
+                                 name:(NSString*)name
+                             category:(NSString*)category
+                                error:(NSError**)error;
+-(nullable id) getAdmin:(NSError**)error;
+-(BOOL) addAdminFacet:(id<ICEBlobjectFacade>)servant facet:(NSString*)facet error:(NSError**)error;
+-(nullable id<ICEBlobjectFacade>) removeAdminFacet:(NSString*)facet error:(NSError**)error;
+-(nullable id) findAdminFacet:(NSString*)facet error:(NSError**)error;
+-(nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*) findAllAdminFacets:(NSError**)error;
 
 -(ICEProperties*) getProperties;
 

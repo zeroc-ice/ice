@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#import "IceObjcBlobjectFacade.h"
 #import "IceObjcException.h"
 #import "IceObjcIceUtil.h"
 #import "IceObjcUtil.h"

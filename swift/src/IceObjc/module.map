@@ -1,4 +1,6 @@
 module IceObjc {
+  header "IceObjcAdminFacetFactory.h"
+  header "IceObjcBlobjectFacade.h"
   header "IceObjcCommunicator.h"
   header "IceObjcConfig.h"
   header "IceObjcConnection.h"
@@ -12,7 +14,10 @@ module IceObjc {
   header "IceObjcObjectAdapter.h"
   header "IceObjcObjectPrx.h"
   header "IceObjcOutputStream.h"
+  header "IceObjcProcess.h"
   header "IceObjcProperties.h"
+  header "IceObjcPropertiesAdmin.h"
   header "IceObjcTraceUtil.h"
+  header "IceObjcUnsupportedAdminFacet.h"
   export *
 }

@@ -37,11 +37,11 @@ namespace
 static Class<ICEExceptionFactory> _exceptionFactory;
 static Class<ICEConnectionInfoFactory> _connectionInfoFactory;
 static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
+static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 +(Class<ICEExceptionFactory>) exceptionFactory
 {
     return _exceptionFactory;
-
 }
 
 +(Class<ICEConnectionInfoFactory>) connectionInfoFactory
@@ -54,13 +54,20 @@ static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
     return _endpointInfoFactory;
 }
 
++(Class<ICEAdminFacetFactory>) adminFacetFactory
+{
+    return _adminFacetFactory;
+}
+
 +(BOOL) registerFactories:(Class<ICEExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
+               adminFacet:(Class<ICEAdminFacetFactory>)adminFacet
 {
     _exceptionFactory = exception;
     _connectionInfoFactory = connectionInfo;
     _endpointInfoFactory = endpointInfo;
+    _adminFacetFactory = adminFacet;
     return true;
 }
 

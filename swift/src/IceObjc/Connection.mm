@@ -46,11 +46,13 @@
     }
 }
 
+// TODO:
 //-(BOOL) setAdapter:(ObjectAdapterI*)oa error:(NSError**)error
 //{
 //
 // }
 
+//TODO??
 //-(ObjectAdapterI*) getAdapter
 // {
 

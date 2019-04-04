@@ -7,12 +7,20 @@
 //
 // **********************************************************************
 
-import Dispatch
+#import "IceObjcUnsupportedAdminFacet.h"
+#import "IceObjcUtil.h"
 
-public struct InitializationData {
-    public init() {}
+@implementation ICEUnsupportedAdminFacet
 
-    public var properties: Properties?
-    public var logger: Logger?
-    public var adminDispatchQueue: DispatchQueue?
+-(instancetype) initWithCppAdminFacet:(std::shared_ptr<Ice::Object>)facet
+{
+    self = [super initWithLocalObject:facet.get()];
+    if(!self)
+    {
+        return nil;
+    }
+    _facet = facet;
+    return self;
 }
+
+@end

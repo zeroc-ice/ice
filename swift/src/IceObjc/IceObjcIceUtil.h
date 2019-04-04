@@ -13,6 +13,7 @@
 #import "IceObjcException.h"
 #import "IceObjcLogger.h"
 #import "IceObjcProperties.h"
+#import "IceObjcAdminFacetFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,12 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, readonly) Class<ICEExceptionFactory> exceptionFactory;
 @property (class, nonatomic, readonly) Class<ICEConnectionInfoFactory> connectionInfoFactory;
 @property (class, nonatomic, readonly) Class<ICEEndpointInfoFactory> endpointInfoFactory;
+@property (class, nonatomic, readonly) Class<ICEAdminFacetFactory> adminFacetFactory;
 
 //This method should only be called once to guarenteed thread safety
 +(BOOL) registerFactories:(Class<ICEExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
-NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:));
+               adminFacet:(Class<ICEAdminFacetFactory>)adminFacet
+NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet:));
 
 +(nullable ICECommunicator*) initialize:(NSArray*)swiftArgs
                              properties:(ICEProperties*)properties

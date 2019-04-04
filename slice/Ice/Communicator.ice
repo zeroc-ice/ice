@@ -545,7 +545,7 @@ local interface Communicator
      * @see #getAdmin
      *
      **/
-    ["swift:nonnull"] Object* createAdmin(["swift:nonnull"] ObjectAdapter adminAdapter, Identity adminId);
+    ["swift:nonnull"] Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);
 
     /**
      *

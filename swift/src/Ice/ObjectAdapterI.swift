@@ -14,9 +14,9 @@ private enum State {
     case dead
 }
 
-private let serialQueue = DispatchQueue(label: "com.zeroc.ice.serial")
+let serialQueue = DispatchQueue(label: "com.zeroc.ice.serial")
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAdapterFacade {
+class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade {
     let communicator: Communicator
     var servantManager: ServantManager
     var locator: LocatorPrx?
@@ -27,12 +27,12 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAda
 
     init(handle: ICEObjectAdapter, communicator: Communicator, queue: DispatchQueue = serialQueue) {
         self.communicator = communicator
-        self.servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
-        self.state = .alive
+        servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
+        state = .alive
         self.queue = queue
         super.init(handle: handle)
 
-        handle.registerFacade(self)
+        handle.registerDefaultServant(self)
     }
 
     func getName() -> String {
@@ -163,7 +163,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAda
         return try mutex.sync {
             try checkForDeactivation()
 
-            // TODO: check these vars are correct
             return try findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
         }
     }
@@ -225,7 +224,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAda
 
     func getLocator() -> LocatorPrx? {
         return mutex.sync {
-            return locator
+            locator
         }
     }
 
@@ -251,11 +250,12 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAda
         return queue
     }
 
-    func facadeInvoke(_ is: ICEInputStream, con: ICEConnection, name: String, category: String, facet: String,
-                      operation: String, mode: UInt8, context: [String: String], requestId: Int32,
-                      encodingMajor: UInt8, encodingMinor: UInt8,
+    func facadeInvoke(_ adapter: ICEObjectAdapter, is: ICEInputStream, con: ICEConnection, name: String,
+                      category: String, facet: String, operation: String, mode: UInt8, context: [String: String],
+                      requestId: Int32, encodingMajor: UInt8, encodingMinor: UInt8,
                       response: @escaping (Bool, UnsafeRawPointer?, Int) -> Void,
                       exception: @escaping (ICERuntimeException) -> Void) {
+        precondition(_handle == adapter)
 
         let current = Current(adapter: self,
                               con: con.assign(to: ConnectionI.self) { ConnectionI(handle: con) },
@@ -274,8 +274,11 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAda
     }
 
     func facadeRemoved() {
-        self.mutex.sync {
+        mutex.sync {
             self.state = .dead
+            // todo clear state
+            servantManager.destroy()
+            locator = nil
         }
     }
 
@@ -290,5 +293,4 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEObjectAda
             throw IllegalIdentityException(id: id)
         }
     }
-
 }

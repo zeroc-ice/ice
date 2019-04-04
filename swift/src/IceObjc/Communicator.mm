@@ -13,6 +13,11 @@
 #import "IceObjcLogger.h"
 #import "IceObjcImplicitContext.h"
 #import "IceObjcProperties.h"
+#import "IceObjcIceUtil.h"
+#import "IceObjcBlobjectFacade.h"
+#import "IceObjcProcess.h"
+#import "IceObjcPropertiesAdmin.h"
+#import "IceObjcUnsupportedAdminFacet.h"
 
 #import "LoggerWrapperI.h"
 #import "IceObjcUtil.h"
@@ -262,6 +267,112 @@
     }
 }
 
+-(nullable ICEObjectPrx*) createAdmin:(ICEObjectAdapter* _Nullable)adminAdapter
+                                 name:(NSString*)name
+                             category:(NSString*)category
+                                error:(NSError**)error
+{
+
+    try
+    {
+        auto ident =  Ice::Identity{fromNSString(name), fromNSString(category)};
+        auto servant = adminAdapter ? [adminAdapter objectAdapter] : nullptr;
+        auto prx = _communicator->createAdmin(servant, ident);
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+
+}
+
+-(nullable id) getAdmin:(NSError**)error
+{
+    try
+    {
+        auto adminPrx = _communicator->getAdmin();
+        return adminPrx ? [[ICEObjectPrx alloc] initWithCppObjectPrx:adminPrx] : [NSNull null];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
+-(BOOL) addAdminFacet:(id<ICEBlobjectFacade>)facade facet:(NSString*)facet error:(NSError**)error
+{
+    try
+    {
+        auto servant = std::make_shared<BlobjectFacade>(facade);
+        _communicator->addAdminFacet(servant, fromNSString(facet));
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
+-(id<ICEBlobjectFacade>) removeAdminFacet:(NSString*)facet error:(NSError**)error
+{
+    try
+    {
+        // servant can either be a Swift wrapped facet or a builtin admin facet
+        return [self facetToFacade:_communicator->removeAdminFacet(fromNSString(facet))];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
+-(nullable id) findAdminFacet:(NSString*)facet error:(NSError**)error
+{
+    try
+    {
+        // servant can either be null, a Swift wrapped facet, or a builtin admin facet
+        auto servant = _communicator->findAdminFacet(fromNSString(facet));
+
+        if(!servant)
+        {
+            return [NSNull null];
+        }
+
+        return [self facetToFacade:servant];
+
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
+-(nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*) findAllAdminFacets:(NSError**)error
+{
+    try
+    {
+        NSMutableDictionary<NSString*, id<ICEBlobjectFacade>>* facets = [NSMutableDictionary dictionary];
+
+        for(const auto& d : _communicator->findAllAdminFacets())
+        {
+            [facets setObject:[self facetToFacade:d.second] forKey:toNSString(d.first)];
+        }
+
+        return facets;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
 -(ICEProperties*) getProperties
 {
     auto props = _communicator->getProperties();
@@ -279,4 +390,38 @@
 {
     return static_cast<uint8_t>(IceInternal::getInstance(_communicator)->defaultsAndOverrides()->defaultFormat);
 }
+
+-(id<ICEBlobjectFacade>) facetToFacade:(const std::shared_ptr<Ice::Object>&) servant
+{
+    if(!servant)
+    {
+        return nil;
+    }
+
+    auto blobjectFacade = std::dynamic_pointer_cast<BlobjectFacade>(servant);
+    if(blobjectFacade)
+    {
+        return blobjectFacade->getFacade();
+    }
+
+    Class<ICEAdminFacetFactory> factory = [ICEUtil adminFacetFactory];
+
+    auto process = std::dynamic_pointer_cast<Ice::Process>(servant);
+    if(process)
+    {
+        return [factory createProcess:self
+                               handle:[[ICEProcess alloc] initWithCppProcess:process]];
+    }
+
+    auto propertiesAdmin = std::dynamic_pointer_cast<Ice::PropertiesAdmin>(servant);
+    if(propertiesAdmin)
+    {
+        return [factory createProperties:self
+                                  handle: [[ICEPropertiesAdmin alloc] initWithCppPropertiesAdmin:propertiesAdmin]];
+    }
+
+    return [factory createUnsupported:self
+                               handle:[[ICEUnsupportedAdminFacet alloc] initWithCppAdminFacet:servant]];
+}
+
 @end

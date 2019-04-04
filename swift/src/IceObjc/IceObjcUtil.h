@@ -16,6 +16,7 @@
 
 @class LocalException;
 @class ICERuntimeException;
+@protocol ICEBlobjectFacade;
 
 namespace IceSSL
 {
