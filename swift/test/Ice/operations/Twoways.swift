@@ -173,9 +173,6 @@ public class Twoways {
         do {
             var (r, c1, c2) = try p.opMyClass(p)
 
-            try test(Ice.proxyIdentityAndFacetEqual(lhs: c1, rhs: p))
-            try test(!Ice.proxyIdentityAndFacetEqual(lhs: c2, rhs: p))
-            try test(Ice.proxyIdentityAndFacetEqual(lhs: r, rhs: p))
             try test(c1!.ice_getIdentity() == Ice.stringToIdentity("test"))
             try test(c2!.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
             try test(r!.ice_getIdentity() == Ice.stringToIdentity("test"))
@@ -190,7 +187,6 @@ public class Twoways {
             (r, c1, c2) = try p.opMyClass(nil)
             try test(c1 == nil)
             try test(c2 != nil)
-            try test(Ice.proxyIdentityAndFacetEqual(lhs: r, rhs: p))
             try r!.opVoid()
         }
 

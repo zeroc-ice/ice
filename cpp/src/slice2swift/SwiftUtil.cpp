@@ -1789,15 +1789,6 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     //
     out << sp;
     out << nl;
-
-    if(op->returnsData())
-    {
-        out << "guard _impl.isTwoway else " << sb;
-        out << nl << "throw TwowayOnlyException(operation: \"" << op->name() << "\")";
-        out << eb;
-    }
-
-    out << nl;
     if(allOutParams.size() > 0)
     {
         out << "return ";
@@ -1882,15 +1873,6 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     // Invoke
     //
     out << sp;
-    out << nl;
-
-    if(op->returnsData())
-    {
-        out << "guard _impl.isTwoway else " << sb;
-        out << nl << "return Promise(error: TwowayOnlyException(operation: \"" << op->name() << "\"))";
-        out << eb;
-    }
-
     out << nl << "return _impl._invokeAsync(";
 
     out.useCurrentPosAsIndent();

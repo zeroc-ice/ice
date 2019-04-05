@@ -62,7 +62,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func proxyToString(_ obj: ObjectPrx) throws -> String {
-        return try _handle.proxy(toString: obj._impl.handle)
+        return try _handle.proxy(toString: obj._impl._handle)
     }
 
     func propertyToProxy(_ property: String) throws -> ObjectPrx? {
@@ -75,7 +75,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func proxyToProperty(proxy: ObjectPrx, property: String) throws -> PropertyDict {
-        return try _handle.proxy(toProperty: proxy._impl.handle, property: property)
+        return try _handle.proxy(toProperty: proxy._impl._handle, property: property)
     }
 
     func stringToIdentity(_ str: String) throws -> Identity {
@@ -106,7 +106,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
         return try autoreleasepool {
-            let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl.handle)
+            let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl._handle)
             return ObjectAdapterI(handle: handle, communicator: self)
         }
     }
@@ -135,7 +135,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func setDefaultRouter(_ rtr: RouterPrx?) throws {
         try autoreleasepool {
-            try _handle.setDefaultRouter((rtr as? _RouterPrxI)?.handle)
+            try _handle.setDefaultRouter((rtr as? _RouterPrxI)?._handle)
         }
     }
 
@@ -148,7 +148,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func setDefaultLocator(_ loc: LocatorPrx?) throws {
         try autoreleasepool {
-            try _handle.setDefaultRouter((loc as? _LocatorPrxI)?.handle)
+            try _handle.setDefaultRouter((loc as? _LocatorPrxI)?._handle)
         }
     }
 
@@ -253,7 +253,7 @@ public extension Communicator {
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx, queue: DispatchQueue) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try (self as! CommunicatorI)._handle.createObjectAdapterWithRouter(name: name,
-                                                                                            router: rtr._impl.handle)
+                                                                                            router: rtr._impl._handle)
             return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
         }
     }
