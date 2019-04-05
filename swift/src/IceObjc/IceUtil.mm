@@ -15,6 +15,7 @@
 
 #import <Ice/Instance.h>
 #import <Ice/StringUtil.h>
+#import <Ice/Network.h>
 
 namespace
 {
@@ -202,4 +203,15 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     }
 
 }
+
++(NSString*) errorToString:(int32_t)error
+{
+    return toNSString(IceUtilInternal::errorToString(error));
+}
+
++(NSString*) errorToStringDNS:(int32_t)error
+{
+    return toNSString(IceInternal::errorToStringDNS(error));
+}
+
 @end

@@ -7,23 +7,36 @@
 //
 // **********************************************************************
 
-public protocol Exception: Error {}
+public protocol Exception: Error {
+    func ice_id() -> String
+    static func ice_staticId() -> String
+}
 
-open class LocalException: Exception {
-    let _file: String
-    let _line: Int
+public extension Exception {
+    func ice_id() -> String {
+        return type(of: self).ice_staticId()
+    }
+}
+
+open class LocalException: Exception, CustomStringConvertible {
+    public let file: String
+    public let line: Int
+
+    public var description: String {
+        return "\(file): \(line): \(ice_id())\(ice_print())"
+    }
 
     public init(file: String = #file, line: Int = #line) {
-        _file = file
-        _line = line
+        self.file = file
+        self.line = line
     }
 
-    public func ice_file() -> String {
-        return _file
+    open class func ice_staticId() -> String {
+        return "::Ice::LocalException"
     }
 
-    public func ice_line() -> Int {
-        return _line
+    open func ice_print() -> String {
+        return  ""
     }
 }
 
@@ -35,10 +48,6 @@ open class UserException: Exception {
 
     open func _usesClasses() -> Bool {
         return false
-    }
-
-    open func ice_id() -> String {
-        return "::Ice::UserException"
     }
 
     open class func ice_staticId() -> String {

@@ -6,6 +6,18 @@ import Ice
 import TestCommon
 import PromiseKit
 
+extension G {
+    var _GDescription: String {
+        return "LocalException: G"
+    }
+}
+
+extension H {
+    var _HDescription: String {
+        return "LocalException: H"
+    }
+}
+
 open class TestFactoryI: TestFactory {
     public class func create() -> TestHelper {
         return Client()

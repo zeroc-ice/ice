@@ -158,8 +158,8 @@ public final class Incoming {
         switch exception {
         case let exception as ObjectNotExistException:
             let e = ICEObjectNotExistException()
-            e.file = exception.ice_file()
-            e.line = Int32(exception.ice_line())
+            e.file = exception.file
+            e.line = Int32(exception.line)
             e.name = exception.id.name
             e.category = exception.id.category
             e.facet = exception.facet
@@ -167,8 +167,8 @@ public final class Incoming {
             return e
         case let exception as FacetNotExistException:
             let e = ICEFacetNotExistException()
-            e.file = exception.ice_file()
-            e.line = Int32(exception.ice_line())
+            e.file = exception.file
+            e.line = Int32(exception.line)
             e.name = exception.id.name
             e.category = exception.id.category
             e.facet = exception.facet
@@ -176,8 +176,8 @@ public final class Incoming {
             return e
         case let exception as OperationNotExistException:
             let e = ICEOperationNotExistException()
-            e.file = exception.ice_file()
-            e.line = Int32(exception.ice_line())
+            e.file = exception.file
+            e.line = Int32(exception.line)
             e.name = exception.id.name
             e.category = exception.id.category
             e.facet = exception.facet
@@ -185,20 +185,20 @@ public final class Incoming {
             return e
         case let exception as UnknownUserException:
             let e = ICEUnknownUserException()
-            e.file = exception.ice_file()
-            e.line = Int32(exception.ice_line())
+            e.file = exception.file
+            e.line = Int32(exception.line)
             e.unknown = exception.unknown
             return e
         case let exception as UnknownLocalException:
             let e = ICEUnknownLocalException()
-            e.file = exception.ice_file()
-            e.line = Int32(exception.ice_line())
+            e.file = exception.file
+            e.line = Int32(exception.line)
             e.unknown = exception.unknown
             return e
         case let exception as UnknownException:
             let e = ICEUnknownException()
-            e.file = exception.ice_file()
-            e.line = Int32(exception.ice_line())
+            e.file = exception.file
+            e.line = Int32(exception.line)
             e.unknown = exception.unknown
             return e
         default:

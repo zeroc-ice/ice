@@ -64,6 +64,9 @@ NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet
                               communicator:(ICECommunicator*)communicator
                              error:(NSError* _Nullable * _Nullable)error
     NS_SWIFT_NAME(escapeString(string:special:communicator:));
+
++(NSString*) errorToString:(int32_t)error NS_SWIFT_NAME(errorToString(_:));
++(NSString*) errorToStringDNS:(int32_t)error NS_SWIFT_NAME(errorToStringDNS(_:));
 @end
 
 NS_ASSUME_NONNULL_END

@@ -391,7 +391,21 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass, extraParams);
 
-    if(!p->isLocal())
+    out << sp;
+    out << nl << "open override class func ice_staticId() -> Swift.String";
+    out << sb;
+    out << nl << "return \"" << p->scoped() << "\"";
+    out << eb;
+
+    if(p->isLocal())
+    {
+        out << sp;
+        out << nl << "open override func ice_print() -> String";
+        out << sb;
+        out << nl << "return _" << name << "Description";
+        out << eb;
+    }
+    else
     {
         out << sp;
         out << nl << "override open func _iceWriteImpl(to ostr: "
@@ -433,17 +447,6 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             out << nl << "return true";
             out << eb;
         }
-        out << sp;
-        out << nl << "override open func ice_id() -> Swift.String";
-        out << sb;
-        out << nl << "return \"" << p->scoped() << "\"";
-        out << eb;
-
-        out << sp;
-        out << nl << "override open class func ice_staticId() -> Swift.String";
-        out << sb;
-        out << nl << "return \"" << p->scoped() << "\"";
-        out << eb;
 
         if(preserved && !basePreserved)
         {
