@@ -1569,7 +1569,7 @@ public class Client: TestHelperI {
 
             let ostr = Ice.OutputStream(communicator: communicator)
             ostr.startEncapsulation()
-            ostr.write(tag:2, value: p1)
+            ostr.write(tag: 2, value: p1)
             ostr.endEncapsulation()
             let inEncaps = ostr.finished()
             let result = try initial.ice_invoke(operation: "opOneOptional", mode: .Normal, inEncaps: inEncaps)
@@ -2342,10 +2342,10 @@ public class Client: TestHelperI {
             (p2, p3) = try initial.opIntIntDict(nil)
             try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
-            let ostr = Ice.OutputStream(communicator: communicator);
+            let ostr = Ice.OutputStream(communicator: communicator)
             ostr.startEncapsulation()
             IntIntDictHelper.write(to: ostr, tag: 2, value: p1)
-            ostr.endEncapsulation();
+            ostr.endEncapsulation()
             let inEncaps = ostr.finished()
             let result = try initial.ice_invoke(operation: "opIntIntDict", mode: .Normal, inEncaps: inEncaps)
             var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
@@ -2487,7 +2487,7 @@ public class Client: TestHelperI {
             let inEncaps = ostr.finished()
             let result = try initial.ice_invoke(operation: "opIntOneOptionalDict", mode: .Normal, inEncaps: inEncaps)
             var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
-            _ = try istr.startEncapsulation();
+            _ = try istr.startEncapsulation()
             p2 = try IntOneOptionalDictHelper.read(from: istr, tag: 1)
             try test(p2![1]!!.a == 58)
             p3 = try IntOneOptionalDictHelper.read(from: istr, tag: 3)
@@ -2512,9 +2512,9 @@ public class Client: TestHelperI {
         do {
             try initial.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
         } catch let ex as OptionalException {
-            try test(ex.a == 30);
+            try test(ex.a == 30)
             try test(ex.b == "test")
-            try test(ex.o!.a == 53);
+            try test(ex.o!.a == 53)
         }
 
         do {
@@ -2562,9 +2562,9 @@ public class Client: TestHelperI {
         do {
             try initial.opRequiredException(a: 30, b: "test2", o: OneOptional(a: 53))
         } catch let ex as RequiredException {
-            try test(ex.a == 30);
+            try test(ex.a == 30)
             try test(ex.b == "test2")
-            try test(ex.o!.a == 53);
+            try test(ex.o!.a == 53)
             try test(ex.ss == "test2")
             try test(ex.o2!.a == 53)
         }
