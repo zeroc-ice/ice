@@ -86,8 +86,6 @@ protected:
     std::string getOptionalFormat(const TypePtr&);
 
     bool isNullableType(const TypePtr&);
-    bool isObjcRepresentable(const TypePtr&);
-    bool isObjcRepresentable(const DataMemberList&);
     bool isProxyType(const TypePtr&);
     bool isClassType(const TypePtr&);
 

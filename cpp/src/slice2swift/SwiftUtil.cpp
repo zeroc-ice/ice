@@ -601,33 +601,33 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
         case Builtin::KindByte:
         case Builtin::KindBool:
         {
-            return "Ice.OptionalFormat.F1";
+            return ".F1";
         }
         case Builtin::KindShort:
         {
-            return "Ice.OptionalFormat.F2";
+            return ".F2";
         }
         case Builtin::KindInt:
         case Builtin::KindFloat:
         {
-            return "Ice.OptionalFormat.F4";
+            return ".F4";
         }
         case Builtin::KindLong:
         case Builtin::KindDouble:
         {
-            return "Ice.OptionalFormat.F8";
+            return ".F8";
         }
         case Builtin::KindString:
         {
-            return "Ice.OptionalFormat.VSize";
+            return ".VSize";
         }
         case Builtin::KindObject:
         {
-            return "Ice.OptionalFormat.Class";
+            return ".Class";
         }
         case Builtin::KindObjectProxy:
         {
-            return "Ice.OptionalFormat.FSize";
+            return ".FSize";
         }
         case Builtin::KindLocalObject:
         {
@@ -636,43 +636,43 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
         }
         case Builtin::KindValue:
         {
-            return "Ice.OptionalFormat.Class";
+            return ".Class";
         }
         }
     }
 
     if(EnumPtr::dynamicCast(type))
     {
-        return "Ice.OptionalFormat.Size";
+        return ".Size";
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+        return seq->type()->isVariableLength() ? ".FSize" : ".VSize";
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
-            "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+            ".FSize" : ".VSize";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+        return st->isVariableLength() ? ".FSize" : ".VSize";
     }
 
     if(ProxyPtr::dynamicCast(type))
     {
-        return "Ice.OptionalFormat.FSize";
+        return ".FSize";
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     assert(cl);
-    return "Ice.OptionalFormat.Class";
+    return ".Class";
 }
 
 bool
@@ -698,25 +698,6 @@ SwiftGenerator::isNullableType(const TypePtr& type)
     }
 
     return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
-}
-
-bool
-SwiftGenerator::isObjcRepresentable(const TypePtr& type)
-{
-    return BuiltinPtr::dynamicCast(type);
-}
-
-bool
-SwiftGenerator::isObjcRepresentable(const DataMemberList& members)
-{
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-    {
-        if(!isObjcRepresentable((*q)->type()))
-        {
-            return false;
-        }
-    }
-    return true;
 }
 
 bool
@@ -1385,8 +1366,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 bool
 SwiftGenerator::operationIsAmd(const OperationPtr& op)
 {
-    const ContainerPtr container = op->container();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
     return cl->hasMetaData("amd") || op->hasMetaData("amd");
 }
 
@@ -1772,7 +1752,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     {
         out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
     }
-    out << "context: Context? = nil";
+    out << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil");
 
     out << epar;
     out << " throws";
@@ -1850,10 +1830,10 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     {
         out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
     }
-    out << "context: Context? = nil";
+    out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
     out << "sent: ((Bool) -> Void)? = nil";
-    out << "sentOn: DispatchQueue? = PromiseKit.conf.Q.return";
-    out << "sentFlags: DispatchWorkItemFlags? = nil";
+    out << "sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.return";
+    out << "sentFlags: Dispatch.DispatchWorkItemFlags? = nil";
 
     out << epar;
     out << " -> PromiseKit.Promise<";

@@ -326,18 +326,20 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
 
         out << sp;
-        out << nl << "public class " << name << "_TypeResolver: Ice.UserExceptionTypeResolver";
+        out << nl << "public class " << name << "_TypeResolver: "
+            << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
         out << sb;
-        out << nl << "public override func type() -> Ice.UserException.Type";
+        out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
         out << sb;
         out << nl << "return " << name << ".self";
         out << eb;
         out << eb;
 
         out << sp;
-        out << nl << "public extension Ice.ClassResolver";
+        out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
         out << sb;
-        out << nl << "@objc static func " << factory.str() << "() -> Ice.UserExceptionTypeResolver";
+        out << nl << "@objc static func " << factory.str() << "() -> "
+            << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
         out << sb;
         out << nl << "return " << name << "_TypeResolver()";
         out << eb;
@@ -446,19 +448,22 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(preserved && !basePreserved)
         {
             out << sp;
-            out << nl << "override open func ice_getSlicedData() -> Ice.SlicedData?" << sb;
+            out << nl << "override open func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData", swiftModule)
+                << "?" << sb;
             out << nl << "return _slicedData";
             out << eb;
 
             out << sp;
-            out << nl << "override open func _iceRead(from istr: Ice.InputStream) throws" << sb;
+            out << nl << "override open func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
+                << ") throws" << sb;
             out << nl << "istr.startException()";
             out << nl << "try _iceReadImpl(from: istr)";
             out << nl << "_slicedData = try istr.endException(preserve: true)";
             out << eb;
 
             out << sp;
-            out << nl << "override open func _iceWrite(to ostr: Ice.OutputStream)" << sb;
+            out << nl << "override open func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+                << ")" << sb;
             out << nl << "ostr.startException(data: _slicedData)";
             out << nl << "_iceWriteImpl(to: ostr)";
             out << nl << "ostr.endException()";
@@ -725,7 +730,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "var v = " << name << "()";
     if(isClassType(p->valueType()))
     {
-        out << nl << "let e = Ice.DictEntryArray<" << keyType << ", " << valueType << ">(size: sz)";
+        out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
+            << valueType << ">(size: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         string keyParam = "let key: " + keyType;
@@ -738,7 +744,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         out << eb;
 
         out << nl << "for i in 0..<sz" << sb;
-        out << nl << "e.values[i].value = UnsafeMutablePointer<" << valueType << ">(&v[e.values[i].key, default:nil])";
+        out << nl << "e.values[i].value = Swift.UnsafeMutablePointer<" << valueType
+            << ">(&v[e.values[i].key, default:nil])";
         out << eb;
     }
     else
@@ -756,7 +763,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "return v";
     out << eb;
 
-    out << nl << "public static func read(from istr: " << istr << ", tag: Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -785,7 +792,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ", tag: Int32, value v: "<< name << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: "<< name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
@@ -818,7 +825,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     const EnumeratorList enumerators = p->enumerators();
-    const string enumType = p->maxValue() <= 0xFF ? "UInt8" : "Int32";
+    const string enumType = p->maxValue() <= 0xFF ? "Swift.UInt8" : "Swift.Int32";
     const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
@@ -848,13 +855,13 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "try read(enum: &rawValue, maxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
     out << sb;
-    out << nl << "throw MarshalException(reason: \"invalid enum value\")";
+    out << nl << "throw " << getUnqualified("Ice.MarshalException", swiftModule) << "(reason: \"invalid enum value\")";
     out << eb;
     out << nl << "return val";
     out << eb;
 
     out << sp;
-    out << nl << "func read(tag: Int32) throws -> " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -876,7 +883,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "func write(tag: Int32, value: " << name << "?)";
+    out << nl << "func write(tag: Swift.Int32, value: " << name << "?)";
     out << sb;
     out << nl << "guard let v = value else";
     out << sb;
@@ -974,7 +981,8 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol")
         << ("facet: String? = nil")
-        << ("context: Context? = nil") << epar << " throws -> " << prx << "?";
+        << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil")
+        << epar << " throws -> " << prx << "?";
     out << sb;
     out << nl << "return try " << prxI << ".checkedCast(prx: prx, facet: facet, context: context) as " << prxI << "?";
     out << eb;
@@ -1063,9 +1071,9 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp;
-    out << nl << "public class " << name << "_TypeResolver: Ice.ValueTypeResolver";
+    out << nl << "public class " << name << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
-    out << nl << "public override func type() -> Ice.Value.Type";
+    out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
     out << sb;
     out << nl << "return " << name << ".self";
     out << eb;
@@ -1078,7 +1086,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         // method in TypeIdResolver.
         //
         out << sp;
-        out << nl << "public extension Ice.TypeIdResolver";
+        out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
         out << sb;
         out << nl << "@objc static func TypeId_" << p->compactId() << "() -> String";
         out << sb;
@@ -1102,9 +1110,10 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp;
-    out << nl << "public extension Ice.ClassResolver";
+    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
     out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> Ice.ValueTypeResolver";
+    out << nl << "@objc static func " << factory.str() << "() -> "
+        << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
     out << nl << "return " << name << "_TypeResolver()";
     out << eb;
@@ -1133,7 +1142,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeMembers(out, members, p);
     if(!p->isLocal() && preserved && !basePreserved)
     {
-        out << nl << "var _slicedData: Ice.SlicedData?";
+        out << nl << "var _slicedData: " << getUnqualified("Ice.SlicedData?", swiftModule);
     }
 
     writeDefaultInitializer(out, members, p, !base, true);
@@ -1202,19 +1211,22 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(preserved && !basePreserved)
     {
         out << sp;
-        out << nl << "override open func ice_getSlicedData() -> Ice.SlicedData?" << sb;
+        out << nl << "override open func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData?", swiftModule)
+            << sb;
         out << nl << "return _slicedData";
         out << eb;
 
         out << sp;
-        out << nl << "override open func _iceRead(from istr: Ice.InputStream) throws" << sb;
+        out << nl << "override open func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
+            << ") throws" << sb;
         out << nl << "istr.startValue()";
         out << nl << "try _iceReadImpl(from: istr)";
         out << nl << "_slicedData = try istr.endValue(preserve: true)";
         out << eb;
 
         out << sp;
-        out << nl << "override open func _iceWrite(to ostr: Ice.OutputStream)" << sb;
+        out << nl << "override open func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+            << ")" << sb;
         out << nl << "ostr.startValue(data: _slicedData)";
         out << nl << "_iceWriteImpl(to: ostr)";
         out << nl << "ostr.endValue()";
@@ -1322,7 +1334,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 
     if(isAmd)
     {
-        out << " -> PromiseKit.Promise<" << (allOutParams.size() > 0 ? operationReturnType(op) : "Void") << ">";
+        out << " -> PromiseKit.Promise<" << (allOutParams.size() > 0 ? operationReturnType(op) : "Swift.Void") << ">";
     }
     else
     {
@@ -1409,7 +1421,8 @@ Gen::ObjectExtVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     out << nl << "default:";
     out.inc();
-    out << nl << "throw OperationNotExistException(id: current.id, facet: current.facet, operation: current.operation)";
+    out << nl << "throw " << getUnqualified("Ice.OperationNotExistException", swiftModule)
+        << "(id: current.id, facet: current.facet, operation: current.operation)";
     out.dec();
     out << eb;
 
@@ -1523,7 +1536,7 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            out << "Void";
+            out << "Swift.Void";
         }
         return false;
     }
@@ -1662,7 +1675,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
               << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
             out << s.str();
         }
-        out << "sent: ((Bool) -> Void)?";
+        out << "sent: ((Swift.Bool) -> Swift.Void)?";
         out << "sentOn: Dispatch.DispatchQueue?";
         out << "sentFlags: Dispatch.DispatchWorkItemFlags?";
         out << epar;
@@ -1670,6 +1683,6 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
         out << " -> ";
 
         assert(!ret && outParams.empty());
-        out << "PromiseKit.Promise<Void>";
+        out << "PromiseKit.Promise<Swift.Void>";
     }
 }
