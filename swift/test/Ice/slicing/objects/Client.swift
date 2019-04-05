@@ -1425,7 +1425,7 @@ public class Client: TestHelperI {
         // Register a factory in order to substitute our own subclass of Preserved. This provides
         // an easy way to determine how many unmarshaled instances currently exist.
         //
-        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
+        // We have to install this now (even though it's not necessary yet), because otherwise
         // the Ice run time will install its own internal factory for Preserved upon receiving the
         // first instance.
         //
@@ -1581,7 +1581,7 @@ public class Client: TestHelperI {
         // Register a factory in order to substitute our own subclass of Preserved. This provides
         // an easy way to determine how many unmarshaled instances currently exist.
         //
-        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
+        // We have to install this now (even though it's not necessary yet), because otherwise
         // the Ice run time will install its own internal factory for Preserved upon receiving the
         // first instance.
 
