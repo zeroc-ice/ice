@@ -273,14 +273,14 @@ public extension Communicator {
     }
 }
 
-public class DefaultsAndOverrides {
-    public init(handle: ICECommunicator) {
+class DefaultsAndOverrides {
+    init(handle: ICECommunicator) {
         var defaultEncoding = EncodingVersion()
         handle.getDefaultEncoding(major: &defaultEncoding.major, minor: &defaultEncoding.minor)
         self.defaultEncoding = defaultEncoding
         defaultFormat = FormatType(rawValue: handle.getDefaultFormat())!
     }
 
-    public let defaultEncoding: EncodingVersion
-    public let defaultFormat: FormatType
+    let defaultEncoding: EncodingVersion
+    let defaultFormat: FormatType
 }
