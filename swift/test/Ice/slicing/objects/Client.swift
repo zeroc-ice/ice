@@ -1798,8 +1798,9 @@ public class Client: TestHelperI {
             // Register a factory in order to substitute our own subclass of PNode. This provides
             // an easy way to determine how many unmarshaled instances currently exist.
             //
-            try communicator.getValueFactoryManager().add(factory: { id in id == PNode.ice_staticId() ? PNodeI() : nil },
-                                                          id: PNode.ice_staticId())
+            try communicator.getValueFactoryManager().add(
+                factory: { id in id == PNode.ice_staticId() ? PNodeI() : nil },
+                id: PNode.ice_staticId())
 
             //
             // Relay a graph through the server.
