@@ -415,7 +415,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "_ = try istr.startSlice()";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false);
+            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false, (*i)->tag());
         }
         out << nl << "try istr.endSlice()";
         if(base)
