@@ -408,7 +408,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     else
     {
         out << sp;
-        out << nl << "override open func _iceWriteImpl(to ostr: "
+        out << nl << "open override func _iceWriteImpl(to ostr: "
             << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
         out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: -1, last: "
@@ -425,7 +425,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "override open func _iceReadImpl(from istr: "
+        out << nl << "open override func _iceReadImpl(from istr: "
             << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
         out << sb;
         out << nl << "_ = try istr.startSlice()";
@@ -443,7 +443,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
         {
             out << sp;
-            out << nl << "override open func _usesClasses() -> Bool" << sb;
+            out << nl << "open override func _usesClasses() -> Bool" << sb;
             out << nl << "return true";
             out << eb;
         }
@@ -451,13 +451,13 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(preserved && !basePreserved)
         {
             out << sp;
-            out << nl << "override open func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData", swiftModule)
+            out << nl << "open override func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData", swiftModule)
                 << "?" << sb;
             out << nl << "return _slicedData";
             out << eb;
 
             out << sp;
-            out << nl << "override open func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
+            out << nl << "open override func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
                 << ") throws" << sb;
             out << nl << "istr.startException()";
             out << nl << "try _iceReadImpl(from: istr)";
@@ -465,7 +465,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             out << eb;
 
             out << sp;
-            out << nl << "override open func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+            out << nl << "open override func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
                 << ")" << sb;
             out << nl << "ostr.startException(data: _slicedData)";
             out << nl << "_iceWriteImpl(to: ostr)";
@@ -969,7 +969,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public class " << prxI << ": " << getUnqualified("Ice._ObjectPrxI", swiftModule) << ", " << prx;
     out << sb;
 
-    out << nl << "override public class func ice_staticId() -> String";
+    out << nl << "public override class func ice_staticId() -> String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
@@ -1152,17 +1152,17 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
 
     out << sp;
-    out << nl << "override open func ice_id() -> Swift.String" << sb;
+    out << nl << "open override func ice_id() -> Swift.String" << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
-    out << nl << "override open class func ice_staticId() -> Swift.String" << sb;
+    out << nl << "open override class func ice_staticId() -> Swift.String" << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
-    out << nl << "override open func _iceReadImpl(from istr: "
+    out << nl << "open override func _iceReadImpl(from istr: "
         << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
@@ -1186,7 +1186,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "override open func _iceWriteImpl(to ostr: "
+    out << nl << "open override func _iceWriteImpl(to ostr: "
         << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: " << p->compactId() << ", last: "
@@ -1214,13 +1214,13 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(preserved && !basePreserved)
     {
         out << sp;
-        out << nl << "override open func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData?", swiftModule)
+        out << nl << "open override func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData?", swiftModule)
             << sb;
         out << nl << "return _slicedData";
         out << eb;
 
         out << sp;
-        out << nl << "override open func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
+        out << nl << "open override func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
             << ") throws" << sb;
         out << nl << "istr.startValue()";
         out << nl << "try _iceReadImpl(from: istr)";
@@ -1228,7 +1228,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "override open func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+        out << nl << "open override func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
             << ")" << sb;
         out << nl << "ostr.startValue(data: _slicedData)";
         out << nl << "_iceWriteImpl(to: ostr)";
