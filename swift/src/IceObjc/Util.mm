@@ -375,9 +375,10 @@ convertException(ICERuntimeException* exc)
     }
     @catch(...)
     {
+
         return std::make_exception_ptr(Ice::UnknownException(file.c_str(),
                                                              line,
-                                                             fromNSString([exc className])));
+                                                             fromNSString(NSStringFromClass([exc class]))));
     }
 }
 

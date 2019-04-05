@@ -120,7 +120,7 @@ class ConnectionInfoFactory: ICEConnectionInfoFactory {
                                      modelNumber: modelNumber,
                                      firmwareRevision: firmwareRevision,
                                      hardwareRevision: hardwareRevision,
-                                     _protocol: `protocol`)
+                                     protocol: `protocol`)
         }
 
     #endif
