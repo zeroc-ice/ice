@@ -194,7 +194,7 @@ def create_platform_targets(project, platform)
     target_add_files(target, group, "src/IceObjc", ["*.mm"])
     target_add_headers(target, group, "src/IceObjc", ["*.h"], attributes: ["Private"])
 
-    target_set_common_build_settings(target, "Ice", "src/Ice/Info.plist")
+    target_set_common_build_settings(target, "Ice", plist: "src/Ice/Info.plist", swift: true)
 
     cpp_targets.each do |t|
         target.frameworks_build_phases.add_file_reference(t.product_reference, true)
@@ -262,11 +262,13 @@ def create_platform_targets(project, platform)
     group = project_group(project, "test/TestCommon")
     group_add_files(group, "test/TestCommon", ["*.plist"])
     target_add_files(target, group, "test/TestCommon", ["*.ice", "*.swift"])
-    target_set_common_build_settings(target, "TestCommon", "test/TestCommon/Info.plist")
+    target_set_common_build_settings(target, "TestCommon", swift: true)
 
         target = project.new_target(:application, "TestDriver", platform)
     target.name = "#{target.name} #{platform_name}"
-    target_set_common_build_settings(target, "TestDriver", "test/TestDriver/#{platform_name}/Info.plist")
+    target_set_common_build_settings(target, "TestDriver",
+                                     plist: "test/TestDriver/#{platform_name}/Info.plist",
+                                     swift: true)
     target_add_slice2swift_build_rule(project, target)
     target_add_swiftlint_build_phase(target, "test/TestDriver")
 
@@ -328,7 +330,7 @@ def create_platform_targets(project, platform)
         group_add_files(group, "test/#{test}", ["*.plist"])
         target_add_files(target, group, "test/#{test}", test_variant_sources(test, variant))
 
-        target_set_common_build_settings(target, target_name("#{test}#{variant}"))
+        target_set_common_build_settings(target, target_name("#{test}#{variant}"), swift: true)
 
         test_driver_target.add_dependency(target)
       end
@@ -425,7 +427,7 @@ def target_add_headers(target, group, basedir, patterns, excludes: [], attribute
     end
 end
 
-def target_set_common_build_settings(target, product, plist = nil)
+def target_set_common_build_settings(target, product, plist: nil, swift: false)
     target.build_configurations.each { |config|
         config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
         config.build_settings["CODE_SIGN_IDENTITY"] = ""
@@ -435,6 +437,10 @@ def target_set_common_build_settings(target, product, plist = nil)
         end
         config.build_settings["PRODUCT_NAME"] = product
         config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.zeroc.#{product}"
+
+        if swift then
+          config.build_settings["SWIFT_VERSION"] = "5.0"
+        end
     }
 end
 
