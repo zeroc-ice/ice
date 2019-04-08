@@ -2078,8 +2078,11 @@ class RemoteProcessController(ProcessController):
             import Ice
             try:
                 result = self.proxy.waitSuccess(timeout)
-            except Ice.UserException:
-                raise Expect.TIMEOUT("waitSuccess timeout")
+            except Ice.UserException as ex:
+                if "Timeout" in ex.reason:
+                    raise Expect.TIMEOUT("waitSuccess timeout")
+                else:
+                    raise
             except Ice.LocalException:
                 raise
             if exitstatus != result:
@@ -2977,8 +2980,8 @@ class Driver:
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
-        initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        initData.properties.setProperty("Ice.Trace.Network", "3")
+        # initData.properties.setProperty("Ice.Trace.Protocol", "1")
+        # initData.properties.setProperty("Ice.Trace.Network", "3")
         # initData.properties.setProperty("Ice.StdErr", "allTests.log")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
         initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")

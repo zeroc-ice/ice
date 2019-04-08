@@ -74,8 +74,8 @@ class ProcessControllerI: CommonProcessController {
         let helper = ControllerHelperI(view: _view,
                                        bundle: bundle,
                                        args: args,
-                                       queue: (exe == "server" ||
-                                               exe == "serveramd") ? _serverDispatchQueue : _clientDispatchQueue)
+                                       queue: (exe == "Server" ||
+                                               exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
         helper.run()
         return try uncheckedCast(prx: adapter.addWithUUID(ProcessI(helper: helper)), type: CommonProcessPrx.self)
     }
@@ -98,8 +98,8 @@ class ControllerI {
         try properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
         try properties.setProperty(key: "ControllerAdapter.Endpoints", value: "tcp")
         try properties.setProperty(key: "ControllerAdapter.AdapterId", value: UUID().uuidString)
-        try properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
-        try properties.setProperty(key: "Ice.Trace.Network", value: "3")
+        // try properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
+        // try properties.setProperty(key: "Ice.Trace.Network", value: "3")
 
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -180,6 +180,7 @@ class ControllerHelperI: ControllerHelper {
     }
 
     public func completed(status: Int32) {
+        _completed = true
         _status = status
         _semaphore.signal()
     }
@@ -199,11 +200,12 @@ class ControllerHelperI: ControllerHelper {
             return
         }
 
-        let client = factory.create()
+        let testCase = factory.create()
 
         _queue.async {
             do {
-                try client.run(args: self._args)
+                testCase.setControllerHelper(controllerHelper: self)
+                try testCase.run(args: self._args)
                 self.completed(status: 0)
             } catch {
                 self.print(msg: "Error: \(error)")
@@ -221,10 +223,9 @@ class ControllerHelperI: ControllerHelper {
 
     public func waitReady(timeout: Int32) throws {
         var ex: Error?
-        let nanoseconds = UInt64(timeout * 1000 * 1000)
         do {
             while !_ready && !_completed {
-                if _semaphore.wait(timeout: DispatchTime(uptimeNanoseconds: nanoseconds)) == .timedOut {
+                if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
                     throw CommonProcessFailedException(reason: "Timeout waiting for the process to be ready")
                 }
             }
@@ -242,10 +243,9 @@ class ControllerHelperI: ControllerHelper {
 
     public func waitSuccess(timeout: Int32) throws -> Int32 {
         var ex: Error?
-        let nanoseconds = UInt64(timeout * 1000 * 1000)
         do {
             while !_completed {
-                if _semaphore.wait(timeout: DispatchTime(uptimeNanoseconds: nanoseconds)) == .timedOut {
+                if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
                     throw CommonProcessFailedException(reason: "Timeout waiting for the process to succeed")
                 }
             }

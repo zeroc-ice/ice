@@ -12,16 +12,14 @@ open class TestFactoryI: TestFactory {
     }
 }
 
-
-/*class MyDerivedClassI:  MyDerivedClassDisp_
-{
+class MyDerivedClassI: MyDerivedClass {
     var _ctx: [String: String]
 
-    public init(){
+    public init() {
         _ctx = [String: String]()
     }
 
-    public func echo(obj: Ice.ObjectPrx?, c: Ice.Current) throws -> Ice.ObjectPrx? {
+    public func echo(obj: Ice.ObjectPrx?, current _: Ice.Current) throws -> Ice.ObjectPrx? {
         return obj
     }
 
@@ -32,36 +30,36 @@ open class TestFactoryI: TestFactory {
         adapter.getCommunicator().shutdown()
     }
 
-    public func getContext(current: Ice.Current) -> [String: String] {
+    public func getContext(current: Ice.Current) throws -> [String: String] {
         return _ctx
     }
 
-    public func ice_isA(s: String, current: Ice.Current) {
-        _ctx = current.ctx;
-        return super.ice_isA(s, current)
+    public func ice_isA(s: String, current: Ice.Current) throws -> Bool {
+        _ctx = current.ctx
+        return try ice_ids(current: current).contains(s)
     }
-}*/
+}
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        /*let writer = getWriter()
+        let writer = getWriter()
 
         let (properties, _) = try Ice.createProperties(args: args)
         //
         // We don't want connection warnings because of the timeout test.
         //
-        //properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-        //properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
+        try properties.setProperty(key: "Ice.Warn.Connections", value: "0")
+        try properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
-        let (communicator, _) = try self.initialize(properties)
+        let communicator = try self.initialize(properties)
         defer {
             communicator.destroy()
         }
-        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
-        var adapter = try communicator.createObjectAdapter("TestAdapter")
-        adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
-        adapter.activate()
+        try communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
+        let adapter = try communicator.createObjectAdapter("TestAdapter")
+        _ = try adapter.add(servant: MyDerivedClassI(), id: Ice.stringToIdentity("test"))
+        try adapter.activate()
         serverReady()
-        communicator.waitForShutdown()*/
+        communicator.waitForShutdown()
     }
 }
