@@ -155,7 +155,13 @@ public final class Incoming {
     }
 
     func convertException(_ exception: Error) -> ICERuntimeException {
+        //
+        // 1. run-time exceptions that travel over the wire
+        // 2. other LocalExceptions and UserExceptions
+        // 3. all other exceptions are LocalException
+        //
         switch exception {
+        // 1. Known run-time exceptions
         case let exception as ObjectNotExistException:
             let e = ICEObjectNotExistException()
             e.file = exception.file
@@ -201,6 +207,18 @@ public final class Incoming {
             e.line = Int32(exception.line)
             e.unknown = exception.unknown
             return e
+        // 2. Other LocalExceptions and UserExceptions
+        case let exception as LocalException:
+            let e = ICEUnknownLocalException()
+            e.file = exception.file
+            e.line = Int32(exception.line)
+            e.unknown = "\(exception)"
+            return e
+        case let exception as UserException:
+            let e = ICEUnknownUserException()
+            e.unknown = "\(exception)"
+            return e
+        // 3. Unknown exceptions
         default:
             let e = ICEUnknownException()
             e.file = #file

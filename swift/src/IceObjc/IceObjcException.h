@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSError*) runtimeError:(NSString*)message;
 @end
 
-@interface ICERuntimeException : NSError
+@interface ICERuntimeException : NSObject
 @property NSString* file;
 @property int line;
 @end
