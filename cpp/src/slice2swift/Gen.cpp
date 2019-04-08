@@ -1375,10 +1375,49 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule) + (!p->isInterface() ? "Disp" : "");
 
+    ClassList allBases = p->allBases();
+    StringList allIds;
+    transform(allBases.begin(), allBases.end(), back_inserter(allIds), ::IceUtil::constMemFun(&Contained::scoped));
+    allIds.push_back(p->scoped());
+    allIds.push_back("::Ice::Object");
+    allIds.sort();
+    allIds.unique();
+
     out << sp;
     out << nl << "public extension " << name;
 
     out << sb;
+
+    out << sp;
+    out << nl;
+    out << nl << "func ice_id(current _: Current) throws -> String";
+    out << sb;
+    out << nl << "return \"" << p->scoped() << "\"";
+    out << eb;
+
+    out << sp;
+    out << nl;
+    out << nl << "func ice_ids(current _: Current) throws -> [String]";
+    out << sb;
+    out << nl << "return [";
+    for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
+    {
+        if(r != allIds.begin())
+        {
+            out << ", ";
+        }
+        out << "\"" << (*r) << "\"";
+
+    }
+    out << "]";
+    out << eb;
+
+    out << sp;
+    out << nl;
+    out << nl << "func ice_isA(s: String, current _: Current) throws -> Bool";
+    out << sb;
+    out << nl << "return s == \"" << p->scoped() << "\"";
+    out << eb;
 
     return true;
 }
