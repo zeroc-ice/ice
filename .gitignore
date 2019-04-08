@@ -111,5 +111,3 @@ csharp/AppX
 *.runtimeconfig.json
 cpp/AppX
 cpp/test/Slice/errorDetection/tmp
-
-swift/Carthage
