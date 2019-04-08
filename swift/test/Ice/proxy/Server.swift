@@ -20,22 +20,22 @@ open class TestFactoryI: TestFactory {
     public init(){
         _ctx = [String: String]()
     }
-    
+
     public func echo(obj: Ice.ObjectPrx?, c: Ice.Current) throws -> Ice.ObjectPrx? {
         return obj
     }
-    
+
     public func shutdown(current: Ice.Current) throws {
         guard let adapter = current.adapter else {
             precondition(false)
         }
         adapter.getCommunicator().shutdown()
     }
-    
+
     public func getContext(current: Ice.Current) -> [String: String] {
         return _ctx
     }
-    
+
     public func ice_isA(s: String, current: Ice.Current) {
         _ctx = current.ctx;
         return super.ice_isA(s, current)
@@ -45,14 +45,14 @@ open class TestFactoryI: TestFactory {
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
         /*let writer = getWriter()
-        
+
         let (properties, _) = try Ice.createProperties(args: args)
         //
         // We don't want connection warnings because of the timeout test.
         //
         //properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         //properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
-        
+
         let (communicator, _) = try self.initialize(properties)
         defer {
             communicator.destroy()
@@ -63,6 +63,5 @@ class Server: TestHelperI {
         adapter.activate()
         serverReady()
         communicator.waitForShutdown()*/
-        
     }
 }
