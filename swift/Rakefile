@@ -262,9 +262,11 @@ def create_platform_targets(project, platform)
     group = project_group(project, "test/TestCommon")
     group_add_files(group, "test/TestCommon", ["*.plist"])
     target_add_files(target, group, "test/TestCommon", ["*.ice", "*.swift"])
-    target_set_common_build_settings(target, "TestCommon", swift: true)
+    target_set_common_build_settings(target, "TestCommon",
+                                     plist: "test/TestCommon/Info.plist",
+                                     swift: true)
 
-        target = project.new_target(:application, "TestDriver", platform)
+    target = project.new_target(:application, "TestDriver", platform)
     target.name = "#{target.name} #{platform_name}"
     target_set_common_build_settings(target, "TestDriver",
                                      plist: "test/TestDriver/#{platform_name}/Info.plist",
@@ -333,6 +335,12 @@ def create_platform_targets(project, platform)
         target_set_common_build_settings(target, target_name("#{test}#{variant}"), swift: true)
 
         test_driver_target.add_dependency(target)
+
+        #
+        # Add the bundle to test driver copy phase
+        #
+        file = copy_phase.add_file_reference(target.product_reference)
+        file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
       end
     end
 

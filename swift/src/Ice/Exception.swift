@@ -79,7 +79,7 @@ public struct RuntimeError: Error, CustomStringConvertible {
         return message
     }
 
-    init(_ message: String) {
+    public init(_ message: String) {
         self.message = message
     }
 }

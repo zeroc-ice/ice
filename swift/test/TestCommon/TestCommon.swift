@@ -10,6 +10,13 @@ public protocol TextWriter {
     func writeLine(_ data: String)
 }
 
+public protocol ControllerHelper {
+    func loggerPrefix() -> String
+    func print(msg: String)
+    func serverReady()
+    func communicatorInitialized(communicator: Ice.Communicator)
+}
+
 public class StdoutWriter: TextWriter {
     public func write(_ data: String) {
         fputs(data, stdout)
@@ -51,6 +58,7 @@ public protocol TestHelper {
     func setWriter(writer: TextWriter)
 
     func communicator() -> Ice.Communicator
+    func setControllerHelper(controllerHelper: ControllerHelper)
 }
 
 public extension TestHelper {
@@ -70,6 +78,7 @@ public extension TestHelper {
 }
 
 open class TestHelperI: TestHelper {
+    private var _controllerHelper: ControllerHelper!
     private var _communicator: Ice.Communicator!
     private var _writer: TextWriter!
 
@@ -138,6 +147,9 @@ open class TestHelperI: TestHelper {
         if _communicator == nil {
             _communicator = communicator
         }
+        if _controllerHelper != nil {
+            _controllerHelper.communicatorInitialized(communicator: _communicator)
+        }
         return communicator
     }
 
@@ -154,5 +166,16 @@ open class TestHelperI: TestHelper {
 
     public func communicator() -> Communicator {
         return _communicator
+    }
+
+    public func serverReady() {
+        if _controllerHelper != nil {
+            _controllerHelper.serverReady()
+        }
+    }
+
+    public func setControllerHelper(controllerHelper: ControllerHelper) {
+        precondition(_controllerHelper == nil)
+        _controllerHelper = controllerHelper
     }
 }

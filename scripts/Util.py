@@ -2977,8 +2977,8 @@ class Driver:
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
-        # initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        # initData.properties.setProperty("Ice.Trace.Network", "3")
+        initData.properties.setProperty("Ice.Trace.Protocol", "1")
+        initData.properties.setProperty("Ice.Trace.Network", "3")
         # initData.properties.setProperty("Ice.StdErr", "allTests.log")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
         initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")
@@ -3783,7 +3783,7 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
     def _getDefaultSource(self, processType):
         return { "client" : "Client.ts", "serveramd" : "ServerAMD.ts", "server" : "Server.ts" }[processType]
 
-class SwiftMapping(CppBasedClientMapping):
+class SwiftMapping(Mapping):
 
     class Config(CppBasedClientMapping.Config):
         mappingName = "swift"
@@ -3794,25 +3794,37 @@ class SwiftMapping(CppBasedClientMapping):
         assert(current.testcase.getPath(current).startswith(testdir))
         package = current.testcase.getPath(current)[len(testdir) + 1:].replace(os.sep, ".")
 
-        xcBuildCmd = "xcodebuild -project ice.xcodeproj -target 'TestDriver {0}' -configuration {1}\
-            -showBuildSettings".format(
+        cmd = "xcodebuild -project ice.xcodeproj -target 'TestDriver {0}' -configuration {1} -showBuildSettings".format(
             "macOS",
             current.config.buildConfig)
 
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)",
-            run(xcBuildCmd)).groups(1)[0]
+        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1}.{2} {3}".format(
             targetBuildDir,
             package,
             exe,
-            args
-        )
+            args)
 
     def _getDefaultSource(self, processType):
         return { "client" : "Client.swift",
-                 "server" : "Server.swift"
+                 "server" : "Server.swift",
+                 "serveramd" : "ServerAMD.swift",
+                 "collocated" : "Collocated.swift"
         }[processType]
+
+    def getIOSControllerIdentity(self, current):
+        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
+        return "{0}/com.zeroc.Swift-Test-Controller".format(category)
+
+    def getIOSAppFullPath(self, current):
+        cmd = "xcodebuild -project ice.xcodeproj \
+                          -target 'TestDriver iOS' \
+                          -configuration {0} \
+                          -showBuildSettings \
+                          -sdk {1}".format(current.config.buildConfig, current.config.buildPlatform)
+        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        return "{0}/TestDriver.app".format(targetBuildDir)
 
 #
 # Instantiate platform global variable
