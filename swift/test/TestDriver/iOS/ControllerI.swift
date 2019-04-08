@@ -185,7 +185,7 @@ class ControllerHelperI: ControllerHelper {
     }
 
     public func run() {
-        let path = "\(Bundle.main.bundlePath)/../\(_bundle).bundle"
+        let path = "\(Bundle.main.bundlePath)/Frameworks/\(_bundle).bundle"
 
         guard let bundle = Bundle(url: URL(fileURLWithPath: path)) else {
             print(msg: "Bundle: `\(path)' not found")
@@ -264,7 +264,6 @@ class ControllerHelperI: ControllerHelper {
     }
 
     public func getOutput() -> String {
-        precondition(_completed)
         return _out
     }
 }
