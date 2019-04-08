@@ -66,14 +66,14 @@ public final class Incoming {
     }
 
     public func response() {
-        guard locator != nil, servantLocatorFinished() else {
+        guard locator == nil || servantLocatorFinished() else {
             return
         }
         responseCallback(true, ostr.getConstBytes(), ostr.getCount())
     }
 
     public func exception(_ ex: Error) {
-        guard locator != nil, servantLocatorFinished() else {
+        guard locator == nil || servantLocatorFinished() else {
             return
         }
         handleException(ex)

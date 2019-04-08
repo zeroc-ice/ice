@@ -254,15 +254,24 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         return queue
     }
 
-    func facadeInvoke(_ adapter: ICEObjectAdapter, is: ICEInputStream, con: ICEConnection, name: String,
-                      category: String, facet: String, operation: String, mode: UInt8, context: [String: String],
-                      requestId: Int32, encodingMajor: UInt8, encodingMinor: UInt8,
+    func facadeInvoke(_ adapter: ICEObjectAdapter,
+                      is istr: ICEInputStream,
+                      con: ICEConnection,
+                      name: String,
+                      category: String,
+                      facet: String,
+                      operation: String,
+                      mode: UInt8,
+                      context: [String: String],
+                      requestId: Int32,
+                      encodingMajor: UInt8,
+                      encodingMinor: UInt8,
                       response: @escaping (Bool, UnsafeRawPointer?, Int) -> Void,
                       exception: @escaping (ICERuntimeException) -> Void) {
         precondition(_handle == adapter)
 
         let current = Current(adapter: self,
-                              con: con.assign(to: ConnectionI.self) { ConnectionI(handle: con) },
+                              con: con.swiftRef == nil ? ConnectionI(handle: con) : con.swiftRef as! ConnectionI,
                               id: Identity(name: name, category: category),
                               facet: facet,
                               operation: operation,
@@ -270,8 +279,9 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                               ctx: context,
                               requestId: requestId,
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
+        dispatchPrecondition(condition: .notOnQueue(queue))
         queue.sync {
-            let istr = InputStream(communicator: communicator, inputStream: `is`)
+            let istr = InputStream(communicator: communicator, inputStream: istr)
             let inc = Incoming(istr: istr, response: response, exception: exception, current: current)
             inc.invoke(servantManager)
         }
