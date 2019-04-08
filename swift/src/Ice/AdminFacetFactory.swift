@@ -18,15 +18,25 @@ class AdminFacetFacade: ICEBlobjectFacade {
         self.servant = servant
     }
 
-    func facadeInvoke(_ adapter: ICEObjectAdapter, is: ICEInputStream, con: ICEConnection,
+    func facadeInvoke(_ adapter: ICEObjectAdapter, is: ICEInputStream, con: ICEConnection?,
                       name: String, category: String, facet: String, operation: String, mode: UInt8,
                       context: [String: String], requestId: Int32, encodingMajor: UInt8, encodingMinor: UInt8,
                       response: @escaping (Bool, UnsafeRawPointer?, Int) -> Void,
                       exception: @escaping (ICERuntimeException) -> Void) {
-        let current = Current(adapter: adapter.assign(to: ObjectAdapterI.self) {
+
+        let objectAdapter = adapter.assign(to: ObjectAdapterI.self) {
             ObjectAdapterI(handle: adapter, communicator: communicator, queue: communicator.getAdminDispatchQueue())
-        },
-                              con: con.assign(to: ConnectionI.self) { ConnectionI(handle: con) },
+        }
+
+        var connection: Connection?
+        if let c = con {
+            connection = c.assign(to: ConnectionI.self) {
+                ConnectionI(handle: c)
+            }
+        }
+
+        let current = Current(adapter: objectAdapter,
+                              con: connection,
                               id: Identity(name: name, category: category),
                               facet: facet,
                               operation: operation,

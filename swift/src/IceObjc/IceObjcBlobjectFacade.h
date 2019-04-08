@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol ICEBlobjectFacade
 -(void) facadeInvoke:(ICEObjectAdapter*)adapter
                   is:(ICEInputStream*)is
-                 con:(ICEConnection*)con
+                 con:(ICEConnection* _Nullable)con
                 name:(NSString*)name
             category:(NSString*)category
                facet:(NSString*)facet

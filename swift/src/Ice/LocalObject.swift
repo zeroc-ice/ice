@@ -37,7 +37,7 @@ extension ICELocalObject {
     //
     // to recovers the Swift object holding a handle to this ICELocalObject
     //
-    func to<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType
+    func as<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
         guard let swiftClass = swiftRef else {
             preconditionFailure("swiftRef is nil")

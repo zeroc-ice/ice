@@ -256,7 +256,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
 
     func facadeInvoke(_ adapter: ICEObjectAdapter,
                       is istr: ICEInputStream,
-                      con: ICEConnection,
+                      con: ICEConnection?,
                       name: String,
                       category: String,
                       facet: String,
@@ -270,8 +270,15 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       exception: @escaping (ICERuntimeException) -> Void) {
         precondition(_handle == adapter)
 
+        var connection: Connection?
+        if let c = con {
+            connection = c.assign(to: ConnectionI.self) {
+                ConnectionI(handle: c)
+            }
+        }
+
         let current = Current(adapter: self,
-                              con: con.swiftRef == nil ? ConnectionI(handle: con) : con.swiftRef as! ConnectionI,
+                              con: connection,
                               id: Identity(name: name, category: category),
                               facet: facet,
                               operation: operation,

@@ -36,6 +36,7 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                                   {
                                                       return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:current.adapter];
                                                   });
+
     [_facade facadeInvoke:adapter
                        is:[[ICEInputStream alloc] initWithBytes:std::move(inBytes)]
                       con: current.con ? [[ICEConnection alloc] initWithCppConnection:current.con] : nil
