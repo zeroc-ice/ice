@@ -137,8 +137,8 @@ public final class Incoming {
         //
         do {
             try s.iceDispatch(incoming: self, current: current)
-        } catch let err {
-            exception(convertException(err))
+        } catch {
+            exception(error)
         }
     }
 
