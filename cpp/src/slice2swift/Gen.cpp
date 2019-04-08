@@ -1383,6 +1383,20 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     allIds.sort();
     allIds.unique();
 
+    ostringstream ids;
+
+    ids << "[";
+    for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
+    {
+        if(r != allIds.begin())
+        {
+            ids << ", ";
+        }
+        ids << "\"" << (*r) << "\"";
+
+    }
+    ids << "]";
+
     out << sp;
     out << nl << "public extension " << name;
 
@@ -1399,24 +1413,14 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl;
     out << nl << "func ice_ids(current _: Current) throws -> [String]";
     out << sb;
-    out << nl << "return [";
-    for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
-    {
-        if(r != allIds.begin())
-        {
-            out << ", ";
-        }
-        out << "\"" << (*r) << "\"";
-
-    }
-    out << "]";
+    out << nl << "return " << ids.str();
     out << eb;
 
     out << sp;
     out << nl;
     out << nl << "func ice_isA(s: String, current _: Current) throws -> Bool";
     out << sb;
-    out << nl << "return s == \"" << p->scoped() << "\"";
+    out << nl << "return " << ids.str() << ".contains(s)";
     out << eb;
 
     return true;
