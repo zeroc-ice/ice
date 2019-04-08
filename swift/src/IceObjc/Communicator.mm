@@ -44,7 +44,7 @@
 
 -(void) shutdown
 {
-    _communicator->destroy();
+    _communicator->shutdown();
 }
 
 -(void) waitForShutdown
