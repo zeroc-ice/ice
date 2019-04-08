@@ -794,7 +794,7 @@ public class Client: TestHelperI {
 
         writer.write("testing encoding versioning... ")
         var ref20 = "test -e 2.0:\(self.getTestEndpoint(num: 0))"
-        var cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)!
+        var cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)
         do {
             try cl20.ice_ping()
             try test(false)
@@ -803,7 +803,7 @@ public class Client: TestHelperI {
         }
 
         var ref10 = "test -e 1.0:\(self.getTestEndpoint(num: 0))"
-        var cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)!
+        var cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
         try cl10.ice_ping()
         try cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
         try cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
@@ -811,7 +811,7 @@ public class Client: TestHelperI {
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
         var ref13 = "test -e 1.3:\(getTestEndpoint(num: 0))"
-        var cl13 = try uncheckedCast(prx: communicator.stringToProxy(ref13)!, type: MyClassPrx.self)!
+        var cl13 = try uncheckedCast(prx: communicator.stringToProxy(ref13)!, type: MyClassPrx.self)
         try cl13.ice_ping()
 
         do {
@@ -850,7 +850,7 @@ public class Client: TestHelperI {
 
         writer.write("testing protocol versioning... ")
         ref20 = "test -p 2.0:\(self.getTestEndpoint(num: 0))"
-        cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)!
+        cl20 = try uncheckedCast(prx: communicator.stringToProxy(ref20)!, type: MyClassPrx.self)
         do {
             try cl20.ice_ping()
             try test(false)
@@ -859,13 +859,13 @@ public class Client: TestHelperI {
         }
 
         ref10 = "test -p 1.0:\(self.getTestEndpoint(num: 0))"
-        cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)!
+        cl10 = try uncheckedCast(prx: communicator.stringToProxy(ref10)!, type: MyClassPrx.self)
         try cl10.ice_ping()
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
         ref13 = "test -p 1.3:\(self.getTestEndpoint(num: 0))"
-        cl13 = try uncheckedCast(prx: communicator.stringToProxy(ref13)!, type: MyClassPrx.self)!
+        cl13 = try uncheckedCast(prx: communicator.stringToProxy(ref13)!, type: MyClassPrx.self)
         try cl13.ice_ping()
         writer.writeLine("ok")
 

@@ -1144,7 +1144,7 @@ public class Twoways {
             var ctx = ["one": "ONE", "two": "TWO", "three": "THREE"]
 
             var p3 = try uncheckedCast(prx: ic.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!,
-                                       type: MyClassPrx.self)!
+                                       type: MyClassPrx.self)
 
             ic.getImplicitContext().setContext(ctx)
             try test(ic.getImplicitContext().getContext() == ctx)
@@ -1166,7 +1166,7 @@ public class Twoways {
             }
             try test(combined["one"] == "UN")
 
-            p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)!
+            p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)
 
             ic.getImplicitContext().setContext(Ice.Context())
             try test(p3.opContext() == prxContext)
@@ -1198,7 +1198,7 @@ public class Twoways {
             try test(p.opStringS2([]).count == 0)
             try test(p.opByteBoolD2([:]).count == 0)
 
-            let d = uncheckedCast(prx: p, type: MyDerivedClassPrx.self)!
+            let d = uncheckedCast(prx: p, type: MyDerivedClassPrx.self)
             var s = MyStruct1()
             s.tesT = "MyStruct1.s"
             s.myClass = nil

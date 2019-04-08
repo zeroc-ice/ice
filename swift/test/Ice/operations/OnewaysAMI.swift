@@ -9,7 +9,7 @@ import PromiseKit
 public class OnewaysAMI {
     public static func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) throws {
 
-        let p = uncheckedCast(prx: proxy.ice_oneway(), type: MyClassPrx.self)!
+        let p = uncheckedCast(prx: proxy.ice_oneway(), type: MyClassPrx.self)
 
         do {
             let group = DispatchGroup()

@@ -75,9 +75,9 @@ public class BatchOneways {
 
             let prx = try p.ice_getConnection()!.createProxy(p.ice_getIdentity())!.ice_batchOneway()
 
-            let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyClassPrx.self)!
-            let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyClassPrx.self)!
-            let batchC3 = uncheckedCast(prx: try prx.ice_identity(identity), type: MyClassPrx.self)!
+            let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyClassPrx.self)
+            let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyClassPrx.self)
+            let batchC3 = uncheckedCast(prx: try prx.ice_identity(identity), type: MyClassPrx.self)
 
             try batchC1.opByteSOneway(bs1)
             try batchC1.opByteSOneway(bs1)

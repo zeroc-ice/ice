@@ -78,7 +78,6 @@ usage(const string& n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
-        "--list-generated         Emit list of generated files in XML format.\n"
         ;
 }
 
@@ -97,7 +96,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
-    opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
@@ -159,8 +157,6 @@ compile(const vector<string>& argv)
     string dependFile = opts.optArg("depend-file");
 
     bool debug = opts.isSet("debug");
-
-    bool listGenerated = opts.isSet("list-generated");
 
     if(args.empty())
     {
@@ -335,11 +331,6 @@ compile(const vector<string>& argv)
     if(depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
-    }
-
-    if(listGenerated)
-    {
-        FileTracker::instance()->dumpxml();
     }
 
     return status;

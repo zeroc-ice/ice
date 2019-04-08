@@ -28,8 +28,8 @@ public class BatchOnewaysAMI {
 
         let conn = try batch.ice_getConnection()
         if conn != nil {
-            let batch1 = uncheckedCast(prx: p.ice_batchOneway(), type: MyClassPrx.self)!
-            let batch2 = uncheckedCast(prx: p.ice_batchOneway(), type: MyClassPrx.self)!
+            let batch1 = uncheckedCast(prx: p.ice_batchOneway(), type: MyClassPrx.self)
+            let batch2 = uncheckedCast(prx: p.ice_batchOneway(), type: MyClassPrx.self)
 
             _ = batch1.ice_pingAsync()
             _ = batch2.ice_pingAsync()

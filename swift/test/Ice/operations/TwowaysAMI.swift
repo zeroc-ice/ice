@@ -706,7 +706,7 @@ public class TwowaysAMI {
             var ctx = ["one": "ONE", "two": "TWO", "three": "THREE"]
 
             var p3 = try uncheckedCast(prx: ic.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!,
-                                       type: MyClassPrx.self)!
+                                       type: MyClassPrx.self)
 
             ic.getImplicitContext().setContext(ctx)
             try test(ic.getImplicitContext().getContext() == ctx)
@@ -732,7 +732,7 @@ public class TwowaysAMI {
             }
             try test(combined["one"] == "UN")
 
-            p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)!
+            p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)
 
             ic.getImplicitContext().setContext(Ice.Context())
             try firstly {

@@ -294,13 +294,13 @@ public class Client: TestHelperI {
 
             do {
                 var str = "thrower:\(self.getTestEndpoint(num: 1))"
-                let thrower2 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)!
+                let thrower2 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
                 do {
                     // 2MB(no limits)
                     _ = try thrower2.throwMemoryLimitException([UInt8](repeating: 0, count: 2 * 1024 * 1024))
                 } catch is Ice.MemoryLimitException {}
                 str = "thrower:\(self.getTestEndpoint(num: 2))"
-                let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)!
+                let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
                 do {
                     _ = try thrower3.throwMemoryLimitException([UInt8](repeating: 0, count: 1024)) // 1KB limit
                     try test(false)
@@ -315,7 +315,7 @@ public class Client: TestHelperI {
         do {
             let id = try Ice.stringToIdentity("does not exist")
             do {
-                let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)!
+                let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
                 try thrower2.ice_ping()
                 try test(false)
             } catch let ex as Ice.ObjectNotExistException {
@@ -328,7 +328,7 @@ public class Client: TestHelperI {
 
         output.write("catching facet not exist exception... ")
         do {
-            let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")!
+            let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
             do {
                 try thrower2.ice_ping()
                 try test(false)
@@ -342,7 +342,7 @@ public class Client: TestHelperI {
 
         output.write("catching operation not exist exception... ")
         do {
-            let thrower2 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)!
+            let thrower2 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
             try thrower2.noSuchOperation()
             try test(false)
         } catch let ex as Ice.OperationNotExistException {
@@ -598,7 +598,7 @@ public class Client: TestHelperI {
         output.write("catching object not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
             let  id = try Ice.stringToIdentity("does not exist")
-            let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)!
+            let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
             firstly {
                 thrower2.throwAasAAsync(1)
             }.done {
@@ -620,7 +620,7 @@ public class Client: TestHelperI {
 
         output.write("catching facet not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
-            let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")!
+            let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
             firstly {
                 thrower2.throwAasAAsync(1)
             }.done {
@@ -642,7 +642,7 @@ public class Client: TestHelperI {
 
         output.write("catching operation not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
-            let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)!
+            let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
             firstly {
                 thrower4.noSuchOperationAsync()
             }.done {
@@ -763,7 +763,7 @@ public class Client: TestHelperI {
         output.write("catching object not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
             let id = try Ice.stringToIdentity("does not exist")
-            let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)!
+            let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
             firstly {
                 thrower2.throwAasAAsync(1)
             }.done {
@@ -785,7 +785,7 @@ public class Client: TestHelperI {
 
         output.write("catching facet not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
-            let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")!
+            let thrower2 = uncheckedCast(prx: thrower, type: ThrowerPrx.self, facet: "no such facet")
             firstly {
                 thrower2.throwAasAAsync(1)
             }.done {
@@ -807,7 +807,7 @@ public class Client: TestHelperI {
 
         output.write("catching operation not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
-            let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)!
+            let thrower4 = uncheckedCast(prx: thrower, type: WrongOperationPrx.self)
             firstly {
                 thrower4.noSuchOperationAsync()
             }.done {

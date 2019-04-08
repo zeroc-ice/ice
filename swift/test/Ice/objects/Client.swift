@@ -234,7 +234,7 @@ public class Client: TestHelperI {
         output.write("testing UnexpectedObjectException...")
         ref = "uoet:\(self.getTestEndpoint(num: 0))"
         base = try communicator.stringToProxy(ref)!
-        let uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)!
+        let uoet = uncheckedCast(prx: base, type: UnexpectedObjectExceptionTestPrx.self)
         do {
             _ = try uoet.op()
             try test(false)
