@@ -248,7 +248,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     internal static func fromICEObjectPrx(handle: ICEObjectPrx,
                                           communicator c: Communicator? = nil) -> Self {
-        let communicator = c ?? handle.ice_getCommunicator().to(type: CommunicatorI.self)
+        let communicator = c ?? handle.ice_getCommunicator().as(type: CommunicatorI.self)
         return self.init(handle: handle, communicator: communicator)
     }
 
@@ -491,7 +491,7 @@ open class _ObjectPrxI: ObjectPrx {
             guard let handle = try _handle.ice_getConnection() as? ICEConnection else {
                 return nil
             }
-            return handle.assign(to: ConnectionI.self) { ConnectionI(handle: handle) }
+            return handle.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: handle) }
         }
     }
 
@@ -499,7 +499,7 @@ open class _ObjectPrxI: ObjectPrx {
         guard let handle = _handle.ice_getCachedConnection() else {
             return nil
         }
-        return handle.assign(to: ConnectionI.self) { ConnectionI(handle: handle) }
+        return handle.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: handle) }
     }
 
     public func ice_flushBatchRequests() throws {

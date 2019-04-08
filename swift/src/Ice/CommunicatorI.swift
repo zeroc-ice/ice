@@ -113,7 +113,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func getImplicitContext() -> ImplicitContext {
         let handle = _handle.getImplicitContext()
-        return handle.assign(to: ImplicitContextI.self) {
+        return handle.fromLocalObject(to: ImplicitContextI.self) {
             ImplicitContextI(handle: handle)
         }
     }

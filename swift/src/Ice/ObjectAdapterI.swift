@@ -36,7 +36,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     convenience init(handle: ICEObjectAdapter, queue: DispatchQueue = serialQueue) {
-        self.init(handle: handle, communicator: handle.getCommunicator().to(type: CommunicatorI.self), queue: queue)
+        self.init(handle: handle, communicator: handle.getCommunicator().as(type: CommunicatorI.self), queue: queue)
     }
 
     func getName() -> String {
@@ -270,15 +270,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       exception: @escaping (ICERuntimeException) -> Void) {
         precondition(_handle == adapter)
 
-        var connection: Connection?
-        if let c = con {
-            connection = c.assign(to: ConnectionI.self) {
-                ConnectionI(handle: c)
-            }
-        }
-
         let current = Current(adapter: self,
-                              con: connection,
+                              con: con.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) },
                               id: Identity(name: name, category: category),
                               facet: facet,
                               operation: operation,

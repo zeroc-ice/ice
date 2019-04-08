@@ -24,16 +24,11 @@ class AdminFacetFacade: ICEBlobjectFacade {
                       response: @escaping (Bool, UnsafeRawPointer?, Int) -> Void,
                       exception: @escaping (ICERuntimeException) -> Void) {
 
-        let objectAdapter = adapter.assign(to: ObjectAdapterI.self) {
+        let objectAdapter = adapter.fromLocalObject(to: ObjectAdapterI.self) {
             ObjectAdapterI(handle: adapter, communicator: communicator, queue: communicator.getAdminDispatchQueue())
         }
 
-        var connection: Connection?
-        if let c = con {
-            connection = c.assign(to: ConnectionI.self) {
-                ConnectionI(handle: c)
-            }
-        }
+        let connection = con.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) }
 
         let current = Current(adapter: objectAdapter,
                               con: connection,
@@ -64,18 +59,18 @@ class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {}
 
 class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEBlobjectFacade {
-        let c = communicator.to(type: CommunicatorI.self)
+        let c = communicator.as(type: CommunicatorI.self)
         return AdminFacetFacade(communicator: c, servant: ProcessI(handle: handle))
     }
 
     static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEBlobjectFacade {
-        let c = communicator.to(type: CommunicatorI.self)
+        let c = communicator.as(type: CommunicatorI.self)
         return AdminFacetFacade(communicator: c, servant: PropertiesAdminI(communicator: c, handle: handle))
     }
 
     static func createUnsupported(_ communicator: ICECommunicator,
                                   handle: ICEUnsupportedAdminFacet) -> ICEBlobjectFacade {
-        let c = communicator.to(type: CommunicatorI.self)
+        let c = communicator.as(type: CommunicatorI.self)
         return AdminFacetFacade(communicator: c, servant: UnsupportedAdminFacet(handle: handle))
     }
 }

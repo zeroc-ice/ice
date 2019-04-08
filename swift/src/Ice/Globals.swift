@@ -81,7 +81,7 @@ public func initialize(args: StringSeq = [],
         //  a C++ logger plug-in installed a new logger
         //
         if let objcLogger = handle.getLogger() as? ICELogger {
-            initData.logger = objcLogger.assign(to: ObjcLoggerWrapper.self) { ObjcLoggerWrapper(handle: objcLogger) }
+            initData.logger = objcLogger.fromLocalObject(to: ObjcLoggerWrapper.self) { ObjcLoggerWrapper(handle: objcLogger) }
         }
 
         precondition(initData.logger != nil && initData.properties != nil)

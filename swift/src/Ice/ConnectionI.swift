@@ -42,7 +42,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             return nil
         }
 
-        return handle.assign(to: ObjectAdapterI.self) {
+        return handle.fromLocalObject(to: ObjectAdapterI.self) {
             ObjectAdapterI(handle: handle)
         }
     }
@@ -80,7 +80,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             }
 
             try _handle.setCloseCallback {
-                let connection = $0.to(type: ConnectionI.self)
+                let connection = $0.as(type: ConnectionI.self)
                 cb(connection)
             }
         }
@@ -93,7 +93,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 return
             }
             try _handle.setHeartbeatCallback {
-                let connection = $0.to(type: ConnectionI.self)
+                let connection = $0.as(type: ConnectionI.self)
                 cb(connection)
             }
         }
