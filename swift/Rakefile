@@ -65,7 +65,9 @@ $test_extra_sources = {
                     "FI.swift",
                     "HI.swift",
                     "II.swift",
-                    "JI.swift"]
+                    "JI.swift"],
+  "Ice/proxy/Server" => ["MyDerivedClassI.swift"],
+  "Ice/proxy/ServerAMD" => ["MyDerivedClassAMDI.swift"]
 }
 
 desc "Generate Xcode projects required to build Ice for Swift"
@@ -483,6 +485,9 @@ def test_variant_sources(test, variant)
   if variant == "Collocated"
     sources += $test_default_sources["Server"].reject { |s| s == "Server.swift" }
     sources += $test_default_sources["Client"].reject { |s| s == "Client.swift" }
+
+    sources += $test_extra_sources["#{test}/Server"] || []
+    sources += $test_extra_sources["#{test}/Client"] || []
   end
 
   sources += $test_extra_sources[test] || []
