@@ -226,10 +226,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func getAdminDispatchQueue() -> DispatchQueue {
         return mutex.sync {
-            if let queue = initData.adminDispatchQueue {
-                return queue
-            }
-            return serialQueue
+            initData.adminDispatchQueue ?? serialQueue
         }
     }
 }

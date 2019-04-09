@@ -42,13 +42,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             return nil
         }
 
-        return handle.fromLocalObject(to: ObjectAdapterI.self) {
-            let communicator = handle.getCommunicator().as(type: CommunicatorI.self)
-            let queue = (communicator as CommunicatorI).serialQueue
-            return ObjectAdapterI(handle: handle,
-                                  communicator: communicator,
-                                  queue: queue)
-        }
+        return handle.as(type: ObjectAdapterI.self)
     }
 
     public func getEndpoint() -> Endpoint {
