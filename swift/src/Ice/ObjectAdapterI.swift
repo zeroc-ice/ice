@@ -14,8 +14,6 @@ private enum State {
     case dead
 }
 
-let serialQueue = DispatchQueue(label: "com.zeroc.ice.serial")
-
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade {
     let communicator: Communicator
     var servantManager: ServantManager
@@ -25,7 +23,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     var mutex = Mutex()
     private var state: State
 
-    init(handle: ICEObjectAdapter, communicator: Communicator, queue: DispatchQueue = serialQueue) {
+    init(handle: ICEObjectAdapter, communicator: Communicator, queue: DispatchQueue) {
         self.communicator = communicator
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
         state = .alive
@@ -33,10 +31,6 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         super.init(handle: handle)
 
         handle.registerDefaultServant(self)
-    }
-
-    convenience init(handle: ICEObjectAdapter, queue: DispatchQueue = serialQueue) {
-        self.init(handle: handle, communicator: handle.getCommunicator().as(type: CommunicatorI.self), queue: queue)
     }
 
     func getName() -> String {

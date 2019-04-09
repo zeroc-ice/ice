@@ -17,12 +17,6 @@ class LocalObject<LocalObjectType: ICELocalObject> {
         _handle = handle
         _handle.swiftRef = self
     }
-
-//    class func fromLocalObjet(handle: LocalObjectType) -> LocalObject {
-//        return handle.fromLocalObject(to: self) {
-//            LocalObject(handle: handle)
-//        }
-//    }
 }
 
 extension ICELocalObject {
@@ -32,13 +26,13 @@ extension ICELocalObject {
     func fromLocalObject<ICELocalObjectType, LocalObjectType>(to _: LocalObjectType.Type,
                                                               initializer: () -> LocalObjectType) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
-            if let swiftClass = swiftRef {
-                precondition(swiftClass is LocalObjectType)
-                // swiftlint:disable force_cast
-                return swiftClass as! LocalObjectType
-            }
+        if let swiftClass = swiftRef {
+            precondition(swiftClass is LocalObjectType)
+            // swiftlint:disable force_cast
+            return swiftClass as! LocalObjectType
+        }
 
-            return initializer()
+        return initializer()
     }
 
     //
@@ -46,13 +40,13 @@ extension ICELocalObject {
     //
     func `as`<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
-            guard let swiftClass = swiftRef else {
-                preconditionFailure("swiftRef is nil")
-            }
-            guard let c = swiftClass as? LocalObjectType else {
-                preconditionFailure("Invalid swift type for ICELocalObject")
-            }
-            return c
+        guard let swiftClass = swiftRef else {
+            preconditionFailure("swiftRef is nil")
+        }
+        guard let c = swiftClass as? LocalObjectType else {
+            preconditionFailure("Invalid swift type for ICELocalObject")
+        }
+        return c
     }
 }
 
@@ -63,12 +57,11 @@ extension Optional where Wrapped: ICELocalObject {
     func fromLocalObject<ICELocalObjectType, LocalObjectType>(to: LocalObjectType.Type,
                                                               initializer: () -> LocalObjectType) -> LocalObjectType?
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
+        guard self != .none else {
+            return nil
+        }
 
-            guard self != .none else {
-                return nil
-            }
-
-            return self.unsafelyUnwrapped.fromLocalObject(to: to, initializer: initializer)
+        return unsafelyUnwrapped.fromLocalObject(to: to, initializer: initializer)
     }
 
     //
@@ -76,12 +69,10 @@ extension Optional where Wrapped: ICELocalObject {
     //
     func `as`<ICELocalObjectType, LocalObjectType>(type: LocalObjectType.Type) -> LocalObjectType?
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
+        guard self != .none else {
+            return nil
+        }
 
-            guard self != .none else {
-                return nil
-            }
-
-            return self.unsafelyUnwrapped.as(type: type)
+        return unsafelyUnwrapped.as(type: type)
     }
-
 }
