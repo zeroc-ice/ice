@@ -36,10 +36,14 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                                   {
                                                       return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:current.adapter];
                                                   });
+    ICEConnection* con = createLocalObject(current.con, [&current] () -> id
+                                           {
+                                               return [[ICEConnection alloc] initWithCppConnection: current.con];
+                                           });
 
     [_facade facadeInvoke:adapter
                        is:[[ICEInputStream alloc] initWithBytes:std::move(inBytes)]
-                      con: current.con ? [[ICEConnection alloc] initWithCppConnection:current.con] : nil
+                      con: con
                      name:toNSString(current.id.name) category:toNSString(current.id.category)
                     facet:toNSString(current.facet)
                 operation:toNSString(current.operation)
