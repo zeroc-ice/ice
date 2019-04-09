@@ -329,6 +329,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                     preconditionFailure("ObjectAdapter missing from dispatch specific data")
                 }
                 adapters.remove(self)
+                self.queue.setSpecific(key: key, value: adapters)
             }
         }
     }
