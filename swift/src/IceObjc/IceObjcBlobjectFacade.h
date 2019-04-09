@@ -47,7 +47,7 @@ public:
     {
     }
 
-    BlobjectFacade()
+    ~BlobjectFacade()
     {
         [_facade facadeRemoved];
     }
