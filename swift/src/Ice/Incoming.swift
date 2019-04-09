@@ -88,8 +88,8 @@ public final class Incoming {
         do {
             try locator.finished(curr: current, servant: servant, cookie: cookie)
             return true
-        } catch let e {
-            exceptionCallback(convertException(e))
+        } catch {
+            exceptionCallback(convertException(error))
         }
 
         return false
@@ -109,8 +109,8 @@ public final class Incoming {
                 do {
                     let locatorReturn = try locator.locate(current)
                     (servant, cookie) = (locatorReturn.returnValue, locatorReturn.cookie)
-                } catch let err {
-                    exceptionCallback(convertException(err))
+                } catch {
+                    exceptionCallback(convertException(error))
                     return
                 }
             }
@@ -123,8 +123,8 @@ public final class Incoming {
                 } else {
                     throw ObjectNotExistException(id: current.id, facet: current.facet, operation: current.operation)
                 }
-            } catch let err {
-                exceptionCallback(convertException(err))
+            } catch {
+                exceptionCallback(convertException(error))
                 return
             }
         }

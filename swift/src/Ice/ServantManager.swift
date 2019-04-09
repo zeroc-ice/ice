@@ -160,13 +160,13 @@ class ServantManager {
         m.forEach { category, locator in
             do {
                 try locator.deactivate(category)
-            } catch let e {
+            } catch {
                 let logger = communicator.getLogger()
                 logger.error("""
                 exception during locator deactivation:
                 object adapter: `\(adapterName)'
                 locator category: `\(category)'
-                \(e)
+                \(error)
                 """)
             }
         }

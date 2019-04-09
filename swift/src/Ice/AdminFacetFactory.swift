@@ -72,8 +72,8 @@ class AdminFacetFacade: ICEBlobjectFacade {
         // Dispatch directly to the servant. Do not call invoke on Incoming
         do {
             try servant.iceDispatch(incoming: incoming, current: current)
-        } catch let err {
-            incoming.exception(err)
+        } catch {
+            incoming.exception(error)
         }
     }
 
