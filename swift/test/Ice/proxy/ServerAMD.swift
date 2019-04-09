@@ -8,11 +8,11 @@ import TestCommon
 
 open class TestFactoryI: TestFactory {
     public class func create() -> TestHelper {
-        return Server()
+        return ServerAMD()
     }
 }
 
-class Server: TestHelperI {
+class ServerAMD: TestHelperI {
     public override func run(args: [String]) throws {
         let writer = getWriter()
 
