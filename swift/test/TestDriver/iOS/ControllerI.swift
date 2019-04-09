@@ -87,6 +87,8 @@ class ProcessControllerI: CommonProcessController {
     }
 }
 
+let serialQueue = DispatchQueue(label: "com.zeroc.ice.TestController")
+
 class ControllerI {
     var _communicator: Ice.Communicator!
     static var _controller: ControllerI!
@@ -105,7 +107,7 @@ class ControllerI {
         initData.properties = properties
         _communicator = try Ice.initialize(initData: initData)
 
-        let adapter = try _communicator.createObjectAdapter("ControllerAdapter")
+        let adapter = try _communicator.createObjectAdapter(name: "ControllerAdapter", queue: serialQueue)
         var ident = Ice.Identity()
         #if targetEnvironment(simulator)
         ident.category = "iPhoneSimulator"
@@ -135,7 +137,7 @@ class ControllerI {
     }
 }
 
-class ControllerHelperI: ControllerHelper {
+class ControllerHelperI: ControllerHelper, TextWriter {
 
     var _view: ViewController
     var _bundle: String
@@ -174,9 +176,12 @@ class ControllerHelperI: ControllerHelper {
         return _bundle
     }
 
-    public func print(msg: String) {
+    public func write(_ msg: String) {
         _out += msg
-        _view.print(msg)
+    }
+    
+    public func writeLine(_ msg: String) {
+        write("\(msg)\n")
     }
 
     public func completed(status: Int32) {
@@ -189,13 +194,13 @@ class ControllerHelperI: ControllerHelper {
         let path = "\(Bundle.main.bundlePath)/Frameworks/\(_bundle).bundle"
 
         guard let bundle = Bundle(url: URL(fileURLWithPath: path)) else {
-            print(msg: "Bundle: `\(path)' not found")
+            writeLine("Bundle: `\(path)' not found")
             completed(status: 1)
             return
         }
 
         guard let factory = bundle.classNamed("\(_bundle).TestFactoryI") as? TestFactory.Type else {
-            print(msg: "test factory: `\(_bundle).TestFactoryI' not found")
+            writeLine("test factory: `\(_bundle).TestFactoryI' not found")
             completed(status: 1)
             return
         }
@@ -205,10 +210,11 @@ class ControllerHelperI: ControllerHelper {
         _queue.async {
             do {
                 testCase.setControllerHelper(controllerHelper: self)
+                testCase.setWriter(writer: self)
                 try testCase.run(args: self._args)
                 self.completed(status: 0)
             } catch {
-                self.print(msg: "Error: \(error)")
+                self.writeLine("Error: \(error)")
                 self.completed(status: 1)
             }
         }

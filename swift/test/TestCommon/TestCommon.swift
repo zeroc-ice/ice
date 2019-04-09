@@ -12,7 +12,6 @@ public protocol TextWriter {
 
 public protocol ControllerHelper {
     func loggerPrefix() -> String
-    func print(msg: String)
     func serverReady()
     func communicatorInitialized(communicator: Ice.Communicator)
 }

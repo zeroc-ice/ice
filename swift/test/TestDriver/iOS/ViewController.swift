@@ -53,10 +53,9 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         interfaceIPv6.selectedRow(inComponent: 0)
 
         do {
-            print("Starting controller")
             try ControllerI.startController(view: self, ipv4: interfacesIPv4[0], ipv6: interfacesIPv6[0])
         } catch {
-            print("Error: \(error)")
+            println("Error: \(error)")
         }
     }
 
@@ -73,7 +72,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     }
 
     public func println(_ msg: String) {
-        print("\n\(msg)")
+        print("\(msg)\n")
     }
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
