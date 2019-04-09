@@ -168,7 +168,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx {
         return try autoreleasepool {
-            let handle = try _handle.createAdmin((adminAdapter as! ObjectAdapterI)._handle,
+            let handle = try _handle.createAdmin((adminAdapter as? ObjectAdapterI)?._handle,
                                                  name: adminId.name,
                                                  category: adminId.category)
             // Replace the iniData.adminDispatchQueue with the dispatch queue from this adapter
