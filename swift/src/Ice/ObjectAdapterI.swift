@@ -36,7 +36,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         queue.async(flags: .barrier) {
             let key = (communicator as! CommunicatorI).dispatchSpecificKey
             guard var adapters = queue.getSpecific(key: key) else {
-                queue.setSpecific(key: key, value: Set<ObjectAdapterI>())
+                queue.setSpecific(key: key, value: Set<ObjectAdapterI>([self]))
                 return
             }
 
