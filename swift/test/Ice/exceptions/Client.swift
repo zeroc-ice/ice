@@ -8,13 +8,13 @@ import PromiseKit
 
 extension G {
     var _GDescription: String {
-        return "LocalException: G"
+        return ":\nG: \(data)"
     }
 }
 
 extension H {
     var _HDescription: String {
-        return "LocalException: H"
+        return ":\nH: \(data)"
     }
 }
 
