@@ -14,7 +14,7 @@ private enum State {
     case dead
 }
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade {
+class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, Hashable {
     let communicator: Communicator
     var servantManager: ServantManager
     var locator: LocatorPrx?
@@ -31,6 +31,26 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         super.init(handle: handle)
 
         handle.registerDefaultServant(self)
+
+        // Add self to the queue's dispatch specific data
+        queue.async(flags: .barrier) {
+            let key = (communicator as! CommunicatorI).dispatchSpecificKey
+            guard var adapters = queue.getSpecific(key: key) else {
+                queue.setSpecific(key: key, value: Set<ObjectAdapterI>())
+                return
+            }
+
+            adapters.insert(self)
+            queue.setSpecific(key: key, value: adapters)
+        }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self).hashValue)
+    }
+
+    static func == (lhs: ObjectAdapterI, rhs: ObjectAdapterI) -> Bool {
+        return lhs === rhs
     }
 
     func getName() -> String {
@@ -273,11 +293,28 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                               ctx: context,
                               requestId: requestId,
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
+
+        let incoming = Incoming(istr: InputStream(communicator: communicator, inputStream: istr),
+                                response: response,
+                                exception: exception,
+                                current: current)
+
+        //
+        // Check if we are in a collocated dispatch (con == nil) on the OA's queue by
+        // checking if this object adapter is in the current execution context's dispatch speceific data.
+        // If so, we use the current thread, otherwise dispatch to the OA's queue.
+        //
+        if con == nil {
+            let key = (communicator as! CommunicatorI).dispatchSpecificKey
+            if let adapters = DispatchQueue.getSpecific(key: key), adapters.contains(self) {
+                dispatchPrecondition(condition: .onQueue(queue))
+                incoming.invoke(servantManager)
+                return
+            }
+        }
         dispatchPrecondition(condition: .notOnQueue(queue))
         queue.sync {
-            let istr = InputStream(communicator: communicator, inputStream: istr)
-            let inc = Incoming(istr: istr, response: response, exception: exception, current: current)
-            inc.invoke(servantManager)
+            incoming.invoke(servantManager)
         }
     }
 
@@ -286,6 +323,13 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
             self.state = .dead
             servantManager.destroy()
             locator = nil
+            queue.async(flags: .barrier) {
+                let key = (self.communicator as! CommunicatorI).dispatchSpecificKey
+                guard var adapters = self.queue.getSpecific(key: key) else {
+                    preconditionFailure("ObjectAdapter missing from dispatch specific data")
+                }
+                adapters.remove(self)
+            }
         }
     }
 

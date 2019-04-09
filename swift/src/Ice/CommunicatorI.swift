@@ -13,23 +13,11 @@ import PromiseKit
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
-    let initData: InitializationData
+    var initData: InitializationData
     let serialQueue = DispatchQueue(label: "com.zeroc.ice.serial")
+    let dispatchSpecificKey = DispatchSpecificKey<Set<ObjectAdapterI>>()
 
     var mutex: Mutex = Mutex()
-    var _adminAdapter: ObjectAdapter?
-    var adminAdapter: ObjectAdapter? {
-        get {
-            return mutex.sync {
-                _adminAdapter
-            }
-        }
-        set(newAdapter) {
-            mutex.sync {
-                _adminAdapter = newAdapter
-            }
-        }
-    }
 
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
@@ -183,7 +171,10 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
             let handle = try _handle.createAdmin((adminAdapter as! ObjectAdapterI)._handle,
                                                  name: adminId.name,
                                                  category: adminId.category)
-            self.adminAdapter = adminAdapter
+            // Replace the iniData.adminDispatchQueue with the dispatch queue from this adapter
+            mutex.sync {
+                initData.adminDispatchQueue = adminAdapter?.getDispatchQueue()
+            }
 
             return _ObjectPrxI(handle: handle, communicator: self)
         }
@@ -232,6 +223,15 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
             }
         }
     }
+
+    func getAdminDispatchQueue() -> DispatchQueue {
+        return mutex.sync {
+            if let queue = initData.adminDispatchQueue {
+                return queue
+            }
+            return serialQueue
+        }
+    }
 }
 
 public extension Communicator {
@@ -257,24 +257,6 @@ public extension Communicator {
                                                                                             router: rtr._impl._handle)
             return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
         }
-    }
-
-    func getSerialDispatchQueue() -> DispatchQueue {
-        return (self as! CommunicatorI).serialQueue
-    }
-
-    func getAdminDispatchQueue() -> DispatchQueue {
-        let impl = (self as! CommunicatorI)
-
-        if let adapter = impl.adminAdapter {
-            return adapter.getDispatchQueue()
-        }
-
-        if let queue = impl.initData.adminDispatchQueue {
-            return queue
-        }
-
-        return impl.serialQueue
     }
 }
 

@@ -21,11 +21,12 @@ class AdminFacetFacade: ICEBlobjectFacade {
     func facadeInvoke(_ adapter: ICEObjectAdapter, is: ICEInputStream, con: ICEConnection?,
                       name: String, category: String, facet: String, operation: String, mode: UInt8,
                       context: [String: String], requestId: Int32, encodingMajor: UInt8, encodingMinor: UInt8,
-                      response: @escaping (Bool, UnsafeRawPointer?, Int) -> Void,
-                      exception: @escaping (ICERuntimeException) -> Void) {
-
+                      response: @escaping ICEBlobjectResponse,
+                      exception: @escaping ICEBlobjectException) {
         let objectAdapter = adapter.fromLocalObject(to: ObjectAdapterI.self) {
-            ObjectAdapterI(handle: adapter, communicator: communicator, queue: communicator.getAdminDispatchQueue())
+            ObjectAdapterI(handle: adapter,
+                           communicator: communicator,
+                           queue: (communicator as! CommunicatorI).getAdminDispatchQueue())
         }
 
         let connection = con.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) }
@@ -40,15 +41,39 @@ class AdminFacetFacade: ICEBlobjectFacade {
                               requestId: requestId,
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
 
-        current.adapter!.getDispatchQueue().sync {
-            let istr = InputStream(communicator: communicator, inputStream: `is`)
-            let inc = Incoming(istr: istr, response: response, exception: exception, current: current)
-            // Dispatch directly to the servant. Do not call invoke on Incoming
-            do {
-                try servant.iceDispatch(incoming: inc, current: current)
-            } catch let err {
-                exception(inc.convertException(err))
+        let incoming = Incoming(istr: InputStream(communicator: communicator, inputStream: `is`),
+                                response: response,
+                                exception: exception,
+                                current: current)
+
+        let queue = objectAdapter.getDispatchQueue()
+
+        //
+        // Check if we are in a collocated dispatch (con == nil) on the OA's queue by
+        // checking if this object adapter is in the current execution context's dispatch speceific data.
+        // If so, we use the current thread, otherwise dispatch to the OA's queue.
+        //
+        if con == nil {
+            let key = (communicator as! CommunicatorI).dispatchSpecificKey
+            if let adapters = DispatchQueue.getSpecific(key: key), adapters.contains(objectAdapter) {
+                dispatchPrecondition(condition: .onQueue(queue))
+                dispatch(incoming: incoming, current: current)
+                return
             }
+        }
+
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        objectAdapter.getDispatchQueue().sync {
+            dispatch(incoming: incoming, current: current)
+        }
+    }
+
+    func dispatch(incoming: Incoming, current: Current) {
+        // Dispatch directly to the servant. Do not call invoke on Incoming
+        do {
+            try servant.iceDispatch(incoming: incoming, current: current)
+        } catch let err {
+            incoming.exception(err)
         }
     }
 

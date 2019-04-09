@@ -9,22 +9,19 @@
 
 import IceObjc
 
-typealias IceObjcResponse = (Bool, UnsafeRawPointer?, Int) -> Void
-typealias IceObjcException = (ICERuntimeException) -> Void
-
 public final class Incoming {
     var current: Current
     var format: FormatType
     var istr: InputStream
     var ostr: OutputStream
-    var responseCallback: IceObjcResponse
-    var exceptionCallback: IceObjcException
+    var responseCallback: ICEBlobjectResponse
+    var exceptionCallback: ICEBlobjectException
 
     var servant: Object?
     var locator: ServantLocator?
     var cookie: AnyObject!
 
-    init(istr: InputStream, response: @escaping IceObjcResponse, exception: @escaping IceObjcException,
+    init(istr: InputStream, response: @escaping ICEBlobjectResponse, exception: @escaping ICEBlobjectException,
          current: Current) {
         self.istr = istr
         format = .DefaultFormat

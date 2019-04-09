@@ -44,9 +44,10 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
         return handle.fromLocalObject(to: ObjectAdapterI.self) {
             let communicator = handle.getCommunicator().as(type: CommunicatorI.self)
+            let queue = (communicator as CommunicatorI).serialQueue
             return ObjectAdapterI(handle: handle,
                                   communicator: communicator,
-                                  queue: communicator.getSerialDispatchQueue())
+                                  queue: queue)
         }
     }
 

@@ -16,6 +16,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^ICEBlobjectResponse) (bool, const void* _Null_unspecified, size_t);
+typedef void (^ICEBlobjectException) (ICERuntimeException*);
+
 @protocol ICEBlobjectFacade
 -(void) facadeInvoke:(ICEObjectAdapter*)adapter
                   is:(ICEInputStream*)is
@@ -29,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
            requestId:(int32_t)requestId
        encodingMajor:(uint8_t)encodingMajor
        encodingMinor:(uint8_t)encodingMinor
-            response:(void (^)(bool, const void* _Null_unspecified, size_t))response
-           exception:(void (^)(ICERuntimeException*))exception;
+            response:(ICEBlobjectResponse)response
+           exception:(ICEBlobjectException)exception;
 -(void) facadeRemoved;
 @end
 

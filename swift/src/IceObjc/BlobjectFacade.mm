@@ -20,12 +20,12 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                          std::function<void(std::exception_ptr)> error,
                                          const Ice::Current& current)
 {
-    void(^responseCallback)(bool, const void*, size_t) = ^(bool ok, const void* outParams, size_t outSize) {
+   ICEBlobjectResponse responseCallback = ^(bool ok, const void* outParams, size_t outSize) {
         const Ice::Byte* start = reinterpret_cast<const Ice::Byte*>(outParams);
         response(ok, std::make_pair(start, start + outSize));
     };
 
-    void(^exceptionCallback)(ICERuntimeException*) = ^(ICERuntimeException* e) {
+    ICEBlobjectException exceptionCallback = ^(ICERuntimeException* e) {
         error(convertException(e));
     };
 
