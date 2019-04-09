@@ -63,7 +63,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
         }
 
         dispatchPrecondition(condition: .notOnQueue(queue))
-        objectAdapter.getDispatchQueue().sync {
+        queue.sync {
             dispatch(incoming: incoming, current: current)
         }
     }
