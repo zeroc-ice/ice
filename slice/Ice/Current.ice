@@ -153,7 +153,7 @@ local struct Current
 
     /**
      *
-     * The request id unless oneway (0) or collocated (-1).
+     * The request id unless oneway (0).
      *
      **/
     int requestId;
