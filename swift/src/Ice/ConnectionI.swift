@@ -77,8 +77,11 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 return
             }
 
-            try _handle.setCloseCallback {
-                let connection = $0.as(type: ConnectionI.self)
+            try _handle.setCloseCallback { con in
+                let connection = con.fromLocalObject(to: ConnectionI.self) {
+                    ConnectionI(handle: con)
+                }
+                precondition(connection === self)
                 cb(connection)
             }
         }
@@ -90,8 +93,11 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 try _handle.setHeartbeatCallback(nil)
                 return
             }
-            try _handle.setHeartbeatCallback {
-                let connection = $0.as(type: ConnectionI.self)
+            try _handle.setHeartbeatCallback { con in
+                let connection = con.fromLocalObject(to: ConnectionI.self) {
+                    ConnectionI(handle: con)
+                }
+                precondition(connection === self)
                 cb(connection)
             }
         }
