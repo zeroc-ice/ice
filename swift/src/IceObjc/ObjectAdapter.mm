@@ -88,8 +88,7 @@
 
 -(void) waitForDeactivate
 {
-
-    _objectAdapter->deactivate();
+    _objectAdapter->waitForDeactivate();
 }
 
 -(BOOL) isDeactivated
