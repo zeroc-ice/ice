@@ -14,8 +14,6 @@ open class TestFactoryI: TestFactory {
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        let writer = getWriter()
-
         let (properties, _) = try Ice.createProperties(args: args)
         try properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         try properties.setProperty(key: "Ice.ACM.Timeout", value: "1")

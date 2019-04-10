@@ -7,14 +7,6 @@ import TestCommon
 import Foundation
 import PromiseKit
 
-func withLockHeld<T>(_ lock: os_unfair_lock_t, block: () throws -> T) rethrows -> T {
-    os_unfair_lock_lock(lock)
-    defer {
-        os_unfair_lock_unlock(lock)
-    }
-    return try block()
-}
-
 class LoggerI: Ice.Logger {
     var _name: String
     var _output: TextWriter
@@ -38,14 +30,14 @@ class LoggerI: Ice.Logger {
     }
 
     func start() {
-        withLockHeld(&_lock) {
+        withLock(&_lock) {
             _started = true
             dump()
         }
     }
 
     func print(_ msg: String) {
-        withLockHeld(&_lock) {
+        withLock(&_lock) {
             _messages.append(msg)
             if _started {
                 dump()
@@ -54,7 +46,7 @@ class LoggerI: Ice.Logger {
     }
 
     func trace(category: String, message: String) {
-        withLockHeld(&_lock) {
+        withLock(&_lock) {
             var s = _name
             s += " "
             s += _dateFormat.string(from: Date())
@@ -73,7 +65,7 @@ class LoggerI: Ice.Logger {
     }
 
     func warning(_ message: String) {
-        withLockHeld(&_lock) {
+        withLock(&_lock) {
             var s = _name
             s += " "
             s += _dateFormat.string(from: Date())
@@ -89,7 +81,7 @@ class LoggerI: Ice.Logger {
     }
 
     func error(_ message: String) {
-        withLockHeld(&_lock) {
+        withLock(&_lock) {
             var s = _name
             s += " "
             s += _dateFormat.string(from: Date())
@@ -227,14 +219,14 @@ class TestCase {
             let proxy = try uncheckedCast(prx: _communicator.stringToProxy(str)!,
                                           type: TestIntfPrx.self)
             try proxy.ice_getConnection()!.setCloseCallback({ _ in
-                withLockHeld(&self._lock) {
+                withLock(&self._lock) {
                     self._closed = true
                     self._semaphore.signal()
                 }
             })
 
             try proxy.ice_getConnection()!.setHeartbeatCallback({ _ in
-                withLockHeld(&self._lock) {
+                withLock(&self._lock) {
                     self._heartbeat += 1
                 }
             })
@@ -289,7 +281,7 @@ class InvocationHeartbeatTest: TestCase {
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         try proxy.sleep(4)
 
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat >= 4)
         }
     }
@@ -333,7 +325,7 @@ class InvocationNoHeartbeatTest: TestCase {
         } catch is Ice.ConnectionTimeoutException {
             try proxy.interruptSleep()
             waitForClosed()
-            try withLockHeld(&_lock) {
+            try withLock(&_lock) {
                 try _helper.test(_heartbeat == 0)
             }
         }
@@ -351,7 +343,7 @@ class InvocationHeartbeatCloseOnIdleTest: TestCase {
         // No close on invocation, the call should succeed this
         // time.
         try proxy.sleep(3)
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
             try _helper.test(!self._closed)
         }
@@ -368,7 +360,7 @@ class CloseOnIdleTest: TestCase {
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
 
         waitForClosed()
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
         }
     }
@@ -382,7 +374,7 @@ class CloseOnInvocationTest: TestCase {
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
             try _helper.test(!self._closed)
         }
@@ -404,7 +396,7 @@ class CloseOnIdleAndInvocationTest: TestCase {
         try adapter.hold()
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
 
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
             try _helper.test(!self._closed) // Not closed yet because of graceful close.
         }
@@ -426,7 +418,7 @@ class ForcefulCloseOnIdleAndInvocationTest: TestCase {
         try adapter.hold()
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
         waitForClosed()
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
         }
     }
@@ -440,7 +432,7 @@ class HeartbeatOnIdleTest: TestCase {
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         Thread.sleep(forTimeInterval: 3)
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(_heartbeat >= 3)
         }
     }
@@ -458,7 +450,7 @@ class HeartbeatAlwaysTest: TestCase {
             Thread.sleep(forTimeInterval: 0.3)
         }
 
-        try withLockHeld(&_lock) {
+        try withLock(&_lock) {
             try _helper.test(self._heartbeat >= 3)
         }
     }
