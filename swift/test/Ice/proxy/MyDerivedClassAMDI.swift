@@ -7,15 +7,15 @@ import PromiseKit
 class MyDerivedClassI: MyDerivedClass {
     var _ctx: [String: String]
 
-    public init() {
+    init() {
         _ctx = [String: String]()
     }
 
-    public func echoAsync(obj: Ice.ObjectPrx?, current _: Ice.Current) -> PromiseKit.Promise<Ice.ObjectPrx?> {
+    func echoAsync(obj: Ice.ObjectPrx?, current _: Ice.Current) -> PromiseKit.Promise<Ice.ObjectPrx?> {
         return Promise.value(obj)
     }
 
-    public func shutdownAsync(current: Ice.Current) -> PromiseKit.Promise<Void> {
+    func shutdownAsync(current: Ice.Current) -> PromiseKit.Promise<Void> {
         guard let adapter = current.adapter else {
             precondition(false)
         }
@@ -23,11 +23,11 @@ class MyDerivedClassI: MyDerivedClass {
         return Promise.value(())
     }
 
-    public func getContextAsync(current: Ice.Current) -> PromiseKit.Promise<[String: String]> {
+    func getContextAsync(current: Ice.Current) -> PromiseKit.Promise<[String: String]> {
         return Promise.value(_ctx)
     }
 
-    public func ice_isA(s: String, current: Ice.Current) throws -> Bool {
+    func ice_isA(s: String, current: Ice.Current) throws -> Bool {
         _ctx = current.ctx
         return try ice_ids(current: current).contains(s)
     }

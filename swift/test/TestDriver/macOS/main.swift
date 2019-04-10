@@ -33,9 +33,9 @@ do {
         exit(1)
     }
 
-    let client = factory.create()
+    let testHelper = factory.create()
     args.removeFirst(2)
-    try client.run(args: args)
+    try testHelper.run(args: args)
 
 } catch {
     for s in Thread.callStackSymbols {

@@ -13,7 +13,7 @@ open class TestFactoryI: TestFactory {
 }
 
 class Client: TestHelperI {
-    public override func run(args: [String]) throws {
+     override func run(args: [String]) throws {
         let writer = getWriter()
         let (properties, _) = try Ice.createProperties(args: args)
         try properties.setProperty(key: "Ice.Warn.Connections", value: "0")
@@ -22,6 +22,6 @@ class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-        try AllTests.allTests(helper: self)
+        try allTests(helper: self)
     }
 }

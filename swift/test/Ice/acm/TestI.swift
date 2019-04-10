@@ -6,10 +6,10 @@ import Ice
 import Foundation
 
 class RemoteCommunicatorI: RemoteCommunicator {
-    public func createObjectAdapter(acmTimeout: Int32,
-                                    close: Int32,
-                                    heartbeat: Int32,
-                                    current: Ice.Current) throws -> RemoteObjectAdapterPrx? {
+    func createObjectAdapter(acmTimeout: Int32,
+                             close: Int32,
+                             heartbeat: Int32,
+                             current: Ice.Current) throws -> RemoteObjectAdapterPrx? {
 
         let communicator = current.adapter!.getCommunicator()
         let properties = communicator.getProperties()
@@ -31,13 +31,17 @@ class RemoteCommunicatorI: RemoteCommunicator {
         try properties.setProperty(key: "\(name).ThreadPool.Size", value: "2")
 
         let adapter = try communicator.createObjectAdapterWithEndpoints(
-            name: name, endpoints: "\(defaultProtocol) -h \"\(defaultHost)\"")
+            name: name,
+            endpoints: "\(defaultProtocol) -h \"\(defaultHost)\"",
+            queue: DispatchQueue(label: "Ice.acm.server",
+                                 qos: .userInitiated,
+                                 attributes: .concurrent))
 
         return try uncheckedCast(prx: current.adapter!.addWithUUID(RemoteObjectAdapterI(adapter: adapter)),
                                  type: RemoteObjectAdapterPrx.self)
     }
 
-    public func shutdown(current: Ice.Current) throws {
+    func shutdown(current: Ice.Current) throws {
         current.adapter!.getCommunicator().shutdown()
     }
 }
@@ -47,10 +51,11 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
     var _adapter: Ice.ObjectAdapter
     var _testIntf: TestIntfPrx
 
-    public init(adapter: Ice.ObjectAdapter)  throws {
+    init(adapter: Ice.ObjectAdapter)  throws {
         _adapter = adapter
         _testIntf = try uncheckedCast(prx: adapter.add(servant: TestI(), id: Ice.stringToIdentity("test")),
                                       type: TestIntfPrx.self)
+        try _adapter.activate()
     }
 
     func getTestIntf(current: Current) throws -> TestIntfPrx? {

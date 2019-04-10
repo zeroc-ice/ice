@@ -38,35 +38,35 @@ public class Client: TestHelperI {
         let derivedProxy = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
 
         writer.write("testing twoway operations... ")
-        try Twoways.twoways(self, cl)
-        try Twoways.twoways(self, derivedProxy)
+        try twoways(self, cl)
+        try twoways(self, derivedProxy)
         try derivedProxy.opDerived()
         writer.writeLine("ok")
 
         writer.write("testing oneway operations... ")
-        try Oneways.oneways(self, cl)
-        try Oneways.oneways(self, derivedProxy)
+        try oneways(self, cl)
+        try oneways(self, derivedProxy)
         writer.writeLine("ok")
 
         writer.write("testing twoway operations with AMI... ")
-        try TwowaysAMI.twowaysAMI(self, cl)
-        try TwowaysAMI.twowaysAMI(self, derivedProxy)
+        try twowaysAMI(self, cl)
+        try twowaysAMI(self, derivedProxy)
         try derivedProxy.opDerived()
         writer.writeLine("ok")
 
         writer.write("testing oneway operations with AMI... ")
-        try OnewaysAMI.onewaysAMI(self, cl)
-        try OnewaysAMI.onewaysAMI(self, derivedProxy)
+        try onewaysAMI(self, cl)
+        try onewaysAMI(self, derivedProxy)
         writer.writeLine("ok")
 
         writer.write("testing batch oneway operations... ")
-        try BatchOneways.batchOneways(self, cl)
-        try BatchOneways.batchOneways(self, derivedProxy)
+        try batchOneways(self, cl)
+        try batchOneways(self, derivedProxy)
         writer.writeLine("ok")
 
         writer.write("testing batch oneway operations with AMI... ")
-        try BatchOneways.batchOneways(self, cl)
-        try BatchOneways.batchOneways(self, derivedProxy)
+        try batchOneways(self, cl)
+        try batchOneways(self, derivedProxy)
         writer.writeLine("ok")
 
         try cl.shutdown()

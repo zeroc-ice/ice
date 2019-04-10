@@ -205,13 +205,13 @@ class ControllerHelperI: ControllerHelper, TextWriter {
             return
         }
 
-        let testCase = factory.create()
+        let testHelper = factory.create()
 
         _queue.async {
             do {
-                testCase.setControllerHelper(controllerHelper: self)
-                testCase.setWriter(writer: self)
-                try testCase.run(args: self._args)
+                testHelper.setControllerHelper(controllerHelper: self)
+                testHelper.setWriter(writer: self)
+                try testHelper.run(args: self._args)
                 self.completed(status: 0)
             } catch {
                 self.writeLine("Error: \(error)")
