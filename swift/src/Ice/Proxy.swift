@@ -20,8 +20,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_facet(_ facet: String) -> ObjectPrx
     func ice_getAdapterId() -> String
     func ice_adapterId(_ id: String) throws -> Self
-    func ice_getEndpoints() -> [Endpoint]
-    func ice_endpoints(_ endpoints: [Endpoint]) throws -> Self
+    func ice_getEndpoints() -> EndpointSeq
+    func ice_endpoints(_ endpoints: EndpointSeq) throws -> Self
     func ice_getLocatorCacheTimeout() -> Int32
     func ice_locatorCacheTimeout(_ timeout: Int32) throws -> Self
     func ice_getInvocationTimeout() -> Int32
@@ -299,15 +299,13 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    public func ice_getEndpoints() -> [Endpoint] {
-        return _handle.ice_getEndpoints().map { objcEndpt in
-            EndpointI(handle: objcEndpt)
-        }
+    public func ice_getEndpoints() -> EndpointSeq {
+        return _handle.ice_getEndpoints().fromObjc()
     }
 
-    public func ice_endpoints(_ endpoints: [Endpoint]) throws -> Self {
+    public func ice_endpoints(_ endpoints: EndpointSeq) throws -> Self {
         return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_endpoints(endpoints.map { ($0 as! EndpointI)._handle }))
+            try fromICEObjectPrx(_handle.ice_endpoints(endpoints.toObjc()))
         }
     }
 

@@ -37,6 +37,6 @@ local interface Endpoint;
  * A sequence of endpoints.
  *
  **/
-local sequence<Endpoint> EndpointSeq;
+["swift:nonnull"] local sequence<Endpoint> EndpointSeq;
 
 }

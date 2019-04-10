@@ -15,6 +15,7 @@ private enum State {
 }
 
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, Hashable {
+
     let communicator: Communicator
     var servantManager: ServantManager
     var locator: LocatorPrx?
@@ -244,7 +245,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func getEndpoints() -> EndpointSeq {
-        return _handle.getEndpoints().map { objcEndpt in EndpointI(handle: objcEndpt) }
+        return _handle.getEndpoints().fromObjc()
     }
 
     func refreshPublishedEndpoints() throws {
@@ -254,11 +255,11 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func getPublishedEndpoints() -> EndpointSeq {
-        return _handle.getPublishedEndpoints().map { objcEndpt in EndpointI(handle: objcEndpt) }
+        return _handle.getPublishedEndpoints().fromObjc()
     }
 
     func setPublishedEndpoints(_ newEndpoints: EndpointSeq) throws {
-        try _handle.setPublishedEndpoints(newEndpoints.map { ($0 as! EndpointI)._handle })
+        try _handle.setPublishedEndpoints(newEndpoints.toObjc())
     }
 
     func getDispatchQueue() -> DispatchQueue {

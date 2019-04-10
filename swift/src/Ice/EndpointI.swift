@@ -164,3 +164,24 @@ class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}
     }
 
 #endif
+
+//
+// Internal helpers to convert from ObjC to Swift objects
+//
+extension Array where Element == ICEEndpoint {
+    func fromObjc() -> EndpointSeq {
+        return self.map { objcEndpt in
+            objcEndpt.fromLocalObject(to: EndpointI.self) {
+                EndpointI(handle: objcEndpt)
+            }
+        }
+    }
+}
+
+extension Array where Element == Endpoint {
+    func toObjc() -> [ICEEndpoint] {
+        return self.map { endpt in
+            (endpt as! EndpointI)._handle
+        }
+    }
+}
