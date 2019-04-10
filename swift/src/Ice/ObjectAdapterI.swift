@@ -19,6 +19,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     var servantManager: ServantManager
     var locator: LocatorPrx?
     var queue: DispatchQueue
+    let dispatchSpecificKey: DispatchSpecificKey<Set<ObjectAdapterI>>
 
     var mutex = Mutex()
     private var state: State
@@ -28,20 +29,16 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
         state = .alive
         self.queue = queue
+        dispatchSpecificKey = (communicator as! CommunicatorI).dispatchSpecificKey
         super.init(handle: handle)
 
         handle.registerDefaultServant(self)
 
         // Add self to the queue's dispatch specific data
         queue.async(flags: .barrier) {
-            let key = (communicator as! CommunicatorI).dispatchSpecificKey
-            guard var adapters = queue.getSpecific(key: key) else {
-                queue.setSpecific(key: key, value: Set<ObjectAdapterI>([self]))
-                return
-            }
-
+            var adapters = queue.getSpecific(key: self.dispatchSpecificKey) ?? Set<ObjectAdapterI>()
             adapters.insert(self)
-            queue.setSpecific(key: key, value: adapters)
+            queue.setSpecific(key: self.dispatchSpecificKey, value: adapters)
         }
     }
 
@@ -304,13 +301,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         // checking if this object adapter is in the current execution context's dispatch speceific data.
         // If so, we use the current thread, otherwise dispatch to the OA's queue.
         //
-        if con == nil {
-            let key = (communicator as! CommunicatorI).dispatchSpecificKey
-            if let adapters = DispatchQueue.getSpecific(key: key), adapters.contains(self) {
-                dispatchPrecondition(condition: .onQueue(queue))
-                incoming.invoke(servantManager)
-                return
-            }
+        if con == nil, let adapters = DispatchQueue.getSpecific(key: dispatchSpecificKey), adapters.contains(self) {
+            dispatchPrecondition(condition: .onQueue(queue))
+            incoming.invoke(servantManager)
+            return
         }
         dispatchPrecondition(condition: .notOnQueue(queue))
         queue.sync {
@@ -324,12 +318,11 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
             servantManager.destroy()
             locator = nil
             queue.async(flags: .barrier) {
-                let key = (self.communicator as! CommunicatorI).dispatchSpecificKey
-                guard var adapters = self.queue.getSpecific(key: key) else {
+                guard var adapters = self.queue.getSpecific(key: self.dispatchSpecificKey) else {
                     preconditionFailure("ObjectAdapter missing from dispatch specific data")
                 }
                 adapters.remove(self)
-                self.queue.setSpecific(key: key, value: adapters)
+                self.queue.setSpecific(key: self.dispatchSpecificKey, value: adapters)
             }
         }
     }

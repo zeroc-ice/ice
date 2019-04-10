@@ -53,13 +53,12 @@ class AdminFacetFacade: ICEBlobjectFacade {
         // checking if this object adapter is in the current execution context's dispatch speceific data.
         // If so, we use the current thread, otherwise dispatch to the OA's queue.
         //
-        if con == nil {
-            let key = (communicator as! CommunicatorI).dispatchSpecificKey
-            if let adapters = DispatchQueue.getSpecific(key: key), adapters.contains(objectAdapter) {
-                dispatchPrecondition(condition: .onQueue(queue))
-                dispatch(incoming: incoming, current: current)
-                return
-            }
+        if con == nil,
+            let adapters = DispatchQueue.getSpecific(key: (communicator as! CommunicatorI).dispatchSpecificKey),
+            adapters.contains(objectAdapter) {
+            dispatchPrecondition(condition: .onQueue(queue))
+            dispatch(incoming: incoming, current: current)
+            return
         }
 
         dispatchPrecondition(condition: .notOnQueue(queue))
