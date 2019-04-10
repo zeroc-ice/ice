@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(BOOL) heartbeatAsync:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
--(BOOL) setACM:(id)timeout close:(id)close heartbeat:(id)heartbeat error:(NSError* _Nullable * _Nullable)error;
+-(BOOL) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat error:(NSError* _Nullable * _Nullable)error;
 -(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat;
 -(NSString*) type;
 -(int32_t) timeout;

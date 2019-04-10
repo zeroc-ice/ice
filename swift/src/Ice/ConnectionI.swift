@@ -77,12 +77,9 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 return
             }
 
-            try _handle.setCloseCallback { con in
-                let connection = con.fromLocalObject(to: ConnectionI.self) {
-                    ConnectionI(handle: con)
-                }
-                precondition(connection === self)
-                cb(connection)
+            try _handle.setCloseCallback {
+                precondition($0.as(type: ConnectionI.self) === self)
+                cb(self)
             }
         }
     }
@@ -93,12 +90,9 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 try _handle.setHeartbeatCallback(nil)
                 return
             }
-            try _handle.setHeartbeatCallback { con in
-                let connection = con.fromLocalObject(to: ConnectionI.self) {
-                    ConnectionI(handle: con)
-                }
-                precondition(connection === self)
-                cb(connection)
+            try _handle.setHeartbeatCallback {
+                precondition($0.as(type: ConnectionI.self) === self)
+                cb(self)
             }
         }
     }
@@ -122,7 +116,9 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
     public func setACM(timeout: Int32?, close: ACMClose?, heartbeat: ACMHeartbeat?) throws {
         return try autoreleasepool {
-            try _handle.setACM(timeout as Any, close: close as Any, heartbeat: heartbeat as Any)
+            try _handle.setACM(timeout as NSNumber?,
+                               close: close != nil ? close.unsafelyUnwrapped.rawValue as NSNumber : nil,
+                               heartbeat: heartbeat != nil ? heartbeat.unsafelyUnwrapped.rawValue as NSNumber : nil)
         }
     }
 

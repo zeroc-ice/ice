@@ -209,7 +209,7 @@
     }
 }
 
--(BOOL) setACM:(id _Nonnull)timeout close:(id _Nonnull)close heartbeat:(id _Nonnull)heartbeat error:(NSError**)error
+-(BOOL) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat error:(NSError**)error
 {
     try
     {
@@ -217,25 +217,21 @@
         Ice::optional<Ice::ACMClose> opClose;
         Ice::optional<Ice::ACMHeartbeat> opHeartbeat;
 
-        if(timeout != [NSNull null])
+        if(timeout != nil)
         {
-            NSNumber* value = timeout;
-            assert(value);
-            opTimeout = [value intValue];
+            opTimeout = [timeout intValue];
         }
 
-        if(close != [NSNull null])
+        if(close != nil)
         {
-            NSNumber* value = close;
-            assert(value);
-            opClose = Ice::ACMClose([value unsignedCharValue]);
+            opClose = Ice::ACMClose([close unsignedCharValue]);
         }
 
-        if(heartbeat != [NSNull null])
+        if(heartbeat != nil)
         {
             NSNumber* value = heartbeat;
             assert(value);
-            opHeartbeat = Ice::ACMHeartbeat([value unsignedCharValue]);
+            opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
         }
 
         _connection->setACM(opTimeout, opClose, opHeartbeat);
