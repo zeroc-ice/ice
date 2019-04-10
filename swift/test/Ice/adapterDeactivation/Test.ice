@@ -16,7 +16,7 @@ interface TestIntf
 
 local class Cookie
 {
-    ["cpp:const"] string message();
+    string message();
 }
 
 }
