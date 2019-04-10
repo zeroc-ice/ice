@@ -47,11 +47,11 @@
     }
 }
 
--(BOOL) setAdapter:(ICEObjectAdapter*)oa error:(NSError* _Nullable * _Nullable)error;
+-(BOOL) setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable * _Nullable)error;
 {
     try
     {
-        _connection->setAdapter([oa objectAdapter]);
+        _connection->setAdapter(oa == nil ? nullptr : [oa objectAdapter]);
         return YES;
     }
     catch(const std::exception& ex)

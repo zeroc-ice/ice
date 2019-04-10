@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ICEConnection : ICELocalObject
 -(void) close:(uint8_t)mode;
 -(nullable id) createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error;
--(BOOL) setAdapter:(ICEObjectAdapter*)oa error:(NSError* _Nullable * _Nullable)error;
+-(BOOL) setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable * _Nullable)error;
 -(nullable ICEObjectAdapter*) getAdapter;
 -(ICEEndpoint*) getEndpoint;
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable * _Nullable)error;

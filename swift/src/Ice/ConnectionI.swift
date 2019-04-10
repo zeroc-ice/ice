@@ -33,7 +33,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
     public func setAdapter(_ oa: ObjectAdapter?) throws {
         try autoreleasepool {
-            try _handle.setAdapter((oa as! ObjectAdapterI)._handle)
+            try _handle.setAdapter((oa as? ObjectAdapterI)?._handle)
         }
     }
 
