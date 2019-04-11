@@ -734,12 +734,15 @@ open class _ObjectPrxI: ObjectPrx {
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
                                               facet: String? = nil,
                                               context: Context? = nil) throws -> ProxyImpl?
-        where ProxyImpl: _ObjectPrxI {
-        let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
-        guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
+      where ProxyImpl: _ObjectPrxI {
+        do {
+            let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
+            guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
+                return nil
+            }
+        } catch is FacetNotExistsException {
             return nil
         }
-        return ProxyImpl(from: objPrx)
     }
 
     public static func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
