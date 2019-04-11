@@ -15,7 +15,6 @@ private enum State {
 }
 
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, Hashable {
-
     let communicator: Communicator
     var servantManager: ServantManager
     var locator: LocatorPrx?

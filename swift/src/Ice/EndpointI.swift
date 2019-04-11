@@ -170,7 +170,7 @@ class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}
 //
 extension Array where Element == ICEEndpoint {
     func fromObjc() -> EndpointSeq {
-        return self.map { objcEndpt in
+        return map { objcEndpt in
             objcEndpt.fromLocalObject(to: EndpointI.self) {
                 EndpointI(handle: objcEndpt)
             }
@@ -180,7 +180,7 @@ extension Array where Element == ICEEndpoint {
 
 extension Array where Element == Endpoint {
     func toObjc() -> [ICEEndpoint] {
-        return self.map { endpt in
+        return map { endpt in
             (endpt as! EndpointI)._handle
         }
     }

@@ -64,3 +64,10 @@ func escapeString(string: String, special: String, communicator: Communicator) t
                                  communicator: (communicator as! CommunicatorI)._handle)
     }
 }
+
+func checkSupportedEncoding(_ v: EncodingVersion) throws {
+    let c = currentEncoding
+    if v.major != c.major || v.minor > c.minor {
+        throw UnsupportedEncodingException(reason: "", bad: v, supported: c)
+    }
+}

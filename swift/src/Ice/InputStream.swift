@@ -121,7 +121,7 @@ public class InputStream {
 
         let encoding: EncodingVersion = try read()
 
-        try Protocol.checkSupportedEncoding(encoding)
+        try checkSupportedEncoding(encoding)
         encaps.setEncoding(encoding)
 
         return encoding
@@ -160,9 +160,9 @@ public class InputStream {
         }
 
         let encoding: EncodingVersion = try read()
-        try Protocol.checkSupportedEncoding(encoding) // Make sure the encoding is supported.
+        try checkSupportedEncoding(encoding) // Make sure the encoding is supported.
 
-        if encoding == Protocol.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             if sz != 6 {
                 throw EncapsulationException(reason: "")
             }
@@ -215,7 +215,7 @@ public class InputStream {
     public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
-        } else if encoding == Protocol.Encoding_1_0 {
+        } else if encoding == Encoding_1_0 {
             //
             // If using the 1.0 encoding and no instances were read, we
             // still read an empty sequence of pending instances if
@@ -265,7 +265,7 @@ public class InputStream {
             }
 
             let v: UInt8 = try read()
-            if v == Protocol.OPTIONAL_END_MARKER.rawValue {
+            if v == SliceFlags.OPTIONAL_END_MARKER.rawValue {
                 return
             }
 
@@ -636,7 +636,7 @@ public extension InputStream {
     }
 
     func readOptionalImpl(readTag: Int32, expectedFormat: OptionalFormat) throws -> Bool {
-        if encoding == Protocol.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             return false // Optional members aren't supported with the 1.0 encoding.
         }
 
@@ -646,7 +646,7 @@ public extension InputStream {
             }
 
             let v: UInt8 = try read()
-            if v == Protocol.OPTIONAL_END_MARKER.rawValue {
+            if v == SliceFlags.OPTIONAL_END_MARKER.rawValue {
                 try buf.position(buf.position() - 1) // Rewind
                 return false
             }
@@ -680,7 +680,7 @@ public extension InputStream {
     }
 
     func read(enum val: inout UInt8, maxValue: Int32) throws {
-        if encoding == Protocol.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             if maxValue < 127 {
                 val = try read()
             } else if maxValue < 32767 {
@@ -706,7 +706,7 @@ public extension InputStream {
     }
 
     func read(enum val: inout Int32, maxValue: Int32) throws {
-        if encoding == Protocol.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             if maxValue < 127 {
                 val = Int32(try read() as UInt8)
             } else if maxValue < 32767 {
@@ -1286,7 +1286,7 @@ private class EncapsDecoder11: EncapsDecoder {
         lazy var indirectionTables = [[Int32]]()
 
         // Slice attributes
-        var sliceFlags: UInt8!
+        var sliceFlags: SliceFlags!
         var sliceSize: Int32!
         var typeId: String!
         var compactId: Int32!
@@ -1315,7 +1315,7 @@ private class EncapsDecoder11: EncapsDecoder {
             throw MarshalException(reason: "invalid object id")
         } else if index == 0 {
             try cb?(nil)
-        } else if current != nil, (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
+        } else if current != nil, current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             //
             // When reading a class instance within a slice and there's an
             // indirect instance table, always read an indirect reference
@@ -1365,7 +1365,7 @@ private class EncapsDecoder11: EncapsDecoder {
             //
             try skipSlice()
 
-            if (current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE.rawValue) != 0 {
+            if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
                 if let range = mostDerivedId.range(of: "::") {
                     throw UnknownUserException(unknown: String(mostDerivedId[range.upperBound...]))
                 } else {
@@ -1405,7 +1405,7 @@ private class EncapsDecoder11: EncapsDecoder {
             return current.typeId
         }
 
-        current.sliceFlags = try stream.read()
+        current.sliceFlags = try SliceFlags(rawValue: stream.read())
 
         //
         // Read the type ID, for value slices the type ID is encoded as a
@@ -1414,14 +1414,12 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         if current.sliceType == .ValueSlice {
             // Must be checked 1st!
-            if (current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT.rawValue) ==
-                Protocol.FLAG_HAS_TYPE_ID_COMPACT.rawValue {
+            if current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_COMPACT) {
                 current.typeId = ""
                 current.compactId = try stream.readSize()
-            } else if (current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue |
-                    Protocol.FLAG_HAS_TYPE_ID_STRING.rawValue)) != 0 {
-                current.typeId = try readTypeId(isIndex: (current.sliceFlags &
-                        Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue) != 0)
+            } else if current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_INDEX) ||
+                current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_STRING) {
+                current.typeId = try readTypeId(isIndex: current.sliceFlags.contains(.FLAG_HAS_TYPE_ID_INDEX))
                 current.compactId = -1
             } else {
                 //
@@ -1439,7 +1437,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Read the slice size if necessary.
         //
-        if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
+        if current.sliceFlags.contains(SliceFlags.FLAG_HAS_SLICE_SIZE) {
             current.sliceSize = try stream.read()
             if current.sliceSize < 4 {
                 throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
@@ -1452,7 +1450,7 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 
     func endSlice() throws {
-        if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
+        if current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
             try stream.skipOptionals()
         }
 
@@ -1460,7 +1458,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // Read the indirection table if one is present and transform the
         // indirect patch list into patch entries with direct references.
         //
-        if (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
+        if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             var indirectionTable = [Int32](repeating: 0, count: Int(try stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0 ..< indirectionTable.count {
@@ -1476,7 +1474,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 throw MarshalException(reason: "empty indirection table")
             }
             if current.indirectPatchList.isEmpty,
-                (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) == 0 {
+                !current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
                 throw MarshalException(reason: "no references to indirection table")
             }
 
@@ -1499,7 +1497,7 @@ private class EncapsDecoder11: EncapsDecoder {
 
         let start = stream.getSize()
 
-        if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
+        if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
             precondition(current.sliceSize >= 4)
             try stream.skip(current.sliceSize - 4)
         } else {
@@ -1519,8 +1517,8 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Preserve this slice.
         //
-        let hasOptionalMembers = (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0
-        let isLastSlice = (current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE.rawValue) != 0
+        let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
+        let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
         let buffer = stream.getBuffer()
         let end: Int = buffer.position()
         var dataEnd = end
@@ -1552,7 +1550,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // The SliceInfo object sequence is initialized only if
         // readSlicedData is called.
         //
-        if (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
+        if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             var indirectionTable = [Int32](repeating: 0, count: Int(try stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0 ..< indirectionTable.count {
@@ -1569,7 +1567,7 @@ private class EncapsDecoder11: EncapsDecoder {
     func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool {
         if current == nil {
             return try stream.readOptionalImpl(readTag: tag, expectedFormat: format)
-        } else if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
+        } else if current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
             return try stream.readOptionalImpl(readTag: tag, expectedFormat: format)
         }
         return false
@@ -1663,7 +1661,7 @@ private class EncapsDecoder11: EncapsDecoder {
             // If this is the last slice, keep the instance as an opaque
             // UnknownSlicedValue object.
             //
-            if (current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE.rawValue) != 0 {
+            if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
                 //
                 // Provide a factory with an opportunity to supply the instance.
                 // We pass the "::Ice::Object" ID to indicate that this is the

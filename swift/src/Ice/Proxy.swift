@@ -202,10 +202,10 @@ public extension ObjectPrx {
                                      sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         return Promise<Void> { seal in
             try _impl._handle.ice_flushBatchRequestsAsync(
-              exception: {
-                  seal.reject($0)
-              },
-              sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+                exception: {
+                    seal.reject($0)
+                },
+                sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
             )
         }
     }
@@ -222,20 +222,20 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public required init(handle: ICEObjectPrx, communicator: Communicator) {
-        self._handle = handle
-        self._communicator = communicator
+        _handle = handle
+        _communicator = communicator
         var encoding = EncodingVersion()
-        self._handle.ice_getEncodingVersion(&encoding.major, minor: &encoding.minor)
-        self._encoding = encoding
-        self._isTwoway = handle.ice_isTwoway()
+        _handle.ice_getEncodingVersion(&encoding.major, minor: &encoding.minor)
+        _encoding = encoding
+        _isTwoway = handle.ice_isTwoway()
     }
 
     public required init(from prx: ObjectPrx) {
         let impl = prx as! _ObjectPrxI
-        self._handle = impl._handle
-        self._communicator = impl._communicator
-        self._encoding = impl._encoding
-        self._isTwoway = impl._isTwoway
+        _handle = impl._handle
+        _communicator = impl._communicator
+        _encoding = impl._encoding
+        _isTwoway = impl._isTwoway
     }
 
     internal func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: _ObjectPrxI {
@@ -562,7 +562,7 @@ open class _ObjectPrxI: ObjectPrx {
                         write: ((OutputStream) -> Void)? = nil,
                         userException: ((UserException) throws -> Void)? = nil,
                         context: Context? = nil) throws {
-        if userException != nil && !_isTwoway {
+        if userException != nil, !_isTwoway {
             throw TwowayOnlyException(operation: operation)
         }
 
@@ -632,7 +632,7 @@ open class _ObjectPrxI: ObjectPrx {
                              sent: ((Bool) -> Void)? = nil,
                              sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                              sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-        if userException != nil && !_isTwoway {
+        if userException != nil, !_isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
         let ostr = OutputStream(communicator: _communicator, encoding: _encoding)
@@ -734,7 +734,7 @@ open class _ObjectPrxI: ObjectPrx {
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
                                               facet: String? = nil,
                                               context: Context? = nil) throws -> ProxyImpl?
-      where ProxyImpl: _ObjectPrxI {
+        where ProxyImpl: _ObjectPrxI {
         let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
         guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
             return nil

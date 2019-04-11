@@ -415,7 +415,7 @@ public extension OutputStream {
     }
 
     func write(enum val: UInt8, maxValue: Int32) {
-        if encoding == Protocol.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             if maxValue < 127 {
                 write(UInt8(val))
             } else if maxValue < 32767 {
@@ -435,7 +435,7 @@ public extension OutputStream {
     }
 
     func write(enum val: Int32, maxValue: Int32) {
-        if encoding == Protocol.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             if maxValue < 127 {
                 write(UInt8(val))
             } else if maxValue < 32767 {
@@ -546,7 +546,7 @@ public extension OutputStream {
     }
 
     internal func writeOptionalImpl(tag: Int32, format: OptionalFormat) -> Bool {
-        guard encoding != Protocol.Encoding_1_0 else {
+        guard encoding != Encoding_1_0 else {
             return false
         }
 
@@ -903,14 +903,14 @@ private final class EncapsEncoder11: EncapsEncoder {
         precondition(current.indirectionTable.isEmpty && current.indirectionMap.isEmpty)
 
         current.sliceFlagsPos = Int32(os.getCount())
-        current.sliceFlags = 0
+        current.sliceFlags = []
 
         if encaps.format == FormatType.SlicedFormat {
             // Encode the slice size if using the sliced format.
-            current.sliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE.rawValue
+            current.sliceFlags.insert(.FLAG_HAS_SLICE_SIZE)
         }
         if last {
-            current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE.rawValue // This is the last slice.
+            current.sliceFlags.insert(.FLAG_IS_LAST_SLICE) // This is the last slice.
         }
 
         os.write(UInt8(0)) // Placeholder for the slice flags
@@ -927,15 +927,15 @@ private final class EncapsEncoder11: EncapsEncoder {
             //
             if encaps.format == FormatType.SlicedFormat || current.firstSlice {
                 if compactId >= 0 {
-                    current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT.rawValue
+                    current.sliceFlags.insert(.FLAG_HAS_TYPE_ID_COMPACT)
                     os.write(size: compactId)
                 } else {
                     let index = registerTypeId(typeId)
                     if index < 0 {
-                        current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING.rawValue
+                        current.sliceFlags.insert(.FLAG_HAS_TYPE_ID_STRING)
                         os.write(typeId)
                     } else {
-                        current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue
+                        current.sliceFlags.insert(.FLAG_HAS_TYPE_ID_INDEX)
                         os.write(size: index)
                     }
                 }
@@ -944,7 +944,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             os.write(typeId)
         }
 
-        if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
+        if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
             os.write(Int32(0)) // Placeholder for the slice length.
         }
 
@@ -961,14 +961,14 @@ private final class EncapsEncoder11: EncapsEncoder {
         // were encoded. Note that the optional members are encoded before
         // the indirection table and are included in the slice size.
         //
-        if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
-            os.write(Protocol.OPTIONAL_END_MARKER.rawValue)
+        if current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
+            os.write(SliceFlags.OPTIONAL_END_MARKER.rawValue)
         }
 
         //
         // Write the slice length if necessary.
         //
-        if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
+        if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
             let sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4
             os.write(bytesOf: sz, at: Int(current.writeSlice - 4))
         }
@@ -978,7 +978,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         if !current.indirectionTable.isEmpty {
             precondition(encaps.format == FormatType.SlicedFormat)
-            current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue
+            current.sliceFlags.insert(.FLAG_HAS_INDIRECTION_TABLE)
 
             //
             // Write the indirection instance table.
@@ -995,7 +995,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         // Finally, update the slice flags.
         //
-        os.write(bytesOf: current.sliceFlags, at: Int(current.sliceFlagsPos))
+        os.write(bytesOf: current.sliceFlags.rawValue, at: Int(current.sliceFlagsPos))
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
@@ -1004,7 +1004,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         }
 
         if os.writeOptionalImpl(tag: tag, format: format) {
-            current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue
+            current.sliceFlags.insert(.FLAG_HAS_OPTIONAL_MEMBERS)
             return true
         } else {
             return false
@@ -1031,7 +1031,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             os.write(raw: info.bytes)
 
             if info.hasOptionalMembers {
-                current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue
+                current.sliceFlags.insert(.FLAG_HAS_OPTIONAL_MEMBERS)
             }
 
             //
@@ -1073,7 +1073,7 @@ private class InstanceData {
     var firstSlice: Bool = true
 
     // Slice attributes
-    var sliceFlags: UInt8 = 0
+    var sliceFlags: SliceFlags = []
     var writeSlice: Int32 = 0 // Position of the slice data members
     var sliceFlagsPos: Int32 = 0 // Position of the slice flags
     lazy var indirectionTable = [ValueHolder]()
