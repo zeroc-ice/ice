@@ -740,7 +740,8 @@ open class _ObjectPrxI: ObjectPrx {
             guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
                 return nil
             }
-        } catch is FacetNotExistsException {
+            return ProxyImpl(from: objPrx)
+        } catch is FacetNotExistException {
             return nil
         }
     }
