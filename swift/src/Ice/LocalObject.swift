@@ -49,30 +49,3 @@ extension ICELocalObject {
         return c
     }
 }
-
-extension Optional where Wrapped: ICELocalObject {
-    //
-    // assign recovers the Swift object holding a handle to this ICELocalObject or initializes a new one
-    //
-    func fromLocalObject<ICELocalObjectType, LocalObjectType>(to: LocalObjectType.Type,
-                                                              initializer: () -> LocalObjectType) -> LocalObjectType?
-        where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
-        guard self != .none else {
-            return nil
-        }
-
-        return unsafelyUnwrapped.fromLocalObject(to: to, initializer: initializer)
-    }
-
-    //
-    // to recovers the Swift object holding a handle to this ICELocalObject
-    //
-    func `as`<ICELocalObjectType, LocalObjectType>(type: LocalObjectType.Type) -> LocalObjectType?
-        where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
-        guard self != .none else {
-            return nil
-        }
-
-        return unsafelyUnwrapped.as(type: type)
-    }
-}

@@ -281,8 +281,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       exception: @escaping (ICERuntimeException) -> Void) {
         precondition(_handle == adapter)
 
+        let connection = con != nil ? con!.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) } : nil
+
         let current = Current(adapter: self,
-                              con: con.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) },
+                              con: connection,
                               id: Identity(name: name, category: category),
                               facet: facet,
                               operation: operation,

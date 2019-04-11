@@ -33,7 +33,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
             return oa
         }
 
-        let connection = con.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) }
+        let connection = con != nil ? con!.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) } : nil
 
         let current = Current(adapter: objectAdapter,
                               con: connection,
