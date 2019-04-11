@@ -86,8 +86,7 @@ public func initialize(args: StringSeq = [],
 
         precondition(initData.logger != nil && initData.properties != nil)
 
-        return CommunicatorI(handle: handle,
-                             initData: initData)
+        return CommunicatorI(handle: handle, initData: initData)
     }
 }
 
@@ -126,9 +125,9 @@ public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Uni
     }
 }
 
-public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
-public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
-
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
     return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
 }
+
+public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
+public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
