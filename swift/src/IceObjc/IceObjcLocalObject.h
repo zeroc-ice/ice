@@ -15,8 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 //
 // We hold a weak referece to the (possile) Swift object which has a handle to
 // this ICELocalObject. That way we can recover the Swift object later.
+// This can be accessed potentially multiple swift threads
 //
-@property (weak, nonatomic, nullable) id swiftRef;
+@property (weak, atomic, nullable) id swiftRef;
 -(instancetype) init ICE_SWIFT_UNAVAILABLE("");
 @end
 
