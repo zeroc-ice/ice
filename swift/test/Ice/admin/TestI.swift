@@ -122,12 +122,11 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         // Set the callback on the admin facet.
         //
         let servant = RemoteCommunicatorI(communicator: communicator)
-        let propFacet = try communicator.findAdminFacet("Properties") as? NativePropertiesAdmin
 
-        if propFacet != nil {
-            _ = propFacet!.addUpdateCallback({ changes in
+        if let propFacet = try communicator.findAdminFacet("Properties") as? NativePropertiesAdmin {
+            _ = propFacet.addUpdateCallback { changes in
                 servant.updated(changes: changes)
-            })
+            }
         }
         return try uncheckedCast(prx: current.adapter!.addWithUUID(servant), type: RemoteCommunicatorPrx.self)
     }

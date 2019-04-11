@@ -574,8 +574,9 @@ func allTests(_ helper: TestHelper) throws {
             "Ice.Admin.Facets": "TestFacet, Process"]
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
-        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
-        let tf = try checkedCast(prx: pa, type: TestFacetPrx.self, facet: "TestFacet")!
+        let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
+        try test(pa == nil)
+        let tf = try checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
         try tf.op()
         let proc = try checkedCast(prx: obj, type: Ice.ProcessPrx.self, facet: "Process")!
         try proc.shutdown()
