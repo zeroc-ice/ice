@@ -16,9 +16,6 @@ interface RemoteCommunicator
 
     Ice::PropertyDict getChanges();
 
-    void addUpdateCallback();
-    void removeUpdateCallback();
-
     //
     // Logger operations
     //
