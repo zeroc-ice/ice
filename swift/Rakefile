@@ -51,6 +51,7 @@ $test_default_sources = {
 #
 $test_extra_sources = {
   "Ice/adapterDeactivation/Server" => ["ServantLocator.swift"],
+  "Ice/admin" => ["TestI.swift"],
   "Ice/operations/Client" => ["BatchOneways.swift",
                               "BatchOnewaysAMI.swift",
                               "Oneways.swift",
