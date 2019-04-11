@@ -190,4 +190,12 @@
     _objectAdapter->addDefaultServant(servant, "");
 }
 
+-(void) setAdminId:(NSString*)name category:(NSString*)category
+{
+    auto servant = _objectAdapter->findDefaultServant("");
+    auto facade = std::dynamic_pointer_cast<BlobjectFacade>(servant);
+    assert(facade);
+    facade->setAdminId(Ice::Identity{fromNSString(name), fromNSString(category)});
+}
+
 @end

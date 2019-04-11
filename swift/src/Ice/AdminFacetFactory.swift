@@ -24,9 +24,13 @@ class AdminFacetFacade: ICEBlobjectFacade {
                       response: @escaping ICEBlobjectResponse,
                       exception: @escaping ICEBlobjectException) {
         let objectAdapter = adapter.fromLocalObject(to: ObjectAdapterI.self) {
-            ObjectAdapterI(handle: adapter,
-                           communicator: communicator,
-                           queue: (communicator as! CommunicatorI).getAdminDispatchQueue())
+            let oa = ObjectAdapterI(handle: adapter,
+                                    communicator: communicator,
+                                    queue: (communicator as! CommunicatorI).getAdminDispatchQueue())
+            // Must happen after Swift OA creation so that we can register the admin OA's id
+            // with the BlobjectFacade wrapper. This enures that calls to the C++ Admin OA to not propogate to Swift
+            adapter.setAdminId(name: name, category: category)
+            return oa
         }
 
         let connection = con.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) }

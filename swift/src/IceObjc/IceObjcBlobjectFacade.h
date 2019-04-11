@@ -43,7 +43,7 @@ class BlobjectFacade : public Ice::BlobjectArrayAsync
 {
 public:
 
-    BlobjectFacade(id<ICEBlobjectFacade> facade): _facade(facade)
+    BlobjectFacade(id<ICEBlobjectFacade> facade, Ice::Identity adminId = {"", ""}): _facade(facade), _adminId(adminId)
     {
     }
 
@@ -58,6 +58,11 @@ public:
                     std::function<void(std::exception_ptr)> error,
                     const Ice::Current& current);
 
+    void setAdminId(Ice::Identity adminId)
+    {
+        _adminId = adminId;
+    }
+
     id<ICEBlobjectFacade> getFacade() const
     {
         return _facade;
@@ -65,6 +70,7 @@ public:
 
 private:
     id<ICEBlobjectFacade> _facade;
+    Ice::Identity _adminId;
 };
 
 #endif

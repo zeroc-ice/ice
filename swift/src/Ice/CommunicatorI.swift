@@ -168,9 +168,17 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx {
         return try autoreleasepool {
-            let handle = try _handle.createAdmin((adminAdapter as? ObjectAdapterI)?._handle,
+            let adapterHandle = (adminAdapter as? ObjectAdapterI)?._handle
+
+            let handle = try _handle.createAdmin(adapterHandle,
                                                  name: adminId.name,
                                                  category: adminId.category)
+            if let h = adapterHandle {
+                // Register the admin OA's id with the BlobjectFacade wrapper. This enures that calls
+                // to the C++ Admin OA to not propogate to Swift
+                h.setAdminId(name: adminId.name, category: adminId.category)
+            }
+
             // Replace the iniData.adminDispatchQueue with the dispatch queue from this adapter
             mutex.sync {
                 initData.adminDispatchQueue = adminAdapter?.getDispatchQueue()

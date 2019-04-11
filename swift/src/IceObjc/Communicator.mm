@@ -276,8 +276,8 @@
     try
     {
         auto ident =  Ice::Identity{fromNSString(name), fromNSString(category)};
-        auto servant = adminAdapter ? [adminAdapter objectAdapter] : nullptr;
-        auto prx = _communicator->createAdmin(servant, ident);
+        auto adapter = adminAdapter ? [adminAdapter objectAdapter] : nullptr;
+        auto prx = _communicator->createAdmin(adapter, ident);
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
