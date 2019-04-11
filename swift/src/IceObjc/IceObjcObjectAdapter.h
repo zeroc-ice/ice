@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 -(BOOL) setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable * _Nullable)error;
 
 -(void) registerDefaultServant:(id<ICEBlobjectFacade>)facade NS_SWIFT_NAME(registerDefaultServant(_:));
--(void) setAdminId:(NSString*)name category:(NSString*)category NS_SWIFT_NAME(setAdminId(name:category:));
 @end
 
 #ifdef __cplusplus

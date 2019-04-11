@@ -168,15 +168,14 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx {
         return try autoreleasepool {
-            let adapterHandle = (adminAdapter as? ObjectAdapterI)?._handle
-
-            let handle = try _handle.createAdmin(adapterHandle,
+            let handle = try _handle.createAdmin((adminAdapter as? ObjectAdapterI)?._handle,
                                                  name: adminId.name,
                                                  category: adminId.category)
-            if let h = adapterHandle {
-                // Register the admin OA's id with the BlobjectFacade wrapper. This enures that calls
-                // to the C++ Admin OA to not propogate to Swift
-                h.setAdminId(name: adminId.name, category: adminId.category)
+            if let adapter = adminAdapter {
+                // Register the admin OA's id with the servant manager. This is used to distingish between
+                // ObjectNotExistException and FacetNotExistException when a servant is not found on
+                // a Swift Admin OA.
+                (adapter as! ObjectAdapterI).servantManager.setAdminId(adminId)
             }
 
             // Replace the iniData.adminDispatchQueue with the dispatch queue from this adapter

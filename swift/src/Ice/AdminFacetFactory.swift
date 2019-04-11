@@ -27,9 +27,10 @@ class AdminFacetFacade: ICEBlobjectFacade {
             let oa = ObjectAdapterI(handle: adapter,
                                     communicator: communicator,
                                     queue: (communicator as! CommunicatorI).getAdminDispatchQueue())
-            // Must happen after Swift OA creation so that we can register the admin OA's id
-            // with the BlobjectFacade wrapper. This enures that calls to the C++ Admin OA to not propogate to Swift
-            adapter.setAdminId(name: name, category: category)
+            // Register the admin OA's id with the servant manager. This is used to distingish between
+            // ObjectNotExistException and FacetNotExistException when a servant is not found on
+            // a Swift Admin OA.
+            oa.servantManager.setAdminId(Identity(name: name, category: category))
             return oa
         }
 

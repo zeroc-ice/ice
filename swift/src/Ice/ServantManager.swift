@@ -12,6 +12,10 @@ class ServantManager {
     var defaultServantMap = [String: Object]()
     var locatorMap = [String: ServantLocator]()
 
+    // This is used to distingish between ObjectNotExistException and FacetNotExistException
+    // when a servant is not found on a Swift Admin OA.
+    var adminId: Identity?
+
     var mutex = Mutex()
 
     init(adapterName: String, communicator: Communicator) {
@@ -145,6 +149,18 @@ class ServantManager {
     func findServantLocator(category: String) -> ServantLocator? {
         return mutex.sync {
             locatorMap[category]
+        }
+    }
+
+    func setAdminId(_ id: Identity) {
+        mutex.sync {
+            adminId = id
+        }
+    }
+
+    func isAdminId(_ id: Identity) -> Bool {
+        return mutex.sync {
+            adminId == id
         }
     }
 

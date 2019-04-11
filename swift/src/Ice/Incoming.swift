@@ -118,7 +118,7 @@ public final class Incoming {
 
         guard let s = servant else {
             do {
-                if servantManager.hasServant(id: current.id) {
+                if servantManager.hasServant(id: current.id) || servantManager.isAdminId(current.id) {
                     throw FacetNotExistException(id: current.id, facet: current.facet, operation: current.operation)
                 } else {
                     throw ObjectNotExistException(id: current.id, facet: current.facet, operation: current.operation)

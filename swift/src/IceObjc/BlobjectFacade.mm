@@ -20,21 +20,6 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                          std::function<void(std::exception_ptr)> error,
                                          const Ice::Current& current)
 {
-    //
-    // If the blobject represents the admin OA and we're reached this object then
-    // the C++ Admin OA was unable to find the requested admin facet. Since we do not keep
-    // admin facets in Swift we immediately throw FacetNotExistException
-    //
-    if(current.id == _adminId)
-    {
-        error(std::make_exception_ptr(Ice::FacetNotExistException(__FILE__,
-                                                            __LINE__,
-                                                            current.id,
-                                                            current.facet,
-                                                            current.operation)));
-        return;
-    }
-
    ICEBlobjectResponse responseCallback = ^(bool ok, const void* outParams, size_t outSize) {
         const Ice::Byte* start = reinterpret_cast<const Ice::Byte*>(outParams);
         response(ok, std::make_pair(start, start + outSize));
