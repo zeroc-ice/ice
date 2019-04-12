@@ -56,7 +56,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_compress(_ compress: Bool) -> Self
     func ice_getTimeout() -> Int32?
     func ice_timeout(_ timeout: Int32) throws -> Self
-    func ice_fixed(_ connection: Connection) throws -> ObjectPrx?
+    func ice_fixed(_ connection: Connection) throws -> Self?
     func ice_getConnection() throws -> Connection?
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
@@ -65,7 +65,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
                                      sentFlags: DispatchWorkItemFlags?) -> Promise<Void>
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
-    func ice_collocationOptimized(_ collocated: Bool) throws -> ObjectPrx?
+    func ice_collocationOptimized(_ collocated: Bool) throws -> Self?
 
     func ice_invoke(operation: String,
                     mode: OperationMode,
