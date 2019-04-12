@@ -73,10 +73,8 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func identityToString(_ id: Identity) throws -> String {
-        return try autoreleasepool {
-            try Ice.identityToString(id: id)
-        }
+    func identityToString(_ id: Identity) -> String {
+        return Ice.identityToString(id: id)
     }
 
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {

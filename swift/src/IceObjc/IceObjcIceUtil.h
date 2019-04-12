@@ -47,10 +47,9 @@ NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet
                 category:(NSString* __strong  _Nonnull *  _Nonnull)category
                    error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(stringToIdentity(str:name:category:));
 
-+(nullable NSString*) identityToString:(NSString*)name
++(NSString*) identityToString:(NSString*)name
                               category:(NSString*)category
                                   mode:(uint8_t)mode
-                                 error:(NSError* _Nullable * _Nullable)error
     NS_SWIFT_NAME(identityToString(name:category:mode:));
 
 +(void) currentEncoding:(UInt8*)major

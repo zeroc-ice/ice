@@ -27,7 +27,7 @@ class ServantManager {
         try mutex.sync {
             if var m = servantMapMap[ident] {
                 if m[facet] != nil {
-                    var id = try communicator.identityToString(ident)
+                    var id = communicator.identityToString(ident)
                     if !facet.isEmpty {
                         id += try " - f " + escapeString(string: facet, special: "", communicator: communicator)
                     }
@@ -53,7 +53,7 @@ class ServantManager {
     func removeServant(id ident: Identity, facet: String) throws -> Object {
         return try mutex.sync {
             guard var m = servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
-                var id = try communicator.identityToString(ident)
+                var id = communicator.identityToString(ident)
                 if !facet.isEmpty {
                     id += try " - f " + escapeString(string: facet, special: "", communicator: communicator)
                 }
@@ -81,7 +81,7 @@ class ServantManager {
     func removeAllFacets(id: Identity) throws -> FacetMap {
         return try mutex.sync {
             guard let m = servantMapMap.removeValue(forKey: id) else {
-                throw NotRegisteredException(kindOfObject: "servant", id: try identityToString(id: id))
+                throw NotRegisteredException(kindOfObject: "servant", id: identityToString(id: id))
             }
 
             return m

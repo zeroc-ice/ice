@@ -25,7 +25,7 @@ private extension String {
     }
 
     mutating func failedRequest(_ ex: RequestFailedException) {
-        let id: String = (try? identityToString(id: ex.id, mode: .Unicode)) ?? ""
+        let id: String = identityToString(id: ex.id, mode: .Unicode)
         sep("identity: `\(id)'")
         nl("facet: \(ex.facet)")
         nl("operation: \(ex.operation)")
@@ -65,6 +65,7 @@ extension PluginInitializationException {
         return s
     }
 }
+
 extension CollocationOptimizationException {
     var _CollocationOptimizationExceptionDescription: String {
         var s = String()
@@ -74,6 +75,7 @@ extension CollocationOptimizationException {
         return s
     }
 }
+
 extension AlreadyRegisteredException {
     var _AlreadyRegisteredExceptionDescription: String {
         var s = String()
@@ -83,6 +85,7 @@ extension AlreadyRegisteredException {
         return s
     }
 }
+
 extension NotRegisteredException {
     var _NotRegisteredExceptionDescription: String {
         var s = String()
@@ -92,6 +95,7 @@ extension NotRegisteredException {
         return s
     }
 }
+
 extension TwowayOnlyException {
     var _TwowayOnlyExceptionDescription: String {
         var s = String()
@@ -101,6 +105,7 @@ extension TwowayOnlyException {
         return s
     }
 }
+
 extension CloneNotImplementedException {
     var _CloneNotImplementedExceptionDescription: String {
         var s = String()
@@ -110,6 +115,7 @@ extension CloneNotImplementedException {
         return s
     }
 }
+
 extension UnknownException {
     var _UnknownExceptionDescription: String {
         var s = String()
@@ -120,6 +126,7 @@ extension UnknownException {
         return s
     }
 }
+
 extension UnknownLocalException {
     var _UnknownLocalExceptionDescription: String {
         var s = String()
@@ -130,6 +137,7 @@ extension UnknownLocalException {
         return s
     }
 }
+
 extension UnknownUserException {
     var _UnknownUserExceptionDescription: String {
         var s = String()
@@ -140,6 +148,7 @@ extension UnknownUserException {
         return s
     }
 }
+
 extension VersionMismatchException {
     var _VersionMismatchExceptionDescription: String {
         var s = String()
@@ -149,6 +158,7 @@ extension VersionMismatchException {
         return s
     }
 }
+
 extension CommunicatorDestroyedException {
     var _CommunicatorDestroyedExceptionDescription: String {
         var s = String()
@@ -158,6 +168,7 @@ extension CommunicatorDestroyedException {
         return s
     }
 }
+
 extension ObjectAdapterDeactivatedException {
     var _ObjectAdapterDeactivatedExceptionDescription: String {
         var s = String()
@@ -167,6 +178,7 @@ extension ObjectAdapterDeactivatedException {
         return s
     }
 }
+
 extension ObjectAdapterIdInUseException {
     var _ObjectAdapterIdInUseExceptionDescription: String {
         var s = String()
@@ -176,6 +188,7 @@ extension ObjectAdapterIdInUseException {
         return s
     }
 }
+
 extension NoEndpointException {
     var _NoEndpointExceptionDescription: String {
         var s = String()
@@ -185,6 +198,7 @@ extension NoEndpointException {
         return s
     }
 }
+
 extension EndpointParseException {
     var _EndpointParseExceptionDescription: String {
         var s = String()
@@ -194,6 +208,7 @@ extension EndpointParseException {
         return s
     }
 }
+
 extension EndpointSelectionTypeParseException {
     var _EndpointSelectionTypeParseExceptionDescription: String {
         var s = String()
@@ -203,6 +218,7 @@ extension EndpointSelectionTypeParseException {
         return s
     }
 }
+
 extension VersionParseException {
     var _VersionParseExceptionDescription: String {
         var s = String()
@@ -212,6 +228,7 @@ extension VersionParseException {
         return s
     }
 }
+
 extension IdentityParseException {
     var _IdentityParseExceptionDescription: String {
         var s = String()
@@ -221,6 +238,7 @@ extension IdentityParseException {
         return s
     }
 }
+
 extension ProxyParseException {
     var _ProxyParseExceptionDescription: String {
         var s = String()
@@ -230,15 +248,17 @@ extension ProxyParseException {
         return s
     }
 }
+
 extension IllegalIdentityException {
     var _IllegalIdentityExceptionDescription: String {
         var s = String()
-        let identity: String = (try? identityToString(id: id, mode: .Unicode)) ?? ""
+        let identity: String = identityToString(id: id, mode: .Unicode)
         s.sep("llegal identity: `\(identity)'")
 
         return s
     }
 }
+
 extension IllegalServantException {
     var _IllegalServantExceptionDescription: String {
         var s = String()
@@ -248,6 +268,7 @@ extension IllegalServantException {
         return s
     }
 }
+
 extension RequestFailedException {
     var _RequestFailedExceptionDescription: String {
         var s = String()
@@ -258,6 +279,7 @@ extension RequestFailedException {
         return s
     }
 }
+
 extension ObjectNotExistException {
     var _ObjectNotExistExceptionDescription: String {
         var s = String()
@@ -268,6 +290,7 @@ extension ObjectNotExistException {
         return s
     }
 }
+
 extension FacetNotExistException {
     var _FacetNotExistExceptionDescription: String {
         var s = String()
@@ -278,6 +301,7 @@ extension FacetNotExistException {
         return s
     }
 }
+
 extension OperationNotExistException {
     var _OperationNotExistExceptionDescription: String {
         var s = String()
@@ -288,6 +312,7 @@ extension OperationNotExistException {
         return s
     }
 }
+
 extension SyscallException {
     var _SyscallExceptionDescription: String {
         var s = String()
@@ -299,6 +324,7 @@ extension SyscallException {
         return s
     }
 }
+
 extension SocketException {
     var _SocketExceptionDescription: String {
         var s = String()
@@ -308,6 +334,7 @@ extension SocketException {
         return s
     }
 }
+
 extension CFNetworkException {
     var _CFNetworkExceptionDescription: String {
         var s = String()
@@ -317,6 +344,7 @@ extension CFNetworkException {
         return s
     }
 }
+
 extension FileException {
     var _FileExceptionDescription: String {
         var s = String()
@@ -334,6 +362,7 @@ extension FileException {
         return s
     }
 }
+
 extension ConnectFailedException {
     var _ConnectFailedExceptionDescription: String {
         var s = String()
@@ -343,6 +372,7 @@ extension ConnectFailedException {
         return s
     }
 }
+
 extension ConnectionRefusedException {
     var _ConnectionRefusedExceptionDescription: String {
         var s = String()
@@ -352,6 +382,7 @@ extension ConnectionRefusedException {
         return s
     }
 }
+
 extension ConnectionLostException {
     var _ConnectionLostExceptionDescription: String {
         var s = String()
@@ -366,6 +397,7 @@ extension ConnectionLostException {
         return s
     }
 }
+
 extension DNSException {
     var _DNSExceptionDescription: String {
         var s = String()
@@ -376,6 +408,7 @@ extension DNSException {
         return s
     }
 }
+
 extension OperationInterruptedException {
     var _OperationInterruptedExceptionDescription: String {
         var s = String()
@@ -385,6 +418,7 @@ extension OperationInterruptedException {
         return s
     }
 }
+
 extension TimeoutException {
     var _TimeoutExceptionDescription: String {
         var s = String()
@@ -394,6 +428,7 @@ extension TimeoutException {
         return s
     }
 }
+
 extension ConnectTimeoutException {
     var _ConnectTimeoutExceptionDescription: String {
         var s = String()
@@ -403,6 +438,7 @@ extension ConnectTimeoutException {
         return s
     }
 }
+
 extension CloseTimeoutException {
     var _CloseTimeoutExceptionDescription: String {
         var s = String()
@@ -412,6 +448,7 @@ extension CloseTimeoutException {
         return s
     }
 }
+
 extension ConnectionTimeoutException {
     var _ConnectionTimeoutExceptionDescription: String {
         var s = String()
@@ -421,6 +458,7 @@ extension ConnectionTimeoutException {
         return s
     }
 }
+
 extension InvocationTimeoutException {
     var _InvocationTimeoutExceptionDescription: String {
         var s = String()
@@ -430,6 +468,7 @@ extension InvocationTimeoutException {
         return s
     }
 }
+
 extension InvocationCanceledException {
     var _InvocationCanceledExceptionDescription: String {
         var s = String()
@@ -439,6 +478,7 @@ extension InvocationCanceledException {
         return s
     }
 }
+
 extension ProtocolException {
     var _ProtocolExceptionDescription: String {
         var s = String()
@@ -449,6 +489,7 @@ extension ProtocolException {
         return s
     }
 }
+
 extension BadMagicException {
     var _BadMagicExceptionDescription: String {
         var s = String()
@@ -470,6 +511,7 @@ extension BadMagicException {
         return s
     }
 }
+
 extension UnsupportedProtocolException {
     var _UnsupportedProtocolExceptionDescription: String {
         var s = String()
@@ -480,6 +522,7 @@ extension UnsupportedProtocolException {
         return s
     }
 }
+
 extension UnsupportedEncodingException {
     var _UnsupportedEncodingExceptionDescription: String {
         var s = String()
@@ -494,6 +537,7 @@ extension UnsupportedEncodingException {
         return s
     }
 }
+
 extension UnknownMessageException {
     var _UnknownMessageExceptionDescription: String {
         var s = String()
@@ -504,6 +548,7 @@ extension UnknownMessageException {
         return s
     }
 }
+
 extension ConnectionNotValidatedException {
     var _ConnectionNotValidatedExceptionDescription: String {
         var s = String()
@@ -514,6 +559,7 @@ extension ConnectionNotValidatedException {
         return s
     }
 }
+
 extension UnknownRequestIdException {
     var _UnknownRequestIdExceptionDescription: String {
         var s = String()
@@ -524,6 +570,7 @@ extension UnknownRequestIdException {
         return s
     }
 }
+
 extension UnknownReplyStatusException {
     var _UnknownReplyStatusExceptionDescription: String {
         var s = String()
@@ -534,6 +581,7 @@ extension UnknownReplyStatusException {
         return s
     }
 }
+
 extension CloseConnectionException {
     var _CloseConnectionExceptionDescription: String {
         var s = String()
@@ -544,6 +592,7 @@ extension CloseConnectionException {
         return s
     }
 }
+
 extension ConnectionManuallyClosedException {
     var _ConnectionManuallyClosedExceptionDescription: String {
         var s = String()
@@ -554,6 +603,7 @@ extension ConnectionManuallyClosedException {
         return s
     }
 }
+
 extension IllegalMessageSizeException {
     var _IllegalMessageSizeExceptionDescription: String {
         var s = String()
@@ -564,6 +614,7 @@ extension IllegalMessageSizeException {
         return s
     }
 }
+
 extension CompressionException {
     var _CompressionExceptionDescription: String {
         var s = String()
@@ -574,6 +625,7 @@ extension CompressionException {
         return s
     }
 }
+
 extension DatagramLimitException {
     var _DatagramLimitExceptionDescription: String {
         var s = String()
@@ -584,6 +636,7 @@ extension DatagramLimitException {
         return s
     }
 }
+
 extension MarshalException {
     var _MarshalExceptionDescription: String {
         var s = String()
@@ -594,6 +647,7 @@ extension MarshalException {
         return s
     }
 }
+
 extension ProxyUnmarshalException {
     var _ProxyUnmarshalExceptionDescription: String {
         var s = String()
@@ -604,6 +658,7 @@ extension ProxyUnmarshalException {
         return s
     }
 }
+
 extension UnmarshalOutOfBoundsException {
     var _UnmarshalOutOfBoundsExceptionDescription: String {
         var s = String()
@@ -614,6 +669,7 @@ extension UnmarshalOutOfBoundsException {
         return s
     }
 }
+
 extension NoValueFactoryException {
     var _NoValueFactoryExceptionDescription: String {
         var s = String()
@@ -624,6 +680,7 @@ extension NoValueFactoryException {
         return s
     }
 }
+
 extension UnexpectedObjectException {
     var _UnexpectedObjectExceptionDescription: String {
         var s = String()
@@ -634,6 +691,7 @@ extension UnexpectedObjectException {
         return s
     }
 }
+
 extension MemoryLimitException {
     var _MemoryLimitExceptionDescription: String {
         var s = String()
@@ -644,6 +702,7 @@ extension MemoryLimitException {
         return s
     }
 }
+
 extension StringConversionException {
     var _StringConversionExceptionDescription: String {
         var s = String()
@@ -654,6 +713,7 @@ extension StringConversionException {
         return s
     }
 }
+
 extension EncapsulationException {
     var _EncapsulationExceptionDescription: String {
         var s = String()
@@ -664,6 +724,7 @@ extension EncapsulationException {
         return s
     }
 }
+
 extension FeatureNotSupportedException {
     var _FeatureNotSupportedExceptionDescription: String {
         var s = String()
@@ -673,6 +734,7 @@ extension FeatureNotSupportedException {
         return s
     }
 }
+
 extension SecurityException {
     var _SecurityExceptionDescription: String {
         var s = String()
@@ -683,6 +745,7 @@ extension SecurityException {
         return s
     }
 }
+
 extension FixedProxyException {
     var _FixedProxyExceptionDescription: String {
         var s = String()
@@ -692,6 +755,7 @@ extension FixedProxyException {
         return s
     }
 }
+
 extension ResponseSentException {
     var _ResponseSentExceptionDescription: String {
         var s = String()

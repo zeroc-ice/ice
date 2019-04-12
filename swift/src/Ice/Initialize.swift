@@ -117,12 +117,8 @@ public func stringToIdentity(_ string: String) throws -> Identity {
     }
 }
 
-public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) throws -> String {
-    return try autoreleasepool {
-        try ICEUtil.identityToString(name: id.name,
-                                     category: id.category,
-                                     mode: mode.rawValue)
-    }
+public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) -> String {
+    return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
 }
 
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {

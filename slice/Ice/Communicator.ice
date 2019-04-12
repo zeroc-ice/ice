@@ -235,7 +235,7 @@ local interface Communicator
      * @see #stringToIdentity
      *
      **/
-    ["cpp:const"] string identityToString(Identity ident);
+    ["cpp:const", "swift:noexcept"] string identityToString(Identity ident);
 
     /**
      *

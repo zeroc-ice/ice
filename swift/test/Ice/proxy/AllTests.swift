@@ -274,7 +274,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     try test(id == id2)
 
     id = Ice.Identity(name: "/test", category: "cat/")
-    var idStr = try communicator.identityToString(id)
+    var idStr = communicator.identityToString(id)
     try test(idStr == "cat\\//\\/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
@@ -298,18 +298,18 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     // Testing bytes 127(\x7F, \177) and €
     id = Ice.Identity(name: "test", category: "\u{007f}€")
 
-    idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
+    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
     try test(idStr == "\\u007f€/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
     try test(Ice.identityToString(id: id) == idStr)
 
-    idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
+    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
     try test(idStr == "\\u007f\\u20ac/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
 
-    idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
+    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
     try test(idStr == "\\177\\342\\202\\254/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
@@ -321,17 +321,17 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     id = Ice.Identity(name: "banana \u{000E}-\u{1f34c}\u{20ac}\u{00a2}\u{0024}",
                       category: "greek \u{1016a}")
 
-    idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
+    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
     try test(idStr == "greek \u{1016a}/banana \\u000e-\u{1f34c}\u{20ac}\u{00a2}$")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
 
-    idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
+    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
     try test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
 
-    idStr = try Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
+    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
     id2 = try Ice.stringToIdentity(idStr)
     try test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$")
     try test(id == id2)
@@ -343,8 +343,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
 
     try test(b1 == b2)
 
-    if(try b1.ice_getConnection() != nil) // not colloc-optimized target
-    {
+    if try b1.ice_getConnection() != nil { // not colloc-optimized target
         b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))!
         let str = try communicator.proxyToString(b2)
         try test(b2.ice_toString() == str)
@@ -400,10 +399,10 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     // This cannot be tested so easily because the property is cached
     // on communicator initialization.
     //
-    //prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    //b1 = communicator.propertyToProxy(propertyPrefix);
+    // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+    // b1 = communicator.propertyToProxy(propertyPrefix);
     //test(b1.ice_getLocatorCacheTimeout() == 60);
-    //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+    // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
     try prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
 

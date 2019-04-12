@@ -153,22 +153,12 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     }
 }
 
-+(nullable NSString*) identityToString:(NSString*)name
++(NSString*) identityToString:(NSString*)name
                               category:(NSString*)category
                                   mode:(uint8_t)mode
-                                 error:(NSError* _Nullable * _Nullable)error
 {
-    try
-    {
-        Ice::Identity identity{fromNSString(name), fromNSString(category)};
-        auto s = Ice::identityToString(std::move(identity), static_cast<Ice::ToStringMode>(mode));
-        return toNSString(s);
-    }
-    catch(const std::exception& ex)
-    {
-        *error = convertException(ex);
-        return nil;
-    }
+    Ice::Identity identity{fromNSString(name), fromNSString(category)};
+    return toNSString(Ice::identityToString(identity, static_cast<Ice::ToStringMode>(mode)));
 }
 
 +(void) currentEncoding:(UInt8*)major minor:(UInt8*)minor
