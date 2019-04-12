@@ -52,7 +52,7 @@ func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
         _ = batch2.ice_pingAsync()
     }
 
-    let batch3 = try batch.ice_identity(Ice.Identity(name: "invalid", category: ""))
+    let batch3 = batch.ice_identity(Ice.Identity(name: "invalid", category: ""))
     _ = batch3.ice_pingAsync()
     try batch3.ice_flushBatchRequestsAsync().wait()
 

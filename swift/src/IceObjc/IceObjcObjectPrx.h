@@ -75,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable id) ice_getTimeout;
 -(nullable instancetype) ice_timeout:(int32_t)timeout error:(NSError* _Nullable * _Nullable)error;
 -(nullable instancetype) ice_fixed:(ICEConnection*)connection error:(NSError* _Nullable * _Nullable)error;
+-(bool) ice_isFixed;
 -(nullable id) ice_getConnection:(NSError* _Nullable * _Nullable)error; //Either NSNull or ICEConnection
 -(nullable ICEConnection*) ice_getCachedConnection;
 -(BOOL) ice_flushBatchRequests:(NSError* _Nullable * _Nullable)error;

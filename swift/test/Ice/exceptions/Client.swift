@@ -315,7 +315,7 @@ public class Client: TestHelperI {
         do {
             let id = try Ice.stringToIdentity("does not exist")
             do {
-                let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
+                let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
                 try thrower2.ice_ping()
                 try test(false)
             } catch let ex as Ice.ObjectNotExistException {
@@ -598,7 +598,7 @@ public class Client: TestHelperI {
         output.write("catching object not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
             let  id = try Ice.stringToIdentity("does not exist")
-            let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
+            let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
             firstly {
                 thrower2.throwAasAAsync(1)
             }.done {
@@ -763,7 +763,7 @@ public class Client: TestHelperI {
         output.write("catching object not exist exception with new AMI mapping... ")
         try Promise<Void> { seal in
             let id = try Ice.stringToIdentity("does not exist")
-            let thrower2 = try uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
+            let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
             firstly {
                 thrower2.throwAasAAsync(1)
             }.done {

@@ -55,7 +55,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
     var identity = Ice.Identity()
     identity.name = "invalid"
-    let batch3 = try batch.ice_identity(identity)
+    let batch3 = batch.ice_identity(identity)
     try batch3.ice_ping()
     try batch3.ice_flushBatchRequests()
 
@@ -81,7 +81,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
         let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyClassPrx.self)
         let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyClassPrx.self)
-        let batchC3 = uncheckedCast(prx: try prx.ice_identity(identity), type: MyClassPrx.self)
+        let batchC3 = uncheckedCast(prx: prx.ice_identity(identity), type: MyClassPrx.self)
 
         try batchC1.opByteSOneway(bs1)
         try batchC1.opByteSOneway(bs1)

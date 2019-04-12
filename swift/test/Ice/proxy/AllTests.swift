@@ -347,7 +347,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
         b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))!
         let str = try communicator.proxyToString(b2)
         try test(b2.ice_toString() == str)
-        let str2 = try b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
+        let str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
         // Verify that the stringified fixed proxy is the same as a regular stringified proxy
         // but without endpoints
         try test(str2.hasPrefix("\(str):"))
@@ -472,32 +472,32 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     writer.write("testing proxyToProperty... ")
 
     b1 = try communicator.stringToProxy("test")!
-    b1 = try b1.ice_collocationOptimized(true)!
-    b1 = try b1.ice_connectionCached(true)
-    b1 = try b1.ice_preferSecure(false)
-    b1 = try b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
-    b1 = try b1.ice_locatorCacheTimeout(100)
-    b1 = try b1.ice_invocationTimeout(1234)
+    b1 = b1.ice_collocationOptimized(true)
+    b1 = b1.ice_connectionCached(true)
+    b1 = b1.ice_preferSecure(false)
+    b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    b1 = b1.ice_locatorCacheTimeout(100)
+    b1 = b1.ice_invocationTimeout(1234)
     b1 = b1.ice_encodingVersion(Ice.EncodingVersion(major: 1, minor: 0))
 
     var router = try communicator.stringToProxy("router")!
-    router = try router.ice_collocationOptimized(false)!
-    router = try router.ice_connectionCached(true)
-    router = try router.ice_preferSecure(true)
-    router = try router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-    router = try router.ice_locatorCacheTimeout(200)
-    router = try router.ice_invocationTimeout(1500)
+    router = router.ice_collocationOptimized(false)
+    router = router.ice_connectionCached(true)
+    router = router.ice_preferSecure(true)
+    router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    router = router.ice_locatorCacheTimeout(200)
+    router = router.ice_invocationTimeout(1500)
 
     var locator = try communicator.stringToProxy("locator")!
-    locator = try locator.ice_collocationOptimized(true)!
-    locator = try locator.ice_connectionCached(false)
-    locator = try locator.ice_preferSecure(true)
-    locator = try locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-    locator = try locator.ice_locatorCacheTimeout(300)
-    locator = try locator.ice_invocationTimeout(1500)
+    locator = locator.ice_collocationOptimized(true)
+    locator = locator.ice_connectionCached(false)
+    locator = locator.ice_preferSecure(true)
+    locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    locator = locator.ice_locatorCacheTimeout(300)
+    locator = locator.ice_invocationTimeout(1500)
 
-    locator = try locator.ice_router(uncheckedCast(prx: router, type: Ice.RouterPrx.self))
-    b1 = try b1.ice_locator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
+    locator = locator.ice_router(uncheckedCast(prx: router, type: Ice.RouterPrx.self))
+    b1 = b1.ice_locator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
     let proxyProps = try communicator.proxyToProperty(proxy: b1, property: "Test")
     try test(proxyProps.count == 21)
@@ -545,61 +545,17 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     try test(baseProxy.ice_batchDatagram().ice_isBatchDatagram())
     try test(baseProxy.ice_secure(true).ice_isSecure())
     try test(!baseProxy.ice_secure(false).ice_isSecure())
-    try test(baseProxy.ice_collocationOptimized(true)!.ice_isCollocationOptimized())
-    try test(!baseProxy.ice_collocationOptimized(false)!.ice_isCollocationOptimized())
+    try test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized())
+    try test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized())
     try test(baseProxy.ice_preferSecure(true).ice_isPreferSecure())
     try test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure())
 
-    do {
-        _ = try baseProxy.ice_timeout(0)
-        try test(false)
-    } catch is Ice.RuntimeError {}
-
-    do {
-        _ = try baseProxy.ice_timeout(-1)
-    } catch {
-        try test(false)
-    }
-
-    do {
-        _ = try baseProxy.ice_timeout(-2)
-        try test(false)
-    } catch is Ice.RuntimeError {}
-
-    do {
-        _ = try baseProxy.ice_invocationTimeout(0)
-        try test(false)
-    } catch is Ice.RuntimeError {}
-
-    do {
-        _ = try baseProxy.ice_invocationTimeout(-1)
-        _ = try baseProxy.ice_invocationTimeout(-2)
-    } catch {
-        try test(false)
-    }
-
-    do {
-        _ = try baseProxy.ice_invocationTimeout(-3)
-        try test(false)
-    } catch is Ice.RuntimeError {}
-
-    do {
-        _ = try baseProxy.ice_locatorCacheTimeout(0)
-    } catch {
-        try test(false)
-    }
-
-    do {
-        _ = try baseProxy.ice_locatorCacheTimeout(-1)
-    } catch {
-        try test(false)
-    }
-
-    do {
-        _ = try baseProxy.ice_locatorCacheTimeout(-2)
-        try test(false)
-    } catch is Ice.RuntimeError {}
-
+    try test(baseProxy.ice_timeout(-1).ice_getTimeout() == -1)
+    try test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
+    try test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -2)
+    try test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
+    try test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
+    
     writer.writeLine("ok")
 
     writer.write("testing proxy comparison... ")
@@ -709,8 +665,8 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     let baseConnection = try baseProxy.ice_getConnection()
     if baseConnection != nil {
         let baseConnection2 = try baseProxy.ice_connectionId("base2").ice_getConnection()
-        compObj1 = try compObj1!.ice_fixed(baseConnection!)
-        compObj2 = try compObj2!.ice_fixed(baseConnection2!)
+        compObj1 = compObj1!.ice_fixed(baseConnection!)
+        compObj2 = compObj2!.ice_fixed(baseConnection2!)
         try test(compObj1 != compObj2)
     }
     writer.writeLine("ok")
@@ -736,29 +692,29 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     do {
         let connection = try cl.ice_getConnection()
         if connection != nil {
-            let prx = try cl.ice_fixed(connection!)!
+            let prx = cl.ice_fixed(connection!)
             try prx.ice_ping()
-            try test(cl.ice_secure(true).ice_fixed(connection!)!.ice_isSecure())
-            try test(cl.ice_facet("facet").ice_fixed(connection!)!.ice_getFacet() == "facet")
-            try test(cl.ice_oneway().ice_fixed(connection!)!.ice_isOneway())
+            try test(cl.ice_secure(true).ice_fixed(connection!).ice_isSecure())
+            try test(cl.ice_facet("facet").ice_fixed(connection!).ice_getFacet() == "facet")
+            try test(cl.ice_oneway().ice_fixed(connection!).ice_isOneway())
             let ctx = ["one": "hello", "two": "world"]
-            try test(cl.ice_fixed(connection!)!.ice_getContext().isEmpty)
-            try test(cl.ice_context(ctx).ice_fixed(connection!)!.ice_getContext().count == 2)
-            try test(cl.ice_fixed(connection!)!.ice_getInvocationTimeout() == -1)
-            try test(cl.ice_invocationTimeout(10).ice_fixed(connection!)!.ice_getInvocationTimeout() == 10)
-            try test(cl.ice_fixed(connection!)!.ice_getConnection() === connection)
-            try test(cl.ice_fixed(connection!)!.ice_fixed(connection!)!.ice_getConnection() === connection)
-            try test(cl.ice_fixed(connection!)!.ice_getTimeout() == nil)
-            try test(cl.ice_compress(true).ice_fixed(connection!)!.ice_getCompress()!)
+            try test(cl.ice_fixed(connection!).ice_getContext().isEmpty)
+            try test(cl.ice_context(ctx).ice_fixed(connection!).ice_getContext().count == 2)
+            try test(cl.ice_fixed(connection!).ice_getInvocationTimeout() == -1)
+            try test(cl.ice_invocationTimeout(10).ice_fixed(connection!).ice_getInvocationTimeout() == 10)
+            try test(cl.ice_fixed(connection!).ice_getConnection() === connection)
+            try test(cl.ice_fixed(connection!).ice_fixed(connection!).ice_getConnection() === connection)
+            try test(cl.ice_fixed(connection!).ice_getTimeout() == nil)
+            try test(cl.ice_compress(true).ice_fixed(connection!).ice_getCompress()!)
             let fixedConnection = try cl.ice_connectionId("ice_fixed").ice_getConnection()
-            try test(cl.ice_fixed(connection!)!.ice_fixed(fixedConnection!)!.ice_getConnection() ===
+            try test(cl.ice_fixed(connection!).ice_fixed(fixedConnection!).ice_getConnection() ===
                 fixedConnection)
             do {
-                try cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!)!.ice_ping()
+                try cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!).ice_ping()
             } catch is Ice.NoEndpointException {}
 
             do {
-                try cl.ice_datagram().ice_fixed(connection!)!.ice_ping()
+                try cl.ice_datagram().ice_fixed(connection!).ice_ping()
             } catch is Ice.NoEndpointException {}
         }
     }

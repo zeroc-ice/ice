@@ -434,6 +434,11 @@
     }
 }
 
+-(bool) ice_isFixed
+{
+    return _prx->ice_isFixed();
+}
+
 -(id)ice_getConnection:(NSError**)error
 {
     try

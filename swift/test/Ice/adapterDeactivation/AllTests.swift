@@ -120,7 +120,7 @@ func allTests(_ helper: TestHelper) throws {
 
         do {
             routerId.name = "test"
-            router = try uncheckedCast(prx: base.ice_identity(routerId), type: Ice.RouterPrx.self)
+            router = uncheckedCast(prx: base.ice_identity(routerId), type: Ice.RouterPrx.self)
             _ = try communicator.createObjectAdapterWithRouter(name: "", rtr: router)
             try test(false)
         } catch is Ice.OperationNotExistException {

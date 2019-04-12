@@ -13,35 +13,35 @@ import PromiseKit
 public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getCommunicator() -> Communicator
     func ice_getIdentity() -> Identity
-    func ice_identity(_ id: Identity) throws -> Self
+    func ice_identity(_ id: Identity) -> ObjectPrx
     func ice_getContext() -> Context
     func ice_context(_ context: Context) -> Self
     func ice_getFacet() -> String
     func ice_facet(_ facet: String) -> ObjectPrx
     func ice_getAdapterId() -> String
-    func ice_adapterId(_ id: String) throws -> Self
+    func ice_adapterId(_ id: String) -> Self
     func ice_getEndpoints() -> EndpointSeq
-    func ice_endpoints(_ endpoints: EndpointSeq) throws -> Self
+    func ice_endpoints(_ endpoints: EndpointSeq) -> Self
     func ice_getLocatorCacheTimeout() -> Int32
-    func ice_locatorCacheTimeout(_ timeout: Int32) throws -> Self
+    func ice_locatorCacheTimeout(_ timeout: Int32) -> Self
     func ice_getInvocationTimeout() -> Int32
-    func ice_invocationTimeout(_ timeout: Int32) throws -> Self
+    func ice_invocationTimeout(_ timeout: Int32) -> Self
     func ice_getConnectionId() -> String
-    func ice_connectionId(_ id: String) throws -> Self
+    func ice_connectionId(_ id: String) -> Self
     func ice_isConnectionCached() -> Bool
-    func ice_connectionCached(_ cached: Bool) throws -> Self
+    func ice_connectionCached(_ cached: Bool) -> Self
     func ice_getEndpointSelection() -> EndpointSelectionType
-    func ice_endpointSelection(_ type: EndpointSelectionType) throws -> Self
+    func ice_endpointSelection(_ type: EndpointSelectionType) -> Self
     func ice_getEncodingVersion() -> EncodingVersion
     func ice_encodingVersion(_ encoding: EncodingVersion) -> Self
     func ice_getRouter() -> RouterPrx?
-    func ice_router(_ router: RouterPrx?) throws -> Self
+    func ice_router(_ router: RouterPrx?) -> Self
     func ice_getLocator() -> LocatorPrx?
-    func ice_locator(_ locator: LocatorPrx?) throws -> Self
+    func ice_locator(_ locator: LocatorPrx?) -> Self
     func ice_isSecure() -> Bool
     func ice_secure(_ secure: Bool) -> Self
     func ice_isPreferSecure() -> Bool
-    func ice_preferSecure(_ preferSecure: Bool) throws -> Self
+    func ice_preferSecure(_ preferSecure: Bool) -> Self
     func ice_isTwoway() -> Bool
     func ice_twoway() -> Self
     func ice_isOneway() -> Bool
@@ -55,8 +55,9 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getCompress() -> Bool?
     func ice_compress(_ compress: Bool) -> Self
     func ice_getTimeout() -> Int32?
-    func ice_timeout(_ timeout: Int32) throws -> Self
-    func ice_fixed(_ connection: Connection) throws -> Self?
+    func ice_timeout(_ timeout: Int32) -> Self
+    func ice_fixed(_ connection: Connection) -> Self
+    func ice_isFixed() -> Bool
     func ice_getConnection() throws -> Connection?
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
@@ -65,7 +66,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
                                      sentFlags: DispatchWorkItemFlags?) -> Promise<Void>
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
-    func ice_collocationOptimized(_ collocated: Bool) throws -> Self?
+    func ice_collocationOptimized(_ collocated: Bool) -> Self
 
     func ice_invoke(operation: String,
                     mode: OperationMode,
@@ -273,9 +274,14 @@ open class _ObjectPrxI: ObjectPrx {
         return Identity(name: name as String, category: category as String)
     }
 
-    public func ice_identity(_ id: Identity) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_identity(id.name, category: id.category))
+    public func ice_identity(_ id: Identity) -> ObjectPrx {
+        precondition(!id.name.isEmpty, "Identity name cannot be empty")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_identity(id.name, category: id.category)) as _ObjectPrxI
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -299,9 +305,14 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_getAdapterId()
     }
 
-    public func ice_adapterId(_ id: String) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_adapterId(id))
+    public func ice_adapterId(_ id: String) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with an adapterId")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_adapterId(id))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -309,9 +320,14 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_getEndpoints().fromObjc()
     }
 
-    public func ice_endpoints(_ endpoints: EndpointSeq) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_endpoints(endpoints.toObjc()))
+    public func ice_endpoints(_ endpoints: EndpointSeq) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with endpoints")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_endpoints(endpoints.toObjc()))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -319,9 +335,15 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_getLocatorCacheTimeout()
     }
 
-    public func ice_locatorCacheTimeout(_ timeout: Int32) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_locatorCacheTimeout(timeout))
+    public func ice_locatorCacheTimeout(_ timeout: Int32) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with a locatorCacheTimeout")
+        precondition(timeout >= -1, "Invalid locator cache timeout value")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_locatorCacheTimeout(timeout))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -329,9 +351,14 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_getInvocationTimeout()
     }
 
-    public func ice_invocationTimeout(_ timeout: Int32) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_invocationTimeout(timeout))
+    public func ice_invocationTimeout(_ timeout: Int32) -> Self {
+        precondition(timeout >= 1 || timeout == -1 || timeout == -2, "Invalid invocation timeout value")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_invocationTimeout(timeout))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -339,9 +366,14 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_getConnectionId()
     }
 
-    public func ice_connectionId(_ id: String) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_connectionId(id))
+    public func ice_connectionId(_ id: String) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with a connectionId")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_connectionId(id))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -349,9 +381,14 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_isConnectionCached()
     }
 
-    public func ice_connectionCached(_ cached: Bool) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_connectionCached(cached))
+    public func ice_connectionCached(_ cached: Bool) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with a cached connection")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_connectionCached(cached))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -359,9 +396,14 @@ open class _ObjectPrxI: ObjectPrx {
         return EndpointSelectionType(rawValue: _handle.ice_getEndpointSelection())!
     }
 
-    public func ice_endpointSelection(_ type: EndpointSelectionType) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_endpointSelection(type.rawValue))
+    public func ice_endpointSelection(_ type: EndpointSelectionType) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with an endpointSelectionType")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_endpointSelection(type.rawValue))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -380,10 +422,15 @@ open class _ObjectPrxI: ObjectPrx {
         return fromICEObjectPrx(routerHandle) as _RouterPrxI
     }
 
-    public func ice_router(_ router: RouterPrx?) throws -> Self {
-        return try autoreleasepool {
-            let r = router as? _RouterPrxI
-            return try fromICEObjectPrx(_handle.ice_router(r?._handle ?? nil))
+    public func ice_router(_ router: RouterPrx?) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with a router")
+        do {
+            return try autoreleasepool {
+                let r = router as? _RouterPrxI
+                return try fromICEObjectPrx(_handle.ice_router(r?._handle ?? nil))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -394,10 +441,15 @@ open class _ObjectPrxI: ObjectPrx {
         return fromICEObjectPrx(locatorHandle) as _LocatorPrxI
     }
 
-    public func ice_locator(_ locator: LocatorPrx?) throws -> Self {
-        return try autoreleasepool {
-            let l = locator as? _LocatorPrxI
-            return try fromICEObjectPrx(_handle.ice_locator(l?._handle ?? nil))
+    public func ice_locator(_ locator: LocatorPrx?) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with a locator")
+        do {
+            return try autoreleasepool {
+                let l = locator as? _LocatorPrxI
+                return try fromICEObjectPrx(_handle.ice_locator(l?._handle ?? nil))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -413,9 +465,14 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_isPreferSecure()
     }
 
-    public func ice_preferSecure(_ preferSecure: Bool) throws -> Self {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_preferSecure(preferSecure))
+    public func ice_preferSecure(_ preferSecure: Bool) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with preferSecure")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_preferSecure(preferSecure))
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -477,14 +534,30 @@ open class _ObjectPrxI: ObjectPrx {
         return timeout
     }
 
-    public func ice_timeout(_ timeout: Int32) throws -> Self {
-        return try fromICEObjectPrx(_handle.ice_timeout(timeout))
+    public func ice_timeout(_ timeout: Int32) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with a connection timeout")
+        precondition(timeout > 0 || timeout == -1, "Invalid connection timeout value")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_timeout(timeout))
+            }
+        } catch {
+            fatalError("\(error)")
+        }
     }
 
-    public func ice_fixed(_ connection: Connection) throws -> Self? {
-        return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_fixed((connection as! ConnectionI)._handle))
+    public func ice_fixed(_ connection: Connection) -> Self {
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_fixed((connection as! ConnectionI)._handle))
+            }
+        } catch {
+            fatalError("\(error)")
         }
+    }
+
+    public func ice_isFixed() -> Bool {
+        return _handle.ice_isFixed()
     }
 
     public func ice_getConnection() throws -> Connection? {
@@ -524,8 +597,15 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_isCollocationOptimized()
     }
 
-    public func ice_collocationOptimized(_ collocated: Bool) throws -> Self? {
-        return try fromICEObjectPrx(_handle.ice_collocationOptimized(collocated))
+    public func ice_collocationOptimized(_ collocated: Bool) -> Self {
+        precondition(!ice_isFixed(), "Cannot create a fixed proxy with collocation optimization")
+        do {
+            return try autoreleasepool {
+                try fromICEObjectPrx(_handle.ice_collocationOptimized(collocated))
+            }
+        } catch {
+            fatalError("\(error)")
+        }
     }
 
     public static func ice_read(from istr: InputStream) throws -> Self? {
