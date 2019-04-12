@@ -10,6 +10,40 @@
 import IceObjc
 import PromiseKit
 
+extension Connection {
+    public func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                        sent: ((Bool) -> Void)? = nil,
+                                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+        let impl = self as! ConnectionI
+        let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try impl._handle.flushBatchRequestsAsync(compress.rawValue,
+                                                    exception: { error in seal.reject(error) },
+                                                    sent: {
+                                                        seal.fulfill(())
+                                                        if let sentCB = sentCB {
+                                                            sentCB($0)
+                                                        }
+                })
+            }
+        }
+    }
+
+    func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
+                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+        let impl = self as! ConnectionI
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try impl._handle.heartbeatAsync(exception: { error in seal.reject(error) },
+                                                sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+            }
+        }
+    }
+}
+
 class ConnectionI: LocalObject<ICEConnection>, Connection {
     public var description: String {
         return toString()
@@ -55,21 +89,6 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         }
     }
 
-    public func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                        sent: ((Bool) -> Void)? = nil,
-                                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-        return Promise<Void> { seal in
-            try autoreleasepool {
-                try _handle.flushBatchRequestsAsync(compress.rawValue,
-                                                    exception: { error in seal.reject(error) },
-                                                    sent: createSentCallback(sent: sent,
-                                                                             sentOn: sentOn,
-                                                                             sentFlags: sentFlags))
-            }
-        }
-    }
-
     public func setCloseCallback(_ callback: CloseCallback?) throws {
         return try autoreleasepool {
             guard let cb = callback else {
@@ -100,17 +119,6 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     public func heartbeat() throws {
         return try autoreleasepool {
             try _handle.heartbeat()
-        }
-    }
-
-    func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
-                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-        return Promise<Void> { seal in
-            try autoreleasepool {
-                try _handle.heartbeatAsync(exception: { error in seal.reject(error) },
-                                           sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
-            }
         }
     }
 

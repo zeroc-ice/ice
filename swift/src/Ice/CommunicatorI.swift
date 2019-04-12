@@ -149,21 +149,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                 sent: ((Bool) -> Void)? = nil,
-                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-        return Promise<Void> { seal in
-            try autoreleasepool {
-                try _handle.flushBatchRequestsAsync(compress.rawValue,
-                                                    exception: { seal.reject($0) },
-                                                    sent: createSentCallback(sent: sent,
-                                                                             sentOn: sentOn,
-                                                                             sentFlags: sentFlags))
-            }
-        }
-    }
-
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx {
         return try autoreleasepool {
             let handle = try _handle.createAdmin((adminAdapter as? ObjectAdapterI)?._handle,
@@ -250,6 +235,26 @@ public extension Communicator {
             let handle = try (self as! CommunicatorI)._handle.createObjectAdapterWithEndpoints(name: name,
                                                                                                endpoints: endpoints)
             return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
+        }
+    }
+
+    func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                 sent: ((Bool) -> Void)? = nil,
+                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+        let impl = self as! CommunicatorI
+        let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+        return Promise<Void> { seal in
+            try autoreleasepool {
+                try impl._handle.flushBatchRequestsAsync(compress.rawValue,
+                                                    exception: { seal.reject($0) },
+                                                    sent: {
+                                                        seal.fulfill(())
+                                                        if let sentCB = sentCB {
+                                                            sentCB($0)
+                                                        }
+                })
+            }
         }
     }
 

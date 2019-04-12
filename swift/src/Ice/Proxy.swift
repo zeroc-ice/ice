@@ -200,12 +200,18 @@ public extension ObjectPrx {
     func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)? = nil,
                                      sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                                      sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+        let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
         return Promise<Void> { seal in
             try _impl._handle.ice_flushBatchRequestsAsync(
                 exception: {
                     seal.reject($0)
                 },
-                sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+                sent: {
+                    seal.fulfill(())
+                    if let sentCB = sentCB {
+                        sentCB($0)
+                    }
+                }
             )
         }
     }
@@ -475,9 +481,9 @@ open class _ObjectPrxI: ObjectPrx {
         return try fromICEObjectPrx(_handle.ice_timeout(timeout))
     }
 
-    public func ice_fixed(_ connection: Connection) throws -> ObjectPrx? {
+    public func ice_fixed(_ connection: Connection) throws -> Self? {
         return try autoreleasepool {
-            try fromICEObjectPrx(_handle.ice_fixed((connection as! ConnectionI)._handle)) as _ObjectPrxI
+            try fromICEObjectPrx(_handle.ice_fixed((connection as! ConnectionI)._handle))
         }
     }
 
@@ -518,7 +524,7 @@ open class _ObjectPrxI: ObjectPrx {
         return _handle.ice_isCollocationOptimized()
     }
 
-    public func ice_collocationOptimized(_ collocated: Bool) throws -> ObjectPrx? {
+    public func ice_collocationOptimized(_ collocated: Bool) throws -> Self? {
         return try fromICEObjectPrx(_handle.ice_collocationOptimized(collocated))
     }
 
