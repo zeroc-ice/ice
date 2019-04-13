@@ -38,9 +38,14 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         return _handle.getPropertiesForPrefix(prefix)
     }
 
-    public func setProperty(key: String, value: String) throws {
-        try autoreleasepool {
-            try _handle.setProperty(key, value: value)
+    public func setProperty(key: String, value: String) {
+        precondition(!key.isEmpty, "Key cannot be empty")
+        do {
+            try autoreleasepool {
+                try _handle.setProperty(key, value: value)
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 

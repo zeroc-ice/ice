@@ -169,7 +169,7 @@ local interface Properties
      * @see #getProperty
      *
      **/
-    void setProperty(string key, string \value);
+    ["swift:noexcept"] void setProperty(string key, string \value);
 
     /**
      *

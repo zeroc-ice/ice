@@ -23,9 +23,9 @@ public class Client: TestHelperI {
 
         var initData = Ice.InitializationData()
         let (properties, _) = try createTestProperties(args: args)
-        try properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
-        try properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")
-        try properties.setProperty(key: "Ice.BatchAutoFlushSize", value: "100")
+        properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
+        properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")
+        properties.setProperty(key: "Ice.BatchAutoFlushSize", value: "100")
         initData.properties = properties
 
         let communicator = try self.initialize(initData)

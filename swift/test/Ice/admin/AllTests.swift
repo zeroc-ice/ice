@@ -135,8 +135,8 @@ func allTests(_ helper: TestHelper) throws {
         // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
         //
         let (properties, _) = try Ice.createProperties()
-        try properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
-        try properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
+        properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
+        properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
 
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -150,9 +150,9 @@ func allTests(_ helper: TestHelper) throws {
         // Test: Verify that the operations work correctly in the presence of facet filters.
         //
         let (properties, _) = try Ice.createProperties()
-        try properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
-        try properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
-        try properties.setProperty(key: "Ice.Admin.Facets", value: "Properties")
+        properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
+        properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
+        properties.setProperty(key: "Ice.Admin.Facets", value: "Properties")
         var initData = Ice.InitializationData()
         initData.properties = properties
         let com = try Ice.initialize(initData: initData)
@@ -174,7 +174,7 @@ func allTests(_ helper: TestHelper) throws {
         // Test: Verify that the operations work correctly with Ice.Admin.Enabled=1
         //
         let (properties, _) = try Ice.createProperties()
-        try properties.setProperty(key: "Ice.Admin.Enabled", value: "1")
+        properties.setProperty(key: "Ice.Admin.Enabled", value: "1")
         var initData = Ice.InitializationData()
         initData.properties = properties
         let com = try Ice.initialize(initData: initData)
@@ -198,9 +198,9 @@ func allTests(_ helper: TestHelper) throws {
         // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
         //
         let (properties, _) = try Ice.createProperties()
-        try properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
-        try properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
-        try properties.setProperty(key: "Ice.Admin.DelayCreation", value: "1")
+        properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
+        properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
+        properties.setProperty(key: "Ice.Admin.DelayCreation", value: "1")
         var initData = Ice.InitializationData()
         initData.properties = properties
         let com = try Ice.initialize(initData: initData)
@@ -431,7 +431,7 @@ func allTests(_ helper: TestHelper) throws {
                                                                  Ice.LogMessageType.TraceMessage],
                                                   traceCategories: ["testCat"],
                                                   messageMax: 4)
-        try test(logMessages.count == 4);
+        try test(logMessages.count == 4)
 
         try logger.attachRemoteLogger(prx: myProxy,
                                       messageTypes: [Ice.LogMessageType.ErrorMessage, Ice.LogMessageType.TraceMessage],

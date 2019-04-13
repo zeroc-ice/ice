@@ -167,17 +167,17 @@ class TestCase {
                                                 heartbeat: _serverACMHeartbeat)
 
         let properties = _com.ice_getCommunicator().getProperties().clone()
-        try properties.setProperty(key: "Ice.ACM.Timeout", value: "2")
+        properties.setProperty(key: "Ice.ACM.Timeout", value: "2")
         if _clientACMTimeout >= 0 {
-            try properties.setProperty(key: "Ice.ACM.Client.Timeout", value: "\(_clientACMTimeout)")
+            properties.setProperty(key: "Ice.ACM.Client.Timeout", value: "\(_clientACMTimeout)")
         }
 
         if _clientACMClose >= 0 {
-            try properties.setProperty(key: "Ice.ACM.Client.Close", value: "\(_clientACMClose)")
+            properties.setProperty(key: "Ice.ACM.Client.Close", value: "\(_clientACMClose)")
         }
 
         if _clientACMHeartbeat >= 0 {
-            try properties.setProperty(key: "Ice.ACM.Client.Heartbeat", value: "\(_clientACMHeartbeat)")
+            properties.setProperty(key: "Ice.ACM.Client.Heartbeat", value: "\(_clientACMHeartbeat)")
         }
         //try properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
         //try properties.setProperty(key: "Ice.Trace.Network", value: "2")

@@ -20,29 +20,29 @@ class Server: TestHelperI {
         //
         // Disable collocation optimization to test async/await dispatch.
         //
-        try properties.setProperty(key: "Ice.Default.CollocationOptimized", value: "0")
+        properties.setProperty(key: "Ice.Default.CollocationOptimized", value: "0")
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        try properties.setProperty(key: "Ice.Warn.Connections", value: "0")
+        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        try properties.setProperty(key: "Ice.TCP.RcvSize", value: "50000")
+        properties.setProperty(key: "Ice.TCP.RcvSize", value: "50000")
 
         let (communicator, _) = try self.initialize(args: args)
         defer {
             communicator.destroy()
         }
 
-        try communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
+        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                      value: getTestEndpoint(num: 0))
-        try communicator.getProperties().setProperty(key: "ControllerAdapter.Endpoints",
+        communicator.getProperties().setProperty(key: "ControllerAdapter.Endpoints",
                                                      value: getTestEndpoint(num: 1))
-        try communicator.getProperties().setProperty(key: "ControllerAdapter.ThreadPool.Size",
+        communicator.getProperties().setProperty(key: "ControllerAdapter.ThreadPool.Size",
                                                      value: "1")
 
         let adapter = try communicator.createObjectAdapter(name: "TestAdapter",

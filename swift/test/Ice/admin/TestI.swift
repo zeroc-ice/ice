@@ -98,7 +98,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         let (properties, _) = try Ice.createProperties()
         for (key, value) in props {
-            try properties.setProperty(key: key, value: value)
+            properties.setProperty(key: key, value: value)
         }
 
         var initData = Ice.InitializationData()

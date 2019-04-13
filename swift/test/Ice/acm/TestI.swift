@@ -18,17 +18,17 @@ class RemoteCommunicatorI: RemoteCommunicator {
 
         let name = UUID().uuidString
         if acmTimeout >= 0 {
-            try properties.setProperty(key: "\(name).ACM.Timeout", value: "\(acmTimeout)")
+            properties.setProperty(key: "\(name).ACM.Timeout", value: "\(acmTimeout)")
         }
 
         if close >= 0 {
-            try properties.setProperty(key: "\(name).ACM.Close", value: "\(close)")
+            properties.setProperty(key: "\(name).ACM.Close", value: "\(close)")
         }
 
         if heartbeat >= 0 {
-            try properties.setProperty(key: "\(name).ACM.Heartbeat", value: "\(heartbeat)")
+            properties.setProperty(key: "\(name).ACM.Heartbeat", value: "\(heartbeat)")
         }
-        try properties.setProperty(key: "\(name).ThreadPool.Size", value: "2")
+        properties.setProperty(key: "\(name).ThreadPool.Size", value: "2")
 
         let adapter = try communicator.createObjectAdapterWithEndpoints(
             name: name,
@@ -51,14 +51,14 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
     var _adapter: Ice.ObjectAdapter
     var _testIntf: TestIntfPrx
 
-    init(adapter: Ice.ObjectAdapter)  throws {
+    init(adapter: Ice.ObjectAdapter) throws {
         _adapter = adapter
         _testIntf = try uncheckedCast(prx: adapter.add(servant: TestI(), id: Ice.stringToIdentity("test")),
                                       type: TestIntfPrx.self)
         try _adapter.activate()
     }
 
-    func getTestIntf(current: Current) throws -> TestIntfPrx? {
+    func getTestIntf(current: Current) -> TestIntfPrx? {
         return _testIntf
     }
 
@@ -66,11 +66,11 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
         try _adapter.activate()
     }
 
-    func hold(current: Current) throws {
-        try _adapter.hold()
+    func hold(current: Current) {
+        _adapter.hold()
     }
 
-    func deactivate(current: Current) throws {
+    func deactivate(current: Current) {
         _adapter.destroy()
     }
 }
@@ -105,16 +105,16 @@ class TestI: TestIntf {
         _semaphore = DispatchSemaphore(value: 0)
     }
 
-    func sleep(seconds: Int32, current: Current) throws {
+    func sleep(seconds: Int32, current: Current) {
         _ = _semaphore.wait(timeout: .now() + Double(seconds))
     }
 
-    func sleepAndHold(seconds: Int32, current: Current) throws {
-        try current.adapter!.hold()
+    func sleepAndHold(seconds: Int32, current: Current) {
+        current.adapter!.hold()
         _ = _semaphore.wait(timeout: .now() + Double(seconds))
     }
 
-    func interruptSleep(current: Current) throws {
+    func interruptSleep(current: Current) {
         _semaphore.signal()
     }
 
@@ -125,7 +125,7 @@ class TestI: TestIntf {
         }
     }
 
-    func waitForHeartbeatCount(count: Int32, current: Current) throws {
+    func waitForHeartbeatCount(count: Int32, current: Current) {
         _hearbeatCallback.waitForCount(count: count)
     }
 }

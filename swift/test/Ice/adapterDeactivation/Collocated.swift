@@ -18,7 +18,7 @@ class Collocated: TestHelperI {
         defer {
             communicator.destroy()
         }
-        try communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
+        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         //
         // 2 threads are necessary to dispatch the collocated transient() call with AMI
         //

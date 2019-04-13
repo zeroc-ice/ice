@@ -59,13 +59,13 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing object adapter published endpoints... ")
     do {
-        try communicator.getProperties().setProperty(key: "PAdapter.PublishedEndpoints",
-                                                     value: "tcp -h localhost -p 12345 -t 30000");
+        communicator.getProperties().setProperty(key: "PAdapter.PublishedEndpoints",
+                                                 value: "tcp -h localhost -p 12345 -t 30000")
         let adapter = try communicator.createObjectAdapter("PAdapter")
         try test(adapter.getPublishedEndpoints().count == 1)
         let endpt = adapter.getPublishedEndpoints()[0]
         try test(endpt.toString() == "tcp -h localhost -p 12345 -t 30000")
-        var prx = try communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:" +
+        let prx = try communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:" +
                                                  "tcp -h localhost -p 12347 -t 10000")!
         try adapter.setPublishedEndpoints(prx.ice_getEndpoints())
         try test(adapter.getPublishedEndpoints().count == 2)
@@ -77,7 +77,7 @@ func allTests(_ helper: TestHelper) throws {
         try adapter.refreshPublishedEndpoints()
         try test(adapter.getPublishedEndpoints().count == 1)
         try test(adapter.getPublishedEndpoints()[0] == endpt)
-        try communicator.getProperties().setProperty(key: "PAdapter.PublishedEndpoints",
+        communicator.getProperties().setProperty(key: "PAdapter.PublishedEndpoints",
                                                      value: "tcp -h localhost -p 12345 -t 20000")
         try adapter.refreshPublishedEndpoints()
         try test(adapter.getPublishedEndpoints().count == 1)
@@ -104,8 +104,8 @@ func allTests(_ helper: TestHelper) throws {
     do {
         var routerId = Ice.Identity()
         routerId.name = "router"
-        var router = try uncheckedCast(prx: base.ice_identity(routerId).ice_connectionId("rc"),
-                                       type: Ice.RouterPrx.self)
+        var router = uncheckedCast(prx: base.ice_identity(routerId).ice_connectionId("rc"),
+                                   type: Ice.RouterPrx.self)
         let adapter = try communicator.createObjectAdapterWithRouter(name: "", rtr: router)
         try test(adapter.getPublishedEndpoints().count == 1)
         try test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23456 -t 30000")

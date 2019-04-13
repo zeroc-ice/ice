@@ -20,7 +20,7 @@ class Client: TestHelperI {
         PromiseKit.conf.logHandler = { _ in }
 
         let (properties, _) = try Ice.createProperties(args: args)
-        try properties.setProperty(key: "Ice.Warn.Connections", value: "0")
+        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
         let communicator = try self.initialize(properties)
         defer {

@@ -18,7 +18,7 @@ class Server: TestHelperI {
         defer {
             communicator.destroy()
         }
-        try communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
+        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.addServantLocator(locator: ServantLocatorI(helper: self), category: "")
         try adapter.activate()

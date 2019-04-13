@@ -9,25 +9,15 @@
 
 import IceObjc
 
-private enum State {
-    case alive
-    case dead
-}
-
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, Hashable {
-    let communicator: Communicator
-    var servantManager: ServantManager
-    var locator: LocatorPrx?
-    var queue: DispatchQueue
-    let dispatchSpecificKey: DispatchSpecificKey<Set<ObjectAdapterI>>
-
-    var mutex = Mutex()
-    private var state: State
+    private let communicator: Communicator
+    let servantManager: ServantManager
+    private let queue: DispatchQueue
+    private let dispatchSpecificKey: DispatchSpecificKey<Set<ObjectAdapterI>>
 
     init(handle: ICEObjectAdapter, communicator: Communicator, queue: DispatchQueue) {
         self.communicator = communicator
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
-        state = .alive
         self.queue = queue
         dispatchSpecificKey = (communicator as! CommunicatorI).dispatchSpecificKey
         super.init(handle: handle)
@@ -64,16 +54,12 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         }
     }
 
-    func hold() throws {
-        try autoreleasepool {
-            try _handle.hold()
-        }
+    func hold() {
+        _handle.hold()
     }
 
-    func waitForHold() throws {
-        try autoreleasepool {
-            try _handle.waitForHold()
-        }
+    func waitForHold() {
+        _handle.waitForHold()
     }
 
     func deactivate() {
@@ -97,14 +83,9 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func addFacet(servant: Object, id: Identity, facet: String) throws -> ObjectPrx {
-        return try mutex.sync {
-            try checkForDeactivation()
-            try checkIdentity(id)
-
-            try servantManager.addServant(servant: servant, id: id, facet: facet)
-
-            return try createProxy(id).ice_facet(facet)
-        }
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
+        try servantManager.addServant(servant: servant, id: id, facet: facet)
+        return try createProxy(id).ice_facet(facet)
     }
 
     func addWithUUID(_ servant: Object) throws -> ObjectPrx {
@@ -116,11 +97,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func addDefaultServant(servant: Object, category: String) throws {
-        try mutex.sync {
-            try checkForDeactivation()
-
-            try servantManager.addDefaultServant(servant: servant, category: category)
-        }
+        try servantManager.addDefaultServant(servant: servant, category: category)
     }
 
     func remove(_ id: Identity) throws -> Object {
@@ -128,90 +105,49 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func removeFacet(id: Identity, facet: String) throws -> Object {
-        return try mutex.sync {
-            try checkForDeactivation()
-            try checkIdentity(id)
-
-            return try servantManager.removeServant(id: id, facet: facet)
-        }
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
+        return try servantManager.removeServant(id: id, facet: facet)
     }
 
     func removeAllFacets(_ id: Identity) throws -> FacetMap {
-        return try mutex.sync {
-            try checkForDeactivation()
-            try checkIdentity(id)
-
-            return try servantManager.removeAllFacets(id: id)
-        }
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
+        return try servantManager.removeAllFacets(id: id)
     }
 
     func removeDefaultServant(_ category: String) throws -> Object {
-        return try mutex.sync {
-            try checkForDeactivation()
-            return try servantManager.removeDefaultServant(category: category)
-        }
+        return try servantManager.removeDefaultServant(category: category)
     }
 
-    func find(_ id: Identity) throws -> Object? {
-        return try findFacet(id: id, facet: "")
+    func find(_ id: Identity) -> Object? {
+        return findFacet(id: id, facet: "")
     }
 
-    func findFacet(id: Identity, facet: String) throws -> Object? {
-        return try mutex.sync {
-            try checkForDeactivation()
-            try checkIdentity(id)
-
-            return servantManager.findServant(id: id, facet: facet)
-        }
+    func findFacet(id: Identity, facet: String) -> Object? {
+         return servantManager.findServant(id: id, facet: facet)
     }
 
-    func findAllFacets(_ id: Identity) throws -> FacetMap {
-        return try mutex.sync {
-            try checkForDeactivation()
-            try checkIdentity(id)
-
-            return servantManager.findAllFacets(id: id)
-        }
+    func findAllFacets(_ id: Identity) -> FacetMap {
+         return servantManager.findAllFacets(id: id)
     }
 
-    func findByProxy(_ proxy: ObjectPrx) throws -> Object? {
-        return try mutex.sync {
-            try checkForDeactivation()
-
-            return try findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
-        }
+    func findByProxy(_ proxy: ObjectPrx) -> Object? {
+         return findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
     }
 
     func addServantLocator(locator: ServantLocator, category: String) throws {
-        try mutex.sync {
-            try checkForDeactivation()
-
-            try servantManager.addServantLocator(locator: locator, category: category)
-        }
+         try servantManager.addServantLocator(locator: locator, category: category)
     }
 
     func removeServantLocator(_ category: String) throws -> ServantLocator {
-        return try mutex.sync {
-            try checkForDeactivation()
-
-            return try servantManager.removeServantLocator(category: category)
-        }
+         return try servantManager.removeServantLocator(category: category)
     }
 
-    func findServantLocator(_ category: String) throws -> ServantLocator? {
-        return try mutex.sync {
-            try checkForDeactivation()
-
-            return servantManager.findServantLocator(category: category)
-        }
+    func findServantLocator(_ category: String) -> ServantLocator? {
+         return servantManager.findServantLocator(category: category)
     }
 
-    func findDefaultServant(_ category: String) throws -> Object? {
-        return try mutex.sync {
-            try checkForDeactivation()
-
-            return servantManager.findDefaultServant(category: category)
-        }
+    func findDefaultServant(_ category: String) -> Object? {
+         return servantManager.findDefaultServant(category: category)
     }
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {
@@ -229,18 +165,16 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                                communicator: communicator)
     }
 
-    func setLocator(_ locator: LocatorPrx?) throws {
-        try mutex.sync {
-            try checkForDeactivation()
-
-            self.locator = locator
-        }
+    func setLocator(_ locator: LocatorPrx?) {
+        let l = locator as? _LocatorPrxI
+        _handle.setLocator(l?._handle ?? nil)
     }
 
     func getLocator() -> LocatorPrx? {
-        return mutex.sync {
-            locator
+        guard let locatorHandle = _handle.getLocator() else {
+            return nil
         }
+        return _LocatorPrxI.fromICEObjectPrx(handle: locatorHandle)
     }
 
     func getEndpoints() -> EndpointSeq {
@@ -315,29 +249,13 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func facadeRemoved() {
-        mutex.sync {
-            self.state = .dead
-            servantManager.destroy()
-            locator = nil
-            queue.async(flags: .barrier) {
-                guard var adapters = self.queue.getSpecific(key: self.dispatchSpecificKey) else {
-                    preconditionFailure("ObjectAdapter missing from dispatch specific data")
-                }
-                adapters.remove(self)
-                self.queue.setSpecific(key: self.dispatchSpecificKey, value: adapters)
+        servantManager.destroy()
+        queue.async(flags: .barrier) {
+            guard var adapters = self.queue.getSpecific(key: self.dispatchSpecificKey) else {
+                preconditionFailure("ObjectAdapter missing from dispatch specific data")
             }
-        }
-    }
-
-    private func checkForDeactivation() throws {
-        guard state == .alive else {
-            throw ObjectAdapterDeactivatedException(name: getName())
-        }
-    }
-
-    private func checkIdentity(_ id: Identity) throws {
-        guard !id.name.isEmpty else {
-            throw IllegalIdentityException(id: id)
+            adapters.remove(self)
+            self.queue.setSpecific(key: self.dispatchSpecificKey, value: adapters)
         }
     }
 }

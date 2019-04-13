@@ -35,8 +35,8 @@ public class Client: TestHelperI {
 
         var initData = Ice.InitializationData()
         let (properties, _) = try createTestProperties(args: args)
-        try properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-        try properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max
+        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
+        properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max
         initData.properties = properties
 
         let communicator = try self.initialize(initData)
@@ -44,8 +44,7 @@ public class Client: TestHelperI {
             communicator.destroy()
         }
 
-        try communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
-                                                     value: self.getTestEndpoint(num: 0))
+        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: self.getTestEndpoint(num: 0))
 
         let output = self.getWriter()
         output.write("testing object adapter registration exceptions... ")
@@ -54,7 +53,7 @@ public class Client: TestHelperI {
         //    _ = try communicator.createObjectAdapter("TestAdapter0")
         // } catch is Ice.InitializationException {}
 
-        try communicator.getProperties().setProperty(key: "TestAdapter0.Endpoints", value: "tcp -h *")
+        communicator.getProperties().setProperty(key: "TestAdapter0.Endpoints", value: "tcp -h *")
         // TODO
         // var first = communicator.createObjectAdapter("TestAdapter0")
         // do {

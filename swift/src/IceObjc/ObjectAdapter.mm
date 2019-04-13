@@ -53,31 +53,35 @@
     }
 }
 
--(BOOL) hold:(NSError* _Nullable * _Nullable)error
+-(void) hold
 {
     try
     {
         _objectAdapter->hold();
-        return YES;
     }
-    catch(const std::exception& ex)
+    catch(const Ice::ObjectAdapterDeactivatedException&)
     {
-        *error = convertException(ex);
-        return NO;
+        // ignored
+    }
+    catch(const std::exception&)
+    {
+        // unexpected but ignored nevertheless
     }
 }
 
--(BOOL) waitForHold:(NSError* _Nullable * _Nullable)error
+-(void) waitForHold
 {
     try
     {
         _objectAdapter->waitForHold();
-        return YES;
     }
-    catch(const std::exception& ex)
+    catch(const Ice::ObjectAdapterDeactivatedException&)
     {
-        *error = convertException(ex);
-        return NO;
+        // ignored, returns immediately
+    }
+    catch(const std::exception&)
+    {
+        // unexpected but ignored nevertheless
     }
 }
 
@@ -141,6 +145,33 @@
         *error = convertException(ex);
         return nil;
     }
+}
+
+-(void) setLocator:(nullable ICEObjectPrx*) locator
+{
+    try
+    {
+        auto l = locator ? [locator prx] : nullptr;
+        _objectAdapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+        // ignored
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // ignored
+    }
+    catch(const std::exception&)
+    {
+        // unexpected but ignored nevertheless
+    }
+}
+
+-(nullable ICEObjectPrx*) getLocator
+{
+    auto prx = _objectAdapter->getLocator();
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(NSArray<ICEEndpoint*>*) getEndpoints

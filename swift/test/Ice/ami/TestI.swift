@@ -66,7 +66,7 @@ class TestI: TestIntf {
 
     func pingBiDir(reply: PingReplyPrx?, current: Current) throws {
         if let reply = reply {
-            try reply.ice_fixed(current.con!)!.replyAsync().wait()
+            try reply.ice_fixed(current.con!).replyAsync().wait()
         }
     }
 
@@ -155,8 +155,8 @@ class TestControllerI: TestIntfController {
         _adapter = adapter
     }
 
-    func holdAdapter(current: Ice.Current) throws {
-        try _adapter.hold()
+    func holdAdapter(current: Ice.Current) {
+        _adapter.hold()
     }
 
     func resumeAdapter(current: Ice.Current) throws {

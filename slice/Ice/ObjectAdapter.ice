@@ -97,7 +97,7 @@ local interface ObjectAdapter
      * @see #waitForHold
      *
      **/
-    void hold();
+    ["swift:noexcept"] void hold();
 
     /**
      *
@@ -110,7 +110,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    ["js:async"] void waitForHold();
+    ["swift:noexcept", "js:async"] void waitForHold();
 
     /**
      *
@@ -405,7 +405,7 @@ local interface ObjectAdapter
      * @see #findByProxy
      *
      **/
-    ["cpp:const"] Object find(Identity id);
+    ["swift:noexcept", "cpp:const"] Object find(Identity id);
 
     /**
      *
@@ -428,7 +428,7 @@ local interface ObjectAdapter
      * @see #findByProxy
      *
      **/
-    ["cpp:const"] Object findFacet(Identity id, string facet);
+    ["swift:noexcept", "cpp:const"] Object findFacet(Identity id, string facet);
 
     /**
      *
@@ -446,7 +446,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["cpp:const"] FacetMap findAllFacets(Identity id);
+    ["swift:noexcept", "cpp:const"] FacetMap findAllFacets(Identity id);
 
     /**
      *
@@ -466,7 +466,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["cpp:const"] Object findByProxy(["swift:nonnull"] Object* proxy);
+    ["swift:noexcept", "cpp:const"] Object findByProxy(["swift:nonnull"] Object* proxy);
 
     /**
      *
@@ -552,7 +552,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    ["cpp:const"] ServantLocator findServantLocator(string category);
+    ["swift:noexcept", "cpp:const"] ServantLocator findServantLocator(string category);
 
     /**
      *
@@ -567,7 +567,7 @@ local interface ObjectAdapter
      * @see #removeDefaultServant
      *
      **/
-    ["cpp:const"] Object findDefaultServant(string category);
+    ["swift:noexcept", "cpp:const"] Object findDefaultServant(string category);
 
     /**
      *

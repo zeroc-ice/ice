@@ -17,7 +17,7 @@ class Server: TestHelperI {
         defer {
             communicator.destroy()
         }
-        try communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
+        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                      value: "\(self.getTestEndpoint(num: 0)) -t 10000")
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let id = try Ice.stringToIdentity("factory")

@@ -64,7 +64,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
     output.write("testing local exceptions... ")
     do {
-        let indirect = try uncheckedCast(prx: p.ice_adapterId("dummy"), type: TestIntfPrx.self)
+        let indirect = uncheckedCast(prx: p.ice_adapterId("dummy"), type: TestIntfPrx.self)
         try indirect.opAsync().wait()
     } catch is Ice.NoEndpointException {}
 
@@ -92,7 +92,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
     output.write("testing exception callback... ")
     do {
-        let i = try uncheckedCast(prx: p.ice_adapterId("dummy"), type: TestIntfPrx.self)
+        let i = uncheckedCast(prx: p.ice_adapterId("dummy"), type: TestIntfPrx.self)
 
         do {
             _ = try i.ice_isAAsync(id: "::Test::TestIntf").wait()
@@ -343,7 +343,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // All connections should be flushed even if there are failures on some connections.
             // Exceptions should not be reported.
             //
-            try test(p.opBatchCount() == 0);
+            try test(p.opBatchCount() == 0)
             let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
                                        type: TestIntfPrx.self).ice_batchOneway()
 
@@ -476,7 +476,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // without waiting for the pending invocation to complete. There will be no retry and we expect the
             // invocation to fail with ConnectionManuallyClosedException.
             //
-            p = try p.ice_connectionId("CloseGracefully") // Start with a new connection.
+            p = p.ice_connectionId("CloseGracefully") // Start with a new connection.
             var con = try p.ice_getConnection()!
 
             var t: Promise<Void>!

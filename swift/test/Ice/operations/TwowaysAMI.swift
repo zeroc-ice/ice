@@ -702,7 +702,7 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     if conn != nil {
         var initData = Ice.InitializationData()
         let properties = communicator.getProperties().clone()
-        try properties.setProperty(key: "Ice.ImplicitContext", value: "Shared")
+        properties.setProperty(key: "Ice.ImplicitContext", value: "Shared")
         initData.properties = properties
         let ic = try helper.initialize(initData)
 

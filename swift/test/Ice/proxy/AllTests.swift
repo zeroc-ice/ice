@@ -357,7 +357,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     writer.write("testing propertyToProxy... ")
     let prop = communicator.getProperties()
     let propertyPrefix = "Foo.Proxy"
-    try prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
+    prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getIdentity().name == "test" &&
         b1.ice_getIdentity().category.isEmpty &&
@@ -366,35 +366,35 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
 
     var property = "\(propertyPrefix).Locator"
     try test(b1.ice_getLocator() == nil)
-    try prop.setProperty(key: property, value: "locator:default -p 10000")
+    prop.setProperty(key: property, value: "locator:default -p 10000")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
 
     try test(b1.ice_getLocator() != nil &&
         b1.ice_getLocator()!.ice_getIdentity().name == "locator")
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).LocatorCacheTimeout"
     try test(b1.ice_getLocatorCacheTimeout() == -1)
-    try prop.setProperty(key: property, value: "1")
+    prop.setProperty(key: property, value: "1")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getLocatorCacheTimeout() == 1)
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     // Now retest with an indirect proxy.
-    try prop.setProperty(key: propertyPrefix, value: "test")
+    prop.setProperty(key: propertyPrefix, value: "test")
     property = "\(propertyPrefix).Locator"
-    try prop.setProperty(key: property, value: "locator:default -p 10000")
+    prop.setProperty(key: property, value: "locator:default -p 10000")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getLocator() != nil &&
         b1.ice_getLocator()!.ice_getIdentity().name == "locator")
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).LocatorCacheTimeout"
     try test(b1.ice_getLocatorCacheTimeout() == -1)
-    try prop.setProperty(key: property, value: "1")
+    prop.setProperty(key: property, value: "1")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getLocatorCacheTimeout() == 1)
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     // This cannot be tested so easily because the property is cached
     // on communicator initialization.
@@ -404,68 +404,68 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     //test(b1.ice_getLocatorCacheTimeout() == 60);
     // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-    try prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
+    prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
 
     property = "\(propertyPrefix).Router"
     try test(b1.ice_getRouter() == nil)
-    try prop.setProperty(key: property, value: "router:default -p 10000")
+    prop.setProperty(key: property, value: "router:default -p 10000")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getRouter() != nil &&
         b1.ice_getRouter()!.ice_getIdentity().name == "router")
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).PreferSecure"
     try test(!b1.ice_isPreferSecure())
-    try prop.setProperty(key: property, value: "1")
+    prop.setProperty(key: property, value: "1")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_isPreferSecure())
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).ConnectionCached"
     try test(b1.ice_isConnectionCached())
-    try prop.setProperty(key: property, value: "0")
+    prop.setProperty(key: property, value: "0")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(!b1.ice_isConnectionCached())
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).InvocationTimeout"
     try test(b1.ice_getInvocationTimeout() == -1)
-    try prop.setProperty(key: property, value: "1000")
+    prop.setProperty(key: property, value: "1000")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getInvocationTimeout() == 1000)
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).EndpointSelection"
     try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
-    try prop.setProperty(key: property, value: "Random")
+    prop.setProperty(key: property, value: "Random")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
-    try prop.setProperty(key: property, value: "Ordered")
+    prop.setProperty(key: property, value: "Ordered")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).CollocationOptimized"
     try test(b1.ice_isCollocationOptimized())
-    try prop.setProperty(key: property, value: "0")
+    prop.setProperty(key: property, value: "0")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(!b1.ice_isCollocationOptimized())
-    try prop.setProperty(key: property, value: "")
+    prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).Context.c1"
     try test(b1.ice_getContext()["c1"] == nil)
-    try prop.setProperty(key: property, value: "TEST")
+    prop.setProperty(key: property, value: "TEST")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getContext()["c1"] == "TEST")
 
     property = "\(propertyPrefix).Context.c2"
     try test(b1.ice_getContext()["c2"] == nil)
-    try prop.setProperty(key: property, value: "TEST")
+    prop.setProperty(key: property, value: "TEST")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
     try test(b1.ice_getContext()["c2"] == "TEST")
 
-    try prop.setProperty(key: "\(propertyPrefix).Context.c1", value: "")
-    try prop.setProperty(key: "\(propertyPrefix).Context.c2", value: "")
+    prop.setProperty(key: "\(propertyPrefix).Context.c1", value: "")
+    prop.setProperty(key: "\(propertyPrefix).Context.c2", value: "")
 
     writer.writeLine("ok")
 
