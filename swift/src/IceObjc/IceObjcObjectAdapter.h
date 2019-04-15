@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(createProxy(name:category:));
 -(nullable ICEObjectPrx*) createDirectProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(createDirectProxy(name:category:));
 -(nullable ICEObjectPrx*) createIndirectProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(createIndirectProxy(name:category:));
--(void) setLocator:(nullable ICEObjectPrx*)locator;
+-(void) setLocator:(ICEObjectPrx* _Nullable)locator;
 -(nullable ICEObjectPrx*) getLocator;
 -(NSArray<ICEEndpoint*>*) getEndpoints;
 -(BOOL) refreshPublishedEndpoints:(NSError* _Nullable * _Nullable)error;
