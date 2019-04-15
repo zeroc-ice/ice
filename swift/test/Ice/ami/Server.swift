@@ -33,7 +33,9 @@ class Server: TestHelperI {
         //
         properties.setProperty(key: "Ice.TCP.RcvSize", value: "50000")
 
-        let (communicator, _) = try self.initialize(args: args)
+        var initData = Ice.InitializationData()
+        initData.properties = properties
+        let communicator = try self.initialize(initData)
         defer {
             communicator.destroy()
         }
