@@ -15,10 +15,6 @@ open class TestFactoryI: TestFactory {
 class Client: TestHelperI {
      override func run(args: [String]) throws {
 
-        PromiseKit.conf.Q.map = .global()
-        PromiseKit.conf.Q.return = .global()
-        PromiseKit.conf.logHandler = { _ in }
-
         let (properties, _) = try Ice.createProperties(args: args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
