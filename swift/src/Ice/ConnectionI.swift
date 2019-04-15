@@ -5,11 +5,11 @@
 import IceObjc
 import PromiseKit
 
-extension Connection {
-    public func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                        sent: ((Bool) -> Void)? = nil,
-                                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+public extension Connection {
+    func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                 sent: ((Bool) -> Void)? = nil,
+                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI
         let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
         return Promise<Void> { seal in
@@ -26,9 +26,9 @@ extension Connection {
         }
     }
 
-    public func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
-                               sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                               sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+    func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
+                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI
         return Promise<Void> { seal in
             try autoreleasepool {
