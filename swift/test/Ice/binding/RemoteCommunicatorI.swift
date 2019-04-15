@@ -26,7 +26,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
                     endpoints = _helper.getTestEndpoint(properties: communicator.getProperties(), num: _nextPort,
                                                         prot: endpoints)
                 }
-                try communicator.getProperties().setProperty(key: "\(name).ThreadPool.Size", value: "1")
+                communicator.getProperties().setProperty(key: "\(name).ThreadPool.Size", value: "1")
                 let adapter = try communicator.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
                 return try uncheckedCast(prx: current.adapter!.addWithUUID(RemoteObjectAdapterI(adapter)),
                                          type: RemoteObjectAdapterPrx.self)

@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) waitForShutdown;
 -(bool) isShutdown;
 -(nullable id) stringToProxy:(NSString*)str error:(NSError**)error;
--(nullable NSString*) proxyToString:(ICEObjectPrx*)prx error:(NSError**)error;
 -(nullable id) propertyToProxy:(NSString*)property error:(NSError**)error
 NS_SWIFT_NAME(propertyToProxy(property:));
 -(nullable NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError**)error;

@@ -45,8 +45,8 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func proxyToString(_ obj: ObjectPrx) throws -> String {
-        return try _handle.proxy(toString: obj._impl._handle)
+    func proxyToString(_ obj: ObjectPrx?) -> String {
+        return obj?.ice_toString() ?? ""
     }
 
     func propertyToProxy(_ property: String) throws -> ObjectPrx? {
@@ -58,8 +58,17 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func proxyToProperty(proxy: ObjectPrx, property: String) throws -> PropertyDict {
-        return try _handle.proxy(toProperty: proxy._impl._handle, property: property)
+    func proxyToProperty(proxy: ObjectPrx, property: String) -> PropertyDict {
+        precondition(!proxy.ice_isFixed())
+        do {
+            return try autoreleasepool {
+                try _handle.proxy(toProperty: proxy._impl._handle, property: property)
+            }
+        } catch is CommunicatorDestroyedException {
+            return PropertyDict()
+        } catch {
+            fatalError("\(error)")
+        }
     }
 
     func stringToIdentity(_ str: String) throws -> Identity {
@@ -115,9 +124,15 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return _RouterPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
-    func setDefaultRouter(_ rtr: RouterPrx?) throws {
-        try autoreleasepool {
-            try _handle.setDefaultRouter((rtr as? _RouterPrxI)?._handle)
+    func setDefaultRouter(_ rtr: RouterPrx?) {
+        do {
+            try autoreleasepool {
+                try _handle.setDefaultRouter((rtr as? _RouterPrxI)?._handle)
+            }
+        } catch is CommunicatorDestroyedException {
+            // Ignored
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -128,9 +143,15 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return _LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
-    func setDefaultLocator(_ loc: LocatorPrx?) throws {
-        try autoreleasepool {
-            try _handle.setDefaultRouter((loc as? _LocatorPrxI)?._handle)
+    func setDefaultLocator(_ loc: LocatorPrx?) {
+        do {
+            try autoreleasepool {
+                try _handle.setDefaultRouter((loc as? _LocatorPrxI)?._handle)
+            }
+        } catch is CommunicatorDestroyedException {
+            // Ignored
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -191,21 +212,34 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func findAdminFacet(_ facet: String) throws -> Object? {
-        return try autoreleasepool {
-            guard let facade = try _handle.findAdminFacet(facet) as? AdminFacetFacade else {
-                return nil
+    func findAdminFacet(_ facet: String) -> Object? {
+        do {
+            return try autoreleasepool {
+                guard let facade = try _handle.findAdminFacet(facet) as? AdminFacetFacade else {
+                    return nil
+                }
+                return facade.servant
             }
-
-            return facade.servant
+        } catch is CommunicatorDestroyedException {
+            // Ignored
+            return nil
+        } catch {
+            fatalError("\(error)")
         }
     }
 
-    func findAllAdminFacets() throws -> FacetMap {
-        return try autoreleasepool {
-            try _handle.findAllAdminFacets().mapValues { facade in
-                (facade as! AdminFacetFacade).servant
+    func findAllAdminFacets() -> FacetMap {
+        do {
+            return try autoreleasepool {
+                try _handle.findAllAdminFacets().mapValues { facade in
+                    (facade as! AdminFacetFacade).servant
+                }
             }
+        } catch is CommunicatorDestroyedException {
+            // Ignored
+            return FacetMap()
+        } catch {
+            fatalError("\(error)")
         }
     }
 
@@ -262,7 +296,7 @@ public extension Communicator {
     }
 }
 
-class DefaultsAndOverrides {
+struct DefaultsAndOverrides {
     init(handle: ICECommunicator) {
         var defaultEncoding = EncodingVersion()
         handle.getDefaultEncoding(major: &defaultEncoding.major, minor: &defaultEncoding.minor)

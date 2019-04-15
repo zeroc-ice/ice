@@ -175,7 +175,7 @@ local interface Communicator
      * @see #stringToProxy
      *
      **/
-    ["cpp:const"] string proxyToString(["swift:nonnull"] Object* obj);
+    ["cpp:const", "swift:noexcept"] string proxyToString(Object* obj);
 
     /**
      *
@@ -206,8 +206,8 @@ local interface Communicator
      * @return The property set.
      *
      **/
-    ["cpp:const", "swift:nonnull"] PropertyDict proxyToProperty(["swift:nonnull"] Object* proxy,
-                                                                     string property);
+    ["cpp:const", "swift:noexcept", "swift:nonnull"] PropertyDict proxyToProperty(["swift:nonnull"] Object* proxy,
+                                                                                  string property);
 
     /**
      *
@@ -282,7 +282,6 @@ local interface Communicator
      * @see Properties
      *
      **/
-
     ["js:async", "swift:nonnull"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     /**
@@ -375,7 +374,7 @@ local interface Communicator
      * @see ValueFactoryManager#find
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
+    ["cpp:const", "cpp:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
     ObjectFactory findObjectFactory(string id);
 
 #endif
@@ -421,7 +420,7 @@ local interface Communicator
      * @return This communicator's observer resolver object.
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:noexcept"] Instrumentation::CommunicatorObserver getObserver();
+    ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
 #endif
 
     /**
@@ -453,7 +452,7 @@ local interface Communicator
      * @see Router
      *
      **/
-    void setDefaultRouter(Router* rtr);
+    ["swift:noexcept"] void setDefaultRouter(Router* rtr);
 
     /**
      *
@@ -486,7 +485,7 @@ local interface Communicator
      * @see ObjectAdapter#setLocator
      *
      **/
-    void setDefaultLocator(Locator* loc);
+    ["swift:noexcept"] void setDefaultLocator(Locator* loc);
 
 #if !defined(__SLICE2SWIFT__) && !defined(__SLICE2JS__)
     /**
@@ -599,7 +598,7 @@ local interface Communicator
      * null if no facet is registered with the given name.
      *
      **/
-    Object findAdminFacet(string facet);
+    ["swift:noexcept"] Object findAdminFacet(string facet);
 
     /**
      *
@@ -611,7 +610,7 @@ local interface Communicator
      * @see #findAdminFacet
      *
      **/
-    FacetMap findAllAdminFacets();
+    ["swift:noexcept"] FacetMap findAllAdminFacets();
 #endif
 }
 

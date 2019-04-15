@@ -345,7 +345,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
 
     if try b1.ice_getConnection() != nil { // not colloc-optimized target
         b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))!
-        let str = try communicator.proxyToString(b2)
+        let str = communicator.proxyToString(b2)
         try test(b2.ice_toString() == str)
         let str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
         // Verify that the stringified fixed proxy is the same as a regular stringified proxy
@@ -499,7 +499,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     locator = locator.ice_router(uncheckedCast(prx: router, type: Ice.RouterPrx.self))
     b1 = b1.ice_locator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
-    let proxyProps = try communicator.proxyToProperty(proxy: b1, property: "Test")
+    let proxyProps = communicator.proxyToProperty(proxy: b1, property: "Test")
     try test(proxyProps.count == 21)
 
     try test(proxyProps["Test"] == "test -t -e 1.0")
@@ -555,7 +555,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
     try test(baseProxy.ice_invocationTimeout(-2).ice_getInvocationTimeout() == -2)
     try test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
     try test(baseProxy.ice_locatorCacheTimeout(-1).ice_getLocatorCacheTimeout() == -1)
-    
+
     writer.writeLine("ok")
 
     writer.write("testing proxy comparison... ")
@@ -866,7 +866,7 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
 
     // Legal TCP endpoint expressed as opaque endpoint
     var p1 = try communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")!
-    var pstr = try communicator.proxyToString(p1)
+    var pstr = communicator.proxyToString(p1)
     try test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     // Opaque endpoint encoded with 1.1 encoding.
@@ -882,14 +882,14 @@ public func allTests(helper: TestHelper) throws -> MyClassPrx {
         p1 = try communicator.stringToProxy("test -e 1.0:" +
             "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
             "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")!
-        pstr = try communicator.proxyToString(p1)
+        pstr = communicator.proxyToString(p1)
         try test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
         // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
         p1 = try communicator.stringToProxy("test -e 1.0:" +
             "opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:" +
             "opaque -e 1.0 -t 99 -v abch")!
-        pstr = try communicator.proxyToString(p1)
+        pstr = communicator.proxyToString(p1)
         if ssl {
             try test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
         } else if tcp {

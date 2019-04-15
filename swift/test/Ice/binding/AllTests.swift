@@ -715,53 +715,53 @@ func allTests(_ helper: TestHelper) throws {
         output.write("testing ipv4 & ipv6 connections... ")
 
         let (ipv4, _) = try Ice.createProperties()
-        try ipv4.setProperty(key: "Ice.IPv4", value: "1")
-        try ipv4.setProperty(key: "Ice.IPv6", value: "0")
-        try ipv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
+        ipv4.setProperty(key: "Ice.IPv4", value: "1")
+        ipv4.setProperty(key: "Ice.IPv6", value: "0")
+        ipv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
         let (ipv6, _) = try Ice.createProperties()
-        try ipv6.setProperty(key: "Ice.IPv4", value: "0")
-        try ipv6.setProperty(key: "Ice.IPv6", value: "1")
-        try ipv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
+        ipv6.setProperty(key: "Ice.IPv4", value: "0")
+        ipv6.setProperty(key: "Ice.IPv6", value: "1")
+        ipv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
         let (bothPreferIPv4, _) = try Ice.createProperties()
-        try bothPreferIPv4.setProperty(key: "Ice.IPv4", value: "1")
-        try bothPreferIPv4.setProperty(key: "Ice.IPv6", value: "1")
-        try bothPreferIPv4.setProperty(key: "Ice.PreferIPv6Address", value: "0")
-        try bothPreferIPv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
+        bothPreferIPv4.setProperty(key: "Ice.IPv4", value: "1")
+        bothPreferIPv4.setProperty(key: "Ice.IPv6", value: "1")
+        bothPreferIPv4.setProperty(key: "Ice.PreferIPv6Address", value: "0")
+        bothPreferIPv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
         let (bothPreferIPv6, _) = try Ice.createProperties()
-        try bothPreferIPv6.setProperty(key: "Ice.IPv4", value: "1")
-        try bothPreferIPv6.setProperty(key: "Ice.IPv6", value: "1")
-        try bothPreferIPv6.setProperty(key: "Ice.PreferIPv6Address", value: "1")
-        try bothPreferIPv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
+        bothPreferIPv6.setProperty(key: "Ice.IPv4", value: "1")
+        bothPreferIPv6.setProperty(key: "Ice.IPv6", value: "1")
+        bothPreferIPv6.setProperty(key: "Ice.PreferIPv6Address", value: "1")
+        bothPreferIPv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
-        var clientProps = [ipv4, ipv6, bothPreferIPv4, bothPreferIPv6]
+        let clientProps = [ipv4, ipv6, bothPreferIPv4, bothPreferIPv6]
 
         let endpoint = "tcp -p \(helper.getTestPort(num: 2))"
 
         let anyipv4 = ipv4.clone()
-        try anyipv4.setProperty(key: "Adapter.Endpoints", value: endpoint);
-        try anyipv4.setProperty(key: "Adapter.PublishedEndpoints", value: "\(endpoint) -h 127.0.0.1")
+        anyipv4.setProperty(key: "Adapter.Endpoints", value: endpoint)
+        anyipv4.setProperty(key: "Adapter.PublishedEndpoints", value: "\(endpoint) -h 127.0.0.1")
 
         let anyipv6 = ipv6.clone()
-        try anyipv6.setProperty(key: "Adapter.Endpoints", value: endpoint)
-        try anyipv6.setProperty(key: "Adapter.PublishedEndpoints", value: "\(endpoint) -h \".1\"")
+        anyipv6.setProperty(key: "Adapter.Endpoints", value: endpoint)
+        anyipv6.setProperty(key: "Adapter.PublishedEndpoints", value: "\(endpoint) -h \".1\"")
 
         let (anyboth, _) = try Ice.createProperties()
-        try anyboth.setProperty(key: "Ice.IPv4", value: "1")
-        try anyboth.setProperty(key: "Ice.IPv6", value: "1")
-        try anyboth.setProperty(key: "Adapter.Endpoints", value: endpoint)
-        try anyboth.setProperty(key: "Adapter.PublishedEndpoints",
+        anyboth.setProperty(key: "Ice.IPv4", value: "1")
+        anyboth.setProperty(key: "Ice.IPv6", value: "1")
+        anyboth.setProperty(key: "Adapter.Endpoints", value: endpoint)
+        anyboth.setProperty(key: "Adapter.PublishedEndpoints",
                             value: "\(endpoint) -h \"::1\":\(endpoint) -h 127.0.0.1")
 
         let localipv4 = ipv4.clone()
-        try localipv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h 127.0.0.1")
+        localipv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h 127.0.0.1")
 
         let localipv6 = ipv6.clone()
-        try localipv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h \"::1\"")
+        localipv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h \"::1\"")
 
-        var serverProps = [anyipv4, anyipv6, anyboth, localipv4, localipv6]
+        let serverProps = [anyipv4, anyipv6, anyboth, localipv4, localipv6]
 
         var ipv6NotSupported = false
         for  p in serverProps {

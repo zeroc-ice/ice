@@ -74,19 +74,6 @@
     return nil;
 }
 
--(NSString*) proxyToString:(ICEObjectPrx*)prx error:(NSError* _Nullable * _Nullable)error
-{
-    try
-    {
-        return toNSString(_communicator->proxyToString([prx prx]));
-    }
-    catch(const std::exception& ex)
-    {
-        *error = convertException(ex);
-        return nil;
-    }
-}
-
 -(nullable id) propertyToProxy:(NSString*)property error:(NSError* _Nullable * _Nullable)error
 {
     try
