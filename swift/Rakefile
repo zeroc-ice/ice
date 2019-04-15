@@ -10,7 +10,6 @@ $tests = [
   "Ice/binding",
   "Ice/defaultServant",
   "Ice/defaultValue",
-  "Ice/dispatcher",
   "Ice/enums",
   "Ice/exceptions",
   "Ice/facets",
