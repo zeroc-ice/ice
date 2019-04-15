@@ -58,7 +58,7 @@ func allTests(_ helper: TestHelper) throws {
 
     let  names = ["foo", "bar", "x", "y", "abcdefg"]
 
-    var prx:MyObjectPrx! = nil
+    var prx: MyObjectPrx! = nil
     for name in names {
         identity.name = name
         prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
@@ -66,7 +66,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(prx.getName() == name)
     }
 
-    identity.name = "ObjectNotExist";
+    identity.name = "ObjectNotExist"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
     do {
         try prx.ice_ping()
@@ -78,7 +78,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(false)
     } catch is Ice.ObjectNotExistException {} // Expected
 
-    identity.name = "FacetNotExist";
+    identity.name = "FacetNotExist"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
     do {
         try prx.ice_ping()
@@ -90,7 +90,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(false)
     } catch is Ice.FacetNotExistException {} // Expected
 
-    identity.category = "bar";
+    identity.category = "bar"
     for name in names {
         identity.name = name
         prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
@@ -107,7 +107,7 @@ func allTests(_ helper: TestHelper) throws {
     }
 
     _ = try oa.removeDefaultServant("foo")
-    identity.category = "foo";
+    identity.category = "foo"
     prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)
     do {
         try prx.ice_ping()
