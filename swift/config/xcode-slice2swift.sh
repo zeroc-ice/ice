@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
 
 if [ -f /usr/local/opt/ice/bin/slice2swift ]; then
     SLICE2SWIFT=/usr/local/bin/slice2swift

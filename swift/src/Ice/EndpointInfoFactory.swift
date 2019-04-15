@@ -1,11 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
 
 import IceObjc
 
@@ -101,23 +96,23 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
 
     #if os(iOS) || os(watchOS) || os(tvOS)
 
-    static func createIAPEndpointInfo(_ handle: ICEEndpointInfo,
-                                      underlying: Any,
-                                      timeout: Int32,
-                                      compress: Bool,
-                                      manufacturer: String,
-                                      modelNumber: String,
-                                      name: String,
-                                      protocol: String) -> Any {
-        return IAPEndpointInfoI(handle: handle,
-                                underlying: getUnderlying(underlying),
-                                timeout: timeout,
-                                compress: compress,
-                                manufacturer: manufacturer,
-                                modelNumber: modelNumber,
-                                name: name,
-                                protocol: `protocol`)
-    }
+        static func createIAPEndpointInfo(_ handle: ICEEndpointInfo,
+                                          underlying: Any,
+                                          timeout: Int32,
+                                          compress: Bool,
+                                          manufacturer: String,
+                                          modelNumber: String,
+                                          name: String,
+                                          protocol: String) -> Any {
+            return IAPEndpointInfoI(handle: handle,
+                                    underlying: getUnderlying(underlying),
+                                    timeout: timeout,
+                                    compress: compress,
+                                    manufacturer: manufacturer,
+                                    modelNumber: modelNumber,
+                                    name: name,
+                                    protocol: `protocol`)
+        }
 
     #endif
 

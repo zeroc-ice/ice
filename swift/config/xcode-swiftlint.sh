@@ -1,5 +1,10 @@
+#!/bin/sh
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
+
 if which swiftformat >/dev/null; then
-    swiftformat --version 4.2 "$1"
+    swiftformat "$1"
 else
     echo "warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat"
 fi

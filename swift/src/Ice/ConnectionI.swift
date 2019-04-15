@@ -1,11 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
 
 import IceObjc
 import PromiseKit
@@ -20,12 +15,12 @@ extension Connection {
         return Promise<Void> { seal in
             try autoreleasepool {
                 try impl._handle.flushBatchRequestsAsync(compress.rawValue,
-                                                    exception: { error in seal.reject(error) },
-                                                    sent: {
-                                                        seal.fulfill(())
-                                                        if let sentCB = sentCB {
-                                                            sentCB($0)
-                                                        }
+                                                         exception: { error in seal.reject(error) },
+                                                         sent: {
+                                                             seal.fulfill(())
+                                                             if let sentCB = sentCB {
+                                                                 sentCB($0)
+                                                             }
                 })
             }
         }

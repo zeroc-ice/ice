@@ -1,11 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
 
 import IceObjc
 import PromiseKit
@@ -820,7 +815,7 @@ open class _ObjectPrxI: ObjectPrx {
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
                                               facet: String? = nil,
                                               context: Context? = nil) throws -> ProxyImpl?
-      where ProxyImpl: _ObjectPrxI {
+        where ProxyImpl: _ObjectPrxI {
         do {
             let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
             guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {

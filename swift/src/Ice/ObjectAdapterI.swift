@@ -1,11 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
 
 import IceObjc
 
@@ -123,31 +118,31 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func findFacet(id: Identity, facet: String) -> Object? {
-         return servantManager.findServant(id: id, facet: facet)
+        return servantManager.findServant(id: id, facet: facet)
     }
 
     func findAllFacets(_ id: Identity) -> FacetMap {
-         return servantManager.findAllFacets(id: id)
+        return servantManager.findAllFacets(id: id)
     }
 
     func findByProxy(_ proxy: ObjectPrx) -> Object? {
-         return findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
+        return findFacet(id: proxy.ice_getIdentity(), facet: proxy.ice_getFacet())
     }
 
     func addServantLocator(locator: ServantLocator, category: String) throws {
-         try servantManager.addServantLocator(locator: locator, category: category)
+        try servantManager.addServantLocator(locator: locator, category: category)
     }
 
     func removeServantLocator(_ category: String) throws -> ServantLocator {
-         return try servantManager.removeServantLocator(category: category)
+        return try servantManager.removeServantLocator(category: category)
     }
 
     func findServantLocator(_ category: String) -> ServantLocator? {
-         return servantManager.findServantLocator(category: category)
+        return servantManager.findServantLocator(category: category)
     }
 
     func findDefaultServant(_ category: String) -> Object? {
-         return servantManager.findDefaultServant(category: category)
+        return servantManager.findDefaultServant(category: category)
     }
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {

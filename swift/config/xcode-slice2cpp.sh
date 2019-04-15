@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
 
 if [ -f /usr/local/opt/ice/bin/slice2cpp ]; then
     SLICE2CPP=/usr/local/bin/slice2cpp
