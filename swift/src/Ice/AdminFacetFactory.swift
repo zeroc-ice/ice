@@ -41,7 +41,8 @@ class AdminFacetFacade: ICEBlobjectFacade {
                               requestId: requestId,
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
 
-        let incoming = Incoming(istr: InputStream(communicator: communicator, inputStream: `is`),
+        let incoming = Incoming(istr: InputStream(communicator: communicator, inputStream: `is`,
+                                                  encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor)),
                                 response: response,
                                 exception: exception,
                                 current: current)

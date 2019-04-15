@@ -43,9 +43,9 @@ public class InputStream {
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
     }
 
-    init(communicator: Communicator, inputStream handle: ICEInputStream) {
+    init(communicator: Communicator, inputStream handle: ICEInputStream, encoding: EncodingVersion) {
         self.communicator = communicator
-        encoding = currentEncoding // TODO: should we get encoding from ICEInputStream?
+        self.encoding = encoding
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0

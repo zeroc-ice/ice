@@ -188,7 +188,8 @@ public extension ObjectPrx {
                                                                            inParams: $0.baseAddress,
                                                                            inSize: inEncaps.count,
                                                                            context: context,
-                                                                           returnValue: &ok))
+                                                                           returnValue: &ok),
+                                      encoding: _impl._encoding)
             return _impl._isTwoway ? (ok, try ins.readEncapsulation().bytes) : (ok, [UInt8]())
         }
     }
@@ -662,7 +663,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                returnValue: &ok)
 
         if _isTwoway {
-            let istr = InputStream(communicator: _communicator, inputStream: istrHandle)
+            let istr = InputStream(communicator: _communicator, inputStream: istrHandle, encoding: self._encoding)
             if ok == false {
                 try _throwUserException(istr: istr, userException: userException)
             }
@@ -694,7 +695,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                inSize: ostr.getCount(),
                                                context: context,
                                                returnValue: &ok)
-        let istr = InputStream(communicator: _communicator, inputStream: istrHandle)
+        let istr = InputStream(communicator: _communicator, inputStream: istrHandle, encoding: self._encoding)
         if ok == false {
             try _throwUserException(istr: istr, userException: userException)
         }
@@ -732,7 +733,8 @@ open class _ObjectPrxI: ObjectPrx {
                                            do {
                                                if self._isTwoway {
                                                    let istr = InputStream(communicator: self._communicator,
-                                                                          inputStream: inputStream)
+                                                                          inputStream: inputStream,
+                                                                          encoding: self._encoding)
                                                    if ok == false {
                                                        try self._throwUserException(istr: istr,
                                                                                     userException: userException)
@@ -779,7 +781,8 @@ open class _ObjectPrxI: ObjectPrx {
                                        response: { ok, inputStream in
                                            do {
                                                let istr = InputStream(communicator: self._communicator,
-                                                                      inputStream: inputStream)
+                                                                      inputStream: inputStream,
+                                                                      encoding: self._encoding)
                                                if ok == false {
                                                    try self._throwUserException(istr: istr, userException: userException)
                                                }

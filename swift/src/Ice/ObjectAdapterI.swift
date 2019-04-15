@@ -222,7 +222,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                               requestId: requestId,
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
 
-        let incoming = Incoming(istr: InputStream(communicator: communicator, inputStream: istr),
+        let incoming = Incoming(istr: InputStream(communicator: communicator,
+                                                  inputStream: istr,
+                                                  encoding: EncodingVersion(major: encodingMajor,
+                                                                            minor: encodingMinor)),
                                 response: response,
                                 exception: exception,
                                 current: current)
