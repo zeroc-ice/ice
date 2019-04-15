@@ -12,9 +12,12 @@ open class TestFactoryI: TestFactory {
 }
 
 public class Client: TestHelperI {
-    public override func run(args _: [String]) throws {
-        let writer = getWriter()
-        writer.write("testing default values... ")
-        writer.writeLine("ok")
+    public override func run(args: [String]) throws {
+        let (communicator, _) = try self.initialize(args: args)
+        defer {
+            communicator.destroy()
+        }
+        let p = try allTests(self)
+        try p.shutdown()
     }
 }
