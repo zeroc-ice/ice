@@ -59,7 +59,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func proxyToProperty(proxy: ObjectPrx, property: String) -> PropertyDict {
-        precondition(!proxy.ice_isFixed())
+        precondition(!proxy.ice_isFixed(), "Cannot create property for fixed proxy")
         do {
             return try autoreleasepool {
                 try _handle.proxy(toProperty: proxy._impl._handle, property: property)

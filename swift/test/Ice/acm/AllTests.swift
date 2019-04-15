@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
-import TestCommon
 import Foundation
+import Ice
 import PromiseKit
+import TestCommon
 
 class LoggerI: Ice.Logger {
     var _name: String
@@ -288,7 +288,6 @@ class InvocationHeartbeatTest: TestCase {
 }
 
 class InvocationHeartbeatOnHoldTest: TestCase {
-
     init(com: RemoteCommunicatorPrx, helper: TestHelper) {
         super.init(name: "invocation with heartbeat on hold", com: com, helper: helper)
         // Use default ACM configuration.
@@ -312,7 +311,7 @@ class InvocationHeartbeatOnHoldTest: TestCase {
 class InvocationNoHeartbeatTest: TestCase {
     init(com: RemoteCommunicatorPrx, helper: TestHelper) {
         super.init(name: "invocation with no heartbeat", com: com, helper: helper)
-        setServerACM(timeout: 2, close: 2, heartbeat: 0); // Disable heartbeat on invocations
+        setServerACM(timeout: 2, close: 2, heartbeat: 0) // Disable heartbeat on invocations
     }
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
@@ -353,7 +352,7 @@ class InvocationHeartbeatCloseOnIdleTest: TestCase {
 class CloseOnIdleTest: TestCase {
     init(com: RemoteCommunicatorPrx, helper: TestHelper) {
         super.init(name: "close on idle", com: com, helper: helper)
-        setClientACM(timeout: 1, close: 1, heartbeat: 0); // Only close on idle
+        setClientACM(timeout: 1, close: 1, heartbeat: 0) // Only close on idle
     }
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
@@ -369,7 +368,7 @@ class CloseOnIdleTest: TestCase {
 class CloseOnInvocationTest: TestCase {
     init(com: RemoteCommunicatorPrx, helper: TestHelper) {
         super.init(name: "close on invocation", com: com, helper: helper)
-        setClientACM(timeout: 1, close: 2, heartbeat: 0); // Only close on invocation
+        setClientACM(timeout: 1, close: 2, heartbeat: 0) // Only close on invocation
     }
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
@@ -489,7 +488,7 @@ class SetACMTest: TestCase {
             precondition(false)
         }
         do {
-            try con.setACM(timeout: -19, close: nil, heartbeat: nil)
+            con.setACM(timeout: -19, close: nil, heartbeat: nil)
             try _helper.test(false)
         } catch {}
 
@@ -498,13 +497,13 @@ class SetACMTest: TestCase {
         try _helper.test(acm.close == .CloseOnIdleForceful)
         try _helper.test(acm.heartbeat == .HeartbeatOff)
 
-        try con.setACM(timeout: nil, close: nil, heartbeat: nil)
+        con.setACM(timeout: nil, close: nil, heartbeat: nil)
         acm = con.getACM()
         try _helper.test(acm.timeout == 15)
         try _helper.test(acm.close == .CloseOnIdleForceful)
         try _helper.test(acm.heartbeat == .HeartbeatOff)
 
-        try con.setACM(timeout: 1, close: .CloseOnInvocationAndIdle, heartbeat: .HeartbeatAlways)
+        con.setACM(timeout: 1, close: .CloseOnInvocationAndIdle, heartbeat: .HeartbeatAlways)
         acm = con.getACM()
         try _helper.test(acm.timeout == 1)
         try _helper.test(acm.close == .CloseOnInvocationAndIdle)
@@ -540,13 +539,13 @@ class SetACMTest: TestCase {
             }
         }.wait()
 
-        try con.setHeartbeatCallback({ _ in
+        con.setHeartbeatCallback({ _ in
             precondition(false)
         })
     }
 }
 
- func allTests(helper: TestHelper) throws {
+func allTests(helper: TestHelper) throws {
     let writer = helper.getWriter()
     let communicator = helper.communicator()
 

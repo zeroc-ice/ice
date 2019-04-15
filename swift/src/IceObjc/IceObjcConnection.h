@@ -21,12 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
                            sent:(void (^_Nullable)(bool))sent
                           error:(NSError* _Nullable * _Nullable)error;
 -(BOOL) setCloseCallback:(nullable void (^)(ICEConnection*))callback  error:(NSError* _Nullable * _Nullable)error;
--(BOOL) setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable * _Nullable)error;
+-(void) setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback;
 -(BOOL) heartbeat:(NSError* _Nullable * _Nullable)error;
 -(BOOL) heartbeatAsync:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
--(BOOL) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat error:(NSError* _Nullable * _Nullable)error;
+-(void) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat;
 -(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat;
 -(NSString*) type;
 -(int32_t) timeout;

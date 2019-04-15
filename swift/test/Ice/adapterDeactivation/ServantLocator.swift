@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 class CookieI: Cookie {
     func message() -> String {
@@ -13,7 +13,6 @@ class CookieI: Cookie {
 }
 
 class RouterI: Ice.Router {
-
     func getClientProxy(current: Ice.Current) throws -> (returnValue: ObjectPrx?, hasRoutingTable: Bool?) {
         return (nil, false)
     }
@@ -23,7 +22,8 @@ class RouterI: Ice.Router {
     }
 
     func getServerProxy(current: Ice.Current) throws -> Ice.ObjectPrx? {
-        let prx = try current.adapter!.getCommunicator().stringToProxy("dummy:tcp -h localhost -p \(_nextPort) -t 30000")
+        let prx =
+          try current.adapter!.getCommunicator().stringToProxy("dummy:tcp -h localhost -p \(_nextPort) -t 30000")
         _nextPort += 1
         return prx
     }
@@ -32,7 +32,6 @@ class RouterI: Ice.Router {
 }
 
 class ServantLocatorI: Ice.ServantLocator {
-
     var _helper: TestHelper
     var _deactivated: Bool
     var _router = RouterI()
@@ -42,42 +41,46 @@ class ServantLocatorI: Ice.ServantLocator {
         _deactivated = false
         _helper = helper
     }
-    
+
     deinit {
         precondition(_deactivated)
     }
-    
+
     func locate(_ current: Ice.Current) throws -> (returnValue: Object, cookie: AnyObject) {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
-    
+
         if current.id.name == "router" {
             return (_router, CookieI())
         }
-    
+
         try _helper.test(current.id.category == "")
         try _helper.test(current.id.name == "test")
-    
+
         return (TestI(), CookieI())
     }
-    
+
     func finished(curr current: Ice.Current, servant: Ice.Object, cookie: Swift.AnyObject) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
-    
+
         if current.id.name == "router" {
             return
         }
 
         try _helper.test((cookie as! Cookie).message() == "blahblah")
     }
-    
-    func deactivate(_ category: String) throws {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
-            _deactivated = true
+
+    func deactivate(_: String) {
+        do {
+            try withLock(&_lock) {
+                try _helper.test(!_deactivated)
+                _deactivated = true
+            }
+        } catch {
+            fatalError("\(error)")
         }
     }
 }

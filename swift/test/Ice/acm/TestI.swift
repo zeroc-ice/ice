@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
 import Foundation
+import Ice
 
 class RemoteCommunicatorI: RemoteCommunicator {
     func createObjectAdapter(acmTimeout: Int32,
@@ -47,7 +47,6 @@ class RemoteCommunicatorI: RemoteCommunicator {
 }
 
 class RemoteObjectAdapterI: RemoteObjectAdapter {
-
     var _adapter: Ice.ObjectAdapter
     var _testIntf: TestIntfPrx
 
@@ -76,7 +75,6 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
 }
 
 class TestI: TestIntf {
-
     class HearbeatCallbackI {
         let _semaphore: DispatchSemaphore
         var _count: Int32
@@ -118,9 +116,9 @@ class TestI: TestIntf {
         _semaphore.signal()
     }
 
-    func startHeartbeatCount(current: Current) throws {
+    func startHeartbeatCount(current: Current) {
         _hearbeatCallback = HearbeatCallbackI()
-        try current.con?.setHeartbeatCallback { conn in
+        current.con?.setHeartbeatCallback { conn in
             self._hearbeatCallback.hearbeat(conn: conn)
         }
     }

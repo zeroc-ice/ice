@@ -31,7 +31,7 @@ func allTests(_ helper: TestHelper) throws {
             try test(false)
         } catch is Ice.AlreadyRegisteredException {}
         adapter.destroy()
-        
+
         //
         // Use a different port than the first adapter to avoid an "address already in use" error.
         //

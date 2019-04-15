@@ -129,7 +129,7 @@ local interface ServantLocator
      * @see Communicator#destroy
      *
      **/
-    void deactivate(string category);
+    ["swift:noexcept"] void deactivate(string category);
 }
 
 }

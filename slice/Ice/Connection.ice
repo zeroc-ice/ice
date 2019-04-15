@@ -324,7 +324,7 @@ local interface Connection
      * @param callback The heartbeat callback object.
      *
      **/
-    void setHeartbeatCallback(HeartbeatCallback callback);
+    ["swift:noexcept"] void setHeartbeatCallback(HeartbeatCallback callback);
 
     /**
      *
@@ -337,15 +337,14 @@ local interface Connection
      *
      * Set the active connection management parameters.
      *
-     * @param timeout The timeout value in seconds. It must be positive or 0, if a negative
-     * value is given, an invalid argument exception will be raised.
+     * @param timeout The timeout value in seconds, must be >= 0
      *
      * @param close The close condition
      *
      * @param heartbeat The hertbeat condition
      *
      **/
-    ["java:optional"]
+    ["swift:noexcept", "java:optional"]
     void setACM(optional(1) int timeout, optional(2) ACMClose close, optional(3) ACMHeartbeat heartbeat);
 
     /**

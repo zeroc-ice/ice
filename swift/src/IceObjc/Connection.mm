@@ -138,29 +138,20 @@
     }
 }
 
--(BOOL) setHeartbeatCallback:(void (^)(ICEConnection*))callback error:(NSError**)error
+-(void) setHeartbeatCallback:(void (^)(ICEConnection*))callback
 {
-    try
+    if(!callback)
     {
-        if(!callback)
-        {
-            _connection->setHeartbeatCallback(nullptr);
-        }
-        else
-        {
-            _connection->setHeartbeatCallback([callback](auto connection)
-            {
-                ICEConnection* conn = [ICEConnection fromLocalObject:connection.get()];
-                assert(conn);
-                callback(conn);
-            });
-        }
-        return YES;
+        _connection->setHeartbeatCallback(nullptr);
     }
-    catch(const std::exception& ex)
+    else
     {
-        *error = convertException(ex);
-        return NO;
+        _connection->setHeartbeatCallback([callback](auto connection)
+        {
+            ICEConnection* conn = [ICEConnection fromLocalObject:connection.get()];
+            assert(conn);
+            callback(conn);
+        });
     }
 }
 
@@ -204,39 +195,30 @@
     }
 }
 
--(BOOL) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat error:(NSError**)error
+-(void) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat
 {
-    try
+    Ice::optional<int> opTimeout;
+    Ice::optional<Ice::ACMClose> opClose;
+    Ice::optional<Ice::ACMHeartbeat> opHeartbeat;
+
+    if(timeout != nil)
     {
-        Ice::optional<int> opTimeout;
-        Ice::optional<Ice::ACMClose> opClose;
-        Ice::optional<Ice::ACMHeartbeat> opHeartbeat;
-
-        if(timeout != nil)
-        {
-            opTimeout = [timeout intValue];
-        }
-
-        if(close != nil)
-        {
-            opClose = Ice::ACMClose([close unsignedCharValue]);
-        }
-
-        if(heartbeat != nil)
-        {
-            NSNumber* value = heartbeat;
-            assert(value);
-            opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
-        }
-
-        _connection->setACM(opTimeout, opClose, opHeartbeat);
-        return YES;
+        opTimeout = [timeout intValue];
     }
-    catch(const std::exception& ex)
+
+    if(close != nil)
     {
-        *error = convertException(ex);
-        return NO;
+        opClose = Ice::ACMClose([close unsignedCharValue]);
     }
+
+    if(heartbeat != nil)
+    {
+        NSNumber* value = heartbeat;
+        assert(value);
+        opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
+    }
+
+    _connection->setACM(opTimeout, opClose, opHeartbeat);
 }
 
 -(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat
