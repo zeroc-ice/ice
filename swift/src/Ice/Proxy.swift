@@ -740,15 +740,15 @@ open class _ObjectPrxI: ObjectPrx {
             write(ostr)
             ostr.endEncapsulation()
         }
-        return Promise<Void> { p in
-            try _handle.iceInvokeAsync(operation,
-                                       mode: Int(mode.rawValue),
-                                       inParams: ostr.getBytes(),
-                                       inSize: ostr.getCount(),
-                                       context: context,
-                                       response: { ok, inputStream in
-                                           do {
-                                               if self._isTwoway {
+        if self._isTwoway {
+            return Promise<Void> { p in
+                try _handle.iceInvokeAsync(operation,
+                                           mode: Int(mode.rawValue),
+                                           inParams: ostr.getBytes(),
+                                           inSize: ostr.getCount(),
+                                           context: context,
+                                           response: { ok, inputStream in
+                                               do {
                                                    let istr = InputStream(communicator: self._communicator,
                                                                           inputStream: inputStream,
                                                                           encoding: self._encoding)
@@ -757,16 +757,37 @@ open class _ObjectPrxI: ObjectPrx {
                                                                                     userException: userException)
                                                    }
                                                    _ = try istr.skipEmptyEncapsulation()
+                                                   p.fulfill(())
+                                               } catch {
+                                                   p.reject(error)
                                                }
-                                               p.fulfill(())
-                                           } catch {
+                                           },
+                                           exception: { error in
                                                p.reject(error)
-                                           }
-                                       },
-                                       exception: { error in
-                                           p.reject(error)
-                                       },
-                                       sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                                           },
+                                           sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+            }
+        } else {
+            return Promise<Void> { p in
+                let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+                try _handle.iceInvokeAsync(operation,
+                                           mode: Int(mode.rawValue),
+                                           inParams: ostr.getBytes(),
+                                           inSize: ostr.getCount(),
+                                           context: context,
+                                           response: { _, _ in
+                                               precondition(false)
+                                           },
+                                           exception: { error in
+                                               p.reject(error)
+                                           },
+                                           sent: {
+                                               p.fulfill(())
+                                               if let sentCB = sentCB {
+                                                   sentCB($0)
+                                               }
+                                           })
+            }
         }
     }
 
