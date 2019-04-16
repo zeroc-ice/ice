@@ -34,6 +34,7 @@ class ServantManager {
                     throw AlreadyRegisteredException(kindOfObject: "servant", id: id)
                 }
                 m[facet] = servant
+                servantMapMap[ident] = m
             } else {
                 servantMapMap[ident] = [facet: servant]
             }
@@ -62,8 +63,9 @@ class ServantManager {
 
             if m.isEmpty {
                 servantMapMap.removeValue(forKey: ident)
+            } else {
+                servantMapMap[ident] = m
             }
-
             return obj
         }
     }
