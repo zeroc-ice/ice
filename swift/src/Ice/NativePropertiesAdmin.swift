@@ -9,7 +9,7 @@
  */
 public typealias PropertiesAdminUpdateCallback = (PropertyDict) -> Void
 
-public typealias PropertiesAdminRemoveallback = () -> Void
+public typealias PropertiesAdminRemoveCallback = () -> Void
 
 /**
  * Base protocol for the Properties admin facet.
@@ -20,5 +20,5 @@ public protocol NativePropertiesAdmin {
      * @param cb The callback.
      * @return A callback to remove cb
      */
-    func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback) -> PropertiesAdminRemoveallback
+    func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback) -> PropertiesAdminRemoveCallback
 }

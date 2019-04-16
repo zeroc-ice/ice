@@ -30,7 +30,7 @@ class PropertiesAdminI: LocalObject<ICEPropertiesAdmin>, PropertiesAdmin, Native
         }
     }
 
-    func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback) -> PropertiesAdminRemoveallback {
+    func addUpdateCallback(_ cb: @escaping PropertiesAdminUpdateCallback) -> PropertiesAdminRemoveCallback {
         return _handle.addUpdateCallback { (props: PropertyDict) in
             // Run callback closure in the Admin OAs dispatch queue
             (self.communicator as! CommunicatorI).getAdminDispatchQueue().sync {
