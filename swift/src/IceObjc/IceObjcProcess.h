@@ -7,8 +7,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEProcess : ICELocalObject
--(BOOL) shutdown:(NSError**)error;
--(BOOL) writeMessage:(NSString*)message fd:(int32_t)fd error:(NSError**)error;
+-(void) shutdown;
+-(void) writeMessage:(NSString*)message fd:(int32_t)fd;
 @end
 
 #ifdef __cplusplus

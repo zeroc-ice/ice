@@ -18,34 +18,16 @@
     return self;
 }
 
--(BOOL) shutdown:(NSError**)error
+-(void) shutdown
 {
-    try
-    {
-        // This fuction does not use current so we do not pass it from Swift
-        _process->shutdown(Ice::Current{});
-        return YES;
-    }
-    catch(const std::exception& ex)
-    {
-        *error = convertException(ex);
-        return NO;
-    }
+    // This fuction does not use current so we do not pass it from Swift
+    _process->shutdown(Ice::Current{});
 }
 
--(BOOL) writeMessage:(NSString*)message fd:(int32_t)fd error:(NSError**)error
+-(void) writeMessage:(NSString*)message fd:(int32_t)fd
 {
-    try
-    {
-        // This function does not use current so we do not pass it from Swift
-        _process->writeMessage(fromNSString(message), fd, Ice::Current{});
-        return YES;
-    }
-    catch(const std::exception& ex)
-    {
-        *error = convertException(ex);
-        return NO;
-    }
+    // This function does not use current so we do not pass it from Swift
+    _process->writeMessage(fromNSString(message), fd, Ice::Current{});
 }
 
 @end
