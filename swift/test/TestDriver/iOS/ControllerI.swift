@@ -179,7 +179,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
     public func write(_ msg: String) {
         _out += msg
     }
-    
+
     public func writeLine(_ msg: String) {
         write("\(msg)\n")
     }
