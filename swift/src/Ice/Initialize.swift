@@ -17,7 +17,9 @@ public func initialize(args: StringSeq = [],
                        initData userInitData: InitializationData? = nil,
                        configFile: String? = nil) throws -> Communicator {
     // Ensure factories are initialized
-    precondition(initialized)
+    guard initialized else {
+        fatalError("Unable to initialie Ice")
+    }
 
     return try autoreleasepool {
         var initData = userInitData ?? InitializationData()
