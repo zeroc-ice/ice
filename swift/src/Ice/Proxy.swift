@@ -69,6 +69,23 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
                     context: Context?) throws -> (ok: Bool, outEncaps: [UInt8])
 }
 
+public func checkedCast(prx: Ice.ObjectPrx,
+                        type: ObjectPrx.Protocol,
+                        facet: String? = nil,
+                        context: Ice.Context? = nil) throws -> ObjectPrx? {
+    return try _ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as _ObjectPrxI?
+}
+
+public func uncheckedCast(prx: Ice.ObjectPrx,
+                          type: ObjectPrx.Protocol,
+                          facet: String? = nil) -> ObjectPrx {
+    return _ObjectPrxI.uncheckedCast(prx: prx, facet: facet) as _ObjectPrxI
+}
+
+public func ice_staticId(_ type: ObjectPrx.Protocol) -> Swift.String {
+    return _ObjectPrxI.ice_staticId()
+}
+
 public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
     return !(lhs == rhs)
 }
