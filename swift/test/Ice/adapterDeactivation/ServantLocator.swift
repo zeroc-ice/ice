@@ -46,7 +46,7 @@ class ServantLocatorI: Ice.ServantLocator {
         precondition(_deactivated)
     }
 
-    func locate(_ current: Ice.Current) throws -> (returnValue: Object, cookie: AnyObject) {
+    func locate(_ current: Ice.Current) throws -> (returnValue: Object?, cookie: AnyObject?) {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
