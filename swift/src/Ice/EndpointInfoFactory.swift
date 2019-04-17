@@ -74,13 +74,13 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
                                          timeout: Int32,
                                          compress: Bool,
                                          encodingMajor: UInt8,
-                                         encodingMinor _: UInt8,
+                                         encodingMinor: UInt8,
                                          rawBytes: [NSNumber]) -> Any {
         return OpaqueEndpointInfoI(handle: handle,
                                    underlying: getUnderlying(underlying),
                                    timeout: timeout,
                                    compress: compress,
-                                   rawEncoding: EncodingVersion(major: encodingMajor, minor: encodingMajor),
+                                   rawEncoding: EncodingVersion(major: encodingMajor, minor: encodingMinor),
                                    rawBytes: rawBytes as! [UInt8])
     }
 

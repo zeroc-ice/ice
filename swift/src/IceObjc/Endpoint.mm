@@ -79,16 +79,6 @@
     // to use type casts instead.
     //
     auto ipInfo = std::dynamic_pointer_cast<Ice::IPEndpointInfo>(infoPtr);
-    if(ipInfo)
-    {
-        return [factory createIPEndpointInfo:handle
-                           underlying:underlying
-                              timeout:ipInfo->timeout
-                             compress:ipInfo->compress
-                                 host:toNSString(ipInfo->host)
-                                 port:ipInfo->port
-                        sourceAddress:toNSString(ipInfo->sourceAddress)];
-    }
 
     auto opaqueInfo = std::dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(infoPtr);
     if(opaqueInfo)
@@ -138,8 +128,8 @@
     {
         return [factory createWSEndpointInfo:handle
                                    underlying:underlying
-                                      timeout:udpInfo->timeout
-                                     compress:udpInfo->compress
+                                      timeout:infoPtr->timeout
+                                     compress:infoPtr->compress
                                      resource:toNSString(wsInfo->resource)];
     }
 
@@ -149,6 +139,17 @@
                                    underlying:underlying
                                       timeout:infoPtr->timeout
                                      compress:infoPtr->compress];
+    }
+
+    if(ipInfo)
+    {
+        return [factory createIPEndpointInfo:handle
+                                  underlying:underlying
+                                     timeout:ipInfo->timeout
+                                    compress:ipInfo->compress
+                                        host:toNSString(ipInfo->host)
+                                        port:ipInfo->port
+                               sourceAddress:toNSString(ipInfo->sourceAddress)];
     }
 
 #if TARGET_OS_IPHONE
