@@ -2024,7 +2024,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     }
     out << eb;
 
-    out << ".catch";
+    out << ".catch(on: nil)";
     out << sb;
     out << " err in";
     out << nl << "inS.exception(err)";

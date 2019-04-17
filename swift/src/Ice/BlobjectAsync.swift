@@ -15,7 +15,7 @@ public extension BlobjectAsync {
             ice_invokeAsync(inEncaps: inEncaps, current: current)
         }.done(on: nil) { invokeResult in
             inS.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
-        }.catch { err in
+        }.catch(on: nil) { err in
             inS.exception(err)
         }
     }
