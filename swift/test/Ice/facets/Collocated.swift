@@ -7,11 +7,11 @@ import TestCommon
 
 public class TestFactoryI: TestFactory {
     public class func create() -> TestHelper {
-        return Server()
+        return Collocated()
     }
 }
 
-class Server: TestHelperI {
+class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         let (communicator, _) = try self.initialize(args: args)
         defer {
@@ -33,7 +33,6 @@ class Server: TestHelperI {
         _ = try adapter.addFacet(servant: h, id: Ice.stringToIdentity("d"), facet: "facetGH")
 
         try adapter.activate()
-
 
         _ = try allTests(self)
     }
