@@ -1216,6 +1216,10 @@
 		D8A091828A0A0AE9A9229527 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24A90B8ED4B188FA1EDC85E8 /* TestCommon.framework */; };
 		D8A10CD96D66C59C88FC90B1 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94EBFDF1C7E1185B3FA220B1 /* Proxy.swift */; };
 		D8C0D620DA4BC4AAF04B5816 /* IceFacetsClient.bundle in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = AA02ED1B9969146D2DC85D93 /* IceFacetsClient.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D8FA57F322676BB5009D0431 /* Blobject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FA57F222676BB5009D0431 /* Blobject.swift */; };
+		D8FA57F422676BB5009D0431 /* Blobject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FA57F222676BB5009D0431 /* Blobject.swift */; };
+		D8FA57F6226774CE009D0431 /* BlobjectAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FA57F5226774CE009D0431 /* BlobjectAsync.swift */; };
+		D8FA57F7226774CE009D0431 /* BlobjectAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FA57F5226774CE009D0431 /* BlobjectAsync.swift */; };
 		D9096E6C6BEDF81DA3DAA834 /* LocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = C3A8CE39926E04FA703F8A39 /* LocatorF.ice */; };
 		D936533E05F4F7D7F2EFF078 /* ImplicitContextI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73035BAEA57D4229B540AEAB /* ImplicitContextI.swift */; };
 		D94941C8A8B3E488325D923D /* ConnectionInfoF.ice in Sources */ = {isa = PBXBuildFile; fileRef = DF88D136BEBBE89FDCF9332A /* ConnectionInfoF.ice */; };
@@ -3642,188 +3646,188 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		00BE59DA10E2BF913CA53F3E /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/acm/Test.ice; sourceTree = "<group>"; };
-		0131EE5B4B04305842500E10 /* ProtocolInstance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ProtocolInstance.cpp; path = ../cpp/src/Ice/ProtocolInstance.cpp; sourceTree = "<group>"; };
-		0136F78200E611F1565D94D7 /* RegisterPluginsInit.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RegisterPluginsInit.cpp; path = ../cpp/src/Ice/RegisterPluginsInit.cpp; sourceTree = "<group>"; };
-		01F4F0133F14AD9400CBECB3 /* Time.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Time.cpp; path = ../cpp/src/IceUtil/Time.cpp; sourceTree = "<group>"; };
-		0203119A1DDDFAC512289067 /* Logger.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Logger.mm; path = src/IceObjc/Logger.mm; sourceTree = "<group>"; };
+		00BE59DA10E2BF913CA53F3E /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/acm/Test.ice; sourceTree = "<group>"; };
+		0131EE5B4B04305842500E10 /* ProtocolInstance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ProtocolInstance.cpp; path = ../cpp/src/Ice/ProtocolInstance.cpp; sourceTree = "<group>"; };
+		0136F78200E611F1565D94D7 /* RegisterPluginsInit.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterPluginsInit.cpp; path = ../cpp/src/Ice/RegisterPluginsInit.cpp; sourceTree = "<group>"; };
+		01F4F0133F14AD9400CBECB3 /* Time.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Time.cpp; path = ../cpp/src/IceUtil/Time.cpp; sourceTree = "<group>"; };
+		0203119A1DDDFAC512289067 /* Logger.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = src/IceObjc/Logger.mm; sourceTree = "<group>"; };
 		0213CFB037A3CF4E15BD320E /* IceUdpClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceUdpClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		035C92B3CCC45F7D46A14EC7 /* OnewaysAMI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnewaysAMI.swift; path = test/Ice/operations/OnewaysAMI.swift; sourceTree = "<group>"; };
-		03A5AF1A84688059EFDC938C /* Instance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Instance.cpp; path = ../cpp/src/IceSSL/Instance.cpp; sourceTree = "<group>"; };
-		041C8A24F3E0612B29A5C1FE /* SSLEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SSLEngine.cpp; path = ../cpp/src/IceSSL/SSLEngine.cpp; sourceTree = "<group>"; };
-		05DEF10E7EAC68F5BF88308E /* ConnectionFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionFactory.cpp; path = ../cpp/src/Ice/ConnectionFactory.cpp; sourceTree = "<group>"; };
+		03A5AF1A84688059EFDC938C /* Instance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Instance.cpp; path = ../cpp/src/IceSSL/Instance.cpp; sourceTree = "<group>"; };
+		041C8A24F3E0612B29A5C1FE /* SSLEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SSLEngine.cpp; path = ../cpp/src/IceSSL/SSLEngine.cpp; sourceTree = "<group>"; };
+		05DEF10E7EAC68F5BF88308E /* ConnectionFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ConnectionFactory.cpp; path = ../cpp/src/Ice/ConnectionFactory.cpp; sourceTree = "<group>"; };
 		069D378880B6A2B581236993 /* SlicedData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SlicedData.swift; path = src/Ice/SlicedData.swift; sourceTree = "<group>"; };
-		06EF3EA5DCFC3468A4E0C3B0 /* DerivedEx.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = DerivedEx.ice; path = test/Ice/objects/DerivedEx.ice; sourceTree = "<group>"; };
+		06EF3EA5DCFC3468A4E0C3B0 /* DerivedEx.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = DerivedEx.ice; path = test/Ice/objects/DerivedEx.ice; sourceTree = "<group>"; };
 		0777D72AAD89A3706E307915 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/slicing/objects/Client.swift; sourceTree = "<group>"; };
 		07D83014E80257E26132FFC2 /* ThrowerAMDI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThrowerAMDI.swift; path = test/Ice/exceptions/ThrowerAMDI.swift; sourceTree = "<group>"; };
-		08299DA5B78397DAB0C0356D /* Base64.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Base64.cpp; path = ../cpp/src/Ice/Base64.cpp; sourceTree = "<group>"; };
+		08299DA5B78397DAB0C0356D /* Base64.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Base64.cpp; path = ../cpp/src/Ice/Base64.cpp; sourceTree = "<group>"; };
 		09503062D6FEB70B9269AE21 /* IceAmiCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmiCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		09C58F76AF9147314BFE8B0A /* Util.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Util.cpp; path = ../cpp/src/IceSSL/Util.cpp; sourceTree = "<group>"; };
+		09C58F76AF9147314BFE8B0A /* Util.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Util.cpp; path = ../cpp/src/IceSSL/Util.cpp; sourceTree = "<group>"; };
 		0A8B97FF85A8A74232FFFC63 /* BI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BI.swift; path = test/Ice/objects/BI.swift; sourceTree = "<group>"; };
-		0BA6449145670688225974C0 /* WSConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = WSConnector.cpp; path = ../cpp/src/Ice/WSConnector.cpp; sourceTree = "<group>"; };
+		0BA6449145670688225974C0 /* WSConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = WSConnector.cpp; path = ../cpp/src/Ice/WSConnector.cpp; sourceTree = "<group>"; };
 		0BD01EBC7E13A4BB98D64569 /* IceAdapterDeactivationCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdapterDeactivationCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C2C23B2F0B3693F7498D568 /* Transceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Transceiver.cpp; path = ../cpp/src/Ice/Transceiver.cpp; sourceTree = "<group>"; };
-		0C2E10A0FBE99297B9F4BFE7 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/retry/Test.ice; sourceTree = "<group>"; };
+		0C2C23B2F0B3693F7498D568 /* Transceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Transceiver.cpp; path = ../cpp/src/Ice/Transceiver.cpp; sourceTree = "<group>"; };
+		0C2E10A0FBE99297B9F4BFE7 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/retry/Test.ice; sourceTree = "<group>"; };
 		0C3D484698A4434DA04F28A6 /* IceAmiCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmiCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		0CA8C84856D94C7650900463 /* LocatorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LocatorI.cpp; path = ../cpp/src/IceDiscovery/LocatorI.cpp; sourceTree = "<group>"; };
-		0CAA523503783F63FDFF9D13 /* ImplicitContext.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = ImplicitContext.mm; path = src/IceObjc/ImplicitContext.mm; sourceTree = "<group>"; };
+		0CA8C84856D94C7650900463 /* LocatorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LocatorI.cpp; path = ../cpp/src/IceDiscovery/LocatorI.cpp; sourceTree = "<group>"; };
+		0CAA523503783F63FDFF9D13 /* ImplicitContext.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = ImplicitContext.mm; path = src/IceObjc/ImplicitContext.mm; sourceTree = "<group>"; };
 		0D0A3A251CF349C217AAB72E /* IceAmiClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmiClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D4F04849DA5618BFFA14344 /* Ice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		0D8A78235088DC7CBECF5F96 /* UnsupportedAdminFacet.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = UnsupportedAdminFacet.mm; path = src/IceObjc/UnsupportedAdminFacet.mm; sourceTree = "<group>"; };
+		0D8A78235088DC7CBECF5F96 /* UnsupportedAdminFacet.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = UnsupportedAdminFacet.mm; path = src/IceObjc/UnsupportedAdminFacet.mm; sourceTree = "<group>"; };
 		0D9C273FC646A39A310FBE09 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/defaultValue/Info.plist; sourceTree = "<group>"; };
-		0DB09FB52837C4BCCD4F587F /* EndpointFactoryManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointFactoryManager.cpp; path = ../cpp/src/Ice/EndpointFactoryManager.cpp; sourceTree = "<group>"; };
+		0DB09FB52837C4BCCD4F587F /* EndpointFactoryManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EndpointFactoryManager.cpp; path = ../cpp/src/Ice/EndpointFactoryManager.cpp; sourceTree = "<group>"; };
 		0DB43A70DD1DA93159915F62 /* Collocated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Collocated.swift; path = test/Ice/proxy/Collocated.swift; sourceTree = "<group>"; };
 		0E468AE00CBF55A026A774A2 /* IceExceptionsCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		0E5AB74BBDC66AB011706FF7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = test/TestDriver/iOS/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		0E9222F0BD2E757F248C5EE5 /* ObserverHelper.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ObserverHelper.cpp; path = ../cpp/src/Ice/ObserverHelper.cpp; sourceTree = "<group>"; };
+		0E9222F0BD2E757F248C5EE5 /* ObserverHelper.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ObserverHelper.cpp; path = ../cpp/src/Ice/ObserverHelper.cpp; sourceTree = "<group>"; };
 		0EA3DE2C0AA7AC80A8F287F5 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = Carthage/Build/iOS/PromiseKit.framework; sourceTree = "<group>"; };
 		0FCD79CADDA6978B3B72D7F9 /* IceObjcImplicitContext.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcImplicitContext.h; path = src/IceObjc/IceObjcImplicitContext.h; sourceTree = "<group>"; };
 		0FDE2B6F7850820A0C610214 /* IceFacetsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceFacetsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		10DAC75F3A838A7E70756FE2 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/hold/Client.swift; sourceTree = "<group>"; };
-		115DEC774A2882E5B133813F /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/defaultValue/Test.ice; sourceTree = "<group>"; };
-		1225C84E09E880F344C1F5FE /* libIceIAP C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceIAP C++11 iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		12960E6A2D847629BE070360 /* StringUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StringUtil.cpp; path = ../cpp/src/IceUtil/StringUtil.cpp; sourceTree = "<group>"; };
-		12B817E82F2A8A1CEB4B1B03 /* BlobjectFacade.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = BlobjectFacade.mm; path = src/IceObjc/BlobjectFacade.mm; sourceTree = "<group>"; };
+		115DEC774A2882E5B133813F /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/defaultValue/Test.ice; sourceTree = "<group>"; };
+		1225C84E09E880F344C1F5FE /* libIceIAP C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceIAP C++11 iOS.a"; path = "libIceIAP++11iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		12960E6A2D847629BE070360 /* StringUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StringUtil.cpp; path = ../cpp/src/IceUtil/StringUtil.cpp; sourceTree = "<group>"; };
+		12B817E82F2A8A1CEB4B1B03 /* BlobjectFacade.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = BlobjectFacade.mm; path = src/IceObjc/BlobjectFacade.mm; sourceTree = "<group>"; };
 		12D3328667C81A664B402435 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/retry/Info.plist; sourceTree = "<group>"; };
-		13E2671A65760C77FDA3D3AF /* PluginF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = PluginF.ice; path = ../slice/Ice/PluginF.ice; sourceTree = "<group>"; };
-		13E33F5249801A80A0228AFD /* libIceDiscovery C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceDiscovery C++11 iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		13E2671A65760C77FDA3D3AF /* PluginF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PluginF.ice; path = ../slice/Ice/PluginF.ice; sourceTree = "<group>"; };
+		13E33F5249801A80A0228AFD /* libIceDiscovery C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceDiscovery C++11 iOS.a"; path = "libIceDiscovery++11iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1412F1EA6DC25CE5EB867247 /* IceProxyClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		142BC94C3866177E2779FF8B /* TestDriver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDriver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		160FC662B305C50F38B3F967 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/TestCommon/Info.plist; sourceTree = "<group>"; };
 		164C378775E291A7E480033E /* SliceFlags.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SliceFlags.swift; path = src/Ice/SliceFlags.swift; sourceTree = "<group>"; };
 		16E9B2742E941E74BA11329A /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/defaultValue/AllTests.swift; sourceTree = "<group>"; };
-		17287BBFB3A29A896C90827B /* ProcessF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ProcessF.ice; path = ../slice/Ice/ProcessF.ice; sourceTree = "<group>"; };
-		17869DA401DA1277FC0D0DA2 /* TrustManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TrustManager.cpp; path = ../cpp/src/IceSSL/TrustManager.cpp; sourceTree = "<group>"; };
+		17287BBFB3A29A896C90827B /* ProcessF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ProcessF.ice; path = ../slice/Ice/ProcessF.ice; sourceTree = "<group>"; };
+		17869DA401DA1277FC0D0DA2 /* TrustManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TrustManager.cpp; path = ../cpp/src/IceSSL/TrustManager.cpp; sourceTree = "<group>"; };
 		1953C46192F9C3BA80E09816 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = Carthage/Build/Mac/PromiseKit.framework; sourceTree = "<group>"; };
 		19967FF0424ACBBD45E20A3E /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/defaultValue/Client.swift; sourceTree = "<group>"; };
-		1A9C5E7854BB2DF6D2151C53 /* PluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PluginI.cpp; path = ../cpp/src/IceSSL/PluginI.cpp; sourceTree = "<group>"; };
-		1C1A70A3F00EFFA0BF104CF5 /* ValueFactoryManagerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ValueFactoryManagerI.cpp; path = ../cpp/src/Ice/ValueFactoryManagerI.cpp; sourceTree = "<group>"; };
+		1A9C5E7854BB2DF6D2151C53 /* PluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PluginI.cpp; path = ../cpp/src/IceSSL/PluginI.cpp; sourceTree = "<group>"; };
+		1C1A70A3F00EFFA0BF104CF5 /* ValueFactoryManagerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ValueFactoryManagerI.cpp; path = ../cpp/src/Ice/ValueFactoryManagerI.cpp; sourceTree = "<group>"; };
 		1C77E6E8E8B602EB421A7F79 /* IceAmiServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmiServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		1C98471CACFC36AE9E9CD21E /* ConnectionI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionI.cpp; path = ../cpp/src/Ice/ConnectionI.cpp; sourceTree = "<group>"; };
-		1DF352DE63ADB72D2EFFD916 /* Object.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Object.cpp; path = ../cpp/src/Ice/Object.cpp; sourceTree = "<group>"; };
-		1EA44146FB31D86627DB3B65 /* ConnectionInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionInfo.ice; path = ../slice/IceSSL/ConnectionInfo.ice; sourceTree = "<group>"; };
-		1F1530958EC5BB5F946745E2 /* OutputStream.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = OutputStream.cpp; path = ../cpp/src/Ice/OutputStream.cpp; sourceTree = "<group>"; };
+		1C98471CACFC36AE9E9CD21E /* ConnectionI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ConnectionI.cpp; path = ../cpp/src/Ice/ConnectionI.cpp; sourceTree = "<group>"; };
+		1DF352DE63ADB72D2EFFD916 /* Object.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Object.cpp; path = ../cpp/src/Ice/Object.cpp; sourceTree = "<group>"; };
+		1EA44146FB31D86627DB3B65 /* ConnectionInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionInfo.ice; path = ../slice/IceSSL/ConnectionInfo.ice; sourceTree = "<group>"; };
+		1F1530958EC5BB5F946745E2 /* OutputStream.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = OutputStream.cpp; path = ../cpp/src/Ice/OutputStream.cpp; sourceTree = "<group>"; };
 		1F219DA401367C755951D33D /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/retry/Client.swift; sourceTree = "<group>"; };
 		1F8AEF2BAE93CC4CEBF0C262 /* ProcessI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProcessI.swift; path = src/Ice/ProcessI.swift; sourceTree = "<group>"; };
 		1FAE9F5422DA2AE5F694F4CE /* IceAdapterDeactivationClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdapterDeactivationClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		1FDD1F86C7922C6F42BB5554 /* RequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RequestHandler.cpp; path = ../cpp/src/Ice/RequestHandler.cpp; sourceTree = "<group>"; };
-		1FE784A58F3642B3B72F2065 /* RouterF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = RouterF.ice; path = ../slice/Ice/RouterF.ice; sourceTree = "<group>"; };
-		205EB0390712B17C4D823A5B /* Reference.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Reference.cpp; path = ../cpp/src/Ice/Reference.cpp; sourceTree = "<group>"; };
+		1FDD1F86C7922C6F42BB5554 /* RequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RequestHandler.cpp; path = ../cpp/src/Ice/RequestHandler.cpp; sourceTree = "<group>"; };
+		1FE784A58F3642B3B72F2065 /* RouterF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RouterF.ice; path = ../slice/Ice/RouterF.ice; sourceTree = "<group>"; };
+		205EB0390712B17C4D823A5B /* Reference.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Reference.cpp; path = ../cpp/src/Ice/Reference.cpp; sourceTree = "<group>"; };
 		20E25A25F7A988D18F3AC94F /* TestCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		20F0A23C396FE30F1F54AAF9 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/inheritance/TestI.swift; sourceTree = "<group>"; };
 		21AAB55E2E773CEE2908B04E /* IceAdminServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdminServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		21C0916292F709871CA4905D /* ServerAMD.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServerAMD.swift; path = test/Ice/proxy/ServerAMD.swift; sourceTree = "<group>"; };
 		22AFD382099B903B0D3B158B /* IceInvokeClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInvokeClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		232A247E8532A33343872B42 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/exceptions/Test.ice; sourceTree = "<group>"; };
-		249BC7992AB47FEA7F71E59A /* LoggerAdminI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LoggerAdminI.cpp; path = ../cpp/src/Ice/LoggerAdminI.cpp; sourceTree = "<group>"; };
+		232A247E8532A33343872B42 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/exceptions/Test.ice; sourceTree = "<group>"; };
+		249BC7992AB47FEA7F71E59A /* LoggerAdminI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LoggerAdminI.cpp; path = ../cpp/src/Ice/LoggerAdminI.cpp; sourceTree = "<group>"; };
 		24A90B8ED4B188FA1EDC85E8 /* TestCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		25BC100E63E7F0D039041E28 /* Main.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = Main.storyboard; path = test/TestDriver/iOS/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		26B02F818DD1BDF9C95D00EA /* ArgVector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ArgVector.cpp; path = ../cpp/src/Ice/ArgVector.cpp; sourceTree = "<group>"; };
-		26E844A5527732821DF0385E /* SliceChecksumDict.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = SliceChecksumDict.ice; path = ../slice/Ice/SliceChecksumDict.ice; sourceTree = "<group>"; };
-		26ED8A589E01B87922AA3AC3 /* UdpEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = UdpEndpointI.cpp; path = ../cpp/src/Ice/UdpEndpointI.cpp; sourceTree = "<group>"; };
-		26EFB6CAFBC7ECFF83127802 /* IceDiscovery.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = IceDiscovery.ice; path = ../slice/IceDiscovery/IceDiscovery.ice; sourceTree = "<group>"; };
+		26B02F818DD1BDF9C95D00EA /* ArgVector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ArgVector.cpp; path = ../cpp/src/Ice/ArgVector.cpp; sourceTree = "<group>"; };
+		26E844A5527732821DF0385E /* SliceChecksumDict.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SliceChecksumDict.ice; path = ../slice/Ice/SliceChecksumDict.ice; sourceTree = "<group>"; };
+		26ED8A589E01B87922AA3AC3 /* UdpEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = UdpEndpointI.cpp; path = ../cpp/src/Ice/UdpEndpointI.cpp; sourceTree = "<group>"; };
+		26EFB6CAFBC7ECFF83127802 /* IceDiscovery.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = IceDiscovery.ice; path = ../slice/IceDiscovery/IceDiscovery.ice; sourceTree = "<group>"; };
 		284C33534C9E9C2E37F4D9A8 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/inheritance/Server.swift; sourceTree = "<group>"; };
 		28A2AE2EEC542421281FCC38 /* ConnectionInfoFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConnectionInfoFactory.swift; path = src/Ice/ConnectionInfoFactory.swift; sourceTree = "<group>"; };
 		28FF1408603D5A9F9B75F387 /* Initialize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Initialize.swift; path = src/Ice/Initialize.swift; sourceTree = "<group>"; };
-		297EBE2D9386C1FA70DE9261 /* Initialize.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Initialize.cpp; path = ../cpp/src/Ice/Initialize.cpp; sourceTree = "<group>"; };
+		297EBE2D9386C1FA70DE9261 /* Initialize.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Initialize.cpp; path = ../cpp/src/Ice/Initialize.cpp; sourceTree = "<group>"; };
 		29BAF9D866C3923135724936 /* Buffer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Buffer.swift; path = src/Ice/Buffer.swift; sourceTree = "<group>"; };
 		2A63868D2EA9BC0FEA313192 /* ViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = test/TestDriver/iOS/ViewController.swift; sourceTree = "<group>"; };
-		2AB902075E5111E21B0FFDEC /* SecureTransportPluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SecureTransportPluginI.cpp; path = ../cpp/src/IceSSL/SecureTransportPluginI.cpp; sourceTree = "<group>"; };
+		2AB902075E5111E21B0FFDEC /* SecureTransportPluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SecureTransportPluginI.cpp; path = ../cpp/src/IceSSL/SecureTransportPluginI.cpp; sourceTree = "<group>"; };
 		2AFF113E16081570E35E6177 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/properties/Info.plist; sourceTree = "<group>"; };
 		2B0A88B2410C12B28761B35F /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/acm/AllTests.swift; sourceTree = "<group>"; };
-		2B209276C3741D0D22DE0C7E /* TestAMD.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = TestAMD.ice; path = test/Ice/proxy/TestAMD.ice; sourceTree = "<group>"; };
+		2B209276C3741D0D22DE0C7E /* TestAMD.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = TestAMD.ice; path = test/Ice/proxy/TestAMD.ice; sourceTree = "<group>"; };
 		2CF4CD3E98F1CE3C7F62BB67 /* UnknownSlicedValue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UnknownSlicedValue.swift; path = src/Ice/UnknownSlicedValue.swift; sourceTree = "<group>"; };
 		2D09DD625688720AF816E2FF /* IceObjcProperties.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcProperties.h; path = src/IceObjc/IceObjcProperties.h; sourceTree = "<group>"; };
-		2D316C819B404471E5F1DC84 /* Network.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Network.cpp; path = ../cpp/src/Ice/Network.cpp; sourceTree = "<group>"; };
+		2D316C819B404471E5F1DC84 /* Network.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Network.cpp; path = ../cpp/src/Ice/Network.cpp; sourceTree = "<group>"; };
 		2D99227D8FBAB8DA8B70130C /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/stream/Client.swift; sourceTree = "<group>"; };
-		2E8450BFDAF758A3AC5040EA /* PropertiesAdminI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertiesAdminI.cpp; path = ../cpp/src/Ice/PropertiesAdminI.cpp; sourceTree = "<group>"; };
+		2E8450BFDAF758A3AC5040EA /* PropertiesAdminI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PropertiesAdminI.cpp; path = ../cpp/src/Ice/PropertiesAdminI.cpp; sourceTree = "<group>"; };
 		2ED55C2A8878B568D03A0FFA /* IceObjcConnection.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcConnection.h; path = src/IceObjc/IceObjcConnection.h; sourceTree = "<group>"; };
 		2EE42ECF2DAE1571DA266DB1 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/ami/Client.swift; sourceTree = "<group>"; };
-		2FF3BC222627FCA889785D39 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/udp/Test.ice; sourceTree = "<group>"; };
+		2FF3BC222627FCA889785D39 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/udp/Test.ice; sourceTree = "<group>"; };
 		301E06197790C1F7313814F0 /* PropertiesAdminI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PropertiesAdminI.swift; path = src/Ice/PropertiesAdminI.swift; sourceTree = "<group>"; };
-		305EDC35024272EF25604B92 /* Proxy.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Proxy.cpp; path = ../cpp/src/Ice/Proxy.cpp; sourceTree = "<group>"; };
+		305EDC35024272EF25604B92 /* Proxy.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Proxy.cpp; path = ../cpp/src/Ice/Proxy.cpp; sourceTree = "<group>"; };
 		308E4E29A3896DF7C3FF2FDA /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/proxy/AllTests.swift; sourceTree = "<group>"; };
 		3180723107908D88E1DAD0CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		3261AF6F26A6C94B202E0341 /* IceDefaultValueClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceDefaultValueClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		329EE7CC24BF262538AC919A /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/binding/Server.swift; sourceTree = "<group>"; };
 		32F0DC39B8E0A2A1C5022B87 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
-		33CF4B5CECFA4DA29C57C9C5 /* OutputUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = OutputUtil.cpp; path = ../cpp/src/IceUtil/OutputUtil.cpp; sourceTree = "<group>"; };
+		33CF4B5CECFA4DA29C57C9C5 /* OutputUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = OutputUtil.cpp; path = ../cpp/src/IceUtil/OutputUtil.cpp; sourceTree = "<group>"; };
 		3490A80FA68E680FA9EE9E58 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/binding/Info.plist; sourceTree = "<group>"; };
 		34E2985C09E3D96320CADAF9 /* IceFacetsServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceFacetsServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		3518D55D25B08B7B68FC06C6 /* Random.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Random.cpp; path = ../cpp/src/IceUtil/Random.cpp; sourceTree = "<group>"; };
+		3518D55D25B08B7B68FC06C6 /* Random.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Random.cpp; path = ../cpp/src/IceUtil/Random.cpp; sourceTree = "<group>"; };
 		35F26744808280E0B9BCE81E /* IceFacetsCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceFacetsCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		3634009A353940B7786CF2FF /* CommunicatorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CommunicatorI.cpp; path = ../cpp/src/Ice/CommunicatorI.cpp; sourceTree = "<group>"; };
+		3634009A353940B7786CF2FF /* CommunicatorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CommunicatorI.cpp; path = ../cpp/src/Ice/CommunicatorI.cpp; sourceTree = "<group>"; };
 		36571471E5A8E8B2A81496AE /* IceOperationsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceOperationsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		379F26E8017B31845ADDB045 /* Selector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Selector.cpp; path = ../cpp/src/Ice/Selector.cpp; sourceTree = "<group>"; };
+		379F26E8017B31845ADDB045 /* Selector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Selector.cpp; path = ../cpp/src/Ice/Selector.cpp; sourceTree = "<group>"; };
 		3814A58C10C0BDDE529704F3 /* IceFacetsCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceFacetsCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		39BC65753B295E7D3DD762DF /* PluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PluginI.cpp; path = ../cpp/src/IceDiscovery/PluginI.cpp; sourceTree = "<group>"; };
+		39BC65753B295E7D3DD762DF /* PluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PluginI.cpp; path = ../cpp/src/IceDiscovery/PluginI.cpp; sourceTree = "<group>"; };
 		3B71D328DD600F9D3D4B1F85 /* LoggerWrapperI.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = LoggerWrapperI.h; path = src/IceObjc/LoggerWrapperI.h; sourceTree = "<group>"; };
 		3B770AA1AD7BB942F65D42A0 /* ObjectAdapterI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObjectAdapterI.swift; path = src/Ice/ObjectAdapterI.swift; sourceTree = "<group>"; };
-		3B91AB6957218F9D9E89F3B8 /* MetricsObserverI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = MetricsObserverI.cpp; path = ../cpp/src/Ice/MetricsObserverI.cpp; sourceTree = "<group>"; };
-		3C4828FB59115EBF76C10CEC /* DynamicLibrary.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = DynamicLibrary.cpp; path = ../cpp/src/Ice/DynamicLibrary.cpp; sourceTree = "<group>"; };
+		3B91AB6957218F9D9E89F3B8 /* MetricsObserverI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = MetricsObserverI.cpp; path = ../cpp/src/Ice/MetricsObserverI.cpp; sourceTree = "<group>"; };
+		3C4828FB59115EBF76C10CEC /* DynamicLibrary.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicLibrary.cpp; path = ../cpp/src/Ice/DynamicLibrary.cpp; sourceTree = "<group>"; };
 		3CF6088075DA5BB7A4A82C05 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/enums/Client.swift; sourceTree = "<group>"; };
-		3D27DDF5233DBBF36A5A8684 /* ConnectorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectorI.cpp; path = ../cpp/src/IceSSL/ConnectorI.cpp; sourceTree = "<group>"; };
+		3D27DDF5233DBBF36A5A8684 /* ConnectorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ConnectorI.cpp; path = ../cpp/src/IceSSL/ConnectorI.cpp; sourceTree = "<group>"; };
 		3D7D0313259D527C0B6D6B8D /* TestCommon.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestCommon.swift; path = test/TestCommon/TestCommon.swift; sourceTree = "<group>"; };
 		3DCFB5CDF03673BF4829CAB6 /* IceStreamClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceStreamClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E679960E3900B8D819CB0BC /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/defaultServant/Client.swift; sourceTree = "<group>"; };
-		3F044548D1ECA533B00BD605 /* LookupI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LookupI.cpp; path = ../cpp/src/IceDiscovery/LookupI.cpp; sourceTree = "<group>"; };
-		3F8BBE03B93B3588D2189DA0 /* ObjectAdapterFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapterFactory.cpp; path = ../cpp/src/Ice/ObjectAdapterFactory.cpp; sourceTree = "<group>"; };
+		3F044548D1ECA533B00BD605 /* LookupI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LookupI.cpp; path = ../cpp/src/IceDiscovery/LookupI.cpp; sourceTree = "<group>"; };
+		3F8BBE03B93B3588D2189DA0 /* ObjectAdapterFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ObjectAdapterFactory.cpp; path = ../cpp/src/Ice/ObjectAdapterFactory.cpp; sourceTree = "<group>"; };
 		3FD30A0128B5D54E90390460 /* IceRetryClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceRetryClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		400AF7FE234C254BFACA8249 /* IceEnumsServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceEnumsServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		40D630EFE10D6346E8FC60FD /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/stream/Info.plist; sourceTree = "<group>"; };
 		40DB74E57DA0C625B80BCD39 /* IceObjcPropertiesAdmin.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcPropertiesAdmin.h; path = src/IceObjc/IceObjcPropertiesAdmin.h; sourceTree = "<group>"; };
-		41A5706DA07FB6BF5237424A /* TraceLevels.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TraceLevels.cpp; path = ../cpp/src/Ice/TraceLevels.cpp; sourceTree = "<group>"; };
+		41A5706DA07FB6BF5237424A /* TraceLevels.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TraceLevels.cpp; path = ../cpp/src/Ice/TraceLevels.cpp; sourceTree = "<group>"; };
 		42B7D7E612F333E6695B5969 /* IceOptionalClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceOptionalClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		4353B9E8F76015E17953DC16 /* libIce C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIce C++11 macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4353B9E8F76015E17953DC16 /* libIce C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIce C++11 macOS.a"; path = "libIce++11macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		43A23B1E788E398E333D5134 /* IceLocationClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceLocationClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		43A84BBB2CD89AAA07AE9CCC /* IceExceptionsServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		43B147EF0E23EBA7F091CA90 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/proxy/Info.plist; sourceTree = "<group>"; };
 		43F8BBD61EF0C4F20B5DB1A5 /* IceExceptionsServerAMD.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsServerAMD.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		456C117E5E69C21D4378DB98 /* IceInfoClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInfoClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		45B92F6DC458EE92D72290C9 /* EndpointI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EndpointI.swift; path = src/Ice/EndpointI.swift; sourceTree = "<group>"; };
-		46192D6F1F01CD1A0EC04E7B /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/admin/Test.ice; sourceTree = "<group>"; };
+		46192D6F1F01CD1A0EC04E7B /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/admin/Test.ice; sourceTree = "<group>"; };
 		467104409DA42810CBFA7E9B /* IceOptionalClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceOptionalClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		4682E46D81BE425AE4F24DD9 /* Instance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Instance.cpp; path = ../cpp/src/Ice/Instance.cpp; sourceTree = "<group>"; };
+		4682E46D81BE425AE4F24DD9 /* Instance.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Instance.cpp; path = ../cpp/src/Ice/Instance.cpp; sourceTree = "<group>"; };
 		4686B9021AF92AD9921D965A /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/admin/Client.swift; sourceTree = "<group>"; };
-		479C701B6B5EE70200AB4FB7 /* PluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PluginI.cpp; path = ../cpp/src/IceLocatorDiscovery/PluginI.cpp; sourceTree = "<group>"; };
+		479C701B6B5EE70200AB4FB7 /* PluginI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PluginI.cpp; path = ../cpp/src/IceLocatorDiscovery/PluginI.cpp; sourceTree = "<group>"; };
 		4843AA618A10FF3F92B2CCD2 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/enums/TestI.swift; sourceTree = "<group>"; };
 		48FD64449FC2B5B145B148C5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/acm/Info.plist; sourceTree = "<group>"; };
-		49172FAB1AA260AA4CB33012 /* SlicedData.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SlicedData.cpp; path = ../cpp/src/Ice/SlicedData.cpp; sourceTree = "<group>"; };
+		49172FAB1AA260AA4CB33012 /* SlicedData.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SlicedData.cpp; path = ../cpp/src/Ice/SlicedData.cpp; sourceTree = "<group>"; };
 		49D20776788CA8EDACDB84AE /* IceProxyServerAMD.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyServerAMD.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A52A34F98F5A413A5119F97 /* LocalExceptionFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalExceptionFactory.swift; path = src/Ice/LocalExceptionFactory.swift; sourceTree = "<group>"; };
 		4A62CEFDAEC6B135DF2371CE /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/info/AllTests.swift; sourceTree = "<group>"; };
-		4A64DC04D6C9F72A9F4D5141 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/ami/Test.ice; sourceTree = "<group>"; };
+		4A64DC04D6C9F72A9F4D5141 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/ami/Test.ice; sourceTree = "<group>"; };
 		4AFC72959BB131EFB062211E /* IceObjcUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcUtil.h; path = src/IceObjc/IceObjcUtil.h; sourceTree = "<group>"; };
 		4B1E1A9182A607C9DA178754 /* IceObjcInputStream.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcInputStream.h; path = src/IceObjc/IceObjcInputStream.h; sourceTree = "<group>"; };
 		4BA93975F18D58D2BDD595F9 /* LoggerWrapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoggerWrapper.swift; path = src/Ice/LoggerWrapper.swift; sourceTree = "<group>"; };
-		4BD7B5247CCE91A3E5F6A155 /* IceLocatorDiscovery.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = IceLocatorDiscovery.ice; path = ../slice/IceLocatorDiscovery/IceLocatorDiscovery.ice; sourceTree = "<group>"; };
-		4BE30BB40EAC18616EFF1EC5 /* NetworkProxy.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = NetworkProxy.cpp; path = ../cpp/src/Ice/NetworkProxy.cpp; sourceTree = "<group>"; };
-		4D73D05885A409A962FE89B2 /* ConnectionF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionF.ice; path = ../slice/Ice/ConnectionF.ice; sourceTree = "<group>"; };
-		4DBE80EE7D7853874F5B3C18 /* ServantLocatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ServantLocatorF.ice; path = ../slice/Ice/ServantLocatorF.ice; sourceTree = "<group>"; };
+		4BD7B5247CCE91A3E5F6A155 /* IceLocatorDiscovery.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = IceLocatorDiscovery.ice; path = ../slice/IceLocatorDiscovery/IceLocatorDiscovery.ice; sourceTree = "<group>"; };
+		4BE30BB40EAC18616EFF1EC5 /* NetworkProxy.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = NetworkProxy.cpp; path = ../cpp/src/Ice/NetworkProxy.cpp; sourceTree = "<group>"; };
+		4D73D05885A409A962FE89B2 /* ConnectionF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionF.ice; path = ../slice/Ice/ConnectionF.ice; sourceTree = "<group>"; };
+		4DBE80EE7D7853874F5B3C18 /* ServantLocatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ServantLocatorF.ice; path = ../slice/Ice/ServantLocatorF.ice; sourceTree = "<group>"; };
 		4E0119EF3332CEA2358D85AB /* IceAdapterDeactivationClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdapterDeactivationClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		4E61A3E9B2C4DC44C93E3D13 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/enums/Test.ice; sourceTree = "<group>"; };
-		4EE1B6777204C2C3A8A56C92 /* ConnectRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectRequestHandler.cpp; path = ../cpp/src/Ice/ConnectRequestHandler.cpp; sourceTree = "<group>"; };
-		4F856FC9ED94ADB3D3F8133C /* Process.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Process.ice; path = ../slice/Ice/Process.ice; sourceTree = "<group>"; };
+		4E61A3E9B2C4DC44C93E3D13 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/enums/Test.ice; sourceTree = "<group>"; };
+		4EE1B6777204C2C3A8A56C92 /* ConnectRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ConnectRequestHandler.cpp; path = ../cpp/src/Ice/ConnectRequestHandler.cpp; sourceTree = "<group>"; };
+		4F856FC9ED94ADB3D3F8133C /* Process.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Process.ice; path = ../slice/Ice/Process.ice; sourceTree = "<group>"; };
 		4FB7202AD9D5F948514F0A9C /* IceHoldClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceHoldClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD2B87A503B9F5E9015231C /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/hold/TestI.swift; sourceTree = "<group>"; };
-		500132E264465CFAF5983D57 /* FactoryTableInit.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = FactoryTableInit.cpp; path = ../cpp/src/Ice/FactoryTableInit.cpp; sourceTree = "<group>"; };
-		5138AABC5CB274115B94D488 /* ReferenceFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ReferenceFactory.cpp; path = ../cpp/src/Ice/ReferenceFactory.cpp; sourceTree = "<group>"; };
+		500132E264465CFAF5983D57 /* FactoryTableInit.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = FactoryTableInit.cpp; path = ../cpp/src/Ice/FactoryTableInit.cpp; sourceTree = "<group>"; };
+		5138AABC5CB274115B94D488 /* ReferenceFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ReferenceFactory.cpp; path = ../cpp/src/Ice/ReferenceFactory.cpp; sourceTree = "<group>"; };
 		51434F2CD8F05ED4D605E108 /* IcePropertiesClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IcePropertiesClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		51A4CB65BEBDD119CE90F2E5 /* IceSwift.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceSwift.h; path = src/Ice/IceSwift.h; sourceTree = "<group>"; };
-		51DDF40DE109A891306AEB95 /* Notifications.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Notifications.mm; path = ../cpp/src/Ice/ios/Notifications.mm; sourceTree = "<group>"; };
-		52CF4F2E8A41C256CC83F430 /* Util.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Util.mm; path = src/IceObjc/Util.mm; sourceTree = "<group>"; };
-		5412F3A167C5C86838359254 /* Connector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Connector.cpp; path = ../cpp/src/Ice/Connector.cpp; sourceTree = "<group>"; };
-		5423565EA2C8829BA526D95E /* Instrumentation.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Instrumentation.ice; path = ../slice/Ice/Instrumentation.ice; sourceTree = "<group>"; };
+		51DDF40DE109A891306AEB95 /* Notifications.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Notifications.mm; path = ../cpp/src/Ice/ios/Notifications.mm; sourceTree = "<group>"; };
+		52CF4F2E8A41C256CC83F430 /* Util.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Util.mm; path = src/IceObjc/Util.mm; sourceTree = "<group>"; };
+		5412F3A167C5C86838359254 /* Connector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Connector.cpp; path = ../cpp/src/Ice/Connector.cpp; sourceTree = "<group>"; };
+		5423565EA2C8829BA526D95E /* Instrumentation.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Instrumentation.ice; path = ../slice/Ice/Instrumentation.ice; sourceTree = "<group>"; };
 		5438287A44686C5BEF1C60CA /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/operations/Client.swift; sourceTree = "<group>"; };
 		54D22200FAE9C14DFB157F5B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		55726193F2096370C8360140 /* IceTimeoutClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceTimeoutClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		55C5322E25C1C4825AB5B47A /* FacetMap.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = FacetMap.ice; path = ../slice/Ice/FacetMap.ice; sourceTree = "<group>"; };
+		55C5322E25C1C4825AB5B47A /* FacetMap.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = FacetMap.ice; path = ../slice/Ice/FacetMap.ice; sourceTree = "<group>"; };
 		57ACC29B3C1F30F4F49101E9 /* IceInheritanceServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritanceServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		57EA8DCA426F893EB2666BFB /* SecureTransportEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SecureTransportEngine.cpp; path = ../cpp/src/IceSSL/SecureTransportEngine.cpp; sourceTree = "<group>"; };
+		57EA8DCA426F893EB2666BFB /* SecureTransportEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SecureTransportEngine.cpp; path = ../cpp/src/IceSSL/SecureTransportEngine.cpp; sourceTree = "<group>"; };
 		58346060CE94CA5285E7DFBE /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/info/Client.swift; sourceTree = "<group>"; };
-		587DE439FAC724257AB9535B /* Identity.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Identity.ice; path = ../slice/Ice/Identity.ice; sourceTree = "<group>"; };
+		587DE439FAC724257AB9535B /* Identity.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Identity.ice; path = ../slice/Ice/Identity.ice; sourceTree = "<group>"; };
 		589D7B1C5307088D944C8D9C /* RemoteObjectAdapterI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RemoteObjectAdapterI.swift; path = test/Ice/binding/RemoteObjectAdapterI.swift; sourceTree = "<group>"; };
-		59091C6A71B253E633E4EE8A /* Acceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Acceptor.cpp; path = ../cpp/src/Ice/Acceptor.cpp; sourceTree = "<group>"; };
+		59091C6A71B253E633E4EE8A /* Acceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Acceptor.cpp; path = ../cpp/src/Ice/Acceptor.cpp; sourceTree = "<group>"; };
 		59AD5724AF945F2C544131B5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/optional/Info.plist; sourceTree = "<group>"; };
 		59FC60602AE4CA63D0F44A36 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/binding/Client.swift; sourceTree = "<group>"; };
 		5A063920108B6B9526388B7D /* IceUdpClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceUdpClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3831,82 +3835,82 @@
 		5B1417102E39A1256D8D6763 /* OptionalFormat.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OptionalFormat.swift; path = src/Ice/OptionalFormat.swift; sourceTree = "<group>"; };
 		5B1D9B2CAD437D102E4ABE3E /* JI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JI.swift; path = test/Ice/objects/JI.swift; sourceTree = "<group>"; };
 		5B2BEAD6C0341FBA34BA4E07 /* IceObjcUnsupportedAdminFacet.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcUnsupportedAdminFacet.h; path = src/IceObjc/IceObjcUnsupportedAdminFacet.h; sourceTree = "<group>"; };
-		5BC77E3D4CA3F13DF7F3BED0 /* InputUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = InputUtil.cpp; path = ../cpp/src/IceUtil/InputUtil.cpp; sourceTree = "<group>"; };
-		5BE0D840778771ED4E46FDE5 /* Properties.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Properties.mm; path = src/IceObjc/Properties.mm; sourceTree = "<group>"; };
-		5CA4003A46B1F430A15D5504 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/hold/Test.ice; sourceTree = "<group>"; };
+		5BC77E3D4CA3F13DF7F3BED0 /* InputUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = InputUtil.cpp; path = ../cpp/src/IceUtil/InputUtil.cpp; sourceTree = "<group>"; };
+		5BE0D840778771ED4E46FDE5 /* Properties.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Properties.mm; path = src/IceObjc/Properties.mm; sourceTree = "<group>"; };
+		5CA4003A46B1F430A15D5504 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/hold/Test.ice; sourceTree = "<group>"; };
 		5CEC34398F2BF68607E11056 /* IceExceptionsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D232595839D58F72F55960D /* ObjectPrx.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectPrx.mm; path = src/IceObjc/ObjectPrx.mm; sourceTree = "<group>"; };
+		5D232595839D58F72F55960D /* ObjectPrx.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = ObjectPrx.mm; path = src/IceObjc/ObjectPrx.mm; sourceTree = "<group>"; };
 		5D6752EA981D1A265878A552 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/properties/Client.swift; sourceTree = "<group>"; };
-		5D6DF825B70D58C48A5DFD3C /* EndpointInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointInfo.ice; path = ../slice/IceSSL/EndpointInfo.ice; sourceTree = "<group>"; };
+		5D6DF825B70D58C48A5DFD3C /* EndpointInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointInfo.ice; path = ../slice/IceSSL/EndpointInfo.ice; sourceTree = "<group>"; };
 		5E8A843D50EDCCFA60B2A6C5 /* IceProxyServerAMD.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyServerAMD.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		5EA1C73F21ACA60E8CBAEBF4 /* TcpTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TcpTransceiver.cpp; path = ../cpp/src/Ice/TcpTransceiver.cpp; sourceTree = "<group>"; };
+		5EA1C73F21ACA60E8CBAEBF4 /* TcpTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TcpTransceiver.cpp; path = ../cpp/src/Ice/TcpTransceiver.cpp; sourceTree = "<group>"; };
 		5F1E817C10851227B48DE141 /* Collocated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Collocated.swift; path = test/Ice/exceptions/Collocated.swift; sourceTree = "<group>"; };
-		607A94FA6DECB47E23325414 /* FactoryTable.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = FactoryTable.cpp; path = ../cpp/src/Ice/FactoryTable.cpp; sourceTree = "<group>"; };
+		607A94FA6DECB47E23325414 /* FactoryTable.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = FactoryTable.cpp; path = ../cpp/src/Ice/FactoryTable.cpp; sourceTree = "<group>"; };
 		618BC3D18C5BBC43CC0490C2 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/ami/Server.swift; sourceTree = "<group>"; };
 		6216ED0B76989B901C6AACF9 /* IceObjcException.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcException.h; path = src/IceObjc/IceObjcException.h; sourceTree = "<group>"; };
 		6220AB10999EBF1BDD6FC755 /* IceObjcConfig.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcConfig.h; path = src/IceObjc/IceObjcConfig.h; sourceTree = "<group>"; };
 		624399169FC5CC76B43BEEBD /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/Ice/Info.plist; sourceTree = "<group>"; };
-		6379D4EBF0F4960384D57837 /* SHA1.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SHA1.cpp; path = ../cpp/src/Ice/SHA1.cpp; sourceTree = "<group>"; };
+		6379D4EBF0F4960384D57837 /* SHA1.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SHA1.cpp; path = ../cpp/src/Ice/SHA1.cpp; sourceTree = "<group>"; };
 		63877D29873D4AB4DD7F1178 /* IceAmiClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmiClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		643D3FCCACE1214F42B20650 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/facets/Server.swift; sourceTree = "<group>"; };
-		6450AF1746331245ABA3EAE4 /* Communicator.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Communicator.mm; path = src/IceObjc/Communicator.mm; sourceTree = "<group>"; };
+		6450AF1746331245ABA3EAE4 /* Communicator.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Communicator.mm; path = src/IceObjc/Communicator.mm; sourceTree = "<group>"; };
 		64555FF0489B91C76FC997E0 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/info/Server.swift; sourceTree = "<group>"; };
 		64771435C03E6CC01D64416E /* TestDriver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDriver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		652B5138E82E6B678133884D /* IceExceptionsServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		655DE27909D1E0853C53BD63 /* ImplicitContextF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ImplicitContextF.ice; path = ../slice/Ice/ImplicitContextF.ice; sourceTree = "<group>"; };
+		655DE27909D1E0853C53BD63 /* ImplicitContextF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ImplicitContextF.ice; path = ../slice/Ice/ImplicitContextF.ice; sourceTree = "<group>"; };
 		6587A5A0F4DDDE63D779AFEF /* IcePropertiesClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IcePropertiesClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		65EFCE8D22F2D24FF1082A99 /* IceExceptionsServerAMD.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsServerAMD.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		66705557728CF1B7DD8A8A4D /* Shared.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Shared.cpp; path = ../cpp/src/IceUtil/Shared.cpp; sourceTree = "<group>"; };
-		66F451854BDECB86F849DD75 /* StreamTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StreamTransceiver.cpp; path = ../cpp/src/Ice/ios/StreamTransceiver.cpp; sourceTree = "<group>"; };
-		678601E6FC1172F940F26A14 /* ImplicitContextI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ImplicitContextI.cpp; path = ../cpp/src/Ice/ImplicitContextI.cpp; sourceTree = "<group>"; };
+		66705557728CF1B7DD8A8A4D /* Shared.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Shared.cpp; path = ../cpp/src/IceUtil/Shared.cpp; sourceTree = "<group>"; };
+		66F451854BDECB86F849DD75 /* StreamTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StreamTransceiver.cpp; path = ../cpp/src/Ice/ios/StreamTransceiver.cpp; sourceTree = "<group>"; };
+		678601E6FC1172F940F26A14 /* ImplicitContextI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ImplicitContextI.cpp; path = ../cpp/src/Ice/ImplicitContextI.cpp; sourceTree = "<group>"; };
 		67D22C2097969CF3563101B9 /* IceInheritanceCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritanceCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		69DAC163DA8A1A05DF86E7E8 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/timeout/Client.swift; sourceTree = "<group>"; };
 		69E1F5C65694DFD208CA04F6 /* Twoways.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Twoways.swift; path = test/Ice/operations/Twoways.swift; sourceTree = "<group>"; };
-		69F96B69F328B91C69683200 /* ThreadException.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ThreadException.cpp; path = ../cpp/src/IceUtil/ThreadException.cpp; sourceTree = "<group>"; };
+		69F96B69F328B91C69683200 /* ThreadException.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadException.cpp; path = ../cpp/src/IceUtil/ThreadException.cpp; sourceTree = "<group>"; };
 		69FD6C7FC36A8929411D3897 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/slicing/exceptions/Client.swift; sourceTree = "<group>"; };
 		6A50559BE3E424138E3E6115 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/invoke/Client.swift; sourceTree = "<group>"; };
-		6B933965402CAC4A36415FE5 /* UdpTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = UdpTransceiver.cpp; path = ../cpp/src/Ice/UdpTransceiver.cpp; sourceTree = "<group>"; };
-		6C1135613DBB642C4AAC562C /* Endpoint.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Endpoint.ice; path = ../slice/Ice/Endpoint.ice; sourceTree = "<group>"; };
+		6B933965402CAC4A36415FE5 /* UdpTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = UdpTransceiver.cpp; path = ../cpp/src/Ice/UdpTransceiver.cpp; sourceTree = "<group>"; };
+		6C1135613DBB642C4AAC562C /* Endpoint.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Endpoint.ice; path = ../slice/Ice/Endpoint.ice; sourceTree = "<group>"; };
 		6C75C7BA18F95F90D4D721A9 /* Exception.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Exception.swift; path = src/Ice/Exception.swift; sourceTree = "<group>"; };
 		6C8403871C4FA778160F33A8 /* AdminFacetFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdminFacetFactory.swift; path = src/Ice/AdminFacetFactory.swift; sourceTree = "<group>"; };
 		6CBE53C980505E334668C990 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = test/TestDriver/iOS/Assets.xcassets; sourceTree = "<group>"; };
-		6CC591D1B037B2D34CBDF8C3 /* Buffer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Buffer.cpp; path = ../cpp/src/Ice/Buffer.cpp; sourceTree = "<group>"; };
-		6E39E2CFA579E9BC7FC0FE1D /* ConsoleUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConsoleUtil.cpp; path = ../cpp/src/IceUtil/ConsoleUtil.cpp; sourceTree = "<group>"; };
-		6E403162D083AFF2C3BA0B90 /* SysLoggerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SysLoggerI.cpp; path = ../cpp/src/Ice/SysLoggerI.cpp; sourceTree = "<group>"; };
-		6E608A3239C37DEEC3C21D26 /* libIceLocatorDiscovery C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceLocatorDiscovery C++11 iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CC591D1B037B2D34CBDF8C3 /* Buffer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Buffer.cpp; path = ../cpp/src/Ice/Buffer.cpp; sourceTree = "<group>"; };
+		6E39E2CFA579E9BC7FC0FE1D /* ConsoleUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ConsoleUtil.cpp; path = ../cpp/src/IceUtil/ConsoleUtil.cpp; sourceTree = "<group>"; };
+		6E403162D083AFF2C3BA0B90 /* SysLoggerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SysLoggerI.cpp; path = ../cpp/src/Ice/SysLoggerI.cpp; sourceTree = "<group>"; };
+		6E608A3239C37DEEC3C21D26 /* libIceLocatorDiscovery C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceLocatorDiscovery C++11 iOS.a"; path = "libIceLocatorDiscovery++11iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EAA79CC06D6979BCD3B8F17 /* IceServantLocatorClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceServantLocatorClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EAD7C0CDE5F3108337851FC /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/adapterDeactivation/Client.swift; sourceTree = "<group>"; };
 		6EF069836F9BFA6DA93AEF22 /* ServantLocatorI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServantLocatorI.swift; path = test/Ice/exceptions/ServantLocatorI.swift; sourceTree = "<group>"; };
 		6F22F02E2ED5136A4B47679B /* IceHoldServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceHoldServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		6FA4D95587B9AED03F400B68 /* UdpConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = UdpConnector.cpp; path = ../cpp/src/Ice/UdpConnector.cpp; sourceTree = "<group>"; };
+		6FA4D95587B9AED03F400B68 /* UdpConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = UdpConnector.cpp; path = ../cpp/src/Ice/UdpConnector.cpp; sourceTree = "<group>"; };
 		7025F83C0D9C1AB0B056A295 /* OutputStream.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OutputStream.swift; path = src/Ice/OutputStream.swift; sourceTree = "<group>"; };
-		708B9D6CDEFD560601D04EDB /* Value.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Value.cpp; path = ../cpp/src/Ice/Value.cpp; sourceTree = "<group>"; };
+		708B9D6CDEFD560601D04EDB /* Value.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../cpp/src/Ice/Value.cpp; sourceTree = "<group>"; };
 		70B166767CBA2C2DA6B59306 /* ServantManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServantManager.swift; path = src/Ice/ServantManager.swift; sourceTree = "<group>"; };
 		70E0376FA408C25109229F4A /* IceAcmClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAcmClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		7155A7A5FA27C22FBD4DA825 /* TraceUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TraceUtil.cpp; path = ../cpp/src/Ice/TraceUtil.cpp; sourceTree = "<group>"; };
-		7164EC650B142B6DE79172DC /* InputStream.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = InputStream.mm; path = src/IceObjc/InputStream.mm; sourceTree = "<group>"; };
-		71672BFDA8B699EED9AD0D24 /* ThreadPool.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ThreadPool.cpp; path = ../cpp/src/Ice/ThreadPool.cpp; sourceTree = "<group>"; };
-		7256AB7A5AEAB12684388B62 /* ObjectAdapter.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapter.ice; path = ../slice/Ice/ObjectAdapter.ice; sourceTree = "<group>"; };
+		7155A7A5FA27C22FBD4DA825 /* TraceUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TraceUtil.cpp; path = ../cpp/src/Ice/TraceUtil.cpp; sourceTree = "<group>"; };
+		7164EC650B142B6DE79172DC /* InputStream.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = InputStream.mm; path = src/IceObjc/InputStream.mm; sourceTree = "<group>"; };
+		71672BFDA8B699EED9AD0D24 /* ThreadPool.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadPool.cpp; path = ../cpp/src/Ice/ThreadPool.cpp; sourceTree = "<group>"; };
+		7256AB7A5AEAB12684388B62 /* ObjectAdapter.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ObjectAdapter.ice; path = ../slice/Ice/ObjectAdapter.ice; sourceTree = "<group>"; };
 		72CCC3E97CCF7B5AC63C6768 /* IceObjcTraceUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcTraceUtil.h; path = src/IceObjc/IceObjcTraceUtil.h; sourceTree = "<group>"; };
 		73035BAEA57D4229B540AEAB /* ImplicitContextI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ImplicitContextI.swift; path = src/Ice/ImplicitContextI.swift; sourceTree = "<group>"; };
 		738FCFBDF03340612C427168 /* FormatType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FormatType.swift; path = src/Ice/FormatType.swift; sourceTree = "<group>"; };
 		73FDBDC1B56220BD46DB5DE0 /* IceLocationClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceLocationClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		741F5AAD3E267AAF24DD52B3 /* CommunicatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = CommunicatorF.ice; path = ../slice/Ice/CommunicatorF.ice; sourceTree = "<group>"; };
+		741F5AAD3E267AAF24DD52B3 /* CommunicatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = CommunicatorF.ice; path = ../slice/Ice/CommunicatorF.ice; sourceTree = "<group>"; };
 		74C71351BB591F5433F54741 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/operations/Info.plist; sourceTree = "<group>"; };
-		762F571237A00DE5B5603627 /* EndpointTypes.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointTypes.ice; path = ../slice/Ice/EndpointTypes.ice; sourceTree = "<group>"; };
+		762F571237A00DE5B5603627 /* EndpointTypes.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointTypes.ice; path = ../slice/Ice/EndpointTypes.ice; sourceTree = "<group>"; };
 		765318F725D965974B13D50D /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Util.swift; path = src/Ice/Util.swift; sourceTree = "<group>"; };
-		76D7474B287541B2931BC32C /* libIceDiscovery C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceDiscovery C++11 macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		76D7474B287541B2931BC32C /* libIceDiscovery C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceDiscovery C++11 macOS.a"; path = "libIceDiscovery++11macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		76DC7B517BC1325A1901F3D4 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/udp/Client.swift; sourceTree = "<group>"; };
-		76E865CAA4274D91BEF1C4C2 /* LoggerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LoggerI.cpp; path = ../cpp/src/Ice/LoggerI.cpp; sourceTree = "<group>"; };
+		76E865CAA4274D91BEF1C4C2 /* LoggerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LoggerI.cpp; path = ../cpp/src/Ice/LoggerI.cpp; sourceTree = "<group>"; };
 		777AE5F038742FB12FEBD359 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/admin/Server.swift; sourceTree = "<group>"; };
-		7786E13B7A99412AC1C4BB84 /* PropertyNames.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertyNames.cpp; path = ../cpp/src/Ice/PropertyNames.cpp; sourceTree = "<group>"; };
-		78072E638DBC80DA640A1311 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/servantLocator/Test.ice; sourceTree = "<group>"; };
+		7786E13B7A99412AC1C4BB84 /* PropertyNames.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PropertyNames.cpp; path = ../cpp/src/Ice/PropertyNames.cpp; sourceTree = "<group>"; };
+		78072E638DBC80DA640A1311 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/servantLocator/Test.ice; sourceTree = "<group>"; };
 		780D102C4E9176FF81245F49 /* IceProxyClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		785E0B1F293C26C50CA64662 /* IceObjcObjectPrx.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcObjectPrx.h; path = src/IceObjc/IceObjcObjectPrx.h; sourceTree = "<group>"; };
-		78C7910449FE65666994AEBF /* Timer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Timer.cpp; path = ../cpp/src/Ice/Timer.cpp; sourceTree = "<group>"; };
+		78C7910449FE65666994AEBF /* Timer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = ../cpp/src/Ice/Timer.cpp; sourceTree = "<group>"; };
 		791C9D56763E966F75395910 /* IceProxyServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		7AB64EFA0A8D670A4204CF4E /* LocatorInfo.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LocatorInfo.cpp; path = ../cpp/src/Ice/LocatorInfo.cpp; sourceTree = "<group>"; };
-		7AF2F46B232CD8CDACADDAB0 /* EndpointI.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointI.mm; path = ../cpp/src/IceIAP/EndpointI.mm; sourceTree = "<group>"; };
+		7AB64EFA0A8D670A4204CF4E /* LocatorInfo.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LocatorInfo.cpp; path = ../cpp/src/Ice/LocatorInfo.cpp; sourceTree = "<group>"; };
+		7AF2F46B232CD8CDACADDAB0 /* EndpointI.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = EndpointI.mm; path = ../cpp/src/IceIAP/EndpointI.mm; sourceTree = "<group>"; };
 		7B56B285F3CDDB47F7109E1B /* LoggerI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoggerI.swift; path = src/Ice/LoggerI.swift; sourceTree = "<group>"; };
 		7B853BC1D39BAC5CA1936FEE /* Collocated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Collocated.swift; path = test/Ice/ami/Collocated.swift; sourceTree = "<group>"; };
 		7BF87B12FCAF5C1D71CE27B0 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/acm/TestI.swift; sourceTree = "<group>"; };
@@ -3915,99 +3919,99 @@
 		7D887D87B9DD910E13F4F6E5 /* IceAdapterDeactivationServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdapterDeactivationServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DBB4A8039429580B3474FC9 /* IceInfoServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInfoServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E21645F62409DE1D3D5EA1F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/hold/Info.plist; sourceTree = "<group>"; };
-		7E2CF5E1AD2E6B1250E41505 /* CountDownLatch.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CountDownLatch.cpp; path = ../cpp/src/Ice/CountDownLatch.cpp; sourceTree = "<group>"; };
+		7E2CF5E1AD2E6B1250E41505 /* CountDownLatch.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CountDownLatch.cpp; path = ../cpp/src/Ice/CountDownLatch.cpp; sourceTree = "<group>"; };
 		7F28FFC72219C7F24BEF3F15 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/admin/AllTests.swift; sourceTree = "<group>"; };
 		7F377F0D31AC7F2186033FD8 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/enums/Info.plist; sourceTree = "<group>"; };
 		7F3D7DFF0688490A92BFFEEE /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/exceptions/Client.swift; sourceTree = "<group>"; };
-		7F47B242EEACC594BB9B8A2D /* Communicator.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Communicator.ice; path = ../slice/Ice/Communicator.ice; sourceTree = "<group>"; };
-		81668A29F277825BB7AC1EFD /* CollocatedRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CollocatedRequestHandler.cpp; path = ../cpp/src/Ice/CollocatedRequestHandler.cpp; sourceTree = "<group>"; };
+		7F47B242EEACC594BB9B8A2D /* Communicator.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Communicator.ice; path = ../slice/Ice/Communicator.ice; sourceTree = "<group>"; };
+		81668A29F277825BB7AC1EFD /* CollocatedRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CollocatedRequestHandler.cpp; path = ../cpp/src/Ice/CollocatedRequestHandler.cpp; sourceTree = "<group>"; };
 		81D3260F068389ACA5F33D76 /* IceAdapterDeactivationCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdapterDeactivationCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		820413B6DBFCC4C4AA7388F8 /* Router.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Router.ice; path = ../slice/Ice/Router.ice; sourceTree = "<group>"; };
+		820413B6DBFCC4C4AA7388F8 /* Router.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Router.ice; path = ../slice/Ice/Router.ice; sourceTree = "<group>"; };
 		82CC29C555BCCBA06A69CC4C /* Object.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Object.swift; path = src/Ice/Object.swift; sourceTree = "<group>"; };
-		83405D03B3B8456949FC0221 /* OpaqueEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = OpaqueEndpointI.cpp; path = ../cpp/src/Ice/OpaqueEndpointI.cpp; sourceTree = "<group>"; };
+		83405D03B3B8456949FC0221 /* OpaqueEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = OpaqueEndpointI.cpp; path = ../cpp/src/Ice/OpaqueEndpointI.cpp; sourceTree = "<group>"; };
 		83C1DDBE6173D803742F05D7 /* IceAdminServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdminServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		84EC37797539DA5988F21606 /* IceHoldClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceHoldClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		84EFF9CFB27AD73EAD3D7E2B /* Ice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		85C24674FB4E3C7B25024610 /* Mutex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Mutex.swift; path = src/Ice/Mutex.swift; sourceTree = "<group>"; };
 		860FEDD32C836147AA21DA3B /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/exceptions/AllTests.swift; sourceTree = "<group>"; };
 		8657A12F3644A87704E7FBD6 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/proxy/Client.swift; sourceTree = "<group>"; };
-		8763DD284047583B9453FAC3 /* libIceLocatorDiscovery C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceLocatorDiscovery C++11 macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8763DD284047583B9453FAC3 /* libIceLocatorDiscovery C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceLocatorDiscovery C++11 macOS.a"; path = "libIceLocatorDiscovery++11macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		87E453170893AF033BA87578 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/hold/AllTests.swift; sourceTree = "<group>"; };
-		88C5CAAE38CDA034D2C5C884 /* Metrics.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Metrics.ice; path = ../slice/Ice/Metrics.ice; sourceTree = "<group>"; };
+		88C5CAAE38CDA034D2C5C884 /* Metrics.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Metrics.ice; path = ../slice/Ice/Metrics.ice; sourceTree = "<group>"; };
 		88EC6D8B629971CC7CCA6556 /* IceEnumsServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceEnumsServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		894780AA4B4208A84596DB4A /* EndpointF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointF.ice; path = ../slice/Ice/EndpointF.ice; sourceTree = "<group>"; };
+		894780AA4B4208A84596DB4A /* EndpointF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointF.ice; path = ../slice/Ice/EndpointF.ice; sourceTree = "<group>"; };
 		8974E62D7E9FC5753AC06331 /* IceInheritanceClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritanceClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		8992D88CCA97CB0330E82466 /* ServantManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ServantManager.cpp; path = ../cpp/src/Ice/ServantManager.cpp; sourceTree = "<group>"; };
+		8992D88CCA97CB0330E82466 /* ServantManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ServantManager.cpp; path = ../cpp/src/Ice/ServantManager.cpp; sourceTree = "<group>"; };
 		89F2AB375171A9EF52B9846A /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/inheritance/Client.swift; sourceTree = "<group>"; };
-		8AF63414FA5E694B4258E15F /* RemoteLogger.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = RemoteLogger.ice; path = ../slice/Ice/RemoteLogger.ice; sourceTree = "<group>"; };
+		8AF63414FA5E694B4258E15F /* RemoteLogger.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RemoteLogger.ice; path = ../slice/Ice/RemoteLogger.ice; sourceTree = "<group>"; };
 		8B1F60D69F52E3105EF8DF25 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = test/TestDriver/iOS/AppDelegate.swift; sourceTree = "<group>"; };
-		8B61187A83C70D6387F201D5 /* StreamAcceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StreamAcceptor.cpp; path = ../cpp/src/Ice/ios/StreamAcceptor.cpp; sourceTree = "<group>"; };
-		8B7D872A1E3ED45DEC3AA780 /* Plugin.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Plugin.ice; path = ../slice/Ice/Plugin.ice; sourceTree = "<group>"; };
+		8B61187A83C70D6387F201D5 /* StreamAcceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StreamAcceptor.cpp; path = ../cpp/src/Ice/ios/StreamAcceptor.cpp; sourceTree = "<group>"; };
+		8B7D872A1E3ED45DEC3AA780 /* Plugin.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Plugin.ice; path = ../slice/Ice/Plugin.ice; sourceTree = "<group>"; };
 		8C7A380E54598C8EA5A669A7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/exceptions/Info.plist; sourceTree = "<group>"; };
-		8CDCB17E38ABC895DAF2F4FF /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/facets/Test.ice; sourceTree = "<group>"; };
-		8CF5657CCE1523E5C1EF6D79 /* TestAMD.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = TestAMD.ice; path = test/Ice/exceptions/TestAMD.ice; sourceTree = "<group>"; };
+		8CDCB17E38ABC895DAF2F4FF /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/facets/Test.ice; sourceTree = "<group>"; };
+		8CF5657CCE1523E5C1EF6D79 /* TestAMD.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = TestAMD.ice; path = test/Ice/exceptions/TestAMD.ice; sourceTree = "<group>"; };
 		8D0A29B89B54999CC7F223FF /* main.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = main.swift; path = test/TestDriver/macOS/main.swift; sourceTree = "<group>"; };
 		8D4C638A265C32E015AA617C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		8DD52EB7901A8A90255CDF26 /* MyDerivedClassI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MyDerivedClassI.swift; path = test/Ice/proxy/MyDerivedClassI.swift; sourceTree = "<group>"; };
-		8E1B0EB1EECD7E69F5A8F77B /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/objects/Test.ice; sourceTree = "<group>"; };
-		8F83442A22DD264CCA77E474 /* OutgoingAsync.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = OutgoingAsync.cpp; path = ../cpp/src/Ice/OutgoingAsync.cpp; sourceTree = "<group>"; };
+		8E1B0EB1EECD7E69F5A8F77B /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/objects/Test.ice; sourceTree = "<group>"; };
+		8F83442A22DD264CCA77E474 /* OutgoingAsync.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = OutgoingAsync.cpp; path = ../cpp/src/Ice/OutgoingAsync.cpp; sourceTree = "<group>"; };
 		902F989347205C0EB9553C51 /* ThrowerI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThrowerI.swift; path = test/Ice/exceptions/ThrowerI.swift; sourceTree = "<group>"; };
 		918471EC9AE95BC942CF2EDB /* IceBindingClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceBindingClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		91BBBAE84C65A3688EEA4F21 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/facets/TestI.swift; sourceTree = "<group>"; };
-		91D17E537154FA54E12429C4 /* ClientPrivate.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ClientPrivate.ice; path = test/Ice/slicing/objects/ClientPrivate.ice; sourceTree = "<group>"; };
-		9213F4A8DD92680AC74E63E3 /* LoggerF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = LoggerF.ice; path = ../slice/Ice/LoggerF.ice; sourceTree = "<group>"; };
-		922006F8C5812638A7D112A4 /* Exception.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Exception.cpp; path = ../cpp/src/Ice/Exception.cpp; sourceTree = "<group>"; };
+		91D17E537154FA54E12429C4 /* ClientPrivate.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ClientPrivate.ice; path = test/Ice/slicing/objects/ClientPrivate.ice; sourceTree = "<group>"; };
+		9213F4A8DD92680AC74E63E3 /* LoggerF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LoggerF.ice; path = ../slice/Ice/LoggerF.ice; sourceTree = "<group>"; };
+		922006F8C5812638A7D112A4 /* Exception.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Exception.cpp; path = ../cpp/src/Ice/Exception.cpp; sourceTree = "<group>"; };
 		9270CF592D6CB485FC3A6DCA /* ServerAMD.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServerAMD.swift; path = test/Ice/exceptions/ServerAMD.swift; sourceTree = "<group>"; };
-		92860A95F5D3F676A7DADBFD /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/slicing/objects/Test.ice; sourceTree = "<group>"; };
+		92860A95F5D3F676A7DADBFD /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/slicing/objects/Test.ice; sourceTree = "<group>"; };
 		9380338EE490A17C0BD366E0 /* ValueFactoryManagerI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ValueFactoryManagerI.swift; path = src/Ice/ValueFactoryManagerI.swift; sourceTree = "<group>"; };
-		946B22B96A3487ED71D8ED91 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/proxy/Test.ice; sourceTree = "<group>"; };
-		94C2936D3296B0230D85C851 /* UUID.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = UUID.cpp; path = ../cpp/src/IceUtil/UUID.cpp; sourceTree = "<group>"; };
+		946B22B96A3487ED71D8ED91 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/proxy/Test.ice; sourceTree = "<group>"; };
+		94C2936D3296B0230D85C851 /* UUID.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = UUID.cpp; path = ../cpp/src/IceUtil/UUID.cpp; sourceTree = "<group>"; };
 		94EBFDF1C7E1185B3FA220B1 /* Proxy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Proxy.swift; path = src/Ice/Proxy.swift; sourceTree = "<group>"; };
-		9514C02FDF1A94B0F8B66B15 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/invoke/Test.ice; sourceTree = "<group>"; };
+		9514C02FDF1A94B0F8B66B15 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/invoke/Test.ice; sourceTree = "<group>"; };
 		9524210CB5BDB63C076D15E4 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/slicing/objects/Info.plist; sourceTree = "<group>"; };
 		956F0F75963E0A855AC3B43C /* IceObjcAdminFacetFactory.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcAdminFacetFactory.h; path = src/IceObjc/IceObjcAdminFacetFactory.h; sourceTree = "<group>"; };
-		9631311AE3D49D5475D15085 /* Protocol.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Protocol.cpp; path = ../cpp/src/Ice/Protocol.cpp; sourceTree = "<group>"; };
+		9631311AE3D49D5475D15085 /* Protocol.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Protocol.cpp; path = ../cpp/src/Ice/Protocol.cpp; sourceTree = "<group>"; };
 		975A1CCA66B5916321C9625A /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/acm/Client.swift; sourceTree = "<group>"; };
 		9794B820B9C2E15D2AFE5749 /* ServantLocator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServantLocator.swift; path = test/Ice/adapterDeactivation/ServantLocator.swift; sourceTree = "<group>"; };
 		9891932B26EFB66E0CA0F1BE /* IceTimeoutClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceTimeoutClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		98BD791D7E2C6AD06BEA76D6 /* EndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointI.cpp; path = ../cpp/src/Ice/EndpointI.cpp; sourceTree = "<group>"; };
+		98BD791D7E2C6AD06BEA76D6 /* EndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EndpointI.cpp; path = ../cpp/src/Ice/EndpointI.cpp; sourceTree = "<group>"; };
 		991DED2988141777ACADE5DD /* IceSlicingExceptionsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceSlicingExceptionsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		9940B0D2FFF7AAAD759C0142 /* ImplicitContext.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ImplicitContext.ice; path = ../slice/Ice/ImplicitContext.ice; sourceTree = "<group>"; };
+		9940B0D2FFF7AAAD759C0142 /* ImplicitContext.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ImplicitContext.ice; path = ../slice/Ice/ImplicitContext.ice; sourceTree = "<group>"; };
 		99A342F90A48503F6DE24952 /* PropertiesI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PropertiesI.swift; path = src/Ice/PropertiesI.swift; sourceTree = "<group>"; };
 		99F2FEE7F793003C48E1833A /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/defaultServant/Info.plist; sourceTree = "<group>"; };
-		9A8212829F4403A165F50191 /* PropertiesF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertiesF.ice; path = ../slice/Ice/PropertiesF.ice; sourceTree = "<group>"; };
-		9A95A67DFDB896F767587EFA /* StreamConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StreamConnector.cpp; path = ../cpp/src/Ice/ios/StreamConnector.cpp; sourceTree = "<group>"; };
-		9B413E2405793B3758AB516A /* ObjectAdapter.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapter.mm; path = src/IceObjc/ObjectAdapter.mm; sourceTree = "<group>"; };
-		9B55D9EA6A1062107AF704B2 /* ObjectAdapterF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapterF.ice; path = ../slice/Ice/ObjectAdapterF.ice; sourceTree = "<group>"; };
+		9A8212829F4403A165F50191 /* PropertiesF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PropertiesF.ice; path = ../slice/Ice/PropertiesF.ice; sourceTree = "<group>"; };
+		9A95A67DFDB896F767587EFA /* StreamConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StreamConnector.cpp; path = ../cpp/src/Ice/ios/StreamConnector.cpp; sourceTree = "<group>"; };
+		9B413E2405793B3758AB516A /* ObjectAdapter.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = ObjectAdapter.mm; path = src/IceObjc/ObjectAdapter.mm; sourceTree = "<group>"; };
+		9B55D9EA6A1062107AF704B2 /* ObjectAdapterF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ObjectAdapterF.ice; path = ../slice/Ice/ObjectAdapterF.ice; sourceTree = "<group>"; };
 		9B65668EA787660FBC268F9C /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/acm/Server.swift; sourceTree = "<group>"; };
 		9D41148884D4BBC59ECA9F0E /* DI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DI.swift; path = test/Ice/objects/DI.swift; sourceTree = "<group>"; };
 		9DECFDF550B36B7B2F7A0A1D /* BatchOnewaysAMI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatchOnewaysAMI.swift; path = test/Ice/operations/BatchOnewaysAMI.swift; sourceTree = "<group>"; };
-		9F38CE670BB1075F727D9921 /* Derived.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Derived.ice; path = test/Ice/objects/Derived.ice; sourceTree = "<group>"; };
+		9F38CE670BB1075F727D9921 /* Derived.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Derived.ice; path = test/Ice/objects/Derived.ice; sourceTree = "<group>"; };
 		9F401DCD05A66569C445EA57 /* IceAcmServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAcmServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FFA6AE3657785D2ABE05FA9 /* LocalObject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalObject.swift; path = src/Ice/LocalObject.swift; sourceTree = "<group>"; };
-		A0F14E1C57DF2C83DE853016 /* LocalObject.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LocalObject.cpp; path = ../cpp/src/Ice/LocalObject.cpp; sourceTree = "<group>"; };
-		A1EB4B509CF9D84506659067 /* RFC2253.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RFC2253.cpp; path = ../cpp/src/IceSSL/RFC2253.cpp; sourceTree = "<group>"; };
+		A0F14E1C57DF2C83DE853016 /* LocalObject.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LocalObject.cpp; path = ../cpp/src/Ice/LocalObject.cpp; sourceTree = "<group>"; };
+		A1EB4B509CF9D84506659067 /* RFC2253.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RFC2253.cpp; path = ../cpp/src/IceSSL/RFC2253.cpp; sourceTree = "<group>"; };
 		A2B177549F6E47DBEC571666 /* IceSlicingObjectsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceSlicingObjectsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3242DF9C9241BF610243494 /* IceAdminClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdminClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3BCCAC5B89BC63986B22CDA /* IceObjcOutputStream.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcOutputStream.h; path = src/IceObjc/IceObjcOutputStream.h; sourceTree = "<group>"; };
-		A544F6CB1BE3D8AEE74CE821 /* ClientPrivate.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ClientPrivate.ice; path = test/Ice/slicing/exceptions/ClientPrivate.ice; sourceTree = "<group>"; };
-		A560B519CB53C99493AA5932 /* EventHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EventHandler.cpp; path = ../cpp/src/Ice/EventHandler.cpp; sourceTree = "<group>"; };
+		A544F6CB1BE3D8AEE74CE821 /* ClientPrivate.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ClientPrivate.ice; path = test/Ice/slicing/exceptions/ClientPrivate.ice; sourceTree = "<group>"; };
+		A560B519CB53C99493AA5932 /* EventHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EventHandler.cpp; path = ../cpp/src/Ice/EventHandler.cpp; sourceTree = "<group>"; };
 		A56AB56F8EAD95C4D3686CD8 /* Oneways.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Oneways.swift; path = test/Ice/operations/Oneways.swift; sourceTree = "<group>"; };
-		A5BEC94716BF1CCC580845F3 /* ProxyFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ProxyFactory.cpp; path = ../cpp/src/Ice/ProxyFactory.cpp; sourceTree = "<group>"; };
-		A6D4DF8F901D0FABBBFB0247 /* FileUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = FileUtil.cpp; path = ../cpp/src/IceUtil/FileUtil.cpp; sourceTree = "<group>"; };
-		A7189B8155AA8EEB7D19CCDD /* UtilException.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = UtilException.cpp; path = ../cpp/src/IceUtil/UtilException.cpp; sourceTree = "<group>"; };
+		A5BEC94716BF1CCC580845F3 /* ProxyFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ProxyFactory.cpp; path = ../cpp/src/Ice/ProxyFactory.cpp; sourceTree = "<group>"; };
+		A6D4DF8F901D0FABBBFB0247 /* FileUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = FileUtil.cpp; path = ../cpp/src/IceUtil/FileUtil.cpp; sourceTree = "<group>"; };
+		A7189B8155AA8EEB7D19CCDD /* UtilException.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = UtilException.cpp; path = ../cpp/src/IceUtil/UtilException.cpp; sourceTree = "<group>"; };
 		A738A3511973442FB58391EF /* IceDefaultServantClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceDefaultServantClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		A7AB0A6F1238BA04C27796B6 /* IncomingAsync.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = IncomingAsync.cpp; path = ../cpp/src/Ice/IncomingAsync.cpp; sourceTree = "<group>"; };
-		A9ACA5FEB040084FE1C43037 /* Transceiver.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Transceiver.mm; path = ../cpp/src/IceIAP/Transceiver.mm; sourceTree = "<group>"; };
+		A7AB0A6F1238BA04C27796B6 /* IncomingAsync.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = IncomingAsync.cpp; path = ../cpp/src/Ice/IncomingAsync.cpp; sourceTree = "<group>"; };
+		A9ACA5FEB040084FE1C43037 /* Transceiver.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Transceiver.mm; path = ../cpp/src/IceIAP/Transceiver.mm; sourceTree = "<group>"; };
 		AA02ED1B9969146D2DC85D93 /* IceFacetsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceFacetsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA8D274C8FCC8625CC6F2A71 /* Controller.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Controller.ice; path = ../scripts/Controller.ice; sourceTree = "<group>"; };
-		AAFE33A7880699459DC8BA8B /* libIceSSL C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceSSL C++11 iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABF2EABE3456AC73C287B9BE /* WSTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = WSTransceiver.cpp; path = ../cpp/src/Ice/WSTransceiver.cpp; sourceTree = "<group>"; };
-		AC6161DF4B245A9D4882479B /* StreamEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StreamEndpointI.cpp; path = ../cpp/src/Ice/ios/StreamEndpointI.cpp; sourceTree = "<group>"; };
-		ACE8510AF579C0ED01FA401D /* PropertiesAdmin.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertiesAdmin.ice; path = ../slice/Ice/PropertiesAdmin.ice; sourceTree = "<group>"; };
+		AA8D274C8FCC8625CC6F2A71 /* Controller.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Controller.ice; path = ../scripts/Controller.ice; sourceTree = "<group>"; };
+		AAFE33A7880699459DC8BA8B /* libIceSSL C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceSSL C++11 iOS.a"; path = "libIceSSL++11iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ABF2EABE3456AC73C287B9BE /* WSTransceiver.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = WSTransceiver.cpp; path = ../cpp/src/Ice/WSTransceiver.cpp; sourceTree = "<group>"; };
+		AC6161DF4B245A9D4882479B /* StreamEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StreamEndpointI.cpp; path = ../cpp/src/Ice/ios/StreamEndpointI.cpp; sourceTree = "<group>"; };
+		ACE8510AF579C0ED01FA401D /* PropertiesAdmin.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PropertiesAdmin.ice; path = ../slice/Ice/PropertiesAdmin.ice; sourceTree = "<group>"; };
 		AD899230DCD052F3CA974F9B /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/exceptions/Server.swift; sourceTree = "<group>"; };
 		ADB2DB1E3E75D31078C95C3D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/info/Info.plist; sourceTree = "<group>"; };
-		ADEB6BB05EC517F89AD662F2 /* StreamSocket.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StreamSocket.cpp; path = ../cpp/src/Ice/StreamSocket.cpp; sourceTree = "<group>"; };
+		ADEB6BB05EC517F89AD662F2 /* StreamSocket.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StreamSocket.cpp; path = ../cpp/src/Ice/StreamSocket.cpp; sourceTree = "<group>"; };
 		AE0D94566095317606F45D93 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/adapterDeactivation/Info.plist; sourceTree = "<group>"; };
 		AF0AC669857574D74C19C92A /* Collocated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Collocated.swift; path = test/Ice/adapterDeactivation/Collocated.swift; sourceTree = "<group>"; };
 		AF7DD99E8DD8FC54935CE9F4 /* NativePropertiesAdmin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NativePropertiesAdmin.swift; path = src/Ice/NativePropertiesAdmin.swift; sourceTree = "<group>"; };
@@ -4016,72 +4020,72 @@
 		B102ECF50D433F39761F69B1 /* IceInheritanceClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritanceClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10EA9AE6EA07E0BB9585F67 /* IceEnumsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceEnumsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B14B762159BE237960500828 /* TwowaysAMI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TwowaysAMI.swift; path = test/Ice/operations/TwowaysAMI.swift; sourceTree = "<group>"; };
-		B1607D1B18D14DE40A1220B9 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/inheritance/Test.ice; sourceTree = "<group>"; };
-		B1C1820254D308852F8823B6 /* HttpParser.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = HttpParser.cpp; path = ../cpp/src/Ice/HttpParser.cpp; sourceTree = "<group>"; };
-		B20168B0647DCB2F7BF321E8 /* TcpAcceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TcpAcceptor.cpp; path = ../cpp/src/Ice/TcpAcceptor.cpp; sourceTree = "<group>"; };
+		B1607D1B18D14DE40A1220B9 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/inheritance/Test.ice; sourceTree = "<group>"; };
+		B1C1820254D308852F8823B6 /* HttpParser.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = HttpParser.cpp; path = ../cpp/src/Ice/HttpParser.cpp; sourceTree = "<group>"; };
+		B20168B0647DCB2F7BF321E8 /* TcpAcceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TcpAcceptor.cpp; path = ../cpp/src/Ice/TcpAcceptor.cpp; sourceTree = "<group>"; };
 		B34A3F237A92FDB447B29C64 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/proxy/Server.swift; sourceTree = "<group>"; };
-		B34F7886A40C868001E35357 /* SecureTransportUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SecureTransportUtil.cpp; path = ../cpp/src/IceSSL/SecureTransportUtil.cpp; sourceTree = "<group>"; };
-		B423947BE042E7CDA2F1F1A6 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/operations/Test.ice; sourceTree = "<group>"; };
-		B69CFCEE7E0B6F6BDE9F3DB6 /* BatchRequestQueue.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = BatchRequestQueue.cpp; path = ../cpp/src/Ice/BatchRequestQueue.cpp; sourceTree = "<group>"; };
+		B34F7886A40C868001E35357 /* SecureTransportUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SecureTransportUtil.cpp; path = ../cpp/src/IceSSL/SecureTransportUtil.cpp; sourceTree = "<group>"; };
+		B423947BE042E7CDA2F1F1A6 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/operations/Test.ice; sourceTree = "<group>"; };
+		B69CFCEE7E0B6F6BDE9F3DB6 /* BatchRequestQueue.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = BatchRequestQueue.cpp; path = ../cpp/src/Ice/BatchRequestQueue.cpp; sourceTree = "<group>"; };
 		B786140AF4716B8DA7A1E69D /* IceDefaultServantClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceDefaultServantClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		B872A338AB1370604B755FB7 /* Current.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Current.ice; path = ../slice/Ice/Current.ice; sourceTree = "<group>"; };
+		B872A338AB1370604B755FB7 /* Current.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Current.ice; path = ../slice/Ice/Current.ice; sourceTree = "<group>"; };
 		B88A3CEC2971FF309976AF87 /* IceAcmClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAcmClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B93DD32685ED25ABF232FAF7 /* IceObjcLogger.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcLogger.h; path = src/IceObjc/IceObjcLogger.h; sourceTree = "<group>"; };
 		B9F75ED507074B0797519C8E /* IceBindingServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceBindingServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		BACF20D0209C3F51CA2657C7 /* PropertiesI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertiesI.cpp; path = ../cpp/src/Ice/PropertiesI.cpp; sourceTree = "<group>"; };
+		BACF20D0209C3F51CA2657C7 /* PropertiesI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PropertiesI.cpp; path = ../cpp/src/Ice/PropertiesI.cpp; sourceTree = "<group>"; };
 		BB8DC3D85D69C94A8A8F06C5 /* IceEnumsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceEnumsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBCA66B66590935790807D27 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/slicing/exceptions/Info.plist; sourceTree = "<group>"; };
-		BC036FB130C47BD57639EFEF /* LoggerUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = LoggerUtil.cpp; path = ../cpp/src/Ice/LoggerUtil.cpp; sourceTree = "<group>"; };
+		BC036FB130C47BD57639EFEF /* LoggerUtil.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LoggerUtil.cpp; path = ../cpp/src/Ice/LoggerUtil.cpp; sourceTree = "<group>"; };
 		BC093FE0A45A9BA7B0C8A17E /* IceSlicingExceptionsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceSlicingExceptionsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		BC4692E0F23DB61EFD33FFF8 /* InstrumentationI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = InstrumentationI.cpp; path = ../cpp/src/Ice/InstrumentationI.cpp; sourceTree = "<group>"; };
-		BCD5676F68C30D6ABE3737DD /* Locator.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Locator.ice; path = ../slice/Ice/Locator.ice; sourceTree = "<group>"; };
-		BD34D7F571F560840B2F1661 /* EndpointInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointInfo.ice; path = ../slice/IceIAP/EndpointInfo.ice; sourceTree = "<group>"; };
+		BC4692E0F23DB61EFD33FFF8 /* InstrumentationI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = InstrumentationI.cpp; path = ../cpp/src/Ice/InstrumentationI.cpp; sourceTree = "<group>"; };
+		BCD5676F68C30D6ABE3737DD /* Locator.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Locator.ice; path = ../slice/Ice/Locator.ice; sourceTree = "<group>"; };
+		BD34D7F571F560840B2F1661 /* EndpointInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointInfo.ice; path = ../slice/IceIAP/EndpointInfo.ice; sourceTree = "<group>"; };
 		BD53368E8B9ECE44AC557734 /* IceAmiServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmiServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA0ED23D9D7F0F5ACA2224E /* IceObjcObjectAdapter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcObjectAdapter.h; path = src/IceObjc/IceObjcObjectAdapter.h; sourceTree = "<group>"; };
 		BDC8457C9EEC7EE9E706B903 /* IceProxyCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		BDDC66668377ABF902A7A1CC /* libIce C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIce C++11 iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BDF7E7FA99F033DF35326507 /* EndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointI.cpp; path = ../cpp/src/IceSSL/EndpointI.cpp; sourceTree = "<group>"; };
+		BDDC66668377ABF902A7A1CC /* libIce C++11 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIce C++11 iOS.a"; path = "libIce++11iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BDF7E7FA99F033DF35326507 /* EndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EndpointI.cpp; path = ../cpp/src/IceSSL/EndpointI.cpp; sourceTree = "<group>"; };
 		BE6DD810B2F4E7FB43268F5C /* IceObjcLocalObject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcLocalObject.h; path = src/IceObjc/IceObjcLocalObject.h; sourceTree = "<group>"; };
-		BEAC3154122C53BCDD626A19 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/optional/Test.ice; sourceTree = "<group>"; };
+		BEAC3154122C53BCDD626A19 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/optional/Test.ice; sourceTree = "<group>"; };
 		BF90056A9F0218FB797EDFC3 /* FI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FI.swift; path = test/Ice/objects/FI.swift; sourceTree = "<group>"; };
-		BFAC003EAB7854E50C43E7B2 /* Logger.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Logger.ice; path = ../slice/Ice/Logger.ice; sourceTree = "<group>"; };
-		BFC66CEBF334F19D34798EB4 /* MutexProtocol.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = MutexProtocol.cpp; path = ../cpp/src/IceUtil/MutexProtocol.cpp; sourceTree = "<group>"; };
+		BFAC003EAB7854E50C43E7B2 /* Logger.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Logger.ice; path = ../slice/Ice/Logger.ice; sourceTree = "<group>"; };
+		BFC66CEBF334F19D34798EB4 /* MutexProtocol.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = MutexProtocol.cpp; path = ../cpp/src/IceUtil/MutexProtocol.cpp; sourceTree = "<group>"; };
 		BFFDE3867CBC2260F384478F /* IceFacetsServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceFacetsServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2431B5CA05F970EAE5D85EE /* IceExceptionsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2F08F7A1D0792F12AFBB428 /* IceAcmServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAcmServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		C37F90652834943776F3EA4A /* TcpEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TcpEndpointI.cpp; path = ../cpp/src/Ice/TcpEndpointI.cpp; sourceTree = "<group>"; };
-		C3A8CE39926E04FA703F8A39 /* LocatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = LocatorF.ice; path = ../slice/Ice/LocatorF.ice; sourceTree = "<group>"; };
+		C37F90652834943776F3EA4A /* TcpEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TcpEndpointI.cpp; path = ../cpp/src/Ice/TcpEndpointI.cpp; sourceTree = "<group>"; };
+		C3A8CE39926E04FA703F8A39 /* LocatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LocatorF.ice; path = ../slice/Ice/LocatorF.ice; sourceTree = "<group>"; };
 		C40B27BB90D16E00C2661B59 /* IceStreamClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceStreamClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		C41B6C29EE197531C0A20391 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/inheritance/Info.plist; sourceTree = "<group>"; };
-		C4402E28F88E00CC6CD3797B /* Version.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Version.ice; path = ../slice/Ice/Version.ice; sourceTree = "<group>"; };
-		C59861514AA0B0479271B8EF /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/binding/Test.ice; sourceTree = "<group>"; };
-		C6B0919D0EE3C7CECDE971E7 /* BuiltinSequences.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = BuiltinSequences.ice; path = ../slice/Ice/BuiltinSequences.ice; sourceTree = "<group>"; };
-		C70F1ACDE187A3F49A942496 /* Connector.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Connector.mm; path = ../cpp/src/IceIAP/Connector.mm; sourceTree = "<group>"; };
-		C797A7E05F54D4768AFFC2BF /* SecureTransportTransceiverI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SecureTransportTransceiverI.cpp; path = ../cpp/src/IceSSL/SecureTransportTransceiverI.cpp; sourceTree = "<group>"; };
-		C7FF894E1C3C6710FFD99CD8 /* Process.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Process.mm; path = src/IceObjc/Process.mm; sourceTree = "<group>"; };
-		C88813EC17D6799C977CE1A7 /* Service.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Service.cpp; path = ../cpp/src/Ice/Service.cpp; sourceTree = "<group>"; };
+		C4402E28F88E00CC6CD3797B /* Version.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Version.ice; path = ../slice/Ice/Version.ice; sourceTree = "<group>"; };
+		C59861514AA0B0479271B8EF /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/binding/Test.ice; sourceTree = "<group>"; };
+		C6B0919D0EE3C7CECDE971E7 /* BuiltinSequences.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = BuiltinSequences.ice; path = ../slice/Ice/BuiltinSequences.ice; sourceTree = "<group>"; };
+		C70F1ACDE187A3F49A942496 /* Connector.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Connector.mm; path = ../cpp/src/IceIAP/Connector.mm; sourceTree = "<group>"; };
+		C797A7E05F54D4768AFFC2BF /* SecureTransportTransceiverI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SecureTransportTransceiverI.cpp; path = ../cpp/src/IceSSL/SecureTransportTransceiverI.cpp; sourceTree = "<group>"; };
+		C7FF894E1C3C6710FFD99CD8 /* Process.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Process.mm; path = src/IceObjc/Process.mm; sourceTree = "<group>"; };
+		C88813EC17D6799C977CE1A7 /* Service.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Service.cpp; path = ../cpp/src/Ice/Service.cpp; sourceTree = "<group>"; };
 		C99BF703735B9149EBA8365A /* MyDerivedClassAMDI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MyDerivedClassAMDI.swift; path = test/Ice/proxy/MyDerivedClassAMDI.swift; sourceTree = "<group>"; };
-		CA940927BDA05DB16E3589AE /* ConnectionRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionRequestHandler.cpp; path = ../cpp/src/Ice/ConnectionRequestHandler.cpp; sourceTree = "<group>"; };
-		CB01B0594AF01800F4A2A84C /* ValueFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ValueFactory.ice; path = ../slice/Ice/ValueFactory.ice; sourceTree = "<group>"; };
+		CA940927BDA05DB16E3589AE /* ConnectionRequestHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ConnectionRequestHandler.cpp; path = ../cpp/src/Ice/ConnectionRequestHandler.cpp; sourceTree = "<group>"; };
+		CB01B0594AF01800F4A2A84C /* ValueFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ValueFactory.ice; path = ../slice/Ice/ValueFactory.ice; sourceTree = "<group>"; };
 		CB52D7D7F4C340E34123DF06 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/enums/Server.swift; sourceTree = "<group>"; };
-		CB56660B5F520C330F7BB1BB /* IPEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = IPEndpointI.cpp; path = ../cpp/src/Ice/IPEndpointI.cpp; sourceTree = "<group>"; };
-		CC1487DB7C7B4D3D26388FA5 /* TcpConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = TcpConnector.cpp; path = ../cpp/src/Ice/TcpConnector.cpp; sourceTree = "<group>"; };
-		CC2426B65D194A92914ED161 /* ObjectFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectFactory.ice; path = ../slice/Ice/ObjectFactory.ice; sourceTree = "<group>"; };
-		CCA6BF1F1B1E209A5B7BBE75 /* Incoming.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Incoming.cpp; path = ../cpp/src/Ice/Incoming.cpp; sourceTree = "<group>"; };
-		CCD199D55C5FD698F7EE4A2C /* InstrumentationF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = InstrumentationF.ice; path = ../slice/Ice/InstrumentationF.ice; sourceTree = "<group>"; };
-		CD81D7853C388C029FD92B4B /* ObjectAdapterI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ObjectAdapterI.cpp; path = ../cpp/src/Ice/ObjectAdapterI.cpp; sourceTree = "<group>"; };
-		CE442248B94C8B6C720D02C5 /* PluginManagerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = PluginManagerI.cpp; path = ../cpp/src/Ice/PluginManagerI.cpp; sourceTree = "<group>"; };
-		CE72A409AA9F4BCDD177F557 /* RetryQueue.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RetryQueue.cpp; path = ../cpp/src/Ice/RetryQueue.cpp; sourceTree = "<group>"; };
-		CEC562BCDE4DA61B1D42C75B /* SystemdJournalI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SystemdJournalI.cpp; path = ../cpp/src/Ice/SystemdJournalI.cpp; sourceTree = "<group>"; };
-		CEE460E89D9353842743D85A /* ServantLocator.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ServantLocator.ice; path = ../slice/Ice/ServantLocator.ice; sourceTree = "<group>"; };
+		CB56660B5F520C330F7BB1BB /* IPEndpointI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = IPEndpointI.cpp; path = ../cpp/src/Ice/IPEndpointI.cpp; sourceTree = "<group>"; };
+		CC1487DB7C7B4D3D26388FA5 /* TcpConnector.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TcpConnector.cpp; path = ../cpp/src/Ice/TcpConnector.cpp; sourceTree = "<group>"; };
+		CC2426B65D194A92914ED161 /* ObjectFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ObjectFactory.ice; path = ../slice/Ice/ObjectFactory.ice; sourceTree = "<group>"; };
+		CCA6BF1F1B1E209A5B7BBE75 /* Incoming.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Incoming.cpp; path = ../cpp/src/Ice/Incoming.cpp; sourceTree = "<group>"; };
+		CCD199D55C5FD698F7EE4A2C /* InstrumentationF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = InstrumentationF.ice; path = ../slice/Ice/InstrumentationF.ice; sourceTree = "<group>"; };
+		CD81D7853C388C029FD92B4B /* ObjectAdapterI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ObjectAdapterI.cpp; path = ../cpp/src/Ice/ObjectAdapterI.cpp; sourceTree = "<group>"; };
+		CE442248B94C8B6C720D02C5 /* PluginManagerI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PluginManagerI.cpp; path = ../cpp/src/Ice/PluginManagerI.cpp; sourceTree = "<group>"; };
+		CE72A409AA9F4BCDD177F557 /* RetryQueue.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RetryQueue.cpp; path = ../cpp/src/Ice/RetryQueue.cpp; sourceTree = "<group>"; };
+		CEC562BCDE4DA61B1D42C75B /* SystemdJournalI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SystemdJournalI.cpp; path = ../cpp/src/Ice/SystemdJournalI.cpp; sourceTree = "<group>"; };
+		CEE460E89D9353842743D85A /* ServantLocator.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ServantLocator.ice; path = ../slice/Ice/ServantLocator.ice; sourceTree = "<group>"; };
 		CEFA5B29D929DE980E84C49C /* HI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HI.swift; path = test/Ice/objects/HI.swift; sourceTree = "<group>"; };
-		CFCA34B83C8E04652D9A5488 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/adapterDeactivation/Test.ice; sourceTree = "<group>"; };
-		D0482035DA4C3197EE581994 /* ACM.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ACM.cpp; path = ../cpp/src/Ice/ACM.cpp; sourceTree = "<group>"; };
+		CFCA34B83C8E04652D9A5488 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/adapterDeactivation/Test.ice; sourceTree = "<group>"; };
+		D0482035DA4C3197EE581994 /* ACM.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ACM.cpp; path = ../cpp/src/Ice/ACM.cpp; sourceTree = "<group>"; };
 		D10ECD19136AA57AE4451136 /* SliceInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SliceInfo.swift; path = src/Ice/SliceInfo.swift; sourceTree = "<group>"; };
 		D1DA7390C8EFED0F9C2A60E4 /* ControllerI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ControllerI.swift; path = test/TestDriver/iOS/ControllerI.swift; sourceTree = "<group>"; };
 		D22A0AEEC596682E9B34CAFF /* Value.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Value.swift; path = src/Ice/Value.swift; sourceTree = "<group>"; };
 		D36B58C7FCD92CD3E83DECD8 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/timeout/Info.plist; sourceTree = "<group>"; };
-		D3C26FC3292B40A7B585E788 /* SecureTransportCertificateI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SecureTransportCertificateI.cpp; path = ../cpp/src/IceSSL/SecureTransportCertificateI.cpp; sourceTree = "<group>"; };
+		D3C26FC3292B40A7B585E788 /* SecureTransportCertificateI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SecureTransportCertificateI.cpp; path = ../cpp/src/IceSSL/SecureTransportCertificateI.cpp; sourceTree = "<group>"; };
 		D3D065D92EA7B1BF5B467D00 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/hold/Server.swift; sourceTree = "<group>"; };
 		D4E6B8DE3CD4063686E56F1A /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/location/Info.plist; sourceTree = "<group>"; };
 		D5EC3775F80EC7640FEB68DB /* II.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = II.swift; path = test/Ice/objects/II.swift; sourceTree = "<group>"; };
@@ -4089,104 +4093,106 @@
 		D6CF6C626A9DF612182F9A84 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/location/Client.swift; sourceTree = "<group>"; };
 		D7EF81BECD4B8A5B9928B7AE /* IceInheritanceServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritanceServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8682398BA2D7D0BD1C321E6 /* Incoming.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Incoming.swift; path = src/Ice/Incoming.swift; sourceTree = "<group>"; };
-		D950B6E86A024CD8D687F41B /* AcceptorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = AcceptorI.cpp; path = ../cpp/src/IceSSL/AcceptorI.cpp; sourceTree = "<group>"; };
+		D8FA57F222676BB5009D0431 /* Blobject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Blobject.swift; path = src/Ice/Blobject.swift; sourceTree = "<group>"; };
+		D8FA57F5226774CE009D0431 /* BlobjectAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BlobjectAsync.swift; path = src/Ice/BlobjectAsync.swift; sourceTree = "<group>"; };
+		D950B6E86A024CD8D687F41B /* AcceptorI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AcceptorI.cpp; path = ../cpp/src/IceSSL/AcceptorI.cpp; sourceTree = "<group>"; };
 		D99A08A2EDDA8591EE94596B /* IceOperationsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceOperationsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		D99EF691272F0F2038DB8581 /* IceObjcEndpoint.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcEndpoint.h; path = src/IceObjc/IceObjcEndpoint.h; sourceTree = "<group>"; };
 		D9E1A785C816AFCA81EA67FC /* IceInfoClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInfoClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		DA62FF2545DCAEFBE322F650 /* LocalException.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = LocalException.ice; path = ../slice/Ice/LocalException.ice; sourceTree = "<group>"; };
-		DABECE51FB43EF6D3929333C /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/stream/Test.ice; sourceTree = "<group>"; };
+		DA62FF2545DCAEFBE322F650 /* LocalException.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LocalException.ice; path = ../slice/Ice/LocalException.ice; sourceTree = "<group>"; };
+		DABECE51FB43EF6D3929333C /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/stream/Test.ice; sourceTree = "<group>"; };
 		DABF409E6D338ABF859FBE86 /* EmptyI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EmptyI.swift; path = test/Ice/exceptions/EmptyI.swift; sourceTree = "<group>"; };
 		DB4288370CD71B7B2AABB7FE /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/servantLocator/Info.plist; sourceTree = "<group>"; };
 		DB9B7250F0AAC32553B497ED /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/admin/TestI.swift; sourceTree = "<group>"; };
-		DCCB4F057F919904E997C6CC /* Options.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Options.cpp; path = ../cpp/src/IceUtil/Options.cpp; sourceTree = "<group>"; };
-		DD0A28E65B5CFAC78909EC81 /* Connection.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Connection.mm; path = src/IceObjc/Connection.mm; sourceTree = "<group>"; };
+		DCCB4F057F919904E997C6CC /* Options.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Options.cpp; path = ../cpp/src/IceUtil/Options.cpp; sourceTree = "<group>"; };
+		DD0A28E65B5CFAC78909EC81 /* Connection.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Connection.mm; path = src/IceObjc/Connection.mm; sourceTree = "<group>"; };
 		DD58F2CC12A733971EED7E54 /* IceObjectsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceObjectsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDFDA1CD2AEEEA53ACCBBFE5 /* IceProxyCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE53D8F28E8866E099F09702 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/ami/Info.plist; sourceTree = "<group>"; };
 		DE5B875EAB7BD4E0A2ED489A /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/adapterDeactivation/TestI.swift; sourceTree = "<group>"; };
-		DE8470B44DE1EC9E34FCDF0C /* CtrlCHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CtrlCHandler.cpp; path = ../cpp/src/IceUtil/CtrlCHandler.cpp; sourceTree = "<group>"; };
+		DE8470B44DE1EC9E34FCDF0C /* CtrlCHandler.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CtrlCHandler.cpp; path = ../cpp/src/IceUtil/CtrlCHandler.cpp; sourceTree = "<group>"; };
 		DE9D64D98B44575D1605F585 /* CI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CI.swift; path = test/Ice/objects/CI.swift; sourceTree = "<group>"; };
 		DEEF1965A47E0492B7A86041 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/adapterDeactivation/AllTests.swift; sourceTree = "<group>"; };
 		DF61E3F06F0A7F93B1390D15 /* IceAdapterDeactivationServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdapterDeactivationServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF88D136BEBBE89FDCF9332A /* ConnectionInfoF.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionInfoF.ice; path = ../slice/IceSSL/ConnectionInfoF.ice; sourceTree = "<group>"; };
-		DFC8D4B37D196D209B369EDA /* IceUtil.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IceUtil.mm; path = src/IceObjc/IceUtil.mm; sourceTree = "<group>"; };
+		DF88D136BEBBE89FDCF9332A /* ConnectionInfoF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionInfoF.ice; path = ../slice/IceSSL/ConnectionInfoF.ice; sourceTree = "<group>"; };
+		DFC8D4B37D196D209B369EDA /* IceUtil.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IceUtil.mm; path = src/IceObjc/IceUtil.mm; sourceTree = "<group>"; };
 		E006C4FA2D3CE70897EED647 /* EndpointInfoFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EndpointInfoFactory.swift; path = src/Ice/EndpointInfoFactory.swift; sourceTree = "<group>"; };
 		E0839C7F9B79A0CC4A42A3ED /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/optional/Client.swift; sourceTree = "<group>"; };
 		E1654C14516774AF2B9E8853 /* ConnectionI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConnectionI.swift; path = src/Ice/ConnectionI.swift; sourceTree = "<group>"; };
 		E19458DE042C30C0793A5B17 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/ami/AllTests.swift; sourceTree = "<group>"; };
-		E2072EF138BD1C4BD60AC686 /* DefaultsAndOverrides.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = DefaultsAndOverrides.cpp; path = ../cpp/src/Ice/DefaultsAndOverrides.cpp; sourceTree = "<group>"; };
-		E217C54CC6B21364107C305E /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/slicing/exceptions/Test.ice; sourceTree = "<group>"; };
-		E2682DDB4FA8D9D664DEB9E4 /* Connection.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Connection.ice; path = ../slice/Ice/Connection.ice; sourceTree = "<group>"; };
-		E2BA7F7D9622C5FA94EE9058 /* PropertiesAdmin.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = PropertiesAdmin.mm; path = src/IceObjc/PropertiesAdmin.mm; sourceTree = "<group>"; };
-		E35DD78AC3E47A9D6C118D7B /* EndpointFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = EndpointFactory.cpp; path = ../cpp/src/Ice/EndpointFactory.cpp; sourceTree = "<group>"; };
+		E2072EF138BD1C4BD60AC686 /* DefaultsAndOverrides.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DefaultsAndOverrides.cpp; path = ../cpp/src/Ice/DefaultsAndOverrides.cpp; sourceTree = "<group>"; };
+		E217C54CC6B21364107C305E /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/slicing/exceptions/Test.ice; sourceTree = "<group>"; };
+		E2682DDB4FA8D9D664DEB9E4 /* Connection.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Connection.ice; path = ../slice/Ice/Connection.ice; sourceTree = "<group>"; };
+		E2BA7F7D9622C5FA94EE9058 /* PropertiesAdmin.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = PropertiesAdmin.mm; path = src/IceObjc/PropertiesAdmin.mm; sourceTree = "<group>"; };
+		E35DD78AC3E47A9D6C118D7B /* EndpointFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EndpointFactory.cpp; path = ../cpp/src/Ice/EndpointFactory.cpp; sourceTree = "<group>"; };
 		E364382C14CA9EACA4E59DA8 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/admin/Info.plist; sourceTree = "<group>"; };
 		E36ACC9ADAD1006486C99493 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/invoke/Info.plist; sourceTree = "<group>"; };
-		E3BDC65FFB1EB4DB2CFE6ABD /* InputStream.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = InputStream.cpp; path = ../cpp/src/Ice/InputStream.cpp; sourceTree = "<group>"; };
-		E4553343AA5BE6EF580FB855 /* SliceChecksums.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = SliceChecksums.cpp; path = ../cpp/src/Ice/SliceChecksums.cpp; sourceTree = "<group>"; };
+		E3BDC65FFB1EB4DB2CFE6ABD /* InputStream.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = InputStream.cpp; path = ../cpp/src/Ice/InputStream.cpp; sourceTree = "<group>"; };
+		E4553343AA5BE6EF580FB855 /* SliceChecksums.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SliceChecksums.cpp; path = ../cpp/src/Ice/SliceChecksums.cpp; sourceTree = "<group>"; };
 		E47CC71297D2DEAF79932A98 /* EI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EI.swift; path = test/Ice/objects/EI.swift; sourceTree = "<group>"; };
-		E52A4552203E29FC8E80A819 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/location/Test.ice; sourceTree = "<group>"; };
+		E52A4552203E29FC8E80A819 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/location/Test.ice; sourceTree = "<group>"; };
 		E52BC8E957153A4F59DF9E67 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/facets/Client.swift; sourceTree = "<group>"; };
 		E6633533AFF375B6E8377F42 /* IceDefaultValueClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceDefaultValueClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		E69373713BAFECE6C1BC032C /* Thread.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Thread.cpp; path = ../cpp/src/Ice/Thread.cpp; sourceTree = "<group>"; };
+		E69373713BAFECE6C1BC032C /* Thread.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = ../cpp/src/Ice/Thread.cpp; sourceTree = "<group>"; };
 		E752D4C3C7006A0A775D7B35 /* CommunicatorI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommunicatorI.swift; path = src/Ice/CommunicatorI.swift; sourceTree = "<group>"; };
 		E7C9C311759C63D74E0638D6 /* IceInvokeClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInvokeClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		E7CF57602FA581F9A1B21909 /* libIceSSL C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIceSSL C++11 macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E7CF57602FA581F9A1B21909 /* libIceSSL C++11 macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libIceSSL C++11 macOS.a"; path = "libIceSSL++11macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8811DCABB6A6DF25E59D2A0 /* ClassResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClassResolver.swift; path = src/Ice/ClassResolver.swift; sourceTree = "<group>"; };
 		E8C0539A5A61DFA3F456FB24 /* Collocated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Collocated.swift; path = test/Ice/inheritance/Collocated.swift; sourceTree = "<group>"; };
 		E8E4B1FE21DD83AC72DB8F0F /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/facets/Info.plist; sourceTree = "<group>"; };
 		E906D50CA09D2245D960C035 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/ami/TestI.swift; sourceTree = "<group>"; };
 		E944A4897845559D412D007E /* IceSlicingObjectsClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceSlicingObjectsClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		EA1624B2A67E36F24CD5985C /* ConnectionInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionInfo.ice; path = ../slice/IceIAP/ConnectionInfo.ice; sourceTree = "<group>"; };
+		EA1624B2A67E36F24CD5985C /* ConnectionInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionInfo.ice; path = ../slice/IceIAP/ConnectionInfo.ice; sourceTree = "<group>"; };
 		EA4E1FFF874E41050418E583 /* RemoteCommunicatorI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RemoteCommunicatorI.swift; path = test/Ice/binding/RemoteCommunicatorI.swift; sourceTree = "<group>"; };
-		EA93876765924C05766B6BA7 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/defaultServant/Test.ice; sourceTree = "<group>"; };
-		EBB29F981BF440CA90CDFE0B /* Endpoint.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Endpoint.mm; path = src/IceObjc/Endpoint.mm; sourceTree = "<group>"; };
+		EA93876765924C05766B6BA7 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/defaultServant/Test.ice; sourceTree = "<group>"; };
+		EBB29F981BF440CA90CDFE0B /* Endpoint.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Endpoint.mm; path = src/IceObjc/Endpoint.mm; sourceTree = "<group>"; };
 		EBBC6C849BD305577F38DAA5 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		EBE4FCEE1ABB693EC2044583 /* IceBindingClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceBindingClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		EBE70629D4906C8592056EE8 /* Properties.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Properties.ice; path = ../slice/Ice/Properties.ice; sourceTree = "<group>"; };
+		EBE70629D4906C8592056EE8 /* Properties.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Properties.ice; path = ../slice/Ice/Properties.ice; sourceTree = "<group>"; };
 		EBF262893F7017281EAAAFD7 /* IceObjcCommunicator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcCommunicator.h; path = src/IceObjc/IceObjcCommunicator.h; sourceTree = "<group>"; };
 		EC34C7F84E0B4D455AB97682 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/objects/Client.swift; sourceTree = "<group>"; };
 		ECF9C1E9118A89230D577CF4 /* IceObjcProcess.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcProcess.h; path = src/IceObjc/IceObjcProcess.h; sourceTree = "<group>"; };
-		EDC4E00C3EC620BC99FFD570 /* StringConverter.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StringConverter.cpp; path = ../cpp/src/IceUtil/StringConverter.cpp; sourceTree = "<group>"; };
+		EDC4E00C3EC620BC99FFD570 /* StringConverter.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StringConverter.cpp; path = ../cpp/src/IceUtil/StringConverter.cpp; sourceTree = "<group>"; };
 		EDCC9F43738B9AC9D7D6028E /* LocalExceptionDescription.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalExceptionDescription.swift; path = src/Ice/LocalExceptionDescription.swift; sourceTree = "<group>"; };
-		EDD9084EDA2D3D50354E211E /* IconvStringConverter.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = IconvStringConverter.cpp; path = ../cpp/src/Ice/IconvStringConverter.cpp; sourceTree = "<group>"; };
-		EF002D67DDE690199548363E /* RouterInfo.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RouterInfo.cpp; path = ../cpp/src/Ice/RouterInfo.cpp; sourceTree = "<group>"; };
+		EDD9084EDA2D3D50354E211E /* IconvStringConverter.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = IconvStringConverter.cpp; path = ../cpp/src/Ice/IconvStringConverter.cpp; sourceTree = "<group>"; };
+		EF002D67DDE690199548363E /* RouterInfo.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RouterInfo.cpp; path = ../cpp/src/Ice/RouterInfo.cpp; sourceTree = "<group>"; };
 		F0183099FA56B4E7C862C785 /* IceRetryClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceRetryClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1194AD7BB63B71EE32F6A1B /* IceServantLocatorClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceServantLocatorClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		F11E478E3ABD3A5B442D2884 /* WSAcceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = WSAcceptor.cpp; path = ../cpp/src/Ice/WSAcceptor.cpp; sourceTree = "<group>"; };
+		F11E478E3ABD3A5B442D2884 /* WSAcceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = WSAcceptor.cpp; path = ../cpp/src/Ice/WSAcceptor.cpp; sourceTree = "<group>"; };
 		F21994BCEE706C715B9D34B6 /* BatchOneways.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatchOneways.swift; path = test/Ice/operations/BatchOneways.swift; sourceTree = "<group>"; };
 		F21FDD158C6107B2CC5F2D67 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/servantLocator/Client.swift; sourceTree = "<group>"; };
-		F280E491C2A2484EAFB8307B /* RecMutex.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RecMutex.cpp; path = ../cpp/src/IceUtil/RecMutex.cpp; sourceTree = "<group>"; };
+		F280E491C2A2484EAFB8307B /* RecMutex.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RecMutex.cpp; path = ../cpp/src/IceUtil/RecMutex.cpp; sourceTree = "<group>"; };
 		F28726CC9DA1C18AD9962EFC /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/objects/Info.plist; sourceTree = "<group>"; };
 		F45B2FFA71AAA8D101C5BF5E /* IceHoldServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceHoldServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		F46F4922734F02FC979CEEDE /* LocalObject.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = LocalObject.mm; path = src/IceObjc/LocalObject.mm; sourceTree = "<group>"; };
+		F46F4922734F02FC979CEEDE /* LocalObject.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = LocalObject.mm; path = src/IceObjc/LocalObject.mm; sourceTree = "<group>"; };
 		F53E9E161F3049FE21E899F7 /* IceBindingServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceBindingServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5FBBE1233246DECB76FEBA2 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/inheritance/AllTests.swift; sourceTree = "<group>"; };
 		F60CC4A2CAB1E10E445148EC /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/binding/TestI.swift; sourceTree = "<group>"; };
-		F65C87AB922201903F6E0A45 /* DispatchInterceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchInterceptor.cpp; path = ../cpp/src/Ice/DispatchInterceptor.cpp; sourceTree = "<group>"; };
+		F65C87AB922201903F6E0A45 /* DispatchInterceptor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DispatchInterceptor.cpp; path = ../cpp/src/Ice/DispatchInterceptor.cpp; sourceTree = "<group>"; };
 		F6B79FD38870A5C68FA2DF17 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/facets/AllTests.swift; sourceTree = "<group>"; };
 		F743723BE7F257988B87FAA1 /* IceProxyServer.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceProxyServer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F7787C67A2480ADD2D64935C /* Collocated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Collocated.swift; path = test/Ice/facets/Collocated.swift; sourceTree = "<group>"; };
-		F7E8A10150FC376774574F73 /* WSEndpoint.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = WSEndpoint.cpp; path = ../cpp/src/Ice/WSEndpoint.cpp; sourceTree = "<group>"; };
+		F7E8A10150FC376774574F73 /* WSEndpoint.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = WSEndpoint.cpp; path = ../cpp/src/Ice/WSEndpoint.cpp; sourceTree = "<group>"; };
 		F80620AD65223CA3DFF3F04E /* IceObjcBlobjectFacade.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcBlobjectFacade.h; path = src/IceObjc/IceObjcBlobjectFacade.h; sourceTree = "<group>"; };
 		F83753215F3AA50BDFCB6E1C /* IceAdminClient.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAdminClient.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F850F990C821EEBC3FDD12CD /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/adapterDeactivation/Server.swift; sourceTree = "<group>"; };
-		F87748C192B179D0066D9B54 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/timeout/Test.ice; sourceTree = "<group>"; };
+		F87748C192B179D0066D9B54 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/timeout/Test.ice; sourceTree = "<group>"; };
 		F88A1E36460AD1477F917948 /* InputStream.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InputStream.swift; path = src/Ice/InputStream.swift; sourceTree = "<group>"; };
-		F8AF37A347D48C4D0E6DCBB8 /* MetricsAdminI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = MetricsAdminI.cpp; path = ../cpp/src/Ice/MetricsAdminI.cpp; sourceTree = "<group>"; };
+		F8AF37A347D48C4D0E6DCBB8 /* MetricsAdminI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = MetricsAdminI.cpp; path = ../cpp/src/Ice/MetricsAdminI.cpp; sourceTree = "<group>"; };
 		F8B987C9362019F9784C3662 /* IceInheritanceCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceInheritanceCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9987DEDDF637124C9E4428A /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/defaultServant/AllTests.swift; sourceTree = "<group>"; };
-		FAB730E59C5DE84779B3B7F0 /* Exception.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = Exception.mm; path = src/IceObjc/Exception.mm; sourceTree = "<group>"; };
+		FAB730E59C5DE84779B3B7F0 /* Exception.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Exception.mm; path = src/IceObjc/Exception.mm; sourceTree = "<group>"; };
 		FBA0E779D1B694998B271694 /* InitializationData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InitializationData.swift; path = src/Ice/InitializationData.swift; sourceTree = "<group>"; };
-		FBA623AB1E03471370DCA75C /* Cond.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = Cond.cpp; path = ../cpp/src/Ice/Cond.cpp; sourceTree = "<group>"; };
+		FBA623AB1E03471370DCA75C /* Cond.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Cond.cpp; path = ../cpp/src/Ice/Cond.cpp; sourceTree = "<group>"; };
 		FC2F7D9A484B02FC87423D5A /* IceObjcIceUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceObjcIceUtil.h; path = src/IceObjc/IceObjcIceUtil.h; sourceTree = "<group>"; };
 		FC674390E3DEFEB5CF534138 /* IceExceptionsCollocated.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceExceptionsCollocated.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		FCDE87DBA740EED80ADFA29F /* StringConverterPlugin.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = StringConverterPlugin.cpp; path = ../cpp/src/Ice/StringConverterPlugin.cpp; sourceTree = "<group>"; };
-		FCF83599A12D0004A53A061F /* RequestHandlerFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = RequestHandlerFactory.cpp; path = ../cpp/src/Ice/RequestHandlerFactory.cpp; sourceTree = "<group>"; };
-		FE1487537661592EC0DE767C /* TraceUtil.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = TraceUtil.mm; path = src/IceObjc/TraceUtil.mm; sourceTree = "<group>"; };
-		FEFB0CE73735509285F4FB6D /* ProtocolPluginFacade.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = ProtocolPluginFacade.cpp; path = ../cpp/src/Ice/ProtocolPluginFacade.cpp; sourceTree = "<group>"; };
-		FF2DE72ECF013C523E5C5B72 /* CertificateI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; name = CertificateI.cpp; path = ../cpp/src/IceSSL/CertificateI.cpp; sourceTree = "<group>"; };
+		FCDE87DBA740EED80ADFA29F /* StringConverterPlugin.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StringConverterPlugin.cpp; path = ../cpp/src/Ice/StringConverterPlugin.cpp; sourceTree = "<group>"; };
+		FCF83599A12D0004A53A061F /* RequestHandlerFactory.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RequestHandlerFactory.cpp; path = ../cpp/src/Ice/RequestHandlerFactory.cpp; sourceTree = "<group>"; };
+		FE1487537661592EC0DE767C /* TraceUtil.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = TraceUtil.mm; path = src/IceObjc/TraceUtil.mm; sourceTree = "<group>"; };
+		FEFB0CE73735509285F4FB6D /* ProtocolPluginFacade.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ProtocolPluginFacade.cpp; path = ../cpp/src/Ice/ProtocolPluginFacade.cpp; sourceTree = "<group>"; };
+		FF2DE72ECF013C523E5C5B72 /* CertificateI.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CertificateI.cpp; path = ../cpp/src/IceSSL/CertificateI.cpp; sourceTree = "<group>"; };
 		FF78DB18B583127CE4C9AC0C /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/binding/AllTests.swift; sourceTree = "<group>"; };
-		FFCA95C0025E6AF459875671 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = Test.ice; path = test/Ice/info/Test.ice; sourceTree = "<group>"; };
+		FFCA95C0025E6AF459875671 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/info/Test.ice; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5883,6 +5889,8 @@
 				765318F725D965974B13D50D /* Util.swift */,
 				D22A0AEEC596682E9B34CAFF /* Value.swift */,
 				9380338EE490A17C0BD366E0 /* ValueFactoryManagerI.swift */,
+				D8FA57F222676BB5009D0431 /* Blobject.swift */,
+				D8FA57F5226774CE009D0431 /* BlobjectAsync.swift */,
 			);
 			name = Ice;
 			sourceTree = "<group>";
@@ -8683,12 +8691,451 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0930;
 				LastUpgradeCheck = 0930;
+				TargetAttributes = {
+					029B9C0595B993701E3B5AFB = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					02B7446BC91B0E5CEF45609F = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					053FEDDCF2FEA3A023D85D10 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					05F6CDC92999ACAB3FCAF3E1 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					0797CAB54826FA39E540847D = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					0BA119D3EB0DC41F7D6E38D6 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					12AF8B365869CF569B528C66 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					12D4227D3C1A472B36A98714 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					147AC336277C9A7A4ADB6694 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					14A1E831D12CC1C8BD86A015 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					1799DEBD4F98AF5326452E1A = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					1915A1C0BDFD0D88BD242F37 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					1B083308D1B7C94BEE9F8A3B = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					1DF926B303FB13580018FF31 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					1F432DA6BC5F798961B085D0 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					1FEE62682A002098A13695CA = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					202225E8F11EF86FA73B3996 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					23B41E959C0566DFDD79FEBA = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					23D8F3901852BF36DF6E57C0 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					27C71AAA80D5B33AB4A36DDF = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					299FB9610F0D56279708D11E = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					2A22F940DA336715617287E6 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					34299272F9F5AA44A00B7E28 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					348BB5513967B2D3D9389568 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					35576A011BA80FD7D4EE8E5C = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					3B8EE72A05E1C7F075AA5324 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					3EC2BACAC40853051BE417F3 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4060BB2833DC5C838919F5DF = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4358AEC75C6B200FE006A792 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4454DF35A0CEC1361F505EA8 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					452BD1B31DB0E195C2459E26 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					49F66DDDDEC7609805AFF091 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4BDE5FD95EA89C06999C0A26 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4F95BF54030FC399904D0314 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4FF4F2330E7E2F4275D693CC = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					502BEB8F8445A9F3F9EE5DA8 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					57B33019B71022795A5B2BDE = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					57C74C4BCC7F8A6C672FE776 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					584D5898358D76C47BBD84D6 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					59D9CCEB075DB896073FEA85 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					5B49262EBD1455956BC0971C = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					5E366968FE356F0BD202D8FB = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					622A7D8D8B6DA8BC79BE8F6C = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					6620BCA49513CB7D7078F0FB = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					68B6737DBA973418B01E1ADB = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					70AE6F46CAB334DADC6D1CB2 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					71E69BB576DD1E72B9582DFA = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					7472C2BADBCAA3B8C0B98755 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					7556062DB211C5C18971FC1B = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					766699014D2AAE4D3FA9AE47 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					78F505D073D07F7B47D3F3F9 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					7A17695164A765B4ED6479CA = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					7C04E30D08E87FD311D53AB6 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					7E66603E5D8C21713EA2FB39 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					804AFC388AA21FB7796A72EC = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					8311D469E747579FA522243F = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					85164508DA7D5A223459F122 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					858523753E978B8A4062691A = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					85DC6B74DA6B860EE4DC8544 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					8692F89A6C0E683248414935 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					89B3B9033BB56BB0F3333035 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					8A5D233995149B778725E68D = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					8C63231EB1DC58BD269FD8A9 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					8C65974F341C07445A8857F8 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					91990B374D7ED87248CF25FF = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					9238B1A81909E5001FBD1E59 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					9ACD5564077D39ABEA1B3C35 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					A7B9B297A10639B185C3A0E2 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					A7EC85CDEA41E2F138360C36 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					AC68013B6B52083B582C7D0C = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					AD6CE2177ABF786A6120E658 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					AFB7A98A0A10938FCA604E39 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					B24BF72DC57A5F917740FA4D = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					B601AF08BCA18B64D1FB5998 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					BDC2E0C93C40B2840F6F85F5 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					BE0A6FEE74F52CBBD73373E5 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					BE2476D4F398C413F78296D9 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					C533FDEE7E1FC734A55D1EC6 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					C8F50CCC740F146DF239F2A1 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					CAEA6CFCBE3E0F79772EB305 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					CBCB429B95DEDEB0FA16F2C5 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					CE427554D39F834FF8045BDE = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					D19C8AE396120EDBD8286D8C = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					D4EF313B1D5A9173198A5535 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					D9DC973D97F66AB86D155813 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					DA3D8ACD863BC7B069138101 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					DC7E98F367097EE1A8FF256F = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					DD141BD7D970CCB5D11E2334 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					DE5913EE1D0AECEB0DCB3651 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					DEA116376DCF5F0DEBBD0E11 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E26A0C08042D9F08A080721F = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E3CE800AF20531B49065C07F = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E45E87EFB20FB44369CFCEE1 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E631DDD3651C1181DE3AC537 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E78C5FC72F112C1CAB9B8E82 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E7E54ED2B06476A6FEC57FB5 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					E8DD3DFB8EA205200E2A9A21 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					ECD031DB49AD99CA87DB69BE = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					ED28E24023B8FC72829350BC = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					EDEEB6A444B2E1B9D0AEBFCF = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F0D15BB637EE6CE085C978F8 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F2D6ACC8A9A65B2E4AFD7FE2 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F58E4911056A4954A7267753 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F7BB99705CAB58E2CEE2E9B3 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F8B2B5E5FB6C58B6F0F54C68 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					FA33B39CC4A158E94E68C16E = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					FA3C1295DE39FC6EABDA3BD7 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					FEA4E76062C23D4453456E2E = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					FF1C498D6F10FF46981D7379 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = E8AA161120E2CA2BE0E1B5D2 /* Build configuration list for PBXProject "ice" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 2B550471B9F453F9D004C504;
@@ -11579,6 +12026,7 @@
 				311E551F9296BCC96D7DF26F /* Properties.mm in Sources */,
 				F2369503CD2B34B95CBF098D /* PropertiesAdmin.ice in Sources */,
 				E8DDDB8FB4481C743A2AD4F4 /* PropertiesAdmin.mm in Sources */,
+				D8FA57F6226774CE009D0431 /* BlobjectAsync.swift in Sources */,
 				C5CA2B29D7CD407C5768EA23 /* PropertiesAdminI.swift in Sources */,
 				A3D97075EC53B665738F9453 /* PropertiesF.ice in Sources */,
 				A9EE222BEB5229802AC33335 /* PropertiesI.swift in Sources */,
@@ -11597,6 +12045,7 @@
 				AE37C236BAB06289512D81CE /* UnknownSlicedValue.swift in Sources */,
 				2B152B3EFD5BD9EB2F73A3D7 /* UnsupportedAdminFacet.mm in Sources */,
 				E4ADA41B6A4093BF9BB5EB9F /* Util.mm in Sources */,
+				D8FA57F322676BB5009D0431 /* Blobject.swift in Sources */,
 				3D255F1248C6316A73EEE98B /* Util.swift in Sources */,
 				AE0056FF0053D4696A1E995E /* Value.swift in Sources */,
 				410C3CC411BAD6199C0CCD7E /* ValueFactory.ice in Sources */,
@@ -12764,6 +13213,7 @@
 				614656860C07A5AF83FF8B04 /* Identity.ice in Sources */,
 				DEE14D66B2113CCCBB7359EE /* ImplicitContext.ice in Sources */,
 				CF2BB2CB4A6B01030A0F0E9E /* ImplicitContext.mm in Sources */,
+				D8FA57F7226774CE009D0431 /* BlobjectAsync.swift in Sources */,
 				4218F6C51C9EAB3DD8E05D95 /* ImplicitContextF.ice in Sources */,
 				C65C2F89124501C204275B20 /* ImplicitContextI.swift in Sources */,
 				96F022D073DF054B44BBF965 /* Incoming.swift in Sources */,
@@ -12778,6 +13228,7 @@
 				8F6DF6B0C05C0296C7A0B036 /* LocalExceptionFactory.swift in Sources */,
 				012F0FE078DB4F06991A4DF9 /* LocalObject.mm in Sources */,
 				11F19A36B71D159AB5C9BD90 /* LocalObject.swift in Sources */,
+				D8FA57F422676BB5009D0431 /* Blobject.swift in Sources */,
 				CF63C829C90085C04A7B59C3 /* Locator.ice in Sources */,
 				6907012B3C4AD8E6696B2A6C /* LocatorF.ice in Sources */,
 				C50A81552A8F86696205B940 /* Logger.ice in Sources */,
@@ -16007,8 +16458,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.2;
 			};
 			name = Release;

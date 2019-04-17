@@ -34,6 +34,12 @@ public final class Incoming {
         current.encoding = try istr.skipEmptyEncapsulation()
     }
 
+    public func readParamEncaps() throws -> [UInt8] {
+        let params = try istr.readEncapsulation()
+        current.encoding = params.encoding
+        return params.bytes
+    }
+
     public func read<T>(_ cb: (InputStream) throws -> T) throws -> T {
         //
         // Remember the encoding used by the input parameters, we'll
@@ -50,6 +56,16 @@ public final class Incoming {
         cb(ostr)
         ostr.endEncapsulation()
         response()
+    }
+
+    public func writeParamEncaps(ok: Bool, outParams: [UInt8]) {
+        if outParams.isEmpty {
+            ostr.writeEmptyEncapsulation(current.encoding)
+        } else {
+            ostr.writeEncapsulation(outParams)
+        }
+
+        responseCallback(ok, ostr.getBytes()!, ostr.getCount())
     }
 
     public func writeEmptyParams() {

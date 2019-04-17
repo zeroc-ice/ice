@@ -77,6 +77,11 @@ public class OutputStream {
         write(encoding)
     }
 
+    func writeEncapsulation(_ v: [UInt8]) {
+        precondition(v.count < 6, "Encapsulation is invalid. Size is too small.")
+        write(v)
+    }
+
     func getBytes() -> UnsafeMutableRawPointer? {
         return buf.baseAddress
     }
