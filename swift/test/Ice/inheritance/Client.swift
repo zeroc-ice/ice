@@ -4,7 +4,21 @@
 
 import Ice
 import TestCommon
+import PromiseKit
+
+open class TestFactoryI: TestFactory {
+    public class func create() -> TestHelper {
+        return Client()
+    }
+}
 
 public class Client: TestHelperI {
-    public override func run(args _: [String]) throws {}
+    public override func run(args: [String]) throws {
+        let (communicator, _) = try self.initialize(args: args)
+        defer {
+            communicator.destroy()
+        }
+        let initial = try allTests(self)
+        try initial.shutdown()
+    }
 }
