@@ -114,7 +114,7 @@ local interface ServantLocator
      **/
     ["java:UserException"] void finished(Current curr,
                                          ["swift:nonnull"] Object servant,
-                                         ["swift:nonnull"] LocalObject cookie);
+                                         LocalObject cookie);
 
     /**
      *

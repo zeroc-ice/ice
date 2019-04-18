@@ -6,7 +6,7 @@ class ServantLocatorI: Ice.ServantLocator {
         return (nil, nil)
     }
 
-    func finished(curr: Current, servant: Object, cookie: AnyObject) throws {
+    func finished(curr: Current, servant: Object, cookie: AnyObject?) throws {
     }
 
     func deactivate(_ category: String) {

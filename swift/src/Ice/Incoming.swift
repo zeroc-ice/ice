@@ -14,7 +14,7 @@ public final class Incoming {
 
     var servant: Object?
     var locator: ServantLocator?
-    var cookie: AnyObject!
+    var cookie: AnyObject?
 
     init(istr: InputStream, response: @escaping ICEBlobjectResponse, exception: @escaping ICEBlobjectException,
          current: Current) {

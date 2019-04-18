@@ -61,7 +61,7 @@ class ServantLocatorI: Ice.ServantLocator {
         return (TestI(), CookieI())
     }
 
-    func finished(curr current: Ice.Current, servant: Ice.Object, cookie: Swift.AnyObject) throws {
+    func finished(curr current: Ice.Current, servant: Ice.Object, cookie: Swift.AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
