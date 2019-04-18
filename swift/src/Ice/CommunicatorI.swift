@@ -127,7 +127,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func setDefaultRouter(_ rtr: RouterPrx?) {
         do {
             try autoreleasepool {
-                try _handle.setDefaultRouter((rtr as? _RouterPrxI)?._handle)
+                try _handle.setDefaultRouter((rtr as? _ObjectPrxI)?._handle)
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -137,7 +137,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func getDefaultLocator() -> LocatorPrx? {
-        guard let handle = _handle.getDefaultRouter() else {
+        guard let handle = _handle.getDefaultLocator() else {
             return nil
         }
         return _LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
@@ -146,7 +146,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func setDefaultLocator(_ loc: LocatorPrx?) {
         do {
             try autoreleasepool {
-                try _handle.setDefaultRouter((loc as? _LocatorPrxI)?._handle)
+                try _handle.setDefaultLocator((loc as? _ObjectPrxI)?._handle)
             }
         } catch is CommunicatorDestroyedException {
             // Ignored

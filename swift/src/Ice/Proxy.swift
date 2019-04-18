@@ -439,7 +439,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a router")
         do {
             return try autoreleasepool {
-                let r = router as? _RouterPrxI
+                let r = router as? _ObjectPrxI
                 return try fromICEObjectPrx(_handle.ice_router(r?._handle ?? nil))
             }
         } catch {
@@ -458,7 +458,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a locator")
         do {
             return try autoreleasepool {
-                let l = locator as? _LocatorPrxI
+                let l = locator as? _ObjectPrxI
                 return try fromICEObjectPrx(_handle.ice_locator(l?._handle ?? nil))
             }
         } catch {
