@@ -49,7 +49,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
             seal.fulfill(())
         }
     }
-    
+
     func addObject(_ obj: Ice.ObjectPrx?) {
         withLock(&_lock) {
             _objects[obj!.ice_getIdentity()] = obj

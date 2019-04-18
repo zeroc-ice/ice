@@ -75,11 +75,11 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing checked cast... ")
     var obj = try checkedCast(prx: base, type: TestIntfPrx.self)!
-    var obj2 = try checkedCast(prx: base2, type: TestIntfPrx.self)!
-    var obj3 = try checkedCast(prx: base3, type: TestIntfPrx.self)!
-    var obj4 = try checkedCast(prx: base4, type: TestIntfPrx.self)!
-    var obj5 = try checkedCast(prx: base5, type: TestIntfPrx.self)!
-    var obj6 = try checkedCast(prx: base6, type: TestIntfPrx.self)!
+    let obj2 = try checkedCast(prx: base2, type: TestIntfPrx.self)!
+    let obj3 = try checkedCast(prx: base3, type: TestIntfPrx.self)!
+    _ = try checkedCast(prx: base4, type: ServerManagerPrx.self)!
+    let obj5 = try checkedCast(prx: base5, type: TestIntfPrx.self)!
+    let obj6 = try checkedCast(prx: base6, type: TestIntfPrx.self)!
     output.writeLine("ok")
 
     output.write("testing id@AdapterId indirect proxy... ")
