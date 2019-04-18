@@ -22,14 +22,11 @@ class Collocated: TestHelperI {
         //
         // 2 threads are necessary to dispatch the collocated transient() call with AMI
         //
-        let adapter = try communicator.createObjectAdapter(name: "TestAdapter",
-                                                           queue: DispatchQueue(label: "Ice.adapterDeactivation.collocated",
-                                                                                qos: .userInitiated,
-                                                                                attributes: .concurrent))
+        communicator.getProperties().setProperty(key: "TestAdapter.ThreadPool.Size", value: "2")
+        let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.addServantLocator(locator: ServantLocatorI(helper: self), category: "")
         try adapter.activate()
         try allTests(self)
         adapter.waitForDeactivate()
     }
 }
-

@@ -31,10 +31,7 @@ class Server: TestHelperI {
         }
 
         communicator.getProperties().setProperty(key: "ServerManagerAdapter.Endpoints", value: getTestEndpoint(num: 0))
-        let adapter = try communicator.createObjectAdapter(
-            name: "ServerManagerAdapter",
-            queue: DispatchQueue(label: "ice.location.server.ServerManagerAdapter",
-                                 attributes: .concurrent))
+        let adapter = try communicator.createObjectAdapter("ServerManagerAdapter")
 
         //
         // We also register a sample server locator which implements the

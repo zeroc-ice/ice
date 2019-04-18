@@ -24,6 +24,5 @@ class Server: TestHelperI {
         try adapter.activate()
         serverReady()
         adapter.waitForDeactivate()
-        print("deactivated")
     }
 }

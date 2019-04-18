@@ -157,7 +157,7 @@ class TestCase {
         _closed = false
         _semaphore = DispatchSemaphore(value: 0)
 
-        _queue = DispatchQueue(label: name, qos: .userInitiated)
+        _queue = DispatchQueue(label: name)
         _group = DispatchGroup()
     }
 

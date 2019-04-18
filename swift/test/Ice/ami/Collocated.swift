@@ -44,13 +44,8 @@ class Collocated: TestHelperI {
         communicator.getProperties().setProperty(key: "ControllerAdapter.ThreadPool.Size",
                                                  value: "1")
 
-        let adapter = try communicator.createObjectAdapter(name: "TestAdapter",
-                                                           queue: DispatchQueue(label: "ice.ami.server.Server",
-                                                                                qos: .userInitiated,
-                                                                                attributes: .concurrent))
-        let adapter2 = try communicator.createObjectAdapter(name: "ControllerAdapter",
-                                                            queue: DispatchQueue(label: "ice.ami.server.Controller",
-                                                                                 qos: .userInitiated))
+        let adapter = try communicator.createObjectAdapter("TestAdapter")
+        let adapter2 = try communicator.createObjectAdapter("ControllerAdapter")
 
         _ = try adapter.add(servant: TestI(helper: self), id: Ice.stringToIdentity("test"))
         _ = try adapter.add(servant: TestII(), id: Ice.stringToIdentity("test2"))
