@@ -195,7 +195,7 @@ public extension ObjectPrx {
 
     func ice_invoke(operation: String,
                     mode: OperationMode,
-                    inEncaps: [UInt8],
+                    inEncaps: [UInt8] = [],
                     context: Context? = nil) throws -> (ok: Bool, outEncaps: [UInt8]) {
         return try inEncaps.withUnsafeBufferPointer {
             var ok = Bool()
