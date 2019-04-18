@@ -7,7 +7,7 @@ import TestCommon
 
 public class TestFactoryI: TestFactory {
     public class func create() -> TestHelper {
-        return Server()
+        return Collocated()
     }
 }
 
@@ -29,7 +29,7 @@ class DummyLogger: Ice.Logger {
     }
 }
 
-class Server: TestHelperI {
+class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         let (properties, _) = try self.createTestProperties(args: args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")

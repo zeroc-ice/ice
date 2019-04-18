@@ -72,16 +72,7 @@ $test_extra_sources = {
                               "Twoways.swift",
                               "TwowaysAMI.swift"],
 
-  "Ice/objects" => ["BI.swift",
-                    "CI.swift",
-                    "DI.swift",
-                    "Derived.ice",
-                    "DerivedEx.ice",
-                    "EI.swift",
-                    "FI.swift",
-                    "HI.swift",
-                    "II.swift",
-                    "JI.swift"],
+  "Ice/objects" => ["TestI.swift"],
 
   "Ice/proxy/Server" => ["MyDerivedClassI.swift"],
   "Ice/proxy/ServerAMD" => ["MyDerivedClassAMDI.swift"]
