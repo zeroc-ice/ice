@@ -74,5 +74,44 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     output.writeLine("ok")
 
+    output.write("testing asynchronous ice_invoke... ")
+    do {
+        var result = try oneway.ice_invokeAsync(operation: "opOneway", mode: .Normal).wait()
+        try test(result.ok)
+
+        let outS = Ice.OutputStream(communicator: communicator)
+        outS.startEncapsulation()
+        outS.write(testString)
+        outS.endEncapsulation()
+        let inEncaps = outS.finished()
+
+        result = try cl.ice_invokeAsync(operation: "opString", mode: .Normal, inEncaps: inEncaps).wait()
+        try test(result.ok)
+        let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+        _ = try inS.startEncapsulation()
+        var s: String = try inS.read()
+        try test(s == testString)
+        s = try inS.read()
+        try inS.endEncapsulation()
+        try test(s == testString)
+
+    }
+
+    do {
+        let result = try cl.ice_invokeAsync(operation: "opException", mode: .Normal).wait()
+        try test(!result.ok)
+        let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+        _ = try inS.startEncapsulation()
+        do {
+            try inS.throwException()
+        }
+        catch is MyException {
+            try inS.endEncapsulation()
+        } catch {
+            try test(false)
+        }
+    }
+
+    output.writeLine("ok")
     return cl
 }

@@ -62,19 +62,6 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
     func ice_collocationOptimized(_ collocated: Bool) -> Self
-
-    func ice_invoke(operation: String,
-                    mode: OperationMode,
-                    inEncaps: [UInt8],
-                    context: Context?) throws -> (ok: Bool, outEncaps: [UInt8])
-
-    func ice_invokeAsync(operation: String,
-                         mode: OperationMode,
-                         inEncaps: [UInt8],
-                         context: Context?,
-                         sent: ((Bool) -> Void)?,
-                         sentOn: DispatchQueue?,
-                         sentFlags: DispatchWorkItemFlags?) -> Promise<(ok: Bool, outEncaps: [UInt8])>
 }
 
 public func checkedCast(prx: Ice.ObjectPrx,
@@ -221,11 +208,11 @@ public extension ObjectPrx {
 
     func ice_invokeAsync(operation: String,
                          mode: OperationMode,
-                         inEncaps: [UInt8],
-                         context: Context?,
-                         sent: ((Bool) -> Void)?,
-                         sentOn: DispatchQueue?,
-                         sentFlags: DispatchWorkItemFlags?) -> Promise<(ok: Bool, outEncaps: [UInt8])> {
+                         inEncaps: [UInt8] = [],
+                         context: Context? = nil,
+                         sent: ((Bool) -> Void)? = nil,
+                         sentOn: DispatchQueue? = nil,
+                         sentFlags: DispatchWorkItemFlags? = nil) -> Promise<(ok: Bool, outEncaps: [UInt8])> {
 
         return inEncaps.withUnsafeBufferPointer { b in
             if self._impl._isTwoway {
