@@ -78,7 +78,7 @@ public class OutputStream {
     }
 
     func writeEncapsulation(_ v: [UInt8]) {
-        precondition(v.count < 6, "Encapsulation is invalid. Size is too small.")
+        precondition(v.count >= 6, "Encapsulation is invalid. Size is too small.")
         write(raw: v)
     }
 
