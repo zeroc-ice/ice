@@ -100,7 +100,7 @@ class LoggerI: Ice.Logger {
         return ""
     }
 
-    func cloneWithPrefix(_ prefix: String) -> Ice.Logger {
+    func cloneWithPrefix(_: String) -> Ice.Logger {
         return self
     }
 
@@ -138,7 +138,7 @@ class TestCase {
     var _queue: DispatchQueue
     var _group: DispatchGroup
 
-    init(name: String, com: RemoteCommunicatorPrx, helper: TestHelper ) {
+    init(name: String, com: RemoteCommunicatorPrx, helper: TestHelper) {
         _name = name
         _com = com
         _output = helper.getWriter()
@@ -218,18 +218,18 @@ class TestCase {
             let str = try _adapter.getTestIntf()!.ice_toString()
             let proxy = try uncheckedCast(prx: _communicator.stringToProxy(str)!,
                                           type: TestIntfPrx.self)
-            try proxy.ice_getConnection()!.setCloseCallback({ _ in
+            try proxy.ice_getConnection()!.setCloseCallback { _ in
                 withLock(&self._lock) {
                     self._closed = true
                     self._semaphore.signal()
                 }
-            })
+            }
 
-            try proxy.ice_getConnection()!.setHeartbeatCallback({ _ in
+            try proxy.ice_getConnection()!.setHeartbeatCallback { _ in
                 withLock(&self._lock) {
                     self._heartbeat += 1
                 }
-            })
+            }
 
             try runTestCase(adapter: _adapter, proxy: proxy)
         } catch let e {
@@ -255,7 +255,7 @@ class TestCase {
         precondition(_closed)
     }
 
-    func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         precondition(false, "Abstract Method")
     }
 
@@ -278,7 +278,7 @@ class InvocationHeartbeatTest: TestCase {
         setServerACM(timeout: 1, close: -1, heartbeat: -1) // Faster ACM to make sure we receive enough ACM hearbeats
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         try proxy.sleep(4)
 
         try withLock(&_lock) {
@@ -314,7 +314,7 @@ class InvocationNoHeartbeatTest: TestCase {
         setServerACM(timeout: 2, close: 2, heartbeat: 0) // Disable heartbeat on invocations
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         do {
             // Heartbeats are disabled on the server, the
             // invocation should fail since heartbeats are
@@ -338,7 +338,7 @@ class InvocationHeartbeatCloseOnIdleTest: TestCase {
         setServerACM(timeout: 1, close: 2, heartbeat: 0) // Disable heartbeat on invocations
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         // No close on invocation, the call should succeed this
         // time.
         try proxy.sleep(3)
@@ -355,7 +355,7 @@ class CloseOnIdleTest: TestCase {
         setClientACM(timeout: 1, close: 1, heartbeat: 0) // Only close on idle
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
 
         waitForClosed()
@@ -371,7 +371,7 @@ class CloseOnInvocationTest: TestCase {
         setClientACM(timeout: 1, close: 2, heartbeat: 0) // Only close on invocation
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
         try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
@@ -386,7 +386,7 @@ class CloseOnIdleAndInvocationTest: TestCase {
         setClientACM(timeout: 1, close: 3, heartbeat: 0) // Only close on idle and invocation
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         //
         // Put the adapter on hold. The server will not respond to
         // the graceful close. This allows to test whether or not
@@ -413,7 +413,7 @@ class ForcefulCloseOnIdleAndInvocationTest: TestCase {
         setClientACM(timeout: 1, close: 4, heartbeat: 0) // Only close on idle and invocation
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         try adapter.hold()
         Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
         waitForClosed()
@@ -429,7 +429,7 @@ class HeartbeatOnIdleTest: TestCase {
         setServerACM(timeout: 1, close: -1, heartbeat: 2) // Enable server heartbeats.
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         Thread.sleep(forTimeInterval: 3)
         try withLock(&_lock) {
             try _helper.test(_heartbeat >= 3)
@@ -443,8 +443,8 @@ class HeartbeatAlwaysTest: TestCase {
         setServerACM(timeout: 1, close: -1, heartbeat: 3) // Enable server heartbeats.
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
-        for _ in 0..<10 {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+        for _ in 0 ..< 10 {
             try proxy.ice_ping()
             Thread.sleep(forTimeInterval: 0.3)
         }
@@ -465,7 +465,7 @@ class HeartbeatManualTest: TestCase {
         setServerACM(timeout: 10, close: -1, heartbeat: 0)
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         try proxy.startHeartbeatCount()
         let con = try proxy.ice_getConnection()!
         try con.heartbeat()
@@ -483,14 +483,10 @@ class SetACMTest: TestCase {
         setClientACM(timeout: 15, close: 4, heartbeat: 0)
     }
 
-    override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
+    override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         guard let con = proxy.ice_getCachedConnection() else {
             precondition(false)
         }
-        do {
-            con.setACM(timeout: -19, close: nil, heartbeat: nil)
-            try _helper.test(false)
-        } catch {}
 
         var acm = con.getACM()
         try _helper.test(acm.timeout == 15)
@@ -514,9 +510,9 @@ class SetACMTest: TestCase {
 
         let p1 = Promise<Void> { seal in
             do {
-                try con.setCloseCallback({ _ in
+                try con.setCloseCallback { _ in
                     seal.fulfill(())
-                })
+                }
             } catch {
                 seal.reject(error)
             }
@@ -531,17 +527,17 @@ class SetACMTest: TestCase {
 
         try Promise<Void> { seal in
             do {
-                try con.setCloseCallback({ _ in
+                try con.setCloseCallback { _ in
                     seal.fulfill(())
-                })
+                }
             } catch {
                 seal.reject(error)
             }
         }.wait()
 
-        con.setHeartbeatCallback({ _ in
+        con.setHeartbeatCallback { _ in
             precondition(false)
-        })
+        }
     }
 }
 
@@ -566,7 +562,8 @@ func allTests(helper: TestHelper) throws {
         HeartbeatOnIdleTest(com: com, helper: helper),
         HeartbeatAlwaysTest(com: com, helper: helper),
         HeartbeatManualTest(com: com, helper: helper),
-        SetACMTest(com: com, helper: helper)]
+        SetACMTest(com: com, helper: helper),
+    ]
 
     for t in tests {
         try t.initialize()

@@ -17,10 +17,10 @@ public extension Connection {
                 try impl._handle.flushBatchRequestsAsync(compress.rawValue,
                                                          exception: { error in seal.reject(error) },
                                                          sent: {
-                                                            seal.fulfill(())
-                                                            if let sentCB = sentCB {
-                                                                sentCB($0)
-                                                            }
+                                                             seal.fulfill(())
+                                                             if let sentCB = sentCB {
+                                                                 sentCB($0)
+                                                             }
                 })
             }
         }
@@ -117,6 +117,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     }
 
     func setACM(timeout: Int32?, close: ACMClose?, heartbeat: ACMHeartbeat?) {
+        precondition(timeout ?? 0 >= 0, "Invalid negative ACM timeout value")
         _handle.setACM(timeout as NSNumber?,
                        close: close != nil ? close.unsafelyUnwrapped.rawValue as NSNumber : nil,
                        heartbeat: heartbeat != nil ? heartbeat.unsafelyUnwrapped.rawValue as NSNumber : nil)
