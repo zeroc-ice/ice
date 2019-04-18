@@ -29,12 +29,14 @@ id createLocalObject(std::shared_ptr<T> cppObj, std::function<id()> initializer)
     {
         return nil;
     }
-    ICELocalObject* obj = [ICELocalObject fromLocalObject:cppObj.get()];
-    if(!obj)
-    {
-        return initializer();
+    @synchronized([ICELocalObject class]) {
+        ICELocalObject* obj = [ICELocalObject fromLocalObject:cppObj.get()];
+        if(!obj)
+        {
+            return initializer();
+        }
+        return obj;
     }
-    return obj;
 }
 
 inline NSString*

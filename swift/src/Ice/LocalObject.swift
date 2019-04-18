@@ -21,6 +21,9 @@ extension ICELocalObject {
     func fromLocalObject<ICELocalObjectType, LocalObjectType>(to _: LocalObjectType.Type,
                                                               initializer: () -> LocalObjectType) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
+        objc_sync_enter(LocalObject.self)
+        defer { objc_sync_exit(LocalObject.self) }
+
         if let swiftClass = swiftRef {
             precondition(swiftClass is LocalObjectType)
             // swiftlint:disable force_cast
@@ -35,6 +38,9 @@ extension ICELocalObject {
     //
     func `as`<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
+        objc_sync_enter(LocalObject.self)
+        defer { objc_sync_exit(LocalObject.self) }
+
         guard let swiftClass = swiftRef else {
             preconditionFailure("swiftRef is nil")
         }
