@@ -61,6 +61,10 @@ $test_extra_sources = {
   "Ice/exceptions/Server" => ["EmptyI.swift", "ServantLocatorI.swift", "ThrowerI.swift"],
   "Ice/exceptions/ServerAMD" => ["EmptyAMDI.swift", "ServantLocatorAMDI.swift", "ThrowerAMDI.swift"],
 
+  "Ice/invoke/Server" => ["BlobjectI.swift"],
+
+  "Ice/location/Server" => ["ServerLocator.swift"],
+
   "Ice/operations/Client" => ["BatchOneways.swift",
                               "BatchOnewaysAMI.swift",
                               "Oneways.swift",
@@ -78,6 +82,7 @@ $test_extra_sources = {
                     "HI.swift",
                     "II.swift",
                     "JI.swift"],
+
   "Ice/proxy/Server" => ["MyDerivedClassI.swift"],
   "Ice/proxy/ServerAMD" => ["MyDerivedClassAMDI.swift"]
 }
