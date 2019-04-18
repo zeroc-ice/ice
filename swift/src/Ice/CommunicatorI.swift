@@ -9,7 +9,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
     var initData: InitializationData
-    let serialQueue = DispatchQueue(label: "com.zeroc.ice.serial")
+    let serverQueue = DispatchQueue(label: "com.zeroc.ice.server", attributes: .concurrent)
     let dispatchSpecificKey = DispatchSpecificKey<Set<ObjectAdapterI>>()
 
     var mutex: Mutex = Mutex()
@@ -84,21 +84,21 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapter(name)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: serialQueue)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: serverQueue)
         }
     }
 
     func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: serialQueue)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: serverQueue)
         }
     }
 
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl._handle)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: serialQueue)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: serverQueue)
         }
     }
 
@@ -245,7 +245,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func getAdminDispatchQueue() -> DispatchQueue {
         return mutex.sync {
-            initData.adminDispatchQueue ?? serialQueue
+            initData.adminDispatchQueue ?? serverQueue
         }
     }
 }
