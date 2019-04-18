@@ -599,7 +599,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_write(to os: OutputStream) {
-        _handle.iceWrite(os)
+        _handle.iceWrite(os, encodingMajor: os.encoding.major, encodingMinor: os.encoding.minor)
     }
 
     public func ice_toString() -> String {

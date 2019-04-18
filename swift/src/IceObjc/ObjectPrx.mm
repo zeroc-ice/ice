@@ -564,12 +564,14 @@ encodingMinor:(uint8_t)minor
 }
 
 -(void) iceWrite:(id<ICEOutputStreamHelper>)os
+   encodingMajor:(uint8_t)encodingMajor
+   encodingMinor:(uint8_t)encodingMinor
 {
     //
     // Marshal a proxy into a stream and return the encoded bytes.
     //
     auto communicator = _prx->ice_getCommunicator();
-    auto encoding = _prx->ice_getEncodingVersion();
+    Ice::EncodingVersion encoding { encodingMajor, encodingMinor };
     Ice::OutputStream out(communicator, encoding);
     out.write(_prx);
     std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();

@@ -7,7 +7,7 @@ import IceObjc
 public class OutputStream {
     private var buf: Buffer
     private var communicator: Communicator
-    private var encoding: EncodingVersion
+    var encoding: EncodingVersion
     private var encoding_1_0: Bool
     private var format: FormatType = FormatType.DefaultFormat
 

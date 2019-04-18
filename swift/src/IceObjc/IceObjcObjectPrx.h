@@ -90,7 +90,9 @@ NS_ASSUME_NONNULL_BEGIN
              bytesRead:(NSInteger*)bytesRead
                  error:(NSError* _Nullable * _Nullable)error;
 
--(void) iceWrite:(id<ICEOutputStreamHelper>)os;
+-(void) iceWrite:(id<ICEOutputStreamHelper>)os
+   encodingMajor:(uint8_t)encodingMajor
+   encodingMinor:(uint8_t)encodingMinor;
 
 -(nullable ICEInputStream*) iceInvoke:(NSString* _Nonnull)op
                                  mode:(uint8_t)mode
