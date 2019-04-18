@@ -581,7 +581,7 @@ encodingMinor:(uint8_t)minor
 
 -(ICEInputStream*) iceInvoke:(NSString*)op
                          mode:(uint8_t)mode
-                     inParams:(const void*)inParams
+                     inParams:(const void* _Null_unspecified)inParams
                        inSize:(size_t)inSize
                       context:(NSDictionary*)context
                   returnValue:(bool*)returnValue
@@ -613,7 +613,7 @@ encodingMinor:(uint8_t)minor
 
 -(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
                   mode:(NSInteger)mode
-              inParams:(void* _Null_unspecified)inParams
+              inParams:(const void* _Null_unspecified)inParams
                 inSize:(NSInteger)inSize
                context:(NSDictionary* _Nullable)context
               response:(void (^)(bool, ICEInputStream*))response
@@ -622,7 +622,7 @@ encodingMinor:(uint8_t)minor
                  error:(NSError* _Nullable * _Nullable)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = reinterpret_cast<Ice::Byte*>(inParams);
+    params.first = reinterpret_cast<const Ice::Byte*>(inParams);
     params.second = params.first + inSize;
 
     try

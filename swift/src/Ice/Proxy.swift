@@ -67,6 +67,14 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
                     mode: OperationMode,
                     inEncaps: [UInt8],
                     context: Context?) throws -> (ok: Bool, outEncaps: [UInt8])
+
+    func ice_invokeAsync(operation: String,
+                         mode: OperationMode,
+                         inEncaps: [UInt8],
+                         context: Context?,
+                         sent: ((Bool) -> Void)?,
+                         sentOn: DispatchQueue?,
+                         sentFlags: DispatchWorkItemFlags?) -> Promise<(ok: Bool, outEncaps: [UInt8])>
 }
 
 public func checkedCast(prx: Ice.ObjectPrx,
@@ -208,6 +216,64 @@ public extension ObjectPrx {
                                                                            returnValue: &ok),
                                       encoding: _impl._encoding)
             return _impl._isTwoway ? (ok, try ins.readEncapsulation().bytes) : (ok, [UInt8]())
+        }
+    }
+
+    func ice_invokeAsync(operation: String,
+                         mode: OperationMode,
+                         inEncaps: [UInt8],
+                         context: Context?,
+                         sent: ((Bool) -> Void)?,
+                         sentOn: DispatchQueue?,
+                         sentFlags: DispatchWorkItemFlags?) -> Promise<(ok: Bool, outEncaps: [UInt8])> {
+
+        return inEncaps.withUnsafeBufferPointer { b in
+            if self._impl._isTwoway {
+                return Promise<(ok: Bool, outEncaps: [UInt8])> { p in
+                    try _impl._handle.iceInvokeAsync(operation,
+                                                     mode: Int(mode.rawValue),
+                                                     inParams: b.baseAddress,
+                                                     inSize: inEncaps.count,
+                                                     context: context,
+                                                     response: { ok, inputStream in
+                                                         do {
+                                                            let istr = InputStream(communicator: self._impl._communicator,
+                                                                                   inputStream: inputStream,
+                                                                                   encoding: self._impl._encoding)
+                                                             p.fulfill((ok, try istr.readEncapsulation().bytes))
+                                                         } catch {
+                                                             p.reject(error)
+                                                         }
+                                                     },
+                                                     exception: { error in
+                                                         p.reject(error)
+                                                     },
+                                                     sent: createSentCallback(sent: sent,
+                                                                              sentOn: sentOn,
+                                                                              sentFlags: sentFlags))
+                }
+            } else {
+                let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+                return Promise<(ok: Bool, outEncaps: [UInt8])> { p in
+                    try _impl._handle.iceInvokeAsync(operation,
+                                                     mode: Int(mode.rawValue),
+                                                     inParams: b.baseAddress,
+                                                     inSize: inEncaps.count,
+                                                     context: context,
+                                                     response: { _, _ in
+                                                         precondition(false)
+                                                     },
+                                                     exception: { error in
+                                                         p.reject(error)
+                                                     },
+                                                     sent: {
+                                                         p.fulfill((true, []))
+                                                         if let sentCB = sentCB {
+                                                             sentCB($0)
+                                                         }
+                                                     })
+                }
+            }
         }
     }
 
