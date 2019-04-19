@@ -1685,7 +1685,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
     }
 
-    if(op->returnsClasses(false))
+    if(op->sendsClasses(false))
     {
         out << nl << "try istr.readPendingValues()";
     }
