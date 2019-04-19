@@ -4,7 +4,6 @@
 
 import Ice
 import TestCommon
-import Dispatch
 
 public class TestFactoryI: TestFactory {
     public class func create() -> TestHelper {
