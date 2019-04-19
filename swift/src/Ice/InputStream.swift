@@ -1268,15 +1268,11 @@ private class EncapsDecoder10: EncapsDecoder {
         classGraphDepth = 0
         if let l = patchMap[index] {
             precondition(l.count > 0)
-            for entry in l {
-                if entry.classGraphDepth > classGraphDepth {
-                    classGraphDepth = entry.classGraphDepth
-                }
-            }
+            classGraphDepth = l.reduce(0) { max($0, $1.classGraphDepth) }
         }
         classGraphDepth += 1
         if classGraphDepth > classGraphDepthMax {
-            throw MarshalException(reason: "maximum class graph depth reached");
+            throw MarshalException(reason: "maximum class graph depth reached")
         }
 
         //
