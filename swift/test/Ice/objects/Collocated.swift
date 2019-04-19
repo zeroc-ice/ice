@@ -18,7 +18,15 @@ class Collocated: TestHelperI {
         var initData = Ice.InitializationData()
         initData.properties = properties
         let communicator = try initialize(initData)
+        defer {
+            communicator.destroy()
+        }
 
+        try communicator.getValueFactoryManager().add(factory: { _ in BI() }, id: "::Test::B")
+        try communicator.getValueFactoryManager().add(factory: { _ in CI() }, id: "::Test::C")
+        try communicator.getValueFactoryManager().add(factory: { _ in DI() }, id: "::Test::D")
+        try communicator.getValueFactoryManager().add(factory: { _ in EI() }, id: "::Test::E")
+        try communicator.getValueFactoryManager().add(factory: { _ in FI() }, id: "::Test::F")
         try communicator.getValueFactoryManager().add(factory: { _ in II() }, id: "::Test::I")
         try communicator.getValueFactoryManager().add(factory: { _ in JI() }, id: "::Test::J")
         try communicator.getValueFactoryManager().add(factory: { _ in HI() }, id: "::Test::H")

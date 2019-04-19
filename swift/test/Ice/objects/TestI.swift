@@ -83,7 +83,7 @@ class InitialI: Initial {
     var _f: F
 
     init(_ adapter: Ice.ObjectAdapter) {
-        _adapter = adapter;
+        _adapter = adapter
         _b1 = BI()
         _b2 = BI()
         _c = CI()
