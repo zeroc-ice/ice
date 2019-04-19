@@ -19,6 +19,9 @@ class Server: TestHelperI {
         var initData = Ice.InitializationData()
         initData.properties = properties
         let communicator = try initialize(initData)
+        defer {
+            communicator.destroy()
+        }
 
         try communicator.getValueFactoryManager().add(factory: { _ in II() }, id: "::Test::I")
         try communicator.getValueFactoryManager().add(factory: { _ in JI() }, id: "::Test::J")
