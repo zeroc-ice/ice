@@ -1540,10 +1540,11 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
         writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true, q->tag);
     }
 
-    if(op->sendsClasses(false))
+    if(op->returnsClasses(false))
     {
         out << nl << "ostr.writePendingValues()";
     }
+
     out.dec();
     out << nl << "}";
 }
