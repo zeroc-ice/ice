@@ -2012,16 +2012,16 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
 
     out << ".done(on: nil)";
     out << sb;
-    if(!allOutParams.empty())
+    if(allOutParams.empty())
+    {
+        out << nl << "inS.writeEmptyParams()";
+    }
+    else
     {
         out << " " << operationReturnDeclaration(op) << " in ";
 
         out << nl << "inS.write ";
         writeMarshalOutParams(out, op);
-    }
-    else
-    {
-        out << nl << "inS.writeEmptyParams()";
     }
     out << eb;
 
