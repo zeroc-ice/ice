@@ -11,12 +11,18 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     var initData: InitializationData
     let serverQueue = DispatchQueue(label: "com.zeroc.ice.server", attributes: .concurrent)
     let dispatchSpecificKey = DispatchSpecificKey<Set<ObjectAdapterI>>()
-
+    let _classGraphDepthMax: Int32
     var mutex: Mutex = Mutex()
 
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         self.initData = initData
+        let num = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.ClassGraphDepthMax", value: 100)
+        if num < 1 || num > 0x7fffffff {
+            _classGraphDepthMax = 0x7fffffff
+        } else {
+            _classGraphDepthMax = num
+        }
         super.init(handle: handle)
     }
 
@@ -247,6 +253,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return mutex.sync {
             initData.adminDispatchQueue ?? serverQueue
         }
+    }
+
+    func classGraphDepthMax() -> Int32 {
+        // No mutex lock, immutable.
+        return _classGraphDepthMax
     }
 }
 

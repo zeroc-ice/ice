@@ -20,6 +20,7 @@ public class InputStream {
 
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
+    private var classGraphDepthMax: Int32
     public var sliceValues: Bool = true
 
     public convenience init(communicator: Communicator) {
@@ -41,6 +42,7 @@ public class InputStream {
         self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
         buf = Buffer(start: baseAddress!, count: bytes.count)
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
+        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax()
     }
 
     init(communicator: Communicator, inputStream handle: ICEInputStream, encoding: EncodingVersion) {
@@ -49,6 +51,7 @@ public class InputStream {
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
+        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax()
     }
 
     internal func getBuffer() -> Buffer {
@@ -318,10 +321,12 @@ public class InputStream {
             let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
                 encaps.decoder = EncapsDecoder10(stream: self, sliceValues: sliceValues,
-                                                 valueFactoryManager: valueFactoryManager)
+                                                 valueFactoryManager: valueFactoryManager,
+                                                 classGraphDepthMax: classGraphDepthMax)
             } else {
                 encaps.decoder = EncapsDecoder11(stream: self, sliceValues: sliceValues,
-                                                 valueFactoryManager: valueFactoryManager)
+                                                 valueFactoryManager: valueFactoryManager,
+                                                 classGraphDepthMax: classGraphDepthMax)
             }
         }
     }
@@ -835,6 +840,16 @@ private enum SliceType {
 
 private typealias Callback = (Value?) throws -> Void
 
+private struct PatchEntry {
+    let cb: Callback
+    let classGraphDepth: Int32
+
+    fileprivate init(cb: @escaping Callback, classGraphDepth: Int32) {
+        self.cb = cb
+        self.classGraphDepth = classGraphDepth
+    }
+}
+
 private protocol EncapsDecoder: AnyObject {
     var stream: InputStream { get }
     var sliceValues: Bool { get }
@@ -843,13 +858,16 @@ private protocol EncapsDecoder: AnyObject {
     //
     // Encapsulation attributes for value unmarshaling.
     //
-    var patchMap: [Int32: [Callback]] { get set }
+    var patchMap: [Int32: [PatchEntry]] { get set }
     var unmarshaledMap: [Int32: Value] { get set }
     var typeIdMap: [Int32: String] { get set }
     var typeIdIndex: Int32 { get set }
     var valueList: [Value] { get set }
 
     var typeIdCache: [String: Value.Type?] { get set }
+
+    var classGraphDepthMax: Int32 { get }
+    var classGraphDepth: Int32 { get set }
 
     func readValue(cb: Callback?) throws
     func throwException() throws
@@ -943,12 +961,9 @@ extension EncapsDecoder {
         // the callback will be called when the instance is
         // unmarshaled.
         //
-        if var entries = patchMap[index] {
-            entries.append(cb)
-            patchMap[index] = entries
-        } else {
-            patchMap[index] = [cb]
-        }
+        var entries = patchMap[index] ?? []
+        entries.append(PatchEntry(cb: cb, classGraphDepth: classGraphDepth))
+        patchMap[index] = entries
     }
 
     func unmarshal(index: Int32, v: Value) throws {
@@ -972,8 +987,8 @@ extension EncapsDecoder {
             //
             // Patch all pointers that refer to the instance.
             //
-            for cb in l {
-                try cb(v)
+            for entry in l {
+                try entry.cb(v)
             }
 
             //
@@ -1009,7 +1024,7 @@ private class EncapsDecoder10: EncapsDecoder {
     var stream: InputStream
     var sliceValues: Bool
     var valueFactoryManager: ValueFactoryManager
-    lazy var patchMap = [Int32: [Callback]]()
+    lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value]()
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
@@ -1024,11 +1039,16 @@ private class EncapsDecoder10: EncapsDecoder {
     var sliceSize: Int32!
     var typeId: String!
 
-    init(stream: InputStream, sliceValues: Bool, valueFactoryManager: ValueFactoryManager) {
+    let classGraphDepthMax: Int32
+    var classGraphDepth: Int32
+
+    init(stream: InputStream, sliceValues: Bool, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
         self.stream = stream
         self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
-        sliceType = SliceType.NoSlice
+        self.sliceType = SliceType.NoSlice
+        self.classGraphDepthMax = classGraphDepthMax
+        self.classGraphDepth = 0
     }
 
     func readValue(cb: Callback?) throws {
@@ -1241,6 +1261,25 @@ private class EncapsDecoder10: EncapsDecoder {
         }
 
         //
+        // Compute the biggest class graph depth of this object. To compute this,
+        // we get the class graph depth of each ancestor from the patch map and
+        // keep the biggest one.
+        //
+        classGraphDepth = 0
+        if let l = patchMap[index] {
+            precondition(l.count > 0)
+            for entry in l {
+                if entry.classGraphDepth > classGraphDepth {
+                    classGraphDepth = entry.classGraphDepth
+                }
+            }
+        }
+        classGraphDepth += 1
+        if classGraphDepth > classGraphDepthMax {
+            throw MarshalException(reason: "maximum class graph depth reached");
+        }
+
+        //
         // Unmarshal the instance and add it to the map of unmarshaled instances.
         //
         try unmarshal(index: index, v: v)
@@ -1252,12 +1291,15 @@ private class EncapsDecoder11: EncapsDecoder {
     var stream: InputStream
     var sliceValues: Bool
     var valueFactoryManager: ValueFactoryManager
-    lazy var patchMap = [Int32: [Callback]]()
+    lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value]()
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
     lazy var typeIdCache = [String: Value.Type?]()
+
+    var classGraphDepthMax: Int32
+    var classGraphDepth: Int32
 
     private var current: InstanceData!
     var valueIdIndex: Int32 = 1 // The ID of the next instance to unmarshal.
@@ -1298,10 +1340,12 @@ private class EncapsDecoder11: EncapsDecoder {
         }
     }
 
-    init(stream: InputStream, sliceValues: Bool, valueFactoryManager: ValueFactoryManager) {
+    init(stream: InputStream, sliceValues: Bool, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
         self.stream = stream
         self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
+        self.classGraphDepthMax = classGraphDepthMax
+        self.classGraphDepth = 0
     }
 
     func readValue(cb: Callback?) throws {
@@ -1673,10 +1717,17 @@ private class EncapsDecoder11: EncapsDecoder {
             _ = try startSlice() // Read next Slice header for next iteration.
         }
 
+        classGraphDepth += 1
+        if classGraphDepth > classGraphDepthMax {
+            throw MarshalException(reason: "maximum class graph depth reached")
+        }
+
         //
         // Unmarshal the instance.
         //
         try unmarshal(index: index, v: v!)
+
+        classGraphDepth -= 1
 
         if current == nil, !patchMap.isEmpty {
             //
