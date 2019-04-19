@@ -1219,28 +1219,4 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
         try test(c.myClass == nil)
         try test(c.myClass1 == "MyClass1.myClass1")
     }
-
-    do {
-        var p1 = try p.opMStruct1()
-        p1.e = MyEnum.enum3
-        let (p3, p2) = try p.opMStruct2(p1)
-        try test(p2.e == p1.e)
-        try test(p3.e == p1.e)
-    }
-
-    do {
-        _ = try p.opMSeq1()
-        let p1 = ["test"]
-        let (p3, p2) = try p.opMSeq2(p1)
-        try test(p2 == p1)
-        try test(p3 == p1)
-    }
-
-    do {
-        _ = try p.opMDict1()
-        let p1 = ["test": "test"]
-        let (p3, p2) = try p.opMDict2(p1)
-        try test(p2 == p1)
-        try test(p3 == p1)
-    }
 }

@@ -15,10 +15,6 @@ open class TestFactoryI: TestFactory {
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
 
-        PromiseKit.conf.Q.map = .global()
-        PromiseKit.conf.Q.return = .global()
-        PromiseKit.conf.logHandler = { _ in }
-
         let writer = getWriter()
 
         var initData = Ice.InitializationData()
@@ -32,43 +28,7 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-
-        let baseProxy = try communicator.stringToProxy("test:\(self.getTestEndpoint(num: 0))")!
-        let cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self)!
-        let derivedProxy = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
-
-        writer.write("testing twoway operations... ")
-        try twoways(self, cl)
-        try twoways(self, derivedProxy)
-        try derivedProxy.opDerived()
-        writer.writeLine("ok")
-
-        writer.write("testing oneway operations... ")
-        try oneways(self, cl)
-        try oneways(self, derivedProxy)
-        writer.writeLine("ok")
-
-        writer.write("testing twoway operations with AMI... ")
-        try twowaysAMI(self, cl)
-        try twowaysAMI(self, derivedProxy)
-        try derivedProxy.opDerived()
-        writer.writeLine("ok")
-
-        writer.write("testing oneway operations with AMI... ")
-        try onewaysAMI(self, cl)
-        try onewaysAMI(self, derivedProxy)
-        writer.writeLine("ok")
-
-        writer.write("testing batch oneway operations... ")
-        try batchOneways(self, cl)
-        try batchOneways(self, derivedProxy)
-        writer.writeLine("ok")
-
-        writer.write("testing batch oneway operations with AMI... ")
-        try batchOneways(self, cl)
-        try batchOneways(self, derivedProxy)
-        writer.writeLine("ok")
-
+        let cl = try allTests(helper: self)
         try cl.shutdown()
     }
 }
