@@ -1426,18 +1426,6 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
     ParamDeclList params = op->outParameters();
     ParamInfoList l;
 
-    if(op->returnType())
-    {
-        ParamInfo info;
-        info.name = operationReturnTypeLabel(op);
-        info.fixedName = info.name;
-        info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional());
-        info.optional = op->returnIsOptional();
-        info.tag = op->returnTag();
-        l.push_back(info);
-    }
-
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         ParamInfo info;
@@ -1448,6 +1436,18 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
+        l.push_back(info);
+    }
+
+    if(op->returnType())
+    {
+        ParamInfo info;
+        info.name = operationReturnTypeLabel(op);
+        info.fixedName = info.name;
+        info.type = op->returnType();
+        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional());
+        info.optional = op->returnIsOptional();
+        info.tag = op->returnTag();
         l.push_back(info);
     }
 
@@ -1567,36 +1567,17 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
     out.inc();
     for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
     {
-        if(q->param)
-        {
-            string param;
-            if(isClassType(q->type))
-            {
-                out << nl << "var " << q->fixedName << ": " << q->typeStr;
-                param = q->fixedName;
-            }
-            else
-            {
-                param = "let " + q->fixedName + ": " + q->typeStr;
-            }
-            writeMarshalUnmarshalCode(out, q->type, op, param, false);
-        }
-    }
-
-    if(returnType && !op->returnIsOptional())
-    {
-        ParamInfo r = requiredOutParams.front();
         string param;
-        if(isClassType(r.type))
+        if(isClassType(q->type))
         {
-            out << nl << "var " << r.fixedName << ": " << r.typeStr;
-            param = r.fixedName;
+            out << nl << "var " << q->fixedName << ": " << q->typeStr;
+            param = q->fixedName;
         }
         else
         {
-            param = "let " + r.fixedName + ": " + r.typeStr;
+            param = "let " + q->fixedName + ": " + q->typeStr;
         }
-        writeMarshalUnmarshalCode(out, r.type, op, param, false);
+        writeMarshalUnmarshalCode(out, q->type, op, param, false);
     }
 
     for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
@@ -1625,9 +1606,14 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
         out << spar;
     }
 
+    out << operationReturnTypeLabel(op);
+
     for(ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
     {
-        out << q->fixedName;
+        if(q->param)
+        {
+            out << q->fixedName;
+        }
     }
 
     if(allOutParams.size() > 1)
