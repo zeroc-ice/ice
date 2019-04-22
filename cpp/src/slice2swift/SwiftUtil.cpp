@@ -1606,7 +1606,10 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
         out << spar;
     }
 
-    out << operationReturnTypeLabel(op);
+    if(returnType)
+    {
+        out << operationReturnTypeLabel(op);
+    }
 
     for(ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
     {
