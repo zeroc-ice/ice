@@ -95,13 +95,13 @@ class ControllerI {
 
     init(view: ViewController, ipv4: String, ipv6: String) throws {
         let (properties, _) = try Ice.createProperties()
-        try properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
-        try properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
-        try properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
-        try properties.setProperty(key: "ControllerAdapter.Endpoints", value: "tcp")
-        try properties.setProperty(key: "ControllerAdapter.AdapterId", value: UUID().uuidString)
-        // try properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
-        // try properties.setProperty(key: "Ice.Trace.Network", value: "3")
+        properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
+        properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
+        properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
+        properties.setProperty(key: "ControllerAdapter.Endpoints", value: "tcp")
+        properties.setProperty(key: "ControllerAdapter.AdapterId", value: UUID().uuidString)
+        // properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
+        // properties.setProperty(key: "Ice.Trace.Network", value: "3")
 
         var initData = Ice.InitializationData()
         initData.properties = properties
