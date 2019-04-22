@@ -62,7 +62,6 @@ class MyDerivedClassI: MyDerivedClass {
     }
 
     func opByte(p1: UInt8, p2: UInt8, current: Ice.Current) throws -> (returnValue: UInt8, p3: UInt8) {
-        print("opByte: \(p1 ^ p2)")
         return (p1, p1 ^ p2)
     }
 
@@ -113,7 +112,8 @@ class MyDerivedClassI: MyDerivedClass {
         }
         return (try uncheckedCast(prx: adapter.createProxy(current.id), type: MyClassPrx.self),
                 p1,
-                try uncheckedCast(prx: adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")), type: MyClassPrx.self))
+                try uncheckedCast(prx: adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")),
+                                  type: MyClassPrx.self))
     }
 
     func opMyEnum(p1: MyEnum, current: Ice.Current) throws -> (returnValue: MyEnum, p2: MyEnum) {
@@ -143,7 +143,10 @@ class MyDerivedClassI: MyDerivedClass {
     func opShortIntLongSS(p1: [[Int16]],
                           p2: [[Int32]],
                           p3: [[Int64]],
-                          current: Ice.Current) throws -> (returnValue: [[Int64]], p4: [[Int16]], p5: [[Int32]], p6: [[Int64]]) {
+                          current: Ice.Current) throws -> (returnValue: [[Int64]],
+                                                           p4: [[Int16]],
+                                                           p5: [[Int32]],
+                                                           p6: [[Int64]]) {
         return (p3, p1, p2.reversed(), p3 + p3)
     }
 
