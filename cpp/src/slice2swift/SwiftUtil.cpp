@@ -1,12 +1,7 @@
-
-// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
 //
-// **********************************************************************
 
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -868,7 +863,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
             << typeToString(type, p, member->getMetaData(), member->optional());
         if(protocol)
         {
-            out << " { get }";
+            out << " { get set }";
         }
         else
         {
@@ -2007,8 +2002,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     }
     else
     {
-        out << " " << operationReturnDeclaration(op) << " in ";
-
+        out << " " << operationReturnDeclaration(op) << " in";
         out << nl << "inS.write ";
         writeMarshalOutParams(out, op);
     }

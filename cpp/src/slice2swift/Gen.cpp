@@ -1,11 +1,7 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
 //
-// **********************************************************************
 
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -21,7 +17,7 @@ using namespace Slice;
 using namespace IceUtilInternal;
 
 Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
-    _out(false), // No break before opening block in Swift
+    _out(false, true), // No break before opening block in Swift + short empty blocks
     _includePaths(includePaths)
 {
     _fileBase = base;
@@ -99,12 +95,9 @@ void
 Gen::printHeader()
 {
     static const char* header =
-"// **********************************************************************\n"
-"//\n"
-"// Copyright (c) ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// **********************************************************************\n"
-        ;
+        "//\n"
+        "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
+        "//\n";
 
     _out << header;
     _out << "//\n";
@@ -1403,21 +1396,18 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     out << sp;
-    out << nl;
     out << nl << "func ice_id(current _: Current) throws -> String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
-    out << nl;
     out << nl << "func ice_ids(current _: Current) throws -> [String]";
     out << sb;
     out << nl << "return " << ids.str();
     out << eb;
 
     out << sp;
-    out << nl;
     out << nl << "func ice_isA(s: String, current _: Current) throws -> Bool";
     out << sb;
     out << nl << "return " << ids.str() << ".contains(s)";
@@ -1588,40 +1578,29 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     ClassList bases = p->bases();
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
-
-    const DataMemberList members = p->dataMembers();
-    const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
-    const DataMemberList allMembers = p->allDataMembers();
 
     //
-    // Interfaces and local class with operations map to a protocol
+    // Local interfaces and local classes map to Swift protocol
     //
-    bool protocol = p->isInterface() || !p->allOperations().empty();
-    if(protocol)
+    out << sp;
+    out << nl << "public protocol " << name << ":";
+    if(bases.empty())
     {
-        out << sp;
-        out << nl << "public protocol " << name << ": "
-            << (base ? getUnqualified(getAbsolute(base), swiftModule) : "Swift.AnyObject");
-        out << sb;
-        writeMembers(out, members, p, TypeContextProtocol);
+        out << " Swift.AnyObject";
     }
     else
     {
-        out << sp;
-        out << nl << "public class " << name;
-        if(base)
+        for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
         {
-            out << ": " << getUnqualified(getAbsolute(base), swiftModule);
+            out << " " << getUnqualified(getAbsolute(*i), swiftModule);
+            if(++i != bases.end())
+            {
+                out << ",";
+            }
         }
-        out << sb;
-        writeMembers(out, members, p);
-        writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
     }
+    out << sb;
+    writeMembers(out, p->dataMembers(), p, TypeContextProtocol);
     return true;
 }
 

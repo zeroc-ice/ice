@@ -235,36 +235,43 @@ IceUtilInternal::OutputBase::operator!() const
 // Output
 // ----------------------------------------------------------------------
 
-IceUtilInternal::Output::Output(bool breakBeforeBlock) :
+IceUtilInternal::Output::Output(bool breakBeforeBlock, bool shortEmptyBlock) :
     OutputBase(),
     _blockStart("{"),
     _blockEnd("}"),
     _par(-1),
-    _breakBeforeBlock(breakBeforeBlock)
+    _breakBeforeBlock(breakBeforeBlock),
+    _shortEmptyBlock(shortEmptyBlock),
+    _emptyBlock(false)
 {
 }
 
-IceUtilInternal::Output::Output(ostream& os, bool breakBeforeBlock) :
+IceUtilInternal::Output::Output(ostream& os, bool breakBeforeBlock, bool shortEmptyBlock) :
     OutputBase(os),
     _blockStart("{"),
     _blockEnd("}"),
     _par(-1),
-    _breakBeforeBlock(breakBeforeBlock)
+    _breakBeforeBlock(breakBeforeBlock),
+    _shortEmptyBlock(shortEmptyBlock),
+    _emptyBlock(false)
 {
 }
 
-IceUtilInternal::Output::Output(const char* s, bool breakBeforeBlock) :
+IceUtilInternal::Output::Output(const char* s, bool breakBeforeBlock, bool shortEmptyBlock) :
     OutputBase(s),
     _blockStart("{"),
     _blockEnd("}"),
     _par(-1),
-    _breakBeforeBlock(breakBeforeBlock)
+    _breakBeforeBlock(breakBeforeBlock),
+    _shortEmptyBlock(shortEmptyBlock),
+    _emptyBlock(false)
 {
 }
 
 void
 IceUtilInternal::Output::print(const string& s)
 {
+    _emptyBlock = false;
     if(_par >= 0)
     {
         if(++_par > 1) // No comma for the first parameter.
@@ -293,16 +300,28 @@ IceUtilInternal::Output::sb()
     ++_pos;
     inc();
     _separator = false;
+    _emptyBlock = true;
 }
 
 void
 IceUtilInternal::Output::eb()
 {
     dec();
-    if(_blockEnd.length())
+    if(_emptyBlock && _shortEmptyBlock)
     {
-        newline();
-        _out << _blockEnd;
+        if(_blockEnd.length())
+        {
+            _separator = true;
+            _out << _blockEnd;
+        }
+    }
+    else
+    {
+        if(_blockEnd.length())
+        {
+            newline();
+            _out << _blockEnd;
+        }
     }
     --_pos;
 }
@@ -310,6 +329,7 @@ IceUtilInternal::Output::eb()
 void
 IceUtilInternal::Output::spar(char c)
 {
+    _emptyBlock = false;
     _out << c;
     _par = 0;
 }

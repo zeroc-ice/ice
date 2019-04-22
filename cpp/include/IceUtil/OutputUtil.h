@@ -87,9 +87,9 @@ class ICE_API Output : public OutputBase
 {
 public:
 
-    Output(bool = true);
-    Output(std::ostream&, bool = true);
-    Output(const char*, bool = true);
+    Output(bool breakBeforeBlock = true, bool shortEmptyBlock = false);
+    Output(std::ostream&, bool = true, bool = false);
+    Output(const char*, bool = true, bool = false);
 
     virtual void print(const std::string&); // Print a string.
 
@@ -104,7 +104,9 @@ private:
     std::string _blockStart;
     std::string _blockEnd;
     int _par; // If >= 0, we are writing a parameter list.
-    bool _breakBeforeBlock; // If true break before starting a new block.
+    const bool _breakBeforeBlock; // If true break before starting a new block.
+    const bool _shortEmptyBlock; // If true, an empty block is written <sb><eb>.
+    bool _emptyBlock;
 };
 
 template<typename T>
