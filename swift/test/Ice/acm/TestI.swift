@@ -10,7 +10,6 @@ class RemoteCommunicatorI: RemoteCommunicator {
                              close: Int32,
                              heartbeat: Int32,
                              current: Ice.Current) throws -> RemoteObjectAdapterPrx? {
-
         let communicator = current.adapter!.getCommunicator()
         let properties = communicator.getProperties()
         let defaultProtocol = properties.getPropertyWithDefault(key: "Ice.Default.Protocol", value: "tcp")
@@ -32,10 +31,8 @@ class RemoteCommunicatorI: RemoteCommunicator {
 
         let adapter = try communicator.createObjectAdapterWithEndpoints(
             name: name,
-            endpoints: "\(defaultProtocol) -h \"\(defaultHost)\"",
-            queue: DispatchQueue(label: "Ice.acm.server",
-                                 qos: .userInitiated,
-                                 attributes: .concurrent))
+            endpoints: "\(defaultProtocol) -h \"\(defaultHost)\""
+        )
 
         return try uncheckedCast(prx: current.adapter!.addWithUUID(RemoteObjectAdapterI(adapter: adapter)),
                                  type: RemoteObjectAdapterPrx.self)
@@ -57,19 +54,19 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
         try _adapter.activate()
     }
 
-    func getTestIntf(current: Current) -> TestIntfPrx? {
+    func getTestIntf(current _: Current) -> TestIntfPrx? {
         return _testIntf
     }
 
-    func activate(current: Current) throws {
+    func activate(current _: Current) throws {
         try _adapter.activate()
     }
 
-    func hold(current: Current) {
+    func hold(current _: Current) {
         _adapter.hold()
     }
 
-    func deactivate(current: Current) {
+    func deactivate(current _: Current) {
         _adapter.destroy()
     }
 }
@@ -84,7 +81,7 @@ class TestI: TestIntf {
             _semaphore = DispatchSemaphore(value: 0)
         }
 
-        func hearbeat(conn: Ice.Connection?) {
+        func hearbeat(conn _: Ice.Connection?) {
             _count += 1
             _semaphore.signal()
         }
@@ -103,7 +100,7 @@ class TestI: TestIntf {
         _semaphore = DispatchSemaphore(value: 0)
     }
 
-    func sleep(seconds: Int32, current: Current) {
+    func sleep(seconds: Int32, current _: Current) {
         _ = _semaphore.wait(timeout: .now() + Double(seconds))
     }
 
@@ -112,7 +109,7 @@ class TestI: TestIntf {
         _ = _semaphore.wait(timeout: .now() + Double(seconds))
     }
 
-    func interruptSleep(current: Current) {
+    func interruptSleep(current _: Current) {
         _semaphore.signal()
     }
 
@@ -123,7 +120,7 @@ class TestI: TestIntf {
         }
     }
 
-    func waitForHeartbeatCount(count: Int32, current: Current) {
+    func waitForHeartbeatCount(count: Int32, current _: Current) {
         _hearbeatCallback.waitForCount(count: count)
     }
 }

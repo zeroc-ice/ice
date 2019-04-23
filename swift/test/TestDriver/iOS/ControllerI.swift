@@ -7,18 +7,17 @@ import Ice
 import TestCommon
 
 class ProcessI: CommonProcess {
-
     var _helper: ControllerHelperI
 
     init(helper: ControllerHelperI) {
         _helper = helper
     }
 
-    func waitReady(timeout: Int32, current: Ice.Current) throws {
+    func waitReady(timeout: Int32, current _: Ice.Current) throws {
         try _helper.waitReady(timeout: timeout)
     }
 
-    func waitSuccess(timeout: Int32, current: Ice.Current) throws -> Int32 {
+    func waitSuccess(timeout: Int32, current _: Ice.Current) throws -> Int32 {
         return try _helper.waitSuccess(timeout: timeout)
     }
 
@@ -33,7 +32,6 @@ class ProcessI: CommonProcess {
 }
 
 class ProcessControllerI: CommonProcessController {
-
     var _view: ViewController
     var _ipv4: String
     var _ipv6: String
@@ -85,7 +83,7 @@ class ProcessControllerI: CommonProcessController {
                                        args: args,
                                        exe: exe,
                                        queue: (exe == "Server" ||
-                                               exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
+                                           exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
         helper.run()
         return try uncheckedCast(prx: adapter.addWithUUID(ProcessI(helper: helper)), type: CommonProcessPrx.self)
     }
@@ -96,8 +94,6 @@ class ProcessControllerI: CommonProcessController {
         return ipv6 ? _ipv6 : _ipv4
     }
 }
-
-let serialQueue = DispatchQueue(label: "com.zeroc.ice.TestController")
 
 class ControllerI {
     var _communicator: Ice.Communicator!
@@ -117,12 +113,12 @@ class ControllerI {
         initData.properties = properties
         _communicator = try Ice.initialize(initData: initData)
 
-        let adapter = try _communicator.createObjectAdapter(name: "ControllerAdapter", queue: serialQueue)
+        let adapter = try _communicator.createObjectAdapter("ControllerAdapter")
         var ident = Ice.Identity()
         #if targetEnvironment(simulator)
-        ident.category = "iPhoneSimulator"
+            ident.category = "iPhoneSimulator"
         #else
-        ident.category = "iPhoneOS"
+            ident.category = "iPhoneOS"
         #endif
         ident.name = "com.zeroc.Swift-Test-Controller"
 
@@ -148,7 +144,6 @@ class ControllerI {
 }
 
 class ControllerHelperI: ControllerHelper, TextWriter {
-
     var _view: ViewController
     var _args: [String]
     var _ready: Bool
@@ -242,13 +237,13 @@ class ControllerHelperI: ControllerHelper, TextWriter {
     public func waitReady(timeout: Int32) throws {
         var ex: Error?
         do {
-            while !_ready && !_completed {
+            while !_ready, !_completed {
                 if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
                     throw CommonProcessFailedException(reason: "Timeout waiting for the process to be ready")
                 }
             }
 
-            if _completed && _status != 0 {
+            if _completed, _status != 0 {
                 throw CommonProcessFailedException(reason: _out)
             }
         } catch {
@@ -268,7 +263,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
                 }
             }
 
-            if _completed && _status != 0 {
+            if _completed, _status != 0 {
                 throw CommonProcessFailedException(reason: _out)
             }
         } catch {

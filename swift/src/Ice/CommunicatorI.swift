@@ -6,22 +6,25 @@ import IceObjc
 import PromiseKit
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
-    let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
+    private let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
-    var initData: InitializationData
-    let serverQueue = DispatchQueue(label: "com.zeroc.ice.server", attributes: .concurrent)
+    let initData: InitializationData
+    private let serverQueue = DispatchQueue(label: "com.zeroc.ice.server", attributes: .concurrent)
     let dispatchSpecificKey = DispatchSpecificKey<Set<ObjectAdapterI>>()
-    let _classGraphDepthMax: Int32
-    var mutex: Mutex = Mutex()
+    let classGraphDepthMax: Int32
+
+    private var mutex: Mutex = Mutex()
+    private var adminDispatchQueue: Dispatch.DispatchQueue
 
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         self.initData = initData
-        let num = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.ClassGraphDepthMax", value: 50)
-        if num < 1 || num > 0x7fffffff {
-            _classGraphDepthMax = 0x7fffffff
+        adminDispatchQueue = serverQueue
+        let num = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.ClassGraphDepthMax", value: 100)
+        if num < 1 || num > 0x7FFF_FFFF {
+            classGraphDepthMax = 0x7FFF_FFFF
         } else {
-            _classGraphDepthMax = num
+            classGraphDepthMax = num
         }
         super.init(handle: handle)
     }
@@ -90,21 +93,22 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapter(name)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: serverQueue)
+
+            return ObjectAdapterI(handle: handle, communicator: self, queue: getDispatchQueue(name))
         }
     }
 
     func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: serverQueue)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: getDispatchQueue(name))
         }
     }
 
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl._handle)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: serverQueue)
+            return ObjectAdapterI(handle: handle, communicator: self, queue: getDispatchQueue(name))
         }
     }
 
@@ -181,11 +185,10 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
                 // ObjectNotExistException and FacetNotExistException when a servant is not found on
                 // a Swift Admin OA.
                 (adapter as! ObjectAdapterI).servantManager.setAdminId(adminId)
-            }
 
-            // Replace the iniData.adminDispatchQueue with the dispatch queue from this adapter
-            mutex.sync {
-                initData.adminDispatchQueue = adminAdapter?.getDispatchQueue()
+                mutex.sync {
+                    adminDispatchQueue = adapter.getDispatchQueue()
+                }
             }
 
             return _ObjectPrxI(handle: handle, communicator: self)
@@ -251,33 +254,24 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func getAdminDispatchQueue() -> DispatchQueue {
         return mutex.sync {
-            initData.adminDispatchQueue ?? serverQueue
+            adminDispatchQueue
         }
     }
 
-    func classGraphDepthMax() -> Int32 {
-        // No mutex lock, immutable.
-        return _classGraphDepthMax
+    func getDispatchQueue(_ name: String) -> Dispatch.DispatchQueue {
+        if !name.isEmpty {
+            if initData.properties!.getPropertyAsInt(name + ".ThreadPool.Size") > 0 ||
+                initData.properties!.getPropertyAsInt(name + ".ThreadPool.SizeMax") > 0 ||
+                !initData.properties!.getProperty(name + ".ThreadPool.ThreadPriority").isEmpty {
+                // This OS has its own thread pool
+                return Dispatch.DispatchQueue(label: "com.zeroc.ice.oa." + name, attributes: .concurrent)
+            }
+        }
+        return serverQueue
     }
 }
 
 public extension Communicator {
-    func createObjectAdapter(name: String, queue: DispatchQueue) throws -> ObjectAdapter {
-        return try autoreleasepool {
-            let handle = try (self as! CommunicatorI)._handle.createObjectAdapter(name)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
-        }
-    }
-
-    func createObjectAdapterWithEndpoints(name: String,
-                                          endpoints: String, queue: DispatchQueue) throws -> ObjectAdapter {
-        return try autoreleasepool {
-            let handle = try (self as! CommunicatorI)._handle.createObjectAdapterWithEndpoints(name: name,
-                                                                                               endpoints: endpoints)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
-        }
-    }
-
     func flushBatchRequestsAsync(_ compress: CompressBatch,
                                  sent: ((Bool) -> Void)? = nil,
                                  sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
@@ -295,14 +289,6 @@ public extension Communicator {
                                                              }
                 })
             }
-        }
-    }
-
-    func createObjectAdapterWithRouter(name: String, rtr: RouterPrx, queue: DispatchQueue) throws -> ObjectAdapter {
-        return try autoreleasepool {
-            let handle = try (self as! CommunicatorI)._handle.createObjectAdapterWithRouter(name: name,
-                                                                                            router: rtr._impl._handle)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: queue)
         }
     }
 }

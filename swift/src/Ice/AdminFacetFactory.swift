@@ -21,8 +21,8 @@ class AdminFacetFacade: ICEBlobjectFacade {
         let objectAdapter = adapter.fromLocalObject(to: ObjectAdapterI.self) {
             let oa = ObjectAdapterI(handle: adapter,
                                     communicator: communicator,
-                                    queue: (communicator as! CommunicatorI).getAdminDispatchQueue())
-            // Register the admin OA's id with the servant manager. This is used to distingish between
+                                    queue: (communicator as! CommunicatorI).getDispatchQueue(adapter.getName()))
+            // Register the admin OA's id with the servant manager. This is used to distinguish between
             // ObjectNotExistException and FacetNotExistException when a servant is not found on
             // a Swift Admin OA.
             oa.servantManager.setAdminId(Identity(name: name, category: category))

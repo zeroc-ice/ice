@@ -43,7 +43,7 @@ public class InputStream {
         self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
         buf = Buffer(start: baseAddress!, count: bytes.count)
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
-        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax()
+        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
@@ -53,7 +53,7 @@ public class InputStream {
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
-        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax()
+        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
@@ -1055,9 +1055,9 @@ private class EncapsDecoder10: EncapsDecoder {
         self.stream = stream
         self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
-        self.sliceType = SliceType.NoSlice
+        sliceType = SliceType.NoSlice
         self.classGraphDepthMax = classGraphDepthMax
-        self.classGraphDepth = 0
+        classGraphDepth = 0
     }
 
     func readValue(cb: Callback?) throws {
@@ -1356,7 +1356,7 @@ private class EncapsDecoder11: EncapsDecoder {
         self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
         self.classGraphDepthMax = classGraphDepthMax
-        self.classGraphDepth = 0
+        classGraphDepth = 0
     }
 
     func readValue(cb: Callback?) throws {
