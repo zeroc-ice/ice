@@ -3,34 +3,34 @@
 require 'xcodeproj'
 
 $tests = [
-  "Ice/acm",
-  "Ice/adapterDeactivation",
-  "Ice/admin",
-  "Ice/ami",
-  "Ice/binding",
-  "Ice/defaultServant",
-  "Ice/defaultValue",
-  "Ice/enums",
-  "Ice/exceptions",
-  "Ice/facets",
-  "Ice/hold",
-  "Ice/info",
-  "Ice/inheritance",
-  "Ice/invoke",
-  "Ice/location",
-  "Ice/objects",
-  "Ice/operations",
-  "Ice/optional",
-  "Ice/properties",
-  "Ice/proxy",
-  "Ice/retry",
-#  "Ice/scope",
-  "Ice/servantLocator",
-  "Ice/slicing/exceptions",
-  "Ice/slicing/objects",
-  "Ice/stream",
-  "Ice/timeout",
-  "Ice/udp"
+    "Ice/acm",
+    "Ice/adapterDeactivation",
+    "Ice/admin",
+    "Ice/ami",
+    "Ice/binding",
+    "Ice/defaultServant",
+    "Ice/defaultValue",
+    "Ice/enums",
+    "Ice/exceptions",
+    "Ice/facets",
+    "Ice/hold",
+    "Ice/info",
+    "Ice/inheritance",
+    "Ice/invoke",
+    "Ice/location",
+    "Ice/objects",
+    "Ice/operations",
+    "Ice/optional",
+    "Ice/properties",
+    "Ice/proxy",
+    "Ice/retry",
+    #  "Ice/scope",
+    "Ice/servantLocator",
+    "Ice/slicing/exceptions",
+    "Ice/slicing/objects",
+    "Ice/stream",
+    "Ice/timeout",
+    "Ice/udp"
 ]
 
 $test_variants = ["Client", "Server", "ServerAMD", "Collocated"]
@@ -39,43 +39,43 @@ $test_variants = ["Client", "Server", "ServerAMD", "Collocated"]
 # Default sources for each test variant
 #
 $test_default_sources = {
-  "Client" => ["Client.swift", "AllTests.swift", "*Test.ice", "Client*.ice"],
-  "Server" => ["Server.swift", "TestI.swift", "*Test.ice", "Server*.ice"],
-  "ServerAMD" => ["ServerAMD.swift", "TestAMDI.swift", "*TestAMD.ice"],
-  "Collocated" => ["Collocated.swift"]
+    "Client" => ["Client.swift", "AllTests.swift", "*Test.ice", "Client*.ice"],
+    "Server" => ["Server.swift", "TestI.swift", "*Test.ice", "Server*.ice"],
+    "ServerAMD" => ["ServerAMD.swift", "TestAMDI.swift", "*TestAMD.ice"],
+    "Collocated" => ["Collocated.swift"]
 }
 
 #
 # Extra test sources if any
 #
 $test_extra_sources = {
-  "Ice/adapterDeactivation/Server" => ["ServantLocator.swift"],
+    "Ice/adapterDeactivation/Server" => ["ServantLocator.swift"],
 
-  "Ice/admin" => ["TestI.swift"],
+    "Ice/admin" => ["TestI.swift"],
 
-  "Ice/binding/Server" => ["RemoteCommunicatorI.swift",
-                           "RemoteObjectAdapterI.swift"],
+    "Ice/binding/Server" => ["RemoteCommunicatorI.swift",
+                             "RemoteObjectAdapterI.swift"],
 
 
-  "Ice/exceptions/Client" => ["EmptyI.swift", "ServantLocatorI.swift"],
-  "Ice/exceptions/Server" => ["EmptyI.swift", "ServantLocatorI.swift", "ThrowerI.swift"],
-  "Ice/exceptions/ServerAMD" => ["EmptyAMDI.swift", "ServantLocatorAMDI.swift", "ThrowerAMDI.swift"],
+    "Ice/exceptions/Client" => ["ServantLocatorI.swift"],
+    "Ice/exceptions/Server" => ["ServantLocatorI.swift", "ThrowerI.swift"],
+    "Ice/exceptions/ServerAMD" => ["ServantLocatorAMDI.swift", "ThrowerAMDI.swift"],
 
-  "Ice/invoke/Server" => ["BlobjectI.swift"],
+    "Ice/invoke/Server" => ["BlobjectI.swift"],
 
-  "Ice/location/Server" => ["ServerLocator.swift"],
+    "Ice/location/Server" => ["ServerLocator.swift"],
 
-  "Ice/operations/Client" => ["BatchOneways.swift",
-                              "BatchOnewaysAMI.swift",
-                              "Oneways.swift",
-                              "OnewaysAMI.swift",
-                              "Twoways.swift",
-                              "TwowaysAMI.swift"],
+    "Ice/operations/Client" => ["BatchOneways.swift",
+                                "BatchOnewaysAMI.swift",
+                                "Oneways.swift",
+                                "OnewaysAMI.swift",
+                                "Twoways.swift",
+                                "TwowaysAMI.swift"],
 
-  "Ice/objects" => ["TestI.swift"],
+    "Ice/objects" => ["TestI.swift"],
 
-  "Ice/proxy/Server" => ["MyDerivedClassI.swift"],
-  "Ice/proxy/ServerAMD" => ["MyDerivedClassAMDI.swift"]
+    "Ice/proxy/Server" => ["MyDerivedClassI.swift"],
+    "Ice/proxy/ServerAMD" => ["MyDerivedClassAMDI.swift"]
 }
 
 desc "Generate Xcode projects required to build Ice for Swift"
@@ -93,37 +93,7 @@ task :iceproj do
     project.save()
 end
 
-desc "Build Ice for Swift iOS framework, sdk: iphonesimulator|iphoneos config: Debug|Release"
-task iossrcs: [:iceproj]
-task :iossrcs, [:sdk, :config] do |t, args|
-    sdk = args.sdk || "iphonesimulator"
-    config = args.config || "Debug"
-    system("xcodebuild -project ice.xcodeproj -scheme \"Ice iOS\" -sdk #{sdk} -config #{config}")
-end
-
-desc "Build Ice for Swift iOS framework and tests, sdk: iphonesimulator|iphoneos config: Debug|Release"
-task iosbuild: [:iceproj]
-task :iosbuild, [:sdk, :config] do |t, args|
-    sdk = args.sdk || "iphonesimulator"
-    config = args.config || "Debug"
-    system("xcodebuild -project ice.xcodeproj -scheme \"TestDriver iOS\" -sdk #{sdk} -config #{config}")
-end
-
-desc "Build Ice for Swift macOS framework, config: Debug|Release"
-task macossrcs: [:iceproj]
-task :macossrcs, [:config] do |t, args|
-    config = args.config || "Debug"
-    system("xcodebuild -project ice.xcodeproj -scheme \"Ice macOS\" -config #{config}")
-end
-
-desc "Build Ice for Swift macOS framework and tests, config: Debug|Release"
-task macosbuild: [:iceproj]
-task :macosbuild, [:config] do |t, args|
-    config = args.config || "Debug"
-    system("xcodebuild -project ice.xcodeproj -scheme \"TestDriver macOS\" -config #{config}")
-end
-
-task :default => [:macosbuild]
+task :default => [:iceproj]
 
 def create_platform_targets(project, platform)
 
@@ -303,9 +273,9 @@ def create_platform_targets(project, platform)
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
 
     [ice_target, test_common_target].each do |t|
-      file = copy_phase.add_file_reference(t.product_reference)
-      file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
-      target.frameworks_build_phases.add_file_reference(t.product_reference)
+        file = copy_phase.add_file_reference(t.product_reference)
+        file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+        target.frameworks_build_phases.add_file_reference(t.product_reference)
     end
 
     target_set_framework_build_settings(target)
@@ -316,25 +286,19 @@ def create_platform_targets(project, platform)
     #
     # For each test create a bundle target
     #
-
     $tests.each do |test|
-      $test_variants.each do |variant|
-
-        unless test_has_variant(test, variant)
-          next
-        end
-
-        target = project.new_target(:bundle, target_name("#{test}#{variant}"), platform)
+        target = project.new_target(:bundle, target_name("#{test}"), platform)
         target.name = "#{target.name} #{platform_name}"
 
         [test_common_target, ice_target].each do |t|
-          target.frameworks_build_phases.add_file_reference(t.product_reference, true)
+            target.frameworks_build_phases.add_file_reference(t.product_reference, true)
         end
 
         target_set_framework_build_settings(target)
         target.build_configurations.each { |config|
-          config.build_settings["ENABLE_BITCODE"] = "NO"
+            config.build_settings["ENABLE_BITCODE"] = "NO"
         }
+
         target_add_carthage_framework(target, platform, "PromiseKit.framework")
         target_add_slice2swift_build_rule(project, target)
         target_add_swiftlint_build_phase(target, "test/#{test}")
@@ -344,10 +308,15 @@ def create_platform_targets(project, platform)
         #
         group = project_group(project, "test/#{test}")
         group_add_files(group, "test/#{test}", ["*.plist"])
-        target_add_files(target, group, "test/#{test}", test_variant_sources(test, variant))
 
-        target_set_common_build_settings(target, target_name("#{test}#{variant}"), swift: true)
+        $test_variants.reject{ |item| item == "ServerAMD" }.each do |variant|
+            unless test_has_variant(test, variant)
+                next
+            end
+            target_add_files(target, group, "test/#{test}", test_variant_sources(test, variant))
+        end
 
+        target_set_common_build_settings(target, target_name("#{test}"), swift: true)
         test_driver_target.add_dependency(target)
 
         #
@@ -355,7 +324,46 @@ def create_platform_targets(project, platform)
         #
         file = copy_phase.add_file_reference(target.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
-      end
+    end
+
+    #
+    # Create a separate bundle for AMD test if there is an AMD test variant
+    #
+    $tests.each do |test|
+        if test_has_variant(test, "ServerAMD")
+            target = project.new_target(:bundle, target_name("#{test}AMD"), platform)
+            target.name = "#{target.name} #{platform_name}"
+
+            [test_common_target, ice_target].each do |t|
+                target.frameworks_build_phases.add_file_reference(t.product_reference, true)
+            end
+
+            target_set_framework_build_settings(target)
+            target.build_configurations.each { |config|
+                config.build_settings["ENABLE_BITCODE"] = "NO"
+            }
+
+            target_add_carthage_framework(target, platform, "PromiseKit.framework")
+            target_add_slice2swift_build_rule(project, target)
+            target_add_swiftlint_build_phase(target, "test/#{test}")
+
+            #
+            # Add .ice and .swift files to the target
+            #
+            group = project_group(project, "test/#{test}")
+            group_add_files(group, "test/#{test}", ["*.plist"])
+
+            target_add_files(target, group, "test/#{test}", test_variant_sources(test, "ServerAMD"),
+                             ["Test.ice", "Client*.ice"])
+            target_set_common_build_settings(target, target_name("#{test}AMD"), swift: true)
+            test_driver_target.add_dependency(target)
+
+            #
+            # Add the bundle to test driver copy phase
+            #
+            file = copy_phase.add_file_reference(target.product_reference)
+            file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+        end
     end
 
     #
@@ -450,24 +458,24 @@ def target_add_headers(target, group, basedir, patterns, excludes: [], attribute
 end
 
 def target_set_common_build_settings(target, product, plist: nil, swift: false)
-  target.build_configurations.each { |config|
-    config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
-    if target.name.include? "macOS"
-      config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
-    else
-      config.build_settings["CODE_SIGN_IDENTITY"] = "iPhone Developer"
-    end
-    config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
-    if plist then
-      config.build_settings["INFOPLIST_FILE"] = plist
-    end
-    config.build_settings["PRODUCT_NAME"] = product
-    config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.zeroc.#{product}"
+    target.build_configurations.each { |config|
+        config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
+        if target.name.include? "macOS"
+            config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
+        else
+            config.build_settings["CODE_SIGN_IDENTITY"] = "iPhone Developer"
+        end
+        config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
+        if plist then
+            config.build_settings["INFOPLIST_FILE"] = plist
+        end
+        config.build_settings["PRODUCT_NAME"] = product
+        config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.zeroc.#{product}"
 
-    if swift then
-      config.build_settings["SWIFT_VERSION"] = "5.0"
-    end
-  }
+        if swift then
+            config.build_settings["SWIFT_VERSION"] = "5.0"
+        end
+    }
 end
 
 def target_set_framework_build_settings(target)
@@ -483,8 +491,8 @@ def target_add_carthage_framework(target, platform, framework, copy=false)
     group_add_files(group, "Carthage/Build/#{carthage_prefix}", [framework]).each do |ref|
         target.frameworks_build_phases.add_file_reference(ref, true)
         if copy then
-          file = target.copy_files_build_phases[0].add_file_reference(ref)
-          file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+            file = target.copy_files_build_phases[0].add_file_reference(ref)
+            file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
         end
     end
 end
@@ -493,22 +501,22 @@ end
 # Check if the test include the given variant
 #
 def test_has_variant(test, variant)
-  return File.file?("test/#{test}/#{variant}.swift")
+    return File.file?("test/#{test}/#{variant}.swift")
 end
 
 def test_variant_sources(test, variant)
-  sources = $test_default_sources[variant]
+    sources = $test_default_sources[variant]
 
-  if variant == "Collocated"
-    sources += $test_default_sources["Server"].reject { |s| s == "Server.swift" }
-    sources += $test_default_sources["Client"].reject { |s| s == "Client.swift" }
+    if variant == "Collocated"
+        sources += $test_default_sources["Server"].reject { |s| s == "Server.swift" }
+        sources += $test_default_sources["Client"].reject { |s| s == "Client.swift" }
 
-    sources += $test_extra_sources["#{test}/Server"] || []
-    sources += $test_extra_sources["#{test}/Client"] || []
-  end
+        sources += $test_extra_sources["#{test}/Server"] || []
+        sources += $test_extra_sources["#{test}/Client"] || []
+    end
 
-  sources += $test_extra_sources[test] || []
-  sources += $test_extra_sources["#{test}/#{variant}"] || []
+    sources += $test_extra_sources[test] || []
+    sources += $test_extra_sources["#{test}/#{variant}"] || []
 
-  return sources
+    return sources
 end

@@ -6,9 +6,8 @@
 
 #include <Ice/Current.ice>
 
-[["cs:typeid-namespace:Ice.operations.AMD.TypeId"]]
+[["swift:class-resolver-prefix:IceOperationsAMD"]]
 
-["cs:namespace:Ice.operations.AMD"]
 module Test
 {
 

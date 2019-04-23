@@ -6,15 +6,13 @@ import Ice
 import TestCommon
 import PromiseKit
 
-open class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Client()
-    }
-}
-
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let (communicator, _) = try self.initialize(args: args)
+        let (properties, _) = try self.createTestProperties(args: args)
+        var initData = InitializationData()
+        initData.properties = properties
+        initData.classResolverPrefix = "IceObjects"
+        let communicator = try self.initialize(initData)
         defer {
             communicator.destroy()
         }

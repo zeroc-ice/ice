@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
+[["swift:class-resolver-prefix:IceObjects",
+  "suppress-warning:deprecated"]] // For classes with operations
 
 module Test
 {

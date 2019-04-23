@@ -7,10 +7,6 @@ import TestCommon
 import PromiseKit
 import Foundation
 
-class HelloI: Hello {
-    func sayHello(current: Ice.Current) {}
-}
-
 func allTests(_ helper: TestHelper) throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)

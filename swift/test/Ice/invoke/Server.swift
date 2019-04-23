@@ -6,12 +6,6 @@ import Ice
 import TestCommon
 import Dispatch
 
-public class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Server()
-    }
-}
-
 class ServantLocatorI: Ice.ServantLocator {
     var _blobject: Ice.Object
 
@@ -37,7 +31,11 @@ class Server: TestHelperI {
 
         let async = args.contains("--async")
 
-        let (communicator, _) = try self.initialize(args: args)
+        let (properties, _) = try self.createTestProperties(args: args)
+        var initData = Ice.InitializationData()
+        initData.properties = properties
+        initData.classResolverPrefix = "IceInvoke"
+        let communicator = try self.initialize(initData)
         defer {
             communicator.destroy()
         }

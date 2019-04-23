@@ -6,12 +6,6 @@ import Ice
 import TestCommon
 import Dispatch
 
-public class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Server()
-    }
-}
-
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
 

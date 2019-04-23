@@ -5,30 +5,6 @@
 import Ice
 import TestCommon
 
-public class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Collocated()
-    }
-}
-
-class DummyLogger: Ice.Logger {
-    func print(_ message: String) {}
-
-    func trace(category: String, message: String) {}
-
-    func warning(_ message: String) {}
-
-    func error(_ message: String) {}
-
-    func getPrefix() -> String {
-        return ""
-    }
-
-    func cloneWithPrefix(_ prefix: String) -> Logger {
-        return DummyLogger()
-    }
-}
-
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         let (properties, _) = try self.createTestProperties(args: args)
@@ -38,6 +14,7 @@ class Collocated: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
+        initData.classResolverPrefix = "IceExceptions"
 
         let communicator = try self.initialize(initData)
         defer {

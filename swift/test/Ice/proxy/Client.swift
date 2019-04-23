@@ -5,12 +5,6 @@
 import Ice
 import TestCommon
 
-open class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Client()
-    }
-}
-
 class Client: TestHelperI {
     public override func run(args: [String]) throws {
         do {

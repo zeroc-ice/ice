@@ -6,12 +6,6 @@ import Ice
 import TestCommon
 import PromiseKit
 
-open class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Client()
-    }
-}
-
 class TestValueReader: Ice.Value {
     public override func _iceRead(from istr: Ice.InputStream) throws {
         istr.startValue()
@@ -194,12 +188,11 @@ class FactoryI {
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-
-        PromiseKit.conf.Q.map = .global()
-        PromiseKit.conf.Q.return = .global()
-        PromiseKit.conf.logHandler = { _ in }
-
-        let (communicator, _) = try self.initialize(args: args)
+        let (properties, _) = try createTestProperties(args: args)
+        var initData = Ice.InitializationData()
+        initData.properties = properties
+        initData.classResolverPrefix = "IceOptional"
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

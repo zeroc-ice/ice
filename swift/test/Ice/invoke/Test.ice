@@ -4,6 +4,8 @@
 
 #pragma once
 
+[["swift:class-resolver-prefix:IceInvoke"]]
+
 module Test
 {
 

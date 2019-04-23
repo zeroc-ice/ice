@@ -6,12 +6,6 @@ import PromiseKit
 import Ice
 import TestCommon
 
-open class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Server()
-    }
-}
-
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
         let (properties, _) = try Ice.createProperties(args: args)

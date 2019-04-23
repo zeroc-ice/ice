@@ -6,6 +6,8 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+[["swift:class-resolver-prefix:IceExceptions"]]
+
 module Test
 {
 

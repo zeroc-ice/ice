@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceOptional",
+[["swift:class-resolver-prefix:IceOptionalAMD",
   "suppress-warning:deprecated"]]
 
 module Test
@@ -35,6 +35,7 @@ struct VarStruct
     string m;
 }
 
+["clr:class"]
 struct ClassVarStruct
 {
     int a;
@@ -50,13 +51,14 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-sequence<SmallStruct> SmallStructList;
+["clr:generic:List"] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-sequence<FixedStruct> FixedStructList;
+["clr:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
+["clr:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
@@ -67,12 +69,10 @@ dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
 dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 
-dictionary<int, string> IntStringDict;
-
 class MultiOptional
 {
     optional(1) byte a;
-    optional(2) bool  b;
+    optional(2) bool b;
     optional(3) short c;
     optional(4) int d;
     optional(5) long e;
@@ -109,7 +109,7 @@ class MultiOptional
 
 class A
 {
-    int requiredA = 0;
+    int requiredA;
     optional(1) int ma;
     optional(50) int mb;
     optional(500) int mc;
@@ -118,7 +118,7 @@ class A
 ["preserve-slice"]
 class B extends A
 {
-    int requiredB = 0;
+    int requiredB;
     optional(10) int md;
 }
 
@@ -154,6 +154,7 @@ exception RequiredException extends OptionalException
     OneOptional o2;
 }
 
+["clr:property"]
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;
@@ -192,16 +193,16 @@ class G
 class Recursive;
 sequence<Recursive> RecursiveSeq;
 
-class Recursive
-{
+class Recursive {
     optional(0) RecursiveSeq value;
 }
 
+["amd"]
 interface Initial
 {
     void shutdown();
 
-    ["marshaled-result"] Object pingPong(Object o);
+    Object pingPong(Object o);
 
     void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
@@ -228,10 +229,6 @@ interface Initial
 
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 
-    ["cpp:view-type:Util::string_view"] optional(1) string
-    opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1,
-                   out ["cpp:view-type:Util::string_view"] optional(3) string p3);
-
     optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
     optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
@@ -244,45 +241,31 @@ interface Initial
 
     optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
 
-    // Custom mapping operations
-    ["cpp:array"] optional(1) ByteSeq opByteSeq(["cpp:array"] optional(2) ByteSeq p1,
-                                                out ["cpp:array"] optional(3) ByteSeq p3);
+    optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 
-    ["cpp:array"] optional(1) BoolSeq opBoolSeq(["cpp:array"] optional(2) BoolSeq p1,
-                                                out ["cpp:array"] optional(3) BoolSeq p3);
+    optional(1) BoolSeq opBoolSeq(optional(2) BoolSeq p1, out optional(3) BoolSeq p3);
 
-    ["cpp:array"] optional(1) ShortSeq opShortSeq(["cpp:array"] optional(2) ShortSeq p1,
-                                                  out ["cpp:array"] optional(3) ShortSeq p3);
+    optional(1) ShortSeq opShortSeq(optional(2) ShortSeq p1, out optional(3) ShortSeq p3);
 
-    ["cpp:array"] optional(1) IntSeq opIntSeq(["cpp:array"] optional(2) IntSeq p1,
-                                              out ["cpp:array"] optional(3) IntSeq p3);
+    optional(1) IntSeq opIntSeq(optional(2) IntSeq p1, out optional(3) IntSeq p3);
 
-    ["cpp:array"] optional(1) LongSeq opLongSeq(["cpp:array"] optional(2) LongSeq p1,
-                                                 out ["cpp:array"] optional(3) LongSeq p3);
+    optional(1) LongSeq opLongSeq(optional(2) LongSeq p1, out optional(3) LongSeq p3);
 
-    ["cpp:array"] optional(1) FloatSeq opFloatSeq(["cpp:array"] optional(2) FloatSeq p1,
-                                                   out ["cpp:array"] optional(3) FloatSeq p3);
+    optional(1) FloatSeq opFloatSeq(optional(2) FloatSeq p1, out optional(3) FloatSeq p3);
 
-    ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
-                                                     out ["cpp:array"] optional(3) DoubleSeq p3);
+    optional(1) DoubleSeq opDoubleSeq(optional(2) DoubleSeq p1, out optional(3) DoubleSeq p3);
 
-    ["cpp:range"] optional(1) StringSeq opStringSeq(["cpp:range"] optional(2) StringSeq p1,
-                                                    out ["cpp:range"] optional(3) StringSeq p3);
+    optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
 
-    ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
-                                                              out ["cpp:array"] optional(3) SmallStructSeq p3);
+    optional(1) SmallStructSeq opSmallStructSeq(optional(2) SmallStructSeq p1, out optional(3) SmallStructSeq p3);
 
-    ["cpp:array"] optional(1) SmallStructList opSmallStructList(["cpp:array"] optional(2) SmallStructList p1,
-                                                                out ["cpp:array"] optional(3) SmallStructList p3);
+    optional(1) SmallStructList opSmallStructList(optional(2) SmallStructList p1, out optional(3) SmallStructList p3);
 
-    ["cpp:array"] optional(1) FixedStructSeq opFixedStructSeq(["cpp:array"] optional(2) FixedStructSeq p1,
-                                                              out ["cpp:array"] optional(3) FixedStructSeq p3);
+    optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1, out optional(3) FixedStructSeq p3);
 
-    ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
-                                                                out ["cpp:array"] optional(3) FixedStructList p3);
+    optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1, out optional(3) FixedStructList p3);
 
-    ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1,
-                                                          out ["cpp:range"] optional(3) VarStructSeq p3);
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
     optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
 
@@ -290,12 +273,8 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(1) IntStringDict
-    opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(2) IntStringDict p1,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(3) IntStringDict p3);
-
-    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
+    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
+                                                        out optional(3) IntOneOptionalDict p3);
 
     void opClassAndUnknownOptional(A p);
 

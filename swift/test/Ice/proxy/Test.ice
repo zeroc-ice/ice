@@ -6,6 +6,8 @@
 
 #include <Ice/Current.ice>
 
+[["suppress-warning:deprecated"]]
+
 module Test
 {
 

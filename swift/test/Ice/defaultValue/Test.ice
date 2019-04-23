@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For enumerator references
+[["swift:class-resolver-prefix:IceDefaultValue",
+  "suppress-warning:deprecated"]] // For enumerator references
 
 module Test
 {

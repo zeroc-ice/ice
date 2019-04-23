@@ -2,36 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
 import Ice
 import TestCommon
 
-public class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return ServerAMD()
+extension G {
+    var _GDescription: String {
+        return ":\nG: \(data)"
     }
 }
 
-class DummyLogger: Ice.Logger {
-    func print(_ message: String) {}
-
-    func trace(category: String, message: String) {}
-
-    func warning(_ message: String) {}
-
-    func error(_ message: String) {}
-
-    func getPrefix() -> String {
-        return ""
-    }
-
-    func cloneWithPrefix(_ prefix: String) -> Logger {
-        return DummyLogger()
+extension H {
+    var _HDescription: String {
+        return ":\nH: \(data)"
     }
 }
+
+class EmptyI: Empty {}
 
 class ServerAMD: TestHelperI {
     public override func run(args: [String]) throws {
@@ -42,6 +28,7 @@ class ServerAMD: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
+        initData.classResolverPrefix = "IceExceptionsAMD"
 
         let communicator = try self.initialize(initData)
         defer {

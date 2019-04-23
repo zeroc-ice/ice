@@ -6,6 +6,7 @@
 
 #include <Ice/Current.ice>
 
+[["swift:class-resolver-prefix:IceOperations"]]
 module Test
 {
 

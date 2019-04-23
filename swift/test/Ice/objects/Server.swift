@@ -5,18 +5,13 @@
 import Ice
 import TestCommon
 
-public class TestFactoryI: TestFactory {
-    public class func create() -> TestHelper {
-        return Server()
-    }
-}
-
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
         let (properties, _) = try createTestProperties(args: args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = Ice.InitializationData()
         initData.properties = properties
+        initData.classResolverPrefix = "IceObjects"
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
