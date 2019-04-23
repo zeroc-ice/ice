@@ -362,8 +362,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     StringPairList extraParams;
     if(p->isLocal())
     {
-        extraParams.push_back(make_pair("file", "String = #file"));
-        extraParams.push_back(make_pair("line", "Int = #line"));
+        extraParams.push_back(make_pair("file", "Swift.String = #file"));
+        extraParams.push_back(make_pair("line", "Swift.Int = #line"));
     }
 
     writeMembers(out, members, p);
@@ -393,7 +393,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(p->isLocal())
     {
         out << sp;
-        out << nl << "open override func ice_print() -> String";
+        out << nl << "open override func ice_print() -> Swift.String";
         out << sb;
         out << nl << "return _" << name << "Description";
         out << eb;
@@ -436,7 +436,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
         {
             out << sp;
-            out << nl << "open override func _usesClasses() -> Bool" << sb;
+            out << nl << "open override func _usesClasses() -> Swift.Bool" << sb;
             out << nl << "return true";
             out << eb;
         }
@@ -513,7 +513,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "func read(tag: Int32) throws -> " << name << "?";
+        out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
         out << sb;
         out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
         out << sb;
@@ -544,7 +544,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "func write(tag: Int32, value: " << name << "?)" << sb;
+        out << nl << "func write(tag: Swift.Int32, value: " << name << "?)" << sb;
         out << nl << "if let v = value" << sb;
         out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
 
@@ -629,7 +629,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v";
     out << eb;
 
-    out << nl << "public static func read(from istr: " << istr << ", tag: Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -657,7 +657,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Int32, value v: "<< name << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: "<< name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
@@ -722,7 +722,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
     out << sb;
-    out << nl << "let sz = try Int(istr.readSize())";
+    out << nl << "let sz = try Swift.Int(istr.readSize())";
     out << nl << "var v = " << name << "()";
     if(isClassType(p->valueType()))
     {
@@ -962,7 +962,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public class " << prxI << ": " << getUnqualified("Ice._ObjectPrxI", swiftModule) << ", " << prx;
     out << sb;
 
-    out << nl << "public override class func ice_staticId() -> String";
+    out << nl << "public override class func ice_staticId() -> Swift.String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
@@ -976,7 +976,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public func checkedCast" << spar
         << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol")
-        << ("facet: String? = nil")
+        << ("facet: Swift.String? = nil")
         << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil")
         << epar << " throws -> " << prx << "?";
     out << sb;
@@ -990,7 +990,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public func uncheckedCast" << spar
         << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol")
-        << ("facet: String? = nil") << epar << " -> " << prx;
+        << ("facet: Swift.String? = nil") << epar << " -> " << prx;
     out << sb;
     out << nl << "return " << prxI << ".uncheckedCast(prx: prx, facet: facet) as " << prxI;
     out << eb;
@@ -1017,7 +1017,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "func read(tag: Int32, type: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << nl << "func read(tag: Swift.Int32, type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read(tag: tag) as " << prxI << "?";
     out << eb;
@@ -1084,7 +1084,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sp;
         out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
         out << sb;
-        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> String";
+        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> Swift.String";
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
@@ -1396,19 +1396,19 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     out << sp;
-    out << nl << "func ice_id(current _: Current) throws -> String";
+    out << nl << "func ice_id(current _: Current) throws -> Swift.String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
-    out << nl << "func ice_ids(current _: Current) throws -> [String]";
+    out << nl << "func ice_ids(current _: Current) throws -> [Swift.String]";
     out << sb;
     out << nl << "return " << ids.str();
     out << eb;
 
     out << sp;
-    out << nl << "func ice_isA(s: String, current _: Current) throws -> Bool";
+    out << nl << "func ice_isA(s: Swift.String, current _: Current) throws -> Swift.Bool";
     out << sb;
     out << nl << "return " << ids.str() << ".contains(s)";
     out << eb;

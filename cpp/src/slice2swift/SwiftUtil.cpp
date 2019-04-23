@@ -1816,7 +1816,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
         out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
-    out << "sent: ((Bool) -> Void)? = nil";
+    out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
     out << "sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.return";
     out << "sentFlags: Dispatch.DispatchWorkItemFlags? = nil";
 
@@ -1824,7 +1824,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     out << " -> PromiseKit.Promise<";
     if(allOutParams.empty())
     {
-        out << "Void";
+        out << "Swift.Void";
     }
     else
     {
