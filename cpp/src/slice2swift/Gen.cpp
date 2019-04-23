@@ -16,6 +16,26 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
 
+namespace
+{
+
+string
+getClassResolverPrefix(const UnitPtr& p)
+{
+    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    assert(dc);
+
+    static const string classResolverPrefix = "swift:class-resolver-prefix:";
+    string result = dc->findMetaData(classResolverPrefix);
+    if(!result.empty())
+    {
+        result = result.substr(classResolverPrefix.size());
+    }
+    return result;
+}
+
+}
+
 Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
     _out(false, true), // No break before opening block in Swift + short empty blocks
     _includePaths(includePaths)
@@ -304,10 +324,13 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if(!p->isLocal())
     {
+        const string prefix = getClassResolverPrefix(p->unit());
+
         //
         // For each UserException class we generate a extension in ClassResolver
         //
         ostringstream factory;
+        factory << prefix;
         StringList parts = splitScopedName(p->scoped());
         for(StringList::const_iterator it = parts.begin(); it != parts.end();)
         {
@@ -331,7 +354,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << sp;
         out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
         out << sb;
-        out << nl << "@objc static func " << factory.str() << "() -> "
+        out << nl << "@objc static func " <<  factory.str() << "() -> "
             << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
         out << sb;
         out << nl << "return " << name << "_TypeResolver()";
@@ -1056,6 +1079,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
+    const string prefix = getClassResolverPrefix(p->unit());
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
@@ -1095,6 +1119,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     // For each Value class we generate an extension method in ClassResolver
     //
     ostringstream factory;
+    factory << prefix;
     StringList parts = splitScopedName(p->scoped());
     for(StringList::const_iterator it = parts.begin(); it != parts.end();)
     {

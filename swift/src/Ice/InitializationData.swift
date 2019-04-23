@@ -10,4 +10,5 @@ public struct InitializationData {
     public var properties: Properties?
     public var logger: Logger?
     public var adminDispatchQueue: DispatchQueue?
+    public var classResolverPrefix: String?
 }

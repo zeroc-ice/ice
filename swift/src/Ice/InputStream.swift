@@ -22,6 +22,7 @@ public class InputStream {
     private var minSeqSize: Int32 = 0
     private var classGraphDepthMax: Int32
     public var sliceValues: Bool = true
+    public var classResolverPrefix: String?
 
     public convenience init(communicator: Communicator) {
         self.init(communicator: communicator, bytes: [])
@@ -43,6 +44,7 @@ public class InputStream {
         buf = Buffer(start: baseAddress!, count: bytes.count)
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax()
+        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
     init(communicator: Communicator, inputStream handle: ICEInputStream, encoding: EncodingVersion) {
@@ -52,6 +54,7 @@ public class InputStream {
         buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax()
+        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
     internal func getBuffer() -> Buffer {
@@ -908,7 +911,13 @@ extension EncapsDecoder {
         if let cls = typeIdCache[typeId] {
             return cls
         } else {
-            let cls = ClassResolver.resolve(typeId: typeId) as Value.Type?
+            var cls: Value.Type?
+            if let prefix = stream.classResolverPrefix {
+                cls = ClassResolver.resolve(typeId: typeId, prefix: prefix)
+            }
+            if cls == nil {
+                cls = ClassResolver.resolve(typeId: typeId)
+            }
             typeIdCache[typeId] = cls
             return cls
         }
@@ -1098,7 +1107,13 @@ private class EncapsDecoder10: EncapsDecoder {
             //
             // Look for user exception
             //
-            let userExceptionType: UserException.Type? = ClassResolver.resolve(typeId: typeId)
+            var userExceptionType: UserException.Type?
+            if let prefix = stream.classResolverPrefix {
+                userExceptionType = ClassResolver.resolve(typeId: typeId, prefix: prefix)
+            }
+            if userExceptionType == nil {
+                userExceptionType = ClassResolver.resolve(typeId: typeId)
+            }
 
             //
             // We found the exception.
@@ -1384,7 +1399,12 @@ private class EncapsDecoder11: EncapsDecoder {
             // Look for user exception
             //
             var userExceptionType: UserException.Type?
-            userExceptionType = ClassResolver.resolve(typeId: current.typeId) as UserException.Type?
+            if let prefix = stream.classResolverPrefix {
+                userExceptionType = ClassResolver.resolve(typeId: current.typeId, prefix: prefix)
+            }
+            if userExceptionType == nil {
+                userExceptionType = ClassResolver.resolve(typeId: current.typeId)
+            }
 
             //
             // We found the exception.

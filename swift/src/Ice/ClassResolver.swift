@@ -22,24 +22,24 @@ open class UserExceptionTypeResolver: NSObject {
 // UserExceptionTypeResolver.
 //
 public class ClassResolver: NSObject {
-    private static func resolveImpl(typeId: String) -> AnyObject? {
+    private static func resolveImpl(typeId: String, prefix: String?) -> AnyObject? {
         let start = typeId.index(typeId.startIndex, offsetBy: 2)
-        let selector = Selector(typeId[start...].replacingOccurrences(of: "::", with: "_"))
+        let selector = Selector((prefix ?? "") + typeId[start...].replacingOccurrences(of: "::", with: "_"))
         guard ClassResolver.responds(to: selector) else {
             return nil
         }
         return ClassResolver.perform(selector).takeUnretainedValue()
     }
 
-    static func resolve(typeId: String) -> Value.Type? {
-        guard let t = resolveImpl(typeId: typeId) as? ValueTypeResolver else {
+    static func resolve(typeId: String, prefix: String? = nil) -> Value.Type? {
+        guard let t = resolveImpl(typeId: typeId, prefix: prefix) as? ValueTypeResolver else {
             return nil
         }
         return t.type()
     }
 
-    static func resolve(typeId: String) -> UserException.Type? {
-        guard let t = resolveImpl(typeId: typeId) as? UserExceptionTypeResolver else {
+    static func resolve(typeId: String, prefix: String? = nil) -> UserException.Type? {
+        guard let t = resolveImpl(typeId: typeId, prefix: prefix) as? UserExceptionTypeResolver else {
             return nil
         }
         return t.type()
