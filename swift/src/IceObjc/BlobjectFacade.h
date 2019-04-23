@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcConfig.h"
+#import "Config.h"
 
 @class ICEConnection;
 @class ICEInputStream;

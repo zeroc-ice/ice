@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcUnsupportedAdminFacet.h"
-#import "IceObjcUtil.h"
+#import "UnsupportedAdminFacet.h"
+#import "Util.h"
 
 @implementation ICEUnsupportedAdminFacet
 

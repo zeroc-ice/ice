@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcLogger.h"
+#import "Logger.h"
 
-#include "IceObjcUtil.h"
+#include "Util.h"
 
 @implementation ICELogger
 -(instancetype) initWithCppLogger:(std::shared_ptr<Ice::Logger>)logger

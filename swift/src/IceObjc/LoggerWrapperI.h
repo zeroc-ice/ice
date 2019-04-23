@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcUtil.h"
+#import "Util.h"
 
 class LoggerWrapperI : public Ice::Logger
 {

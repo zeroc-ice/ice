@@ -2,20 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcCommunicator.h"
-#import "IceObjcObjectAdapter.h"
-#import "IceObjcObjectPrx.h"
-#import "IceObjcLogger.h"
-#import "IceObjcImplicitContext.h"
-#import "IceObjcProperties.h"
-#import "IceObjcIceUtil.h"
-#import "IceObjcBlobjectFacade.h"
-#import "IceObjcProcess.h"
-#import "IceObjcPropertiesAdmin.h"
-#import "IceObjcUnsupportedAdminFacet.h"
+#import "Communicator.h"
+#import "ObjectAdapter.h"
+#import "ObjectPrx.h"
+#import "Logger.h"
+#import "ImplicitContext.h"
+#import "Properties.h"
+#import "IceUtil.h"
+#import "BlobjectFacade.h"
+#import "Process.h"
+#import "PropertiesAdmin.h"
+#import "UnsupportedAdminFacet.h"
 
 #import "LoggerWrapperI.h"
-#import "IceObjcUtil.h"
+#import "Util.h"
 
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>

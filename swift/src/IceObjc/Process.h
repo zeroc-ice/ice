@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcLocalObject.h"
+#import "LocalObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

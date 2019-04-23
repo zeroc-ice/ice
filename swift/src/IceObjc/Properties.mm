@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcProperties.h"
+#import "Properties.h"
 
-#import "IceObjcUtil.h"
+#import "Util.h"
 
 @implementation ICEProperties
 

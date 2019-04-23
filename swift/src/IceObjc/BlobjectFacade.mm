@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcBlobjectFacade.h"
-#import "IceObjcObjectAdapter.h"
-#import "IceObjcUtil.h"
+#import "BlobjectFacade.h"
+#import "ObjectAdapter.h"
+#import "Util.h"
 
-#import "IceObjcInputStream.h"
-#import "IceObjcConnection.h"
+#import "InputStream.h"
+#import "Connection.h"
 
 void
 BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,

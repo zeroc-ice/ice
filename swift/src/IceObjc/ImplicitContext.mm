@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcImplicitContext.h"
+#import "ImplicitContext.h"
 
-#include "IceObjcUtil.h"
+#include "Util.h"
 
 @implementation ICEImplicitContext
 

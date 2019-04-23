@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcInputStream.h"
+#import "InputStream.h"
 
 @implementation ICEInputStream
 

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcException.h"
+#import "Exception.h"
 
 @implementation ICERuntimeException
 @synthesize file;

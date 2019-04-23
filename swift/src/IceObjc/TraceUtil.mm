@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcLogger.h"
-#import "IceObjcTraceUtil.h"
+#import "Logger.h"
+#import "TraceUtil.h"
 
 #import <Ice/TraceUtil.h>
 #import "LoggerWrapperI.h"

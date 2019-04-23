@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcConfig.h"
-#import "IceObjcObjectAdapter.h"
-#import "IceObjcUtil.h"
-#import "IceObjcObjectPrx.h"
-#import "IceObjcInputStream.h"
-#import "IceObjcConnection.h"
-#import "IceObjcCommunicator.h"
-#import "IceObjcBlobjectFacade.h"
+#import "Config.h"
+#import "ObjectAdapter.h"
+#import "Util.h"
+#import "ObjectPrx.h"
+#import "InputStream.h"
+#import "Connection.h"
+#import "Communicator.h"
+#import "BlobjectFacade.h"
 
 @implementation ICEObjectAdapter
 

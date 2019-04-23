@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcObjectPrx.h"
+#import "ObjectPrx.h"
 
-#import "IceObjcCommunicator.h"
-#import "IceObjcConnection.h"
-#import "IceObjcInputStream.h"
-#import "IceObjcOutputStream.h"
-#import "IceObjcUtil.h"
+#import "Communicator.h"
+#import "Connection.h"
+#import "InputStream.h"
+#import "OutputStream.h"
+#import "Util.h"
 
 @implementation ICEObjectPrx
 

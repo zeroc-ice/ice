@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcBlobjectFacade.h"
-#import "IceObjcException.h"
-#import "IceObjcIceUtil.h"
-#import "IceObjcUtil.h"
+#import "BlobjectFacade.h"
+#import "Exception.h"
+#import "IceUtil.h"
+#import "Util.h"
 
 NSError*
 convertException(const std::exception_ptr& excPtr)

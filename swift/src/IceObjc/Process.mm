@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcProcess.h"
-#import "IceObjcUtil.h"
+#import "Process.h"
+#import "Util.h"
 
 @implementation ICEProcess
 

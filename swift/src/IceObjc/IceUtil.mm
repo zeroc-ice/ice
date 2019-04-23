@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcLogger.h"
-#import "IceObjcProperties.h"
-#import "IceObjcIceUtil.h"
-#import "IceObjcUtil.h"
+#import "Logger.h"
+#import "Properties.h"
+#import "IceUtil.h"
+#import "Util.h"
 #import "LoggerWrapperI.h"
 
 #import <Ice/Instance.h>

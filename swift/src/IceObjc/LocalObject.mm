@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-#import "IceObjcLocalObject.h"
+#import "LocalObject.h"
 
 namespace
 {

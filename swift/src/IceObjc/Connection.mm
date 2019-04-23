@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#import "IceObjcConnection.h"
-#import "IceObjcEndpoint.h"
-#import "IceObjcObjectAdapter.h"
-#import "IceObjcObjectPrx.h"
-#import "IceObjcIceUtil.h"
-#import "IceObjcUtil.h"
+#import "Connection.h"
+#import "Endpoint.h"
+#import "ObjectAdapter.h"
+#import "ObjectPrx.h"
+#import "IceUtil.h"
+#import "Util.h"
 
 @implementation ICEConnection
 
