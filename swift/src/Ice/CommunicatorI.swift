@@ -258,13 +258,19 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func getDispatchQueue(_ name: String) -> Dispatch.DispatchQueue {
+    func getDispatchQueue(_ name: String, forAdmin: Bool = false) -> Dispatch.DispatchQueue {
         if !name.isEmpty {
             if initData.properties!.getPropertyAsInt(name + ".ThreadPool.Size") > 0 ||
                 initData.properties!.getPropertyAsInt(name + ".ThreadPool.SizeMax") > 0 ||
                 !initData.properties!.getProperty(name + ".ThreadPool.ThreadPriority").isEmpty {
-                // This OS has its own thread pool
-                return Dispatch.DispatchQueue(label: "com.zeroc.ice.oa." + name, attributes: .concurrent)
+                // This OA has its own thread pool
+                let queue = Dispatch.DispatchQueue(label: "com.zeroc.ice.oa." + name, attributes: .concurrent)
+                if forAdmin {
+                    mutex.sync {
+                        adminDispatchQueue = queue
+                    }
+                }
+                return queue
             }
         }
         return serverQueue
