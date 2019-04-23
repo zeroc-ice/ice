@@ -65,19 +65,19 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 }
 
 public func checkedCast(prx: Ice.ObjectPrx,
-                        type: ObjectPrx.Protocol,
+                        type _: ObjectPrx.Protocol,
                         facet: String? = nil,
                         context: Ice.Context? = nil) throws -> ObjectPrx? {
     return try _ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as _ObjectPrxI?
 }
 
 public func uncheckedCast(prx: Ice.ObjectPrx,
-                          type: ObjectPrx.Protocol,
+                          type _: ObjectPrx.Protocol,
                           facet: String? = nil) -> ObjectPrx {
     return _ObjectPrxI.uncheckedCast(prx: prx, facet: facet) as _ObjectPrxI
 }
 
-public func ice_staticId(_ type: ObjectPrx.Protocol) -> Swift.String {
+public func ice_staticId(_: ObjectPrx.Protocol) -> Swift.String {
     return _ObjectPrxI.ice_staticId()
 }
 
@@ -213,7 +213,6 @@ public extension ObjectPrx {
                          sent: ((Bool) -> Void)? = nil,
                          sentOn: DispatchQueue? = nil,
                          sentFlags: DispatchWorkItemFlags? = nil) -> Promise<(ok: Bool, outEncaps: [UInt8])> {
-
         return inEncaps.withUnsafeBufferPointer { b in
             if self._impl._isTwoway {
                 return Promise<(ok: Bool, outEncaps: [UInt8])> { p in
@@ -224,9 +223,9 @@ public extension ObjectPrx {
                                                      context: context,
                                                      response: { ok, inputStream in
                                                          do {
-                                                            let istr = InputStream(communicator: self._impl._communicator,
-                                                                                   inputStream: inputStream,
-                                                                                   encoding: self._impl._encoding)
+                                                             let istr = InputStream(communicator: self._impl._communicator,
+                                                                                    inputStream: inputStream,
+                                                                                    encoding: self._impl._encoding)
                                                              p.fulfill((ok, try istr.readEncapsulation().bytes))
                                                          } catch {
                                                              p.reject(error)
@@ -258,7 +257,7 @@ public extension ObjectPrx {
                                                          if let sentCB = sentCB {
                                                              sentCB($0)
                                                          }
-                                                     })
+                    })
                 }
             }
         }
@@ -733,7 +732,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                returnValue: &ok)
 
         if _isTwoway {
-            let istr = InputStream(communicator: _communicator, inputStream: istrHandle, encoding: self._encoding)
+            let istr = InputStream(communicator: _communicator, inputStream: istrHandle, encoding: _encoding)
             if ok == false {
                 try _throwUserException(istr: istr, userException: userException)
             }
@@ -765,7 +764,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                inSize: ostr.getCount(),
                                                context: context,
                                                returnValue: &ok)
-        let istr = InputStream(communicator: _communicator, inputStream: istrHandle, encoding: self._encoding)
+        let istr = InputStream(communicator: _communicator, inputStream: istrHandle, encoding: _encoding)
         if ok == false {
             try _throwUserException(istr: istr, userException: userException)
         }
@@ -793,7 +792,7 @@ open class _ObjectPrxI: ObjectPrx {
             write(ostr)
             ostr.endEncapsulation()
         }
-        if self._isTwoway {
+        if _isTwoway {
             return Promise<Void> { p in
                 try _handle.iceInvokeAsync(operation,
                                            mode: Int(mode.rawValue),
@@ -839,7 +838,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                if let sentCB = sentCB {
                                                    sentCB($0)
                                                }
-                                           })
+                })
             }
         }
     }
@@ -912,6 +911,8 @@ open class _ObjectPrxI: ObjectPrx {
         where ProxyImpl: _ObjectPrxI {
         do {
             let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
+
+            // checkedCast always calls ice_isA - no optimization on purpose
             guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
                 return nil
             }
@@ -923,7 +924,12 @@ open class _ObjectPrxI: ObjectPrx {
 
     public static func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
                                                 facet: String? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
-        let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
-        return ProxyImpl(from: objPrx)
+        if let f = facet {
+            return ProxyImpl(from: prx.ice_facet(f))
+        } else if let optimized = prx as? ProxyImpl {
+            return optimized
+        } else {
+            return ProxyImpl(from: prx)
+        }
     }
 }
