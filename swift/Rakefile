@@ -172,7 +172,8 @@ def create_platform_targets(project, platform)
             config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
                 "ICE_CPP11_MAPPING",
                 "ICE_BUILDING_SRC",
-                "ICE_STATIC_LIBS"
+                "ICE_STATIC_LIBS",
+                "ICE_SWIFT"
             ]
             config.build_settings["CLANG_ENABLE_OBJC_ARC"] = "NO"
 
