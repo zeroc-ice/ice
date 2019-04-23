@@ -17,11 +17,10 @@ open class UserExceptionTypeResolver: NSObject {
 }
 
 //
-// Slice classes and exceptions generate an extesion for
-// Ice.ClassResolver with a static func which returns a
-// ValueTypeRessolver or UserExceptionTypeRessolver.
+// The generated code for Slice classes and exceptions provides an extension for
+// Ice.ClassResolver with a static function that returns a ValueTypeResolver or
+// UserExceptionTypeResolver.
 //
-
 public class ClassResolver: NSObject {
     private static func resolveImpl(typeId: String) -> AnyObject? {
         let start = typeId.index(typeId.startIndex, offsetBy: 2)
