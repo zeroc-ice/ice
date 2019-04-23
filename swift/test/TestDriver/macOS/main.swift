@@ -17,8 +17,7 @@ if args.count < 2 {
 }
 
 do {
-    let test: String = args[1]
-    let bundleName = test.split(separator: ".").map({
+    var bundleName = args[1].split(separator: ".").map({
         if let c = $0.first {
             return c.uppercased() + $0.dropFirst()
         } else {
@@ -26,19 +25,25 @@ do {
         }
     }).joined(separator: "")
 
+    let exe = args[2]
+    if exe == "ServerAMD" {
+        bundleName += "AMD"
+    }
+
     let path = "\(Bundle.main.bundlePath)/../\(bundleName).bundle"
 
     guard let bundle = Bundle(url: URL(fileURLWithPath: path)) else {
-        print("Bundle: `\(bundleName)' not found")
+        print("Bundle: `\(path)' not found")
         exit(1)
     }
 
-    guard let factory = bundle.classNamed("\(bundleName).TestFactoryI") as? TestFactory.Type else {
-        print("test factory: `\(bundleName).TestFactoryI' not found")
+    let className = "\(bundleName).\(exe)"
+    guard let helperClass = bundle.classNamed(className) as? TestHelperI.Type else {
+        print("test: `\(className)' not found")
         exit(1)
     }
 
-    let testHelper = factory.create()
+    let testHelper = helperClass.init()
     args.removeFirst(2)
     try testHelper.run(args: args)
 

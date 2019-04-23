@@ -3803,7 +3803,7 @@ class SwiftMapping(Mapping):
 
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
-        return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1}.{2} {3}".format(
+        return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1} {2} {3}".format(
             targetBuildDir,
             package,
             exe,
