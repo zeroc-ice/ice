@@ -51,8 +51,9 @@ public protocol TestHelper {
     func getTestProtocol(properties: Ice.Properties) -> String
     func getTestPort(num: Int32) -> Int32
     func getTestPort(properties: Ice.Properties, num: Int32) -> Int32
-    func createTestProperties(args: [String]) throws -> (Ice.Properties, [String])
-    func initialize(args: [String]) throws -> (Ice.Communicator, [String])
+    func createTestProperties(_ args: [String]) throws -> Ice.Properties
+    func createTestProperties(_ args: inout [String]) throws -> Ice.Properties
+    func initialize(_ args: [String]) throws -> Ice.Communicator
     func initialize(_ properties: Ice.Properties) throws -> Ice.Communicator
     func initialize(_ initData: Ice.InitializationData) throws -> Ice.Communicator
 
@@ -126,18 +127,24 @@ open class TestHelperI: TestHelper {
         return properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
     }
 
-    public func createTestProperties(args: [String]) throws -> (Ice.Properties, [String]) {
-        var (properties, args) = try Ice.createProperties(args: args)
+    public func createTestProperties(_ args: [String]) throws -> Ice.Properties {
+        var remainingArgs = args
+        let properties = try Ice.createProperties(&remainingArgs)
+        remainingArgs = try properties.parseCommandLineOptions(prefix: "Test", options: remainingArgs)
+        return properties
+    }
+    public func createTestProperties(_ args: inout [String]) throws -> Ice.Properties {
+        let properties = try Ice.createProperties(&args)
         args = try properties.parseCommandLineOptions(prefix: "Test", options: args)
-        return (properties, args)
+        return properties
     }
 
-    public func initialize(args: [String]) throws -> (Ice.Communicator, [String]) {
+    public func initialize(_ args: [String]) throws -> Ice.Communicator {
         var initData = Ice.InitializationData()
-        var (props, args) = try createTestProperties(args: args)
-        (initData.properties, args) = (props, args)
+        let props = try createTestProperties(args)
+        initData.properties = props
         let communicator = try initialize(initData)
-        return (communicator, args)
+        return communicator
     }
 
     public func initialize(_ properties: Ice.Properties) throws -> Ice.Communicator {
@@ -147,7 +154,7 @@ open class TestHelperI: TestHelper {
     }
 
     public func initialize(_ initData: Ice.InitializationData) throws -> Ice.Communicator {
-        let communicator = try Ice.initialize(initData: initData)
+        let communicator = try Ice.initialize(initData)
         if _communicator == nil {
             _communicator = communicator
         }

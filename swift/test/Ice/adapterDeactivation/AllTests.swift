@@ -50,7 +50,7 @@ func allTests(_ helper: TestHelper) throws {
         for _ in 0..<10 {
             var initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
-            let comm = try Ice.initialize(initData: initData)
+            let comm = try Ice.initialize(initData)
             _ = try comm.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!.ice_pingAsync()
             comm.destroy()
         }

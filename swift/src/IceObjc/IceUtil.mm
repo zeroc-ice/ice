@@ -72,16 +72,18 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return true;
 }
 
-//TODO update swiftArgs to remove args removed by initialize
 +(ICECommunicator*) initialize:(NSArray*)swiftArgs
                     properties:(ICEProperties*)properties
-                    logger:(id<ICELoggerProtocol>)logger
+                withConfigFile:(BOOL)withConfigFile
+                        logger:(id<ICELoggerProtocol>)logger
+                       remArgs:(NSArray**)remArgs
                          error:(NSError**)error
 {
     Ice::StringSeq args;
     fromNSArray(swiftArgs, args);
 
     assert(properties);
+    assert(withConfigFile || args.empty());
 
     //
     // Collect InitializationData members.
@@ -96,7 +98,16 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
     try
     {
-        auto communicator = Ice::initialize(args, initData);
+        std::shared_ptr<Ice::Communicator> communicator;
+        if(withConfigFile)
+        {
+            communicator = Ice::initialize(args, initData);
+            *remArgs = toNSArray(args);
+        }
+        else
+        {
+            communicator = Ice::initialize(initData);
+        }
         return [[ICECommunicator alloc] initWithCppCommunicator:communicator];
     }
     catch(const std::exception& err)
@@ -106,10 +117,15 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return nil;
 }
 
-+(id) createProperties:(NSArray*)swiftArgs
-                           defaults:(ICEProperties*)defaults
-                            remArgs:(NSArray**)remArgs
-                           error:(NSError**)error
++(ICEProperties*) createProperties
+{
+    return [[ICEProperties alloc] initWithCppProperties:Ice::createProperties()];
+}
+
++(ICEProperties*) createProperties:(NSArray*)swiftArgs
+                          defaults:(ICEProperties*)defaults
+                           remArgs:(NSArray**)remArgs
+                             error:(NSError**)error
 {
     try
     {
@@ -123,7 +139,10 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         auto props = Ice::createProperties(a, def);
 
         // a now contains remaning arguments that were not used by Ice::createProperties
-        *remArgs = toNSArray(a);
+        if(remArgs)
+        {
+            *remArgs = toNSArray(a);
+        }
         return [[ICEProperties alloc] initWithCppProperties:props];
     }
     catch(const std::exception& ex)

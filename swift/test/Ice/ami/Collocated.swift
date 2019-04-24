@@ -8,7 +8,7 @@ import Dispatch
 
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
 
         //
         // Disable collocation optimization to test async/await dispatch.
@@ -26,7 +26,7 @@ class Collocated: TestHelperI {
         //
         properties.setProperty(key: "Ice.TCP.RcvSize", value: "50000")
 
-        let (communicator, _) = try self.initialize(args: args)
+        let communicator = try self.initialize(args)
         defer {
             communicator.destroy()
         }

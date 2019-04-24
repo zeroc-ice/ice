@@ -7,7 +7,7 @@ import TestCommon
 
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try self.createTestProperties(args: args)
+        let properties = try self.createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max

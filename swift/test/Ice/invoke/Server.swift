@@ -31,7 +31,7 @@ class Server: TestHelperI {
 
         let async = args.contains("--async")
 
-        let (properties, _) = try self.createTestProperties(args: args)
+        let properties  = try self.createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = "IceInvoke"

@@ -8,7 +8,7 @@ import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try self.createTestProperties(args: args)
+        let properties = try self.createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = "IceInvoke"

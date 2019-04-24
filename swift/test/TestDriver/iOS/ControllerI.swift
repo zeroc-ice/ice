@@ -100,7 +100,7 @@ class ControllerI {
     static var _controller: ControllerI!
 
     init(view: ViewController, ipv4: String, ipv6: String) throws {
-        let (properties, _) = try Ice.createProperties()
+        let properties = Ice.createProperties()
         properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
         properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
         properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
@@ -111,7 +111,7 @@ class ControllerI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        _communicator = try Ice.initialize(initData: initData)
+        _communicator = try Ice.initialize(initData)
 
         let adapter = try _communicator.createObjectAdapter("ControllerAdapter")
         var ident = Ice.Identity()

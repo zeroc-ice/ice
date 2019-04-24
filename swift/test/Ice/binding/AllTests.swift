@@ -714,23 +714,23 @@ func allTests(_ helper: TestHelper) throws {
     do {
         output.write("testing ipv4 & ipv6 connections... ")
 
-        let (ipv4, _) = try Ice.createProperties()
+        let ipv4 = Ice.createProperties()
         ipv4.setProperty(key: "Ice.IPv4", value: "1")
         ipv4.setProperty(key: "Ice.IPv6", value: "0")
         ipv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
-        let (ipv6, _) = try Ice.createProperties()
+        let ipv6 = Ice.createProperties()
         ipv6.setProperty(key: "Ice.IPv4", value: "0")
         ipv6.setProperty(key: "Ice.IPv6", value: "1")
         ipv6.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
-        let (bothPreferIPv4, _) = try Ice.createProperties()
+        let bothPreferIPv4 = Ice.createProperties()
         bothPreferIPv4.setProperty(key: "Ice.IPv4", value: "1")
         bothPreferIPv4.setProperty(key: "Ice.IPv6", value: "1")
         bothPreferIPv4.setProperty(key: "Ice.PreferIPv6Address", value: "0")
         bothPreferIPv4.setProperty(key: "Adapter.Endpoints", value: "tcp -h localhost")
 
-        let (bothPreferIPv6, _) = try Ice.createProperties()
+        let bothPreferIPv6 = Ice.createProperties()
         bothPreferIPv6.setProperty(key: "Ice.IPv4", value: "1")
         bothPreferIPv6.setProperty(key: "Ice.IPv6", value: "1")
         bothPreferIPv6.setProperty(key: "Ice.PreferIPv6Address", value: "1")
@@ -748,7 +748,7 @@ func allTests(_ helper: TestHelper) throws {
         anyipv6.setProperty(key: "Adapter.Endpoints", value: endpoint)
         anyipv6.setProperty(key: "Adapter.PublishedEndpoints", value: "\(endpoint) -h \".1\"")
 
-        let (anyboth, _) = try Ice.createProperties()
+        let anyboth = Ice.createProperties()
         anyboth.setProperty(key: "Ice.IPv4", value: "1")
         anyboth.setProperty(key: "Ice.IPv6", value: "1")
         anyboth.setProperty(key: "Adapter.Endpoints", value: endpoint)
@@ -767,7 +767,7 @@ func allTests(_ helper: TestHelper) throws {
         for  p in serverProps {
             var serverInitData = Ice.InitializationData()
             serverInitData.properties = p
-            let serverCommunicator = try Ice.initialize(initData: serverInitData)
+            let serverCommunicator = try Ice.initialize(serverInitData)
             let oa: Ice.ObjectAdapter
             do {
                 oa = try serverCommunicator.createObjectAdapter("Adapter")
@@ -795,7 +795,7 @@ func allTests(_ helper: TestHelper) throws {
             for q in clientProps {
                 var clientInitData = Ice.InitializationData()
                 clientInitData.properties = q
-                let clientCommunicator = try Ice.initialize(initData: clientInitData)
+                let clientCommunicator = try Ice.initialize(clientInitData)
                 prx = try clientCommunicator.stringToProxy(strPrx)!
                 do {
                     try prx.ice_ping()

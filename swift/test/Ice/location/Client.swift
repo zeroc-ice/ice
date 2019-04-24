@@ -8,7 +8,7 @@ import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try self.createTestProperties(args: args)
+        let properties = try self.createTestProperties(args)
         properties.setProperty(key: "Ice.Default.Locator",
                                value: "locator:\(self.getTestEndpoint(properties: properties, num: 0))")
         var initData = Ice.InitializationData()

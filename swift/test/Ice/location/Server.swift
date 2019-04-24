@@ -14,7 +14,7 @@ class Server: TestHelperI {
         // 'server'(a server isn't a different process, it's just a new
         // communicator and object adapter).
         //
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.ThreadPool.Server.Size", value: "2")
         var initData = Ice.InitializationData()
         initData.properties = properties

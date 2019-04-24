@@ -7,7 +7,7 @@ import TestCommon
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = "IceOptional"

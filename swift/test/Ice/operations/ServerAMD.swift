@@ -7,7 +7,7 @@ import TestCommon
 
 class ServerAMD: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         //
         // Its possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread

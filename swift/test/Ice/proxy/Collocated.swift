@@ -10,7 +10,7 @@ class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         let writer = getWriter()
 
-        let (properties, _) = try Ice.createProperties(args: args)
+        let properties = try Ice.createProperties(args)
         properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
         properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")

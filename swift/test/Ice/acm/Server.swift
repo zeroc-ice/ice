@@ -8,7 +8,7 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try Ice.createProperties(args: args)
+        let properties = try Ice.createProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.ACM.Timeout", value: "1")
 

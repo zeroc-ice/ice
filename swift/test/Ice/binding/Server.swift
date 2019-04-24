@@ -9,10 +9,10 @@ import Dispatch
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
 
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.ServerIdleTime", value: "30")
 
-        let (communicator, _) = try self.initialize(args: args)
+        let communicator = try self.initialize(args)
         defer {
             communicator.destroy()
         }

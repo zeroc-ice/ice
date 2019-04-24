@@ -8,7 +8,7 @@ import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max
         var initData = Ice.InitializationData()

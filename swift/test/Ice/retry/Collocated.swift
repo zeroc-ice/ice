@@ -10,7 +10,7 @@ class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         let writer = getWriter()
 
-        let (properties, _) = try Ice.createProperties(args: args)
+        let properties = try Ice.createProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
         let communicator = try self.initialize(properties)

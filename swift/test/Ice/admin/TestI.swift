@@ -96,7 +96,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         // Prepare the property set using the given properties.
         //
-        let (properties, _) = try Ice.createProperties()
+        let properties = Ice.createProperties()
         for (key, value) in props {
             properties.setProperty(key: key, value: value)
         }
@@ -110,7 +110,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         // Initialize a new communicator.
         //
-        let communicator = try Ice.initialize(initData: initData)
+        let communicator = try Ice.initialize(initData)
 
         //
         // Install a custom admin facet.

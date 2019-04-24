@@ -10,7 +10,7 @@ public class Client: TestHelperI {
         let writer = getWriter()
         do {
             writer.write("testing load properties from UTF-8 path... ")
-            let (properties, _) = try Ice.createProperties()
+            let properties = Ice.createProperties()
             try properties.load("./config/中国_client.config")
             try test(properties.getProperty("Ice.Trace.Network") == "1")
             try test(properties.getProperty("Ice.Trace.Protocol") == "1")
@@ -22,7 +22,7 @@ public class Client: TestHelperI {
         do {
             writer.write("testing using Ice.Config with multiple config files... ")
             let args1 = ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
-            let (properties, _) = try Ice.createProperties(args: args1)
+            let properties = try Ice.createProperties(args1)
             try test(properties.getProperty("Config1") == "Config1")
             try test(properties.getProperty("Config2") == "Config2")
             try test(properties.getProperty("Config3") == "Config3")
@@ -32,7 +32,7 @@ public class Client: TestHelperI {
         do {
             writer.write("testing configuration file escapes... ")
             let args1 = ["--Ice.Config=config/escapes.cfg"]
-            let (properties, _) = try Ice.createProperties(args: args1)
+            let properties = try Ice.createProperties(args1)
 
             let props = [("Foo\tBar", "3"),
                          ("Foo\\tBar", "4"),

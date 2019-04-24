@@ -13,65 +13,99 @@ private let initialized: Bool = {
     return true
 }()
 
-public func initialize(args: StringSeq = [],
-                       initData userInitData: InitializationData? = nil,
-                       configFile: String? = nil) throws -> Communicator {
+public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator {
+    return try initializeImpl(args: args, initData: initData ?? InitializationData(), withConfigFile: true).0
+}
+
+public func initialize(_ args: inout [String], initData: InitializationData? = nil) throws -> Communicator {
+    let result = try initializeImpl(args: args, initData: initData ?? InitializationData(), withConfigFile: true)
+    args = result.1
+    return result.0
+}
+
+public func initialize(args: [String], configFile: String) throws -> Communicator {
+    var initData = InitializationData()
+    let properties = createProperties()
+    try properties.load(configFile)
+    initData.properties = properties
+    return try initialize(args, initData: initData)
+}
+
+public func initialize(args: inout [String], configFile: String) throws -> Communicator {
+    var initData = InitializationData()
+    let properties = createProperties()
+    try properties.load(configFile)
+    initData.properties = properties
+    return try initialize(&args, initData: initData)
+}
+
+public func initialize(_ initData: InitializationData? = nil) throws -> Communicator {
+    // This is the no-configFile flavor: we never load config from ICE_CONFIG
+    return try initializeImpl(args: [], initData: initData ?? InitializationData(), withConfigFile: false).0
+}
+
+public func initialize(_ configFile: String) throws -> Communicator {
+    return try initialize(args: [], configFile: configFile)
+}
+
+private func initializeImpl(args: [String],
+                            initData userInitData: InitializationData,
+                            withConfigFile: Bool) throws -> (Communicator, [String]) {
     // Ensure factories are initialized
     guard initialized else {
         fatalError("Unable to initialie Ice")
     }
 
+    var initData = userInitData
+    if initData.properties == nil {
+        initData.properties = createProperties()
+    }
+    //
+    // Logger
+    //
+    // precedence:
+    // - initData.logger
+    // - logger property
+    // - C++ plugin loggers
+    // - Swift logger
+    //
+    // If no user logger or property has been specified then use the Swift logger.
+    // This logger may be overwritten by a logger plug-in during initialization
+    if initData.logger == nil,
+        initData.properties!.getProperty("Ice.LogFile").isEmpty,
+        initData.properties!.getProperty("Ice.UseSyslog").isEmpty {
+        initData.logger = LoggerI()
+    }
+
+    var loggerP: ICELoggerProtocol?
+    if let l = initData.logger {
+        loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
+    }
+
+    if let l = initData.logger {
+        loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
+    }
+
+    let propsHandle = (initData.properties as! PropertiesI)._handle
+
     return try autoreleasepool {
-        var initData = userInitData ?? InitializationData()
-
-        //
-        // Properties
-        //
-        if initData.properties == nil {
-            let (props, _) = try Ice.createProperties()
-            initData.properties = props
-        }
-
-        if configFile != nil {
-            try initData.properties!.load(configFile!)
-        }
-
-        //
-        // Logger
-        //
-        // precedence:
-        // - initData.logger
-        // - logger property
-        // - C++ plugin loggers
-        // - Swift logger
-        //
-        // If no user logger or property has been specified then use the Swift logger.
-        // This logger may be overwritten by a logger plug-in during initialization
-        if initData.logger == nil,
-            initData.properties!.getProperty("Ice.LogFile").isEmpty,
-            initData.properties!.getProperty("Ice.UseSyslog").isEmpty {
-            initData.logger = LoggerI()
-        }
-
-        var loggerP: ICELoggerProtocol?
-        if let l = initData.logger {
-            loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
-        }
-
-        if let l = initData.logger {
-            loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
-        }
-
-        let propsHandle = (initData.properties as! PropertiesI)._handle
+        var remArgs: NSArray?
         let handle = try ICEUtil.initialize(args,
                                             properties: propsHandle,
-                                            logger: loggerP)
+                                            withConfigFile: withConfigFile,
+                                            logger: loggerP,
+                                            remArgs: &remArgs)
 
         //
         // Update initData.properties reference to point to the properties object
         // created by Ice::initialize.
         //
-        initData.properties = PropertiesI(handle: handle.getProperties())
+        let newPropsHandle = handle.getProperties()
+        if newPropsHandle !== propsHandle {
+            initData.properties = newPropsHandle.fromLocalObject(to: PropertiesI.self) {
+                PropertiesI(handle: newPropsHandle)
+            }
+        }
 
         //
         // Update initData.logger referecnce in case we are using a C++ logger (defined though a property) or
@@ -83,18 +117,39 @@ public func initialize(args: StringSeq = [],
 
         precondition(initData.logger != nil && initData.properties != nil)
 
-        return CommunicatorI(handle: handle, initData: initData)
+        let communicator = CommunicatorI(handle: handle, initData: initData)
+        if remArgs == nil {
+            return (communicator, [])
+        } else {
+            // swiftlint:disable force_cast
+            return (communicator, remArgs as! [String])
+        }
     }
 }
 
-public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil) throws -> (Properties, StringSeq) {
+public func createProperties() -> Properties {
+    return PropertiesI(handle: ICEUtil.createProperties())
+}
+
+public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
+    return try autoreleasepool {
+        let propertiesHandle = try ICEUtil.createProperties(args,
+                                                            defaults: (defaults as? PropertiesI)?._handle,
+                                                            remArgs: nil)
+        return PropertiesI(handle: propertiesHandle)
+    }
+}
+
+public func createProperties(_ args: inout [String], defaults: Properties? = nil) throws -> Properties {
     return try autoreleasepool {
         var remArgs: NSArray?
         let propertiesHandle = try ICEUtil.createProperties(args,
                                                             defaults: (defaults as? PropertiesI)?._handle,
                                                             remArgs: &remArgs)
+
         // swiftlint:disable force_cast
-        return (PropertiesI(handle: propertiesHandle), remArgs as! StringSeq)
+        args = remArgs as! [String]
+        return PropertiesI(handle: propertiesHandle)
     }
 }
 
