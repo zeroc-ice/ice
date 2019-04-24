@@ -4,7 +4,6 @@
 
 import Ice
 import TestCommon
-import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
