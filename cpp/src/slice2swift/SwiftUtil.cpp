@@ -753,32 +753,27 @@ SwiftGenerator::containsClassMembers(const StructPtr& s)
 
 void
 SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
-                                        const DataMemberList&,
-                                        const ContainedPtr&,
-                                        bool rootClass,
-                                        bool required)
+                                        bool required,
+                                        bool rootClass)
 {
-    out << sp;
-    out << nl << "public ";
-    if(required)
-    {
-        out << "required ";
-    }
-    else if(!rootClass)
-    {
-        out << "override ";
-    }
-
-    if(rootClass)
-    {
-        out << "init() {}";
-    }
-    else
-    {
-        out << "init()" << sb;
-        out << nl << "super.init()";
-        out << eb;
-    }
+     out << sp;
+     out << nl << "public ";
+     if(required)
+     {
+         out << "required ";
+     }
+     if(rootClass)
+     {
+         out << "init() {}";
+     }
+     else
+     {
+         assert(required);
+         out << "init()";
+         out << sb;
+         out << "super.init()";
+         out << eb;
+     }
 }
 
 void
@@ -798,16 +793,11 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            bool rootClass,
                                            const StringPairList& extraParams)
 {
-    if(allMembers.size() > 0)
+    if(!members.empty())
     {
         out << sp;
         out << nl;
-        out << "public ";
-        if(members.size() == 0)
-        {
-            out << "override ";
-        }
-        out << "init" << spar;
+        out << "public init" << spar;
         for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
             DataMemberPtr m = *i;

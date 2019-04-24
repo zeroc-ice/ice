@@ -327,7 +327,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         const string prefix = getClassResolverPrefix(p->unit());
 
         //
-        // For each UserException class we generate a extension in ClassResolver
+        // For each UserException class we generate an extension in ClassResolver
         //
         ostringstream factory;
         factory << prefix;
@@ -399,11 +399,10 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "var _slicedData: Ice.SlicedData?";
     }
 
-    // Local exceptions do not need default initializers
     bool rootClass = !base && !p->isLocal();
-    if(!p->isLocal())
+    if(rootClass || !members.empty())
     {
-        writeDefaultInitializer(out, members, p, rootClass, true);
+        writeDefaultInitializer(out, true, rootClass);
     }
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass, extraParams);
 
@@ -514,7 +513,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << sb;
 
     writeMembers(out, members, p);
-    writeDefaultInitializer(out, members, p);
+    writeDefaultInitializer(out, false, true);
     writeMemberwiseInitializer(out, members, p);
 
     out << eb << nl;
@@ -1166,8 +1165,11 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "var _slicedData: " << getUnqualified("Ice.SlicedData?", swiftModule);
     }
 
-    writeDefaultInitializer(out, members, p, !base, true);
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
+    if(!base || !members.empty())
+    {
+        writeDefaultInitializer(out, true, !base);
+    }
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
 
     out << sp;
     out << nl << "open override func ice_id() -> Swift.String" << sb;

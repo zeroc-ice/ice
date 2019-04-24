@@ -89,8 +89,7 @@ protected:
     std::string getValue(const std::string&, const TypePtr&);
     void writeConstantValue(IceUtilInternal::Output& out, const TypePtr&, const SyntaxTreeBasePtr&,
                             const std::string&, const StringList&, const std::string&, bool optional = false);
-    void writeDefaultInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, bool = true,
-                                 bool = false);
+    void writeDefaultInitializer(IceUtilInternal::Output&,  bool, bool);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList&,
                                     const DataMemberList&, const ContainedPtr&, bool rootClass = false,
