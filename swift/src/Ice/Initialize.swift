@@ -93,11 +93,13 @@ public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil
         let propertiesHandle = try ICEUtil.createProperties(args,
                                                             defaults: (defaults as? PropertiesI)?._handle,
                                                             remArgs: &remArgs)
-
         // swiftlint:disable force_cast
         return (PropertiesI(handle: propertiesHandle), remArgs as! StringSeq)
     }
 }
+
+public let intVersion: Int = 30702
+public let stringVersion: String = "3.7.2"
 
 public var currentEncoding: EncodingVersion {
     var encoding = EncodingVersion()
