@@ -20,9 +20,15 @@ namespace
 
         Init()
         {
+            // Register plug-ins included in the Ice framework (a single binary file)
+            // See also RegisterPluginsInit.cpp in cpp/src/Ice
+            //
             Ice::registerIceSSL(false);
             Ice::registerIceDiscovery(false);
             Ice::registerIceLocatorDiscovery(false);
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+            //  Ice::registerIceIAP(false);
+#endif
         }
     };
     Init init;
