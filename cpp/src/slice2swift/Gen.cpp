@@ -498,7 +498,7 @@ bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     bool containsSequence;
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
     const DataMemberList members = p->dataMembers();

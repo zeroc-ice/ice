@@ -245,7 +245,7 @@ getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const strin
     {
         str = str.substr(pos + 2);
     }
-    return swiftModule + "." + fixIdent(swiftPrefix + replace(str, "::", ""));
+    return swiftModule + "." + swiftPrefix + replace(str, "::", "");
 }
 
 }
