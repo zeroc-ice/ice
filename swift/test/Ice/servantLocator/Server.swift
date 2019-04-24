@@ -7,7 +7,7 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = "IceServantLocator"
@@ -15,11 +15,11 @@ class Server: TestHelperI {
         defer {
             communicator.destroy()
         }
-        
+
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                  value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(key: "Ice.Warn.Dispatch", value: "0")
-        
+
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         _ = try adapter.addServantLocator(locator: ServantLocatorI("category", self), category: "category")
         _ = try adapter.addServantLocator(locator: ServantLocatorI("", self), category: "")

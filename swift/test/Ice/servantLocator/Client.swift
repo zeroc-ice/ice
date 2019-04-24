@@ -7,13 +7,12 @@ import TestCommon
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        
         let writer = getWriter()
-        
+
         var initData = Ice.InitializationData()
-        let (properties, _) = try createTestProperties(args: args)
+        let properties = try createTestProperties(args)
         initData.classResolverPrefix = "IceServantLocator"
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }
