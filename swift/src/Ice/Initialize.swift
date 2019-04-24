@@ -98,13 +98,11 @@ private func initializeImpl(args: [String],
 
         //
         // Update initData.properties reference to point to the properties object
-        // created by Ice::initialize.
+        // created by Ice::initialize, in case it changed
         //
         let newPropsHandle = handle.getProperties()
-        if newPropsHandle !== propsHandle {
-            initData.properties = newPropsHandle.fromLocalObject(to: PropertiesI.self) {
-                PropertiesI(handle: newPropsHandle)
-            }
+        initData.properties = newPropsHandle.fromLocalObject(to: PropertiesI.self) {
+            PropertiesI(handle: newPropsHandle)
         }
 
         //
