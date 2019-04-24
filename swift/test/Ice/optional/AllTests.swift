@@ -186,11 +186,12 @@ class FactoryI {
     let _helper: TestHelper
 }
 
-func allTests(helper: TestHelper) {
+func allTests(_ helper: TestHelper)  throws -> InitialPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
 
+    let communicator = helper.communicator()
     let factory = FactoryI(helper: helper)
     try communicator.getValueFactoryManager().add(factory: { id in factory.create(id) }, id: "")
 
@@ -2557,4 +2558,5 @@ func allTests(helper: TestHelper) {
     }
     output.writeLine("ok")
 
+    return initial
 }
