@@ -6,5 +6,18 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    public override func run(args _: [String]) throws {}
+    public override func run(args: [String]) throws {
+        
+        let writer = getWriter()
+        
+        var initData = Ice.InitializationData()
+        let (properties, _) = try createTestProperties(args: args)
+        initData.classResolverPrefix = "IceServantLocator"
+        let communicator = try self.initialize(initData)
+        defer {
+            communicator.destroy()
+        }
+        let obj = try allTests(helper: self)
+        try obj.shutdown()
+    }
 }
