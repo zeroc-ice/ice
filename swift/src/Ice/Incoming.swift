@@ -100,7 +100,7 @@ public final class Incoming {
             try locator.finished(curr: current, servant: servant, cookie: cookie)
             return true
         } catch {
-            exceptionCallback(convertException(error))
+            handleException(error)
         }
 
         return false
@@ -121,7 +121,7 @@ public final class Incoming {
                     let locatorReturn = try locator.locate(current)
                     (servant, cookie) = (locatorReturn.returnValue, locatorReturn.cookie)
                 } catch {
-                    exceptionCallback(convertException(error))
+                    handleException(error)
                     return
                 }
             }
@@ -224,7 +224,7 @@ public final class Incoming {
             return e
         case let exception as UserException:
             let e = ICEUnknownUserException()
-            e.unknown = "\(exception)"
+            e.unknown = "\(exception.ice_id())"
             return e
         // 3. Unknown exceptions
         default:

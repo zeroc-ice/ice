@@ -137,7 +137,7 @@ class ServantManager {
 
     func removeServantLocator(category: String) throws -> ServantLocator {
         return try mutex.sync {
-            guard let l = locatorMap[category] else {
+            guard let l = locatorMap.removeValue(forKey: category) else {
                 let id = try escapeString(string: category, special: "", communicator: communicator)
                 throw NotRegisteredException(kindOfObject: "servant locator", id: id)
             }
