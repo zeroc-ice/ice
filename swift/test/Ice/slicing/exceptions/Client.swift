@@ -8,11 +8,6 @@ import PromiseKit
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-
-        PromiseKit.conf.Q.map = .global()
-        PromiseKit.conf.Q.return = .global()
-        PromiseKit.conf.logHandler = { _ in }
-
         let output = getWriter()
 
         let (communicator, _) = try self.initialize(args: args)
