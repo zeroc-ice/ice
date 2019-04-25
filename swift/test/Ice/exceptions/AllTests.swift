@@ -6,6 +6,19 @@ import Ice
 import TestCommon
 import PromiseKit
 
+class ServantLocatorI: Ice.ServantLocator {
+    
+    func locate(_ curr: Current) throws -> (returnValue: Object?, cookie: AnyObject?) {
+        return (nil, nil)
+    }
+    
+    func finished(curr: Current, servant: Object, cookie: AnyObject?) throws {
+    }
+    
+    func deactivate(_ category: String) {
+    }
+}
+
 func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)

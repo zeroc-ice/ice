@@ -86,7 +86,7 @@ func testExceptions(_ obj: TestIntfPrx, _ helper: TestHelper) throws {
     }
 }
 
-func allTests(helper: TestHelper) throws -> TestIntfPrx {
+func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }

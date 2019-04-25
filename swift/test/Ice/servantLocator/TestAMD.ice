@@ -38,7 +38,7 @@ exception TestImpossibleException
     void shutdown();
 }
 
-interface TestActivation
+["amd"] interface TestActivation
 {
     void activateServantLocator(bool activate);
 }

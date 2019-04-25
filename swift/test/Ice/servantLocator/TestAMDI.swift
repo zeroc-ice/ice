@@ -85,3 +85,26 @@ class TestI: TestIntf {
         }
     }
 }
+
+class TestActivationI: TestActivation {
+    var _helper: TestHelper
+    
+    init(_ helper: TestHelper) {
+        _helper = helper
+    }
+
+    func activateServantLocatorAsync(activate: Bool, current: Current) -> Promise<Void> {
+        return Promise<Void> { seal in
+            if activate {
+                try current.adapter!.addServantLocator(locator: ServantLocatorI("", _helper), category: "")
+                try current.adapter!.addServantLocator(locator: ServantLocatorI("category", _helper), category: "category")
+            } else {
+                var locator = try current.adapter!.removeServantLocator("")
+                locator.deactivate("")
+                locator = try current.adapter!.removeServantLocator("category")
+                locator.deactivate("category")
+            }
+            seal.fulfill(())
+        }
+    }
+}

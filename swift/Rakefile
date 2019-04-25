@@ -49,21 +49,6 @@ $test_default_sources = {
 # Extra test sources if any
 #
 $test_extra_sources = {
-    "Ice/adapterDeactivation/Server" => ["ServantLocator.swift"],
-
-    "Ice/admin" => ["TestI.swift"],
-
-    "Ice/binding/Server" => ["RemoteCommunicatorI.swift",
-                             "RemoteObjectAdapterI.swift"],
-
-
-    "Ice/exceptions/Client" => ["ServantLocatorI.swift"],
-    "Ice/exceptions/Server" => ["ServantLocatorI.swift", "ThrowerI.swift"],
-    "Ice/exceptions/ServerAMD" => ["ServantLocatorAMDI.swift", "ThrowerAMDI.swift"],
-
-    "Ice/invoke/Server" => ["BlobjectI.swift"],
-
-    "Ice/location/Server" => ["ServerLocator.swift"],
 
     "Ice/operations/Client" => ["BatchOneways.swift",
                                 "BatchOnewaysAMI.swift",
@@ -72,10 +57,7 @@ $test_extra_sources = {
                                 "Twoways.swift",
                                 "TwowaysAMI.swift"],
 
-    "Ice/objects" => ["TestI.swift"],
-
-    "Ice/proxy/Server" => ["MyDerivedClassI.swift"],
-    "Ice/proxy/ServerAMD" => ["MyDerivedClassAMDI.swift"]
+    "Ice/servantLocator" => ["ServantLocatorI.swift"]
 }
 
 desc "Generate Xcode projects required to build Ice for Swift"
