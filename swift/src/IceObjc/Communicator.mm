@@ -357,8 +357,9 @@
 
 -(ICEProperties*) getProperties
 {
-    auto props = _communicator->getProperties().get();
-    return [ICEProperties fromLocalObject:props];
+    auto cppProps = _communicator->getProperties();
+    auto props = [ICEProperties fromLocalObject:cppProps.get()];
+    return props ? props : [[ICEProperties alloc] initWithCppProperties:cppProps];
 }
 
 -(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor

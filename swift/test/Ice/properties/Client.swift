@@ -61,5 +61,28 @@ public class Client: TestHelperI {
             }
             writer.writeLine("ok")
         }
+
+        do {
+            writer.write("testing arg parsing...")
+            var args1 = ["--Foo=1", "--Ice.Default.Timeout=12345", "-T", "--Bar=2"]
+            let properties1 = try Ice.createProperties(args1)
+            var properties2 = try Ice.createProperties(&args1)
+            try test(properties1.getPropertyAsInt("Ice.Default.Timeout") == 12345)
+            try test(properties2.getPropertyAsInt("Ice.Default.Timeout") == 12345)
+            try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
+
+            args1 = ["--Ice.Default.Timeout=10000"]
+            properties2 = try Ice.createProperties(&args1)
+            try test(args1 == [])
+
+            args1 = ["--Foo=1", "--Ice.Default.Timeout=12345", "-T", "--Bar=2"]
+            let communicator = try Ice.initialize(&args1)
+            defer {
+                communicator.destroy()
+            }
+            try test(communicator.getProperties().getPropertyAsInt("Ice.Default.Timeout") == 12345)
+            try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
+            writer.writeLine("ok")
+        }
     }
 }
