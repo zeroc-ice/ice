@@ -11,7 +11,7 @@ PromiseKit.conf.Q.return = .global()
 PromiseKit.conf.logHandler = { _ in }
 
 var args = CommandLine.arguments
-if args.count < 2 {
+if args.count < 3 {
     print("Usage: \(CommandLine.arguments[0]) <test> <args>")
     exit(1)
 }
@@ -44,7 +44,7 @@ do {
     }
 
     let testHelper = helperClass.init()
-    args.removeFirst(2)
+    args.removeFirst(3)
     try testHelper.run(args: args)
 
 } catch {
