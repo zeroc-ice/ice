@@ -5,7 +5,7 @@
 import Ice
 import TestCommon
 
-public func allTests(helper: TestHelper) throws -> MyClassPrx {
+public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }

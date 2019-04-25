@@ -12,7 +12,7 @@ class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            let cl = try allTests(helper: self)
+            let cl = try allTests(self)
             try cl.shutdown()
         }
     }
