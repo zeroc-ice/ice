@@ -85,8 +85,7 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opSmallStruct(p1: SmallStruct?, current: Ice.Current) throws -> (returnValue: SmallStruct?, p3: SmallStruct?)
-    {
+    func opSmallStruct(p1: SmallStruct?, current: Ice.Current) throws -> (returnValue: SmallStruct?, p3: SmallStruct?) {
         return (p1, p1)
     }
 
@@ -179,7 +178,8 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opCustomIntStringDict(p1: IntStringDict?, current: Current) throws -> (returnValue: IntStringDict?, p3: IntStringDict?) {
+    func opCustomIntStringDict(p1: IntStringDict?,
+                               current: Current) throws -> (returnValue: IntStringDict?, p3: IntStringDict?) {
         return (p1, p1)
     }
 

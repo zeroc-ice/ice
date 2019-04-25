@@ -186,7 +186,7 @@ func allTests(_ helper: TestHelper) throws {
         } catch is Ice.InitializationException {}
 
         let adapter = try com.createObjectAdapter("")
-        try test(com.createAdmin(adminAdapter: adapter, adminId: id) != nil)
+        _ = try com.createAdmin(adminAdapter: adapter, adminId: id)
         try test(com.getAdmin() != nil)
 
         try testFacets(com: com, builtInFacets: true, helper: helper)

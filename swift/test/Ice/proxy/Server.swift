@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import PromiseKit
 import Ice
 import TestCommon
 

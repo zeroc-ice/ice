@@ -5,6 +5,14 @@
 import Ice
 import TestCommon
 
-public class Client: TestHelperI {
-    public override func run(args _: [String]) throws {}
+class Client: TestHelperI {
+    public override func run(args: [String]) throws {
+        do {
+            let communicator = try self.initialize(args)
+            defer {
+                communicator.destroy()
+            }
+            try allTests(helper: self)
+        }
+    }
 }

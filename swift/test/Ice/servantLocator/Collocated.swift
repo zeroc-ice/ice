@@ -7,19 +7,18 @@ import TestCommon
 
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
-        let (properties, _) = try createTestProperties(args: args)
         var initData = Ice.InitializationData()
-        initData.properties = properties
+        initData.properties =  try createTestProperties(args)
         initData.classResolverPrefix = "IceServantLocator"
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }
-        
+
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                  value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(key: "Ice.Warn.Dispatch", value: "0")
-        
+
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         _ = try adapter.addServantLocator(locator: ServantLocatorI("category", self), category: "category")
         _ = try adapter.addServantLocator(locator: ServantLocatorI("", self), category: "")
@@ -29,4 +28,3 @@ class Collocated: TestHelperI {
         _ =  try allTests(self)
     }
 }
-

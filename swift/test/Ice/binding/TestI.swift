@@ -14,11 +14,11 @@ class TestI: TestIntf {
 class RemoteCommunicatorI: RemoteCommunicator {
     var _nextPort: Int32 = 10
     var _helper: TestHelper
-    
+
     init(helper: TestHelper) {
         _helper = helper
     }
-    
+
     func createObjectAdapter(name: String,
                              endpoints endpts: String,
                              current: Ice.Current) throws -> RemoteObjectAdapterPrx? {
@@ -44,11 +44,11 @@ class RemoteCommunicatorI: RemoteCommunicator {
             }
         }
     }
-    
+
     func deactivateObjectAdapter(adapter: RemoteObjectAdapterPrx?, current: Ice.Current) throws {
         try adapter!.deactivate() // Collocated call.
     }
-    
+
     func shutdown(current: Ice.Current) throws {
         current.adapter!.getCommunicator().shutdown()
     }
@@ -61,15 +61,15 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
                                       type: TestIntfPrx.self)
         try _adapter.activate()
     }
-    
+
     func getTestIntf(current: Ice.Current) throws -> TestIntfPrx? {
         return _testIntf
     }
-    
+
     func deactivate(current: Ice.Current) throws {
         _adapter.destroy()
     }
-    
+
     var _adapter: Ice.ObjectAdapter
     var _testIntf: TestIntfPrx
 }

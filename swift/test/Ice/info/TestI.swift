@@ -68,6 +68,6 @@ class TestI: TestIntf {
                 ctx["ws.\(key)"] = value
             }
         }
-        return ctx;
+        return ctx
     }
 }

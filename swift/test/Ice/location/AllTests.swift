@@ -150,7 +150,7 @@ func allTests(_ helper: TestHelper) throws {
     try manager.startServer()
 
     do {
-        var obj5 = try checkedCast(prx: base5, type: TestIntfPrx.self)!
+        let obj5 = try checkedCast(prx: base5, type: TestIntfPrx.self)!
         try obj5.ice_ping()
     } catch {
         try test(false)

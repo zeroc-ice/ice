@@ -25,7 +25,8 @@ func allTests(_ helper: TestHelper) throws {
 
     do {
         output.write("creating/destroying/recreating object adapter... ")
-        var adapter = try communicator.createObjectAdapterWithEndpoints(name: "TransientTestAdapter", endpoints: "default")
+        var adapter = try communicator.createObjectAdapterWithEndpoints(name: "TransientTestAdapter",
+                                                                        endpoints: "default")
         do {
             _ = try communicator.createObjectAdapterWithEndpoints(name: "TransientTestAdapter", endpoints: "default")
             try test(false)

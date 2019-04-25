@@ -562,7 +562,7 @@ func allTests(helper: TestHelper) throws {
         HeartbeatOnIdleTest(com: com, helper: helper),
         HeartbeatAlwaysTest(com: com, helper: helper),
         HeartbeatManualTest(com: com, helper: helper),
-        SetACMTest(com: com, helper: helper),
+        SetACMTest(com: com, helper: helper)
     ]
 
     for t in tests {

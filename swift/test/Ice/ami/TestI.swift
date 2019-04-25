@@ -103,7 +103,7 @@ class TestI: TestIntf {
 
     func sleep(ms: Int32, current: Current) throws {
         withLock(&_lock) {
-            Thread.sleep(forTimeInterval: Double(ms) / 1000)
+            Thread.sleep(forTimeInterval: TimeInterval(ms) / 1000)
         }
     }
 

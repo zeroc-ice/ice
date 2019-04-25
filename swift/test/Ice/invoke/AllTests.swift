@@ -104,8 +104,7 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         _ = try inS.startEncapsulation()
         do {
             try inS.throwException()
-        }
-        catch is MyException {
+        } catch is MyException {
             try inS.endEncapsulation()
         } catch {
             try test(false)

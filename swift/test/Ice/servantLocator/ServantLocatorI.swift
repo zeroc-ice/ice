@@ -7,7 +7,7 @@ import TestCommon
 import Foundation
 
 class CookieI: Cookie {
-    func message() -> String{
+    func message() -> String {
         return "blahblah"
     }
 }

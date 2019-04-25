@@ -210,7 +210,8 @@ class MyDerivedClassI: MyDerivedClass {
 
     func opMyStructMyEnumDS(p1: [[MyStruct: MyEnum]],
                             p2: [[MyStruct: MyEnum]],
-                            current: Ice.Current) throws -> (returnValue: [[MyStruct: MyEnum]], p3: [[MyStruct: MyEnum]]) {
+                            current: Ice.Current) throws -> (returnValue: [[MyStruct: MyEnum]],
+                                                             p3: [[MyStruct: MyEnum]]) {
         return (p1.reversed(), p2 + p1)
     }
 

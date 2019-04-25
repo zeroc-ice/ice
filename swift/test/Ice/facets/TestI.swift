@@ -4,13 +4,13 @@
 
 import Ice
 
-class AI : A {
+class AI: A {
     func callA(current: Ice.Current) throws -> String {
         return "A"
     }
 }
 
-class BI : B {
+class BI: B {
 
     func callA(current: Ice.Current) throws -> String {
         return "A"
@@ -82,12 +82,12 @@ class GI: G {
     }
 }
 
-class HI : H {
+class HI: H {
 
     let _communicator: Ice.Communicator
 
     init(communicator: Ice.Communicator) {
-        _communicator = communicator;
+        _communicator = communicator
     }
 
     func callG(current: Ice.Current) throws -> String {

@@ -207,11 +207,11 @@ class ServerLocator: TestLocator {
 }
 
 class ServerLocatorRegistry: TestLocatorRegistry {
-    
+
     var _adapters = [String: Ice.ObjectPrx]()
     var _objects = [Ice.Identity: Ice.ObjectPrx]()
     var _lock = os_unfair_lock()
-    
+
     func setAdapterDirectProxyAsync(id: String, proxy: ObjectPrx?, current: Current) -> Promise<Void> {
         return Promise<Void> { seal in
             withLock(&_lock) {
@@ -224,7 +224,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
             seal.fulfill(())
         }
     }
-    
+
     func setReplicatedAdapterDirectProxyAsync(adapterId adapter: String,
                                               replicaGroupId replica: String,
                                               p: Ice.ObjectPrx?,
@@ -242,30 +242,30 @@ class ServerLocatorRegistry: TestLocatorRegistry {
             seal.fulfill(())
         }
     }
-    
+
     func setServerProcessProxyAsync(id: String, proxy: Ice.ProcessPrx?, current: Ice.Current) -> Promise<Void> {
         return Promise<Void> { seal in
             seal.fulfill(())
         }
     }
-    
+
     func addObject(_ obj: Ice.ObjectPrx?) {
         withLock(&_lock) {
             _objects[obj!.ice_getIdentity()] = obj
         }
     }
-    
+
     func addObject(obj: Ice.ObjectPrx?, current: Ice.Current) throws {
         addObject(obj)
     }
-    
+
     func getAdapter(_ id: String) throws -> Ice.ObjectPrx {
         guard let obj = _adapters[id] else {
             throw Ice.AdapterNotFoundException()
         }
         return obj
     }
-    
+
     func getObject(_ id: Ice.Identity) throws -> Ice.ObjectPrx {
         guard let obj = _objects[id] else {
             throw Ice.ObjectNotFoundException()

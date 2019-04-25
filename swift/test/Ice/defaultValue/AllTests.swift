@@ -10,7 +10,7 @@ func allTests(_ helper: TestHelper) throws {
         try helper.test(value, file: file, line: line)
     }
     let output = helper.getWriter()
-    
+
     output.write("testing default values... ")
     do {
         let v = Struct1()
@@ -37,7 +37,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(v.zeroD == 0)
         try test(v.zeroDotD == 0)
     }
-    
+
     do {
         let v = Struct2()
         try test(v.boolTrue == ConstBool)
@@ -61,7 +61,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(v.zeroD == ConstZeroD)
         try test(v.zeroDotD == ConstZeroDotD)
     }
-    
+
     do {
         let v = Struct3()
         try test(!v.boolFalse)
@@ -87,7 +87,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(v.zeroD == 0)
         try test(v.zeroDotD == 0)
     }
-    
+
     do {
         let v = Base()
         try test(!v.boolFalse)
@@ -107,7 +107,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(v.zeroD == 0)
         try test(v.zeroDotD == 0)
     }
-    
+
     do {
         let v = Derived()
         try test(!v.boolFalse)
@@ -133,7 +133,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(v.zeroD == 0)
         try test(v.zeroDotD == 0)
     }
-    
+
     do {
         let v = BaseEx()
         try test(!v.boolFalse)
@@ -153,7 +153,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(v.zeroD == 0)
         try test(v.zeroDotD == 0)
     }
-    
+
     do {
         let v = DerivedEx()
         try test(!v.boolFalse)
