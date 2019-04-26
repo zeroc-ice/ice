@@ -874,7 +874,8 @@ open class _ObjectPrxI: ObjectPrx {
                                                                       inputStream: inputStream,
                                                                       encoding: self._encoding)
                                                if ok == false {
-                                                   try self._throwUserException(istr: istr, userException: userException)
+                                                   try self._throwUserException(istr: istr,
+                                                                                userException: userException)
                                                }
                                                _ = try istr.startEncapsulation()
                                                let l = try read(istr)

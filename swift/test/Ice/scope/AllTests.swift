@@ -10,7 +10,7 @@ func allTests(helper: TestHelper) throws {
         try helper.test(value, file: file, line: line)
     }
     let output = helper.getWriter()
-    output.write("test same Slice type name in different scopes... ");
+    output.write("test same Slice type name in different scopes... ")
     let communicator = helper.communicator()
 
     do {

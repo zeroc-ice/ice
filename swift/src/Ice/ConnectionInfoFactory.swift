@@ -102,7 +102,8 @@ private class SSLConnectionInfoI: ConnectionInfoI, SSLConnectionInfo {
         var `protocol`: String
 
         init(underlying: ConnectionInfo?, incoming: Bool, adapterName: String, connectionId: String,
-             name: String, manufacturer: String, modelNumber: String, firmwareRevision: String, hardwareRevision: String,
+             name: String, manufacturer: String, modelNumber: String, firmwareRevision: String,
+             hardwareRevision: String,
              protocol: String) {
             self.name = name
             self.manufacturer = manufacturer
