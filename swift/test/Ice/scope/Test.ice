@@ -109,6 +109,7 @@ module Test
     }
 }
 
+["swift:module:Test:Inner"]
 module Inner
 {
 

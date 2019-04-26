@@ -24,7 +24,7 @@ $tests = [
     "Ice/properties",
     "Ice/proxy",
     "Ice/retry",
-    #  "Ice/scope",
+    "Ice/scope",
     "Ice/servantLocator",
     "Ice/slicing/exceptions",
     "Ice/slicing/objects",
