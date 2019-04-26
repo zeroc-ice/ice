@@ -245,7 +245,7 @@ local interface Connection
      *
      * @see #setAdapter
      **/
-    ["cpp:const"] Object* createProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createProxy(Identity id);
 
     /**
      *

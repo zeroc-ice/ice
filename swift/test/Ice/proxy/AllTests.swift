@@ -344,7 +344,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     try test(b1 == b2)
 
     if try b1.ice_getConnection() != nil { // not colloc-optimized target
-        b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))!
+        b2 = try b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))
         let str = communicator.proxyToString(b2)
         try test(b2.ice_toString() == str)
         let str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()

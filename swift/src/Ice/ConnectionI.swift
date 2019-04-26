@@ -49,15 +49,12 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         _handle.close(mode.rawValue)
     }
 
-    func createProxy(_ id: Identity) throws -> ObjectPrx? {
+    func createProxy(_ id: Identity) throws -> ObjectPrx {
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try autoreleasepool {
-            //
-            // Returns Any which is either NSNull or ICEObjectPrx
-            //
-            guard let handle = try _handle.createProxy(id.name, category: id.category) as? ICEObjectPrx else {
-                return nil
-            }
-            return _ObjectPrxI.fromICEObjectPrx(handle: handle)
+            let handle = try _handle.createProxy(id.name, category: id.category)
+            let communicator = handle.ice_getCommunicator().as(type: CommunicatorI.self)
+            return _ObjectPrxI(handle: handle, communicator: communicator)
         }
     }
 

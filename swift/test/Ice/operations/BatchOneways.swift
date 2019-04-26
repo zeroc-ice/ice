@@ -77,7 +77,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
        conn != nil &&
        p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress") == "" {
 
-        let prx = try p.ice_getConnection()!.createProxy(p.ice_getIdentity())!.ice_batchOneway()
+        let prx = try p.ice_getConnection()!.createProxy(p.ice_getIdentity()).ice_batchOneway()
 
         let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyClassPrx.self)
         let batchC2 = uncheckedCast(prx: prx.ice_compress(true), type: MyClassPrx.self)

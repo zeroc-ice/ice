@@ -27,13 +27,12 @@
     _connection->close(Ice::ConnectionClose(mode));
 }
 
--(id) createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error
+-(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error
 {
     try
     {
         auto cppPrx = _connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
-        ICEObjectPrx* prx = [[ICEObjectPrx alloc] initWithCppObjectPrx:cppPrx];
-        return prx ? prx : [NSNull null];
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:cppPrx];
     }
     catch(const std::exception& ex)
     {

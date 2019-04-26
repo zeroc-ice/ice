@@ -125,7 +125,7 @@ class TestI: TestIntf {
 
     func relayKnownPreservedAsBaseAsync(r: RelayPrx?, current: Current) -> Promise<Void> {
         return Promise<Void> { _ in
-            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                       type: RelayPrx.self)
             try p.knownPreservedAsBase()
             try _helper.test(false)
@@ -134,7 +134,7 @@ class TestI: TestIntf {
 
     func relayKnownPreservedAsKnownPreservedAsync(r: RelayPrx?, current: Current) -> Promise<Void> {
         return Promise<Void> { _ in
-            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                       type: RelayPrx.self)
             try p.knownPreservedAsKnownPreserved()
             try _helper.test(false)
@@ -167,7 +167,7 @@ class TestI: TestIntf {
 
     func relayUnknownPreservedAsBaseAsync(r: RelayPrx?, current: Current) -> Promise<Void> {
         return Promise<Void> { _ in
-            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                       type: RelayPrx.self)
             try p.unknownPreservedAsBase()
             try _helper.test(false)
@@ -176,7 +176,7 @@ class TestI: TestIntf {
 
     func relayUnknownPreservedAsKnownPreservedAsync(r: RelayPrx?, current: Current) -> Promise<Void> {
         return Promise<Void> { _ in
-            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+            let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                       type: RelayPrx.self)
             try p.unknownPreservedAsKnownPreserved()
             try _helper.test(false)

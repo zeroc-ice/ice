@@ -92,14 +92,14 @@ class TestI: TestIntf {
     }
 
     func relayKnownPreservedAsBase(r: RelayPrx?, current: Current) throws {
-        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                   type: RelayPrx.self)
         try p.knownPreservedAsBase()
         try _helper.test(false)
     }
 
     func relayKnownPreservedAsKnownPreserved(r: RelayPrx?, current: Current) throws {
-        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                   type: RelayPrx.self)
         try p.knownPreservedAsKnownPreserved()
         try _helper.test(false)
@@ -126,14 +126,14 @@ class TestI: TestIntf {
     }
 
     func relayUnknownPreservedAsBase(r: RelayPrx?, current: Current) throws {
-        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                   type: RelayPrx.self)
         try p.unknownPreservedAsBase()
         try _helper.test(false)
     }
 
     func relayUnknownPreservedAsKnownPreserved(r: RelayPrx?, current: Current) throws {
-        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity())!,
+        let p = try uncheckedCast(prx: current.con!.createProxy(r!.ice_getIdentity()),
                                   type: RelayPrx.self)
         try p.unknownPreservedAsKnownPreserved()
         try _helper.test(false)

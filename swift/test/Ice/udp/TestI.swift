@@ -29,12 +29,12 @@ class TestIntfI: TestIntf {
             //
             do {
                 let seq = [UInt8](repeating: 0, count: 32 * 1024)
-                let prx = try uncheckedCast(prx: current.con!.createProxy(reply)!, type: TestIntfPrx.self)
+                let prx = try uncheckedCast(prx: current.con!.createProxy(reply), type: TestIntfPrx.self)
                 try prx.sendByteSeq(seq: seq, reply: nil)
             } catch is Ice.DatagramLimitException {
                 // Expected.
             }
-            try uncheckedCast(prx: current.con!.createProxy(reply)!,
+            try uncheckedCast(prx: current.con!.createProxy(reply),
                               type: PingReplyPrx.self).reply()
         } catch {
             precondition(false)

@@ -146,16 +146,19 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try _ObjectPrxI(handle: _handle.createProxy(name: id.name, category: id.category),
                                communicator: communicator)
     }
 
     func createDirectProxy(_ id: Identity) throws -> ObjectPrx {
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try _ObjectPrxI(handle: _handle.createDirectProxy(name: id.name, category: id.category),
                                communicator: communicator)
     }
 
     func createIndirectProxy(_ id: Identity) throws -> ObjectPrx {
+        precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try _ObjectPrxI(handle: _handle.createIndirectProxy(name: id.name, category: id.category),
                                communicator: communicator)
     }

@@ -238,7 +238,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         do {
             do {
                 try test(p.opBatchCount() == 0)
-                let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+                let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                            type: TestIntfPrx.self).ice_batchOneway()
                 try b1.opBatch()
                 try b1.opBatch()
@@ -255,7 +255,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             }
 
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
             try b1.opBatch()
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
@@ -273,7 +273,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // Async task - 1 connection.
             //
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
             try b1.opBatch()
             try b1.opBatch()
@@ -292,7 +292,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         //
         do {
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
             try b1.opBatch()
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
@@ -312,11 +312,11 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         //
         do {
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity())!,
+            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
 
             _ = try b2.ice_getConnection() // Ensure connection is established.
@@ -344,11 +344,11 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // Exceptions should not be reported.
             //
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity())!,
+            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
 
             _ = try b2.ice_getConnection() // Ensure connection is established.
@@ -373,11 +373,11 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // The sent callback should be invoked even if all connections fail.
             //
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity())!,
+            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity())!,
+            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
 
             _ = try b2.ice_getConnection() // Ensure connection is established.
