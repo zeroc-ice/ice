@@ -156,7 +156,7 @@ public final class Incoming {
             return
         }
         ostr = OutputStream(communicator: istr.getCommunicator(), encoding: current.encoding)
-        ostr.startEncapsulation(encoding: current.encoding, format: .DefaultFormat)
+        ostr.startEncapsulation(encoding: current.encoding, format: format)
         ostr.write(e)
         ostr.endEncapsulation()
         responseCallback(false, ostr.getBytes()!, ostr.getCount())
