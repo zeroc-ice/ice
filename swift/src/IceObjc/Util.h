@@ -23,7 +23,7 @@ NSError* convertException(const std::exception&);
 std::exception_ptr convertException(ICERuntimeException*);
 
 template<typename T>
-id createLocalObject(std::shared_ptr<T> cppObj, std::function<id()> initializer)
+id createLocalObject(const std::shared_ptr<T>& cppObj, std::function<id()> initializer)
 {
     if(!cppObj)
     {

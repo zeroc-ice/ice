@@ -380,10 +380,10 @@ convertException(ICERuntimeException* exc)
 NSObject*
 toObjC(const std::shared_ptr<Ice::Endpoint>& endpoint)
 {
-    return createLocalObject<Ice::Endpoint>(endpoint, [&endpoint]() -> NSObject*
-                                            {
-                                                return [[ICEEndpoint alloc] initWithCppEndpoint:endpoint];
-                                            });
+    return createLocalObject(endpoint, [&endpoint]() -> NSObject*
+                            {
+                                return [[ICEEndpoint alloc] initWithCppEndpoint:endpoint];
+                            });
 }
 
 void

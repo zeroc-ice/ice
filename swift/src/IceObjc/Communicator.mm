@@ -144,7 +144,7 @@
 -(ICEImplicitContext*) getImplicitContext
 {
     auto implicitContext = _communicator->getImplicitContext();
-    return createLocalObject<Ice::ImplicitContext>(implicitContext, [&implicitContext] () -> id
+    return createLocalObject(implicitContext, [&implicitContext] () -> id
     {
         return [[ICEImplicitContext alloc] initWithCppImplicitContext:implicitContext];
     });
@@ -161,7 +161,7 @@
         return swiftLogger->getLogger();
     }
 
-    return createLocalObject<Ice::Logger>(logger, [&logger] () -> id
+    return createLocalObject(logger, [&logger] () -> id
     {
         return [[ICELogger alloc] initWithCppLogger:logger];
     });
@@ -357,9 +357,11 @@
 
 -(ICEProperties*) getProperties
 {
-    auto cppProps = _communicator->getProperties();
-    auto props = [ICEProperties fromLocalObject:cppProps.get()];
-    return props ? props : [[ICEProperties alloc] initWithCppProperties:cppProps];
+    auto props = _communicator->getProperties();
+    return createLocalObject(props, [&props]() -> id
+                             {
+                                 return [[ICEProperties alloc] initWithCppProperties:props];
+                             });
 }
 
 -(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor

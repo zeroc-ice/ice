@@ -438,11 +438,11 @@
 {
     try
     {
-        auto c = _prx->ice_getConnection();
+        auto cppConnection = _prx->ice_getConnection();
 
-        ICEConnection* connection = createLocalObject<Ice::Connection>(c, [&c]() -> id
+        ICEConnection* connection = createLocalObject(cppConnection, [&cppConnection]() -> id
         {
-            return [[ICEConnection alloc] initWithCppConnection:c];
+            return [[ICEConnection alloc] initWithCppConnection:cppConnection];
         });
 
         return connection ? connection : [NSNull null];
@@ -456,11 +456,11 @@
 
 -(ICEConnection*) ice_getCachedConnection
 {
-    auto c = _prx->ice_getCachedConnection();
+    auto cppConnection = _prx->ice_getCachedConnection();
 
-    return createLocalObject<Ice::Connection>(c, [&c]() -> id
+    return createLocalObject(cppConnection, [&cppConnection]() -> id
     {
-        return [[ICEConnection alloc] initWithCppConnection:c];
+        return [[ICEConnection alloc] initWithCppConnection:cppConnection];
     });
 }
 
