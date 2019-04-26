@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceSlicingExceptions"]]
+[["swift:class-resolver-prefix:IceSlicingExceptionsAMD"]]
 module Test
 {
 
@@ -55,7 +55,7 @@ interface Relay
     void unknownPreservedAsKnownPreserved() throws KnownPreserved;
 }
 
-["format:sliced"]
+["amd", "format:sliced"]
 interface TestIntf
 {
     void baseAsBase() throws Base;

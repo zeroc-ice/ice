@@ -10,7 +10,7 @@ class Server: TestHelperI {
         let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = "IceServantLocator"
+        initData.classResolverPrefix = ["IceServantLocator"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

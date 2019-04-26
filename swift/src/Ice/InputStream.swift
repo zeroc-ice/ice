@@ -22,7 +22,7 @@ public class InputStream {
     private var minSeqSize: Int32 = 0
     private var classGraphDepthMax: Int32
     public var sliceValues: Bool = true
-    public var classResolverPrefix: String?
+    public var classResolverPrefix: [String]?
 
     public convenience init(communicator: Communicator) {
         self.init(communicator: communicator, bytes: [])
@@ -912,8 +912,11 @@ extension EncapsDecoder {
             return cls
         } else {
             var cls: Value.Type?
-            if let prefix = stream.classResolverPrefix {
+            for prefix in stream.classResolverPrefix ?? [] {
                 cls = ClassResolver.resolve(typeId: typeId, prefix: prefix)
+                if cls != nil {
+                    break
+                }
             }
             if cls == nil {
                 cls = ClassResolver.resolve(typeId: typeId)
@@ -1108,8 +1111,11 @@ private class EncapsDecoder10: EncapsDecoder {
             // Look for user exception
             //
             var userExceptionType: UserException.Type?
-            if let prefix = stream.classResolverPrefix {
+            for prefix in stream.classResolverPrefix ?? [] {
                 userExceptionType = ClassResolver.resolve(typeId: typeId, prefix: prefix)
+                if userExceptionType != nil {
+                    break
+                }
             }
             if userExceptionType == nil {
                 userExceptionType = ClassResolver.resolve(typeId: typeId)
@@ -1399,8 +1405,11 @@ private class EncapsDecoder11: EncapsDecoder {
             // Look for user exception
             //
             var userExceptionType: UserException.Type?
-            if let prefix = stream.classResolverPrefix {
+            for prefix in stream.classResolverPrefix ?? [] {
                 userExceptionType = ClassResolver.resolve(typeId: current.typeId, prefix: prefix)
+                if userExceptionType != nil {
+                    break
+                }
             }
             if userExceptionType == nil {
                 userExceptionType = ClassResolver.resolve(typeId: current.typeId)

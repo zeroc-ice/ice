@@ -14,7 +14,7 @@ class Collocated: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = "IceExceptions"
+        initData.classResolverPrefix = ["IceExceptions"]
 
         let communicator = try self.initialize(initData)
         defer {

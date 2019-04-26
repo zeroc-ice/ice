@@ -21,7 +21,7 @@ class ServerAMD: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = "IceOperationsAMD"
+        initData.classResolverPrefix = ["IceOperationsAMD"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

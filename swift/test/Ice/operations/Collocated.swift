@@ -26,7 +26,7 @@ class Collocated: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = "IceOperations"
+        initData.classResolverPrefix = ["IceOperations"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

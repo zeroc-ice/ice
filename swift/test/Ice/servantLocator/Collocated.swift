@@ -9,7 +9,7 @@ class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         var initData = Ice.InitializationData()
         initData.properties =  try createTestProperties(args)
-        initData.classResolverPrefix = "IceServantLocator"
+        initData.classResolverPrefix = ["IceServantLocator"]
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

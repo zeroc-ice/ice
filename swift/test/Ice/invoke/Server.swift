@@ -34,7 +34,7 @@ class Server: TestHelperI {
         let properties  = try self.createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.classResolverPrefix = "IceInvoke"
+        initData.classResolverPrefix = ["IceInvoke"]
         let communicator = try self.initialize(initData)
         defer {
             communicator.destroy()

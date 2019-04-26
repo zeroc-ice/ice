@@ -39,8 +39,8 @@ $test_variants = ["Client", "Server", "ServerAMD", "Collocated"]
 # Default sources for each test variant
 #
 $test_default_sources = {
-    "Client" => ["Client.swift", "AllTests.swift", "*Test.ice", "Client*.ice"],
-    "Server" => ["Server.swift", "TestI.swift", "*Test.ice", "Server*.ice"],
+    "Client" => ["Client.swift", "AllTests.swift", "*Test.ice", "Client.ice"],
+    "Server" => ["Server.swift", "TestI.swift", "*Test.ice", "Server.ice"],
     "ServerAMD" => ["ServerAMD.swift", "TestAMDI.swift", "*TestAMD.ice"],
     "Collocated" => ["Collocated.swift"]
 }
@@ -57,7 +57,15 @@ $test_extra_sources = {
                                 "Twoways.swift",
                                 "TwowaysAMI.swift"],
 
-    "Ice/servantLocator" => ["ServantLocatorI.swift"]
+    "Ice/servantLocator" => ["ServantLocatorI.swift"],
+
+    "Ice/slicing/exceptions/Client" => ["ClientPrivate.ice"],
+    "Ice/slicing/exceptions/Server" => ["ServerPrivate.ice"],
+    "Ice/slicing/exceptions/ServerAMD" => ["ServerPrivateAMD.ice"],
+
+    "Ice/slicing/objects/Client" => ["ClientPrivate.ice"],
+    "Ice/slicing/objects/Server" => ["ServerPrivate.ice"],
+    "Ice/slicing/objects/ServerAMD" => ["ServerPrivateAMD.ice"],
 }
 
 desc "Generate Xcode projects required to build Ice for Swift"
