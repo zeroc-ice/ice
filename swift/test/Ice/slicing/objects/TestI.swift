@@ -155,7 +155,7 @@ class TestI: TestIntf {
         d3.pd1 = nil
         d4.pd2 = d3
 
-        return (d3, d2, d1)
+        return (d3, d2, d4)
     }
 
     func paramTest4(current: Current) throws -> (returnValue: B?, p: B?) {
@@ -171,12 +171,12 @@ class TestI: TestIntf {
 
     func returnTest1(current: Current) throws -> (returnValue: B?, p1: B?, p2: B?) {
         let ret = try paramTest1(current: current)
-        return (ret.p1, ret.p2, ret.p1)
+        return (ret.p1, ret.p1, ret.p2)
     }
 
     func returnTest2(current: Current) throws -> (returnValue: B?, p2: B?, p1: B?) {
         let ret = try paramTest1(current: current)
-        return (ret.p1, ret.p2, ret.p1)
+        return (ret.p1, ret.p1, ret.p2)
     }
 
     func returnTest3(p1: B?, p2: B?, current: Current) throws -> B? {

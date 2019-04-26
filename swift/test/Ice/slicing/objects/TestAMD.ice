@@ -4,6 +4,8 @@
 
 #pragma once
 
+[["swift:class-resolver-prefix:IceSlicingObjectsAMD"]]
+
 module Test
 {
 

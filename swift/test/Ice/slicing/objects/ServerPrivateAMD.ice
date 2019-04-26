@@ -6,6 +6,8 @@
 
 #include <TestAMD.ice>
 
+[["swift:class-resolver-prefix:IceSlicingObjectsServerAMD"]]
+
 module Test
 {
 

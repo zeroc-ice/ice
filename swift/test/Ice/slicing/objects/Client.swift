@@ -29,7 +29,7 @@ public class Client: TestHelperI {
         var initData = InitializationData()
         initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceSlicingObjects", "IceSlicingObjectsClient"]
-        let communicator = try self.initialize(args)
+        let communicator = try self.initialize(initData)
         defer {
             communicator.destroy()
         }

@@ -6,6 +6,8 @@
 
 #include <Test.ice>
 
+[["swift:class-resolver-prefix:IceSlicingObjectsServer"]]
+
 module Test
 {
 
