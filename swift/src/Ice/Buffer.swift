@@ -25,6 +25,10 @@ internal final class Buffer {
         owner = false
     }
 
+    convenience init(start: UnsafeRawPointer, count: Int) {
+        self.init(start: UnsafeMutableRawPointer(mutating: start), count: count)
+    }
+
     init(count: Int = 240) {
         storage = UnsafeMutableRawBufferPointer.allocate(byteCount: count, alignment: MemoryLayout<UInt8>.alignment)
         owner = true
@@ -64,7 +68,7 @@ internal final class Buffer {
         // No more bytes can be read after this
         //
         guard count >= 0, count <= capacity else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to set position outiside buffer")
+            throw UnmarshalOutOfBoundsException(reason: "attempting to set position outside buffer")
         }
         _position = Int(count)
     }
@@ -79,7 +83,7 @@ internal final class Buffer {
 
     func write(bytes: UnsafeRawBufferPointer, at index: Int) {
         precondition(index + bytes.count <= capacity,
-                     "Buffer index + count ( \(index) + \(bytes.count) is greather than capacity (\(capacity))")
+                     "Buffer index + count ( \(index) + \(bytes.count) is greater than capacity (\(capacity))")
 
         let target = slice(start: index, count: bytes.count)
         target.copyMemory(from: bytes)

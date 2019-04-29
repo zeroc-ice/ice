@@ -7,7 +7,6 @@
 @class ICECommunicator;
 @class ICEObjectPrx;
 @class ICEEndpoint;
-@class ICEInputStream;
 @class ICEConnection;
 @class ICERuntimeException;
 @protocol ICEBlobjectFacade;

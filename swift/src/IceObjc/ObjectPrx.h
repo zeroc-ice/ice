@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
               inParams:(const void* _Null_unspecified)inParams
                 inSize:(NSInteger)inSize
                context:(NSDictionary* _Nullable)context
-              response:(void (^)(bool, ICEInputStream*))response
+              response:(void (^)(bool, const void*, NSInteger))response
              exception:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error;

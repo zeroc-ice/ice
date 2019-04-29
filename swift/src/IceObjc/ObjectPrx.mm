@@ -616,7 +616,7 @@ encodingMinor:(uint8_t)minor
               inParams:(const void* _Null_unspecified)inParams
                 inSize:(NSInteger)inSize
                context:(NSDictionary* _Nullable)context
-              response:(void (^)(bool, ICEInputStream*))response
+              response:(void (^)(bool, const void*, NSInteger))response
              exception:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error
@@ -639,9 +639,7 @@ encodingMinor:(uint8_t)minor
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                                             [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                                             {
-                                                // Makes a copy
-                                                std::vector<Ice::Byte> r(outParams.first, outParams.second);
-                                                response(ok, [[ICEInputStream alloc] initWithBytes:std::move(r)]);
+                                                response(ok, outParams.first, outParams.second - outParams.first);
                                             },
                                             [exception](std::exception_ptr e)
                                             {

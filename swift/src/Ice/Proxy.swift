@@ -221,10 +221,11 @@ public extension ObjectPrx {
                                                      inParams: b.baseAddress,
                                                      inSize: inEncaps.count,
                                                      context: context,
-                                                     response: { ok, inputStream in
+                                                     response: { ok, start, count in
                                                          do {
                                                              let istr = InputStream(communicator: self._impl._communicator,
-                                                                                    inputStream: inputStream,
+                                                                                    start: start,
+                                                                                    count: count,
                                                                                     encoding: self._impl._encoding)
                                                              p.fulfill((ok, try istr.readEncapsulation().bytes))
                                                          } catch {
@@ -246,7 +247,7 @@ public extension ObjectPrx {
                                                      inParams: b.baseAddress,
                                                      inSize: inEncaps.count,
                                                      context: context,
-                                                     response: { _, _ in
+                                                     response: { _, _, _ in
                                                          precondition(false)
                                                      },
                                                      exception: { error in
@@ -799,10 +800,11 @@ open class _ObjectPrxI: ObjectPrx {
                                            inParams: ostr.getBytes(),
                                            inSize: ostr.getCount(),
                                            context: context,
-                                           response: { ok, inputStream in
+                                           response: { ok, start, count in
                                                do {
                                                    let istr = InputStream(communicator: self._communicator,
-                                                                          inputStream: inputStream,
+                                                                          start: start,
+                                                                          count: count,
                                                                           encoding: self._encoding)
                                                    if ok == false {
                                                        try self._throwUserException(istr: istr,
@@ -827,7 +829,7 @@ open class _ObjectPrxI: ObjectPrx {
                                            inParams: ostr.getBytes(),
                                            inSize: ostr.getCount(),
                                            context: context,
-                                           response: { _, _ in
+                                           response: { _, _, _ in
                                                precondition(false)
                                            },
                                            exception: { error in
@@ -868,10 +870,11 @@ open class _ObjectPrxI: ObjectPrx {
                                        inParams: ostr.getBytes(),
                                        inSize: ostr.getCount(),
                                        context: context,
-                                       response: { ok, inputStream in
+                                       response: { ok, start, count in
                                            do {
                                                let istr = InputStream(communicator: self._communicator,
-                                                                      inputStream: inputStream,
+                                                                      start: start,
+                                                                      count: count,
                                                                       encoding: self._encoding)
                                                if ok == false {
                                                    try self._throwUserException(istr: istr,

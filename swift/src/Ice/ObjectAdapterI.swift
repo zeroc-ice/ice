@@ -198,7 +198,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func facadeInvoke(_ adapter: ICEObjectAdapter,
-                      is istr: ICEInputStream,
+                      start: UnsafeRawPointer,
+                      count: Int,
                       con: ICEConnection?,
                       name: String,
                       category: String,
@@ -226,7 +227,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
 
         let incoming = Incoming(istr: InputStream(communicator: communicator,
-                                                  inputStream: istr,
+                                                  start: start,
+                                                  count: count,
                                                   encoding: EncodingVersion(major: encodingMajor,
                                                                             minor: encodingMinor)),
                                 response: response,

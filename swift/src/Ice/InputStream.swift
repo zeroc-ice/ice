@@ -5,9 +5,10 @@
 import IceObjc
 
 public class InputStream {
-    // An input stream can be represented by either:
-    // - A handle to the bytes from an ObjC (C++) InputStream (unowned)
-    // - A byte array passed and copied during initialization (owned)
+    // The underlying storage of an input stream can beeither:
+    // - Pointers to the C++ unmarshaling buffer (bytes not owned by Buffer)
+    // - An ICEInputStream that holds a vector<Byte> (bytes not owned by Buffer)
+    // - A byte array passed and copied during initialization (bytes owned by Buffer)
     private var handle: ICEInputStream!
     private var bytes: [UInt8]!
 
@@ -52,6 +53,15 @@ public class InputStream {
         self.encoding = encoding
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
+        traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
+        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
+        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
+    }
+
+    init(communicator: Communicator, start: UnsafeRawPointer, count: Int, encoding: EncodingVersion) {
+        self.communicator = communicator
+        self.encoding = encoding
+        buf = Buffer(start: start, count: count)
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix

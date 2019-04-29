@@ -37,7 +37,8 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                            });
 
     [_facade facadeInvoke:adapter
-                       is:[[ICEInputStream alloc] initWithBytes:std::move(inBytes)]
+                    start: inEncaps.first
+                    count: inEncaps.second - inEncaps.first
                       con: con
                      name:toNSString(current.id.name) category:toNSString(current.id.category)
                     facet:toNSString(current.facet)

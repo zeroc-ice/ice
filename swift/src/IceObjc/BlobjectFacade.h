@@ -5,7 +5,6 @@
 #import "Config.h"
 
 @class ICEConnection;
-@class ICEInputStream;
 @class ICEObjectAdapter;
 @class ICERuntimeException;
 
@@ -16,7 +15,8 @@ typedef void (^ICEBlobjectException) (ICERuntimeException*);
 
 @protocol ICEBlobjectFacade
 -(void) facadeInvoke:(ICEObjectAdapter*)adapter
-                  is:(ICEInputStream*)is
+               start:(const void*)start
+               count:(NSInteger)count
                  con:(ICEConnection* _Nullable)con
                 name:(NSString*)name
             category:(NSString*)category
