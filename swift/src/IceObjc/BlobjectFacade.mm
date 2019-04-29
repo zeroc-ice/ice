@@ -24,9 +24,6 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
         error(convertException(e));
     };
 
-    // Copy the bytes
-    std::vector<Ice::Byte> inBytes(inEncaps.first, inEncaps.second);
-
     ICEObjectAdapter* adapter = createLocalObject(current.adapter, [&current] () -> id
                                                   {
                                                       return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:current.adapter];
