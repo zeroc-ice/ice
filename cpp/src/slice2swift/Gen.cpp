@@ -949,10 +949,19 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     ClassList bases = p->bases();
-    ClassDefPtr baseClass;
-    if(!bases.empty() && !bases.front()->isInterface())
+    bool hasBase = false;
+    while(!bases.empty() && !hasBase)
     {
-        baseClass = bases.front();
+        ClassDefPtr baseClass = bases.front();
+        if(!baseClass->isInterface() && baseClass->allOperations().empty())
+        {
+            // does not count
+            bases.pop_front();
+        }
+        else
+        {
+            hasBase = true;
+        }
     }
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
@@ -962,7 +971,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     out << nl << "public protocol " << prx << ":";
-    if(bases.empty() || (baseClass && baseClass->allOperations().empty()))
+    if(!hasBase)
     {
         out << " " << getUnqualified("Ice.ObjectPrx", swiftModule);
     }
@@ -1294,10 +1303,19 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     ClassList bases = p->bases();
-    ClassDefPtr baseClass;
-    if(!bases.empty() && !bases.front()->isInterface())
+    bool hasBase = false;
+    while(!bases.empty() && !hasBase)
     {
-        baseClass = bases.front();
+        ClassDefPtr baseClass = bases.front();
+        if(!baseClass->isInterface() && baseClass->allOperations().empty())
+        {
+            // does not count
+            bases.pop_front();
+        }
+        else
+        {
+            hasBase = true;
+        }
     }
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
@@ -1306,7 +1324,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "public protocol " << name << ":";
 
-    if(bases.empty() || (baseClass && baseClass->allOperations().empty()))
+    if(!hasBase)
     {
         out << " " << getUnqualified("Ice.Object", swiftModule);
     }
