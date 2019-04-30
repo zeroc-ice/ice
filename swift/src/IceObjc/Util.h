@@ -22,23 +22,6 @@ NSError* convertException(const std::exception_ptr&);
 NSError* convertException(const std::exception&);
 std::exception_ptr convertException(ICERuntimeException*);
 
-template<typename T>
-id createLocalObject(const std::shared_ptr<T>& cppObj, std::function<id()> initializer)
-{
-    if(!cppObj)
-    {
-        return nil;
-    }
-    @synchronized([ICELocalObject class]) {
-        ICELocalObject* obj = [ICELocalObject fromLocalObject:cppObj.get()];
-        if(!obj)
-        {
-            return initializer();
-        }
-        return obj;
-    }
-}
-
 inline NSString*
 toNSString(const std::string& s)
 {

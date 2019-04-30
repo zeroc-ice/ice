@@ -4,10 +4,10 @@
 
 import IceObjc
 
-class LocalObject<LocalObjectType: ICELocalObject> {
-    let _handle: LocalObjectType
+class LocalObject<Handle: ICELocalObject> {
+    let _handle: Handle
 
-    init(handle: LocalObjectType) {
+    init(handle: Handle) {
         precondition(handle.swiftRef == nil)
         _handle = handle
         _handle.swiftRef = self
@@ -16,18 +16,18 @@ class LocalObject<LocalObjectType: ICELocalObject> {
 
 extension ICELocalObject {
     //
-    // fromLocalObject returns the Swift object holding a handle to this ICELocalObject or initializes a new one
+    // getSwiftObject returns the Swift object holding a handle to this ICELocalObject or initializes a new one
     //
-    func fromLocalObject<ICELocalObjectType, LocalObjectType>(to _: LocalObjectType.Type,
-                                                              initializer: () -> LocalObjectType) -> LocalObjectType
-        where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
-        objc_sync_enter(LocalObject.self)
-        defer { objc_sync_exit(LocalObject.self) }
+    func getSwiftObject<Handle, LocalObjectClass>(_: LocalObjectClass.Type,
+                                                  initializer: () -> LocalObjectClass) -> LocalObjectClass
+        where Handle: ICELocalObject, LocalObjectClass: LocalObject<Handle> {
+        objc_sync_enter(self)
+        defer { objc_sync_exit(self) }
 
         if let swiftClass = swiftRef {
-            precondition(swiftClass is LocalObjectType)
+            precondition(swiftClass is LocalObjectClass)
             // swiftlint:disable force_cast
-            return swiftClass as! LocalObjectType
+            return swiftClass as! LocalObjectClass
         }
 
         return initializer()
@@ -36,15 +36,15 @@ extension ICELocalObject {
     //
     // as returns the Swift object holding a handle to this ICELocalObject
     //
-    func `as`<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType
-        where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
+    func getCachedSwiftObject<Handle, LocalObjectClass>(_: LocalObjectClass.Type) -> LocalObjectClass
+        where Handle: ICELocalObject, LocalObjectClass: LocalObject<Handle> {
         objc_sync_enter(LocalObject.self)
         defer { objc_sync_exit(LocalObject.self) }
 
         guard let swiftClass = swiftRef else {
             preconditionFailure("swiftRef is nil")
         }
-        guard let c = swiftClass as? LocalObjectType else {
+        guard let c = swiftClass as? LocalObjectClass else {
             preconditionFailure("Invalid swift type for ICELocalObject")
         }
         return c

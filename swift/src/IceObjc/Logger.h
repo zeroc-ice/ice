@@ -28,7 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICELogger()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Logger> logger;
--(instancetype) initWithCppLogger:(std::shared_ptr<Ice::Logger>)logger;
 @end
 
 #endif

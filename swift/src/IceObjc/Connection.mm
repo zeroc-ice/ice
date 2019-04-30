@@ -11,27 +11,21 @@
 
 @implementation ICEConnection
 
--(instancetype) initWithCppConnection:(std::shared_ptr<Ice::Connection>) connection
+-(std::shared_ptr<Ice::Connection>) connection
 {
-    self = [super initWithLocalObject:connection.get()];
-    if(!self)
-    {
-        return nil;
-    }
-    _connection = connection;
-    return self;
+    return std::static_pointer_cast<Ice::Connection>(self.cppObject);
 }
 
 -(void) close:(uint8_t)mode
 {
-    _connection->close(Ice::ConnectionClose(mode));
+    self.connection->close(Ice::ConnectionClose(mode));
 }
 
 -(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError**)error
 {
     try
     {
-        auto cppPrx = _connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
+        auto cppPrx = self.connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:cppPrx];
     }
     catch(const std::exception& ex)
@@ -45,7 +39,7 @@
 {
     try
     {
-        _connection->setAdapter(oa == nil ? nullptr : [oa objectAdapter]);
+        self.connection->setAdapter(oa == nil ? nullptr : [oa objectAdapter]);
         return YES;
     }
     catch(const std::exception& ex)
@@ -57,23 +51,22 @@
 
 -(nullable ICEObjectAdapter*) getAdapter
 {
-    auto cppAdapter = _connection->getAdapter();
+    auto cppAdapter = self.connection->getAdapter();
 
-    auto adapter = [ICEObjectAdapter fromLocalObject:cppAdapter.get()];
-    return adapter ? adapter : [[ICEObjectAdapter alloc] initWithCppObjectAdapter:cppAdapter];
+    return [ICEObjectAdapter getHandle:cppAdapter];
 }
 
 -(ICEEndpoint*) getEndpoint
 {
-    auto endpoint = _connection->getEndpoint();
-    return [[ICEEndpoint alloc] initWithCppEndpoint:endpoint];
+    auto endpoint = self.connection->getEndpoint();
+    return [ICEEndpoint getHandle:endpoint];
 }
 
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error
 {
     try
     {
-        _connection->flushBatchRequests(Ice::CompressBatch(compress));
+        self.connection->flushBatchRequests(Ice::CompressBatch(compress));
         return YES;
     }
     catch(const std::exception& ex)
@@ -90,7 +83,7 @@
 {
     try
     {
-        _connection->flushBatchRequestsAsync(Ice::CompressBatch(compress),
+        self.connection->flushBatchRequestsAsync(Ice::CompressBatch(compress),
                                                [exception](std::exception_ptr e)
                                                {
                                                    exception(convertException(e));
@@ -117,13 +110,13 @@
     {
         if(!callback)
         {
-            _connection->setCloseCallback(nullptr);
+            self.connection->setCloseCallback(nullptr);
         }
         else
         {
-            _connection->setCloseCallback([callback](auto connection)
+            self.connection->setCloseCallback([callback](auto connection)
             {
-                ICEConnection* conn = [ICEConnection fromLocalObject:connection.get()];
+                ICEConnection* conn = [ICEConnection getHandle:connection];
                 assert(conn);
                 callback(conn);
             });
@@ -141,13 +134,13 @@
 {
     if(!callback)
     {
-        _connection->setHeartbeatCallback(nullptr);
+        self.connection->setHeartbeatCallback(nullptr);
     }
     else
     {
-        _connection->setHeartbeatCallback([callback](auto connection)
+        self.connection->setHeartbeatCallback([callback](auto connection)
         {
-            ICEConnection* conn = [ICEConnection fromLocalObject:connection.get()];
+            ICEConnection* conn = [ICEConnection getHandle:connection];
             assert(conn);
             callback(conn);
         });
@@ -158,7 +151,7 @@
 {
     try
     {
-        _connection->heartbeat();
+        self.connection->heartbeat();
         return YES;
     }
     catch(const std::exception& ex)
@@ -174,7 +167,7 @@
 {
     try
     {
-        _connection->heartbeatAsync([exception](std::exception_ptr e)
+        self.connection->heartbeatAsync([exception](std::exception_ptr e)
                                     {
                                         exception(convertException(e));
                                     },
@@ -213,16 +206,16 @@
     if(heartbeat != nil)
     {
         NSNumber* value = heartbeat;
-        assert(value);
+        assert(value != nullptr);
         opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
     }
 
-    _connection->setACM(opTimeout, opClose, opHeartbeat);
+    self.connection->setACM(opTimeout, opClose, opHeartbeat);
 }
 
 -(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat
 {
-    auto acm = _connection->getACM();
+    auto acm = self.connection->getACM();
     *timeout = acm.timeout;
     *close = static_cast<uint8_t>(acm.close);
     *heartbeat = static_cast<uint8_t>(acm.heartbeat);
@@ -230,24 +223,24 @@
 
 -(NSString*) type
 {
-    return toNSString(_connection->type());
+    return toNSString(self.connection->type());
 }
 
 -(int32_t) timeout
 {
-    return _connection->timeout();
+    return self.connection->timeout();
 }
 
 -(NSString*) toString
 {
-    return toNSString(_connection->toString());
+    return toNSString(self.connection->toString());
 }
 
 -(id) getInfo:(NSError**)error
 {
     try
     {
-        auto info = _connection->getInfo();
+        auto info = self.connection->getInfo();
         return [self createConnectionInfo:info];
     }
     catch(const std::exception& ex)
@@ -261,7 +254,7 @@
 {
     try
     {
-        _connection->setBufferSize(rcvSize, sndSize);
+        self.connection->setBufferSize(rcvSize, sndSize);
         return YES;
     }
     catch(const std::exception& ex)
@@ -275,7 +268,7 @@
 {
     try
     {
-        _connection->throwException();
+        self.connection->throwException();
         return YES;
     }
     catch(const std::exception& ex)

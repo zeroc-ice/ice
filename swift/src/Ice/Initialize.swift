@@ -101,7 +101,7 @@ private func initializeImpl(args: [String],
         // created by Ice::initialize, in case it changed
         //
         let newPropsHandle = handle.getProperties()
-        initData.properties = newPropsHandle.fromLocalObject(to: PropertiesI.self) {
+        initData.properties = newPropsHandle.getSwiftObject(PropertiesI.self) {
             PropertiesI(handle: newPropsHandle)
         }
 
@@ -110,7 +110,7 @@ private func initializeImpl(args: [String],
         //  a C++ logger plug-in installed a new logger
         //
         if let objcLogger = handle.getLogger() as? ICELogger {
-            initData.logger = objcLogger.fromLocalObject(to: ObjcLoggerWrapper.self) {
+            initData.logger = objcLogger.getSwiftObject(ObjcLoggerWrapper.self) {
                 ObjcLoggerWrapper(handle: objcLogger)
             }
         }

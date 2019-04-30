@@ -214,7 +214,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       exception: @escaping (ICERuntimeException) -> Void) {
         precondition(_handle == adapter)
 
-        let connection = con != nil ? con!.fromLocalObject(to: ConnectionI.self) { ConnectionI(handle: con!) } : nil
+        let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) } ?? nil
 
         let current = Current(adapter: self,
                               con: connection,

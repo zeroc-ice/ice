@@ -7,44 +7,38 @@
 #include "Util.h"
 
 @implementation ICELogger
--(instancetype) initWithCppLogger:(std::shared_ptr<Ice::Logger>)logger
+-(std::shared_ptr<Ice::Logger>) logger
 {
-    self = [super initWithLocalObject:logger.get()];
-    if(self)
-    {
-        self->_logger = logger;
-    }
-    return self;
+    return std::static_pointer_cast<Ice::Logger>(self.cppObject);
 }
 
 -(void) print:(NSString*)message
 {
-    _logger->print(fromNSString(message));
+    self.logger->print(fromNSString(message));
 }
 
 -(void) trace:(NSString*)category message:(NSString*)message
 {
-    _logger->trace(fromNSString(category), fromNSString(message));
+    self.logger->trace(fromNSString(category), fromNSString(message));
 }
 
 -(void) warning:(NSString*)message
 {
-    _logger->warning(fromNSString(message));
+    self.logger->warning(fromNSString(message));
 }
 
 -(void) error:(NSString*)message
 {
-    _logger->error(fromNSString(message));
+    self.logger->error(fromNSString(message));
 }
 
 -(NSString*) getPrefix
 {
-    return toNSString(_logger->getPrefix());
+    return toNSString(self.logger->getPrefix());
 }
 
 -(id) cloneWithPrefix:(NSString*)prefix
 {
-    auto l = _logger->cloneWithPrefix(fromNSString(prefix));
-    return [[ICELogger alloc] initWithCppLogger:l];
+    return [ICELogger getHandle:self.logger->cloneWithPrefix(fromNSString(prefix))];
 }
 @end

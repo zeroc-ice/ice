@@ -53,7 +53,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
         return try autoreleasepool {
             let handle = try _handle.createProxy(id.name, category: id.category)
-            let communicator = handle.ice_getCommunicator().as(type: CommunicatorI.self)
+            let communicator = handle.ice_getCommunicator().getCachedSwiftObject(CommunicatorI.self)
             return _ObjectPrxI(handle: handle, communicator: communicator)
         }
     }
@@ -69,7 +69,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             return nil
         }
 
-        return handle.as(type: ObjectAdapterI.self)
+        return handle.getCachedSwiftObject(ObjectAdapterI.self)
     }
 
     func getEndpoint() -> Endpoint {
@@ -90,7 +90,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             }
 
             try _handle.setCloseCallback {
-                precondition($0.as(type: ConnectionI.self) === self)
+                precondition($0.getCachedSwiftObject(ConnectionI.self) === self)
                 cb(self)
             }
         }
@@ -102,7 +102,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             return
         }
         _handle.setHeartbeatCallback {
-            precondition($0.as(type: ConnectionI.self) === self)
+            precondition($0.getCachedSwiftObject(ConnectionI.self) === self)
             cb(self)
         }
     }

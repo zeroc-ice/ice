@@ -83,13 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEEndpoint()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Endpoint> endpoint;
--(instancetype) initWithCppEndpoint:(std::shared_ptr<Ice::Endpoint>)endpoint;
-+(nullable ICEEndpointInfo*) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
-@end
-
-@interface ICEEndpointInfo()
 @property (nonatomic, readonly) std::shared_ptr<Ice::EndpointInfo> info;
--(instancetype) initWithCppEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>) info;
++(nullable ICEEndpointInfo*) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
 @end
 
 #endif

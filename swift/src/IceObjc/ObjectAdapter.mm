@@ -12,32 +12,27 @@
 
 @implementation ICEObjectAdapter
 
--(instancetype) initWithCppObjectAdapter:(std::shared_ptr<Ice::ObjectAdapter>)objectAdapter
+-(std::shared_ptr<Ice::ObjectAdapter>) objectAdapter
 {
-    self = [super initWithLocalObject:objectAdapter.get()];
-    if(self)
-    {
-        self->_objectAdapter = objectAdapter;
-    }
-    return self;
+    return std::static_pointer_cast<Ice::ObjectAdapter>(self.cppObject);
 }
 
 -(NSString*) getName
 {
-    return toNSString(_objectAdapter->getName());
+    return toNSString(self.objectAdapter->getName());
 }
 
 -(ICECommunicator*) getCommunicator
 {
-    auto comm = _objectAdapter->getCommunicator().get();
-    return [ICECommunicator fromLocalObject:comm];
+    auto comm = self.objectAdapter->getCommunicator();
+    return [ICECommunicator getHandle:comm];
 }
 
 -(BOOL) activate:(NSError* _Nullable * _Nullable)error
 {
     try
     {
-        _objectAdapter->activate();
+        self.objectAdapter->activate();
         return YES;
     }
     catch(const std::exception& ex)
@@ -51,7 +46,7 @@
 {
     try
     {
-        _objectAdapter->hold();
+        self.objectAdapter->hold();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
@@ -67,7 +62,7 @@
 {
     try
     {
-        _objectAdapter->waitForHold();
+        self.objectAdapter->waitForHold();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
@@ -81,29 +76,29 @@
 
 -(void) deactivate
 {
-    _objectAdapter->deactivate();
+    self.objectAdapter->deactivate();
 }
 
 -(void) waitForDeactivate
 {
-    _objectAdapter->waitForDeactivate();
+    self.objectAdapter->waitForDeactivate();
 }
 
 -(BOOL) isDeactivated
 {
-    return _objectAdapter->isDeactivated();
+    return self.objectAdapter->isDeactivated();
 }
 
 -(void) destroy
 {
-    _objectAdapter->destroy();
+    self.objectAdapter->destroy();
 }
 
 -(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error
 {
     try
     {
-        auto prx = _objectAdapter->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
+        auto prx = self.objectAdapter->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
@@ -117,7 +112,7 @@
 {
     try
     {
-        auto prx = _objectAdapter->createDirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
+        auto prx = self.objectAdapter->createDirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
@@ -131,7 +126,7 @@
 {
     try
     {
-        auto prx = _objectAdapter->createIndirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
+        auto prx = self.objectAdapter->createIndirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
@@ -146,7 +141,7 @@
     try
     {
         auto l = locator ? [locator prx] : nullptr;
-        _objectAdapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
+        self.objectAdapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
@@ -164,20 +159,20 @@
 
 -(nullable ICEObjectPrx*) getLocator
 {
-    auto prx = _objectAdapter->getLocator();
+    auto prx = self.objectAdapter->getLocator();
     return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(NSArray<ICEEndpoint*>*) getEndpoints
 {
-    return toNSArray(_objectAdapter->getEndpoints());
+    return toNSArray(self.objectAdapter->getEndpoints());
 }
 
 -(BOOL) refreshPublishedEndpoints:(NSError* _Nullable * _Nullable)error
 {
     try
     {
-        _objectAdapter->refreshPublishedEndpoints();
+        self.objectAdapter->refreshPublishedEndpoints();
         return YES;
     }
     catch(const std::exception& ex)
@@ -189,7 +184,7 @@
 
 -(NSArray<ICEEndpoint*>*) getPublishedEndpoints
 {
-    return toNSArray(_objectAdapter->getPublishedEndpoints());
+    return toNSArray(self.objectAdapter->getPublishedEndpoints());
 }
 
 -(BOOL) setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable * _Nullable)error
@@ -199,7 +194,7 @@
         Ice::EndpointSeq endpts;
         fromNSArray(newEndpoints, endpts);
 
-        _objectAdapter->setPublishedEndpoints(endpts);
+        self.objectAdapter->setPublishedEndpoints(endpts);
         return YES;
     }
     catch(const std::exception& ex)
@@ -212,7 +207,7 @@
 -(void) registerDefaultServant:(id<ICEBlobjectFacade>)facade
 {
     auto servant = std::make_shared<BlobjectFacade>(facade);
-    _objectAdapter->addDefaultServant(servant, "");
+    self.objectAdapter->addDefaultServant(servant, "");
 }
 
 @end

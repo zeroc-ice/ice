@@ -15,7 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEProcess()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Process> process;
--(instancetype) initWithCppProcess:(std::shared_ptr<Ice::Process>)process;
 @end
 
 #endif

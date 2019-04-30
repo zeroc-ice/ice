@@ -22,41 +22,36 @@
 
 @implementation ICECommunicator
 
--(instancetype) initWithCppCommunicator:(std::shared_ptr<Ice::Communicator>)communicator
+-(std::shared_ptr<Ice::Communicator>) communicator
 {
-    self = [super initWithLocalObject:communicator.get()];
-    if(self)
-    {
-        self->_communicator = communicator;
-    }
-    return self;
+    return std::static_pointer_cast<Ice::Communicator>(self.cppObject);
 }
 
 -(void) destroy
 {
-    _communicator->destroy();
+    self.communicator->destroy();
 }
 
 -(void) shutdown
 {
-    _communicator->shutdown();
+    self.communicator->shutdown();
 }
 
 -(void) waitForShutdown
 {
-    _communicator->waitForShutdown();
+    self.communicator->waitForShutdown();
 }
 
 -(bool) isShutdown
 {
-    return _communicator->isShutdown();
+    return self.communicator->isShutdown();
 }
 
 -(id) stringToProxy:(NSString*)str error:(NSError**)error
 {
     try
     {
-        ICEObjectPrx* prx = [[ICEObjectPrx alloc] initWithCppObjectPrx:_communicator->stringToProxy(fromNSString(str))];
+        ICEObjectPrx* prx = [[ICEObjectPrx alloc] initWithCppObjectPrx:self.communicator->stringToProxy(fromNSString(str))];
         if(prx)
         {
             return prx;
@@ -78,7 +73,7 @@
 {
     try
     {
-        auto prx = _communicator->propertyToProxy(fromNSString(property));
+        auto prx = self.communicator->propertyToProxy(fromNSString(property));
         if(prx)
         {
             return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
@@ -94,15 +89,15 @@
 
 -(NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError* _Nullable * _Nullable)error
 {
-    return toNSDictionary(_communicator->proxyToProperty([prx prx], fromNSString(property)));
+    return toNSDictionary(self.communicator->proxyToProperty([prx prx], fromNSString(property)));
 }
 
 -(ICEObjectAdapter*) createObjectAdapter:(NSString*)name error:(NSError* _Nullable * _Nullable)error
 {
     try
     {
-        auto oa = _communicator->createObjectAdapter(fromNSString(name));
-        return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:oa];
+        auto oa = self.communicator->createObjectAdapter(fromNSString(name));
+        return [ICEObjectAdapter getHandle:oa];
     }
     catch(const std::exception& ex)
     {
@@ -115,8 +110,8 @@
 {
     try
     {
-        auto oa = _communicator->createObjectAdapterWithEndpoints(fromNSString(name), fromNSString(endpoints));
-        return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:oa];
+        auto oa = self.communicator->createObjectAdapterWithEndpoints(fromNSString(name), fromNSString(endpoints));
+        return [ICEObjectAdapter getHandle:oa];
     }
     catch(const std::exception& ex)
     {
@@ -130,9 +125,9 @@
     try
     {
         assert(router);
-        auto oa = _communicator->createObjectAdapterWithRouter(fromNSString(name),
+        auto oa = self.communicator->createObjectAdapterWithRouter(fromNSString(name),
                                                                Ice::uncheckedCast<Ice::RouterPrx>([router prx]));
-        return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:oa];
+        return [ICEObjectAdapter getHandle:oa];
     }
     catch(const std::exception& ex)
     {
@@ -143,17 +138,14 @@
 
 -(ICEImplicitContext*) getImplicitContext
 {
-    auto implicitContext = _communicator->getImplicitContext();
-    return createLocalObject(implicitContext, [&implicitContext] () -> id
-    {
-        return [[ICEImplicitContext alloc] initWithCppImplicitContext:implicitContext];
-    });
+    auto implicitContext = self.communicator->getImplicitContext();
+    return [ICEImplicitContext getHandle:implicitContext];
 }
 
 // id<ICELoggerProtocol> may be either a Swift logger or a wrapper around a C++ logger
 -(id<ICELoggerProtocol>) getLogger
 {
-    auto logger = _communicator->getLogger();
+    auto logger = self.communicator->getLogger();
 
     auto swiftLogger = std::dynamic_pointer_cast<LoggerWrapperI>(logger);
     if(swiftLogger)
@@ -161,15 +153,12 @@
         return swiftLogger->getLogger();
     }
 
-    return createLocalObject(logger, [&logger] () -> id
-    {
-        return [[ICELogger alloc] initWithCppLogger:logger];
-    });
+    return [ICELogger getHandle:logger];
 }
 
 -(nullable ICEObjectPrx*) getDefaultRouter
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_communicator->getDefaultRouter()];
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:self.communicator->getDefaultRouter()];
 }
 
 -(BOOL) setDefaultRouter:(ICEObjectPrx*)router error:(NSError**)error
@@ -177,7 +166,7 @@
     try
     {
         auto r = router ? [router prx] : nullptr;
-        _communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(r));
+        self.communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(r));
         return YES;
     }
     catch(const std::exception& ex)
@@ -189,7 +178,7 @@
 
 -(nullable ICEObjectPrx*) getDefaultLocator
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_communicator->getDefaultLocator()];
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:self.communicator->getDefaultLocator()];
 }
 
 -(BOOL) setDefaultLocator:(ICEObjectPrx*)locator error:(NSError**)error
@@ -197,7 +186,7 @@
     try
     {
         auto l = locator ? [locator prx] : nullptr;
-        _communicator->setDefaultLocator((Ice::uncheckedCast<Ice::LocatorPrx>(l)));
+        self.communicator->setDefaultLocator((Ice::uncheckedCast<Ice::LocatorPrx>(l)));
         return YES;
     }
     catch(const std::exception& ex)
@@ -211,7 +200,7 @@
 {
     try
     {
-        _communicator->flushBatchRequests(Ice::CompressBatch(compress));
+        self.communicator->flushBatchRequests(Ice::CompressBatch(compress));
         return YES;
     }
     catch(const std::exception& ex)
@@ -228,7 +217,7 @@
 {
     try
     {
-        _communicator->flushBatchRequestsAsync(Ice::CompressBatch(compress),
+        self.communicator->flushBatchRequestsAsync(Ice::CompressBatch(compress),
                                                [exception](std::exception_ptr e)
                                                {
                                                    exception(convertException(e));
@@ -259,7 +248,7 @@
     {
         auto ident =  Ice::Identity{fromNSString(name), fromNSString(category)};
         auto adapter = adminAdapter ? [adminAdapter objectAdapter] : nullptr;
-        auto prx = _communicator->createAdmin(adapter, ident);
+        auto prx = self.communicator->createAdmin(adapter, ident);
         return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
@@ -274,7 +263,7 @@
 {
     try
     {
-        auto adminPrx = _communicator->getAdmin();
+        auto adminPrx = self.communicator->getAdmin();
         return adminPrx ? [[ICEObjectPrx alloc] initWithCppObjectPrx:adminPrx] : [NSNull null];
     }
     catch(const std::exception& ex)
@@ -289,7 +278,7 @@
     try
     {
         auto servant = std::make_shared<BlobjectFacade>(facade);
-        _communicator->addAdminFacet(servant, fromNSString(facet));
+        self.communicator->addAdminFacet(servant, fromNSString(facet));
         return YES;
     }
     catch(const std::exception& ex)
@@ -304,7 +293,7 @@
     try
     {
         // servant can either be a Swift wrapped facet or a builtin admin facet
-        return [self facetToFacade:_communicator->removeAdminFacet(fromNSString(facet))];
+        return [self facetToFacade:self.communicator->removeAdminFacet(fromNSString(facet))];
     }
     catch(const std::exception& ex)
     {
@@ -318,7 +307,7 @@
     try
     {
         // servant can either be null, a Swift wrapped facet, or a builtin admin facet
-        auto servant = _communicator->findAdminFacet(fromNSString(facet));
+        auto servant = self.communicator->findAdminFacet(fromNSString(facet));
 
         if(!servant)
         {
@@ -341,7 +330,7 @@
     {
         NSMutableDictionary<NSString*, id<ICEBlobjectFacade>>* facets = [NSMutableDictionary dictionary];
 
-        for(const auto& d : _communicator->findAllAdminFacets())
+        for(const auto& d : self.communicator->findAllAdminFacets())
         {
             [facets setObject:[self facetToFacade:d.second] forKey:toNSString(d.first)];
         }
@@ -357,23 +346,20 @@
 
 -(ICEProperties*) getProperties
 {
-    auto props = _communicator->getProperties();
-    return createLocalObject(props, [&props]() -> id
-                             {
-                                 return [[ICEProperties alloc] initWithCppProperties:props];
-                             });
+    auto props = self.communicator->getProperties();
+    return [ICEProperties getHandle:props];
 }
 
 -(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor
 {
-    auto defaultEncoding = IceInternal::getInstance(_communicator)->defaultsAndOverrides()->defaultEncoding;
+    auto defaultEncoding = IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultEncoding;
     *major = defaultEncoding.major;
     *minor = defaultEncoding.minor;
 }
 
 -(uint8_t) getDefaultFormat
 {
-    return static_cast<uint8_t>(IceInternal::getInstance(_communicator)->defaultsAndOverrides()->defaultFormat);
+    return static_cast<uint8_t>(IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat);
 }
 
 -(id<ICEBlobjectFacade>) facetToFacade:(const std::shared_ptr<Ice::Object>&) servant
@@ -394,19 +380,16 @@
     auto process = std::dynamic_pointer_cast<Ice::Process>(servant);
     if(process)
     {
-        return [factory createProcess:self
-                               handle:[[ICEProcess alloc] initWithCppProcess:process]];
+        return [factory createProcess:self handle:[ICEProcess getHandle:process]];
     }
 
     auto propertiesAdmin = std::dynamic_pointer_cast<Ice::PropertiesAdmin>(servant);
     if(propertiesAdmin)
     {
-        return [factory createProperties:self
-                                  handle: [[ICEPropertiesAdmin alloc] initWithCppPropertiesAdmin:propertiesAdmin]];
+        return [factory createProperties:self handle: [ICEPropertiesAdmin getHandle:propertiesAdmin]];
     }
 
-    return [factory createUnsupported:self
-                               handle:[[ICEUnsupportedAdminFacet alloc] initWithCppAdminFacet:servant]];
+    return [factory createUnsupported:self handle:[ICEUnsupportedAdminFacet getHandle:servant]];
 }
 
 @end

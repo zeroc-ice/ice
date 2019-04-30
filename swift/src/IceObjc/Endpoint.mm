@@ -8,67 +8,54 @@
 
 @implementation ICEEndpointInfo
 
--(instancetype) initWithCppEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)info
+-(std::shared_ptr<Ice::EndpointInfo>) info
 {
-    self = [super initWithLocalObject:info.get()];
-    if(!self)
-    {
-        return nil;
-
-    }
-    self->_info = info;
-    return self;
+    return std::static_pointer_cast<Ice::EndpointInfo>(self.cppObject);
 }
 
 -(int16_t) getType
 {
-    return _info->type();
+    return self.info->type();
 }
 
 -(BOOL) getDatagram
 {
-    return _info->datagram();
+    return self.info->datagram();
 }
 
 -(BOOL) getSecure
 {
-    return _info->secure();
+    return self.info->secure();
 }
 
 @end
 
 @implementation ICEEndpoint
 
--(instancetype) initWithCppEndpoint:(std::shared_ptr<Ice::Endpoint>)endpoint;
+-(std::shared_ptr<Ice::Endpoint>) endpoint
 {
-    self = [super initWithLocalObject:endpoint.get()];
-    if(!self)
-    {
-        return nil;
-    }
-    self->_endpoint = endpoint;
-    return self;
+    return std::static_pointer_cast<Ice::Endpoint>(self.cppObject);
 }
 
 -(NSString*) toString
 {
-    return toNSString(_endpoint->toString());
+    return toNSString(self.endpoint->toString());
 }
 
 -(id) getInfo
 {
-    auto info = _endpoint->getInfo();
+    auto info = self.endpoint->getInfo();
     return [ICEEndpoint createEndpointInfo:info];
 }
 
 -(bool) isEqual:(ICEEndpoint*)other
 {
-    return Ice::targetEqualTo(_endpoint, other.endpoint);
+    return Ice::targetEqualTo(self.endpoint, other.endpoint);
 }
 
 +(id) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr
 {
-    ICEEndpointInfo* handle = [[ICEEndpointInfo alloc] initWithCppEndpointInfo:infoPtr];
+    ICEEndpointInfo* handle = [ICEEndpointInfo getHandle:infoPtr];
     id underlying = infoPtr->underlying ? [self createEndpointInfo:infoPtr->underlying] : [NSNull null];
 
     Class<ICEEndpointInfoFactory> factory = [ICEUtil endpointInfoFactory];

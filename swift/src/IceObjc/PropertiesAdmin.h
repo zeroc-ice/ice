@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEPropertiesAdmin()
 @property (nonatomic, readonly) std::shared_ptr<Ice::PropertiesAdmin> propertiesAdmin;
--(instancetype) initWithCppPropertiesAdmin:(std::shared_ptr<Ice::PropertiesAdmin>)propertiesAdmin;
 @end
 
 #endif

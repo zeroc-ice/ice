@@ -166,7 +166,7 @@ class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}
 extension Array where Element == ICEEndpoint {
     func fromObjc() -> EndpointSeq {
         return map { objcEndpt in
-            objcEndpt.fromLocalObject(to: EndpointI.self) {
+            objcEndpt.getSwiftObject(EndpointI.self) {
                 EndpointI(handle: objcEndpt)
             }
         }

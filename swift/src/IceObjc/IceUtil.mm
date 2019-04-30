@@ -108,7 +108,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         {
             communicator = Ice::initialize(initData);
         }
-        return [[ICECommunicator alloc] initWithCppCommunicator:communicator];
+        return [ICECommunicator getHandle:communicator];
     }
     catch(const std::exception& err)
     {
@@ -119,7 +119,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 +(ICEProperties*) createProperties
 {
-    return [[ICEProperties alloc] initWithCppProperties:Ice::createProperties()];
+    return [ICEProperties getHandle:Ice::createProperties()];
 }
 
 +(ICEProperties*) createProperties:(NSArray*)swiftArgs
@@ -143,7 +143,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         {
             *remArgs = toNSArray(a);
         }
-        return [[ICEProperties alloc] initWithCppProperties:props];
+        return [ICEProperties getHandle:props];
     }
     catch(const std::exception& ex)
     {

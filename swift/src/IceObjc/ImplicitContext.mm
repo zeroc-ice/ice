@@ -8,48 +8,41 @@
 
 @implementation ICEImplicitContext
 
--(instancetype) initWithCppImplicitContext:(std::shared_ptr<Ice::ImplicitContext>)implicitContext
+-(std::shared_ptr<Ice::ImplicitContext>) implicitContext
 {
-    self = [super initWithLocalObject:implicitContext.get()];
-    if(!self)
-    {
-        return nil;
-    }
-
-    self->_implicitContext = implicitContext;
-    return self;
+    return std::static_pointer_cast<Ice::ImplicitContext>(self.cppObject);
 }
 
 -(NSDictionary<NSString*, NSString*>*) getContext
 {
-    return toNSDictionary(_implicitContext->getContext());
+    return toNSDictionary(self.implicitContext->getContext());
 }
 
 -(void) setContext:(NSDictionary<NSString*, NSString*>*)context
 {
     Ice::Context c;
     fromNSDictionary(context, c);
-    _implicitContext->setContext(c);
+    self.implicitContext->setContext(c);
 }
 
 -(bool) containsKey:(NSString*)string
 {
-    return _implicitContext->containsKey(fromNSString(string));
+    return self.implicitContext->containsKey(fromNSString(string));
 }
 
 -(NSString*) get:(NSString*)key
 {
-    return toNSString(_implicitContext->get(fromNSString(key)));
+    return toNSString(self.implicitContext->get(fromNSString(key)));
 }
 
 -(NSString*) put:(NSString*)key value:(NSString*)value
 {
-    return toNSString(_implicitContext->put(fromNSString(key), fromNSString(value)));
+    return toNSString(self.implicitContext->put(fromNSString(key), fromNSString(value)));
 }
 
 -(NSString*) remove:(NSString*)key
 {
-    return toNSString(_implicitContext->remove(fromNSString(key)));
+    return toNSString(self.implicitContext->remove(fromNSString(key)));
 }
 
 @end

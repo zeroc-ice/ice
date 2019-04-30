@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEProperties()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Properties> properties;
--(instancetype) initWithCppProperties:(std::shared_ptr<Ice::Properties>)Properties;
 @end
 
 #endif

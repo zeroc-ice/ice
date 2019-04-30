@@ -23,14 +23,8 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
         error(convertException(e));
     };
 
-    ICEObjectAdapter* adapter = createLocalObject(current.adapter, [&current] () -> id
-                                                  {
-                                                      return [[ICEObjectAdapter alloc] initWithCppObjectAdapter:current.adapter];
-                                                  });
-    ICEConnection* con = createLocalObject(current.con, [&current] () -> id
-                                           {
-                                               return [[ICEConnection alloc] initWithCppConnection: current.con];
-                                           });
+    ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
+    ICEConnection* con = [ICEConnection getHandle:current.con];
 
     [_facade facadeInvoke:adapter
                     start: inEncaps.first

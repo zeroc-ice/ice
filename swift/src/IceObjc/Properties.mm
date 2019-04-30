@@ -8,58 +8,53 @@
 
 @implementation ICEProperties
 
--(instancetype) initWithCppProperties:(std::shared_ptr<Ice::Properties>)properties
+-(std::shared_ptr<Ice::Properties>) properties
 {
-    self = [super initWithLocalObject:properties.get()];
-    if(self)
-    {
-        self->_properties = properties;
-    }
-    return self;
+    return std::static_pointer_cast<Ice::Properties>(self.cppObject);
 }
 
 -(NSString*) getProperty:(NSString*)key
 {
-     return toNSString(_properties->getProperty(fromNSString(key)));
+     return toNSString(self.properties->getProperty(fromNSString(key)));
 }
 
 -(NSString*) getPropertyWithDefault:(NSString*)key value:(NSString*)value
 {
-    return toNSString(_properties->getPropertyWithDefault(fromNSString(key), fromNSString(value)));
+    return toNSString(self.properties->getPropertyWithDefault(fromNSString(key), fromNSString(value)));
 }
 
 -(int32_t) getPropertyAsInt:(NSString*)key
 {
-    return _properties->getPropertyAsInt(fromNSString(key));
+    return self.properties->getPropertyAsInt(fromNSString(key));
 }
 
 -(int32_t) getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value
 {
-    return _properties->getPropertyAsIntWithDefault(fromNSString(key), value);
+    return self.properties->getPropertyAsIntWithDefault(fromNSString(key), value);
 }
 
 -(NSArray<NSString*>*) getPropertyAsList:(NSString*)key
 {
-    return toNSArray(_properties->getPropertyAsList(fromNSString(key)));
+    return toNSArray(self.properties->getPropertyAsList(fromNSString(key)));
 }
 
 -(NSArray<NSString*>*) getPropertyAsListWithDefault:(NSString*)key value:(NSArray<NSString*>*)value
 {
     std::vector<std::string> s;
     fromNSArray(value, s);
-    return toNSArray(_properties->getPropertyAsListWithDefault(fromNSString(key), s));
+    return toNSArray(self.properties->getPropertyAsListWithDefault(fromNSString(key), s));
 }
 
 -(NSDictionary<NSString*, NSString*>*) getPropertiesForPrefix:(NSString*)prefix
 {
-    return toNSDictionary(_properties->getPropertiesForPrefix(fromNSString(prefix)));
+    return toNSDictionary(self.properties->getPropertiesForPrefix(fromNSString(prefix)));
 }
 
 -(BOOL) setProperty:(NSString*)key value:(NSString*)value error:(NSError**)error;
 {
     try
     {
-        _properties->setProperty(fromNSString(key), fromNSString(value));
+        self.properties->setProperty(fromNSString(key), fromNSString(value));
         return YES;
     }
     catch(const std::exception& ex)
@@ -71,7 +66,7 @@
 
 -(NSArray<NSString*>*) getCommandLineOptions
 {
-    return toNSArray(_properties->getCommandLineOptions());
+    return toNSArray(self.properties->getCommandLineOptions());
 }
 
 -(NSArray<NSString*>*) parseCommandLineOptions:(NSString*)prefix options:(NSArray<NSString*>*)options error:(NSError**)error;
@@ -80,7 +75,7 @@
     {
         std::vector<std::string> s;
         fromNSArray(options, s);
-        return toNSArray(_properties->parseCommandLineOptions(fromNSString(prefix), s));
+        return toNSArray(self.properties->parseCommandLineOptions(fromNSString(prefix), s));
     }
     catch(const std::exception& ex)
     {
@@ -95,7 +90,7 @@
     {
         std::vector<std::string> s;
         fromNSArray(options, s);
-        return toNSArray(_properties->parseIceCommandLineOptions(s));
+        return toNSArray(self.properties->parseIceCommandLineOptions(s));
     }
     catch(const std::exception& ex)
     {
@@ -108,7 +103,7 @@
 {
     try
     {
-        _properties->load(fromNSString(file));
+        self.properties->load(fromNSString(file));
         return YES;
     }
     catch(const std::exception& ex)
@@ -120,8 +115,8 @@
 
 -(ICEProperties*) clone
 {
-    auto props = _properties->clone();
-    return [[ICEProperties alloc] initWithCppProperties:props];
+    auto props = self.properties->clone();
+    return [ICEProperties getHandle:props];
 }
 
 @end

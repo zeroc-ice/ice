@@ -109,7 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEConnection()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Connection> connection;
--(instancetype) initWithCppConnection:(std::shared_ptr<Ice::Connection>) connection;
 @end
 
 #endif

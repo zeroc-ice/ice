@@ -44,8 +44,8 @@
 
 -(ICECommunicator*) ice_getCommunicator
 {
-    auto comm = _prx->ice_getCommunicator().get();
-    return [ICECommunicator fromLocalObject:comm];
+    auto comm = _prx->ice_getCommunicator();
+    return [ICECommunicator getHandle:comm];
 }
 
 -(void) ice_getIdentity:(NSString* __strong _Nonnull * _Nonnull)name
@@ -438,11 +438,7 @@
     try
     {
         auto cppConnection = _prx->ice_getConnection();
-
-        ICEConnection* connection = createLocalObject(cppConnection, [&cppConnection]() -> id
-        {
-            return [[ICEConnection alloc] initWithCppConnection:cppConnection];
-        });
+        ICEConnection* connection = [ICEConnection getHandle:cppConnection];
 
         return connection ? connection : [NSNull null];
     }
@@ -456,11 +452,7 @@
 -(ICEConnection*) ice_getCachedConnection
 {
     auto cppConnection = _prx->ice_getCachedConnection();
-
-    return createLocalObject(cppConnection, [&cppConnection]() -> id
-    {
-        return [[ICEConnection alloc] initWithCppConnection:cppConnection];
-    });
+    return [ICEConnection getHandle:cppConnection];
 }
 
 -(BOOL) ice_flushBatchRequests:(NSError**)error

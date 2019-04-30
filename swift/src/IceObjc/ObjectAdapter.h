@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEObjectAdapter()
 @property (nonatomic, readonly) std::shared_ptr<Ice::ObjectAdapter> objectAdapter;
--(nullable instancetype) initWithCppObjectAdapter:(std::shared_ptr<Ice::ObjectAdapter>)objectAdapter;
 @end
 
 #endif

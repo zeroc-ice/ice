@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEImplicitContext()
 @property (nonatomic, readonly) std::shared_ptr<Ice::ImplicitContext> implicitContext;
--(instancetype) initWithCppImplicitContext:(std::shared_ptr<Ice::ImplicitContext>)implicitContext;
 @end
 
 #endif

@@ -59,7 +59,6 @@ NS_SWIFT_NAME(propertyToProxy(property:));
 
 @interface ICECommunicator()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Communicator> communicator;
--(instancetype) initWithCppCommunicator:(std::shared_ptr<Ice::Communicator>)communicator;
 @end
 
 #endif
