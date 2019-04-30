@@ -7,9 +7,7 @@ import IceObjc
 public class InputStream {
     // The underlying storage of an input stream can beeither:
     // - Pointers to the C++ unmarshaling buffer (bytes not owned by Buffer)
-    // - An ICEInputStream that holds a vector<Byte> (bytes not owned by Buffer)
     // - A byte array passed and copied during initialization (bytes owned by Buffer)
-    private var handle: ICEInputStream!
     private var bytes: [UInt8]!
 
     private var buf: Buffer // buf overlays the C++ unmarshal buffer stored in ICEInputStream or user buffer
@@ -43,16 +41,6 @@ public class InputStream {
         var baseAddress: UnsafeMutableRawPointer?
         self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
         buf = Buffer(start: baseAddress!, count: bytes.count)
-        traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
-        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
-        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
-    }
-
-    init(communicator: Communicator, inputStream handle: ICEInputStream, encoding: EncodingVersion) {
-        self.communicator = communicator
-        self.encoding = encoding
-        self.handle = handle
-        buf = Buffer(start: handle.data(), count: handle.size())
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix

@@ -8,7 +8,6 @@ module IceObjc {
   header "Exception.h"
   header "IceUtil.h"
   header "ImplicitContext.h"
-  header "InputStream.h"
   header "LocalObject.h"
   header "Logger.h"
   header "ObjectAdapter.h"

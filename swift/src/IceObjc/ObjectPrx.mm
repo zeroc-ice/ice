@@ -6,7 +6,6 @@
 
 #import "Communicator.h"
 #import "Connection.h"
-#import "InputStream.h"
 #import "OutputStream.h"
 #import "Util.h"
 
@@ -579,13 +578,12 @@ encodingMinor:(uint8_t)minor
     [os copy:p.first count:[NSNumber numberWithInt:count]];
 }
 
--(ICEInputStream*) iceInvoke:(NSString*)op
-                         mode:(uint8_t)mode
-                     inParams:(const void* _Null_unspecified)inParams
-                       inSize:(size_t)inSize
-                      context:(NSDictionary*)context
-                  returnValue:(bool*)returnValue
-                        error:(NSError**)error
+-(BOOL) iceOnewayInvoke:(NSString*)op
+                   mode:(uint8_t)mode
+               inParams:(const void* _Null_unspecified)inParams
+                 inSize:(size_t)inSize
+                context:(NSDictionary*)context
+                  error:(NSError**)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
     params.first = reinterpret_cast<const Ice::Byte*>(inParams);
@@ -599,15 +597,15 @@ encodingMinor:(uint8_t)minor
             fromNSDictionary(context, ctx);
         }
 
-        std::vector<Ice::Byte> v;
-        *returnValue = _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, v,
-                                        context ? ctx : Ice::noExplicitContext);
-        return [[ICEInputStream alloc] initWithBytes:std::move(v)];
+        std::vector<Ice::Byte> ignored;
+        _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, ignored,
+                         context ? ctx : Ice::noExplicitContext);
+        return YES;
     }
     catch(const std::exception& ex)
     {
         *error = convertException(ex);
-        return nil;
+        return NO;
     }
 }
 

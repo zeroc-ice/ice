@@ -94,13 +94,14 @@ NS_ASSUME_NONNULL_BEGIN
    encodingMajor:(uint8_t)encodingMajor
    encodingMinor:(uint8_t)encodingMinor;
 
--(nullable ICEInputStream*) iceInvoke:(NSString* _Nonnull)op
-                                 mode:(uint8_t)mode
-                             inParams:(const void* _Null_unspecified)inParams
-                               inSize:(size_t)inSize
-                              context:(NSDictionary* _Nullable)context
-                          returnValue:(bool*)returnValue
-                                error:(NSError* _Nullable * _Nullable)error;
+
+// Sync invocation on oneway proxy
+-(BOOL) iceOnewayInvoke:(NSString* _Nonnull)op
+                   mode:(uint8_t)mode
+               inParams:(const void* _Null_unspecified)inParams
+                 inSize:(size_t)inSize
+                context:(NSDictionary* _Nullable)context
+                  error:(NSError* _Nullable * _Nullable)error;
 
 -(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
                   mode:(NSInteger)mode

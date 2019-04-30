@@ -6,7 +6,6 @@
 #import "ObjectAdapter.h"
 #import "Util.h"
 #import "ObjectPrx.h"
-#import "InputStream.h"
 #import "Connection.h"
 #import "Communicator.h"
 #import "BlobjectFacade.h"

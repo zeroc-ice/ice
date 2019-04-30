@@ -6,7 +6,6 @@
 #import "ObjectAdapter.h"
 #import "Util.h"
 
-#import "InputStream.h"
 #import "Connection.h"
 
 void
