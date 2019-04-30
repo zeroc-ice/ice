@@ -202,10 +202,11 @@ public extension ObjectPrx {
                                                      context: context,
                                                      response: { ok, start, count in
                                                          do {
-                                                             let istr = InputStream(communicator: self._impl._communicator,
-                                                                                    start: start,
-                                                                                    count: count,
-                                                                                    encoding: self._impl._encoding)
+                                                             let istr =
+                                                                 InputStream(communicator: self._impl._communicator,
+                                                                             start: start,
+                                                                             count: count,
+                                                                             encoding: self._impl._encoding)
                                                              seal.fulfill((ok, try istr.readEncapsulation().bytes))
                                                          } catch {
                                                              seal.reject(error)
@@ -245,10 +246,11 @@ public extension ObjectPrx {
                                                      context: context,
                                                      response: { ok, start, count in
                                                          do {
-                                                             let istr = InputStream(communicator: self._impl._communicator,
-                                                                                    start: start,
-                                                                                    count: count,
-                                                                                    encoding: self._impl._encoding)
+                                                             let istr =
+                                                                 InputStream(communicator: self._impl._communicator,
+                                                                             start: start,
+                                                                             count: count,
+                                                                             encoding: self._impl._encoding)
                                                              seal.fulfill((ok, try istr.readEncapsulation().bytes))
                                                          } catch {
                                                              seal.reject(error)
@@ -881,25 +883,36 @@ open class _ObjectPrxI: ObjectPrx {
                                            sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
             }
         } else {
-            return Promise<Void> { seal in
-                let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
-                try _handle.iceInvokeAsync(operation,
-                                           mode: Int(mode.rawValue),
-                                           inParams: ostr.getBytes(),
-                                           inSize: ostr.getCount(),
-                                           context: context,
-                                           response: { _, _, _ in
-                                               precondition(false)
-                                           },
-                                           exception: { error in
-                                               seal.reject(error)
-                                           },
-                                           sent: {
-                                               seal.fulfill(())
-                                               if let sentCB = sentCB {
-                                                   sentCB($0)
-                                               }
-                })
+            if ice_isBatchOneway() || ice_isBatchDatagram() {
+                return Promise<Void> { seal in
+                    try _handle.iceOnewayInvoke(operation,
+                                                mode: mode.rawValue,
+                                                inParams: ostr.getBytes(),
+                                                inSize: ostr.getCount(),
+                                                context: context)
+                    seal.fulfill(())
+                }
+            } else {
+                return Promise<Void> { seal in
+                    let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+                    try _handle.iceInvokeAsync(operation,
+                                               mode: Int(mode.rawValue),
+                                               inParams: ostr.getBytes(),
+                                               inSize: ostr.getCount(),
+                                               context: context,
+                                               response: { _, _, _ in
+                                                   precondition(false)
+                                               },
+                                               exception: { error in
+                                                   seal.reject(error)
+                                               },
+                                               sent: {
+                                                   seal.fulfill(())
+                                                   if let sentCB = sentCB {
+                                                       sentCB($0)
+                                                   }
+                    })
+                }
             }
         }
     }

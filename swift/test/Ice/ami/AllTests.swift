@@ -202,7 +202,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             try test(p.opBatchCount() == 0)
             let b1 = p.ice_batchOneway()
             try b1.opBatch()
-            try b1.opBatch()
+            let b1r = b1.opBatchAsync()
+            try test(b1r.isFulfilled)
             var r: Promise<Void>!
             try Promise<Void> { seal in
                 r = b1.ice_flushBatchRequestsAsync(sent: { _ in
