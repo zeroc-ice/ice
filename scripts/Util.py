@@ -3829,6 +3829,12 @@ class SwiftMapping(Mapping):
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         return "{0}/TestDriver.app".format(targetBuildDir)
 
+    def getSSLProps(self, process, current):
+        return Mapping.getByName("cpp").getSSLProps(process, current)
+
+    def getPluginEntryPoint(self, plugin, process, current):
+        return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
+
 #
 # Instantiate platform global variable
 #

@@ -30,7 +30,8 @@ $tests = [
     "Ice/slicing/objects",
     "Ice/stream",
     "Ice/timeout",
-    "Ice/udp"
+    "Ice/udp",
+    "IceSSL/configuration"
 ]
 
 $test_variants = ["Client", "Server", "ServerAMD", "Collocated"]
@@ -65,7 +66,11 @@ $test_extra_sources = {
 
     "Ice/slicing/objects/Client" => ["ClientPrivate.ice"],
     "Ice/slicing/objects/Server" => ["ServerPrivate.ice"],
-    "Ice/slicing/objects/ServerAMD" => ["ServerPrivateAMD.ice"],
+    "Ice/slicing/objects/ServerAMD" => ["ServerPrivateAMD.ice"]
+}
+
+$test_resources = {
+    "IceSSL/configuration" => ["../../../../cpp/test/IceSSL/certs"]
 }
 
 desc "Generate Xcode projects required to build Ice for Swift"
@@ -306,6 +311,10 @@ def create_platform_targets(project, platform)
             target_add_files(target, group, "test/#{test}", test_variant_sources(test, variant))
         end
 
+        if $test_resources.include? test then
+            target.add_resources(group_add_files(group, "test/#{test}", $test_resources[test]))
+        end
+
         target_set_common_build_settings(target, target_name("#{test}"), swift: true)
         test_driver_target.add_dependency(target)
 
@@ -432,7 +441,8 @@ def group_add_files(group, basedir, patterns, exclude = [])
         end
     end
     files = files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
-    files.map { |file|  group.find_subpath(file) ||  group.new_file("#{basedir}/#{file}") }
+    files = files.uniq
+    files.map { |file|  group.find_subpath(File.basename(file)) ||  group.new_file("#{basedir}/#{file}") }
 end
 
 def target_add_files(target, group, basedir, patterns, excludes = [])
