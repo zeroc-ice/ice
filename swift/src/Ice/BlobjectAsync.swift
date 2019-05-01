@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import PromiseKit
 
 public protocol BlobjectAsync: Object {
-    func ice_invokeAsync(inEncaps: [UInt8], current: Current) -> Promise<(ok: Bool, outParams: [UInt8])>
+    func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)>
 }
 
 public extension BlobjectAsync {

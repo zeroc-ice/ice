@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
+
 /**
  * SliceInfo encapsulates the details of a slice for an unknown class or exception type.
  **/
@@ -19,7 +21,7 @@ public struct SliceInfo {
     /**
      * The encoded bytes for this slice, including the leading size integer.
      **/
-    public let bytes: [UInt8]
+    public let bytes: Data
 
     /**
      * The class instances referenced by this slice.

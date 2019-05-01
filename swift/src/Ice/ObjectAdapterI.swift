@@ -210,7 +210,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       requestId: Int32,
                       encodingMajor: UInt8,
                       encodingMinor: UInt8,
-                      response: @escaping (Bool, UnsafeRawPointer?, Int) -> Void,
+                      response: @escaping (Bool, Data) -> Void,
                       exception: @escaping (ICERuntimeException) -> Void) {
         precondition(_handle == adapter)
 
@@ -227,10 +227,9 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                               encoding: EncodingVersion(major: encodingMajor, minor: encodingMinor))
 
         let incoming = Incoming(istr: InputStream(communicator: communicator,
-                                                  start: start,
-                                                  count: count,
                                                   encoding: EncodingVersion(major: encodingMajor,
-                                                                            minor: encodingMinor)),
+                                                                            minor: encodingMinor),
+                                                  startNoCopy: start, count: count),
                                 response: response,
                                 exception: exception,
                                 current: current)

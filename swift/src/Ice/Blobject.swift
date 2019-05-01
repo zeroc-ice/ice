@@ -2,8 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
+
 public protocol Blobject: Object {
-    func ice_invoke(inEncaps: [UInt8], current: Current) throws -> (ok: Bool, outParams: [UInt8])
+    func ice_invoke(inEncaps: Data, current: Current) throws -> (ok: Bool, outParams: Data)
 }
 
 public extension Blobject {

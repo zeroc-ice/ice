@@ -515,8 +515,7 @@
     }
 }
 
-+(id) iceRead:(void*)start
-         size:(NSInteger)size
++(id) iceRead:(NSData*)data
  communicator:(ICECommunicator*)communicator
 encodingMajor:(uint8_t)major
 encodingMinor:(uint8_t)minor
@@ -525,8 +524,8 @@ encodingMinor:(uint8_t)minor
 {
 
     std::pair<const Ice::Byte*, const Ice::Byte*> p;
-    p.first = reinterpret_cast<Ice::Byte*>(start);
-    p.second = p.first + size;
+    p.first = static_cast<const Ice::Byte*>(data.bytes);
+    p.second = p.first + data.length;
 
     auto comm = [communicator communicator];
 
@@ -572,14 +571,13 @@ encodingMinor:(uint8_t)minor
 
 -(BOOL) iceOnewayInvoke:(NSString*)op
                    mode:(uint8_t)mode
-               inParams:(const void* _Null_unspecified)inParams
-                 inSize:(size_t)inSize
+               inParams:(NSData*)inParams
                 context:(NSDictionary*)context
                   error:(NSError**)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = reinterpret_cast<const Ice::Byte*>(inParams);
-    params.second = params.first + inSize;
+    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    params.second = params.first + inParams.length;
 
     try
     {
@@ -603,8 +601,7 @@ encodingMinor:(uint8_t)minor
 
 -(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
                   mode:(NSInteger)mode
-              inParams:(const void* _Null_unspecified)inParams
-                inSize:(NSInteger)inSize
+              inParams:(NSData*)inParams
                context:(NSDictionary* _Nullable)context
               response:(void (^)(bool, const void*, NSInteger))response
              exception:(void (^)(NSError*))exception
@@ -612,8 +609,8 @@ encodingMinor:(uint8_t)minor
                  error:(NSError* _Nullable * _Nullable)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = reinterpret_cast<const Ice::Byte*>(inParams);
-    params.second = params.first + inSize;
+    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    params.second = params.first + inParams.length;
 
     try
     {

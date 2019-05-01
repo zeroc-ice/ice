@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import IceObjc
 
 public class OutputStream {
@@ -77,26 +78,21 @@ public class OutputStream {
         write(encoding)
     }
 
-    func writeEncapsulation(_ v: [UInt8]) {
+    func writeEncapsulation(_ v: Data) {
         precondition(v.count >= 6, "Encapsulation is invalid. Size is too small.")
         write(raw: v)
-    }
-
-    func getBytes() -> UnsafeMutableRawPointer? {
-        return buf.baseAddress
-    }
-
-    func getConstBytes() -> UnsafeRawPointer? {
-        return buf.constBaseAddress
     }
 
     func getCount() -> Int {
         return buf.position()
     }
 
+    // Overwrite an existing numeric value at the specified position
+    //
     func write<T>(bytesOf value: T, at: Int) where T: Numeric {
-        withUnsafePointer(to: value) {
-            self.buf.write(bytes: UnsafeRawBufferPointer(start: $0, count: MemoryLayout<T>.size), at: at)
+        withUnsafePointer(to: value) { ptr in
+            self.buf.data.replaceSubrange(at ..< at + MemoryLayout<T>.size,
+                                          with: UnsafeRawPointer(ptr), count: MemoryLayout<T>.size)
         }
     }
 
@@ -161,9 +157,9 @@ public class OutputStream {
         }
     }
 
-    public func finished() -> [UInt8] {
-        // Create a copy
-        return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.position()))
+    // Must be called once - returns the underlying data
+    public func finished() -> Data {
+        return buf.data
     }
 
     public func startSlice(typeId: String, compactId: Int32, last: Bool) {
@@ -179,9 +175,7 @@ public class OutputStream {
 
 public extension OutputStream {
     private func writeNumeric<Element>(_ v: Element) where Element: Numeric {
-        withUnsafeBytes(of: v) {
-            self.buf.append(bytes: $0)
-        }
+        buf.append(v)
     }
 
     private func writeNumeric<Element>(_ tag: Int32, _ v: Element?, _ format: OptionalFormat) where Element: Numeric {
@@ -386,13 +380,9 @@ public extension OutputStream {
 
     func write(size: Int32) {
         if size > 254 {
-            // pre-allocate size memory
-            buf.ensure(bytesNeeded: Int(5))
             write(UInt8(255))
             write(size)
         } else {
-            // pre-allocate size memory
-            buf.ensure(bytesNeeded: Int(1))
             write(UInt8(size))
         }
     }
@@ -461,7 +451,7 @@ public extension OutputStream {
         let view = v.utf8
         let byteArray = [UInt8](view)
         write(size: byteArray.count)
-        byteArray.withUnsafeBytes { self.buf.append(bytes: $0) }
+        buf.append(bytes: byteArray)
     }
 
     func write(tag: Int32, value v: String?) {
@@ -575,14 +565,15 @@ public extension OutputStream {
     //
     // Raw Bytes
     //
-    func write(raw v: [UInt8]) {
-        v.withUnsafeBytes { self.buf.append(bytes: $0) }
+    func write(raw: Data) {
+        buf.append(bytes: raw)
     }
 }
 
 extension OutputStream: ICEOutputStreamHelper {
     public func copy(_ start: UnsafeRawPointer, count: NSNumber) {
-        buf.append(bytes: UnsafeRawBufferPointer(start: start, count: count.intValue))
+        buf.append(bytes: Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: start),
+                               count: count.intValue, deallocator: .none))
     }
 }
 

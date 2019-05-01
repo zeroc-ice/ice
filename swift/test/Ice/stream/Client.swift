@@ -21,7 +21,7 @@ public class Client: TestHelperI {
         var outS: Ice.OutputStream
 
         do {
-            let data = [UInt8]()
+            let data = Data()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
         }
 
@@ -44,7 +44,7 @@ public class Client: TestHelperI {
         }
 
         do {
-            inS = Ice.InputStream(communicator: communicator, bytes: [UInt8]())
+            inS = Ice.InputStream(communicator: communicator)
             do {
                 _ = try inS.read() as Bool
                 try test(false)

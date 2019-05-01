@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import IceObjc
 
 public final class Incoming {
@@ -34,7 +35,7 @@ public final class Incoming {
         current.encoding = try istr.skipEmptyEncapsulation()
     }
 
-    public func readParamEncaps() throws -> [UInt8] {
+    public func readParamEncaps() throws -> Data {
         let params = try istr.readEncapsulation()
         current.encoding = params.encoding
         return params.bytes
@@ -58,14 +59,14 @@ public final class Incoming {
         response()
     }
 
-    public func writeParamEncaps(ok: Bool, outParams: [UInt8]) {
+    public func writeParamEncaps(ok: Bool, outParams: Data) {
         if outParams.isEmpty {
             ostr.writeEmptyEncapsulation(current.encoding)
         } else {
             ostr.writeEncapsulation(outParams)
         }
 
-        responseCallback(ok, ostr.getBytes()!, ostr.getCount())
+        responseCallback(ok, ostr.finished())
     }
 
     public func writeEmptyParams() {
@@ -77,7 +78,7 @@ public final class Incoming {
         guard locator == nil || servantLocatorFinished() else {
             return
         }
-        responseCallback(true, ostr.getConstBytes(), ostr.getCount())
+        responseCallback(true, ostr.finished())
     }
 
     public func exception(_ ex: Error) {
@@ -159,7 +160,7 @@ public final class Incoming {
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         ostr.write(e)
         ostr.endEncapsulation()
-        responseCallback(false, ostr.getBytes()!, ostr.getCount())
+        responseCallback(false, ostr.finished())
     }
 
     func convertException(_ exception: Error) -> ICERuntimeException {

@@ -229,7 +229,7 @@ class InitialI: Initial {
 }
 
 class UnexpectedObjectExceptionTestI: Ice.Blobject {
-    func ice_invoke(inEncaps: [UInt8], current: Ice.Current) throws -> (ok: Bool, outParams: [UInt8]) {
+    func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter!.getCommunicator()
         let ostr = Ice.OutputStream(communicator: communicator)
         _ = ostr.startEncapsulation(encoding: current.encoding, format: .DefaultFormat)

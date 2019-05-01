@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
                                             error:(NSError* _Nullable * _Nullable)error;
 
 // Either ICEObjectPrx or NSNull
-+(nullable id) iceRead:(void*)start size:(NSInteger)size
++(nullable id) iceRead:(NSData*)data
           communicator:(ICECommunicator*)communicator
          encodingMajor:(uint8_t)major
          encodingMinor:(uint8_t)minor
@@ -98,15 +98,13 @@ NS_ASSUME_NONNULL_BEGIN
 // Sync invocation on oneway proxy
 -(BOOL) iceOnewayInvoke:(NSString* _Nonnull)op
                    mode:(uint8_t)mode
-               inParams:(const void* _Null_unspecified)inParams
-                 inSize:(size_t)inSize
+               inParams:(NSData*)inParams
                 context:(NSDictionary* _Nullable)context
                   error:(NSError* _Nullable * _Nullable)error;
 
 -(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
                   mode:(NSInteger)mode
-              inParams:(const void* _Null_unspecified)inParams
-                inSize:(NSInteger)inSize
+              inParams:(NSData*)inParams
                context:(NSDictionary* _Nullable)context
               response:(void (^)(bool, const void*, NSInteger))response
              exception:(void (^)(NSError*))exception

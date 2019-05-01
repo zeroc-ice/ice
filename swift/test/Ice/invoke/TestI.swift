@@ -8,14 +8,14 @@ import PromiseKit
 
 class BlobjectI: Ice.Blobject {
 
-    func ice_invoke(inEncaps: [UInt8], current: Ice.Current) throws -> (ok: Bool, outParams: [UInt8]) {
+    func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter!.getCommunicator()
         let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
         _ = try inS.startEncapsulation()
         let outS = Ice.OutputStream(communicator: communicator)
         outS.startEncapsulation()
         if current.operation == "opOneway" {
-            return (true, [])
+            return (true, Data())
         } else if current.operation == "opString" {
             let s: String = try inS.read()
             outS.write(s)
@@ -32,7 +32,7 @@ class BlobjectI: Ice.Blobject {
             return (false, outS.finished())
         } else if current.operation == "shutdown" {
             communicator.shutdown()
-            return (true, [])
+            return (true, Data())
         } else if current.operation == "ice_isA" {
             let s: String = try inS.read()
             if s == "::Test::MyClass" {
@@ -49,7 +49,7 @@ class BlobjectI: Ice.Blobject {
 }
 
 class BlobjectAsyncI: Ice.BlobjectAsync {
-    func ice_invokeAsync(inEncaps: [UInt8], current: Current) -> Promise<(ok: Bool, outParams: [UInt8])> {
+    func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)> {
         do {
             let communicator = current.adapter!.getCommunicator()
             let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)
@@ -57,7 +57,7 @@ class BlobjectAsyncI: Ice.BlobjectAsync {
             let outS = Ice.OutputStream(communicator: communicator)
             outS.startEncapsulation()
             if current.operation == "opOneway" {
-                return Promise.value((true, []))
+                return Promise.value((true, Data()))
             } else if current.operation == "opString" {
                 let s: String = try inS.read()
                 outS.write(s)
@@ -71,7 +71,7 @@ class BlobjectAsyncI: Ice.BlobjectAsync {
                 return Promise.value((false, outS.finished()))
             } else if current.operation == "shutdown" {
                 communicator.shutdown()
-                return Promise.value((false, []))
+                return Promise.value((false, Data()))
             } else if current.operation == "ice_isA" {
                 let s: String = try inS.read()
                 if s == "::Test::MyClass" {
@@ -87,7 +87,7 @@ class BlobjectAsyncI: Ice.BlobjectAsync {
                                                      operation: current.operation)
             }
         } catch {
-            return Promise<(ok: Bool, outParams: [UInt8])> { seal in
+            return Promise<(ok: Bool, outParams: Data)> { seal in
                 seal.reject(error)
             }
         }

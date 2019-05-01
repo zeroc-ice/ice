@@ -2,15 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import IceObjc
 
 public class InputStream {
-    // The underlying storage of an input stream can beeither:
-    // - Pointers to the C++ unmarshaling buffer (bytes not owned by Buffer)
-    // - A byte array passed and copied during initialization (bytes owned by Buffer)
-    private var bytes: [UInt8]!
-
-    private var buf: Buffer // buf overlays the C++ unmarshal buffer stored in ICEInputStream or user buffer
+    private let buf: Buffer
     private var communicator: Communicator
     private var encoding: EncodingVersion
     private var traceSlicing: Bool
@@ -23,33 +19,27 @@ public class InputStream {
     public var sliceValues: Bool = true
     public var classResolverPrefix: [String]?
 
-    public convenience init(communicator: Communicator) {
-        self.init(communicator: communicator, bytes: [])
-    }
-
-    public convenience init(communicator: Communicator, bytes: [UInt8]) {
+    public convenience init(communicator: Communicator, bytes: Data = Data()) {
         let encoding = (communicator as! CommunicatorI).defaultsAndOverrides.defaultEncoding
         self.init(communicator: communicator, encoding: encoding, bytes: bytes)
     }
 
     public required init(communicator: Communicator,
                          encoding: EncodingVersion,
-                         bytes: [UInt8]) {
+                         bytes: Data) {
         self.communicator = communicator
         self.encoding = encoding
-        self.bytes = bytes
-        var baseAddress: UnsafeMutableRawPointer?
-        self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
-        buf = Buffer(start: baseAddress!, count: bytes.count)
+        buf = Buffer(bytes)
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
-    init(communicator: Communicator, start: UnsafeRawPointer, count: Int, encoding: EncodingVersion) {
+    init(communicator: Communicator, encoding: EncodingVersion, startNoCopy: UnsafeRawPointer, count: Int) {
         self.communicator = communicator
         self.encoding = encoding
-        buf = Buffer(start: start, count: count)
+        buf = Buffer(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: startNoCopy),
+                          count: count, deallocator: .none))
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
@@ -57,14 +47,6 @@ public class InputStream {
 
     internal func getBuffer() -> Buffer {
         return buf
-    }
-
-    func getBytes() -> UnsafeMutableRawPointer? {
-        return buf.baseAddress
-    }
-
-    func getConstBytes() -> UnsafeRawPointer? {
-        return buf.constBaseAddress
     }
 
     func getSize() -> Int {
@@ -79,21 +61,20 @@ public class InputStream {
         return communicator
     }
 
-    public func readEncapsulation() throws -> (bytes: [UInt8], encoding: EncodingVersion) {
+    public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
         let sz: Int32 = try read()
         if sz < 6 {
             throw UnmarshalOutOfBoundsException(reason: "Invalid size")
         }
 
-        if sz - 4 > buf.capacity {
+        if sz - 4 > buf.remaining {
             throw UnmarshalOutOfBoundsException(reason: "Invalid size")
         }
 
-        let _: EncodingVersion = try read()
+        let encoding: EncodingVersion = try read()
         try buf.position(buf.position() - 6)
 
-        let start = buf.baseAddress?.bindMemory(to: UInt8.self, capacity: Int(sz))
-        let bytes = [UInt8](UnsafeBufferPointer(start: start, count: Int(sz)))
+        let bytes = buf.data[buf.position() ..< buf.position() + sz]
         return (bytes, encoding)
     }
 
@@ -362,12 +343,6 @@ public class InputStream {
 }
 
 public extension InputStream {
-    private func readNumeric<Element>(_ e: inout Element) throws where Element: Numeric {
-        try Swift.withUnsafeBytes(of: &e) {
-            try self.buf.load(bytes: $0)
-        }
-    }
-
     private func readNumeric<Element>(_ type: Element.Type) throws -> Element where Element: Numeric {
         return try buf.load(as: type)
     }
@@ -725,8 +700,10 @@ public extension InputStream {
         if size == 0 {
             return ""
         } else {
-            let bytes = try buf.read(count: Int(size))
-            guard let str = String(data: Data(bytes: bytes.baseAddress!, count: bytes.count), encoding: .utf8) else {
+            let start: Int = buf.position()
+            try buf.skip(size)
+            let end: Int = buf.position()
+            guard let str = String(data: buf.data[start ..< end], encoding: .utf8) else {
                 throw MarshalException(reason: "unable to read string")
             }
             return str
@@ -1594,7 +1571,7 @@ private class EncapsDecoder11: EncapsDecoder {
         }
 
         try buffer.position(start)
-        let bytes: [UInt8] = try Array(buffer.read(count: dataEnd - start))
+        let bytes = buffer.data.subdata(in: start ..< dataEnd) // copy
         try buffer.position(end)
 
         let info = SliceInfo(typeId: current.typeId,

@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^ICEBlobjectResponse) (bool, const void* _Null_unspecified, size_t);
+typedef void (^ICEBlobjectResponse) (bool, NSData*);
 typedef void (^ICEBlobjectException) (ICERuntimeException*);
 
 @protocol ICEBlobjectFacade

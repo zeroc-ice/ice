@@ -2,48 +2,39 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-internal final class Buffer {
-    private var storage: UnsafeMutableRawBufferPointer
-    private let owner: Bool
+import Foundation
 
-    private var _position: Int = 0
+internal final class Buffer {
+    var data: Data
+    private var pos: Int = 0
 
     var capacity: Int {
-        return storage.count
+        return data.count
     }
 
-    var baseAddress: UnsafeMutableRawPointer? {
-        return storage.baseAddress
+    var remaining: Int {
+        return capacity - pos
     }
 
-    var constBaseAddress: UnsafeRawPointer? {
-        return UnsafeRawBufferPointer(storage).baseAddress
+    init(_ data: Data = Data(capacity: 240)) {
+       self.data = data
     }
 
-    init(start: UnsafeMutableRawPointer, count: Int) {
-        storage = UnsafeMutableRawBufferPointer(start: start, count: count)
-        owner = false
-    }
-
-    convenience init(start: UnsafeRawPointer, count: Int) {
-        self.init(start: UnsafeMutableRawPointer(mutating: start), count: count)
-    }
-
-    init(count: Int = 240) {
-        storage = UnsafeMutableRawBufferPointer.allocate(byteCount: count, alignment: MemoryLayout<UInt8>.alignment)
-        owner = true
-    }
-
-    deinit {
-        if owner {
-            self.storage.deallocate()
+    func append<T>(_ value: T) where T: Numeric {
+        withUnsafePointer(to: value) { ptr in
+            self.data.append(UnsafeBufferPointer<T>(start: ptr, count: 1))
         }
+        pos += MemoryLayout<T>.size
     }
 
-    func append(bytes: UnsafeRawBufferPointer) {
-        ensure(bytesNeeded: bytes.count)
-        write(bytes: bytes, at: _position)
-        _position += bytes.count
+    func append(bytes: [UInt8]) {
+        data.append(contentsOf: bytes)
+        pos += bytes.count
+    }
+
+    func append(bytes: Data) {
+        data.append(bytes)
+        pos += bytes.count
     }
 
     func skip<T>(_ count: T) throws where T: BinaryInteger {
@@ -52,82 +43,36 @@ internal final class Buffer {
         // Skip is allowed to jump to the "end" of the buffer (c + position == capacity)
         // No more bytes can be read after this
         //
-        guard count >= 0, c + _position <= capacity else {
+        guard count >= 0, c + pos <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to set position outside buffer")
         }
-        _position += c
+        pos += c
     }
 
     func position<T>() -> T where T: BinaryInteger {
-        return T(_position)
+        return T(pos)
     }
 
     func position<T>(_ count: T) throws where T: BinaryInteger {
         //
-        // Position is allowed to jump to the "end" of the buffer (count == capacity)
+        // pos is allowed to jump to the "end" of the buffer (count == capacity)
         // No more bytes can be read after this
         //
         guard count >= 0, count <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to set position outside buffer")
         }
-        _position = Int(count)
-    }
-
-    func load(bytes: UnsafeRawBufferPointer) throws {
-        return try read(from: _position, into: UnsafeMutableRawBufferPointer(mutating: bytes))
+        pos = Int(count)
     }
 
     func load<T>(as _: T.Type) throws -> T {
-        return try read(count: MemoryLayout<T>.size).baseAddress!.bindMemory(to: T.self, capacity: 1).pointee
-    }
-
-    func write(bytes: UnsafeRawBufferPointer, at index: Int) {
-        precondition(index + bytes.count <= capacity,
-                     "Buffer index + count ( \(index) + \(bytes.count) is greater than capacity (\(capacity))")
-
-        let target = slice(start: index, count: bytes.count)
-        target.copyMemory(from: bytes)
-    }
-
-    func read(from: Int, into bytes: UnsafeMutableRawBufferPointer) throws {
-        guard from + _position <= capacity else {
+        let count = MemoryLayout<T>.size
+        guard count + pos <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
-        let rebase = UnsafeRawBufferPointer(rebasing: storage[from ..< from + bytes.count])
-        bytes.copyMemory(from: rebase)
-        _position += bytes.count
-    }
-
-    func read(count: Int) throws -> UnsafeRawBufferPointer {
-        guard count + _position <= capacity else {
-            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+        return data[pos ..< pos + count].withUnsafeBytes { ptr in
+            let result = ptr.baseAddress!.bindMemory(to: T.self, capacity: 1).pointee
+            pos += count
+            return result
         }
-        let rebase = UnsafeRawBufferPointer(rebasing: storage[_position ..< _position + count])
-        _position += count
-        return rebase
-    }
-
-    func expand(bytesNeeded: Int) {
-        precondition(owner, "can only expand owned buffer")
-
-        guard _position + bytesNeeded > capacity else {
-            return
-        }
-
-        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: max(_position + bytesNeeded, capacity * 2),
-                                                           alignment: MemoryLayout<UInt8>.alignment)
-        bytes.copyBytes(from: storage)
-        storage.deallocate()
-        storage = bytes
-    }
-
-    func ensure(bytesNeeded: Int) {
-        if _position + bytesNeeded > capacity {
-            expand(bytesNeeded: bytesNeeded)
-        }
-    }
-
-    private func slice(start: Int, count: Int) -> UnsafeMutableRawBufferPointer {
-        return UnsafeMutableRawBufferPointer(rebasing: storage[start ..< start + count])
     }
 }
