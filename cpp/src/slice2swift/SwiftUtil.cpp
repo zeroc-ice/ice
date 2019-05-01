@@ -385,6 +385,20 @@ SwiftGenerator::typeToString(const TypePtr& type,
         return "";
     }
 
+    bool local = (typeCtx & TypeContextLocal) != 0;
+    if(local)
+    {
+        for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
+        {
+            const string swiftType = "swift:type:";
+            const string meta = *i;
+            if(meta.find(swiftType) == 0)
+            {
+                return meta.substr(swiftType.size());
+            }
+        }
+    }
+
     string t = "";
     //
     // The current module were the type is being used
@@ -781,7 +795,7 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& members,
                                            const ContainedPtr& p)
 {
-    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
+    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, false, true);
 }
 
 void
@@ -790,6 +804,7 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& baseMembers,
                                            const DataMemberList& allMembers,
                                            const ContainedPtr& p,
+                                           bool local,
                                            bool rootClass,
                                            const StringPairList& extraParams)
 {
@@ -797,6 +812,11 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
     {
         out << sp;
         out << nl;
+        int typeCtx = TypeContextInParam;
+        if(local)
+        {
+            typeCtx |= TypeContextLocal;
+        }
         out << "public init" << spar;
         for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
@@ -850,7 +870,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         TypePtr type = member->type();
         string defaultValue = member->defaultValue();
         out << nl << access << "var " << fixIdent(member->name()) << ": "
-            << typeToString(type, p, member->getMetaData(), member->optional());
+            << typeToString(type, p, member->getMetaData(), member->optional(), typeCtx);
         if(protocol)
         {
             out << " { get set }";

@@ -92,7 +92,9 @@ protected:
     void writeDefaultInitializer(IceUtilInternal::Output&,  bool, bool);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList&,
-                                    const DataMemberList&, const ContainedPtr&, bool rootClass = false,
+                                    const DataMemberList&, const ContainedPtr&,
+                                    bool local = false,
+                                    bool rootClass = false,
                                     const StringPairList& = StringPairList());
     void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 

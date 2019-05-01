@@ -404,7 +404,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         writeDefaultInitializer(out, true, rootClass);
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass, extraParams);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), rootClass, extraParams);
 
     out << sp;
     out << nl << "open override class func ice_staticId() -> Swift.String";
@@ -1178,7 +1178,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         writeDefaultInitializer(out, true, !base);
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), !base);
 
     out << sp;
     out << nl << "open override func ice_id() -> Swift.String" << sb;
@@ -1566,7 +1566,7 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 TypePtr type = param->type();
                 ostringstream s;
-                s << typeToString(type, p, param->getMetaData(), param->optional());
+                s << typeToString(type, p, param->getMetaData(), param->optional(), TypeContextLocal);
                 out << s.str();
             }
         }
@@ -1584,12 +1584,12 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(outParams.empty())
             {
-                out << typeToString(ret, op, op->getMetaData(), op->returnIsOptional());
+                out << typeToString(ret, op, op->getMetaData(), op->returnIsOptional(), TypeContextLocal);
             }
             else if(!ret && outParams.size() == 1)
             {
                 ParamDeclPtr param = outParams.front();
-                out << typeToString(param->type(), op, param->getMetaData(), param->optional());
+                out << typeToString(param->type(), op, param->getMetaData(), param->optional(), TypeContextLocal);
             }
             else
             {
@@ -1605,12 +1605,13 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
 
                 out << spar;
-                out << (returnValueS + ": " + typeToString(ret, op, op->getMetaData(), op->returnIsOptional()));
+                out << (returnValueS + ": " + typeToString(ret, op, op->getMetaData(), op->returnIsOptional(),
+                                                           TypeContextLocal));
                 for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
                 {
                     ParamDeclPtr param = *i;
                     out << (fixIdent(param->name()) + ": " +
-                            typeToString(param->type(), op, op->getMetaData(), param->optional()));
+                            typeToString(param->type(), op, op->getMetaData(), param->optional(), TypeContextLocal));
                 }
                 out << epar;
             }
@@ -1645,7 +1646,7 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
     out << sb;
-    writeMembers(out, p->dataMembers(), p, TypeContextProtocol);
+    writeMembers(out, p->dataMembers(), p, TypeContextProtocol | TypeContextLocal);
     return true;
 }
 

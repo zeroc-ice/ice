@@ -3,6 +3,7 @@
 //
 
 import IceObjc
+import Foundation
 
 private class ConnectionInfoI: ConnectionInfo {
     var underlying: ConnectionInfo?
@@ -80,13 +81,36 @@ private class WSConnectionInfoI: ConnectionInfoI, WSConnectionInfo {
 
 private class SSLConnectionInfoI: ConnectionInfoI, SSLConnectionInfo {
     var cipher: String
-    var certs: StringSeq
+    var certs: [SecCertificate]
     var verified: Bool
 
     init(underlying: ConnectionInfo?, incoming: Bool, adapterName: String, connectionId: String,
          cipher: String, certs: StringSeq, verified: Bool) {
         self.cipher = cipher
-        self.certs = certs
+        self.certs = []
+        let beginPrefix = "-----BEGIN CERTIFICATE-----\n"
+        let endPrefix = "\n-----END CERTIFICATE-----\n"
+
+        for cert in certs {
+            var raw = cert
+            if raw.hasPrefix(beginPrefix) {
+                raw = String(raw.dropFirst(beginPrefix.count))
+                guard raw.hasSuffix(endPrefix) else {
+                    precondition(false, "Invalid PEM-encoded certificate")
+                }
+                raw = String(raw.dropLast(endPrefix.count))
+            }
+
+            guard let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) else {
+                precondition(false, "Invalid PEM-encoded certificate")
+            }
+
+            guard let c = SecCertificateCreateWithData(kCFAllocatorDefault, data) else {
+                precondition(false, "Invalid PEM-encoded certificate")
+            }
+
+            self.certs.append(c)
+        }
         self.verified = verified
         super.init(underlying: underlying, incoming: incoming, adapterName: adapterName, connectionId: connectionId)
     }
