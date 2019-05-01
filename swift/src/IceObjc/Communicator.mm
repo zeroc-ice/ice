@@ -15,7 +15,7 @@
 #import "UnsupportedAdminFacet.h"
 
 #import "LoggerWrapperI.h"
-#import "Util.h"
+#import "Convert.h"
 
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>

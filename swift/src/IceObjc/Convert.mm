@@ -5,7 +5,7 @@
 #import "BlobjectFacade.h"
 #import "Exception.h"
 #import "IceUtil.h"
-#import "Util.h"
+#import "Convert.h"
 
 NSError*
 convertException(const std::exception_ptr& excPtr)

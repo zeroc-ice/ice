@@ -4,7 +4,7 @@
 
 #import "Properties.h"
 
-#import "Util.h"
+#import "Convert.h"
 
 @implementation ICEProperties
 

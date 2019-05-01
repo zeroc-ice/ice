@@ -7,7 +7,7 @@
 #import "ObjectAdapter.h"
 #import "ObjectPrx.h"
 #import "IceUtil.h"
-#import "Util.h"
+#import "Convert.h"
 
 @implementation ICEConnection
 

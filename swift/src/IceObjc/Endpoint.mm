@@ -4,7 +4,7 @@
 
 #import "Endpoint.h"
 #import "IceUtil.h"
-#import "Util.h"
+#import "Convert.h"
 
 @implementation ICEEndpointInfo
 

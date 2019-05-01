@@ -3,8 +3,7 @@
 //
 
 #import "Logger.h"
-
-#include "Util.h"
+#import "Convert.h"
 
 @implementation ICELogger
 -(std::shared_ptr<Ice::Logger>) logger

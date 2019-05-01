@@ -5,7 +5,7 @@
 #import "Logger.h"
 #import "Properties.h"
 #import "IceUtil.h"
-#import "Util.h"
+#import "Convert.h"
 #import "LoggerWrapperI.h"
 
 #import <Ice/Instance.h>

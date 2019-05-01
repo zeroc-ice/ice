@@ -7,7 +7,7 @@
 #import "Communicator.h"
 #import "Connection.h"
 #import "OutputStream.h"
-#import "Util.h"
+#import "Convert.h"
 
 @implementation ICEObjectPrx
 
