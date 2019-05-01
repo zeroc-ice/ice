@@ -14,7 +14,12 @@ class Client: TestHelperI {
                 communicator.destroy()
             }
             var path = Bundle.main.bundlePath
+            #if os(iOS) || os(watchOS) || os(tvOS)
+            path += "/Frameworks/IceSSLConfiguration.bundle/certs"
+            #else
             path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
+            #endif
+
             let factory = try allTests(self, path)
             try factory.shutdown()
         }

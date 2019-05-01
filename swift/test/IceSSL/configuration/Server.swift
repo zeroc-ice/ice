@@ -13,13 +13,20 @@ class Server: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let path = "\(Bundle.main.bundlePath)/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
+
+        var path = Bundle.main.bundlePath
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        path += "/Frameworks/IceSSLConfiguration.bundle/certs"
+        #else
+        path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
+        #endif
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                  value: getTestEndpoint(num: 0, prot: "tcp"))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         _ = try adapter.add(servant: ServerFactoryI(defaultDir: path, helper: self),
                             id: Ice.stringToIdentity("factory"))
         try adapter.activate()
+        serverReady()
         communicator.waitForShutdown()
     }
 }
