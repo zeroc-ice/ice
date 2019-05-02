@@ -27,7 +27,7 @@ namespace
             Ice::registerIceDiscovery(false);
             Ice::registerIceLocatorDiscovery(false);
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-            //  Ice::registerIceIAP(false);
+            Ice::registerIceIAP(false);
 #endif
         }
     };

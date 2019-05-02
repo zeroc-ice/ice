@@ -193,6 +193,7 @@ def create_platform_targets(project, platform)
     target_add_carthage_framework(target, platform, "PromiseKit.framework")
 
     if platform == :ios then
+        target.add_system_framework("ExternalAccessory")
         target.add_system_framework("Security")
         target.add_system_framework("CFNetwork")
         target.add_system_framework("Foundation")
