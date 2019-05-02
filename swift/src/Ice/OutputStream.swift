@@ -79,7 +79,7 @@ public class OutputStream {
 
     func writeEncapsulation(_ v: Data) {
         precondition(v.count >= 6, "Encapsulation is invalid. Size is too small.")
-        write(raw: v)
+        data.append(v)
     }
 
     func getCount() -> Int {
@@ -449,10 +449,9 @@ public extension OutputStream {
     // String
     //
     func write(_ v: String) {
-        let view = v.utf8
-        let byteArray = [UInt8](view)
-        write(size: byteArray.count)
-        data.append(contentsOf: byteArray)
+        let bytes = v.data(using: .utf8)!
+        write(size: bytes.count)
+        data.append(bytes)
     }
 
     func write(tag: Int32, value v: String?) {
