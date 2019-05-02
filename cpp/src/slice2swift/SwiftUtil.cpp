@@ -1098,11 +1098,11 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             string helper = getUnqualified(getAbsoluteImpl(ContainedPtr::dynamicCast(type)), swiftModule) + "Helper";
             if(marshal)
             {
-                out << nl << helper <<".write(to: ostr, " << args << ")";
+                out << nl << helper <<".write(to: " << stream << ", " << args << ")";
             }
             else
             {
-                out << nl << param << " = try " << helper << ".read(from: istr";
+                out << nl << param << " = try " << helper << ".read(from: " << stream;
                 if(!args.empty())
                 {
                     out << ", " << args;
@@ -1118,11 +1118,11 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         string helper = getUnqualified(getAbsoluteImpl(ContainedPtr::dynamicCast(type)), swiftModule) + "Helper";
         if(marshal)
         {
-            out << nl << helper <<".write(to: ostr, " << args << ")";
+            out << nl << helper <<".write(to: " << stream << ", " << args << ")";
         }
         else
         {
-            out << nl << param << " = try " << helper << ".read(from: istr";
+            out << nl << param << " = try " << helper << ".read(from: " << stream;
             if(!args.empty())
             {
                 out << ", " << args;
