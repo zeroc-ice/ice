@@ -92,8 +92,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(endpoints.count == 2)
         var publishedEndpoints = adapter.getPublishedEndpoints()
 
-        // TODO Endpoint==
-        //try test(endpoints == publishedEndpoints)
+        try test(endpoints.elementsEqual(publishedEndpoints) { $0 == $1})
 
         var tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo()!)!
         try test(tcpEndpoint.type() == Ice.TCPEndpointType ||
@@ -113,8 +112,7 @@ func allTests(_ helper: TestHelper) throws {
         endpoints = [endpoints[0]]
         try adapter.setPublishedEndpoints(endpoints)
         publishedEndpoints = adapter.getPublishedEndpoints()
-        // TODO Endpoint==
-        //try test(ndpoints == publishedEndpoints)
+        try test(endpoints.elementsEqual(publishedEndpoints) { $0 == $1})
 
         adapter.destroy()
 
