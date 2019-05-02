@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
 
@@ -28,11 +29,11 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     output.write("testing ice_invoke... ")
     do {
-        try test(oneway.ice_invoke(operation: "opOneway", mode: .Normal).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal).ok)
-        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal).ok)
+        try test(oneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
 
         try batchOneway.ice_flushBatchRequests()
         let outS = Ice.OutputStream(communicator: communicator)
@@ -51,14 +52,13 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         try test(s == testString)
     }
 
-    for i in 0..<2 {
-
-        var ctx: Ice.Context! = nil
+    for i in 0 ..< 2 {
+        var ctx: Ice.Context!
         if i == 1 {
             ctx = Ice.Context()
             ctx["raise"] = ""
         }
-        let result = try cl.ice_invoke(operation: "opException", mode: .Normal, context: ctx)
+        let result = try cl.ice_invoke(operation: "opException", mode: .Normal, inEncaps: Data(), context: ctx)
         try test(!result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()
@@ -76,7 +76,7 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     output.write("testing asynchronous ice_invoke... ")
     do {
-        var result = try oneway.ice_invokeAsync(operation: "opOneway", mode: .Normal).wait()
+        var result = try oneway.ice_invokeAsync(operation: "opOneway", mode: .Normal, inEncaps: Data()).wait()
         try test(result.ok)
 
         let outS = Ice.OutputStream(communicator: communicator)
@@ -94,11 +94,10 @@ func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         s = try inS.read()
         try inS.endEncapsulation()
         try test(s == testString)
-
     }
 
     do {
-        let result = try cl.ice_invokeAsync(operation: "opException", mode: .Normal).wait()
+        let result = try cl.ice_invokeAsync(operation: "opException", mode: .Normal, inEncaps: Data()).wait()
         try test(!result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()

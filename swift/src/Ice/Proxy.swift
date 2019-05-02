@@ -191,7 +191,7 @@ public extension ObjectPrx {
 
     func ice_invoke(operation: String,
                     mode: OperationMode,
-                    inEncaps: Data = Data(),
+                    inEncaps: Data,
                     context: Context? = nil) throws -> (ok: Bool, outEncaps: Data) {
         if _impl._isTwoway {
             let p = Promise<(ok: Bool, outEncaps: Data)> { seal in
@@ -229,7 +229,7 @@ public extension ObjectPrx {
 
     func ice_invokeAsync(operation: String,
                          mode: OperationMode,
-                         inEncaps: Data = Data(),
+                         inEncaps: Data,
                          context: Context? = nil,
                          sent: ((Bool) -> Void)? = nil,
                          sentOn: DispatchQueue? = nil,
