@@ -449,7 +449,7 @@
     }
 }
 
--(void) ice_getConnectionAsync:(void (^)(ICEConnection*)) response
+-(void) ice_getConnectionAsync:(void (^)(ICEConnection* _Nullable)) response
                      exception:(void (^)(NSError*))exception
 {
     try

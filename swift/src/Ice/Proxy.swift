@@ -660,8 +660,8 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_getConnectionAsync() -> Promise<Connection?> {
         return Promise<Connection?> { seal in
-            _handle.ice_getConnectionAsync({ con in
-                    seal.fulfill(con as? Connection)
+            _handle.ice_getConnectionAsync({ conn in
+                    seal.fulfill(conn?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: conn!) })
                 },
                 exception: { ex in
                     seal.reject(ex)
