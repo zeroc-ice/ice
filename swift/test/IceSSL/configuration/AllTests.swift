@@ -569,6 +569,89 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
 
     output.writeLine("ok")
 
+    output.write("testing custom certificate verifier... ")
+
+    //
+    // ADH is allowed but will not have a certificate.
+    //
+    properties = createClientProps(defaultProperties)
+    properties.setProperty(key: "IceSSL.Ciphers", value: "(DH_anon*)")
+    properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
+    comm = try helper.initialize(properties)
+
+    var invoked = false
+    var certs: [SecCertificate] = []
+
+    comm.setSslCertificateVerifier { info in
+        certs = info.certs
+        invoked = true
+        return true
+    }
+    fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
+    d = createServerProps(defaultProperties)
+
+    var cipherSub = "DH_anon"
+    d["IceSSL.Ciphers"] = "(DH_anon*)"
+    d["IceSSL.VerifyPeer"] = "0"
+
+    server = try fact.createServer(d)!
+    try server.checkCipher(cipherSub)
+    info = try server.ice_getConnection()!.getInfo() as! SSLConnectionInfo
+    try test(info.cipher.starts(with: cipherSub))
+    try test(invoked)
+    try test(certs.isEmpty)
+
+    //
+    // Have the verifier return false. Close the connection explicitly
+    // to force a new connection to be established.
+    //
+    invoked = false
+    certs = []
+    comm.setSslCertificateVerifier { info in
+        certs = info.certs
+        invoked = true
+        return false
+    }
+    try server.ice_getConnection()!.close(.GracefullyWithWait)
+    do {
+        try server.ice_ping()
+        try test(false)
+    }  catch is SecurityException {
+        // Expected.
+    }
+    try test(invoked)
+    try test(certs.isEmpty)
+
+    try fact.destroyServer(server)
+    comm.destroy()
+
+    //
+    // Verify that a server certificate is present.
+    //
+    properties = createClientProps(defaultProperties: defaultProperties, cert: "c_rsa_ca1", ca: "cacert1")
+    properties.setProperty(key: "IceSSL.VerifyPeer", value: "0")
+    comm = try helper.initialize(properties)
+
+    invoked = false
+    certs = []
+    comm.setSslCertificateVerifier { info in
+        certs = info.certs
+        invoked = true
+        return true
+    }
+
+    fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
+    d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
+    d["IceSSL.VerifyPeer"] = "2"
+    server = try fact.createServer(d)!
+    try server.ice_ping()
+
+    try test(invoked)
+    try test(certs.count > 0)
+    try fact.destroyServer(server)
+    comm.destroy()
+    output.writeLine("ok")
+
     output.write("testing protocols... ")
     //
     // In macOS we don't support IceSSL.Protocols as secure transport doesn't allow to set the enabled protocols
@@ -722,9 +805,50 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     comm.destroy()
     output.writeLine("ok")
 
-    // TODO
-    // output.write("testing password prompt...")
-    // output.writeLine("ok")
+    output.write("testing password prompt... ")
+    //
+    // Use the correct password.
+    //
+    properties = createClientProps(defaultProperties: defaultProperties, cert: "c_rsa_pass_ca1", ca: "cacert1")
+    properties.setProperty(key: "IceSSL.Password", value: "") // Clear the password
+    properties.setProperty(key: "Ice.InitPlugins", value: "0")
+    comm = try helper.initialize(properties)
+    var count = 0
+    comm.setSslPasswordPrompt {
+            count += 1
+            return "client"
+    }
+    try comm.initializePlugins()
+    try test(count == 1)
+
+    fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
+    d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
+    server = try fact.createServer(d)!
+    try server.ice_ping()
+    try fact.destroyServer(server)
+    comm.destroy()
+
+    //
+    // Use an incorrect password and check that retries are attempted.
+    //
+    properties = createClientProps(defaultProperties: defaultProperties, cert: "c_rsa_pass_ca1", ca: "cacert1")
+    properties.setProperty(key: "IceSSL.Password", value: "") // Clear password
+    properties.setProperty(key: "IceSSL.PasswordRetryMax", value: "4")
+    properties.setProperty(key: "Ice.InitPlugins", value: "0")
+    comm = try helper.initialize(properties)
+    count = 0
+    comm.setSslPasswordPrompt {
+        count += 1
+        return "invalid"
+    }
+    do {
+        try comm.initializePlugins()
+    } catch is PluginInitializationException {
+        // Expected.
+    }
+    try test(count == 4)
+    comm.destroy()
+    output.writeLine("ok")
 
     output.write("testing ciphers... ")
 
@@ -746,7 +870,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     comm = try helper.initialize(properties)
     fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
     d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-    let cipherSub = "DH_"
+    cipherSub = "DH_anon"
     d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)"
     d["IceSSL.VerifyPeer"] = "1"
     server = try fact.createServer(d)!

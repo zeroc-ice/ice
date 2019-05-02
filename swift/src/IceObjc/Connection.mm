@@ -241,7 +241,7 @@
     try
     {
         auto info = self.connection->getInfo();
-        return [self createConnectionInfo:info];
+        return createConnectionInfo(info);
     }
     catch(const std::exception& ex)
     {
@@ -277,10 +277,11 @@
         return NO;
     }
 }
+@end
 
--(id) createConnectionInfo:(std::shared_ptr<Ice::ConnectionInfo>)infoPtr
+id createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
 {
-    id underlying = infoPtr->underlying ? [self createConnectionInfo:infoPtr->underlying] : [NSNull null];;
+    id underlying = infoPtr->underlying ? createConnectionInfo(infoPtr->underlying) : [NSNull null];
 
     Class<ICEConnectionInfoFactory> factory = [ICEUtil connectionInfoFactory];
 
@@ -288,13 +289,13 @@
     if(ipInfo)
     {
         [factory createIPConnectionInfo:underlying
-                              incoming:infoPtr->incoming
-                           adapterName:toNSString(infoPtr->adapterName)
-                          connectionId:toNSString(ipInfo->connectionId)
-                          localAddress:toNSString(ipInfo->localAddress)
-                             localPort:ipInfo->localPort
-                         remoteAddress:toNSString(ipInfo->remoteAddress)
-                            remotePort:ipInfo->remotePort];
+                               incoming:infoPtr->incoming
+                            adapterName:toNSString(infoPtr->adapterName)
+                           connectionId:toNSString(ipInfo->connectionId)
+                           localAddress:toNSString(ipInfo->localAddress)
+                              localPort:ipInfo->localPort
+                          remoteAddress:toNSString(ipInfo->remoteAddress)
+                             remotePort:ipInfo->remotePort];
     }
 
     auto tcpInfo = std::dynamic_pointer_cast<Ice::TCPConnectionInfo>(infoPtr);
@@ -343,12 +344,12 @@
     if(sslInfo)
     {
         return [factory createSSLConnectionInfo:underlying
-                                    incoming:sslInfo->incoming
-                                 adapterName:toNSString(sslInfo->adapterName)
-                                connectionId:toNSString(sslInfo->connectionId)
-                                      cipher:toNSString(sslInfo->cipher)
-                                       certs:toNSArray(sslInfo->certs)
-                                    verified:sslInfo->verified];
+                                       incoming:sslInfo->incoming
+                                    adapterName:toNSString(sslInfo->adapterName)
+                                   connectionId:toNSString(sslInfo->connectionId)
+                                         cipher:toNSString(sslInfo->cipher)
+                                          certs:toNSArray(sslInfo->certs)
+                                       verified:sslInfo->verified];
     }
 
 #if TARGET_OS_IPHONE
@@ -372,4 +373,3 @@
 
     return [NSNull null];
 }
-@end

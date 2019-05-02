@@ -24,7 +24,7 @@ NS_SWIFT_NAME(propertyToProxy(property:));
 -(nullable NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError**)error;
 -(nullable ICEObjectAdapter*) createObjectAdapter:(NSString*)name error:(NSError**)error;
 -(nullable ICEObjectAdapter*) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithEndpoints(name:endpoints:));;
--(nullable ICEObjectAdapter*) createObjectAdapterWithRouter:(NSString*)name router:(ICEObjectPrx*)router error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithRouter(name:router:));;
+-(nullable ICEObjectAdapter*) createObjectAdapterWithRouter:(NSString*)name router:(ICEObjectPrx*)router error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithRouter(name:router:));
 -(ICEImplicitContext*) getImplicitContext;
 -(id<ICELoggerProtocol>) getLogger;
 -(nullable ICEObjectPrx*) getDefaultRouter;
@@ -53,6 +53,9 @@ NS_SWIFT_NAME(propertyToProxy(property:));
     NS_SWIFT_NAME(getDefaultEncoding(major:minor:));
 -(uint8_t) getDefaultFormat;
 
+-(void) setSslCertificateVerifier:(nullable bool (^)(id))verifier;
+-(void) setSslPasswordPrompt:(nullable NSString* (^)())prompt;
+-(BOOL) initializePlugins: (NSError**)error;
 @end
 
 #ifdef __cplusplus

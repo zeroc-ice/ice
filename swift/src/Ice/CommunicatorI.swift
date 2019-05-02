@@ -297,6 +297,20 @@ public extension Communicator {
             }
         }
     }
+
+    func setSslPasswordPrompt(prompt: @escaping (() -> String)) {
+        (self as! CommunicatorI)._handle.setSslPasswordPrompt(prompt)
+    }
+
+    func setSslCertificateVerifier(verifier: @escaping ((SSLConnectionInfo) -> Bool)) {
+        (self as! CommunicatorI)._handle.setSslCertificateVerifier { info in
+            return verifier(info as! SSLConnectionInfo)
+        }
+    }
+
+    func initializePlugins() throws {
+        try (self as! CommunicatorI)._handle.initializePlugins()
+    }
 }
 
 struct DefaultsAndOverrides {

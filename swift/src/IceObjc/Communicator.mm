@@ -392,4 +392,38 @@
     return [factory createUnsupported:self handle:[ICEUnsupportedAdminFacet getHandle:servant]];
 }
 
+-(void) setSslCertificateVerifier:(nullable bool (^)(id))verifier
+{
+    auto pluginManager = self.communicator->getPluginManager();
+    auto plugin = std::dynamic_pointer_cast<IceSSL::Plugin>(pluginManager->getPlugin("IceSSL"));
+    assert(plugin);
+
+    plugin->setCertificateVerifier([verifier] (const std::shared_ptr<IceSSL::ConnectionInfo>& info) -> bool {
+        return verifier(createConnectionInfo(info));
+    });
+}
+
+-(void) setSslPasswordPrompt:(nullable NSString* (^)())prompt;
+{
+    auto pluginManager = self.communicator->getPluginManager();
+    auto plugin = std::dynamic_pointer_cast<IceSSL::Plugin>(pluginManager->getPlugin("IceSSL"));
+    assert(plugin);
+    plugin->setPasswordPrompt([prompt] {
+        return fromNSString(prompt());
+    });
+}
+
+-(BOOL) initializePlugins: (NSError**)error
+{
+    try
+    {
+        self.communicator->getPluginManager()->initializePlugins();
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
 @end
