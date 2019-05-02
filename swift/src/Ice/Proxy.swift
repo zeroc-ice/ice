@@ -701,15 +701,13 @@ open class _ObjectPrxI: ObjectPrx {
 
         // The number of bytes consumed reading the proxy
         var bytesRead: Int = 0
-
-        let buf = istr.getBuffer()
-        let encoding = istr.getEncoding()
-        let communicator = istr.getCommunicator()
+        let encoding = istr.encoding
+        let communicator = istr.communicator
 
         //
         // Returns Any which is either NSNull or ICEObjectPrx
         //
-        let handleOpt = try ICEObjectPrx.iceRead(buf.data[buf.position() ..< buf.capacity],
+        let handleOpt = try ICEObjectPrx.iceRead(istr.data[istr.pos ..< istr.data.count],
                                                  communicator: (communicator as! CommunicatorI)._handle,
                                                  encodingMajor: encoding.major,
                                                  encodingMinor: encoding.minor,
@@ -717,7 +715,7 @@ open class _ObjectPrxI: ObjectPrx {
 
         // Since the proxy was read in C++ we need to skip over the bytes which were read
         // We avoid using a defer statment for this since you can not throw from one
-        try buf.skip(bytesRead)
+        try istr.skip(bytesRead)
 
         guard let handle = handleOpt else {
             return nil

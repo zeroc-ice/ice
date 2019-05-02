@@ -24,7 +24,7 @@ public final class Incoming {
         responseCallback = response
         exceptionCallback = exception
         self.current = current
-        ostr = OutputStream(communicator: istr.getCommunicator(), encoding: current.encoding)
+        ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
     }
 
     public func readEmptyParams() throws {
@@ -156,7 +156,7 @@ public final class Incoming {
             exceptionCallback(convertException(exception))
             return
         }
-        ostr = OutputStream(communicator: istr.getCommunicator(), encoding: current.encoding)
+        ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         ostr.write(e)
         ostr.endEncapsulation()

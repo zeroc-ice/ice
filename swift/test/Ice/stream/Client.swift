@@ -10,12 +10,13 @@ public class Client: TestHelperI {
     public override func run(args: [String]) throws {
         var writer = getWriter()
         writer.write("testing primitive types... ")
-        let communicator = try self.initialize(args)
+        let communicator = try initialize(args)
         defer {
             communicator.destroy()
         }
         try communicator.getValueFactoryManager().add(
-            factory: { Ice.InterfaceByValue(id: $0) }, id: "::Test::MyInterface")
+            factory: { Ice.InterfaceByValue(id: $0) }, id: "::Test::MyInterface"
+        )
 
         var inS: Ice.InputStream
         var outS: Ice.OutputStream
@@ -44,7 +45,7 @@ public class Client: TestHelperI {
         }
 
         do {
-            inS = Ice.InputStream(communicator: communicator)
+            inS = Ice.InputStream(communicator: communicator, bytes: Data())
             do {
                 _ = try inS.read() as Bool
                 try test(false)
@@ -375,7 +376,7 @@ public class Client: TestHelperI {
         }
 
         var smallStructArray = [SmallStruct]()
-        for i in 0..<3 {
+        for i in 0 ..< 3 {
             smallStructArray.append(SmallStruct())
             smallStructArray[i].bo = true
             smallStructArray[i].by = 1
@@ -391,7 +392,7 @@ public class Client: TestHelperI {
         }
 
         var myClassArray = [MyClass]()
-        for i in 0..<4 {
+        for i in 0 ..< 4 {
             myClassArray.append(MyClass())
             myClassArray[i].c = myClassArray[i]
             myClassArray[i].o = myClassArray[i]
@@ -411,7 +412,7 @@ public class Client: TestHelperI {
         }
 
         var myInterfaceArray = [Ice.Value]()
-        for _ in 0..<4 {
+        for _ in 0 ..< 4 {
             myInterfaceArray.append(Ice.InterfaceByValue(id: "::Test::MyInterface"))
         }
 
@@ -424,7 +425,7 @@ public class Client: TestHelperI {
             let arr2: [MyClass?] = try MyClassSHelper.read(from: inS)
             try inS.readPendingValues()
             try test(myClassArray.count == arr2.count)
-            for i in 0..<myClassArray.count {
+            for i in 0 ..< myClassArray.count {
                 try test(arr2[i] != nil)
                 try test(arr2[i]!.c === arr2[i])
                 try test(arr2[i]!.o === arr2[i])
@@ -539,7 +540,7 @@ public class Client: TestHelperI {
         }
 
         do {
-            let dict: LongFloatD = [123809828: 0.5, 123809829: 0.6]
+            let dict: LongFloatD = [123_809_828: 0.5, 123_809_829: 0.6]
             outS = Ice.OutputStream(communicator: communicator)
             LongFloatDHelper.write(to: outS, value: dict)
             let data = outS.finished()

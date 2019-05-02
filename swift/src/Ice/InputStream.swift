@@ -6,9 +6,12 @@ import Foundation
 import IceObjc
 
 public class InputStream {
-    private let buf: Buffer
-    private var communicator: Communicator
-    private var encoding: EncodingVersion
+    let data: Data
+    let classResolverPrefix: [String]?
+
+    private(set) var pos: Int = 0
+    private(set) var communicator: Communicator
+    private(set) var encoding: EncodingVersion
     private var traceSlicing: Bool
 
     private var encaps: Encaps!
@@ -16,10 +19,14 @@ public class InputStream {
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
     private var classGraphDepthMax: Int32
-    public var sliceValues: Bool = true
-    public var classResolverPrefix: [String]?
 
-    public convenience init(communicator: Communicator, bytes: Data = Data()) {
+    public var sliceValues: Bool = true
+
+    private var remaining: Int {
+        return data.count - pos
+    }
+
+    public convenience init(communicator: Communicator, bytes: Data) {
         let encoding = (communicator as! CommunicatorI).defaultsAndOverrides.defaultEncoding
         self.init(communicator: communicator, encoding: encoding, bytes: bytes)
     }
@@ -29,7 +36,7 @@ public class InputStream {
                          bytes: Data) {
         self.communicator = communicator
         self.encoding = encoding
-        buf = Buffer(bytes)
+        data = bytes
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
@@ -38,27 +45,11 @@ public class InputStream {
     init(communicator: Communicator, encoding: EncodingVersion, startNoCopy: UnsafeRawPointer, count: Int) {
         self.communicator = communicator
         self.encoding = encoding
-        buf = Buffer(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: startNoCopy),
-                          count: count, deallocator: .none))
+        data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: startNoCopy),
+                    count: count, deallocator: .none)
         traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
-    }
-
-    internal func getBuffer() -> Buffer {
-        return buf
-    }
-
-    func getSize() -> Int {
-        return buf.position()
-    }
-
-    func getEncoding() -> EncodingVersion {
-        return encoding
-    }
-
-    func getCommunicator() -> Communicator {
-        return communicator
     }
 
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
@@ -67,20 +58,20 @@ public class InputStream {
             throw UnmarshalOutOfBoundsException(reason: "Invalid size")
         }
 
-        if sz - 4 > buf.remaining {
+        if sz - 4 > remaining {
             throw UnmarshalOutOfBoundsException(reason: "Invalid size")
         }
 
         let encoding: EncodingVersion = try read()
-        try buf.position(buf.position() - 6)
+        try changePos(offset: -6)
 
-        let bytes = buf.data[buf.position() ..< buf.position() + sz]
+        let bytes = data[pos ..< pos + Int(sz)]
         return (bytes, encoding)
     }
 
     public func startEncapsulation() throws -> EncodingVersion {
         encaps = Encaps()
-        encaps.start = buf.position()
+        encaps.start = pos
         //
         // I don't use readSize() and writeSize() for encapsulations,
         // because when creating an encapsulation, I must know in advance
@@ -93,7 +84,7 @@ public class InputStream {
         if sz < 6 {
             throw UnmarshalOutOfBoundsException(reason: "invalid size")
         }
-        if sz - 4 > buf.capacity - buf.position() {
+        if sz - 4 > remaining {
             throw UnmarshalOutOfBoundsException(reason: "invalid size")
         }
 
@@ -110,11 +101,11 @@ public class InputStream {
     public func endEncapsulation() throws {
         if !encaps.encoding_1_0 {
             try skipOptionals()
-            if buf.position() != encaps.start + encaps.sz {
+            if pos != encaps.start + encaps.sz {
                 throw EncapsulationException(reason: "buffer size does not match decoded encapsulation size")
             }
-        } else if buf.position() != encaps.start + encaps.sz {
-            if buf.position() + 1 != encaps.start + encaps.sz {
+        } else if pos != encaps.start + encaps.sz {
+            if pos + 1 != encaps.start + encaps.sz {
                 throw EncapsulationException(reason: "buffer size does not match decoded encapsulation size")
             }
 
@@ -135,7 +126,7 @@ public class InputStream {
             throw EncapsulationException(reason: "invalid size")
         }
 
-        if sz - 4 > buf.capacity - buf.position() {
+        if sz - 4 > remaining {
             throw UnmarshalOutOfBoundsException(reason: "")
         }
 
@@ -151,7 +142,7 @@ public class InputStream {
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
             //
-            try buf.skip(sz - 6)
+            try skip(sz - 6)
         }
 
         return encoding
@@ -165,9 +156,7 @@ public class InputStream {
         }
 
         let encodingVersion: EncodingVersion = try read()
-
-        try buf.position(buf.position() + Int(sz) - 6)
-
+        try changePos(offset: Int(sz) - 6)
         return encodingVersion
     }
 
@@ -229,7 +218,7 @@ public class InputStream {
         case .VSize:
             try skip(readSize())
         case .FSize:
-            try skip(read() as Int32)
+            try skip(read())
         case .Class:
             try read(UnknownSlicedValue.self, cb: nil)
         }
@@ -240,7 +229,7 @@ public class InputStream {
         // Skip remaining un-read optional members.
         //
         while true {
-            if buf.position() >= encaps.start + encaps.sz {
+            if pos >= encaps.start + encaps.sz {
                 return // End of encapsulation also indicates end of optionals.
             }
 
@@ -262,14 +251,28 @@ public class InputStream {
         }
     }
 
+    private func changePos(offset: Int) throws {
+        precondition(pos + offset >= 0, "Negative position")
+
+        guard offset <= remaining else {
+            throw UnmarshalOutOfBoundsException(reason: "Attempt to move past end of buffer")
+        }
+        pos += offset
+    }
+
+    public func skip(_ count: Int) throws {
+        precondition(count >= 0, "skip count is negative")
+        try changePos(offset: count)
+    }
+
     public func skip(_ count: Int32) throws {
-        try buf.skip(count)
+        try changePos(offset: Int(count))
     }
 
     public func skipSize() throws {
         let b: UInt8 = try read()
         if b == 255 {
-            try buf.skip(4)
+            try skip(4)
         }
     }
 
@@ -297,7 +300,7 @@ public class InputStream {
         if encaps == nil {
             encaps = Encaps()
             encaps.setEncoding(encoding)
-            encaps.sz = buf.capacity
+            encaps.sz = data.count
         }
         if encaps.decoder == nil { // Lazy initialization
             let valueFactoryManager = communicator.getValueFactoryManager()
@@ -343,8 +346,17 @@ public class InputStream {
 }
 
 public extension InputStream {
-    private func readNumeric<Element>(_ type: Element.Type) throws -> Element where Element: Numeric {
-        return try buf.load(as: type)
+    private func readNumeric<Element>(_: Element.Type) throws -> Element where Element: Numeric {
+        let size = MemoryLayout<Element>.size
+        guard size <= remaining else {
+            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+        }
+        // We assume a little-endian platform that supports unaligned reads
+        return data[pos ..< pos + size].withUnsafeBytes { ptr in
+            let result = ptr.baseAddress!.bindMemory(to: Element.self, capacity: 1).pointee
+            pos += size
+            return result
+        }
     }
 
     private func readNumeric<Element>(tag: Int32,
@@ -584,8 +596,8 @@ public extension InputStream {
         // the estimated remaining buffer size. This estimatation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
-        if startSeq == -1 || buf.position() > (startSeq + minSeqSize) {
-            startSeq = buf.position()
+        if startSeq == -1 || pos > (startSeq + minSeqSize) {
+            startSeq = Int32(pos)
             minSeqSize = Int32(sz * minSize)
         } else {
             minSeqSize += Int32(sz * minSize)
@@ -596,7 +608,7 @@ public extension InputStream {
         // possibly enclosed sequences), something is wrong with the marshalled
         // data: it's claiming having more data that what is possible to read.
         //
-        if startSeq + minSeqSize > buf.capacity {
+        if startSeq + minSeqSize > data.count {
             throw UnmarshalOutOfBoundsException(reason: "")
         }
 
@@ -617,13 +629,13 @@ public extension InputStream {
         }
 
         while true {
-            if buf.position() >= encaps.start + encaps.sz {
+            if pos >= encaps.start + encaps.sz {
                 return false // End of encapsulation also indicates end of optionals.
             }
 
             let v: UInt8 = try read()
             if v == SliceFlags.OPTIONAL_END_MARKER.rawValue {
-                try buf.position(buf.position() - 1) // Rewind
+                try changePos(offset: -1) // Rewind
                 return false
             }
 
@@ -637,8 +649,8 @@ public extension InputStream {
             }
 
             if tag > readTag {
-                let offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6) // Rewind
-                try buf.position(buf.position() - offset)
+                let offset = tag < 30 ? -1 : (tag < 255 ? -2 : -6) // Rewind
+                try changePos(offset: offset)
                 return false // No optional data members with the requested tag
             } else if tag < readTag {
                 try skipOptional(format: format) // Skip optional data members
@@ -700,10 +712,10 @@ public extension InputStream {
         if size == 0 {
             return ""
         } else {
-            let start: Int = buf.position()
-            try buf.skip(size)
-            let end: Int = buf.position()
-            guard let str = String(data: buf.data[start ..< end], encoding: .utf8) else {
+            let start = pos
+            try skip(size)
+            let end = pos
+            guard let str = String(data: data[start ..< end], encoding: .utf8) else {
                 throw MarshalException(reason: "unable to read string")
             }
             return str
@@ -1534,7 +1546,7 @@ private class EncapsDecoder11: EncapsDecoder {
     func skipSlice() throws {
         stream.traceSkipSlice(typeId: current.typeId, sliceType: current.sliceType)
 
-        let start = stream.getSize()
+        let start = stream.pos
 
         if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
             precondition(current.sliceSize >= 4)
@@ -1558,9 +1570,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
         let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
-        let buffer = stream.getBuffer()
-        let end: Int = buffer.position()
-        var dataEnd = end
+        var dataEnd = stream.pos
 
         if hasOptionalMembers {
             //
@@ -1570,9 +1580,7 @@ private class EncapsDecoder11: EncapsDecoder {
             dataEnd -= 1
         }
 
-        try buffer.position(start)
-        let bytes = buffer.data.subdata(in: start ..< dataEnd) // copy
-        try buffer.position(end)
+        let bytes = stream.data.subdata(in: start ..< dataEnd) // copy
 
         let info = SliceInfo(typeId: current.typeId,
                              compactId: current.compactId,
