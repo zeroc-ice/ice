@@ -72,9 +72,9 @@ func allTests(_ helper: TestHelper) throws {
         try test(adapter.getPublishedEndpoints().count == 2)
         var id = Ice.Identity()
         id.name = "dummy"
-        // TODO Endpoint==
-        //try test(adapter.createProxy(id).ice_getEndpoints() == prx.ice_getEndpoints())
-        //try test(adapter.getPublishedEndpoints() == prx.ice_getEndpoints())
+
+        try test(adapter.createProxy(id).ice_getEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1})
+        try test(adapter.getPublishedEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1 })
         try adapter.refreshPublishedEndpoints()
         try test(adapter.getPublishedEndpoints().count == 1)
         try test(adapter.getPublishedEndpoints()[0] == endpt)
