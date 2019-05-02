@@ -28,10 +28,7 @@ class ServerI: SSLServer {
         do {
             let info = try current.con!.getInfo() as! SSLConnectionInfo
             try _helper.test(info.verified)
-            // TODO
-            /*try _helper.test(info.certs.count == 2 &&
-                             info.certs[0].Subject.Equals(subjectDN) &&
-            info.certs[0].Issuer.Equals(issuerDN));*/
+            try _helper.test(info.certs.count == 2)
         } catch is Ice.LocalException {
             try _helper.test(false)
         }

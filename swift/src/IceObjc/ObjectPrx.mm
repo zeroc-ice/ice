@@ -449,6 +449,28 @@
     }
 }
 
+-(void) ice_getConnectionAsync:(void (^)(ICEConnection*)) response
+                     exception:(void (^)(NSError*))exception
+{
+    try
+    {
+        _prx->ice_getConnectionAsync(
+            [response]
+            (std::shared_ptr<Ice::Connection> cppConnection)
+            {
+                response([ICEConnection getHandle:cppConnection]);
+            },
+            [exception](std::exception_ptr e)
+            {
+                exception(convertException(e));
+            });
+    }
+    catch(const std::exception& ex)
+    {
+        exception(convertException(ex));
+    }
+}
+
 -(ICEConnection*) ice_getCachedConnection
 {
     auto cppConnection = _prx->ice_getCachedConnection();

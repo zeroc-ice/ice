@@ -55,6 +55,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_fixed(_ connection: Connection) -> Self
     func ice_isFixed() -> Bool
     func ice_getConnection() throws -> Connection?
+    func ice_getConnectionAsync() -> Promise<Ice.Connection?>
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
     func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)?,
@@ -654,6 +655,18 @@ open class _ObjectPrxI: ObjectPrx {
                 return nil
             }
             return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
+        }
+    }
+
+    public func ice_getConnectionAsync() -> Promise<Connection?> {
+        return Promise<Connection?> { seal in
+            _handle.ice_getConnectionAsync(
+                { con in
+                    seal.fulfill(con as? Connection)
+                },
+                exception: { ex in
+                    seal.reject(ex)
+                })
         }
     }
 

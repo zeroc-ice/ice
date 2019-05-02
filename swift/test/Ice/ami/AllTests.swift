@@ -39,10 +39,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         try test(p.ice_idsAsync().wait().count == 2)
         try test(p.ice_idsAsync(context: ctx).wait().count == 2)
 
-        // TODO
-        /*if !collocated {
-         try test(p.ice_getConnectionAsync().wait() != nil)
-         }*/
+        if !collocated {
+            try test(p.ice_getConnectionAsync().wait() != nil)
+        }
 
         try p.opAsync().wait()
         try p.opAsync(context: ctx).wait()
