@@ -6,6 +6,11 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+//
+// Suppress invalid metadata warnings
+//
+[["suppress-warning:invalid-metadata, deprecated"]]
+
 module Test
 {
 

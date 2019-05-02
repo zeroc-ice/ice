@@ -616,7 +616,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     do {
         try server.ice_ping()
         try test(false)
-    }  catch is SecurityException {
+    } catch is SecurityException {
         // Expected.
     }
     try test(invoked)

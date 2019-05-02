@@ -95,7 +95,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     try p.ice_ping()
 
     try test(ice_staticId(MyClassPrx.self) == "::Test::MyClass")
-    //TODO try test(ice_staticId(Ice.ObjectPrx.self) == "::Ice::Object")
+    try test(ice_staticId(Ice.ObjectPrx.self) == "::Ice::Object")
 
     try test(p.ice_isA(id: ice_staticId(MyClassPrx.self)))
     try test(p.ice_id() == ice_staticId(MyDerivedClassPrx.self))
