@@ -106,6 +106,8 @@ class Ice(Component):
                      "Ice/properties"])
         elif isinstance(mapping, JavaScriptMapping):
             return ([], ["typescript/.*", "es5/*"])
+        elif isinstance(mapping, SwiftMapping) and config.buildPlatform in ["iphonesimulator", "iphoneos"]:
+            return (["Ice/.*", "IceSSL/configuration"], ["Ice/properties", "Ice/udp"])
         return ([], [])
 
     def canRun(self, testId, mapping, current):
