@@ -203,9 +203,6 @@ def create_platform_targets(project, platform)
     group_add_files(group, "src/Ice", ["*.plist"])
     target_add_headers(target, group, "src/Ice", ["*.h"])
     target_add_files(target, group, "src/Ice", ["*.swift"])
-    excludes = {
-        "Ice" => ["Metrics.ice"]
-    }
 
     slices = ["Ice", "IceSSL"]
     if platform == :ios then
