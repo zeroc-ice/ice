@@ -30,7 +30,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX"]
+["objc:prefix:ICEMX", "swift:module:Ice:MX"]
 module IceMX
 {
 
