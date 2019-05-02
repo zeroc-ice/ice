@@ -574,7 +574,7 @@ SecureTransportCertificateI::encode() const
     ostringstream os;
     os << "-----BEGIN CERTIFICATE-----\n";
     os << IceInternal::Base64::encode(data);
-    os << "-----END CERTIFICATE-----\n";
+    os << "\n-----END CERTIFICATE-----\n";
     return os.str();
 #else // macOS
     UniqueRef<CFDataRef> exported;
