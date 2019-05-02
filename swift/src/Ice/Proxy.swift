@@ -660,8 +660,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_getConnectionAsync() -> Promise<Connection?> {
         return Promise<Connection?> { seal in
-            _handle.ice_getConnectionAsync(
-                { con in
+            _handle.ice_getConnectionAsync({ con in
                     seal.fulfill(con as? Connection)
                 },
                 exception: { ex in
