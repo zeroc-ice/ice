@@ -47,7 +47,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func stringToProxy(_ str: String) throws -> ObjectPrx? {
         return try autoreleasepool {
-            guard let prxHandle = try _handle.string(toProxy: str) as? ICEObjectPrx else {
+            guard let prxHandle = try _handle.stringToProxy(str: str) as? ICEObjectPrx else {
                 return nil
             }
             return _ObjectPrxI(handle: prxHandle, communicator: self)
@@ -71,7 +71,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         precondition(!proxy.ice_isFixed(), "Cannot create property for fixed proxy")
         do {
             return try autoreleasepool {
-                try _handle.proxy(toProperty: proxy._impl._handle, property: property)
+                try _handle.proxyToProperty(prx: proxy._impl._handle, property: property)
             }
         } catch is CommunicatorDestroyedException {
             return PropertyDict()
@@ -304,7 +304,7 @@ public extension Communicator {
 
     func setSslCertificateVerifier(verifier: @escaping ((SSLConnectionInfo) -> Bool)) {
         (self as! CommunicatorI)._handle.setSslCertificateVerifier { info in
-            return verifier(info as! SSLConnectionInfo)
+            verifier(info as! SSLConnectionInfo)
         }
     }
 

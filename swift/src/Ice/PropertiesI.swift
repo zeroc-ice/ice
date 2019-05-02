@@ -18,7 +18,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
     }
 
     public func getPropertyAsIntWithDefault(key: String, value: Int32) -> Int32 {
-        return _handle.getPropertyAsInt(withDefault: key, value: value)
+        return _handle.getPropertyAsIntWithDefault(key: key, value: value)
     }
 
     public func getPropertyAsList(_ key: String) -> StringSeq {
@@ -26,7 +26,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
     }
 
     public func getPropertyAsListWithDefault(key: String, value: StringSeq) -> StringSeq {
-        return _handle.getPropertyAsList(withDefault: key, value: value)
+        return _handle.getPropertyAsListWithDefault(key: key, value: value)
     }
 
     public func getPropertiesForPrefix(_ prefix: String) -> PropertyDict {

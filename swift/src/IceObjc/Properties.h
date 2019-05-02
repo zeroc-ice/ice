@@ -10,9 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(nonnull NSString*) getProperty:(NSString*)key;
 -(nonnull NSString*) getPropertyWithDefault:(NSString*)key value:(NSString*)value;
 -(int32_t) getPropertyAsInt:(NSString*)key;
--(int32_t)  getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value;
+-(int32_t)  getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value NS_SWIFT_NAME(getPropertyAsIntWithDefault(key:value:));
 -(nonnull NSArray<NSString*>*) getPropertyAsList:(NSString* _Nonnull)key;
--(nonnull NSArray<NSString*>*) getPropertyAsListWithDefault:(NSString* _Nonnull)key value:(NSArray<NSString*>* _Nonnull)value;
+-(nonnull NSArray<NSString*>*) getPropertyAsListWithDefault:(NSString* _Nonnull)key value:(NSArray<NSString*>* _Nonnull)value NS_SWIFT_NAME(getPropertyAsListWithDefault(key:value:));
 -(nonnull NSDictionary<NSString*, NSString*>*) getPropertiesForPrefix:(NSString* _Nonnull)prefix NS_SWIFT_NAME(getPropertiesForPrefix(_:));
 -(BOOL) setProperty:(NSString*)key value:(NSString*)value error:(NSError**)error;
 -(nonnull NSArray<NSString*>*) getCommandLineOptions;

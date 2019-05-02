@@ -18,10 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) shutdown;
 -(void) waitForShutdown;
 -(bool) isShutdown;
--(nullable id) stringToProxy:(NSString*)str error:(NSError**)error;
--(nullable id) propertyToProxy:(NSString*)property error:(NSError**)error
-NS_SWIFT_NAME(propertyToProxy(property:));
--(nullable NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError**)error;
+-(nullable id) stringToProxy:(NSString*)str error:(NSError**)error NS_SWIFT_NAME(stringToProxy(str:));;
+-(nullable id) propertyToProxy:(NSString*)property error:(NSError**)error NS_SWIFT_NAME(propertyToProxy(property:));
+-(nullable NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError**)error NS_SWIFT_NAME(proxyToProperty(prx:property:));;
 -(nullable ICEObjectAdapter*) createObjectAdapter:(NSString*)name error:(NSError**)error;
 -(nullable ICEObjectAdapter*) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithEndpoints(name:endpoints:));;
 -(nullable ICEObjectAdapter*) createObjectAdapterWithRouter:(NSString*)name router:(ICEObjectPrx*)router error:(NSError**)error NS_SWIFT_NAME(createObjectAdapterWithRouter(name:router:));
