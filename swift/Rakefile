@@ -449,9 +449,11 @@ end
 
 def target_add_headers(target, group, basedir, patterns, excludes: [], attributes: ["Public"])
     files = group_add_files(group, basedir, patterns, excludes)
-    files.each do |file|
-        header = target.headers_build_phase.add_file_reference(file)
-        header.settings = { "ATTRIBUTES" => attributes }
+    if attributes.include? "Public" then
+        files.each do |file|
+            header = target.headers_build_phase.add_file_reference(file)
+            header.settings = { "ATTRIBUTES" => attributes }
+        end
     end
 end
 
