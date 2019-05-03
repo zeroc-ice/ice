@@ -229,15 +229,6 @@ public extension OutputStream {
         }
     }
 
-    func write(tag: Int32, value: [UInt8]?) {
-        if let val = value {
-            // Note: not the same as larger Numeric
-            if writeOptional(tag: tag, format: .VSize) {
-                write(val)
-            }
-        }
-    }
-
     func write(_ v: Data) {
         write(size: v.count)
         if v.count > 0 {
@@ -468,9 +459,11 @@ public extension OutputStream {
     }
 
     func writeOptionalVSize(tag: Int32, len: Int, elemSize: Int) -> Bool {
-        precondition(elemSize > 1)
         if writeOptional(tag: tag, format: .VSize) {
-            write(size: len == 0 ? 1 : (len * elemSize) + (len > 254 ? 5 : 1))
+            if elemSize > 1 {
+                // We optimize-out the size when elemSize == 1
+                write(size: len == 0 ? 1 : (len * elemSize) + (len > 254 ? 5 : 1))
+            }
             return true
         }
         return false

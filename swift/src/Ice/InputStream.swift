@@ -389,11 +389,12 @@ public extension InputStream {
     }
 
     func read<Element>(tag: Int32) throws -> [Element]? where Element: StreamableNumeric {
-        precondition(MemoryLayout<Element>.size > 1)
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
-        try skipSize()
+        if MemoryLayout<Element>.size > 1 {
+            try skipSize()
+        }
         return try read()
     }
 
@@ -414,14 +415,6 @@ public extension InputStream {
         let start = pos
         pos += sz
         return [UInt8](data[start ..< pos])
-    }
-
-    func read(tag: Int32) throws -> [UInt8]? {
-        guard try readOptional(tag: tag, expectedFormat: .VSize) else {
-            return nil
-        }
-        // No skipSize here
-        return try read()
     }
 
     func read() throws -> Data {
