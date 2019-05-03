@@ -38,6 +38,37 @@ public extension Connection {
             }
         }
     }
+
+    func setCloseCallback(runOn queue: DispatchQueue = DispatchQueue.global(), callback: CloseCallback?) throws {
+        let handle = (self as! ConnectionI)._handle
+        return try autoreleasepool {
+            guard let cb = callback else {
+                try handle.setCloseCallback(nil)
+                return
+            }
+
+            try handle.setCloseCallback { c in
+                queue.async {
+                    precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
+                    cb(self)
+                }
+            }
+        }
+    }
+
+    func setHeartbeatCallback(runOn queue: DispatchQueue = DispatchQueue.global(), callback: HeartbeatCallback?) {
+        let handle = (self as! ConnectionI)._handle
+        guard let cb = callback else {
+            handle.setHeartbeatCallback(nil)
+            return
+        }
+        handle.setHeartbeatCallback { c in
+            queue.async {
+                precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
+                cb(self)
+            }
+        }
+    }
 }
 
 class ConnectionI: LocalObject<ICEConnection>, Connection {
@@ -129,39 +160,6 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     func throwException() throws {
         return try autoreleasepool {
             try _handle.throwException()
-        }
-    }
-}
-
-public extension Connection {
-    func setCloseCallback(runOn queue: DispatchQueue = DispatchQueue.global(), callback: CloseCallback?) throws {
-        let handle = (self as! ConnectionI)._handle
-        return try autoreleasepool {
-            guard let cb = callback else {
-                try handle.setCloseCallback(nil)
-                return
-            }
-
-            try handle.setCloseCallback { c in
-                queue.async {
-                    precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
-                    cb(self)
-                }
-            }
-        }
-    }
-
-    func setHeartbeatCallback(runOn queue: DispatchQueue = DispatchQueue.global(), callback: HeartbeatCallback?) {
-        let handle = (self as! ConnectionI)._handle
-        guard let cb = callback else {
-            handle.setHeartbeatCallback(nil)
-            return
-        }
-        handle.setHeartbeatCallback { c in
-            queue.async {
-                precondition(c.getCachedSwiftObject(ConnectionI.self) === self)
-                cb(self)
-            }
         }
     }
 }
