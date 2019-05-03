@@ -75,10 +75,11 @@ func allTests(_ helper: TestHelper) throws {
         var value: Int32 = 0
 
         var completed: Promise<Int32>!
+        var sent: Promise<Bool>!
         while cond.value() {
 
             let expected = value
-            let sent = Promise<Bool> { seal in
+            sent = Promise<Bool> { seal in
                 completed = hold.setAsync(value: value + 1,
                                           delay: Int32.random(in: 0..<5),
                                           sent: {
@@ -105,7 +106,7 @@ func allTests(_ helper: TestHelper) throws {
             }
         }
         try test(value > 100000 || !cond.value())
-        _ = try completed.wait()
+        _ = try sent.wait()
     }
     output.writeLine("ok")
 
