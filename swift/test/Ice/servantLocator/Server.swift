@@ -7,9 +7,8 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
-        initData.properties = properties
+        initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceServantLocator"]
         let communicator = try initialize(initData)
         defer {
