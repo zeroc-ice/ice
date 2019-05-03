@@ -20,6 +20,7 @@ namespace
 
         Init()
         {
+            //
             // Register plug-ins included in the Ice framework (a single binary file)
             // See also RegisterPluginsInit.cpp in cpp/src/Ice
             //

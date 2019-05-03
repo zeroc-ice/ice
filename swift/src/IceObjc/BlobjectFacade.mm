@@ -10,9 +10,9 @@
 
 void
 BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
-                                         std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
-                                         std::function<void(std::exception_ptr)> error,
-                                         const Ice::Current& current)
+                                std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
+                                std::function<void(std::exception_ptr)> error,
+                                const Ice::Current& current)
 {
    ICEBlobjectResponse responseCallback = ^(bool ok, NSData* outParams) {
         const Ice::Byte* start = static_cast<const Ice::Byte*>(outParams.bytes);
