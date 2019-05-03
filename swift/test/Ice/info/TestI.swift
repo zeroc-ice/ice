@@ -18,8 +18,8 @@ func getIPEndpointInfo(_ info: Ice.EndpointInfo) -> Ice.IPEndpointInfo? {
 func getIPConnectionInfo(_ info: Ice.ConnectionInfo) -> Ice.IPConnectionInfo? {
     var curr: Ice.ConnectionInfo? = info
     while curr != nil {
-        if info is Ice.IPConnectionInfo {
-            return info as? Ice.IPConnectionInfo
+        if curr is Ice.IPConnectionInfo {
+            return curr as? Ice.IPConnectionInfo
         }
         curr = curr?.underlying
     }
