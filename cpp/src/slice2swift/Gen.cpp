@@ -869,8 +869,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     out << nl << "func read() throws -> " << name;
     out << sb;
-    out << nl << "var rawValue = " << enumType << "()";
-    out << nl << "try read(enum: &rawValue, maxValue: " << p->maxValue() << ")";
+    out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
     out << sb;
     out << nl << "throw " << getUnqualified("Ice.MarshalException", swiftModule) << "(reason: \"invalid enum value\")";

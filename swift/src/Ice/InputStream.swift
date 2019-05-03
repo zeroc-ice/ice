@@ -346,57 +346,91 @@ public class InputStream {
 }
 
 public extension InputStream {
-    private func readNumeric<Element>(_: Element.Type) throws -> Element where Element: Numeric {
+    func read<Element>() throws -> Element where Element: SliceNumeric {
         let size = MemoryLayout<Element>.size
         guard size <= remaining else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
-        // We assume a little-endian platform that supports unaligned reads
-        return data[pos ..< pos + size].withUnsafeBytes { ptr in
-            let result = ptr.baseAddress!.bindMemory(to: Element.self, capacity: 1).pointee
-            pos += size
-            return result
+
+        var value: Element = 0
+        // We assume a little-endian platform
+        withUnsafeMutablePointer(to: &value) { ptr in
+            let buf = UnsafeMutableBufferPointer(start: ptr, count: 1)
+            self.data.copyBytes(to: buf, from: self.pos ..< self.pos + size)
+        }
+        pos += size
+        return value
+    }
+
+    func read<Element>() throws -> [Element] where Element: SliceNumeric {
+        let sz = try readAndCheckSeqSize(minSize: MemoryLayout<Element>.size)
+
+        if sz == 0 {
+            return [Element]()
+        } else {
+            let eltSize = MemoryLayout<Element>.size
+            if sz == 1 || eltSize == MemoryLayout<Element>.stride {
+                // Can copy directly from bytes to array
+                var a = [Element](repeating: 0, count: sz)
+                pos += a.withUnsafeMutableBufferPointer { buf in
+                    self.data.copyBytes(to: buf, from: self.pos ..< self.pos + sz * eltSize)
+                }
+                return a
+            } else {
+                var a = [Element]()
+                a.reserveCapacity(sz)
+                for _ in 0 ..< sz {
+                    try a.append(read())
+                }
+                return a
+            }
         }
     }
 
-    private func readNumeric<Element>(tag: Int32,
-                                      expectedType: OptionalFormat) throws -> Element? where Element: Numeric {
-        guard try readOptional(tag: tag, expectedFormat: expectedType) else {
+    func read<Element>(tag: Int32) throws -> [Element]? where Element: SliceNumeric {
+        guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
-        return try readNumeric(Element.self)
+        try skipSize()
+        return try read()
     }
 
-    private func readNumeric<Element>(minSize: Int) throws -> [Element] where Element: Numeric {
-        let sz = try readAndCheckSeqSize(minSize: minSize)
-        var a = [Element]()
-        a.reserveCapacity(sz)
-        for _ in 0 ..< sz {
-            a.append(try readNumeric(Element.self))
+    func read<Element>(tag: Int32) throws -> Element? where Element: SliceNumeric {
+        let expectedFormat = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
+        guard try readOptional(tag: tag, expectedFormat: expectedFormat!) else {
+            return nil
         }
-        return a
+        return try read()
     }
 
     //
     // UInt8
     //
     func read() throws -> UInt8 {
-        return try readNumeric(UInt8.self)
+        guard remaining > 0 else {
+            throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
+        }
+        let value = data[pos]
+        pos += 1
+        return value
     }
 
     func read(tag: Int32) throws -> UInt8? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F1) else {
+        guard try readOptional(tag: tag, expectedFormat: .F1) else {
             return nil
         }
         return try read() as UInt8
     }
 
     func read() throws -> [UInt8] {
-        return try readNumeric(minSize: 1)
+        let sz = try readAndCheckSeqSize(minSize: 1)
+        let start = pos
+        pos += sz
+        return [UInt8](data[start ..< pos])
     }
 
     func read(tag: Int32) throws -> [UInt8]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+        guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
         return try read()
@@ -406,11 +440,12 @@ public extension InputStream {
     // Bool
     //
     func read() throws -> Bool {
-        return try readNumeric(UInt8.self) == 1
+        let value: UInt8 = try read()
+        return value == 1
     }
 
     func read(tag: Int32) throws -> Bool? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F1) else {
+        guard try readOptional(tag: tag, expectedFormat: .F1) else {
             return nil
         }
         return try read() as Bool
@@ -418,157 +453,37 @@ public extension InputStream {
 
     func read() throws -> [Bool] {
         let sz = try readAndCheckSeqSize(minSize: 1)
-        var a = [Bool]()
-        a.reserveCapacity(sz)
-        for _ in 0 ..< sz {
-            a.append(try readNumeric(UInt8.self) == 1)
+
+        if sz == 0 {
+            return [Bool]()
+        } else if MemoryLayout<Bool>.size == 1, MemoryLayout<Bool>.stride == 1 {
+            // Copy directly from bytes to array
+            var a = [Bool](repeating: false, count: sz)
+            pos += a.withUnsafeMutableBufferPointer { buf in
+                self.data.copyBytes(to: buf, from: self.pos ..< self.pos + sz)
+            }
+            return a
+        } else {
+            fatalError("Unsupported Bool memory layout")
         }
-        return a
     }
 
     func read(tag: Int32) throws -> [Bool]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+        guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
         return try read()
     }
 
     //
-    // Int16
+    // Size
     //
-    func read() throws -> Int16 {
-        return try readNumeric(Int16.self)
-    }
-
-    func read(tag: Int32) throws -> Int16? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F2) else {
-            return nil
-        }
-        return try read() as Int16
-    }
-
-    func read() throws -> [Int16] {
-        return try readNumeric(minSize: 2)
-    }
-
-    func read(tag: Int32) throws -> [Int16]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
-            return nil
-        }
-        try skipSize()
-        return try read()
-    }
-
-    //
-    // Int32
-    //
-    func read() throws -> Int32 {
-        return try readNumeric(Int32.self)
-    }
-
-    func read(tag: Int32) throws -> Int32? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F4) else {
-            return nil
-        }
-        return try read() as Int32
-    }
-
-    func read() throws -> [Int32] {
-        return try readNumeric(minSize: 4)
-    }
-
-    func read(tag: Int32) throws -> [Int32]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
-            return nil
-        }
-        try skipSize()
-        return try read()
-    }
-
-    //
-    // Int64
-    //
-    func read() throws -> Int64 {
-        return try readNumeric(Int64.self)
-    }
-
-    func read(tag: Int32) throws -> Int64? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
-            return nil
-        }
-        return try read() as Int64
-    }
-
-    func read() throws -> [Int64] {
-        return try readNumeric(minSize: 8)
-    }
-
-    func read(tag: Int32) throws -> [Int64]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
-            return nil
-        }
-        try skipSize()
-        return try read()
-    }
-
-    //
-    // Float
-    //
-    func read() throws -> Float {
-        return try readNumeric(Float.self)
-    }
-
-    func read(tag: Int32) throws -> Float? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F4) else {
-            return nil
-        }
-        return try read() as Float
-    }
-
-    func read() throws -> [Float] {
-        return try readNumeric(minSize: 4)
-    }
-
-    func read(tag: Int32) throws -> [Float]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
-            return nil
-        }
-        try skipSize()
-        return try read()
-    }
-
-    //
-    // Double
-    //
-    func read() throws -> Double {
-        return try readNumeric(Double.self)
-    }
-
-    func read(tag: Int32) throws -> Double? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
-            return nil
-        }
-        return try read() as Double
-    }
-
-    func read() throws -> [Double] {
-        return try readNumeric(minSize: 8)
-    }
-
-    func read(tag: Int32) throws -> [Double]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
-            return nil
-        }
-        try skipSize()
-        return try read()
-    }
-
     func readSize() throws -> Int32 {
-        let b = try readNumeric(UInt8.self)
-        if b == 255 {
-            return try readNumeric(Int32.self)
+        let byteVal: UInt8 = try read()
+        if byteVal == 255 {
+            return try read()
         } else {
-            return Int32(b)
+            return Int32(byteVal)
         }
     }
 
@@ -609,7 +524,7 @@ public extension InputStream {
         // data: it's claiming having more data that what is possible to read.
         //
         if startSeq + minSeqSize > data.count {
-            throw UnmarshalOutOfBoundsException(reason: "")
+            throw UnmarshalOutOfBoundsException(reason: "bad sequence size")
         }
 
         return sz
@@ -623,7 +538,7 @@ public extension InputStream {
         return try readOptionalImpl(readTag: tag, expectedFormat: expectedFormat)
     }
 
-    func readOptionalImpl(readTag: Int32, expectedFormat: OptionalFormat) throws -> Bool {
+    internal func readOptionalImpl(readTag: Int32, expectedFormat: OptionalFormat) throws -> Bool {
         if encoding == Encoding_1_0 {
             return false // Optional members aren't supported with the 1.0 encoding.
         }
@@ -663,47 +578,43 @@ public extension InputStream {
         }
     }
 
-    func read(size: inout Int32) throws {
-        size = try readSize()
-    }
-
-    func read(enum val: inout UInt8, maxValue: Int32) throws {
+    func read(enumMaxValue: Int32) throws -> UInt8 {
         if encoding == Encoding_1_0 {
-            if maxValue < 127 {
-                val = try read()
-            } else if maxValue < 32767 {
+            if enumMaxValue < 127 {
+                return try read()
+            } else if enumMaxValue < 32767 {
                 let v: Int16 = try read()
                 guard v <= UInt8.max else {
                     throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
                 }
-                val = UInt8(v)
+                return UInt8(v)
             } else {
                 let v: Int32 = try read()
                 guard v <= UInt8.max else {
                     throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
                 }
-                val = UInt8(v)
+                return UInt8(v)
             }
         } else {
             let v = try readSize()
             guard v <= UInt8.max else {
                 throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
             }
-            val = UInt8(v)
+            return UInt8(v)
         }
     }
 
-    func read(enum val: inout Int32, maxValue: Int32) throws {
+    func read(enumMaxValue: Int32) throws -> Int32 {
         if encoding == Encoding_1_0 {
-            if maxValue < 127 {
-                val = Int32(try read() as UInt8)
-            } else if maxValue < 32767 {
-                val = Int32(try read() as Int16)
+            if enumMaxValue < 127 {
+                return Int32(try read() as UInt8)
+            } else if enumMaxValue < 32767 {
+                return Int32(try read() as Int16)
             } else {
-                val = Int32(try read() as Int32)
+                return try read()
             }
         } else {
-            val = try readSize()
+            return try readSize()
         }
     }
 
@@ -722,12 +633,8 @@ public extension InputStream {
         }
     }
 
-    func read(string: inout String) throws {
-        string = try read()
-    }
-
     func read(tag: Int32) throws -> String? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+        guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
         return try read() as String
@@ -744,7 +651,7 @@ public extension InputStream {
     }
 
     func read(tag: Int32) throws -> [String]? {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.FSize) else {
+        guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
         }
         try skip(4)
@@ -756,7 +663,7 @@ public extension InputStream {
     }
 
     func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
-        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.FSize) else {
+        guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
         }
         try skip(4)
@@ -781,7 +688,7 @@ public extension InputStream {
     }
 
     func read(tag: Int32, cb: ((Value?) throws -> Void)?) throws {
-        if try readOptional(tag: tag, expectedFormat: OptionalFormat.Class) {
+        if try readOptional(tag: tag, expectedFormat: .Class) {
             try read(cb: cb)
         }
     }
@@ -802,7 +709,7 @@ public extension InputStream {
     }
 
     func read<ValueType>(tag: Int32, value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
-        if try readOptional(tag: tag, expectedFormat: OptionalFormat.Class) {
+        if try readOptional(tag: tag, expectedFormat: .Class) {
             try read(value, cb: cb)
         }
     }
@@ -1811,3 +1718,11 @@ public class DictEntryArray<K, V> {
         values = [DictEntry<K, V>](repeating: DictEntry<K, V>(), count: size)
     }
 }
+
+public protocol SliceNumeric: SignedNumeric {}
+
+extension Int16: SliceNumeric {}
+extension Int32: SliceNumeric {}
+extension Int64: SliceNumeric {}
+extension Float: SliceNumeric {}
+extension Double: SliceNumeric {}
