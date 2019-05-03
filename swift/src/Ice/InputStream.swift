@@ -346,7 +346,10 @@ public class InputStream {
 }
 
 public extension InputStream {
-    func read<Element>() throws -> Element where Element: SliceNumeric {
+    //
+    // StreamableNumeric
+    //
+    func read<Element>() throws -> Element where Element: StreamableNumeric {
         let size = MemoryLayout<Element>.size
         guard size <= remaining else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
@@ -362,7 +365,15 @@ public extension InputStream {
         return value
     }
 
-    func read<Element>() throws -> [Element] where Element: SliceNumeric {
+    func read<Element>(tag: Int32) throws -> Element? where Element: StreamableNumeric {
+        let expectedFormat = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
+        guard try readOptional(tag: tag, expectedFormat: expectedFormat!) else {
+            return nil
+        }
+        return try read()
+    }
+
+    func read<Element>() throws -> [Element] where Element: StreamableNumeric {
         let sz = try readAndCheckSeqSize(minSize: MemoryLayout<Element>.size)
 
         if sz == 0 {
@@ -387,19 +398,12 @@ public extension InputStream {
         }
     }
 
-    func read<Element>(tag: Int32) throws -> [Element]? where Element: SliceNumeric {
+    func read<Element>(tag: Int32) throws -> [Element]? where Element: StreamableNumeric {
+        precondition(MemoryLayout<Element>.size > 1)
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
         try skipSize()
-        return try read()
-    }
-
-    func read<Element>(tag: Int32) throws -> Element? where Element: SliceNumeric {
-        let expectedFormat = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
-        guard try readOptional(tag: tag, expectedFormat: expectedFormat!) else {
-            return nil
-        }
         return try read()
     }
 
@@ -415,13 +419,6 @@ public extension InputStream {
         return value
     }
 
-    func read(tag: Int32) throws -> UInt8? {
-        guard try readOptional(tag: tag, expectedFormat: .F1) else {
-            return nil
-        }
-        return try read() as UInt8
-    }
-
     func read() throws -> [UInt8] {
         let sz = try readAndCheckSeqSize(minSize: 1)
         let start = pos
@@ -433,6 +430,7 @@ public extension InputStream {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
         }
+        // No skipSize here
         return try read()
     }
 
@@ -530,6 +528,9 @@ public extension InputStream {
         return sz
     }
 
+    //
+    // Optional
+    //
     func readOptional(tag: Int32, expectedFormat: OptionalFormat) throws -> Bool {
         if encaps.decoder != nil {
             return try encaps.decoder.readOptional(tag: tag, format: expectedFormat)
@@ -578,6 +579,9 @@ public extension InputStream {
         }
     }
 
+    //
+    // Enum
+    //
     func read(enumMaxValue: Int32) throws -> UInt8 {
         if encoding == Encoding_1_0 {
             if enumMaxValue < 127 {
@@ -618,6 +622,9 @@ public extension InputStream {
         }
     }
 
+    //
+    // String
+    //
     func read() throws -> String {
         let size = try readSize()
         if size == 0 {
@@ -658,6 +665,9 @@ public extension InputStream {
         return try read() as [String]
     }
 
+    //
+    // Proxy
+    //
     func read<ProxyImpl>() throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
         return try ProxyImpl.ice_read(from: self)
     }
@@ -678,10 +688,9 @@ public extension InputStream {
         return try read(tag: tag) as _ObjectPrxI?
     }
 
-    func read(tag: Int32) throws -> ObjectPrx? {
-        return try read(tag: tag) as _ObjectPrxI?
-    }
-
+    //
+    // Value
+    //
     func read(cb: ((Value?) throws -> Void)?) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
@@ -1719,10 +1728,15 @@ public class DictEntryArray<K, V> {
     }
 }
 
-public protocol SliceNumeric: SignedNumeric {}
+//
+// A Numeric type that can be marshaled (written) using an OutputStream and
+// unmarshaled (read) using an InputStream
+//
+public protocol StreamableNumeric: Numeric {}
 
-extension Int16: SliceNumeric {}
-extension Int32: SliceNumeric {}
-extension Int64: SliceNumeric {}
-extension Float: SliceNumeric {}
-extension Double: SliceNumeric {}
+extension UInt8: StreamableNumeric {}
+extension Int16: StreamableNumeric {}
+extension Int32: StreamableNumeric {}
+extension Int64: StreamableNumeric {}
+extension Float: StreamableNumeric {}
+extension Double: StreamableNumeric {}

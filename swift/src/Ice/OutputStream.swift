@@ -86,12 +86,13 @@ public class OutputStream {
         return data.count
     }
 
-    // Overwrite an existing numeric value at the specified position
     //
-    func write<T>(bytesOf value: T, at: Int) where T: Numeric {
+    // Overwrite an existing Numeric at the specified position
+    //
+    func write<Element>(bytesOf value: Element, at: Int) where Element: StreamableNumeric {
         withUnsafePointer(to: value) { ptr in
-            self.data.replaceSubrange(at ..< at + MemoryLayout<T>.size,
-                                      with: UnsafeRawPointer(ptr), count: MemoryLayout<T>.size)
+            self.data.replaceSubrange(at ..< at + MemoryLayout<Element>.size,
+                                      with: UnsafeRawPointer(ptr), count: MemoryLayout<Element>.size)
         }
     }
 
@@ -173,14 +174,17 @@ public class OutputStream {
 }
 
 public extension OutputStream {
-    func write<Element>(_ v: Element) where Element: SliceNumeric {
+    //
+    // StreamableNumeric
+    //
+    func write<Element>(_ v: Element) where Element: StreamableNumeric {
         // We assume a little-endian platform
         withUnsafePointer(to: v) { ptr in
             self.data.append(UnsafeBufferPointer<Element>(start: ptr, count: 1))
         }
     }
 
-    func write<Element>(tag: Int32, value: Element?) where Element: SliceNumeric {
+    func write<Element>(tag: Int32, value: Element?) where Element: StreamableNumeric {
         let format = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
         if let val = value {
             if writeOptional(tag: tag, format: format!) {
@@ -189,7 +193,7 @@ public extension OutputStream {
         }
     }
 
-    func write<Element>(_ v: [Element]) where Element: SliceNumeric {
+    func write<Element>(_ v: [Element]) where Element: StreamableNumeric {
         write(size: v.count)
 
         if v.count <= 1 || MemoryLayout<Element>.size == MemoryLayout<Element>.stride {
@@ -203,7 +207,7 @@ public extension OutputStream {
         }
     }
 
-    func write<Element>(tag: Int32, value: [Element]?) where Element: SliceNumeric {
+    func write<Element>(tag: Int32, value: [Element]?) where Element: StreamableNumeric {
         if let val = value {
             if writeOptionalVSize(tag: tag, len: val.count, elemSize: MemoryLayout<Element>.size) {
                 write(val)
@@ -212,18 +216,10 @@ public extension OutputStream {
     }
 
     //
-    // UInt8
+    // UInt8 optimization
     //
     func write(_ v: UInt8) {
         data.append(v)
-    }
-
-    func write(tag: Int32, value: UInt8?) {
-        if let val = value {
-            if writeOptional(tag: tag, format: .F1) {
-                write(val)
-            }
-        }
     }
 
     func write(_ v: [UInt8]) {
@@ -235,6 +231,7 @@ public extension OutputStream {
 
     func write(tag: Int32, value: [UInt8]?) {
         if let val = value {
+            // Note: not the same as larger Numeric
             if writeOptional(tag: tag, format: .VSize) {
                 write(val)
             }
@@ -303,6 +300,9 @@ public extension OutputStream {
         write(bytesOf: Int32(data.count) - position - 4, at: Int(position))
     }
 
+    //
+    // Enum
+    //
     func write(enum val: UInt8, maxValue: Int32) {
         if encoding == Encoding_1_0 {
             if maxValue < 127 {
