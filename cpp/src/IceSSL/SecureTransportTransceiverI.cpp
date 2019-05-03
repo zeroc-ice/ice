@@ -289,7 +289,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         throw ProtocolException(__FILE__, __LINE__, os.str());
     }
 
-    for(int i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+    for(CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
     {
         SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
         CFRetain(cert);
