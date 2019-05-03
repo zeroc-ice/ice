@@ -216,8 +216,8 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }
 
     do {
-        let bsi1: [UInt8] = [0x01, 0x11, 0x12, 0x22]
-        let bsi2: [UInt8] = [0xf1, 0xf2, 0xf3, 0xf4]
+        let bsi1 = ByteSeq([0x01, 0x11, 0x12, 0x22])
+        let bsi2 = ByteSeq([0xf1, 0xf2, 0xf3, 0xf4])
 
         let (rso, bso) = try p.opByteS(p1: bsi1, p2: bsi2)
         try test(bso.count == 4)
@@ -317,12 +317,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }
 
     do {
-        let s11: [UInt8] =  [0x01, 0x11, 0x12]
-        let s12: [UInt8] = [0xff]
+        let s11 = ByteSeq([0x01, 0x11, 0x12])
+        let s12 = ByteSeq([0xff])
         let bsi1 = [s11, s12]
 
-        let s21: [UInt8] = [0x0e]
-        let s22: [UInt8] = [0xf2, 0xf1]
+        let s21 = ByteSeq([0x0e])
+        let s22 = ByteSeq([0xf2, 0xf1])
         let bsi2 = [s21, s22]
 
         let (rso, bso) = try p.opByteSS(p1: bsi1, p2: bsi2)
@@ -850,12 +850,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }
 
     do {
-        let si1: [UInt8] = [0x01, 0x11]
-        let si2: [UInt8] = [0x12]
-        let si3: [UInt8] = [0xf2, 0xf3]
+        let si1 = ByteSeq([0x01, 0x11])
+        let si2 = ByteSeq([0x12])
+        let si3 = ByteSeq([0xf2, 0xf3])
 
-        let sdi1: [UInt8: [UInt8]] = [0x01: si1, 0x22: si2]
-        let sdi2: [UInt8: [UInt8]] = [0xf1: si3]
+        let sdi1: [UInt8: ByteSeq] = [0x01: si1, 0x22: si2]
+        let sdi2: [UInt8: ByteSeq] = [0xf1: si3]
 
         let (ro, `do`) = try p.opByteByteSD(p1: sdi1, p2: sdi2)
 

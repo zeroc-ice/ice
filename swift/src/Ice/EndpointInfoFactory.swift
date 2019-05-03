@@ -75,13 +75,13 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
                                          compress: Bool,
                                          encodingMajor: UInt8,
                                          encodingMinor: UInt8,
-                                         rawBytes: [NSNumber]) -> Any {
+                                         rawBytes: Data) -> Any {
         return OpaqueEndpointInfoI(handle: handle,
                                    underlying: getUnderlying(underlying),
                                    timeout: timeout,
                                    compress: compress,
                                    rawEncoding: EncodingVersion(major: encodingMajor, minor: encodingMinor),
-                                   rawBytes: rawBytes as! [UInt8])
+                                   rawBytes: rawBytes)
     }
 
     static func createSSLEndpointInfo(_ handle: ICEEndpointInfo,

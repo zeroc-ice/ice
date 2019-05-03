@@ -71,8 +71,8 @@ class ThrowerI: Thrower {
     func throwAssertException(current: Ice.Current) throws {
     }
 
-    func throwMemoryLimitException(seq: [UInt8], current: Ice.Current) throws -> [UInt8] {
-        return [UInt8](repeating: 0, count: 1024 * 20) // 20KB is over the configured 10KB message size max.
+    func throwMemoryLimitException(seq: ByteSeq, current: Ice.Current) throws -> ByteSeq {
+        return ByteSeq(repeating: 0, count: 1024 * 20) // 20KB is over the configured 10KB message size max.
     }
 
     func throwLocalExceptionIdempotent(current: Ice.Current) throws {

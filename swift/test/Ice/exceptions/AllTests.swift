@@ -234,7 +234,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     if conn != nil {
         output.write("testing memory limit marshal exception...")
         do {
-            _ = try thrower.throwMemoryLimitException([UInt8]())
+            _ = try thrower.throwMemoryLimitException(ByteSeq())
             try test(false)
         } catch is Ice.MemoryLimitException {
         } catch {
@@ -242,7 +242,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
         }
 
         do {
-            _ = try thrower.throwMemoryLimitException([UInt8](repeating: 0, count: 20 * 1024)) // 20KB
+            _ = try thrower.throwMemoryLimitException(ByteSeq(repeating: 0, count: 20 * 1024)) // 20KB
             try test(false)
         } catch is Ice.ConnectionLostException {
         } catch is Ice.UnknownLocalException {
@@ -256,12 +256,12 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
             let thrower2 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
             do {
                 // 2MB(no limits)
-                _ = try thrower2.throwMemoryLimitException([UInt8](repeating: 0, count: 2 * 1024 * 1024))
+                _ = try thrower2.throwMemoryLimitException(ByteSeq(repeating: 0, count: 2 * 1024 * 1024))
             } catch is Ice.MemoryLimitException {}
             str = "thrower:\(helper.getTestEndpoint(num: 2))"
             let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
             do {
-                _ = try thrower3.throwMemoryLimitException([UInt8](repeating: 0, count: 1024)) // 1KB limit
+                _ = try thrower3.throwMemoryLimitException(ByteSeq(repeating: 0, count: 1024)) // 1KB limit
                 try test(false)
             } catch is Ice.ConnectionLostException {}
         } catch is Ice.ConnectionRefusedException {

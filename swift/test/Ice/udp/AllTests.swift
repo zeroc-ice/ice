@@ -84,11 +84,11 @@ public func allTests(_ helper: TestHelper) throws {
         // Only run this test if compression is disabled, the test expect fixed message size
         // to be sent over the wire.
         //
-        var seq: [UInt8]
+        var seq: ByteSeq
         do {
-            seq = [UInt8](repeating: 0, count: 1024)
+            seq = ByteSeq(repeating: 0, count: 1024)
             while true {
-                seq = [UInt8](repeating: 0, count: seq.count * 2 + 10)
+                seq = ByteSeq(repeating: 0, count: seq.count * 2 + 10)
                 replyI.reset()
                 try obj.sendByteSeq(seq: seq, reply: reply)
                 _ = replyI.waitReply(expectedReplies: 1, timeout: 10000)
@@ -102,7 +102,7 @@ public func allTests(_ helper: TestHelper) throws {
         }
         try obj.ice_getConnection()!.close(.GracefullyWithWait)
         communicator.getProperties().setProperty(key: "Ice.UDP.SndSize", value: "64000")
-        seq = [UInt8](repeating: 0, count: 50000)
+        seq = ByteSeq(repeating: 0, count: 50000)
         do {
             replyI.reset()
             try obj.sendByteSeq(seq: seq, reply: reply)

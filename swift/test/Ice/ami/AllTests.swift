@@ -157,7 +157,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
                       })
     }.wait()
 
-    let seq = [UInt8](repeating: 0, count: 1024)
+    let seq = ByteSeq(repeating: 0, count: 1024)
     var cbs = [Promise<Bool>]()
     try testController.holdAdapter()
     var cb: Promise<Bool>!
@@ -423,7 +423,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             //
             // Remote case.
             //
-            let seq = [UInt8](repeating: 0, count: 1024 * 10)
+            let seq = ByteSeq(repeating: 0, count: 1024 * 10)
 
             //
             // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.

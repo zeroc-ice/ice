@@ -65,7 +65,7 @@ public func allTests(helper: TestHelper) throws {
     output.writeLine("ok")
 
     // The sequence needs to be large enough to fill the write/recv buffers
-    let seq = [UInt8](repeating: 0, count: 2000000)
+    let seq = ByteSeq(repeating: 0, count: 2000000)
 
     output.write("testing connection timeout... ")
     do {
@@ -92,7 +92,7 @@ public func allTests(helper: TestHelper) throws {
             let to = timeout.ice_timeout(2000)
             try controller.holdAdapter(100)
             do {
-                try to.sendData([UInt8](repeating: 0, count: 1000000))
+                try to.sendData(ByteSeq(repeating: 0, count: 1000000))
             } catch is Ice.TimeoutException {
                 try test(false)
             }

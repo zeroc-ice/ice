@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSError*) timeoutException:(NSString*)file line:(size_t)line;
 
 // ProtocolException
-+(NSError*) badMagicException:(NSString*)reason badMagic:(NSArray<NSNumber*>*)badMagic file:(NSString*)file line:(size_t)line;
++(NSError*) badMagicException:(NSString*)reason badMagic:(NSData*)badMagic file:(NSString*)file line:(size_t)line;
 +(NSError*) unsupportedProtocolException:(NSString*)reason badMajor:(uint8_t)badMajor badMinor:(uint8_t)badMinor supportedMajor:(uint8_t)supportedMajor supportedMinor:(uint8_t)supportedMinor file:(NSString*)file line:(size_t)line;
 +(NSError*) unsupportedEncodingException:(NSString*)reason badMajor:(uint8_t)badMajor badMinor:(uint8_t)badMinor supportedMajor:(uint8_t)supportedMajor supportedMinor:(uint8_t)supportedMinor file:(NSString*)file line:(size_t)line;
 +(NSError*) unknownMessageException:(NSString*)reason file:(NSString*)file line:(size_t)line;

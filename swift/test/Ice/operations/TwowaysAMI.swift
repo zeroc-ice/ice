@@ -123,8 +123,8 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opByteSAsync(p1: [0x01, 0x11, 0x12, 0x22],
-                       p2: [0xf1, 0xf2, 0xf3, 0xf4])
+        p.opByteSAsync(p1: ByteSeq([0x01, 0x11, 0x12, 0x22]),
+                       p2: ByteSeq([0xf1, 0xf2, 0xf3, 0xf4]))
     }.done { returnValue, p3 in
         try test(p3.count == 4)
         try test(p3[0] == 0x22)
@@ -218,8 +218,8 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opByteSSAsync(p1: [[0x01, 0x11, 0x12], [0xff]],
-                        p2: [[0x0e], [0xf2, 0xf1]])
+        p.opByteSSAsync(p1: [ByteSeq([0x01, 0x11, 0x12]), ByteSeq([0xff])],
+                        p2: [ByteSeq([0x0e]), ByteSeq([0xf2, 0xf1])])
     }.done { returnValue, p3 in
         try test(p3.count == 2)
         try test(p3[0].count == 1)
@@ -552,15 +552,15 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opByteByteSDAsync(p1: [0x01: [0x01, 0x11],
-                                 0x22: [0x12]],
-                            p2: [0xf1: [0xf2, 0xf3]])
+        p.opByteByteSDAsync(p1: [0x01: ByteSeq([0x01, 0x11]),
+                                 0x22: ByteSeq([0x12])],
+                            p2: [0xf1: ByteSeq([0xf2, 0xf3])])
     }.done { returnValue, p3 in
 
-        try test(p3 == [0xf1: [0xf2, 0xf3]])
-        try test(returnValue == [0x01: [0x01, 0x11],
-                                 0x22: [0x12],
-                                 0xf1: [0xf2, 0xf3]])
+        try test(p3 == [0xf1: ByteSeq([0xf2, 0xf3])])
+        try test(returnValue == [0x01: ByteSeq([0x01, 0x11]),
+                                 0x22: ByteSeq([0x12]),
+                                 0xf1: ByteSeq([0xf2, 0xf3])])
     }.wait()
 
     try firstly {

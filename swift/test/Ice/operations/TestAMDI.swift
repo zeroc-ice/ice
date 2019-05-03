@@ -120,7 +120,7 @@ class MyDerivedClassI: MyDerivedClass {
     }
 
     func opByteSAsync(p1: ByteS, p2: ByteS, current: Current) -> Promise<(returnValue: ByteS, p3: ByteS)> {
-        return Promise.value((p1 + p2, p1.reversed()))
+        return Promise.value((p1 + p2, ByteSeq(p1.reversed())))
     }
 
     func opBoolSAsync(p1: BoolS, p2: BoolS, current: Current) -> Promise<(returnValue: BoolS, p3: BoolS)> {

@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
                       compress:(BOOL)compress
                  encodingMajor:(UInt8)encodingMajor
                  encodingMinor:(UInt8)encodingMinor
-                      rawBytes:(NSArray<NSNumber*>*)byteSeq;
+                      rawBytes:(NSData*)rawBytes;
 
 +(id) createSSLEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying

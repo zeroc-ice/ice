@@ -71,13 +71,13 @@ class MyDerivedClassI: MyDerivedClass {
         return (p1.merging(p2) { _, new in new }, p1)
     }
 
-    func opByteS(p1: [UInt8],
-                 p2: [UInt8], current: Ice.Current) throws -> (returnValue: [UInt8], p3: [UInt8]) {
-        return (p1 + p2, p1.reversed())
+    func opByteS(p1: ByteSeq,
+                 p2: ByteSeq, current: Ice.Current) throws -> (returnValue: ByteSeq, p3: ByteSeq) {
+        return (p1 + p2, ByteSeq(p1.reversed()))
     }
 
-    func opByteSS(p1: [[UInt8]],
-                  p2: [[UInt8]], current: Ice.Current) throws -> (returnValue: [[UInt8]], p3: [[UInt8]]) {
+    func opByteSS(p1: [ByteSeq],
+                  p2: [ByteSeq], current: Ice.Current) throws -> (returnValue: [ByteSeq], p3: [ByteSeq]) {
         return (p1 + p2, p1.reversed())
     }
 
@@ -215,9 +215,9 @@ class MyDerivedClassI: MyDerivedClass {
         return (p1.reversed(), p2 + p1)
     }
 
-    func opByteByteSD(p1: [UInt8: [UInt8]],
-                      p2: [UInt8: [UInt8]],
-                      current: Ice.Current) throws -> (returnValue: [UInt8: [UInt8]], p3: [UInt8: [UInt8]]) {
+    func opByteByteSD(p1: [UInt8: ByteSeq],
+                      p2: [UInt8: ByteSeq],
+                      current: Ice.Current) throws -> (returnValue: [UInt8: ByteSeq], p3: [UInt8: ByteSeq]) {
         return (p1.merging(p2) { _, new in new }, p2)
     }
 
@@ -273,7 +273,7 @@ class MyDerivedClassI: MyDerivedClass {
         return s.map { -$0 }
     }
 
-    func opByteSOneway(s: [UInt8], current: Ice.Current) throws {
+    func opByteSOneway(s: ByteSeq, current: Ice.Current) throws {
         withLock(&_lock) {
             _opByteSOnewayCallCount += 1
         }

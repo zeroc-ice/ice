@@ -228,7 +228,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
     mo1.i = .MyEnumMember
     mo1.j = try communicator.stringToProxy("test")
     mo1.k = mo1
-    mo1.bs = [5]
+    mo1.bs = ByteSeq([5])
     mo1.ss = ["test", "test2"]
     mo1.iid = [4: 3]
     mo1.sid = ["test": 10]
@@ -265,7 +265,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
     try test(mo1.i! == .MyEnumMember)
     try test(mo1.j! == communicator.stringToProxy("test"))
     try test(mo1.k! === mo1)
-    try test(mo1.bs! == [5])
+    try test(mo1.bs! == ByteSeq([5]))
     try test(mo1.ss! == ["test", "test2"])
     try test(mo1.iid![4]! == 3)
     try test(mo1.sid!["test"]! == 10)
@@ -1625,9 +1625,9 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
     }
 
     do {
-        var p1: [UInt8]?
-        var p2: [UInt8]?
-        var p3: [UInt8]?
+        var p1: ByteSeq?
+        var p2: ByteSeq?
+        var p3: ByteSeq?
 
         (p2, p3) = try initial.opByteSeq(p1)
         try test(p2 == nil && p3 == nil)
@@ -1636,7 +1636,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         (p2, p3) = try initial.opByteSeq(nil)
         try test(p2 == nil && p3 == nil)
 
-        p1 = [UInt8](repeating: 56, count: 100)
+        p1 = ByteSeq(repeating: 56, count: 100)
         (p2, p3) = try initial.opByteSeq(p1)
         try test(p2 == p1 && p3 == p1)
 
@@ -1651,12 +1651,12 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
             }
         }.wait()
 
-        (p2, p3) = try initial.opByteSeq([UInt8](repeating: 56, count: 100))
+        (p2, p3) = try initial.opByteSeq(ByteSeq(repeating: 56, count: 100))
         try test(p2 == p1 && p3 == p1)
 
         try Promise<Void> { seal in
             firstly {
-                initial.opByteSeqAsync([UInt8](repeating: 56, count: 100))
+                initial.opByteSeqAsync(ByteSeq(repeating: 56, count: 100))
             }.done { p2, p3 in
                 try test(p2 == p1 && p3 == p1)
                 seal.fulfill(())

@@ -434,6 +434,21 @@ public extension InputStream {
         return try read()
     }
 
+    func read() throws -> Data {
+        let sz = try readAndCheckSeqSize(minSize: 1)
+        let start = pos
+        pos += sz
+        return data.subdata(in: start ..< pos) // copy
+    }
+
+    func read(tag: Int32) throws -> Data? {
+        guard try readOptional(tag: tag, expectedFormat: .VSize) else {
+            return nil
+        }
+        // No skipSize here
+        return try read()
+    }
+
     //
     // Bool
     //

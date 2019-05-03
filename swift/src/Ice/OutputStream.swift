@@ -238,6 +238,22 @@ public extension OutputStream {
         }
     }
 
+    func write(_ v: Data) {
+        write(size: v.count)
+        if v.count > 0 {
+            data.append(v)
+        }
+    }
+
+    func write(tag: Int32, value: Data?) {
+        if let val = value {
+            // Note: not the same as larger Numeric
+            if writeOptional(tag: tag, format: .VSize) {
+                write(val)
+            }
+        }
+    }
+
     //
     // Bool
     //

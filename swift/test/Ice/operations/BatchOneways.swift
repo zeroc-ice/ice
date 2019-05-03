@@ -12,7 +12,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
         try helper.test(value, file: file, line: line)
     }
 
-    let bs1 = [UInt8](repeating: 0, count: 10 * 1024)
+    let bs1 = ByteSeq(repeating: 0, count: 10 * 1024)
     let batch = p.ice_batchOneway()
     try batch.ice_flushBatchRequests() // Empty flush
 

@@ -234,15 +234,15 @@ public class Client: TestHelperI {
         }
 
         do {
-            let arr: [UInt8] = [0x01, 0x11, 0x12, 0x22]
+            let arr = ByteSeq([0x01, 0x11, 0x12, 0x22])
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(arr)
             var data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2: [UInt8] = try inS.read()
+            let arr2: ByteSeq = try inS.read()
             try test(arr2 == arr)
 
-            let arrS = [arr, [], arr]
+            let arrS = [arr, ByteSeq(), arr]
             outS = Ice.OutputStream(communicator: communicator)
             ByteSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
@@ -399,7 +399,7 @@ public class Client: TestHelperI {
             myClassArray[i].s = SmallStruct()
             myClassArray[i].s.e = MyEnum.enum2
             myClassArray[i].seq1 = [true, false, true, false]
-            myClassArray[i].seq2 = [1, 2, 3, 4]
+            myClassArray[i].seq2 = ByteSeq([1, 2, 3, 4])
             myClassArray[i].seq3 = [1, 2, 3, 4]
             myClassArray[i].seq4 = [1, 2, 3, 4]
             myClassArray[i].seq5 = [1, 2, 3, 4]
@@ -485,7 +485,7 @@ public class Client: TestHelperI {
             c.o = c
             c.s.e = MyEnum.enum2
             c.seq1 = [true, false, true, false]
-            c.seq2 = [1, 2, 3, 4]
+            c.seq2 = ByteSeq([1, 2, 3, 4])
             c.seq3 = [1, 2, 3, 4]
             c.seq4 = [1, 2, 3, 4]
             c.seq5 = [1, 2, 3, 4]

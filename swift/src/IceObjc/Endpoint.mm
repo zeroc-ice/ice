@@ -65,16 +65,12 @@
     // underlying endpoint of a parent, the child's value for type() is the same as its parent. We have
     // to use type casts instead.
     //
-    auto ipInfo = std::dynamic_pointer_cast<Ice::IPEndpointInfo>(infoPtr);
 
     auto opaqueInfo = std::dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(infoPtr);
     if(opaqueInfo)
     {
-        NSMutableArray<NSNumber*>* rawBytes = [[NSMutableArray alloc] initWithCapacity:opaqueInfo->rawBytes.size()];
-        for(Ice::Byte b: opaqueInfo->rawBytes)
-        {
-            [rawBytes addObject: [NSNumber numberWithUnsignedChar:b]];
-        }
+        NSData* rawBytes = [[NSData alloc] initWithBytes:opaqueInfo->rawBytes.data()
+                                                  length:opaqueInfo->rawBytes.size()];
 
         return [factory createOpaqueEndpointInfo:handle
                                       underlying:underlying
@@ -99,6 +95,7 @@
                                      mcastTtl:udpInfo->mcastTtl];
     }
 
+    auto ipInfo = std::dynamic_pointer_cast<Ice::IPEndpointInfo>(infoPtr);
     if(std::dynamic_pointer_cast<Ice::TCPEndpointInfo>(infoPtr))
     {
         return [factory createTCPEndpointInfo:handle

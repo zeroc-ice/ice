@@ -212,12 +212,7 @@ convertException(const std::exception& exc)
         }
         catch(const Ice::BadMagicException& e)
         {
-            NSMutableArray* badMagic = [[NSMutableArray alloc] initWithCapacity:e.badMagic.size()];
-            for(Ice::Byte b: e.badMagic)
-            {
-                [badMagic addObject: [NSNumber numberWithUnsignedChar:b]];
-            }
-
+            NSData* badMagic = [[NSData alloc] initWithBytes:e.badMagic.data() length:e.badMagic.size()];
             return [factory badMagicException:toNSString(e.reason) badMagic:badMagic file:toNSString(e.ice_file()) line:e.ice_line()];
         }
         catch(const Ice::UnsupportedProtocolException& e)

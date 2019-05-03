@@ -599,17 +599,25 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     int typeCtx = p->isLocal() ? TypeContextLocal : 0;
 
     const TypePtr type = p->type();
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
 
     out << sp;
-    out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx)
-        << "]";
+    out << nl << "public typealias " << name << " = ";
+
+    if(builtin && builtin->kind() == Builtin::KindByte)
+    {
+        out << "Foundation.Data";
+    }
+    else
+    {
+        out << "[" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx) << "]";
+    }
 
     if(p->isLocal())
     {
         return;
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
     if(builtin && builtin->kind() <= Builtin::KindString)
     {
         return; // No helpers for sequence of primitive types

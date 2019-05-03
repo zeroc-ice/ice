@@ -113,7 +113,7 @@ class ThrowerI: Thrower {
     func throwMemoryLimitExceptionAsync(seq: ByteSeq, current: Current) -> Promise<ByteSeq> {
         return Promise<ByteSeq> { seal in
             // 20KB is over the configured 10KB message size max.
-            seal.fulfill([UInt8](repeating: 0, count: 1024 * 20))
+            seal.fulfill(ByteSeq(repeating: 0, count: 1024 * 20))
         }
     }
 

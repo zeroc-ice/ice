@@ -28,7 +28,7 @@ class TestIntfI: TestIntf {
             // to be closed.
             //
             do {
-                let seq = [UInt8](repeating: 0, count: 32 * 1024)
+                let seq = Ice.ByteSeq(repeating: 0, count: 32 * 1024)
                 let prx = try uncheckedCast(prx: current.con!.createProxy(reply), type: TestIntfPrx.self)
                 try prx.sendByteSeq(seq: seq, reply: nil)
             } catch is Ice.DatagramLimitException {

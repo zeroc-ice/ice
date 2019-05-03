@@ -197,9 +197,9 @@ class ExceptionFactory: ICEExceptionFactory {
         return TimeoutException(file: file, line: line)
     }
 
-    static func badMagicException(_ reason: String, badMagic: [NSNumber], file: String, line: Int) -> Error {
+    static func badMagicException(_ reason: String, badMagic: Data, file: String, line: Int) -> Error {
         // swiftlint:disable force_cast
-        return BadMagicException(reason: reason, badMagic: badMagic as! [UInt8], file: file, line: line)
+        return BadMagicException(reason: reason, badMagic: badMagic, file: file, line: line)
     }
 
     static func unsupportedProtocolException(_ reason: String,
