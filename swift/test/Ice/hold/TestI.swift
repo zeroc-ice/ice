@@ -54,7 +54,7 @@ class HoldI: Hold {
     }
 
     func set(value: Int32, delay: Int32, current: Ice.Current) throws -> Int32 {
-        Thread.sleep(forTimeInterval: Double(delay))
+        Thread.sleep(forTimeInterval: Double(delay/1000))
         return withLock(&_lock) {
             let tmp = _last
             _last = value
