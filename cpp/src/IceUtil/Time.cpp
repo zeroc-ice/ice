@@ -197,8 +197,8 @@ IceUtil::Time::microSecondsDouble(double t)
 IceUtil::Time::operator timeval() const
 {
     timeval tv;
-    tv.tv_sec = static_cast<long>(_usec / 1000000);
-    tv.tv_usec = static_cast<long>(_usec % 1000000);
+    tv.tv_sec = static_cast<time_t>(_usec / 1000000);
+    tv.tv_usec = static_cast<suseconds_t>(_usec % 1000000);
     return tv;
 }
 #endif

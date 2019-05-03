@@ -108,7 +108,7 @@ IceInternal::SHA1::Hasher::update(const unsigned char* data, size_t length)
         throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
     }
 #   elif defined(__APPLE__)
-    CC_SHA1_Update(&_ctx, reinterpret_cast<const void*>(data), length);
+    CC_SHA1_Update(&_ctx, reinterpret_cast<const void*>(data), static_cast<CC_LONG>(length));
 #   else
     SHA1_Update(&_ctx, reinterpret_cast<const void*>(data), length);
 #   endif
@@ -175,7 +175,7 @@ IceInternal::sha1(const unsigned char* data, size_t length, vector<unsigned char
     hasher.finalize(md);
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);
-    CC_SHA1(&data[0], length, &md[0]);
+    CC_SHA1(&data[0], static_cast<CC_LONG>(length), &md[0]);
 #else
     md.resize(SHA_DIGEST_LENGTH);
     ::SHA1(&data[0], length, &md[0]);

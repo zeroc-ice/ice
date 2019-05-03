@@ -2,6 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+//
+// Disable deprecation warnings for SecCertificateCopyNormalizedIssuerContent and
+// SecCertificateCopyNormalizedSubjectContent
+//
+#include <IceUtil/DisableWarnings.h>
+
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SecureTransport.h>
 #include <IceSSL/CertificateI.h>
@@ -293,8 +299,8 @@ getX509Name(SecCertificateRef cert, CFTypeRef key)
     if(property)
     {
         CFArrayRef dn = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
-        int size = CFArrayGetCount(dn);
-        for(int i = 0; i < size; ++i)
+        CFIndex size = CFArrayGetCount(dn);
+        for(CFIndex i = 0; i < size; ++i)
         {
             CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(dn, i));
             rdnPairs.push_front(make_pair(
@@ -317,9 +323,9 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
     if(property)
     {
         CFArrayRef names = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
-        int size = CFArrayGetCount(names);
+        CFIndex size = CFArrayGetCount(names);
 
-        for(int i = 0; i < size; ++i)
+        for(CFIndex i = 0; i < size; ++i)
         {
             CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(names, i));
 
@@ -341,7 +347,7 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
                 {
                     CFArrayRef section = (CFArrayRef)v;
                     ostringstream os;
-                    for(int j = 0, count = CFArrayGetCount(section); j < count;)
+                    for(CFIndex j = 0, count = CFArrayGetCount(section); j < count;)
                     {
                         CFDictionaryRef d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, j);
 
