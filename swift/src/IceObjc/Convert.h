@@ -9,9 +9,7 @@
 #include <map>
 #include <string>
 
-@class LocalException;
 @class ICERuntimeException;
-@protocol ICEBlobjectFacade;
 
 namespace IceSSL
 {
