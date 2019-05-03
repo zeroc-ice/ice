@@ -7,7 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol ICEOutputStreamHelper
--(void) copy:(const void*)start count:(NSNumber*)count;
+-(void) copy:(NSData*)bytes;
 @end
 
 NS_ASSUME_NONNULL_END

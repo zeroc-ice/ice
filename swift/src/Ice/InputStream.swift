@@ -42,16 +42,6 @@ public class InputStream {
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
-    init(communicator: Communicator, encoding: EncodingVersion, startNoCopy: UnsafeRawPointer, count: Int) {
-        self.communicator = communicator
-        self.encoding = encoding
-        data = Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: startNoCopy),
-                    count: count, deallocator: .none)
-        traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
-        classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
-        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
-    }
-
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
         let sz: Int32 = try read()
         if sz < 6 {

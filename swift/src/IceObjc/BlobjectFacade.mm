@@ -26,9 +26,12 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];
 
+    NSData* inEncapsData = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(inEncaps.first)
+                                                        length:inEncaps.second - inEncaps.first
+                                                  freeWhenDone:NO];
+
     [_facade facadeInvoke:adapter
-                    start: inEncaps.first
-                    count: inEncaps.second - inEncaps.first
+                    inEncaps: inEncapsData
                       con: con
                      name:toNSString(current.id.name) category:toNSString(current.id.category)
                     facet:toNSString(current.facet)

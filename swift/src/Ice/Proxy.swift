@@ -200,14 +200,12 @@ public extension ObjectPrx {
                                                  mode: Int(mode.rawValue),
                                                  inParams: inEncaps,
                                                  context: context,
-                                                 response: { ok, start, count in
+                                                 response: { ok, encaps in
                                                      do {
-                                                         // make a copy
-                                                         let bytes = Data(bytes: start, count: count)
                                                          let istr =
                                                              InputStream(communicator: self._impl._communicator,
                                                                          encoding: self._impl._encoding,
-                                                                         bytes: bytes)
+                                                                         bytes: Data(encaps)) // make a copy
                                                          seal.fulfill((ok, try istr.readEncapsulation().bytes))
                                                      } catch {
                                                          seal.reject(error)
@@ -241,14 +239,12 @@ public extension ObjectPrx {
                                                  mode: Int(mode.rawValue),
                                                  inParams: inEncaps,
                                                  context: context,
-                                                 response: { ok, start, count in
+                                                 response: { ok, encaps in
                                                      do {
-                                                         // make a copy
-                                                         let bytes = Data(bytes: start, count: count)
                                                          let istr =
                                                              InputStream(communicator: self._impl._communicator,
                                                                          encoding: self._impl._encoding,
-                                                                         bytes: bytes)
+                                                                         bytes: Data(encaps)) // make a copy
                                                          seal.fulfill((ok, try istr.readEncapsulation().bytes))
                                                      } catch {
                                                          seal.reject(error)
@@ -268,7 +264,7 @@ public extension ObjectPrx {
                                                  mode: Int(mode.rawValue),
                                                  inParams: inEncaps,
                                                  context: context,
-                                                 response: { _, _, _ in
+                                                 response: { _, _ in
                                                      precondition(false)
                                                  },
                                                  exception: { error in
@@ -661,11 +657,11 @@ open class _ObjectPrxI: ObjectPrx {
     public func ice_getConnectionAsync() -> Promise<Connection?> {
         return Promise<Connection?> { seal in
             _handle.ice_getConnectionAsync({ conn in
-                    seal.fulfill(conn?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: conn!) })
-                },
-                exception: { ex in
-                    seal.reject(ex)
-                })
+                seal.fulfill(conn?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: conn!) })
+            },
+                                           exception: { ex in
+                seal.reject(ex)
+            })
         }
     }
 
@@ -759,11 +755,12 @@ open class _ObjectPrxI: ObjectPrx {
                                            mode: Int(mode.rawValue),
                                            inParams: ostr.finished(),
                                            context: context,
-                                           response: { ok, start, count in
+                                           response: { ok, encaps in
+
                                                do {
                                                    let istr = InputStream(communicator: self._communicator,
                                                                           encoding: self._encoding,
-                                                                          startNoCopy: start, count: count)
+                                                                          bytes: encaps)
                                                    if ok == false {
                                                        try self._throwUserException(istr: istr,
                                                                                     userException: userException)
@@ -810,11 +807,11 @@ open class _ObjectPrxI: ObjectPrx {
                                        mode: Int(mode.rawValue),
                                        inParams: ostr.finished(),
                                        context: context,
-                                       response: { ok, start, count in
+                                       response: { ok, encaps in
                                            do {
                                                let istr = InputStream(communicator: self._communicator,
                                                                       encoding: self._encoding,
-                                                                      startNoCopy: start, count: count)
+                                                                      bytes: encaps)
                                                if ok == false {
                                                    try self._throwUserException(istr: istr,
                                                                                 userException: userException)
@@ -859,11 +856,11 @@ open class _ObjectPrxI: ObjectPrx {
                                            mode: Int(mode.rawValue),
                                            inParams: ostr.finished(),
                                            context: context,
-                                           response: { ok, start, count in
+                                           response: { ok, encaps in
                                                do {
                                                    let istr = InputStream(communicator: self._communicator,
                                                                           encoding: self._encoding,
-                                                                          startNoCopy: start, count: count)
+                                                                          bytes: encaps)
                                                    if ok == false {
                                                        try self._throwUserException(istr: istr,
                                                                                     userException: userException)
@@ -895,7 +892,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                mode: Int(mode.rawValue),
                                                inParams: ostr.finished(),
                                                context: context,
-                                               response: { _, _, _ in
+                                               response: { _, _ in
                                                    precondition(false)
                                                },
                                                exception: { error in
@@ -936,11 +933,11 @@ open class _ObjectPrxI: ObjectPrx {
                                        mode: Int(mode.rawValue),
                                        inParams: ostr.finished(),
                                        context: context,
-                                       response: { ok, start, count in
+                                       response: { ok, encaps in
                                            do {
                                                let istr = InputStream(communicator: self._communicator,
                                                                       encoding: self._encoding,
-                                                                      startNoCopy: start, count: count)
+                                                                      bytes: encaps)
                                                if ok == false {
                                                    try self._throwUserException(istr: istr,
                                                                                 userException: userException)

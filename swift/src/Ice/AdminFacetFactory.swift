@@ -13,7 +13,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
         self.servant = servant
     }
 
-    func facadeInvoke(_ adapter: ICEObjectAdapter, start: UnsafeRawPointer, count: Int, con: ICEConnection?,
+    func facadeInvoke(_ adapter: ICEObjectAdapter, inEncaps: Data, con: ICEConnection?,
                       name: String, category: String, facet: String, operation: String, mode: UInt8,
                       context: [String: String], requestId: Int32, encodingMajor: UInt8, encodingMinor: UInt8,
                       response: @escaping ICEBlobjectResponse,
@@ -44,7 +44,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
         let incoming = Incoming(istr: InputStream(communicator: communicator,
                                                   encoding: EncodingVersion(major: encodingMajor,
                                                                             minor: encodingMinor),
-                                                  startNoCopy: start, count: count),
+                                                  bytes: inEncaps),
                                 response: response,
                                 exception: exception,
                                 current: current)

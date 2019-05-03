@@ -485,9 +485,8 @@ public extension OutputStream {
 }
 
 extension OutputStream: ICEOutputStreamHelper {
-    public func copy(_ start: UnsafeRawPointer, count: NSNumber) {
-        data.append(Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: start),
-                         count: count.intValue, deallocator: .none))
+    public func copy(_ bytes: Data) {
+        data.append(bytes)
     }
 }
 

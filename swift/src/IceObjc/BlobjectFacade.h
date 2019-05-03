@@ -15,8 +15,7 @@ typedef void (^ICEBlobjectException) (ICERuntimeException*);
 
 @protocol ICEBlobjectFacade
 -(void) facadeInvoke:(ICEObjectAdapter*)adapter
-               start:(const void*)start
-               count:(NSInteger)count
+            inEncaps:(NSData*)inEncaps
                  con:(ICEConnection* _Nullable)con
                 name:(NSString*)name
             category:(NSString*)category

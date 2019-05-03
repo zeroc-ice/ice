@@ -587,8 +587,11 @@ encodingMinor:(uint8_t)minor
     Ice::OutputStream out(communicator, encoding);
     out.write(_prx);
     std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
-    int count = static_cast<int>(p.second - p.first);
-    [os copy:p.first count:[NSNumber numberWithInt:count]];
+    NSData* bytes = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(p.first)
+                                                 length:p.second - p.first
+                                           freeWhenDone:NO];
+
+    [os copy:bytes];
 }
 
 -(BOOL) iceOnewayInvoke:(NSString*)op
@@ -625,7 +628,7 @@ encodingMinor:(uint8_t)minor
                   mode:(NSInteger)mode
               inParams:(NSData*)inParams
                context:(NSDictionary* _Nullable)context
-              response:(void (^)(bool, const void*, NSInteger))response
+              response:(void (^)(bool, NSData*))response
              exception:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error
@@ -648,7 +651,10 @@ encodingMinor:(uint8_t)minor
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                                             [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                                             {
-                                                response(ok, outParams.first, outParams.second - outParams.first);
+                                                NSData* encaps = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(outParams.first)
+                                                                                              length:outParams.second - outParams.first
+                                                                                        freeWhenDone:NO];
+                                                response(ok, encaps);
                                             },
                                             [exception](std::exception_ptr e)
                                             {

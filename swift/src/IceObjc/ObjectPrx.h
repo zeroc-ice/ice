@@ -96,7 +96,6 @@ NS_ASSUME_NONNULL_BEGIN
    encodingMajor:(uint8_t)encodingMajor
    encodingMinor:(uint8_t)encodingMinor;
 
-
 // Sync invocation on oneway proxy
 -(BOOL) iceOnewayInvoke:(NSString* _Nonnull)op
                    mode:(uint8_t)mode
@@ -108,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
                   mode:(NSInteger)mode
               inParams:(NSData*)inParams
                context:(NSDictionary* _Nullable)context
-              response:(void (^)(bool, const void*, NSInteger))response
+              response:(void (^)(bool, NSData*))response
              exception:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
                  error:(NSError* _Nullable * _Nullable)error;
