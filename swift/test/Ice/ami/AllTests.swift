@@ -408,7 +408,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             let con = try p.ice_getConnection()!
             let cb = Promise<Void> { seal in
                 do {
-                    try con.setCloseCallback({ _ in seal.fulfill(()) })
+                    try con.setCloseCallback { _ in seal.fulfill(()) }
                 } catch {
                     precondition(false)
                 }
@@ -503,9 +503,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             con = try p.ice_getConnection()!
 
             let cb = Promise<Void> { seal in
-                try con.setCloseCallback({ _ in
+                try con.setCloseCallback { _ in
                         seal.fulfill(())
-                    })
+                    }
             }
             t = p.sleepAsync(100)
             try p.close(.Gracefully) // Close is delayed until sleep completes.

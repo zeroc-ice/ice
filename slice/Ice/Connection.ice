@@ -313,7 +313,12 @@ local interface Connection
      * @param callback The close callback object.
      *
      **/
+    #ifdef __SLICE2SWIFT__
+    void setCloseCallback(["swift:nonnull", "swift:type:Dispatch.DispatchQueue"] LocalObject runOn,
+                          CloseCallback callback);
+    #else
     void setCloseCallback(CloseCallback callback);
+    #endif
 
     /**
      *
@@ -324,7 +329,13 @@ local interface Connection
      * @param callback The heartbeat callback object.
      *
      **/
+    #ifdef __SLICE2SWIFT__
+    ["swift:noexcept"]
+    void setHeartbeatCallback(["swift:nonnull", "swift:type:Dispatch.DispatchQueue"] LocalObject runOn,
+                                                 HeartbeatCallback callback);
+    #else
     ["swift:noexcept"] void setHeartbeatCallback(HeartbeatCallback callback);
+    #endif
 
     /**
      *
