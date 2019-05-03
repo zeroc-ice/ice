@@ -785,7 +785,7 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
          assert(required);
          out << "init()";
          out << sb;
-         out << "super.init()";
+         out << nl << "super.init()";
          out << eb;
      }
 }
