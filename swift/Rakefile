@@ -257,6 +257,7 @@ def create_platform_targets(project, platform)
         target_add_files(target, group, "../scripts", ["*.ice"])
         target_add_files(target, group, "test/TestDriver/#{platform_name}", ["*.xcassets"])
         target_add_files(target, group, "test/TestDriver/#{platform_name}/Base.lproj", ["*.storyboard"])
+        target.add_resources(group_add_files(group, "..", ["certs"]))
     end
 
     #

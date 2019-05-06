@@ -3830,7 +3830,10 @@ class SwiftMapping(Mapping):
         return "{0}/TestDriver.app".format(targetBuildDir)
 
     def getSSLProps(self, process, current):
-        return Mapping.getByName("cpp").getSSLProps(process, current)
+        props = Mapping.getByName("cpp").getSSLProps(process, current)
+        props["IceSSL.DefaultDir"] = ("certs" if current.config.buildPlatform == "iphoneos" else
+                                      os.path.join(self.component.getSourceDir(), "certs"))
+        return props
 
     def getPluginEntryPoint(self, plugin, process, current):
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
