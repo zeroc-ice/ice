@@ -49,7 +49,9 @@ public:
 
 private:
 
+#ifndef ICE_SWIFT
     const bool _voip;
+#endif
     const Ice::CommunicatorPtr _communicator;
     IceInternal::UniqueRef<CFMutableDictionaryRef> _proxySettings;
     std::string _proxyHost;

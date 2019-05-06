@@ -53,7 +53,9 @@ toCFString(const string& s)
 
 IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const string& protocol, bool secure) :
     ProtocolInstance(com, type, protocol, secure),
+#ifndef ICE_SWIFT
     _voip(com->getProperties()->getPropertyAsIntWithDefault("Ice.Voip", 0) > 0),
+#endif
     _communicator(com),
     _proxySettings(0)
 {
@@ -94,16 +96,18 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
                                 bool server,
                                 const string& /*host*/) const
 {
+#ifndef ICE_SWIFT
     if(_voip)
     {
-#if TARGET_IPHONE_SIMULATOR == 0
+#   if TARGET_IPHONE_SIMULATOR == 0
         if(!CFReadStreamSetProperty(readStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP) ||
            !CFWriteStreamSetProperty(writeStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP))
         {
             throw Ice::SyscallException(__FILE__, __LINE__);
         }
-#endif
+#   endif
     }
+#endif
 
     if(!server && _proxySettings)
     {
