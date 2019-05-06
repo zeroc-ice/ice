@@ -507,7 +507,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
     CFStringRef domain = CFErrorGetDomain(err.get());
     if(CFStringCompare(domain, kCFErrorDomainPOSIX, 0) == kCFCompareEqualTo)
     {
-        errno = CFErrorGetCode(err.get());
+        errno = static_cast<int>(CFErrorGetCode(err.get()));
         if(interrupted() || noBuffers())
         {
             return;
@@ -530,7 +530,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
         }
     }
 
-    int error = CFErrorGetCode(err.get());
+    CFIndex error = CFErrorGetCode(err.get());
     if(error == kCFHostErrorHostNotFound || error == kCFHostErrorUnknown)
     {
         int rs = 0;
@@ -545,5 +545,5 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
         }
         throw DNSException(file, line, rs, _host);
     }
-    throw CFNetworkException(file, line, CFErrorGetCode(err.get()), fromCFString(domain));
+    throw CFNetworkException(file, line, static_cast<int>(CFErrorGetCode(err.get())), fromCFString(domain));
 }

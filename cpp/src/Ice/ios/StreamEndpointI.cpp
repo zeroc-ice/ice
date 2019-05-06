@@ -38,6 +38,7 @@ createIceTCP(const CommunicatorPtr& com, const string&, const StringSeq&)
 
 }
 
+#if TARGET_IPHONE_SIMULATOR == 0
 namespace
 {
 
@@ -48,6 +49,7 @@ toCFString(const string& s)
 }
 
 }
+#endif
 
 IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const string& protocol, bool secure) :
     ProtocolInstance(com, type, protocol, secure),
@@ -65,7 +67,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     {
 #if TARGET_IPHONE_SIMULATOR != 0
         throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "SOCKS proxy not supported");
-#endif
+#else
         _proxySettings.reset(CFDictionaryCreateMutable(0, 3, &kCFTypeDictionaryKeyCallBacks,
                                                        &kCFTypeDictionaryValueCallBacks));
 
@@ -78,6 +80,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
         CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSProxyPort, port.get());
 
         CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSVersion, kCFStreamSocketSOCKSVersion4);
+#endif
     }
 }
 

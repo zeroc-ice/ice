@@ -416,7 +416,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     NSString* domain = [err domain];
     if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
     {
-        errno = [err code];
+        errno = static_cast<int>([err code]);
         [err release];
         if(interrupted() || noBuffers())
         {
@@ -445,7 +445,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     // Otherwise throw a generic exception.
     CFNetworkException ex(file, line);
     ex.domain = [domain UTF8String];
-    ex.error = [err code];
+    ex.error = static_cast<int>([err code]);
     [err release];
     throw ex;
 }
