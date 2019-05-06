@@ -133,7 +133,7 @@ func allTests(_ helper: TestHelper) throws {
         }
 
         tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo()!)!
-        try test(tcpEndpoint.host == "127.0.0.1")
+        try test(tcpEndpoint.host == helper.getTestHost())
         try test(tcpEndpoint.port == port)
 
         adapter.destroy()
