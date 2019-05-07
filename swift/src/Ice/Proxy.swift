@@ -679,7 +679,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_write(to os: OutputStream) {
-        _handle.iceWrite(os, encodingMajor: os.encoding.major, encodingMinor: os.encoding.minor)
+        _handle.iceWrite(os, encodingMajor: os.currentEncoding.major, encodingMinor: os.currentEncoding.minor)
     }
 
     public func ice_toString() -> String {
@@ -709,7 +709,7 @@ open class _ObjectPrxI: ObjectPrx {
 
         // The number of bytes consumed reading the proxy
         var bytesRead: Int = 0
-        let encoding = istr.encoding
+        let encoding = istr.currentEncoding
         let communicator = istr.communicator
 
         //

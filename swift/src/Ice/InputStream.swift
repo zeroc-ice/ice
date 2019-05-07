@@ -11,19 +11,23 @@ public class InputStream {
 
     private(set) var pos: Int = 0
     private(set) var communicator: Communicator
-    private(set) var encoding: EncodingVersion
-    private var traceSlicing: Bool
+    private let encoding: EncodingVersion
+    private let traceSlicing: Bool
 
     private var encaps: Encaps!
 
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
-    private var classGraphDepthMax: Int32
+    private let classGraphDepthMax: Int32
 
     public var sliceValues: Bool = true
 
     private var remaining: Int {
         return data.count - pos
+    }
+
+    var currentEncoding: EncodingVersion {
+        return encaps != nil ? encaps.encoding : encoding
     }
 
     public convenience init(communicator: Communicator, bytes: Data) {
@@ -61,8 +65,9 @@ public class InputStream {
 
     @discardableResult
     public func startEncapsulation() throws -> EncodingVersion {
-        encaps = Encaps()
-        encaps.start = pos
+        precondition(encaps == nil, "Nested or sequential encapsulations are not supported")
+
+        let start = pos
         //
         // I don't use readSize() and writeSize() for encapsulations,
         // because when creating an encapsulation, I must know in advance
@@ -79,12 +84,11 @@ public class InputStream {
             throw UnmarshalOutOfBoundsException(reason: "invalid size")
         }
 
-        encaps.sz = Int(sz)
-
         let encoding: EncodingVersion = try read()
 
         try checkSupportedEncoding(encoding)
-        encaps.setEncoding(encoding)
+
+        encaps = Encaps(start: start, size: Int(sz), encoding: encoding)
 
         return encoding
     }
@@ -177,7 +181,7 @@ public class InputStream {
     public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
-        } else if encoding == Encoding_1_0 {
+        } else if encaps.encoding_1_0 {
             //
             // If using the 1.0 encoding and no instances were read, we
             // still read an empty sequence of pending instances if
@@ -293,9 +297,7 @@ public class InputStream {
 
     func initEncaps() {
         if encaps == nil {
-            encaps = Encaps()
-            encaps.setEncoding(encoding)
-            encaps.sz = data.count
+            encaps = Encaps(start: 0, size: data.count, encoding: encoding)
         }
         if encaps.decoder == nil { // Lazy initialization
             let valueFactoryManager = communicator.getValueFactoryManager()
@@ -543,7 +545,7 @@ public extension InputStream {
     }
 
     internal func readOptionalImpl(readTag: Int32, expectedFormat: OptionalFormat) throws -> Bool {
-        if encoding == Encoding_1_0 {
+        if encaps.encoding_1_0 {
             return false // Optional members aren't supported with the 1.0 encoding.
         }
 
@@ -586,7 +588,7 @@ public extension InputStream {
     // Enum
     //
     func read(enumMaxValue: Int32) throws -> UInt8 {
-        if encoding == Encoding_1_0 {
+        if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
                 return try read()
             } else if enumMaxValue < 32767 {
@@ -612,7 +614,7 @@ public extension InputStream {
     }
 
     func read(enumMaxValue: Int32) throws -> Int32 {
-        if encoding == Encoding_1_0 {
+        if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
                 return Int32(try read() as UInt8)
             } else if enumMaxValue < 32767 {
@@ -728,14 +730,15 @@ public extension InputStream {
 }
 
 private class Encaps {
-    var start: Int = 0
-    var sz: Int = 0
-    var encoding: EncodingVersion = Ice.currentEncoding
-    var encoding_1_0: Bool = false
-
+    let start: Int
+    let sz: Int
+    let encoding: EncodingVersion
+    let encoding_1_0: Bool
     var decoder: EncapsDecoder!
 
-    func setEncoding(_ encoding: EncodingVersion) {
+    init(start: Int, size: Int, encoding: EncodingVersion) {
+        self.start = start
+        sz = size
         self.encoding = encoding
         encoding_1_0 = encoding == Ice.Encoding_1_0
     }

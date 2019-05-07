@@ -8,12 +8,15 @@ import IceObjc
 public class OutputStream {
     private var data: Data = Data(capacity: 240)
     private let communicator: Communicator
-    let encoding: EncodingVersion
+    private let encoding: EncodingVersion
     private let encoding_1_0: Bool
     private let format: FormatType
 
-    private var encapsStack: Encaps!
-    private var encapsCache: Encaps?
+    private var encaps: Encaps!
+
+    var currentEncoding: EncodingVersion {
+        return encaps != nil ? encaps.encoding : encoding
+    }
 
     public convenience init(communicator: Communicator) {
         let encoding = (communicator as! CommunicatorI).defaultsAndOverrides.defaultEncoding
@@ -28,48 +31,21 @@ public class OutputStream {
     }
 
     public func startEncapsulation() {
-        //
-        // If no encoding version is specified, use the current write
-        // encapsulation encoding version if there's a current write
-        // encapsulation, otherwise, use the stream encoding version.
-        //
-        if encapsStack != nil {
-            startEncapsulation(encoding: encapsStack.encoding, format: encapsStack.format)
-        } else {
-            startEncapsulation(encoding: encoding, format: FormatType.DefaultFormat)
-        }
+        startEncapsulation(encoding: encoding, format: FormatType.DefaultFormat)
     }
 
     public func startEncapsulation(encoding: EncodingVersion, format: FormatType) {
-        var curr = encapsCache
-        if let c = curr {
-            c.reset()
-            encapsCache = c.next
-        } else {
-            curr = Encaps()
-        }
-        curr!.next = encapsStack
-        encapsStack = curr
-
-        encapsStack.format = format
-        encapsStack.setEncoding(encoding)
-        encapsStack.start = data.count
-
+        precondition(encaps == nil, "Nested or sequential encapsulations are not supported")
+        encaps = Encaps(encoding: encoding, format: format, start: data.count)
         write(Int32(0)) // Placeholder for the encapsulation length.
-        write(encapsStack.encoding)
+        write(encaps.encoding)
     }
 
     public func endEncapsulation() {
         // Size includes size and version.
-        let start = encapsStack.start
+        let start = encaps.start
         let sz = Int32(data.count - start)
         write(bytesOf: sz, at: start)
-
-        let curr = encapsStack!
-        encapsStack = curr.next
-        curr.next = encapsCache
-        encapsCache = curr
-        encapsCache!.reset()
     }
 
     func writeEmptyEncapsulation(_ encoding: EncodingVersion) {
@@ -97,54 +73,45 @@ public class OutputStream {
     }
 
     public func startValue(data: SlicedData?) {
-        precondition(encapsStack.encoder != nil)
-        encapsStack.encoder.startInstance(type: .ValueSlice, data: data)
+        precondition(encaps.encoder != nil)
+        encaps.encoder.startInstance(type: .ValueSlice, data: data)
     }
 
     public func endValue() {
-        precondition(encapsStack.encoder != nil)
-        encapsStack.encoder.endInstance()
+        precondition(encaps.encoder != nil)
+        encaps.encoder.endInstance()
     }
 
     public func startException(data: SlicedData?) {
-        precondition(encapsStack.encoder != nil)
-        encapsStack.encoder.startInstance(type: .ExceptionSlice, data: data)
+        precondition(encaps.encoder != nil)
+        encaps.encoder.startInstance(type: .ExceptionSlice, data: data)
     }
 
     public func endException() {
-        precondition(encapsStack.encoder != nil)
-        encapsStack.encoder.endInstance()
+        precondition(encaps.encoder != nil)
+        encaps.encoder.endInstance()
     }
 
     private func initEncaps() {
-        // Lazy initialization.
-        if encapsStack == nil {
-            encapsStack = encapsCache
-            if encapsStack != nil {
-                encapsCache = encapsCache!.next
-            } else {
-                encapsStack = Encaps()
-            }
-            encapsStack.setEncoding(encoding)
-        }
-
-        if encapsStack.format == FormatType.DefaultFormat {
-            encapsStack.format = format
+        if encaps == nil {
+            encaps = Encaps(encoding: encoding, format: format, start: 0)
+        } else if encaps.format == .DefaultFormat {
+            encaps.format = format
         }
 
         // Lazy initialization.
-        if encapsStack.encoder == nil {
-            if encapsStack.encoding_1_0 {
-                encapsStack.encoder = EncapsEncoder10(os: self, encaps: encapsStack)
+        if encaps.encoder == nil {
+            if encaps.encoding_1_0 {
+                encaps.encoder = EncapsEncoder10(os: self, encaps: encaps)
             } else {
-                encapsStack.encoder = EncapsEncoder11(os: self, encaps: encapsStack)
+                encaps.encoder = EncapsEncoder11(os: self, encaps: encaps)
             }
         }
     }
 
     public func writePendingValues() {
-        if encapsStack != nil, encapsStack.encoder != nil {
-            encapsStack.encoder.writePendingValues()
+        if encaps != nil, encaps.encoder != nil {
+            encaps.encoder.writePendingValues()
         } else if encoding_1_0 {
             // If using the 1.0 encoding and no instances were written, we
             // still write an empty sequence for pending instances if
@@ -163,13 +130,13 @@ public class OutputStream {
     }
 
     public func startSlice(typeId: String, compactId: Int32, last: Bool) {
-        precondition(encapsStack != nil && encapsStack.encoder != nil)
-        encapsStack.encoder.startSlice(typeId: typeId, compactId: compactId, last: last)
+        precondition(encaps != nil && encaps.encoder != nil)
+        encaps.encoder.startSlice(typeId: typeId, compactId: compactId, last: last)
     }
 
     public func endSlice() {
-        precondition(encapsStack != nil && encapsStack.encoder != nil)
-        encapsStack.encoder.endSlice()
+        precondition(encaps != nil && encaps.encoder != nil)
+        encaps.encoder.endSlice()
     }
 }
 
@@ -311,7 +278,7 @@ public extension OutputStream {
     // Enum
     //
     func write(enum val: UInt8, maxValue: Int32) {
-        if encoding == Encoding_1_0 {
+        if currentEncoding == Encoding_1_0 {
             if maxValue < 127 {
                 write(UInt8(val))
             } else if maxValue < 32767 {
@@ -331,7 +298,7 @@ public extension OutputStream {
     }
 
     func write(enum val: Int32, maxValue: Int32) {
-        if encoding == Encoding_1_0 {
+        if currentEncoding == Encoding_1_0 {
             if maxValue < 127 {
                 write(UInt8(val))
             } else if maxValue < 32767 {
@@ -413,7 +380,7 @@ public extension OutputStream {
     //
     func write(_ v: Value?) {
         initEncaps()
-        encapsStack.encoder.writeValue(v: v)
+        encaps.encoder.writeValue(v: v)
     }
 
     func write(tag: Int32, value v: Value?) {
@@ -429,12 +396,12 @@ public extension OutputStream {
     //
     func write(_ v: UserException) {
         initEncaps()
-        encapsStack.encoder.writeException(v: v)
+        encaps.encoder.writeException(v: v)
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
-        precondition(encapsStack != nil)
-        if let encoder = encapsStack.encoder {
+        precondition(encaps != nil)
+        if let encoder = encaps.encoder {
             return encoder.writeOptional(tag: tag, format: format)
         }
         return writeOptionalImpl(tag: tag, format: format)
@@ -484,22 +451,18 @@ extension OutputStream: ICEOutputStreamHelper {
 }
 
 private class Encaps {
-    var start: Int = 0
-    var format: FormatType = FormatType.DefaultFormat
-    var encoding: EncodingVersion = Ice.currentEncoding
-    var encoding_1_0: Bool = false
+    let start: Int
+    var format: FormatType
+    let encoding: EncodingVersion
+    let encoding_1_0: Bool
 
     var encoder: EncapsEncoder!
-    var next: Encaps?
 
-    func reset() {
-        encoder = nil
-        next = nil
-    }
-
-    func setEncoding(_ encoding: EncodingVersion) {
+    init(encoding: EncodingVersion, format: FormatType, start: Int) {
+        self.start = start
+        self.format = format
         self.encoding = encoding
-        encoding_1_0 = encoding == Ice.Encoding_1_0
+        encoding_1_0 = encoding == Encoding_1_0
     }
 }
 
