@@ -737,8 +737,12 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
 
 #ifdef ICE_SWIFT
 dispatch_queue_t
-Ice::ObjectAdapterI::getDispatchQueue() const ICE_NOEXCEPT
+Ice::ObjectAdapterI::getDispatchQueue() const
 {
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
     return getThreadPool()->getDispatchQueue();
 }
 #endif

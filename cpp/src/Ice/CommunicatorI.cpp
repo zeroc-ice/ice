@@ -384,13 +384,13 @@ Ice::CommunicatorI::getValueFactoryManager() const ICE_NOEXCEPT
 #ifdef ICE_SWIFT
 
 dispatch_queue_t
-Ice::CommunicatorI::getClientDispatchQueue() const ICE_NOEXCEPT
+Ice::CommunicatorI::getClientDispatchQueue() const
 {
     return _instance->clientThreadPool()->getDispatchQueue();
 }
 
 dispatch_queue_t
-Ice::CommunicatorI::getServerDispatchQueue() const ICE_NOEXCEPT
+Ice::CommunicatorI::getServerDispatchQueue() const
 {
     return _instance->serverThreadPool()->getDispatchQueue();
 }

@@ -111,7 +111,7 @@ public:
     std::string prefix() const;
 
 #ifdef ICE_SWIFT
-    dispatch_queue_t getDispatchQueue() const;
+    dispatch_queue_t getDispatchQueue() const ICE_NOEXCEPT;
 #endif
 
 private:

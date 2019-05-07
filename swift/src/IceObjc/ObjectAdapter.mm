@@ -204,9 +204,17 @@
     }
 }
 
--(dispatch_queue_t) getDispatchQueue
+-(dispatch_queue_t) getDispatchQueue:(NSError* _Nullable * _Nullable)error
 {
-    return self.objectAdapter->getDispatchQueue();
+    try
+    {
+        return self.objectAdapter->getDispatchQueue();
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
 }
 
 -(void) registerDefaultServant:(id<ICEBlobjectFacade>)facade

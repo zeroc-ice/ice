@@ -182,8 +182,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         try _handle.setPublishedEndpoints(newEndpoints.toObjc())
     }
 
-    func getDispatchQueue() -> DispatchQueue {
-        return _handle.getDispatchQueue()
+    func getDispatchQueue() throws -> DispatchQueue {
+        return try autoreleasepool {
+            try _handle.getDispatchQueue()
+        }
     }
 
     func facadeInvoke(_ adapter: ICEObjectAdapter,

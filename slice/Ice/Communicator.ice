@@ -614,10 +614,23 @@ local interface Communicator
 #endif
 
 #if defined(__SLICE2SWIFT__) || defined(ICE_SWIFT)
-    ["cpp:const", "cpp:noexcept", "swift:nonnull", "swift:noexcept",
-     "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"] LocalObject getClientDispatchQueue();
-    ["cpp:const", "cpp:noexcept", "swift:nonnull", "swift:noexcept",
-     "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"] LocalObject getServerDispatchQueue();
+    /*
+     * Returns the client dispatch queue.
+     *
+     * @return The dispatch queue associated wih this Communicator's
+     * client thread pool.
+     **/
+    ["cpp:const", "swift:nonnull", "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"]
+    LocalObject getClientDispatchQueue();
+
+    /*
+     * Returns the server dispatch queue.
+     *
+     * @return The dispatch queue associated wih the Communicator's
+     * server thread pool.
+     **/
+    ["cpp:const", "swift:nonnull", "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"]
+    LocalObject getServerDispatchQueue();
 #endif
 }
 

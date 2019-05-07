@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(BOOL) refreshPublishedEndpoints:(NSError* _Nullable * _Nullable)error;
 -(NSArray<ICEEndpoint*>*) getPublishedEndpoints;
 -(BOOL) setPublishedEndpoints:(NSArray<ICEEndpoint*>*)newEndpoints error:(NSError* _Nullable * _Nullable)error;
--(dispatch_queue_t) getDispatchQueue;
+-(nullable dispatch_queue_t) getDispatchQueue:(NSError* _Nullable * _Nullable)error;
 
 -(void) registerDefaultServant:(id<ICEBlobjectFacade>)facade NS_SWIFT_NAME(registerDefaultServant(_:));
 @end

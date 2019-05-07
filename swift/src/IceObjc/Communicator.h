@@ -27,10 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 -(ICEImplicitContext*) getImplicitContext;
 -(id<ICELoggerProtocol>) getLogger;
 -(nullable ICEObjectPrx*) getDefaultRouter;
--(BOOL) setDefaultRouter:(ICEObjectPrx* _Nullable)router error:(NSError**)error;
+-(BOOL) setDefaultRouter:(ICEObjectPrx* _Nullable)router error:(NSError* _Nullable * _Nullable)error;
 -(nullable ICEObjectPrx*) getDefaultLocator;
--(BOOL) setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError**)error;
--(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error;
+-(BOOL) setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError* _Nullable * _Nullable)error;
+-(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable * _Nullable)error;
 -(BOOL) flushBatchRequestsAsync:(uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
@@ -41,15 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
                                 error:(NSError**)error;
 -(nullable id) getAdmin:(NSError**)error;
 -(BOOL) addAdminFacet:(id<ICEBlobjectFacade>)servant facet:(NSString*)facet error:(NSError**)error;
--(nullable id<ICEBlobjectFacade>) removeAdminFacet:(NSString*)facet error:(NSError**)error;
--(nullable id) findAdminFacet:(NSString*)facet error:(NSError**)error;
--(nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*) findAllAdminFacets:(NSError**)error;
+-(nullable id<ICEBlobjectFacade>) removeAdminFacet:(NSString*)facet error:(NSError* _Nullable * _Nullable)error;
+-(nullable id) findAdminFacet:(NSString*)facet error:(NSError* _Nullable * _Nullable)error;
+-(nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*) findAllAdminFacets:(NSError* _Nullable * _Nullable)error;
 -(ICEProperties*) getProperties;
--(dispatch_queue_t) getClientDispatchQueue;
--(dispatch_queue_t) getServerDispatchQueue;
+-(nullable dispatch_queue_t) getClientDispatchQueue:(NSError* _Nullable * _Nullable)error;
+-(nullable dispatch_queue_t) getServerDispatchQueue:(NSError* _Nullable * _Nullable)error;
 
 // DefaultsAndOverrides
--(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor
+-(void) getDefaultEncoding:(uint8_t*)major minor:(uint8_t*)minor
     NS_SWIFT_NAME(getDefaultEncoding(major:minor:));
 -(uint8_t) getDefaultFormat;
 

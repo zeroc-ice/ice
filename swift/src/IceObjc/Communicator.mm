@@ -350,17 +350,33 @@
     return [ICEProperties getHandle:props];
 }
 
--(dispatch_queue_t) getClientDispatchQueue
+-(nullable dispatch_queue_t) getClientDispatchQueue:(NSError* _Nullable * _Nullable)error
 {
-    return self.communicator->getClientDispatchQueue();
+    try
+    {
+        return self.communicator->getClientDispatchQueue();
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
 }
 
--(dispatch_queue_t) getServerDispatchQueue
+-(nullable dispatch_queue_t) getServerDispatchQueue:(NSError* _Nullable * _Nullable)error
 {
-    return self.communicator->getServerDispatchQueue();
+    try
+    {
+        return self.communicator->getServerDispatchQueue();
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
 }
 
--(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor
+-(void) getDefaultEncoding:(uint8_t*)major minor:(uint8_t*)minor
 {
     auto defaultEncoding = IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultEncoding;
     *major = defaultEncoding.major;

@@ -694,9 +694,12 @@ local interface ObjectAdapter
     void setPublishedEndpoints(EndpointSeq newEndpoints);
 
 #if defined(__SLICE2SWIFT__) || defined(ICE_SWIFT)
-    // Get the dispatch queue associated with this Object Adapter
-    ["cpp:const", "cpp:noexcept", "swift:nonnull", "swift:noexcept",
-     "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"]
+    /*
+     * Returns the dispatch queue.
+     *
+     * @return The dispatch queue associated wih this Object Adapter.
+     **/
+    ["cpp:const", "swift:nonnull", "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"]
     LocalObject getDispatchQueue();
 #endif
 }

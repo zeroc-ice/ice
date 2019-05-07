@@ -242,12 +242,16 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func getClientDispatchQueue() -> Dispatch.DispatchQueue {
-        return _handle.getClientDispatchQueue()
+    func getClientDispatchQueue() throws -> DispatchQueue {
+        return try autoreleasepool {
+            try _handle.getClientDispatchQueue()
+        }
     }
 
-    func getServerDispatchQueue() -> Dispatch.DispatchQueue {
-        return _handle.getServerDispatchQueue()
+    func getServerDispatchQueue() throws -> DispatchQueue {
+        return try autoreleasepool {
+            try _handle.getServerDispatchQueue()
+        }
     }
 }
 

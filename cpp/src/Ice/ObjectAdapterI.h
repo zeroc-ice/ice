@@ -86,7 +86,7 @@ public:
     virtual void setPublishedEndpoints(const EndpointSeq&);
 
 #ifdef ICE_SWIFT
-    virtual dispatch_queue_t getDispatchQueue() const ICE_NOEXCEPT;
+    virtual dispatch_queue_t getDispatchQueue() const;
 #endif
 
     bool isLocal(const ObjectPrxPtr&) const;

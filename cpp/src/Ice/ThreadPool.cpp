@@ -246,7 +246,7 @@ IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
 #ifdef ICE_SWIFT
-    _dispatchQueue(dispatch_queue_create(prefix.c_str(), DISPATCH_QUEUE_CONCURRENT)),
+    _dispatchQueue(dispatch_queue_create(("com.zeroc." + prefix).c_str(), DISPATCH_QUEUE_CONCURRENT)),
 #else
     _dispatcher(_instance->initializationData().dispatcher),
 #endif
@@ -620,7 +620,7 @@ IceInternal::ThreadPool::prefix() const
 #ifdef ICE_SWIFT
 
 dispatch_queue_t
-IceInternal::ThreadPool::getDispatchQueue() const
+IceInternal::ThreadPool::getDispatchQueue() const ICE_NOEXCEPT
 {
     return _dispatchQueue;
 }

@@ -98,8 +98,8 @@ public:
     virtual ValueFactoryManagerPtr getValueFactoryManager() const ICE_NOEXCEPT;
 
 #ifdef ICE_SWIFT
-    virtual dispatch_queue_t getClientDispatchQueue() const ICE_NOEXCEPT;
-    virtual dispatch_queue_t getServerDispatchQueue() const ICE_NOEXCEPT;
+    virtual dispatch_queue_t getClientDispatchQueue() const;
+    virtual dispatch_queue_t getServerDispatchQueue() const;
 #endif
 
 #ifdef ICE_CPP11_MAPPING
