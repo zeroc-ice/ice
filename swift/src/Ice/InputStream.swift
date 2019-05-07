@@ -942,9 +942,9 @@ extension EncapsDecoder {
 
 private class EncapsDecoder10: EncapsDecoder {
     // EncapsDecoder members
-    var stream: InputStream
-    var sliceValues: Bool
-    var valueFactoryManager: ValueFactoryManager
+    unowned let stream: InputStream
+    let sliceValues: Bool
+    let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value]()
     lazy var typeIdMap = [Int32: String]()
@@ -1215,9 +1215,9 @@ private class EncapsDecoder10: EncapsDecoder {
 
 private class EncapsDecoder11: EncapsDecoder {
     // EncapsDecoder members
-    var stream: InputStream
-    var sliceValues: Bool
-    var valueFactoryManager: ValueFactoryManager
+    unowned let stream: InputStream
+    let sliceValues: Bool
+    let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value]()
     lazy var typeIdMap = [Int32: String]()
@@ -1225,7 +1225,7 @@ private class EncapsDecoder11: EncapsDecoder {
     lazy var valueList = [Value]()
     lazy var typeIdCache = [String: Value.Type?]()
 
-    var classGraphDepthMax: Int32
+    let classGraphDepthMax: Int32
     var classGraphDepth: Int32
 
     private var current: InstanceData!

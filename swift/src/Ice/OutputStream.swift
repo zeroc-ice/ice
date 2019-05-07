@@ -26,7 +26,7 @@ public class OutputStream {
     public init(communicator: Communicator, encoding: EncodingVersion) {
         self.communicator = communicator
         self.encoding = encoding
-        encoding_1_0 = (encoding.major == 1 && encoding.minor == 0)
+        encoding_1_0 = encoding == Encoding_1_0
         format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
     }
 
@@ -531,8 +531,8 @@ extension EncapsEncoder {
 }
 
 private final class EncapsEncoder10: EncapsEncoder {
-    var os: OutputStream
-    var encaps: Encaps
+    unowned let os: OutputStream
+    unowned let encaps: Encaps
     var marshaledMap: [ValueHolder: Int32]
     lazy var typeIdMap: [String: Int32] = [String: Int32]()
     var typeIdIndex: Int32
@@ -687,8 +687,8 @@ private final class EncapsEncoder10: EncapsEncoder {
 }
 
 private final class EncapsEncoder11: EncapsEncoder {
-    var os: OutputStream
-    var encaps: Encaps
+    unowned let os: OutputStream
+    unowned let encaps: Encaps
 
     var marshaledMap: [ValueHolder: Int32]
     lazy var typeIdMap: [String: Int32] = [String: Int32]()
