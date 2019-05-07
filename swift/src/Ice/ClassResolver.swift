@@ -54,7 +54,7 @@ public class TypeIdResolver: NSObject {
             return nil
         }
 
-        let val = TypeIdResolver.perform(selector).takeRetainedValue()
+        let val = TypeIdResolver.perform(selector).takeUnretainedValue()
 
         guard let typeId = val as? String else {
             preconditionFailure("unexpected value type")
