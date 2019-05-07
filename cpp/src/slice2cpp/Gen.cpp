@@ -5686,6 +5686,13 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 }
             }
 
+            if(BuiltinPtr::dynamicCast(cont) &&
+               BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindLocalObject &&
+               ss.find("type:") == 0)
+            {
+                continue;
+            }
+
             dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
             newMetaData.remove(s);
             continue;

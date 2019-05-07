@@ -350,6 +350,16 @@
     return [ICEProperties getHandle:props];
 }
 
+-(dispatch_queue_t) getClientDispatchQueue
+{
+    return self.communicator->getClientDispatchQueue();
+}
+
+-(dispatch_queue_t) getServerDispatchQueue
+{
+    return self.communicator->getServerDispatchQueue();
+}
+
 -(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor
 {
     auto defaultEncoding = IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultEncoding;

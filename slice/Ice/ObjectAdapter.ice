@@ -32,9 +32,6 @@
 module Ice
 {
 
-#ifdef __SLICE2SWIFT__
-    local interface DispatchQueue;
-#endif
 /**
  *
  * The object adapter provides an up-call interface from the Ice
@@ -696,9 +693,11 @@ local interface ObjectAdapter
      **/
     void setPublishedEndpoints(EndpointSeq newEndpoints);
 
-#ifdef __SLICE2SWIFT__
+#if defined(__SLICE2SWIFT__) || defined(ICE_SWIFT)
     // Get the dispatch queue associated with this Object Adapter
-    ["swift:noexcept", "swift:nonnull"] DispatchQueue getDispatchQueue();
+    ["cpp:const", "cpp:noexcept", "swift:nonnull", "swift:noexcept",
+     "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"]
+    LocalObject getDispatchQueue();
 #endif
 }
 

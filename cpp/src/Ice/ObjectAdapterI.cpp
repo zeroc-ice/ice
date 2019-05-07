@@ -735,6 +735,14 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
     }
 }
 
+#ifdef ICE_SWIFT
+dispatch_queue_t
+Ice::ObjectAdapterI::getDispatchQueue() const ICE_NOEXCEPT
+{
+    return getThreadPool()->getDispatchQueue();
+}
+#endif
+
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
 {

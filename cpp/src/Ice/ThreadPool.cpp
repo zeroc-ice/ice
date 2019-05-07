@@ -245,7 +245,11 @@ IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
+#ifdef ICE_SWIFT
+    _dispatchQueue(dispatch_queue_create(prefix.c_str(), DISPATCH_QUEUE_CONCURRENT)),
+#else
     _dispatcher(_instance->initializationData().dispatcher),
+#endif
     _destroyed(false),
     _prefix(prefix),
     _selector(instance),
@@ -417,6 +421,9 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
+#ifdef ICE_SWIFT
+    dispatch_release(_dispatchQueue);
+#endif
 }
 
 void
@@ -531,6 +538,12 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 void
 IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
 {
+#ifdef ICE_SWIFT
+    dispatch_sync(_dispatchQueue, ^
+    {
+        workItem->run();
+    });
+#else
     if(_dispatcher)
     {
         try
@@ -566,6 +579,7 @@ IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workI
     {
         workItem->run();
     }
+#endif
 }
 
 void
@@ -602,6 +616,16 @@ IceInternal::ThreadPool::prefix() const
 {
     return _prefix;
 }
+
+#ifdef ICE_SWIFT
+
+dispatch_queue_t
+IceInternal::ThreadPool::getDispatchQueue() const
+{
+    return _dispatchQueue;
+}
+
+#endif
 
 void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)

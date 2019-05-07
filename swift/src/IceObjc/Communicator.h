@@ -44,8 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable id<ICEBlobjectFacade>) removeAdminFacet:(NSString*)facet error:(NSError**)error;
 -(nullable id) findAdminFacet:(NSString*)facet error:(NSError**)error;
 -(nullable NSDictionary<NSString*, id<ICEBlobjectFacade>>*) findAllAdminFacets:(NSError**)error;
-
 -(ICEProperties*) getProperties;
+-(dispatch_queue_t) getClientDispatchQueue;
+-(dispatch_queue_t) getServerDispatchQueue;
 
 // DefaultsAndOverrides
 -(void) getDefaultEncoding:(nonnull uint8_t*)major minor:(nonnull uint8_t*)minor

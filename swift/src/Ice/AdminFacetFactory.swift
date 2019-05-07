@@ -19,8 +19,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
                       response: @escaping ICEBlobjectResponse,
                       exception: @escaping ICEBlobjectException) {
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
-            let queue = (communicator as! CommunicatorI).getDispatchQueue(adapter.getName(), forAdmin: true)
-            let oa = ObjectAdapterI(handle: adapter, communicator: communicator, queue: queue)
+            let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
 
             // Register the admin OA's id with the servant manager. This is used to distinguish between
             // ObjectNotExistException and FacetNotExistException when a servant is not found on
@@ -49,25 +48,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
                                 exception: exception,
                                 current: current)
 
-        let queue = objectAdapter.getDispatchQueue()
-
-        //
-        // Check if we are in a collocated dispatch (con == nil) on the OA's queue by
-        // checking if this object adapter is in the current execution context's dispatch speceific data.
-        // If so, we use the current thread, otherwise dispatch to the OA's queue.
-        //
-        if con == nil,
-            let adapters = DispatchQueue.getSpecific(key: (communicator as! CommunicatorI).dispatchSpecificKey),
-            adapters.contains(objectAdapter) {
-            dispatchPrecondition(condition: .onQueue(queue))
-            dispatch(incoming: incoming, current: current)
-            return
-        }
-
-        dispatchPrecondition(condition: .notOnQueue(queue))
-        queue.sync {
-            dispatch(incoming: incoming, current: current)
-        }
+        dispatch(incoming: incoming, current: current)
     }
 
     func dispatch(incoming: Incoming, current: Current) {

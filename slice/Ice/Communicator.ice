@@ -612,6 +612,13 @@ local interface Communicator
      **/
     ["swift:noexcept"] FacetMap findAllAdminFacets();
 #endif
+
+#if defined(__SLICE2SWIFT__) || defined(ICE_SWIFT)
+    ["cpp:const", "cpp:noexcept", "swift:nonnull", "swift:noexcept",
+     "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"] LocalObject getClientDispatchQueue();
+    ["cpp:const", "cpp:noexcept", "swift:nonnull", "swift:noexcept",
+     "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"] LocalObject getServerDispatchQueue();
+#endif
 }
 
 #endif

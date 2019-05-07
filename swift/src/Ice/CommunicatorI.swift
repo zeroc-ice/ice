@@ -9,17 +9,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     private let valueFactoryManager: ValueFactoryManager = ValueFactoryManagerI()
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
-    private let serverQueue = DispatchQueue(label: "com.zeroc.ice.server", attributes: .concurrent)
-    let dispatchSpecificKey = DispatchSpecificKey<Set<ObjectAdapterI>>()
     let classGraphDepthMax: Int32
-
-    private var mutex: Mutex = Mutex()
-    private var adminDispatchQueue: Dispatch.DispatchQueue
 
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
         self.initData = initData
-        adminDispatchQueue = serverQueue
         let num = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.ClassGraphDepthMax", value: 50)
         if num < 1 || num > 0x7FFF_FFFF {
             classGraphDepthMax = 0x7FFF_FFFF
@@ -94,21 +88,21 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapter(name)
 
-            return ObjectAdapterI(handle: handle, communicator: self, queue: getDispatchQueue(name))
+            return ObjectAdapterI(handle: handle, communicator: self)
         }
     }
 
     func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: getDispatchQueue(name))
+            return ObjectAdapterI(handle: handle, communicator: self)
         }
     }
 
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
         return try autoreleasepool {
             let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl._handle)
-            return ObjectAdapterI(handle: handle, communicator: self, queue: getDispatchQueue(name))
+            return ObjectAdapterI(handle: handle, communicator: self)
         }
     }
 
@@ -185,10 +179,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
                 // ObjectNotExistException and FacetNotExistException when a servant is not found on
                 // a Swift Admin OA.
                 (adapter as! ObjectAdapterI).servantManager.setAdminId(adminId)
-
-                mutex.sync {
-                    adminDispatchQueue = adapter.getDispatchQueue()
-                }
             }
 
             return _ObjectPrxI(handle: handle, communicator: self)
@@ -252,28 +242,12 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func getAdminDispatchQueue() -> DispatchQueue {
-        return mutex.sync {
-            adminDispatchQueue
-        }
+    func getClientDispatchQueue() -> Dispatch.DispatchQueue {
+        return _handle.getClientDispatchQueue()
     }
 
-    func getDispatchQueue(_ name: String, forAdmin: Bool = false) -> Dispatch.DispatchQueue {
-        if !name.isEmpty {
-            if initData.properties!.getPropertyAsInt(name + ".ThreadPool.Size") > 0 ||
-                initData.properties!.getPropertyAsInt(name + ".ThreadPool.SizeMax") > 0 ||
-                !initData.properties!.getProperty(name + ".ThreadPool.ThreadPriority").isEmpty {
-                // This OA has its own thread pool
-                let queue = Dispatch.DispatchQueue(label: "com.zeroc.ice.oa." + name, attributes: .concurrent)
-                if forAdmin {
-                    mutex.sync {
-                        adminDispatchQueue = queue
-                    }
-                }
-                return queue
-            }
-        }
-        return serverQueue
+    func getServerDispatchQueue() -> Dispatch.DispatchQueue {
+        return _handle.getServerDispatchQueue()
     }
 }
 

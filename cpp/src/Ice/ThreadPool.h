@@ -110,6 +110,10 @@ public:
 
     std::string prefix() const;
 
+#ifdef ICE_SWIFT
+    dispatch_queue_t getDispatchQueue() const;
+#endif
+
 private:
 
     void run(const EventHandlerThreadPtr&);
@@ -127,10 +131,14 @@ private:
     std::string nextThreadId();
 
     const InstancePtr _instance;
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_SWIFT
+    const dispatch_queue_t _dispatchQueue;
+#else // Ice for Swift does not support a dispatcher
+#   ifdef ICE_CPP11_MAPPING
     std::function<void(std::function<void()>, const std::shared_ptr<Ice::Connection>&)> _dispatcher;
-#else
+#   else
     const Ice::DispatcherPtr _dispatcher;
+#   endif
 #endif
     ThreadPoolWorkQueuePtr _workQueue;
     bool _destroyed;

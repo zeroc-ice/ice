@@ -7,24 +7,13 @@ import IceObjc
 class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectFacade, Hashable {
     private let communicator: Communicator
     let servantManager: ServantManager
-    private let queue: DispatchQueue
-    private let dispatchSpecificKey: DispatchSpecificKey<Set<ObjectAdapterI>>
 
-    init(handle: ICEObjectAdapter, communicator: Communicator, queue: DispatchQueue) {
+    init(handle: ICEObjectAdapter, communicator: Communicator) {
         self.communicator = communicator
         servantManager = ServantManager(adapterName: handle.getName(), communicator: communicator)
-        self.queue = queue
-        dispatchSpecificKey = (communicator as! CommunicatorI).dispatchSpecificKey
         super.init(handle: handle)
 
         handle.registerDefaultServant(self)
-
-        // Add self to the queue's dispatch specific data
-        queue.async(flags: .barrier) {
-            var adapters = queue.getSpecific(key: self.dispatchSpecificKey) ?? Set<ObjectAdapterI>()
-            adapters.insert(self)
-            queue.setSpecific(key: self.dispatchSpecificKey, value: adapters)
-        }
     }
 
     func hash(into hasher: inout Hasher) {
@@ -194,7 +183,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func getDispatchQueue() -> DispatchQueue {
-        return queue
+        return _handle.getDispatchQueue()
     }
 
     func facadeInvoke(_ adapter: ICEObjectAdapter,
@@ -233,30 +222,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                                 exception: exception,
                                 current: current)
 
-        //
-        // Check if we are in a collocated dispatch (con == nil) on the OA's queue by
-        // checking if this object adapter is in the current execution context's dispatch speceific data.
-        // If so, we use the current thread, otherwise dispatch to the OA's queue.
-        //
-        if con == nil, let adapters = DispatchQueue.getSpecific(key: dispatchSpecificKey), adapters.contains(self) {
-            dispatchPrecondition(condition: .onQueue(queue))
-            incoming.invoke(servantManager)
-            return
-        }
-        dispatchPrecondition(condition: .notOnQueue(queue))
-        queue.sync {
-            incoming.invoke(servantManager)
-        }
+        incoming.invoke(servantManager)
     }
 
     func facadeRemoved() {
         servantManager.destroy()
-        queue.async(flags: .barrier) {
-            guard var adapters = self.queue.getSpecific(key: self.dispatchSpecificKey) else {
-                preconditionFailure("ObjectAdapter missing from dispatch specific data")
-            }
-            adapters.remove(self)
-            self.queue.setSpecific(key: self.dispatchSpecificKey, value: adapters)
-        }
     }
 }

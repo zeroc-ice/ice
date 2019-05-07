@@ -204,6 +204,11 @@
     }
 }
 
+-(dispatch_queue_t) getDispatchQueue
+{
+    return self.objectAdapter->getDispatchQueue();
+}
+
 -(void) registerDefaultServant:(id<ICEBlobjectFacade>)facade
 {
     auto servant = std::make_shared<BlobjectFacade>(facade);

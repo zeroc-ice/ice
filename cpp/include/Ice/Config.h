@@ -26,6 +26,10 @@
 #   endif
 #endif
 
+#ifdef ICE_SWIFT
+#   include <dispatch/dispatch.h>
+#endif
+
 //
 // Define the Ice and IceInternal namespace, so that we can use the following
 // everywhere in our code:
