@@ -347,7 +347,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << sb;
         out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
         out << sb;
-        out << nl << "return " << name << ".self";
+        out << nl << "return " << fixIdent(name) << ".self";
         out << eb;
         out << eb;
 
@@ -363,10 +363,10 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
-    out << nl << "open class " << name << ": ";
+    out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
-        out << getUnqualified(getAbsolute(base), swiftModule);
+        out << fixIdent(getUnqualified(getAbsolute(base), swiftModule));
     }
     else if(p->isLocal())
     {
@@ -426,7 +426,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "open override func _iceWriteImpl(to ostr: "
             << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
-        out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: -1, last: "
+        out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: -1, last: "
             << (!base ? "true" : "false") << ")";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
@@ -602,7 +602,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
 
     out << sp;
-    out << nl << "public typealias " << name << " = ";
+    out << nl << "public typealias " << fixIdent(name) << " = ";
 
     if(builtin && builtin->kind() == Builtin::KindByte)
     {
@@ -632,13 +632,14 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "public struct " << name << "Helper";
     out << sb;
 
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << nl << "public static func read(from istr: " << istr << ") throws -> "
+        << fixIdent(name);
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
     if(isClassType(type))
     {
-        out << nl << "var v = " << name << "(repeating: nil, count: sz)";
+        out << nl << "var v = " << fixIdent(name) << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         out << nl << "let p = UnsafeMutablePointer<" << typeToString(p->type(), p) << ">(&v[i])";
@@ -647,7 +648,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << nl << "var v = " << name << "()";
+        out << nl << "var v = " << fixIdent(name) << "()";
         out << nl << "v.reserveCapacity(sz)";
         out << nl << "for _ in 0 ..< sz";
         out << sb;
@@ -659,7 +660,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v";
     out << eb;
 
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> "
+        << fixIdent(name) << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -677,7 +679,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
+    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << fixIdent(name) << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
     out << nl << "for item in v";
@@ -687,7 +689,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: "<< name << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: "
+        << fixIdent(name) << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
@@ -732,7 +735,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string keyType = typeToString(p->keyType(), p, p->keyMetaData(), false, typeCtx);
     const string valueType = typeToString(p->valueType(), p, p->valueMetaData(), false, typeCtx);
     out << sp;
-    out << nl << "public typealias " << name << " = [" << keyType << ": " << valueType << "]";
+    out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
 
     if(p->isLocal())
     {
@@ -750,10 +753,10 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public struct " << name << "Helper";
     out << sb;
 
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << nl << "public static func read(from istr: " << istr << ") throws -> " << fixIdent(name);
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
-    out << nl << "var v = " << name << "()";
+    out << nl << "var v = " << fixIdent(name) << "()";
     if(isClassType(p->valueType()))
     {
         out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
@@ -789,7 +792,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "return v";
     out << eb;
 
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> "
+        << fixIdent(name) << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -807,7 +811,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
+    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << fixIdent(name) << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
     out << nl << "for (key, value) in v";
@@ -818,7 +822,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: "<< name << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: "
+        << fixIdent(name) << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
@@ -849,7 +854,7 @@ void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "Swift.UInt8" : "Swift.Int32";
     const string optionalFormat = getOptionalFormat(p);
@@ -1110,7 +1115,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
     out << sb;
-    out << nl << "return " << name << ".self";
+    out << nl << "return " << fixIdent(name) << ".self";
     out << eb;
     out << eb;
 
@@ -1156,10 +1161,10 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "open class " << name << ": ";
+    out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
-        out << getUnqualified(getAbsolute(base), swiftModule);
+        out << fixIdent(getUnqualified(getAbsolute(base), swiftModule));
     }
     else
     {
@@ -1225,8 +1230,8 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "open override func _iceWriteImpl(to ostr: "
         << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: " << p->compactId() << ", last: "
-        << (!base ? "true" : "false") << ")";
+    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
+        << ", last: " << (!base ? "true" : "false") << ")";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
@@ -1443,7 +1448,7 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     ids << "]";
 
     out << sp;
-    out << nl << "public extension " << name;
+    out << nl << "public extension " << fixIdent(name);
 
     out << sb;
 
@@ -1636,7 +1641,7 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Local interfaces and local classes map to Swift protocol
     //
     out << sp;
-    out << nl << "public protocol " << name << ":";
+    out << nl << "public protocol " << fixIdent(name) << ":";
     if(bases.empty())
     {
         out << " Swift.AnyObject";
@@ -1645,7 +1650,7 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
         {
-            out << " " << getUnqualified(getAbsolute(*i), swiftModule);
+            out << " " << fixIdent(getUnqualified(getAbsolute(*i), swiftModule));
             if(++i != bases.end())
             {
                 out << ",";
@@ -1684,7 +1689,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
         {
             s << "_ ";
         }
-        s << fixIdent(param->name()) << ": "
+        s << param->name() << ": "
           << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
         out << s.str();
     }
@@ -1718,7 +1723,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
                 ParamDeclPtr param = *i;
                 if(param->name() == "returnValue")
                 {
-                    returnValueS = "_returnValue";
+                    returnValueS = "returnValue_";
                     break;
                 }
             }

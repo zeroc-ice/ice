@@ -28,7 +28,6 @@ StringList splitScopedName(const std::string&);
 struct ParamInfo
 {
     std::string name;
-    std::string fixedName;
     TypePtr type;
     std::string typeStr;
     bool optional;
@@ -48,9 +47,9 @@ public:
 
 protected:
 
+    std::string paramLabel(const std::string&, const ParamDeclList&);
     std::string operationReturnType(const OperationPtr&);
     bool operationReturnIsTuple(const OperationPtr&);
-    std::string operationReturnTypeLabel(const OperationPtr&);
     std::string operationReturnDeclaration(const OperationPtr&);
     std::string operationInParamsDeclaration(const OperationPtr&);
 

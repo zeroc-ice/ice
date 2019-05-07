@@ -31,7 +31,8 @@ $tests = [
     "Ice/stream",
     "Ice/timeout",
     "Ice/udp",
-    "IceSSL/configuration"
+    "IceSSL/configuration",
+    "Slice/escape"
 ]
 
 $test_variants = ["Client", "Server", "ServerAMD", "Collocated"]
@@ -66,7 +67,8 @@ $test_extra_sources = {
 
     "Ice/slicing/objects/Client" => ["ClientPrivate.ice"],
     "Ice/slicing/objects/Server" => ["ServerPrivate.ice"],
-    "Ice/slicing/objects/ServerAMD" => ["ServerPrivateAMD.ice"]
+    "Ice/slicing/objects/ServerAMD" => ["ServerPrivateAMD.ice"],
+    "Slice/escape" => ["Clash.ice", "Key.ice"]
 }
 
 $test_resources = {

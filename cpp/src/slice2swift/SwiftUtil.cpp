@@ -25,11 +25,15 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] =
     {
-        "Any", "as", "associatedtype", "break", "case", "catch", "class", "continue", "default", "defer", "deinit",
-        "do", "else", "enum", "extension", "fallthrough", "false", "fileprivate", "for", "func", "guard", "if",
-        "import", "in", "init", "inout", "internal", "is", "let", "nil", "open", "operator", "private", "protocol",
-        "public", "repeat", "rethrows", "return", "self", "Self", "static", "struct", "subscript", "super", "Swift",
-        "switch", "throw", "throws", "true", "try", "typealias", "var", "where", "while"
+        "Any", "as", "associatedtype", "associativity", "break",
+        "case", "catch", "class", "continue", "convenience", "default", "defer", "deinit",
+        "didSet", "do", "dynamic", "else", "enum", "extension", "fallthrough", "false",
+        "fileprivate", "final", "for", "func", "get", "guard", "if", "import", "in", "indirect",
+        "infix", "init", "inout", "internal", "is", "lazy", "left", "let", "mutating", "nil",
+        "none", "nonmutating", "open", "operator", "optional", "override", "postfix", "precedence",
+        "prefix", "private", "protocol", "public", "repeat", "required", "rethrows", "return",
+        "right", "self", "set", "static", "struct", "subscript", "super", "switch", "throw", "throws",
+        "true", "try", "Type", "typealias", "unowned", "var", "weak", "where", "while", "willSet"
     };
     bool found = binary_search(&keywordList[0],
                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
@@ -428,7 +432,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
     {
         if(cl->isInterface() && !cl->isLocal())
         {
-            t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
+            t = fixIdent(getUnqualified(builtinTable[Builtin::KindValue], currentModule));
         }
         else
         {
@@ -440,7 +444,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
             {
                 t = "@escaping ";
             }
-            t += getUnqualified(getAbsoluteImpl(cl), currentModule);
+            t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
         }
     }
     else if(prx)
@@ -457,7 +461,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
     }
     else if(cont)
     {
-        t = getUnqualified(getAbsoluteImpl(cont), currentModule);
+        t = fixIdent(getUnqualified(getAbsoluteImpl(cont), currentModule));
     }
 
     if(!nonnull && (optional || isNullableType(type)))
@@ -1214,19 +1218,18 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 string
-SwiftGenerator::operationReturnTypeLabel(const OperationPtr& op)
+SwiftGenerator::paramLabel(const string& param, const ParamDeclList& params)
 {
-    string returnValueS = "returnValue";
-    ParamDeclList outParams = op->outParameters();
-    for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+    string s = param;
+    for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
     {
-        if((*q)->name() == "returnValue")
+        if((*q)->name() == param)
         {
-            returnValueS = "_returnValue";
+            s += "_";
             break;
         }
     }
-    return returnValueS;
+    return s;
 }
 
 bool
@@ -1246,17 +1249,17 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << "(";
     }
 
+    ParamDeclList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     if(returnType)
     {
         if(returnIsTuple)
         {
-            os << operationReturnTypeLabel(op) << ": ";
+            os << paramLabel("returnValue", outParams) << ": ";
         }
         os << typeToString(returnType, op, op->getMetaData(), op->returnIsOptional());
     }
 
-    ParamDeclList outParams = op->outParameters();
     for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
     {
         if(returnType || q != outParams.begin())
@@ -1295,7 +1298,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 
     if(returnType)
     {
-        os << operationReturnTypeLabel(op);
+        os << ("iceP_" + paramLabel("returnValue", outParams));
     }
 
     for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -1305,7 +1308,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
             os << ", ";
         }
 
-        os << (*q)->name();
+        os << ("iceP_" + (*q)->name());
     }
 
     if(returnIsTuple)
@@ -1337,7 +1340,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
                 os << ", ";
             }
 
-            os << "iceP_" + (*q)->name();
+            os << ("iceP_" + (*q)->name());
         }
         if(isTuple)
         {
@@ -1384,7 +1387,6 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
     {
         ParamInfo info;
         info.name = (*p)->name();
-        info.fixedName = fixIdent((*p)->name());
         info.type = (*p)->type();
         info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
         info.optional = (*p)->optional();
@@ -1435,7 +1437,6 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
     {
         ParamInfo info;
         info.name = (*p)->name();
-        info.fixedName = fixIdent((*p)->name());
         info.type = (*p)->type();
         info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
         info.optional = (*p)->optional();
@@ -1447,8 +1448,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
     if(op->returnType())
     {
         ParamInfo info;
-        info.name = operationReturnTypeLabel(op);
-        info.fixedName = info.name;
+        info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
         info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional());
         info.optional = op->returnIsOptional();
@@ -1505,12 +1505,12 @@ SwiftGenerator::writeMarshalInParams(::IceUtilInternal::Output& out, const Opera
 
     for(ParamInfoList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true);
+        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
     }
 
     for(ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true, q->tag);
+        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
 
     if(op->sendsClasses(false))
@@ -1537,12 +1537,12 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
 
     for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true);
+        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
     }
 
     for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, q->fixedName, true, q->tag);
+        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
     }
 
     if(op->returnsClasses(false))
@@ -1575,12 +1575,12 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
         string param;
         if(isClassType(q->type))
         {
-            out << nl << "var " << q->fixedName << ": " << q->typeStr;
-            param = q->fixedName;
+            out << nl << "var iceP_" << q->name << ": " << q->typeStr;
+            param = "iceP_" + q->name;
         }
         else
         {
-            param = "let " + q->fixedName + ": " + q->typeStr;
+            param = "let iceP_" + q->name + ": " + q->typeStr;
         }
         writeMarshalUnmarshalCode(out, q->type, op, param, false);
     }
@@ -1590,12 +1590,12 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
         string param;
         if(isClassType(q->type))
         {
-            out << nl << "var " << q->fixedName << ": " << q->typeStr;
-            param = q->fixedName;
+            out << nl << "var iceP_" << q->name << ": " << q->typeStr;
+            param = "iceP_" + q->name;
         }
         else
         {
-            param = "let " + q->fixedName + ": " + q->typeStr;
+            param = "let iceP_" + q->name + ": " + q->typeStr;
         }
         writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
     }
@@ -1613,14 +1613,14 @@ SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const Op
 
     if(returnType)
     {
-        out << operationReturnTypeLabel(op);
+        out << ("iceP_" + paramLabel("returnValue", op->outParameters()));
     }
 
     for(ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
     {
         if(q->param)
         {
-            out << q->fixedName;
+            out << ("iceP_" + q->name);
         }
     }
 
@@ -1653,12 +1653,12 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
             string param;
             if(isClassType(q->type))
             {
-                out << nl << "var " << q->fixedName << ": " << q->typeStr;
-                param = q->fixedName;
+                out << nl << "var iceP_" << q->name << ": " << q->typeStr;
+                param = "iceP_" + q->name;
             }
             else
             {
-                param = "let " + q->fixedName + ": " + q->typeStr;
+                param = "let iceP_" + q->name + ": " + q->typeStr;
             }
             writeMarshalUnmarshalCode(out, q->type, op, param, false);
         }
@@ -1669,12 +1669,12 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
         string param;
         if(isClassType(q->type))
         {
-            out << nl << "var " << q->fixedName << ": " << q->typeStr;
-            param = q->fixedName;
+            out << nl << "var iceP_" << q->name << ": " << q->typeStr;
+            param = "iceP_" + q->name;
         }
         else
         {
-            param = "let " + q->fixedName + ": " + q->typeStr;
+            param = "let iceP_" + q->name + ": " + q->typeStr;
         }
         writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
     }
@@ -1692,7 +1692,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
 
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << q->fixedName;
+        out << ("iceP_" + q->name);
     }
 
     if(allInParams.size() > 1)
@@ -1745,7 +1745,14 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
+        if(allInParams.size() == 1)
+        {
+            out << ("_ iceP_" + q->name + ": " + q->typeStr);
+        }
+        else
+        {
+            out << (q->name + " iceP_" + q->name + ": " + q->typeStr);
+        }
     }
     out << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil");
 
@@ -1823,7 +1830,14 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
-        out << ((allInParams.size() == 1 ? "_ " : "") + q->name + ": " + q->typeStr);
+        if(allInParams.size() == 1)
+        {
+            out << ("_ iceP_" + q->name + ": " + q->typeStr);
+        }
+        else
+        {
+            out << (q->name + " iceP_" + q->name + ": " + q->typeStr);
+        }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
     out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
@@ -1932,7 +1946,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     {
         out << "let " << operationReturnDeclaration(op) << " = ";
     }
-    out << "try " << fixIdent(opName);
+    out << "try self." << fixIdent(opName);
 
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
