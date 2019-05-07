@@ -19,7 +19,7 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "TestAdapter1.ThreadPool.SizeWarn", value: "0")
         communicator.getProperties().setProperty(key: "TestAdapter1.ThreadPool.Serialize", value: "0")
         let adapter1 = try communicator.createObjectAdapter("TestAdapter1")
-        _ = try adapter1.add(servant: HoldI(adapter: adapter1, helper: self), id: Ice.stringToIdentity("hold"))
+        try adapter1.add(servant: HoldI(adapter: adapter1, helper: self), id: Ice.stringToIdentity("hold"))
 
         communicator.getProperties().setProperty(key: "TestAdapter2.Endpoints", value: getTestEndpoint(num: 1))
         communicator.getProperties().setProperty(key: "TestAdapter2.ThreadPool.Size", value: "5")
@@ -27,7 +27,7 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "TestAdapter2.ThreadPool.SizeWarn", value: "0")
         communicator.getProperties().setProperty(key: "TestAdapter2.ThreadPool.Serialize", value: "1")
         let adapter2 = try communicator.createObjectAdapter("TestAdapter2")
-        _ = try adapter2.add(servant: HoldI(adapter: adapter2, helper: self), id: Ice.stringToIdentity("hold"))
+        try adapter2.add(servant: HoldI(adapter: adapter2, helper: self), id: Ice.stringToIdentity("hold"))
 
         try adapter1.activate()
         try adapter2.activate()

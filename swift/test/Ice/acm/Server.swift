@@ -19,7 +19,7 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(key: "TestAdapter.ACM.Timeout", value: "0")
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        _ = try adapter.add(servant: RemoteCommunicatorI(), id: Ice.stringToIdentity("communicator"))
+        try adapter.add(servant: RemoteCommunicatorI(), id: Ice.stringToIdentity("communicator"))
         try adapter.activate()
         serverReady()
         communicator.getProperties().setProperty(key: "Ice.PrintAdapterReady", value: "0")

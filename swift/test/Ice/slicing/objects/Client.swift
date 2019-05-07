@@ -33,7 +33,6 @@ public class Client: TestHelperI {
         defer {
             communicator.destroy()
         }
-
         let testPrx = try allTests(self)
         try testPrx.shutdown()
     }

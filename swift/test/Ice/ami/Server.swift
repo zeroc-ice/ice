@@ -44,10 +44,10 @@ class Server: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let adapter2 = try communicator.createObjectAdapter("ControllerAdapter")
 
-        _ = try adapter.add(servant: TestI(helper: self), id: Ice.stringToIdentity("test"))
-        _ = try adapter.add(servant: TestII(), id: Ice.stringToIdentity("test2"))
+        try adapter.add(servant: TestI(helper: self), id: Ice.stringToIdentity("test"))
+        try adapter.add(servant: TestII(), id: Ice.stringToIdentity("test2"))
         try adapter.activate()
-        _ = try adapter2.add(servant: TestControllerI(adapter: adapter), id: Ice.stringToIdentity("testController"))
+        try adapter2.add(servant: TestControllerI(adapter: adapter), id: Ice.stringToIdentity("testController"))
         try adapter2.activate()
         serverReady()
         communicator.waitForShutdown()

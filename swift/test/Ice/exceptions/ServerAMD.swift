@@ -46,9 +46,9 @@ class ServerAMD: TestHelperI {
         let adapter3 = try communicator.createObjectAdapter("TestAdapter3")
 
         let obj = ThrowerI()
-        _ = try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
-        _ = try adapter2.add(servant: obj, id: Ice.stringToIdentity("thrower"))
-        _ = try adapter3.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter2.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter3.add(servant: obj, id: Ice.stringToIdentity("thrower"))
 
         try adapter.activate()
         try adapter2.activate()

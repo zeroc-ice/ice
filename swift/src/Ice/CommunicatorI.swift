@@ -74,12 +74,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func stringToIdentity(_ str: String) throws -> Identity {
-        return try autoreleasepool {
-            try Ice.stringToIdentity(str)
-        }
-    }
-
     func identityToString(_ id: Identity) -> String {
         return Ice.identityToString(id: id)
     }

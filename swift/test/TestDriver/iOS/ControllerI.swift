@@ -26,7 +26,7 @@ class ProcessI: CommonProcess {
         guard let adapter = current.adapter else {
             precondition(false)
         }
-        _ = try adapter.remove(current.id)
+        try adapter.remove(current.id)
         return _helper.getOutput()
     }
 }
@@ -122,7 +122,7 @@ class ControllerI {
         #endif
         ident.name = "com.zeroc.Swift-Test-Controller"
 
-        _ = try adapter.add(servant: ProcessControllerI(view: view, ipv4: ipv4, ipv6: ipv6), id: ident)
+        try adapter.add(servant: ProcessControllerI(view: view, ipv4: ipv4, ipv6: ipv6), id: ident)
         try adapter.activate()
     }
 

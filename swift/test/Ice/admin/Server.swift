@@ -15,7 +15,7 @@ class Server: TestHelperI {
                                                      value: "\(self.getTestEndpoint(num: 0)) -t 10000")
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let id = try Ice.stringToIdentity("factory")
-        _ = try adapter.add(servant: RemoteCommunicatorFactoryI(), id: id)
+        try adapter.add(servant: RemoteCommunicatorFactoryI(), id: id)
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

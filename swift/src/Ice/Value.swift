@@ -24,7 +24,7 @@ open class Value {
     open func _iceRead(from istr: InputStream) throws {
         istr.startValue()
         try _iceReadImpl(from: istr)
-        _ = try istr.endValue(preserve: false)
+        try istr.endValue(preserve: false)
     }
 
     open func _iceWrite(to os: OutputStream) {

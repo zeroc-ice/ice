@@ -23,8 +23,8 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                  value: getTestEndpoint(num: 0, prot: "tcp"))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        _ = try adapter.add(servant: ServerFactoryI(defaultDir: path, helper: self),
-                            id: Ice.stringToIdentity("factory"))
+        try adapter.add(servant: ServerFactoryI(defaultDir: path, helper: self),
+                        id: Ice.stringToIdentity("factory"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

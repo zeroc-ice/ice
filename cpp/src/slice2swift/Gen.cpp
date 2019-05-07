@@ -363,6 +363,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
+    writeSwiftAttributes(out, p->getMetaData());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
@@ -505,6 +506,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     bool isClass = containsClassMembers(p);
     out << sp;
+    writeSwiftAttributes(out, p->getMetaData());
     out << nl << "public " << (isClass ? "class " : "struct ") << name;
     if(legalKeyType)
     {
@@ -860,6 +862,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
+    writeSwiftAttributes(out, p->getMetaData());
     out << nl << "public enum " << name << ": " << enumType;
     out << sb;
 
@@ -1161,6 +1164,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
+    writeSwiftAttributes(out, p->getMetaData());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
     {
@@ -1678,6 +1682,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
     int typeCtx = TypeContextInParam | TypeContextLocal;
 
     out << sp;
+    writeSwiftAttributes(out, p->getMetaData());
     out << nl << "func " << name;
     out << spar;
     for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)

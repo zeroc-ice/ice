@@ -59,6 +59,7 @@ public class InputStream {
         return (bytes, encoding)
     }
 
+    @discardableResult
     public func startEncapsulation() throws -> EncodingVersion {
         encaps = Encaps()
         encaps.start = pos
@@ -109,6 +110,7 @@ public class InputStream {
         }
     }
 
+    @discardableResult
     func skipEmptyEncapsulation() throws -> EncodingVersion {
         let sz: Int32 = try read()
 
@@ -150,6 +152,7 @@ public class InputStream {
         return encodingVersion
     }
 
+    @discardableResult
     public func startSlice() throws -> String {
         precondition(encaps.decoder != nil)
         return try encaps.decoder.startSlice()
@@ -271,6 +274,7 @@ public class InputStream {
         encaps.decoder.startInstance(type: .ValueSlice)
     }
 
+    @discardableResult
     public func endValue(preserve: Bool) throws -> SlicedData? {
         precondition(encaps.decoder != nil)
         return try encaps.decoder.endInstance(preserve: preserve)
@@ -281,6 +285,7 @@ public class InputStream {
         encaps.decoder.startInstance(type: .ExceptionSlice)
     }
 
+    @discardableResult
     public func endException(preserve: Bool) throws -> SlicedData? {
         precondition(encaps.decoder != nil)
         return try encaps.decoder.endInstance(preserve: preserve)
@@ -1004,7 +1009,7 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        _ = try startSlice()
+        try startSlice()
         let mostDerivedId = typeId!
 
         while true {
@@ -1039,7 +1044,7 @@ private class EncapsDecoder10: EncapsDecoder {
             //
             try skipSlice()
             do {
-                _ = try startSlice()
+                try startSlice()
             } catch let ex as UnmarshalOutOfBoundsException {
                 //
                 // An oversight in the 1.0 encoding means there is no marker to indicate
@@ -1066,7 +1071,7 @@ private class EncapsDecoder10: EncapsDecoder {
         // Read the Ice::Value slice.
         //
         if sliceType == .ValueSlice {
-            _ = try startSlice()
+            try startSlice()
             let sz = try stream.readSize() // For compatibility with the old AFM.
             if sz != 0 {
                 throw MarshalException(reason: "invalid Object slice")
@@ -1078,6 +1083,7 @@ private class EncapsDecoder10: EncapsDecoder {
         return nil
     }
 
+    @discardableResult
     func startSlice() throws -> String {
         //
         // If first slice, don't read the header, it was already read in
@@ -1146,7 +1152,7 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        _ = try startSlice()
+        try startSlice()
         let mostDerivedId = typeId!
         var v: Value!
 
@@ -1179,7 +1185,7 @@ private class EncapsDecoder10: EncapsDecoder {
             // Slice off what we don't understand.
             //
             try skipSlice()
-            _ = try startSlice() // Read next Slice header for next iteration.
+            try startSlice() // Read next Slice header for next iteration.
         }
 
         //
@@ -1299,7 +1305,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        _ = try startSlice()
+        try startSlice()
         let mostDerivedId = current.typeId!
         while true {
             //
@@ -1338,7 +1344,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 }
             }
 
-            _ = try startSlice()
+            try startSlice()
         }
     }
 
@@ -1360,6 +1366,7 @@ private class EncapsDecoder11: EncapsDecoder {
         return slicedData
     }
 
+    @discardableResult
     func startSlice() throws -> String {
         //
         // If first slice, don't read the header, it was already read in
@@ -1557,7 +1564,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        _ = try startSlice()
+        try startSlice()
         let mostDerivedId = current.typeId!
 
         var v: Value?
@@ -1636,7 +1643,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 break
             }
 
-            _ = try startSlice() // Read next Slice header for next iteration.
+            try startSlice() // Read next Slice header for next iteration.
         }
 
         classGraphDepth += 1

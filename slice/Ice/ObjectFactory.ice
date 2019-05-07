@@ -25,7 +25,7 @@
 module Ice
 {
 
-#if !defined(__SLICE2PHP__)
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2SWIFT__)
 /**
  *
  * A factory for objects. Object factories are used when receiving "objects by value".

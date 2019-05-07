@@ -52,7 +52,7 @@ open class UserException: Exception {
     open func _iceRead(from istr: InputStream) throws {
         istr.startException()
         try _iceReadImpl(from: istr)
-        _ = try istr.endException(preserve: false)
+        try istr.endException(preserve: false)
     }
 
     open func _iceWrite(to ostr: OutputStream) {

@@ -34,9 +34,9 @@ public class Client: TestHelperI {
         }
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        _ = try adapter.add(servant: breakI(), id: Ice.stringToIdentity("test"))
-        _ = try adapter.add(servant: funcI(), id: Ice.stringToIdentity("test1"))
-        _ = try adapter.add(servant: doI(), id: Ice.stringToIdentity("test2"))
+        try adapter.add(servant: breakI(), id: Ice.stringToIdentity("test"))
+        try adapter.add(servant: funcI(), id: Ice.stringToIdentity("test1"))
+        try adapter.add(servant: doI(), id: Ice.stringToIdentity("test2"))
         try adapter.activate()
 
         let out = getWriter()

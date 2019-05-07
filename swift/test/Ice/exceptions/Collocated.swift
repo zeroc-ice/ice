@@ -30,7 +30,7 @@ class Collocated: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
 
         let obj = ThrowerI()
-        _ = try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
 
         try adapter.activate()
 

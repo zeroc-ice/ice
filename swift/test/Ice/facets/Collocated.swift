@@ -17,14 +17,14 @@ class Collocated: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
 
         let d = DI()
-        _ = try adapter.add(servant: d, id: Ice.stringToIdentity("d"))
-        _ = try adapter.addFacet(servant: d, id: Ice.stringToIdentity("d"), facet: "facetABCD")
+        try adapter.add(servant: d, id: Ice.stringToIdentity("d"))
+        try adapter.addFacet(servant: d, id: Ice.stringToIdentity("d"), facet: "facetABCD")
 
         let f = FI()
-        _ = try adapter.addFacet(servant: f, id: Ice.stringToIdentity("d"), facet: "facetEF")
+        try adapter.addFacet(servant: f, id: Ice.stringToIdentity("d"), facet: "facetEF")
 
         let h = HI(communicator: communicator)
-        _ = try adapter.addFacet(servant: h, id: Ice.stringToIdentity("d"), facet: "facetGH")
+        try adapter.addFacet(servant: h, id: Ice.stringToIdentity("d"), facet: "facetGH")
 
         try adapter.activate()
 

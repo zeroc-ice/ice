@@ -1730,6 +1730,19 @@ SwiftGenerator::writeUnmarshalUserException(::IceUtilInternal::Output& out, cons
 }
 
 void
+SwiftGenerator::writeSwiftAttributes(::IceUtilInternal::Output& out, const StringList& metadata)
+{
+    static const string prefix = "swift:attribute:";
+    for(StringList::const_iterator q = metadata.begin(); q != metadata.end(); ++q)
+    {
+        if(q->find(prefix) == 0 && q->size() > prefix.size())
+        {
+            out << nl << q->substr(prefix.size());
+        }
+    }
+}
+
+void
 SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
     const string opName = fixIdent(op->name());

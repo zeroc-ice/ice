@@ -110,6 +110,7 @@ protected:
     void writeUnmarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr&);
+    void writeSwiftAttributes(::IceUtilInternal::Output&, const StringList&);
     void writeProxyOperation(::IceUtilInternal::Output&, const OperationPtr&);
     void writeProxyAsyncOperation(::IceUtilInternal::Output&, const OperationPtr&);
     void writeDispatchOperation(::IceUtilInternal::Output&, const OperationPtr&);

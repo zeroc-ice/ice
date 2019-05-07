@@ -18,7 +18,7 @@ class Server: TestHelperI {
             key: "TestAdapter.Endpoints",
             value: "\(getTestEndpoint(num: 0)):\(getTestEndpoint(num: 0, prot: "udp"))")
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        _ = try adapter.add(servant: InitialI(adapter), id: Ice.stringToIdentity("initial"))
+        try adapter.add(servant: InitialI(adapter), id: Ice.stringToIdentity("initial"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

@@ -34,12 +34,12 @@ public class Client: TestHelperI {
             let data = outS.finished()
 
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            _ = try inS.startEncapsulation()
+            try inS.startEncapsulation()
             var value: Bool = try inS.read()
             try test(value)
 
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            _ = try inS.startEncapsulation()
+            try inS.startEncapsulation()
             value = try inS.read()
             try test(value)
         }

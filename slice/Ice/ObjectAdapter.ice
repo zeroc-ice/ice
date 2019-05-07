@@ -199,7 +199,8 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    ["swift:nonnull"] Object* add(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id);
+    ["swift:nonnull", "swift:attribute:@discardableResult"]
+    Object* add(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id);
 
     /**
      *
@@ -223,7 +224,8 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["swift:nonnull"] Object* addFacet(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id, string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"]
+    Object* addFacet(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id, string facet);
 
     /**
      *
@@ -244,7 +246,7 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    ["swift:nonnull"] Object* addWithUUID(["swift:nonnull"] Object servant);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object* addWithUUID(["swift:nonnull"] Object servant);
 
     /**
      *
@@ -267,7 +269,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["swift:nonnull"] Object* addFacetWithUUID(["swift:nonnull"] Object servant, string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object* addFacetWithUUID(["swift:nonnull"] Object servant, string facet);
 
     /**
      *
@@ -327,7 +329,7 @@ local interface ObjectAdapter
      * @see #addWithUUID
      *
      **/
-    ["swift:nonnull"] Object remove(Identity id);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object remove(Identity id);
 
     /**
      *
@@ -346,7 +348,7 @@ local interface ObjectAdapter
      * @see #addFacetWithUUID
      *
      **/
-    ["swift:nonnull"] Object removeFacet(Identity id, string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object removeFacet(Identity id, string facet);
 
     /**
      *
@@ -364,7 +366,7 @@ local interface ObjectAdapter
      * @see #removeFacet
      *
      **/
-    FacetMap removeAllFacets(Identity id);
+    ["swift:attribute:@discardableResult"] FacetMap removeAllFacets(Identity id);
 
     /**
      *
@@ -380,7 +382,7 @@ local interface ObjectAdapter
      * @see #findDefaultServant
      *
      **/
-    ["swift:nonnull"] Object removeDefaultServant(string category);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object removeDefaultServant(string category);
 
     /**
      *
@@ -530,7 +532,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    ["swift:nonnull"] ServantLocator removeServantLocator(string category);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] ServantLocator removeServantLocator(string category);
 
     /**
      *

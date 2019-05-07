@@ -209,6 +209,7 @@ local interface Communicator
     ["cpp:const", "swift:noexcept", "swift:nonnull"] PropertyDict proxyToProperty(["swift:nonnull"] Object* proxy,
                                                                                   string property);
 
+#ifndef __SLICE2SWIFT__
     /**
      *
      * Convert a string into an identity. If the string does not parse
@@ -223,6 +224,7 @@ local interface Communicator
      **/
     ["cpp:const", "deprecate:stringToIdentity() is deprecated, use the static stringToIdentity() method instead."]
     Identity stringToIdentity(string str);
+#endif
 
     /**
      *
@@ -587,7 +589,7 @@ local interface Communicator
      * @return The servant associated with this Admin facet.
      *
      **/
-    ["swift:nonnull"] Object removeAdminFacet(string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object removeAdminFacet(string facet);
 
     /**
      *

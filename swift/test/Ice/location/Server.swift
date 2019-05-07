@@ -34,13 +34,13 @@ class Server: TestHelperI {
         //
         let registry = ServerLocatorRegistry()
         let object = ServerManagerI(registry: registry, helper: self)
-        _ = try adapter.add(servant: object, id: Ice.stringToIdentity("ServerManager"))
+        try adapter.add(servant: object, id: Ice.stringToIdentity("ServerManager"))
         try registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
         let registryPrx = try uncheckedCast(prx: adapter.add(servant: registry, id: Ice.stringToIdentity("registry")),
                                             type: Ice.LocatorRegistryPrx.self)
 
         let locator = ServerLocator(registry: registry, registryPrx: registryPrx)
-        _ = try adapter.add(servant: locator, id: Ice.stringToIdentity("locator"))
+        try adapter.add(servant: locator, id: Ice.stringToIdentity("locator"))
 
         try adapter.activate()
         serverReady()

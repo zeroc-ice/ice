@@ -765,7 +765,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                        try self._throwUserException(istr: istr,
                                                                                     userException: userException)
                                                    }
-                                                   _ = try istr.skipEmptyEncapsulation()
+                                                   try istr.skipEmptyEncapsulation()
                                                    seal.fulfill(())
                                                } catch {
                                                    seal.reject(error)
@@ -816,7 +816,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                    try self._throwUserException(istr: istr,
                                                                                 userException: userException)
                                                }
-                                               _ = try istr.startEncapsulation()
+                                               try istr.startEncapsulation()
                                                let l = try read(istr)
                                                try istr.endEncapsulation()
                                                seal.fulfill(l)
@@ -865,7 +865,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                        try self._throwUserException(istr: istr,
                                                                                     userException: userException)
                                                    }
-                                                   _ = try istr.skipEmptyEncapsulation()
+                                                   try istr.skipEmptyEncapsulation()
                                                    seal.fulfill(())
                                                } catch {
                                                    seal.reject(error)
@@ -942,7 +942,7 @@ open class _ObjectPrxI: ObjectPrx {
                                                    try self._throwUserException(istr: istr,
                                                                                 userException: userException)
                                                }
-                                               _ = try istr.startEncapsulation()
+                                               try istr.startEncapsulation()
                                                let l = try read(istr)
                                                try istr.endEncapsulation()
                                                seal.fulfill(l)
@@ -959,7 +959,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     func _throwUserException(istr: InputStream, userException: ((UserException) throws -> Void)?) throws {
         do {
-            _ = try istr.startEncapsulation()
+            try istr.startEncapsulation()
             try istr.throwException()
         } catch let error as UserException {
             try istr.endEncapsulation()
