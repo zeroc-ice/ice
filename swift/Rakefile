@@ -199,6 +199,11 @@ def create_platform_targets(project, platform)
             "-lbz2",
             "-liconv"
         ]
+        config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
+                "ICE_CPP11_MAPPING",
+                "ICE_STATIC_LIBS",
+                "ICE_SWIFT"
+            ]
     }
     target_set_framework_build_settings(target)
     target_add_carthage_framework(target, platform, "PromiseKit.framework")
