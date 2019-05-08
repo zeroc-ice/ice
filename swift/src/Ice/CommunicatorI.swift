@@ -24,24 +24,24 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func destroy() {
-        _handle.destroy()
+        handle.destroy()
     }
 
     func shutdown() {
-        _handle.shutdown()
+        handle.shutdown()
     }
 
     func waitForShutdown() {
-        _handle.waitForShutdown()
+        handle.waitForShutdown()
     }
 
     func isShutdown() -> Bool {
-        return _handle.isShutdown()
+        return handle.isShutdown()
     }
 
     func stringToProxy(_ str: String) throws -> ObjectPrx? {
         return try autoreleasepool {
-            guard let prxHandle = try _handle.stringToProxy(str: str) as? ICEObjectPrx else {
+            guard let prxHandle = try handle.stringToProxy(str: str) as? ICEObjectPrx else {
                 return nil
             }
             return _ObjectPrxI(handle: prxHandle, communicator: self)
@@ -54,7 +54,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func propertyToProxy(_ property: String) throws -> ObjectPrx? {
         return try autoreleasepool {
-            guard let handle = try _handle.propertyToProxy(property: property) as? ICEObjectPrx else {
+            guard let handle = try handle.propertyToProxy(property: property) as? ICEObjectPrx else {
                 return nil
             }
             return _ObjectPrxI(handle: handle, communicator: self)
@@ -65,7 +65,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         precondition(!proxy.ice_isFixed(), "Cannot create property for fixed proxy")
         do {
             return try autoreleasepool {
-                try _handle.proxyToProperty(prx: proxy._impl._handle, property: property)
+                try handle.proxyToProperty(prx: proxy._impl.handle, property: property)
             }
         } catch is CommunicatorDestroyedException {
             return PropertyDict()
@@ -80,7 +80,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func createObjectAdapter(_ name: String) throws -> ObjectAdapter {
         return try autoreleasepool {
-            let handle = try _handle.createObjectAdapter(name)
+            let handle = try self.handle.createObjectAdapter(name)
 
             return ObjectAdapterI(handle: handle, communicator: self)
         }
@@ -88,20 +88,20 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter {
         return try autoreleasepool {
-            let handle = try _handle.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
+            let handle = try self.handle.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
             return ObjectAdapterI(handle: handle, communicator: self)
         }
     }
 
     func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
         return try autoreleasepool {
-            let handle = try _handle.createObjectAdapterWithRouter(name: name, router: rtr._impl._handle)
+            let handle = try self.handle.createObjectAdapterWithRouter(name: name, router: rtr._impl.handle)
             return ObjectAdapterI(handle: handle, communicator: self)
         }
     }
 
     func getImplicitContext() -> ImplicitContext {
-        let handle = _handle.getImplicitContext()
+        let handle = self.handle.getImplicitContext()
         return handle.getSwiftObject(ImplicitContextI.self) {
             ImplicitContextI(handle: handle)
         }
@@ -116,7 +116,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func getDefaultRouter() -> RouterPrx? {
-        guard let handle = _handle.getDefaultRouter() else {
+        guard let handle = handle.getDefaultRouter() else {
             return nil
         }
         return _RouterPrxI.fromICEObjectPrx(handle: handle, communicator: self)
@@ -125,7 +125,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func setDefaultRouter(_ rtr: RouterPrx?) {
         do {
             try autoreleasepool {
-                try _handle.setDefaultRouter((rtr as? _ObjectPrxI)?._handle)
+                try handle.setDefaultRouter((rtr as? _ObjectPrxI)?.handle)
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -135,7 +135,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func getDefaultLocator() -> LocatorPrx? {
-        guard let handle = _handle.getDefaultLocator() else {
+        guard let handle = handle.getDefaultLocator() else {
             return nil
         }
         return _LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
@@ -144,7 +144,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func setDefaultLocator(_ loc: LocatorPrx?) {
         do {
             try autoreleasepool {
-                try _handle.setDefaultLocator((loc as? _ObjectPrxI)?._handle)
+                try handle.setDefaultLocator((loc as? _ObjectPrxI)?.handle)
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -159,15 +159,15 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func flushBatchRequests(_ compress: CompressBatch) throws {
         try autoreleasepool {
-            try _handle.flushBatchRequests(compress.rawValue)
+            try handle.flushBatchRequests(compress.rawValue)
         }
     }
 
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx {
         return try autoreleasepool {
-            let handle = try _handle.createAdmin((adminAdapter as? ObjectAdapterI)?._handle,
-                                                 name: adminId.name,
-                                                 category: adminId.category)
+            let handle = try self.handle.createAdmin((adminAdapter as? ObjectAdapterI)?.handle,
+                                                     name: adminId.name,
+                                                     category: adminId.category)
             if let adapter = adminAdapter {
                 // Register the admin OA's id with the servant manager. This is used to distingish between
                 // ObjectNotExistException and FacetNotExistException when a servant is not found on
@@ -181,7 +181,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func getAdmin() throws -> ObjectPrx? {
         return try autoreleasepool {
-            guard let handle = try _handle.getAdmin() as? ICEObjectPrx else {
+            guard let handle = try handle.getAdmin() as? ICEObjectPrx else {
                 return nil
             }
 
@@ -191,13 +191,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func addAdminFacet(servant: Object, facet: String) throws {
         try autoreleasepool {
-            try _handle.addAdminFacet(AdminFacetFacade(communicator: self, servant: servant), facet: facet)
+            try handle.addAdminFacet(AdminFacetFacade(communicator: self, servant: servant), facet: facet)
         }
     }
 
     func removeAdminFacet(_ facet: String) throws -> Object {
         return try autoreleasepool {
-            guard let facade = try _handle.removeAdminFacet(facet) as? AdminFacetFacade else {
+            guard let facade = try handle.removeAdminFacet(facet) as? AdminFacetFacade else {
                 preconditionFailure()
             }
 
@@ -208,7 +208,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func findAdminFacet(_ facet: String) -> Object? {
         do {
             return try autoreleasepool {
-                guard let facade = try _handle.findAdminFacet(facet) as? AdminFacetFacade else {
+                guard let facade = try handle.findAdminFacet(facet) as? AdminFacetFacade else {
                     return nil
                 }
                 return facade.servant
@@ -224,7 +224,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     func findAllAdminFacets() -> FacetMap {
         do {
             return try autoreleasepool {
-                try _handle.findAllAdminFacets().mapValues { facade in
+                try handle.findAllAdminFacets().mapValues { facade in
                     (facade as! AdminFacetFacade).servant
                 }
             }
@@ -238,13 +238,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func getClientDispatchQueue() throws -> DispatchQueue {
         return try autoreleasepool {
-            try _handle.getClientDispatchQueue()
+            try handle.getClientDispatchQueue()
         }
     }
 
     func getServerDispatchQueue() throws -> DispatchQueue {
         return try autoreleasepool {
-            try _handle.getServerDispatchQueue()
+            try handle.getServerDispatchQueue()
         }
     }
 }
@@ -258,30 +258,30 @@ public extension Communicator {
         let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
         return Promise<Void> { seal in
             try autoreleasepool {
-                try impl._handle.flushBatchRequestsAsync(compress.rawValue,
-                                                         exception: { seal.reject($0) },
-                                                         sent: {
-                                                             seal.fulfill(())
-                                                             if let sentCB = sentCB {
-                                                                 sentCB($0)
-                                                             }
+                try impl.handle.flushBatchRequestsAsync(compress.rawValue,
+                                                        exception: { seal.reject($0) },
+                                                        sent: {
+                                                            seal.fulfill(())
+                                                            if let sentCB = sentCB {
+                                                                sentCB($0)
+                                                            }
                 })
             }
         }
     }
 
     func setSslPasswordPrompt(prompt: @escaping (() -> String)) {
-        (self as! CommunicatorI)._handle.setSslPasswordPrompt(prompt)
+        (self as! CommunicatorI).handle.setSslPasswordPrompt(prompt)
     }
 
     func setSslCertificateVerifier(verifier: @escaping ((SSLConnectionInfo) -> Bool)) {
-        (self as! CommunicatorI)._handle.setSslCertificateVerifier { info in
+        (self as! CommunicatorI).handle.setSslCertificateVerifier { info in
             verifier(info as! SSLConnectionInfo)
         }
     }
 
     func initializePlugins() throws {
-        try (self as! CommunicatorI)._handle.initializePlugins()
+        try (self as! CommunicatorI).handle.initializePlugins()
     }
 }
 

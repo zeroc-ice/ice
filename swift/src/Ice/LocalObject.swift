@@ -5,12 +5,12 @@
 import IceObjc
 
 class LocalObject<Handle: ICELocalObject> {
-    let _handle: Handle
+    let handle: Handle
 
     init(handle: Handle) {
         precondition(handle.swiftRef == nil)
-        _handle = handle
-        _handle.swiftRef = self
+        self.handle = handle
+        self.handle.swiftRef = self
     }
 }
 

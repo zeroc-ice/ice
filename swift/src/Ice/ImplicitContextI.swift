@@ -6,26 +6,26 @@ import IceObjc
 
 class ImplicitContextI: LocalObject<ICEImplicitContext>, ImplicitContext {
     func getContext() -> Context {
-        return _handle.getContext()
+        return handle.getContext()
     }
 
     func setContext(_ newContext: Context) {
-        _handle.setContext(newContext)
+        handle.setContext(newContext)
     }
 
     func containsKey(_ key: String) -> Bool {
-        return _handle.containsKey(key)
+        return handle.containsKey(key)
     }
 
     func get(_ key: String) -> String {
-        return _handle.get(key)
+        return handle.get(key)
     }
 
     func put(key: String, value: String) -> String {
-        return _handle.put(key, value: value)
+        return handle.put(key, value: value)
     }
 
     func remove(_ key: String) -> String {
-        return _handle.remove(key)
+        return handle.remove(key)
     }
 }

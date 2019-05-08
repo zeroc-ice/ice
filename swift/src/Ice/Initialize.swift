@@ -86,7 +86,7 @@ private func initializeImpl(args: [String],
         loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
     }
 
-    let propsHandle = (initData.properties as! PropertiesI)._handle
+    let propsHandle = (initData.properties as! PropertiesI).handle
 
     return try autoreleasepool {
         var remArgs: NSArray?
@@ -134,7 +134,7 @@ public func createProperties() -> Properties {
 public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
     return try autoreleasepool {
         let propertiesHandle = try ICEUtil.createProperties(args,
-                                                            defaults: (defaults as? PropertiesI)?._handle,
+                                                            defaults: (defaults as? PropertiesI)?.handle,
                                                             remArgs: nil)
         return PropertiesI(handle: propertiesHandle)
     }
@@ -144,7 +144,7 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
     return try autoreleasepool {
         var remArgs: NSArray?
         let propertiesHandle = try ICEUtil.createProperties(args,
-                                                            defaults: (defaults as? PropertiesI)?._handle,
+                                                            defaults: (defaults as? PropertiesI)?.handle,
                                                             remArgs: &remArgs)
 
         // swiftlint:disable force_cast

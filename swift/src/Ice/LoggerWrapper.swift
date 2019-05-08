@@ -40,27 +40,27 @@ class LoggerWrapper: ICELoggerProtocol {
 // Wraps Ice C++ logger
 class ObjcLoggerWrapper: LocalObject<ICELogger>, Logger {
     func print(_ message: String) {
-        _handle.print(message)
+        handle.print(message)
     }
 
     func trace(category: String, message: String) {
-        _handle.trace(category: category, message: message)
+        handle.trace(category: category, message: message)
     }
 
     func warning(_ message: String) {
-        _handle.warning(message)
+        handle.warning(message)
     }
 
     func error(_ message: String) {
-        _handle.error(message)
+        handle.error(message)
     }
 
     func getPrefix() -> String {
-        return _handle.getPrefix()
+        return handle.getPrefix()
     }
 
     func cloneWithPrefix(_ prefix: String) -> Logger {
         // swiftlint:disable force_cast
-        return ObjcLoggerWrapper(handle: _handle.cloneWithPrefix(prefix) as! ICELogger)
+        return ObjcLoggerWrapper(handle: handle.cloneWithPrefix(prefix) as! ICELogger)
     }
 }

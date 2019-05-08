@@ -97,7 +97,7 @@ public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
     } else {
         let lhsI = lhs as! _ObjectPrxI
         let rhsI = rhs as! _ObjectPrxI
-        return lhsI._handle.isEqual(rhsI._handle)
+        return lhsI.handle.isEqual(rhsI.handle)
     }
 }
 
@@ -194,34 +194,34 @@ public extension ObjectPrx {
                     mode: OperationMode,
                     inEncaps: Data,
                     context: Context? = nil) throws -> (ok: Bool, outEncaps: Data) {
-        if _impl._isTwoway {
+        if _impl.isTwoway {
             let p = Promise<(ok: Bool, outEncaps: Data)> { seal in
-                try _impl._handle.iceInvokeAsync(operation,
-                                                 mode: Int(mode.rawValue),
-                                                 inParams: inEncaps,
-                                                 context: context,
-                                                 response: { ok, encaps in
-                                                     do {
-                                                         let istr =
-                                                             InputStream(communicator: self._impl._communicator,
-                                                                         encoding: self._impl._encoding,
-                                                                         bytes: Data(encaps)) // make a copy
-                                                         seal.fulfill((ok, try istr.readEncapsulation().bytes))
-                                                     } catch {
-                                                         seal.reject(error)
-                                                     }
-                                                 },
-                                                 exception: { error in
-                                                     seal.reject(error)
-                                                 },
-                                                 sent: nil)
+                try _impl.handle.iceInvokeAsync(operation,
+                                                mode: Int(mode.rawValue),
+                                                inParams: inEncaps,
+                                                context: context,
+                                                response: { ok, encaps in
+                                                    do {
+                                                        let istr =
+                                                            InputStream(communicator: self._impl.communicator,
+                                                                        encoding: self._impl.encoding,
+                                                                        bytes: Data(encaps)) // make a copy
+                                                        seal.fulfill((ok, try istr.readEncapsulation().bytes))
+                                                    } catch {
+                                                        seal.reject(error)
+                                                    }
+                                                },
+                                                exception: { error in
+                                                    seal.reject(error)
+                                                },
+                                                sent: nil)
             }
             return try p.wait()
         } else {
-            try _impl._handle.iceOnewayInvoke(operation,
-                                              mode: mode.rawValue,
-                                              inParams: inEncaps,
-                                              context: context)
+            try _impl.handle.iceOnewayInvoke(operation,
+                                             mode: mode.rawValue,
+                                             inParams: inEncaps,
+                                             context: context)
             return (true, Data())
         }
     }
@@ -233,48 +233,48 @@ public extension ObjectPrx {
                          sent: ((Bool) -> Void)? = nil,
                          sentOn: DispatchQueue? = nil,
                          sentFlags: DispatchWorkItemFlags? = nil) -> Promise<(ok: Bool, outEncaps: Data)> {
-        if _impl._isTwoway {
+        if _impl.isTwoway {
             return Promise<(ok: Bool, outEncaps: Data)> { seal in
-                try _impl._handle.iceInvokeAsync(operation,
-                                                 mode: Int(mode.rawValue),
-                                                 inParams: inEncaps,
-                                                 context: context,
-                                                 response: { ok, encaps in
-                                                     do {
-                                                         let istr =
-                                                             InputStream(communicator: self._impl._communicator,
-                                                                         encoding: self._impl._encoding,
-                                                                         bytes: Data(encaps)) // make a copy
-                                                         seal.fulfill((ok, try istr.readEncapsulation().bytes))
-                                                     } catch {
-                                                         seal.reject(error)
-                                                     }
-                                                 },
-                                                 exception: { error in
-                                                     seal.reject(error)
-                                                 },
-                                                 sent: createSentCallback(sent: sent,
-                                                                          sentOn: sentOn,
-                                                                          sentFlags: sentFlags))
+                try _impl.handle.iceInvokeAsync(operation,
+                                                mode: Int(mode.rawValue),
+                                                inParams: inEncaps,
+                                                context: context,
+                                                response: { ok, encaps in
+                                                    do {
+                                                        let istr =
+                                                            InputStream(communicator: self._impl.communicator,
+                                                                        encoding: self._impl.encoding,
+                                                                        bytes: Data(encaps)) // make a copy
+                                                        seal.fulfill((ok, try istr.readEncapsulation().bytes))
+                                                    } catch {
+                                                        seal.reject(error)
+                                                    }
+                                                },
+                                                exception: { error in
+                                                    seal.reject(error)
+                                                },
+                                                sent: createSentCallback(sent: sent,
+                                                                         sentOn: sentOn,
+                                                                         sentFlags: sentFlags))
             }
         } else {
             let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
             return Promise<(ok: Bool, outEncaps: Data)> { seal in
-                try _impl._handle.iceInvokeAsync(operation,
-                                                 mode: Int(mode.rawValue),
-                                                 inParams: inEncaps,
-                                                 context: context,
-                                                 response: { _, _ in
-                                                     precondition(false)
-                                                 },
-                                                 exception: { error in
-                                                     seal.reject(error)
-                                                 },
-                                                 sent: {
-                                                     seal.fulfill((true, Data()))
-                                                     if let sentCB = sentCB {
-                                                         sentCB($0)
-                                                     }
+                try _impl.handle.iceInvokeAsync(operation,
+                                                mode: Int(mode.rawValue),
+                                                inParams: inEncaps,
+                                                context: context,
+                                                response: { _, _ in
+                                                    precondition(false)
+                                                },
+                                                exception: { error in
+                                                    seal.reject(error)
+                                                },
+                                                sent: {
+                                                    seal.fulfill((true, Data()))
+                                                    if let sentCB = sentCB {
+                                                        sentCB($0)
+                                                    }
                 })
             }
         }
@@ -285,7 +285,7 @@ public extension ObjectPrx {
                                      sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
         let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
         return Promise<Void> { seal in
-            try _impl._handle.ice_flushBatchRequestsAsync(
+            try _impl.handle.ice_flushBatchRequestsAsync(
                 exception: {
                     seal.reject($0)
                 },
@@ -301,38 +301,38 @@ public extension ObjectPrx {
 }
 
 open class _ObjectPrxI: ObjectPrx {
-    let _handle: ICEObjectPrx
-    let _communicator: Communicator
-    let _encoding: EncodingVersion
-    let _isTwoway: Bool
+    internal let handle: ICEObjectPrx
+    internal let communicator: Communicator
+    internal let encoding: EncodingVersion
+    fileprivate let isTwoway: Bool
 
     public var description: String {
-        return _handle.ice_toString()
+        return handle.ice_toString()
     }
 
     public required init(handle: ICEObjectPrx, communicator: Communicator) {
-        _handle = handle
-        _communicator = communicator
+        self.handle = handle
+        self.communicator = communicator
         var encoding = EncodingVersion()
-        _handle.ice_getEncodingVersion(&encoding.major, minor: &encoding.minor)
-        _encoding = encoding
-        _isTwoway = handle.ice_isTwoway()
+        handle.ice_getEncodingVersion(&encoding.major, minor: &encoding.minor)
+        self.encoding = encoding
+        isTwoway = handle.ice_isTwoway()
     }
 
     public required init(from prx: ObjectPrx) {
         let impl = prx as! _ObjectPrxI
-        _handle = impl._handle
-        _communicator = impl._communicator
-        _encoding = impl._encoding
-        _isTwoway = impl._isTwoway
+        handle = impl.handle
+        communicator = impl.communicator
+        encoding = impl.encoding
+        isTwoway = impl.isTwoway
     }
 
     internal func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: _ObjectPrxI {
-        return ObjectPrxType(handle: h, communicator: _communicator)
+        return ObjectPrxType(handle: h, communicator: communicator)
     }
 
     internal func fromICEObjectPrx(_ h: ICEObjectPrx) -> Self {
-        return type(of: self).init(handle: h, communicator: _communicator)
+        return type(of: self).init(handle: h, communicator: communicator)
     }
 
     internal static func fromICEObjectPrx(handle: ICEObjectPrx,
@@ -342,7 +342,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getCommunicator() -> Communicator {
-        return _communicator
+        return communicator
     }
 
     open class func ice_staticId() -> String {
@@ -352,7 +352,7 @@ open class _ObjectPrxI: ObjectPrx {
     public func ice_getIdentity() -> Identity {
         var name = NSString()
         var category = NSString()
-        _handle.ice_getIdentity(&name, category: &category)
+        handle.ice_getIdentity(&name, category: &category)
         return Identity(name: name as String, category: category as String)
     }
 
@@ -360,7 +360,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(!id.name.isEmpty, "Identity name cannot be empty")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_identity(id.name, category: id.category)) as _ObjectPrxI
+                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category)) as _ObjectPrxI
             }
         } catch {
             fatalError("\(error)")
@@ -368,30 +368,30 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getContext() -> Context {
-        return _handle.ice_getContext() as Context
+        return handle.ice_getContext() as Context
     }
 
     public func ice_context(_ context: Context) -> Self {
-        return fromICEObjectPrx(_handle.ice_context(context))
+        return fromICEObjectPrx(handle.ice_context(context))
     }
 
     public func ice_getFacet() -> String {
-        return _handle.ice_getFacet()
+        return handle.ice_getFacet()
     }
 
     public func ice_facet(_ facet: String) -> ObjectPrx {
-        return fromICEObjectPrx(_handle.ice_facet(facet))
+        return fromICEObjectPrx(handle.ice_facet(facet))
     }
 
     public func ice_getAdapterId() -> String {
-        return _handle.ice_getAdapterId()
+        return handle.ice_getAdapterId()
     }
 
     public func ice_adapterId(_ id: String) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with an adapterId")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_adapterId(id))
+                try fromICEObjectPrx(handle.ice_adapterId(id))
             }
         } catch {
             fatalError("\(error)")
@@ -399,14 +399,14 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getEndpoints() -> EndpointSeq {
-        return _handle.ice_getEndpoints().fromObjc()
+        return handle.ice_getEndpoints().fromObjc()
     }
 
     public func ice_endpoints(_ endpoints: EndpointSeq) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with endpoints")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_endpoints(endpoints.toObjc()))
+                try fromICEObjectPrx(handle.ice_endpoints(endpoints.toObjc()))
             }
         } catch {
             fatalError("\(error)")
@@ -414,7 +414,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getLocatorCacheTimeout() -> Int32 {
-        return _handle.ice_getLocatorCacheTimeout()
+        return handle.ice_getLocatorCacheTimeout()
     }
 
     public func ice_locatorCacheTimeout(_ timeout: Int32) -> Self {
@@ -422,7 +422,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(timeout >= -1, "Invalid locator cache timeout value")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_locatorCacheTimeout(timeout))
+                try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout))
             }
         } catch {
             fatalError("\(error)")
@@ -430,14 +430,14 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getInvocationTimeout() -> Int32 {
-        return _handle.ice_getInvocationTimeout()
+        return handle.ice_getInvocationTimeout()
     }
 
     public func ice_invocationTimeout(_ timeout: Int32) -> Self {
         precondition(timeout >= 1 || timeout == -1 || timeout == -2, "Invalid invocation timeout value")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_invocationTimeout(timeout))
+                try fromICEObjectPrx(handle.ice_invocationTimeout(timeout))
             }
         } catch {
             fatalError("\(error)")
@@ -445,14 +445,14 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getConnectionId() -> String {
-        return _handle.ice_getConnectionId()
+        return handle.ice_getConnectionId()
     }
 
     public func ice_connectionId(_ id: String) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a connectionId")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_connectionId(id))
+                try fromICEObjectPrx(handle.ice_connectionId(id))
             }
         } catch {
             fatalError("\(error)")
@@ -460,14 +460,14 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_isConnectionCached() -> Bool {
-        return _handle.ice_isConnectionCached()
+        return handle.ice_isConnectionCached()
     }
 
     public func ice_connectionCached(_ cached: Bool) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a cached connection")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_connectionCached(cached))
+                try fromICEObjectPrx(handle.ice_connectionCached(cached))
             }
         } catch {
             fatalError("\(error)")
@@ -475,14 +475,14 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getEndpointSelection() -> EndpointSelectionType {
-        return EndpointSelectionType(rawValue: _handle.ice_getEndpointSelection())!
+        return EndpointSelectionType(rawValue: handle.ice_getEndpointSelection())!
     }
 
     public func ice_endpointSelection(_ type: EndpointSelectionType) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with an endpointSelectionType")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_endpointSelection(type.rawValue))
+                try fromICEObjectPrx(handle.ice_endpointSelection(type.rawValue))
             }
         } catch {
             fatalError("\(error)")
@@ -490,15 +490,15 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getEncodingVersion() -> EncodingVersion {
-        return _encoding
+        return encoding
     }
 
     public func ice_encodingVersion(_ encoding: EncodingVersion) -> Self {
-        return fromICEObjectPrx(_handle.ice_encodingVersion(encoding.major, minor: encoding.minor))
+        return fromICEObjectPrx(handle.ice_encodingVersion(encoding.major, minor: encoding.minor))
     }
 
     public func ice_getRouter() -> RouterPrx? {
-        guard let routerHandle = _handle.ice_getRouter() else {
+        guard let routerHandle = handle.ice_getRouter() else {
             return nil
         }
         return fromICEObjectPrx(routerHandle) as _RouterPrxI
@@ -509,7 +509,7 @@ open class _ObjectPrxI: ObjectPrx {
         do {
             return try autoreleasepool {
                 let r = router as? _ObjectPrxI
-                return try fromICEObjectPrx(_handle.ice_router(r?._handle ?? nil))
+                return try fromICEObjectPrx(handle.ice_router(r?.handle ?? nil))
             }
         } catch {
             fatalError("\(error)")
@@ -517,7 +517,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getLocator() -> LocatorPrx? {
-        guard let locatorHandle = _handle.ice_getLocator() else {
+        guard let locatorHandle = handle.ice_getLocator() else {
             return nil
         }
         return fromICEObjectPrx(locatorHandle) as _LocatorPrxI
@@ -528,7 +528,7 @@ open class _ObjectPrxI: ObjectPrx {
         do {
             return try autoreleasepool {
                 let l = locator as? _ObjectPrxI
-                return try fromICEObjectPrx(_handle.ice_locator(l?._handle ?? nil))
+                return try fromICEObjectPrx(handle.ice_locator(l?.handle ?? nil))
             }
         } catch {
             fatalError("\(error)")
@@ -536,22 +536,22 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_isSecure() -> Bool {
-        return _handle.ice_isSecure()
+        return handle.ice_isSecure()
     }
 
     public func ice_secure(_ secure: Bool) -> Self {
-        return fromICEObjectPrx(_handle.ice_secure(secure))
+        return fromICEObjectPrx(handle.ice_secure(secure))
     }
 
     public func ice_isPreferSecure() -> Bool {
-        return _handle.ice_isPreferSecure()
+        return handle.ice_isPreferSecure()
     }
 
     public func ice_preferSecure(_ preferSecure: Bool) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with preferSecure")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_preferSecure(preferSecure))
+                try fromICEObjectPrx(handle.ice_preferSecure(preferSecure))
             }
         } catch {
             fatalError("\(error)")
@@ -559,58 +559,58 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_isTwoway() -> Bool {
-        return _isTwoway
+        return isTwoway
     }
 
     public func ice_twoway() -> Self {
-        return fromICEObjectPrx(_handle.ice_twoway())
+        return fromICEObjectPrx(handle.ice_twoway())
     }
 
     public func ice_isOneway() -> Bool {
-        return _handle.ice_isOneway()
+        return handle.ice_isOneway()
     }
 
     public func ice_oneway() -> Self {
-        return fromICEObjectPrx(_handle.ice_oneway())
+        return fromICEObjectPrx(handle.ice_oneway())
     }
 
     public func ice_isBatchOneway() -> Bool {
-        return _handle.ice_isBatchOneway()
+        return handle.ice_isBatchOneway()
     }
 
     public func ice_batchOneway() -> Self {
-        return fromICEObjectPrx(_handle.ice_batchOneway())
+        return fromICEObjectPrx(handle.ice_batchOneway())
     }
 
     public func ice_isDatagram() -> Bool {
-        return _handle.ice_isDatagram()
+        return handle.ice_isDatagram()
     }
 
     public func ice_datagram() -> Self {
-        return fromICEObjectPrx(_handle.ice_datagram())
+        return fromICEObjectPrx(handle.ice_datagram())
     }
 
     public func ice_isBatchDatagram() -> Bool {
-        return _handle.ice_isBatchDatagram()
+        return handle.ice_isBatchDatagram()
     }
 
     public func ice_batchDatagram() -> Self {
-        return fromICEObjectPrx(_handle.ice_batchDatagram())
+        return fromICEObjectPrx(handle.ice_batchDatagram())
     }
 
     public func ice_getCompress() -> Bool? {
-        guard let compress = _handle.ice_getCompress() as? Bool? else {
+        guard let compress = handle.ice_getCompress() as? Bool? else {
             preconditionFailure("Bool? type was expected")
         }
         return compress
     }
 
     public func ice_compress(_ compress: Bool) -> Self {
-        return fromICEObjectPrx(_handle.ice_compress(compress))
+        return fromICEObjectPrx(handle.ice_compress(compress))
     }
 
     public func ice_getTimeout() -> Int32? {
-        guard let timeout = _handle.ice_getTimeout() as? Int32? else {
+        guard let timeout = handle.ice_getTimeout() as? Int32? else {
             preconditionFailure("Int32? type was expected")
         }
         return timeout
@@ -621,7 +621,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(timeout > 0 || timeout == -1, "Invalid connection timeout value")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_timeout(timeout))
+                try fromICEObjectPrx(handle.ice_timeout(timeout))
             }
         } catch {
             fatalError("\(error)")
@@ -631,7 +631,7 @@ open class _ObjectPrxI: ObjectPrx {
     public func ice_fixed(_ connection: Connection) -> Self {
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_fixed((connection as! ConnectionI)._handle))
+                try fromICEObjectPrx(handle.ice_fixed((connection as! ConnectionI).handle))
             }
         } catch {
             fatalError("\(error)")
@@ -639,7 +639,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_isFixed() -> Bool {
-        return _handle.ice_isFixed()
+        return handle.ice_isFixed()
     }
 
     public func ice_getConnection() throws -> Connection? {
@@ -647,7 +647,7 @@ open class _ObjectPrxI: ObjectPrx {
             //
             // Returns Any which is either NSNull or ICEConnection
             //
-            guard let handle = try _handle.ice_getConnection() as? ICEConnection else {
+            guard let handle = try handle.ice_getConnection() as? ICEConnection else {
                 return nil
             }
             return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
@@ -656,17 +656,17 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_getConnectionAsync() -> Promise<Connection?> {
         return Promise<Connection?> { seal in
-            _handle.ice_getConnectionAsync({ conn in
+            handle.ice_getConnectionAsync({ conn in
                 seal.fulfill(conn?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: conn!) })
             },
-                                           exception: { ex in
+                                          exception: { ex in
                 seal.reject(ex)
             })
         }
     }
 
     public func ice_getCachedConnection() -> Connection? {
-        guard let handle = _handle.ice_getCachedConnection() else {
+        guard let handle = handle.ice_getCachedConnection() else {
             return nil
         }
         return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
@@ -674,27 +674,27 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_flushBatchRequests() throws {
         return try autoreleasepool {
-            try _handle.ice_flushBatchRequests()
+            try handle.ice_flushBatchRequests()
         }
     }
 
     public func ice_write(to os: OutputStream) {
-        _handle.iceWrite(os, encodingMajor: os.currentEncoding.major, encodingMinor: os.currentEncoding.minor)
+        handle.iceWrite(os, encodingMajor: os.currentEncoding.major, encodingMinor: os.currentEncoding.minor)
     }
 
     public func ice_toString() -> String {
-        return _handle.ice_toString()
+        return handle.ice_toString()
     }
 
     public func ice_isCollocationOptimized() -> Bool {
-        return _handle.ice_isCollocationOptimized()
+        return handle.ice_isCollocationOptimized()
     }
 
     public func ice_collocationOptimized(_ collocated: Bool) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with collocation optimization")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(_handle.ice_collocationOptimized(collocated))
+                try fromICEObjectPrx(handle.ice_collocationOptimized(collocated))
             }
         } catch {
             fatalError("\(error)")
@@ -716,7 +716,7 @@ open class _ObjectPrxI: ObjectPrx {
         // Returns Any which is either NSNull or ICEObjectPrx
         //
         let handleOpt = try ICEObjectPrx.iceRead(istr.data[istr.pos ..< istr.data.count],
-                                                 communicator: (communicator as! CommunicatorI)._handle,
+                                                 communicator: (communicator as! CommunicatorI).handle,
                                                  encodingMajor: encoding.major,
                                                  encodingMinor: encoding.minor,
                                                  bytesRead: &bytesRead) as? ICEObjectPrx
@@ -738,50 +738,50 @@ open class _ObjectPrxI: ObjectPrx {
                         write: ((OutputStream) -> Void)? = nil,
                         userException: ((UserException) throws -> Void)? = nil,
                         context: Context? = nil) throws {
-        if userException != nil, !_isTwoway {
+        if userException != nil, !isTwoway {
             throw TwowayOnlyException(operation: operation)
         }
 
-        let ostr = OutputStream(communicator: _communicator, encoding: _encoding)
+        let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation(encoding: _encoding, format: format)
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
 
-        if _isTwoway {
+        if isTwoway {
             let p = Promise<Void> { seal in
-                try _handle.iceInvokeAsync(operation,
-                                           mode: Int(mode.rawValue),
-                                           inParams: ostr.finished(),
-                                           context: context,
-                                           response: { ok, encaps in
+                try handle.iceInvokeAsync(operation,
+                                          mode: Int(mode.rawValue),
+                                          inParams: ostr.finished(),
+                                          context: context,
+                                          response: { ok, encaps in
 
-                                               do {
-                                                   let istr = InputStream(communicator: self._communicator,
-                                                                          encoding: self._encoding,
-                                                                          bytes: encaps)
-                                                   if ok == false {
-                                                       try self._throwUserException(istr: istr,
-                                                                                    userException: userException)
-                                                   }
-                                                   try istr.skipEmptyEncapsulation()
-                                                   seal.fulfill(())
-                                               } catch {
-                                                   seal.reject(error)
-                                               }
-                                           },
-                                           exception: { error in
-                                               seal.reject(error)
-                                           },
-                                           sent: nil)
+                                              do {
+                                                  let istr = InputStream(communicator: self.communicator,
+                                                                         encoding: self.encoding,
+                                                                         bytes: encaps)
+                                                  if ok == false {
+                                                      try _ObjectPrxI.throwUserException(istr: istr,
+                                                                                         userException: userException)
+                                                  }
+                                                  try istr.skipEmptyEncapsulation()
+                                                  seal.fulfill(())
+                                              } catch {
+                                                  seal.reject(error)
+                                              }
+                                          },
+                                          exception: { error in
+                                              seal.reject(error)
+                                          },
+                                          sent: nil)
             }
             try p.wait()
         } else {
-            try _impl._handle.iceOnewayInvoke(operation,
-                                              mode: mode.rawValue,
-                                              inParams: ostr.finished(),
-                                              context: context)
+            try _impl.handle.iceOnewayInvoke(operation,
+                                             mode: mode.rawValue,
+                                             inParams: ostr.finished(),
+                                             context: context)
         }
     }
 
@@ -792,42 +792,42 @@ open class _ObjectPrxI: ObjectPrx {
                            read: @escaping (InputStream) throws -> T,
                            userException: ((UserException) throws -> Void)? = nil,
                            context: Context? = nil) throws -> T {
-        if !_isTwoway {
+        if !isTwoway {
             throw TwowayOnlyException(operation: operation)
         }
-        let ostr = OutputStream(communicator: _communicator, encoding: _encoding)
+        let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation(encoding: _encoding, format: format)
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
 
         let p = Promise<T> { seal in
-            try _handle.iceInvokeAsync(operation,
-                                       mode: Int(mode.rawValue),
-                                       inParams: ostr.finished(),
-                                       context: context,
-                                       response: { ok, encaps in
-                                           do {
-                                               let istr = InputStream(communicator: self._communicator,
-                                                                      encoding: self._encoding,
-                                                                      bytes: encaps)
-                                               if ok == false {
-                                                   try self._throwUserException(istr: istr,
-                                                                                userException: userException)
-                                               }
-                                               try istr.startEncapsulation()
-                                               let l = try read(istr)
-                                               try istr.endEncapsulation()
-                                               seal.fulfill(l)
-                                           } catch {
-                                               seal.reject(error)
-                                           }
-                                       },
-                                       exception: { error in
-                                           seal.reject(error)
-                                       },
-                                       sent: nil)
+            try handle.iceInvokeAsync(operation,
+                                      mode: Int(mode.rawValue),
+                                      inParams: ostr.finished(),
+                                      context: context,
+                                      response: { ok, encaps in
+                                          do {
+                                              let istr = InputStream(communicator: self.communicator,
+                                                                     encoding: self.encoding,
+                                                                     bytes: encaps)
+                                              if ok == false {
+                                                  try _ObjectPrxI.throwUserException(istr: istr,
+                                                                                     userException: userException)
+                                              }
+                                              try istr.startEncapsulation()
+                                              let l = try read(istr)
+                                              try istr.endEncapsulation()
+                                              seal.fulfill(l)
+                                          } catch {
+                                              seal.reject(error)
+                                          }
+                                      },
+                                      exception: { error in
+                                          seal.reject(error)
+                                      },
+                                      sent: nil)
         }
         return try p.wait()
     }
@@ -841,68 +841,68 @@ open class _ObjectPrxI: ObjectPrx {
                              sent: ((Bool) -> Void)? = nil,
                              sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                              sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-        if userException != nil, !_isTwoway {
+        if userException != nil, !isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
-        let ostr = OutputStream(communicator: _communicator, encoding: _encoding)
+        let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation(encoding: _encoding, format: format)
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
-        if _isTwoway {
+        if isTwoway {
             return Promise<Void> { seal in
-                try _handle.iceInvokeAsync(operation,
-                                           mode: Int(mode.rawValue),
-                                           inParams: ostr.finished(),
-                                           context: context,
-                                           response: { ok, encaps in
-                                               do {
-                                                   let istr = InputStream(communicator: self._communicator,
-                                                                          encoding: self._encoding,
-                                                                          bytes: encaps)
-                                                   if ok == false {
-                                                       try self._throwUserException(istr: istr,
-                                                                                    userException: userException)
-                                                   }
-                                                   try istr.skipEmptyEncapsulation()
-                                                   seal.fulfill(())
-                                               } catch {
-                                                   seal.reject(error)
-                                               }
-                                           },
-                                           exception: { error in
-                                               seal.reject(error)
-                                           },
-                                           sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                try handle.iceInvokeAsync(operation,
+                                          mode: Int(mode.rawValue),
+                                          inParams: ostr.finished(),
+                                          context: context,
+                                          response: { ok, encaps in
+                                              do {
+                                                  let istr = InputStream(communicator: self.communicator,
+                                                                         encoding: self.encoding,
+                                                                         bytes: encaps)
+                                                  if ok == false {
+                                                      try _ObjectPrxI.throwUserException(istr: istr,
+                                                                                         userException: userException)
+                                                  }
+                                                  try istr.skipEmptyEncapsulation()
+                                                  seal.fulfill(())
+                                              } catch {
+                                                  seal.reject(error)
+                                              }
+                                          },
+                                          exception: { error in
+                                              seal.reject(error)
+                                          },
+                                          sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
             }
         } else {
             if ice_isBatchOneway() || ice_isBatchDatagram() {
                 return Promise<Void> { seal in
-                    try _handle.iceOnewayInvoke(operation,
-                                                mode: mode.rawValue,
-                                                inParams: ostr.finished(),
-                                                context: context)
+                    try handle.iceOnewayInvoke(operation,
+                                               mode: mode.rawValue,
+                                               inParams: ostr.finished(),
+                                               context: context)
                     seal.fulfill(())
                 }
             } else {
                 return Promise<Void> { seal in
                     let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
-                    try _handle.iceInvokeAsync(operation,
-                                               mode: Int(mode.rawValue),
-                                               inParams: ostr.finished(),
-                                               context: context,
-                                               response: { _, _ in
-                                                   precondition(false)
-                                               },
-                                               exception: { error in
-                                                   seal.reject(error)
-                                               },
-                                               sent: {
-                                                   seal.fulfill(())
-                                                   if let sentCB = sentCB {
-                                                       sentCB($0)
-                                                   }
+                    try handle.iceInvokeAsync(operation,
+                                              mode: Int(mode.rawValue),
+                                              inParams: ostr.finished(),
+                                              context: context,
+                                              response: { _, _ in
+                                                  precondition(false)
+                                              },
+                                              exception: { error in
+                                                  seal.reject(error)
+                                              },
+                                              sent: {
+                                                  seal.fulfill(())
+                                                  if let sentCB = sentCB {
+                                                      sentCB($0)
+                                                  }
                     })
                 }
             }
@@ -919,45 +919,45 @@ open class _ObjectPrxI: ObjectPrx {
                                 sent: ((Bool) -> Void)? = nil,
                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<T> {
-        if !_isTwoway {
+        if !isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
-        let ostr = OutputStream(communicator: _communicator, encoding: _encoding)
+        let ostr = OutputStream(communicator: communicator, encoding: encoding)
         if let write = write {
-            ostr.startEncapsulation(encoding: _encoding, format: format)
+            ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
             ostr.endEncapsulation()
         }
         return Promise<T> { seal in
-            try _handle.iceInvokeAsync(operation,
-                                       mode: Int(mode.rawValue),
-                                       inParams: ostr.finished(),
-                                       context: context,
-                                       response: { ok, encaps in
-                                           do {
-                                               let istr = InputStream(communicator: self._communicator,
-                                                                      encoding: self._encoding,
-                                                                      bytes: encaps)
-                                               if ok == false {
-                                                   try self._throwUserException(istr: istr,
-                                                                                userException: userException)
-                                               }
-                                               try istr.startEncapsulation()
-                                               let l = try read(istr)
-                                               try istr.endEncapsulation()
-                                               seal.fulfill(l)
-                                           } catch {
-                                               seal.reject(error)
-                                           }
-                                       },
-                                       exception: { error in
-                                           seal.reject(error)
-                                       },
-                                       sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+            try handle.iceInvokeAsync(operation,
+                                      mode: Int(mode.rawValue),
+                                      inParams: ostr.finished(),
+                                      context: context,
+                                      response: { ok, encaps in
+                                          do {
+                                              let istr = InputStream(communicator: self.communicator,
+                                                                     encoding: self.encoding,
+                                                                     bytes: encaps)
+                                              if ok == false {
+                                                  try _ObjectPrxI.throwUserException(istr: istr,
+                                                                                     userException: userException)
+                                              }
+                                              try istr.startEncapsulation()
+                                              let l = try read(istr)
+                                              try istr.endEncapsulation()
+                                              seal.fulfill(l)
+                                          } catch {
+                                              seal.reject(error)
+                                          }
+                                      },
+                                      exception: { error in
+                                          seal.reject(error)
+                                      },
+                                      sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
         }
     }
 
-    func _throwUserException(istr: InputStream, userException: ((UserException) throws -> Void)?) throws {
+    private static func throwUserException(istr: InputStream, userException: ((UserException) throws -> Void)?) throws {
         do {
             try istr.startEncapsulation()
             try istr.throwException()

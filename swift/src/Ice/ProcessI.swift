@@ -6,10 +6,10 @@ import IceObjc
 
 class ProcessI: LocalObject<ICEProcess>, Process {
     func shutdown(current _: Current) {
-        _handle.shutdown()
+        handle.shutdown()
     }
 
     func writeMessage(message: Swift.String, fd: Swift.Int32, current _: Current) {
-        _handle.writeMessage(message, fd: fd)
+        handle.writeMessage(message, fd: fd)
     }
 }

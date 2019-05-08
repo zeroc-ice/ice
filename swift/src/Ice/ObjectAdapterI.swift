@@ -25,7 +25,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func getName() -> String {
-        return _handle.getName()
+        return handle.getName()
     }
 
     func getCommunicator() -> Communicator {
@@ -34,32 +34,32 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
 
     func activate() throws {
         try autoreleasepool {
-            try _handle.activate()
+            try handle.activate()
         }
     }
 
     func hold() {
-        _handle.hold()
+        handle.hold()
     }
 
     func waitForHold() {
-        _handle.waitForHold()
+        handle.waitForHold()
     }
 
     func deactivate() {
-        _handle.deactivate()
+        handle.deactivate()
     }
 
     func waitForDeactivate() {
-        _handle.waitForDeactivate()
+        handle.waitForDeactivate()
     }
 
     func isDeactivated() -> Bool {
-        return _handle.isDeactivated()
+        return handle.isDeactivated()
     }
 
     func destroy() {
-        return _handle.destroy()
+        return handle.destroy()
     }
 
     func add(servant: Object, id: Identity) throws -> ObjectPrx {
@@ -136,55 +136,55 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try _ObjectPrxI(handle: _handle.createProxy(name: id.name, category: id.category),
+        return try _ObjectPrxI(handle: handle.createProxy(name: id.name, category: id.category),
                                communicator: communicator)
     }
 
     func createDirectProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try _ObjectPrxI(handle: _handle.createDirectProxy(name: id.name, category: id.category),
+        return try _ObjectPrxI(handle: handle.createDirectProxy(name: id.name, category: id.category),
                                communicator: communicator)
     }
 
     func createIndirectProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try _ObjectPrxI(handle: _handle.createIndirectProxy(name: id.name, category: id.category),
+        return try _ObjectPrxI(handle: handle.createIndirectProxy(name: id.name, category: id.category),
                                communicator: communicator)
     }
 
     func setLocator(_ locator: LocatorPrx?) {
         let l = locator as? _LocatorPrxI
-        _handle.setLocator(l?._handle ?? nil)
+        handle.setLocator(l?.handle ?? nil)
     }
 
     func getLocator() -> LocatorPrx? {
-        guard let locatorHandle = _handle.getLocator() else {
+        guard let locatorHandle = handle.getLocator() else {
             return nil
         }
         return _LocatorPrxI.fromICEObjectPrx(handle: locatorHandle)
     }
 
     func getEndpoints() -> EndpointSeq {
-        return _handle.getEndpoints().fromObjc()
+        return handle.getEndpoints().fromObjc()
     }
 
     func refreshPublishedEndpoints() throws {
         try autoreleasepool {
-            try _handle.refreshPublishedEndpoints()
+            try handle.refreshPublishedEndpoints()
         }
     }
 
     func getPublishedEndpoints() -> EndpointSeq {
-        return _handle.getPublishedEndpoints().fromObjc()
+        return handle.getPublishedEndpoints().fromObjc()
     }
 
     func setPublishedEndpoints(_ newEndpoints: EndpointSeq) throws {
-        try _handle.setPublishedEndpoints(newEndpoints.toObjc())
+        try handle.setPublishedEndpoints(newEndpoints.toObjc())
     }
 
     func getDispatchQueue() throws -> DispatchQueue {
         return try autoreleasepool {
-            try _handle.getDispatchQueue()
+            try handle.getDispatchQueue()
         }
     }
 
@@ -202,7 +202,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       encodingMinor: UInt8,
                       response: @escaping (Bool, Data) -> Void,
                       exception: @escaping (ICERuntimeException) -> Void) {
-        precondition(_handle == adapter)
+        precondition(handle == adapter)
 
         let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) } ?? nil
 

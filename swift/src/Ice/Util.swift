@@ -56,7 +56,7 @@ func escapeString(string: String, special: String, communicator: Communicator) t
     return try autoreleasepool {
         try ICEUtil.escapeString(string: string,
                                  special: special,
-                                 communicator: (communicator as! CommunicatorI)._handle)
+                                 communicator: (communicator as! CommunicatorI).handle)
     }
 }
 

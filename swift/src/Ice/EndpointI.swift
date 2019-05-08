@@ -6,11 +6,11 @@ import IceObjc
 
 class EndpointI: LocalObject<ICEEndpoint>, Endpoint, CustomStringConvertible {
     func toString() -> String {
-        return _handle.toString()
+        return handle.toString()
     }
 
     func getInfo() -> EndpointInfo? {
-        return _handle.getInfo() as? EndpointInfo
+        return handle.getInfo() as? EndpointInfo
     }
 }
 
@@ -28,7 +28,7 @@ public func == (lhs: Endpoint?, rhs: Endpoint?) -> Bool {
     } else {
         let lhsI = lhs as! EndpointI
         let rhsI = rhs as! EndpointI
-        return lhsI._handle.isEqual(rhsI._handle)
+        return lhsI.handle.isEqual(rhsI.handle)
     }
 }
 
@@ -51,15 +51,15 @@ class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
     }
 
     func type() -> Int16 {
-        return underlying?.type() ?? _handle.getType()
+        return underlying?.type() ?? handle.getType()
     }
 
     func datagram() -> Bool {
-        return underlying?.datagram() ?? _handle.getDatagram()
+        return underlying?.datagram() ?? handle.getDatagram()
     }
 
     func secure() -> Bool {
-        return underlying?.secure() ?? _handle.getSecure()
+        return underlying?.secure() ?? handle.getSecure()
     }
 }
 
@@ -176,7 +176,7 @@ extension Array where Element == ICEEndpoint {
 extension Array where Element == Endpoint {
     func toObjc() -> [ICEEndpoint] {
         return map { endpt in
-            (endpt as! EndpointI)._handle
+            (endpt as! EndpointI).handle
         }
     }
 }
