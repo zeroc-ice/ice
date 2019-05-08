@@ -6,8 +6,6 @@
 
 #ifdef __cplusplus
 
-#define ICE_CPP11_MAPPING
-
 #include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
 
