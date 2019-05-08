@@ -110,6 +110,29 @@ class ThreadPoolDestroyedException
 {
 };
 
+#ifdef ICE_SWIFT
+string
+prefixToDispatchQueueLabel(const std::string& prefix)
+{
+    if(prefix == "Ice.ThreadPool.Client")
+    {
+        return "com.zeroc.ice.client";
+    }
+
+    if(prefix == "Ice.ThreadPool.Server")
+    {
+        return "com.zeroc.ice.server";
+    }
+
+    string::size_type end = prefix.find_last_of(".ThreadPool");
+    if(end == string::npos)
+    {
+        end = prefix.size();
+    }
+
+    return "com.zeroc.ice.oa." + prefix.substr(0, end);
+}
+#endif
 }
 
 Ice::DispatcherCall::~DispatcherCall()
@@ -246,7 +269,7 @@ IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
 #ifdef ICE_SWIFT
-    _dispatchQueue(dispatch_queue_create(("com.zeroc." + prefix).c_str(), DISPATCH_QUEUE_CONCURRENT)),
+    _dispatchQueue(dispatch_queue_create(prefixToDispatchQueueLabel(prefix).c_str(), DISPATCH_QUEUE_CONCURRENT)),
 #else
     _dispatcher(_instance->initializationData().dispatcher),
 #endif
