@@ -9,7 +9,7 @@ public protocol Blobject: Object {
 }
 
 public extension Blobject {
-    func iceDispatch(incoming inS: Incoming, current: Current) throws {
+    func _iceDispatch(incoming inS: Incoming, current: Current) throws {
         let inEncaps = try inS.readParamEncaps()
         let invokeResult = try ice_invoke(inEncaps: inEncaps, current: current)
         inS.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)

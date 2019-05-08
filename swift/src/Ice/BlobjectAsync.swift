@@ -10,7 +10,7 @@ public protocol BlobjectAsync: Object {
 }
 
 public extension BlobjectAsync {
-    func iceDispatch(incoming inS: Incoming, current: Current) throws {
+    func _iceDispatch(incoming inS: Incoming, current: Current) throws {
         let inEncaps = try inS.readParamEncaps()
         firstly {
             ice_invokeAsync(inEncaps: inEncaps, current: current)

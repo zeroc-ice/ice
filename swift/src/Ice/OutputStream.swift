@@ -355,7 +355,7 @@ public extension OutputStream {
     // Proxy
     //
     func write(_ v: ObjectPrx?) {
-        if let prxImpl = v as? _ObjectPrxI {
+        if let prxImpl = v as? ObjectPrxI {
             prxImpl.ice_write(to: self)
         } else {
             //

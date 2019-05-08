@@ -54,7 +54,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         return try autoreleasepool {
             let handle = try self.handle.createProxy(id.name, category: id.category)
             let communicator = handle.ice_getCommunicator().getCachedSwiftObject(CommunicatorI.self)
-            return _ObjectPrxI(handle: handle, communicator: communicator)
+            return ObjectPrxI(handle: handle, communicator: communicator)
         }
     }
 

@@ -136,24 +136,24 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try _ObjectPrxI(handle: handle.createProxy(name: id.name, category: id.category),
-                               communicator: communicator)
+        return try ObjectPrxI(handle: handle.createProxy(name: id.name, category: id.category),
+                              communicator: communicator)
     }
 
     func createDirectProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try _ObjectPrxI(handle: handle.createDirectProxy(name: id.name, category: id.category),
-                               communicator: communicator)
+        return try ObjectPrxI(handle: handle.createDirectProxy(name: id.name, category: id.category),
+                              communicator: communicator)
     }
 
     func createIndirectProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try _ObjectPrxI(handle: handle.createIndirectProxy(name: id.name, category: id.category),
-                               communicator: communicator)
+        return try ObjectPrxI(handle: handle.createIndirectProxy(name: id.name, category: id.category),
+                              communicator: communicator)
     }
 
     func setLocator(_ locator: LocatorPrx?) {
-        let l = locator as? _LocatorPrxI
+        let l = locator as? LocatorPrxI
         handle.setLocator(l?.handle ?? nil)
     }
 
@@ -161,7 +161,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
         guard let locatorHandle = handle.getLocator() else {
             return nil
         }
-        return _LocatorPrxI.fromICEObjectPrx(handle: locatorHandle)
+        return LocatorPrxI.fromICEObjectPrx(handle: locatorHandle)
     }
 
     func getEndpoints() -> EndpointSeq {

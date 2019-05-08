@@ -1929,7 +1929,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
 
     out << sp;
-    out << nl << "func iceD_" << opName;
+    out << nl << "func _iceD_" << opName;
     out << spar;
     out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
@@ -1992,7 +1992,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
 
     out << sp;
-    out << nl << "func iceD_" << op->name();
+    out << nl << "func _iceD_" << op->name();
     out << spar;
     out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));

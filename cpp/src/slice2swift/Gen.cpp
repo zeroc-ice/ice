@@ -982,7 +982,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     const string prx = name + "Prx";
-    const string prxI = "_" + name + "PrxI";
+    const string prxI = name + "PrxI";
 
     out << sp;
     out << nl << "public protocol " << prx << ":";
@@ -1005,7 +1005,16 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public class " << prxI << ": " << getUnqualified("Ice._ObjectPrxI", swiftModule) << ", " << prx;
+    out << nl;
+    if(swiftModule == "Ice")
+    {
+        out << "internal ";
+    }
+    else
+    {
+        out << "private ";
+    }
+    out << "final class " << prxI << ": " << getUnqualified("Ice.ObjectPrxI", swiftModule) << ", " << prx;
     out << sb;
 
     out << nl << "public override class func ice_staticId() -> Swift.String";
@@ -1497,7 +1506,7 @@ Gen::ObjectExtVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     out << sp;
     out << nl;
-    out << "func iceDispatch";
+    out << "func _iceDispatch";
     out << spar;
     out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
@@ -1513,7 +1522,7 @@ Gen::ObjectExtVisitor::visitClassDefEnd(const ClassDefPtr& p)
         const string opName = *q;
         out << nl << "case \"" << opName << "\":";
         out.inc();
-        out << nl << "try iceD_" << opName << "(incoming: inS, current: current)";
+        out << nl << "try _iceD_" << opName << "(incoming: inS, current: current)";
         out.dec();
     }
     out << nl << "default:";

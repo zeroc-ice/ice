@@ -673,11 +673,11 @@ public extension InputStream {
     //
     // Proxy
     //
-    func read<ProxyImpl>() throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
+    func read<ProxyImpl>() throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
         return try ProxyImpl.ice_read(from: self)
     }
 
-    func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
+    func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
         guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
         }
@@ -686,11 +686,11 @@ public extension InputStream {
     }
 
     func read(_: ObjectPrx.Protocol) throws -> ObjectPrx? {
-        return try read() as _ObjectPrxI?
+        return try read() as ObjectPrxI?
     }
 
     func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
-        return try read(tag: tag) as _ObjectPrxI?
+        return try read(tag: tag) as ObjectPrxI?
     }
 
     //

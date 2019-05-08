@@ -145,7 +145,7 @@ public final class Incoming {
         // Dispatch in the incoming call
         //
         do {
-            try s.iceDispatch(incoming: self, current: current)
+            try s._iceDispatch(incoming: self, current: current)
         } catch {
             exception(error)
         }

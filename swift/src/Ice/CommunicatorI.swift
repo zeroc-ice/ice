@@ -44,7 +44,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
             guard let prxHandle = try handle.stringToProxy(str: str) as? ICEObjectPrx else {
                 return nil
             }
-            return _ObjectPrxI(handle: prxHandle, communicator: self)
+            return ObjectPrxI(handle: prxHandle, communicator: self)
         }
     }
 
@@ -57,7 +57,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
             guard let handle = try handle.propertyToProxy(property: property) as? ICEObjectPrx else {
                 return nil
             }
-            return _ObjectPrxI(handle: handle, communicator: self)
+            return ObjectPrxI(handle: handle, communicator: self)
         }
     }
 
@@ -119,13 +119,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         guard let handle = handle.getDefaultRouter() else {
             return nil
         }
-        return _RouterPrxI.fromICEObjectPrx(handle: handle, communicator: self)
+        return RouterPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
     func setDefaultRouter(_ rtr: RouterPrx?) {
         do {
             try autoreleasepool {
-                try handle.setDefaultRouter((rtr as? _ObjectPrxI)?.handle)
+                try handle.setDefaultRouter((rtr as? ObjectPrxI)?.handle)
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -138,13 +138,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         guard let handle = handle.getDefaultLocator() else {
             return nil
         }
-        return _LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
+        return LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
     func setDefaultLocator(_ loc: LocatorPrx?) {
         do {
             try autoreleasepool {
-                try handle.setDefaultLocator((loc as? _ObjectPrxI)?.handle)
+                try handle.setDefaultLocator((loc as? ObjectPrxI)?.handle)
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -175,7 +175,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
                 (adapter as! ObjectAdapterI).servantManager.setAdminId(adminId)
             }
 
-            return _ObjectPrxI(handle: handle, communicator: self)
+            return ObjectPrxI(handle: handle, communicator: self)
         }
     }
 
@@ -185,7 +185,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
                 return nil
             }
 
-            return _ObjectPrxI(handle: handle, communicator: self)
+            return ObjectPrxI(handle: handle, communicator: self)
         }
     }
 

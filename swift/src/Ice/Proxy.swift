@@ -70,17 +70,17 @@ public func checkedCast(prx: Ice.ObjectPrx,
                         type _: ObjectPrx.Protocol,
                         facet: String? = nil,
                         context: Ice.Context? = nil) throws -> ObjectPrx? {
-    return try _ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as _ObjectPrxI?
+    return try ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as ObjectPrxI?
 }
 
 public func uncheckedCast(prx: Ice.ObjectPrx,
                           type _: ObjectPrx.Protocol,
                           facet: String? = nil) -> ObjectPrx {
-    return _ObjectPrxI.uncheckedCast(prx: prx, facet: facet) as _ObjectPrxI
+    return ObjectPrxI.uncheckedCast(prx: prx, facet: facet) as ObjectPrxI
 }
 
 public func ice_staticId(_: ObjectPrx.Protocol) -> Swift.String {
-    return _ObjectPrxI.ice_staticId()
+    return ObjectPrxI.ice_staticId()
 }
 
 public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
@@ -95,15 +95,15 @@ public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
     } else if lhs === nil || rhs === nil {
         return false
     } else {
-        let lhsI = lhs as! _ObjectPrxI
-        let rhsI = rhs as! _ObjectPrxI
+        let lhsI = lhs as! ObjectPrxI
+        let rhsI = rhs as! ObjectPrxI
         return lhsI.handle.isEqual(rhsI.handle)
     }
 }
 
 public extension ObjectPrx {
-    var _impl: _ObjectPrxI {
-        return self as! _ObjectPrxI
+    var _impl: ObjectPrxI {
+        return self as! ObjectPrxI
     }
 
     func ice_ping(context: Context? = nil) throws {
@@ -300,7 +300,11 @@ public extension ObjectPrx {
     }
 }
 
-open class _ObjectPrxI: ObjectPrx {
+//
+// ObjectPrxI, the base proxy implementation class is an Ice-internal class used in the
+// generated code - this is why we give it the open access level.
+//
+open class ObjectPrxI: ObjectPrx {
     internal let handle: ICEObjectPrx
     internal let communicator: Communicator
     internal let encoding: EncodingVersion
@@ -320,14 +324,14 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public required init(from prx: ObjectPrx) {
-        let impl = prx as! _ObjectPrxI
+        let impl = prx as! ObjectPrxI
         handle = impl.handle
         communicator = impl.communicator
         encoding = impl.encoding
         isTwoway = impl.isTwoway
     }
 
-    internal func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: _ObjectPrxI {
+    internal func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: ObjectPrxI {
         return ObjectPrxType(handle: h, communicator: communicator)
     }
 
@@ -360,7 +364,7 @@ open class _ObjectPrxI: ObjectPrx {
         precondition(!id.name.isEmpty, "Identity name cannot be empty")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category)) as _ObjectPrxI
+                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category)) as ObjectPrxI
             }
         } catch {
             fatalError("\(error)")
@@ -501,14 +505,14 @@ open class _ObjectPrxI: ObjectPrx {
         guard let routerHandle = handle.ice_getRouter() else {
             return nil
         }
-        return fromICEObjectPrx(routerHandle) as _RouterPrxI
+        return fromICEObjectPrx(routerHandle) as RouterPrxI
     }
 
     public func ice_router(_ router: RouterPrx?) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a router")
         do {
             return try autoreleasepool {
-                let r = router as? _ObjectPrxI
+                let r = router as? ObjectPrxI
                 return try fromICEObjectPrx(handle.ice_router(r?.handle ?? nil))
             }
         } catch {
@@ -520,14 +524,14 @@ open class _ObjectPrxI: ObjectPrx {
         guard let locatorHandle = handle.ice_getLocator() else {
             return nil
         }
-        return fromICEObjectPrx(locatorHandle) as _LocatorPrxI
+        return fromICEObjectPrx(locatorHandle) as LocatorPrxI
     }
 
     public func ice_locator(_ locator: LocatorPrx?) -> Self {
         precondition(!ice_isFixed(), "Cannot create a fixed proxy with a locator")
         do {
             return try autoreleasepool {
-                let l = locator as? _ObjectPrxI
+                let l = locator as? ObjectPrxI
                 return try fromICEObjectPrx(handle.ice_locator(l?.handle ?? nil))
             }
         } catch {
@@ -762,8 +766,8 @@ open class _ObjectPrxI: ObjectPrx {
                                                                       encoding: self.encoding,
                                                                       bytes: encaps)
                                                if ok == false {
-                                                   try _ObjectPrxI.throwUserException(istr: istr,
-                                                                                      userException: userException)
+                                                   try ObjectPrxI.throwUserException(istr: istr,
+                                                                                     userException: userException)
                                                }
                                                try istr.skipEmptyEncapsulation()
                                                seal.fulfill(())
@@ -813,8 +817,8 @@ open class _ObjectPrxI: ObjectPrx {
                                                                   encoding: self.encoding,
                                                                   bytes: encaps)
                                            if ok == false {
-                                               try _ObjectPrxI.throwUserException(istr: istr,
-                                                                                  userException: userException)
+                                               try ObjectPrxI.throwUserException(istr: istr,
+                                                                                 userException: userException)
                                            }
                                            try istr.startEncapsulation()
                                            let l = try read(istr)
@@ -862,8 +866,8 @@ open class _ObjectPrxI: ObjectPrx {
                                                                       encoding: self.encoding,
                                                                       bytes: encaps)
                                                if ok == false {
-                                                   try _ObjectPrxI.throwUserException(istr: istr,
-                                                                                      userException: userException)
+                                                   try ObjectPrxI.throwUserException(istr: istr,
+                                                                                     userException: userException)
                                                }
                                                try istr.skipEmptyEncapsulation()
                                                seal.fulfill(())
@@ -939,8 +943,8 @@ open class _ObjectPrxI: ObjectPrx {
                                                                   encoding: self.encoding,
                                                                   bytes: encaps)
                                            if ok == false {
-                                               try _ObjectPrxI.throwUserException(istr: istr,
-                                                                                  userException: userException)
+                                               try ObjectPrxI.throwUserException(istr: istr,
+                                                                                 userException: userException)
                                            }
                                            try istr.startEncapsulation()
                                            let l = try read(istr)
@@ -974,7 +978,7 @@ open class _ObjectPrxI: ObjectPrx {
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
                                               facet: String? = nil,
                                               context: Context? = nil) throws -> ProxyImpl?
-        where ProxyImpl: _ObjectPrxI {
+        where ProxyImpl: ObjectPrxI {
         do {
             let objPrx = facet != nil ? prx.ice_facet(facet!) : prx
 
@@ -989,7 +993,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public static func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
-                                                facet: String? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
+                                                facet: String? = nil) -> ProxyImpl where ProxyImpl: ObjectPrxI {
         if let f = facet {
             return ProxyImpl(from: prx.ice_facet(f))
         } else if let optimized = prx as? ProxyImpl {
