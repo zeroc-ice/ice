@@ -25,12 +25,14 @@ open class UserExceptionTypeResolver: NSObject {
 //
 public class ClassResolver: NSObject {
     private static func resolveImpl(typeId: String, prefix: String?) -> AnyObject? {
-        let start = typeId.index(typeId.startIndex, offsetBy: 2)
-        let selector = Selector((prefix ?? "") + typeId[start...].replacingOccurrences(of: "::", with: "_"))
-        guard ClassResolver.responds(to: selector) else {
-            return nil
+        return autoreleasepool {
+            let start = typeId.index(typeId.startIndex, offsetBy: 2)
+            let selector = Selector((prefix ?? "") + typeId[start...].replacingOccurrences(of: "::", with: "_"))
+            guard ClassResolver.responds(to: selector) else {
+                return nil
+            }
+            return ClassResolver.perform(selector).takeUnretainedValue()
         }
-        return ClassResolver.perform(selector).takeUnretainedValue()
     }
 
     static func resolve(typeId: String, prefix: String? = nil) -> Value.Type? {
@@ -50,17 +52,19 @@ public class ClassResolver: NSObject {
 
 public class TypeIdResolver: NSObject {
     static func resolve(compactId: Int32) -> String? {
-        let selector = Selector("TypeId_\(compactId)")
+        return autoreleasepool {
+            let selector = Selector("TypeId_\(compactId)")
 
-        guard TypeIdResolver.responds(to: selector) else {
-            return nil
+            guard TypeIdResolver.responds(to: selector) else {
+                return nil
+            }
+
+            let val = TypeIdResolver.perform(selector).takeUnretainedValue()
+
+            guard let typeId = val as? String else {
+                preconditionFailure("unexpected value type")
+            }
+            return typeId
         }
-
-        let val = TypeIdResolver.perform(selector).takeUnretainedValue()
-
-        guard let typeId = val as? String else {
-            preconditionFailure("unexpected value type")
-        }
-        return typeId
     }
 }
