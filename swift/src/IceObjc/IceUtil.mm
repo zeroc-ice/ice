@@ -181,13 +181,6 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return toNSString(Ice::identityToString(identity, static_cast<Ice::ToStringMode>(mode)));
 }
 
-+(void) currentEncoding:(UInt8*)major minor:(UInt8*)minor
-{
-    auto encoding = Ice::currentEncoding;
-    *major = encoding.major;
-    *minor = encoding.minor;
-}
-
 +(NSString*) encodingVersionToString:(UInt8)major minor:(UInt8)minor
 {
     Ice::EncodingVersion v {major, minor};

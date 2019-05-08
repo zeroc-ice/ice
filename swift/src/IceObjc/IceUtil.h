@@ -51,9 +51,6 @@ NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet
                                   mode:(uint8_t)mode
     NS_SWIFT_NAME(identityToString(name:category:mode:));
 
-+(void) currentEncoding:(UInt8*)major
-                  minor:(UInt8*)minor NS_SWIFT_NAME(currentEncoding(major:minor:));
-
 +(NSString*) encodingVersionToString:(UInt8)major
                                minor:(UInt8)minor NS_SWIFT_NAME(encodingVersionToString(major:minor:));
 

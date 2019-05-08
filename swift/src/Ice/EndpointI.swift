@@ -39,9 +39,9 @@ extension Endpoint where Self: CustomStringConvertible {
 }
 
 class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
-    public var underlying: EndpointInfo?
-    public var timeout: Int32
-    public var compress: Bool
+    var underlying: EndpointInfo?
+    var timeout: Int32
+    var compress: Bool
 
     init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool) {
         self.underlying = underlying
@@ -64,17 +64,17 @@ class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
 }
 
 class IPEndpointInfoI: EndpointInfoI, IPEndpointInfo {
-    public var host: String
-    public var port: Int32
-    public var sourceAddress: String
+    var host: String
+    var port: Int32
+    var sourceAddress: String
 
-    public init(handle: ICEEndpointInfo,
-                underlying: EndpointInfo?,
-                timeout: Int32,
-                compress: Bool,
-                host: String,
-                port: Int32,
-                sourceAddress: String) {
+    init(handle: ICEEndpointInfo,
+         underlying: EndpointInfo?,
+         timeout: Int32,
+         compress: Bool,
+         host: String,
+         port: Int32,
+         sourceAddress: String) {
         self.host = host
         self.port = port
         self.sourceAddress = sourceAddress
@@ -85,18 +85,18 @@ class IPEndpointInfoI: EndpointInfoI, IPEndpointInfo {
 class TCPEndpointInfoI: IPEndpointInfoI, TCPEndpointInfo {}
 
 class UDPEndpointInfoI: IPEndpointInfoI, UDPEndpointInfo {
-    public var mcastInterface: String
-    public var mcastTtl: Int32
+    var mcastInterface: String
+    var mcastTtl: Int32
 
-    public init(handle: ICEEndpointInfo,
-                underlying: EndpointInfo?,
-                timeout: Int32,
-                compress: Bool,
-                host: String,
-                port: Int32,
-                sourceAddress: String,
-                mcastInterface: String,
-                mcastTtl: Int32) {
+    init(handle: ICEEndpointInfo,
+         underlying: EndpointInfo?,
+         timeout: Int32,
+         compress: Bool,
+         host: String,
+         port: Int32,
+         sourceAddress: String,
+         mcastInterface: String,
+         mcastTtl: Int32) {
         self.mcastInterface = mcastInterface
         self.mcastTtl = mcastTtl
         super.init(handle: handle,
@@ -110,24 +110,24 @@ class UDPEndpointInfoI: IPEndpointInfoI, UDPEndpointInfo {
 }
 
 class WSEndpointInfoI: EndpointInfoI, WSEndpointInfo {
-    public var resource: String
+    var resource: String
 
-    public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool, resource: String) {
+    init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool, resource: String) {
         self.resource = resource
         super.init(handle: handle, underlying: underlying, timeout: timeout, compress: compress)
     }
 }
 
 class OpaqueEndpointInfoI: EndpointInfoI, OpaqueEndpointInfo {
-    public var rawEncoding: EncodingVersion
-    public var rawBytes: ByteSeq
+    var rawEncoding: EncodingVersion
+    var rawBytes: ByteSeq
 
-    public init(handle: ICEEndpointInfo,
-                underlying: EndpointInfo?,
-                timeout: Int32,
-                compress: Bool,
-                rawEncoding: EncodingVersion,
-                rawBytes: ByteSeq) {
+    init(handle: ICEEndpointInfo,
+         underlying: EndpointInfo?,
+         timeout: Int32,
+         compress: Bool,
+         rawEncoding: EncodingVersion,
+         rawBytes: ByteSeq) {
         self.rawEncoding = rawEncoding
         self.rawBytes = rawBytes
         super.init(handle: handle, underlying: underlying, timeout: timeout, compress: compress)
@@ -148,8 +148,8 @@ class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}
         var name: String
         var `protocol`: String
 
-        public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool,
-                    manufacturer: String, modelNumber: String, name: String, protocol: String) {
+        init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool,
+             manufacturer: String, modelNumber: String, name: String, protocol: String) {
             self.manufacturer = manufacturer
             self.modelNumber = modelNumber
             self.name = name

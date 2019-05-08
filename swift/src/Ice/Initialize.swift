@@ -156,11 +156,10 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
 public let intVersion: Int = 30702
 public let stringVersion: String = "3.7.2"
 
-public var currentEncoding: EncodingVersion {
-    var encoding = EncodingVersion()
-    ICEUtil.currentEncoding(major: &encoding.major, minor: &encoding.minor)
-    return encoding
-}
+public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
+public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
+
+public let currentEncoding = Encoding_1_1
 
 public func stringToIdentity(_ string: String) throws -> Identity {
     return try autoreleasepool {
@@ -178,6 +177,3 @@ public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Uni
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
     return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
 }
-
-public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
-public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)

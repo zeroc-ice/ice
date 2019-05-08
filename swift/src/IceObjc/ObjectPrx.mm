@@ -537,12 +537,12 @@
     }
 }
 
-+(id) iceRead:(NSData*)data
- communicator:(ICECommunicator*)communicator
-encodingMajor:(uint8_t)major
-encodingMinor:(uint8_t)minor
-    bytesRead:(NSInteger*)bytesRead
-        error:(NSError**)error
++(id) ice_read:(NSData*)data
+  communicator:(ICECommunicator*)communicator
+ encodingMajor:(uint8_t)major
+ encodingMinor:(uint8_t)minor
+     bytesRead:(NSInteger*)bytesRead
+         error:(NSError**)error
 {
 
     std::pair<const Ice::Byte*, const Ice::Byte*> p;
@@ -575,9 +575,9 @@ encodingMinor:(uint8_t)minor
     }
 }
 
--(void) iceWrite:(id<ICEOutputStreamHelper>)os
-   encodingMajor:(uint8_t)encodingMajor
-   encodingMinor:(uint8_t)encodingMinor
+-(void) ice_write:(id<ICEOutputStreamHelper>)os
+    encodingMajor:(uint8_t)encodingMajor
+    encodingMinor:(uint8_t)encodingMinor
 {
     //
     // Marshal a proxy into a stream and return the encoded bytes.
@@ -594,11 +594,11 @@ encodingMinor:(uint8_t)minor
     [os copy:bytes];
 }
 
--(BOOL) iceOnewayInvoke:(NSString*)op
-                   mode:(uint8_t)mode
-               inParams:(NSData*)inParams
-                context:(NSDictionary*)context
-                  error:(NSError**)error
+-(BOOL) onewayInvoke:(NSString*)op
+                mode:(uint8_t)mode
+            inParams:(NSData*)inParams
+             context:(NSDictionary*)context
+               error:(NSError**)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
     params.first = static_cast<const Ice::Byte*>(inParams.bytes);
@@ -624,14 +624,14 @@ encodingMinor:(uint8_t)minor
     }
 }
 
--(BOOL) iceInvokeAsync:(NSString* _Nonnull)op
-                  mode:(NSInteger)mode
-              inParams:(NSData*)inParams
-               context:(NSDictionary* _Nullable)context
-              response:(void (^)(bool, NSData*))response
-             exception:(void (^)(NSError*))exception
-                  sent:(void (^_Nullable)(bool))sent
-                 error:(NSError* _Nullable * _Nullable)error
+-(BOOL) invokeAsync:(NSString* _Nonnull)op
+               mode:(NSInteger)mode
+           inParams:(NSData*)inParams
+            context:(NSDictionary* _Nullable)context
+           response:(void (^)(bool, NSData*))response
+          exception:(void (^)(NSError*))exception
+               sent:(void (^_Nullable)(bool))sent
+              error:(NSError* _Nullable * _Nullable)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
     params.first = static_cast<const Ice::Byte*>(inParams.bytes);
