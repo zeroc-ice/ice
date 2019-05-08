@@ -95,21 +95,14 @@ private class SSLConnectionInfoI: ConnectionInfoI, SSLConnectionInfo {
             var raw = cert
             if raw.hasPrefix(beginPrefix) {
                 raw = String(raw.dropFirst(beginPrefix.count))
-                guard raw.hasSuffix(endPrefix) else {
-                    precondition(false, "Invalid PEM-encoded certificate")
-                }
                 raw = String(raw.dropLast(endPrefix.count))
             }
 
-            guard let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) else {
-                precondition(false, "Invalid PEM-encoded certificate")
+            if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
+                if let c = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
+                    self.certs.append(c)
+                }
             }
-
-            guard let c = SecCertificateCreateWithData(kCFAllocatorDefault, data) else {
-                precondition(false, "Invalid PEM-encoded certificate")
-            }
-
-            self.certs.append(c)
         }
         self.verified = verified
         super.init(underlying: underlying, incoming: incoming, adapterName: adapterName, connectionId: connectionId)
