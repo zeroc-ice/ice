@@ -79,8 +79,12 @@ desc "Generate Xcode projects required to build Ice for Swift"
 task :iceproj do
     project = Xcodeproj::Project.new("ice.xcodeproj")
 
+    slice_compilers_target = project.new_aggregate_target("SliceCompilers")
+    phase = slice_compilers_target.new_shell_script_build_phase("Build Slice Compilers")
+    phase.shell_script = "LDFLAGS=-L/usr/local/lib/ make -C $SRCROOT/../cpp slice2cpp slice2swift V=1"
+
     [:osx, :ios].each do |platform|
-        create_platform_targets(project, platform)
+        create_platform_targets(project, platform, slice_compilers_target)
     end
 
     attributes = project.root_object.attributes
@@ -101,7 +105,7 @@ end
 
 task :default => [:iceproj]
 
-def create_platform_targets(project, platform)
+def create_platform_targets(project, platform, slice_compilers_target)
 
     platform_name = platform == :osx ? "macOS" : "iOS"
 
@@ -156,6 +160,7 @@ def create_platform_targets(project, platform)
             end
             config.build_settings["CLANG_ENABLE_OBJC_ARC"] = "NO"
 
+            target.add_dependency(slice_compilers_target)
             if component == "Ice" then
                 ice_cpp_target = target
             else
@@ -178,6 +183,7 @@ def create_platform_targets(project, platform)
     ice_target.name = "Ice #{platform_name}"
 
     target = ice_target
+    target.add_dependency(slice_compilers_target)
     target.frameworks_build_phases.clear()
 
     group = project_group(project, "src/IceObjc")
