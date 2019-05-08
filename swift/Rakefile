@@ -151,6 +151,9 @@ def create_platform_targets(project, platform)
                 "ICE_STATIC_LIBS",
                 "ICE_SWIFT"
             ]
+            if config.name == "Release" then
+                config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] << "NDEBUG"
+            end
             config.build_settings["CLANG_ENABLE_OBJC_ARC"] = "NO"
 
             if component == "Ice" then
@@ -200,10 +203,14 @@ def create_platform_targets(project, platform)
             "-liconv"
         ]
         config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
-                "ICE_CPP11_MAPPING",
-                "ICE_STATIC_LIBS",
-                "ICE_SWIFT"
-            ]
+            "ICE_CPP11_MAPPING",
+            "ICE_STATIC_LIBS",
+            "ICE_SWIFT"
+        ]
+
+        if config.name == "Release" then
+            config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] << "NDEBUG"
+        end
     }
     target_set_framework_build_settings(target)
     target_add_carthage_framework(target, platform, "PromiseKit.framework")
