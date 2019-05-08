@@ -514,7 +514,7 @@ end
 def target_set_framework_build_settings(target)
     carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
     target.build_configurations.each { |config|
-        config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/Carthage/Build/#{carthage_prefix}"
+        config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/../Carthage/Build/#{carthage_prefix}"
     }
 end
 
