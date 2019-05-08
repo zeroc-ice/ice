@@ -521,7 +521,7 @@ end
 def target_add_carthage_framework(target, platform, framework, copy=false)
     group = target.project.frameworks_group[(platform == :osx ? "OS X" : "iOS")]
     carthage_prefix = (platform == :osx) ? "Mac" : "iOS"
-    group_add_files(group, "Carthage/Build/#{carthage_prefix}", [framework]).each do |ref|
+    group_add_files(group, "../Carthage/Build/#{carthage_prefix}", [framework]).each do |ref|
         target.frameworks_build_phases.add_file_reference(ref, true)
         if copy then
             file = target.copy_files_build_phases[0].add_file_reference(ref)
