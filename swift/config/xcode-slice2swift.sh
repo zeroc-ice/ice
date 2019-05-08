@@ -3,10 +3,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-if [ -f /usr/local/opt/ice/bin/slice2swift ]; then
+if [ -f "$ICE_HOME/cpp/bin/slice2swift" ]; then
+    SLICE2SWIFT="$ICE_HOME/cpp/bin/slice2swift"
+elif [ -f "$SRCROOT/../cpp/bin/slice2swift" ]; then
+    SLICE2SWIFT="$SRCROOT/../cpp/bin/slice2swift"
+elif [ -f /usr/local/bin/slice2swift ]; then
     SLICE2SWIFT=/usr/local/bin/slice2swift
 else
-    SLICE2SWIFT=$SRCROOT/../cpp/bin/slice2swift
+    echo "Failed to locate slice2swift compiler"
+    exit 1
 fi
 
 if [ -z "$1" ]; then

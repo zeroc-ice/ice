@@ -3,7 +3,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-SLICE2CPP=$SRCROOT/../cpp/bin/slice2cpp
+if [ -f "$ICE_HOME/cpp/bin/slice2cpp" ]; then
+    SLICE2CPP="$ICE_HOME/cpp/bin/slice2cpp"
+elif [ -f "$SRCROOT/../cpp/bin/slice2cpp" ]; then
+    SLICE2CPP="$SRCROOT/../cpp/bin/slice2cpp"
+elif [ -f /usr/local/bin/slice2cpp ]; then
+    SLICE2CPP=/usr/local/bin/slice2cpp
+else
+    echo "Failed to locate slice2cpp compiler"
+    exit 1
+fi
 
 BASENAME=$(basename -- "$INPUT_FILE_PATH")
 BASENAME="${BASENAME%.*}"
