@@ -96,7 +96,7 @@ class MyDerivedClassI: MyDerivedClass {
     func opMyClassAsync(p1: MyClassPrx?,
                         current: Current) -> Promise<(returnValue: MyClassPrx?, p2: MyClassPrx?, p3: MyClassPrx?)> {
         guard let adapter = current.adapter else {
-            precondition(false)
+            fatalError()
         }
         return Promise { seal in
             do {

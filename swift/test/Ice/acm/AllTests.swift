@@ -485,7 +485,7 @@ class SetACMTest: TestCase {
 
     override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy: TestIntfPrx) throws {
         guard let con = proxy.ice_getCachedConnection() else {
-            precondition(false)
+            fatalError()
         }
 
         var acm = con.getACM()

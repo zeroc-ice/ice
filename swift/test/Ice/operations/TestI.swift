@@ -108,7 +108,7 @@ class MyDerivedClassI: MyDerivedClass {
     func opMyClass(p1: MyClassPrx?,
                    current: Ice.Current) throws -> (returnValue: MyClassPrx?, p2: MyClassPrx?, p3: MyClassPrx?) {
         guard let adapter = current.adapter else {
-            precondition(false)
+            fatalError()
         }
         return (try uncheckedCast(prx: adapter.createProxy(current.id), type: MyClassPrx.self),
                 p1,

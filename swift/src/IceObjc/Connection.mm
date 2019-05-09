@@ -205,8 +205,6 @@
 
     if(heartbeat != nil)
     {
-        NSNumber* value = heartbeat;
-        assert(value != nullptr);
         opHeartbeat = Ice::ACMHeartbeat([heartbeat unsignedCharValue]);
     }
 

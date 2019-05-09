@@ -17,7 +17,7 @@ class MyDerivedClassI: MyDerivedClass {
 
     func shutdownAsync(current: Ice.Current) -> PromiseKit.Promise<Void> {
         guard let adapter = current.adapter else {
-            precondition(false)
+            fatalError()
         }
         adapter.getCommunicator().shutdown()
         return Promise.value(())

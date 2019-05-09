@@ -16,7 +16,7 @@ class MyDerivedClassI: MyDerivedClass {
 
     func shutdown(current: Ice.Current) throws {
         guard let adapter = current.adapter else {
-            precondition(false)
+            fatalError()
         }
         adapter.getCommunicator().shutdown()
     }
