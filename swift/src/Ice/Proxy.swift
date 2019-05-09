@@ -6,6 +6,7 @@ import Foundation
 import IceObjc
 import PromiseKit
 
+/// The base protocol for all Ice proxies.
 public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getCommunicator() -> Communicator
     func ice_getIdentity() -> Identity
@@ -102,16 +103,31 @@ public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
 }
 
 public extension ObjectPrx {
+    /// Returns the underdlying implementation object (Ice internal).
     var _impl: ObjectPrxI {
         return self as! ObjectPrxI
     }
 
+    /// Sends ping request to the target object.
+    ///
+    /// - Parameter context: Optional explicit `Context`.
+    /// - Throws: `Ice.LocalException` such as `Ice.ObjectNotExistException` and
+    ///           `Ice.ConnectionRefusedException`.
     func ice_ping(context: Context? = nil) throws {
         try _impl._invoke(operation: "ice_ping",
                           mode: OperationMode.Nonmutating,
                           context: context)
     }
 
+    /// Sends ping request to the target object asynchronously.
+    ///
+    /// - Parameters:
+    ///   - context: Optional explicit `Context`.
+    ///   - sent: Closure executed when the request is sent; the Bool
+    ///           parameter is true when the request was sent synchronously.
+    ///   - sentOn: Dispatch queue used to execute the `sent` closure.
+    ///   - sentFlags: Optional flags when dispatching the `sent` closure.
+    /// - Returns: A promise that is resolved when the request completes.
     func ice_pingAsync(context: Context? = nil,
                        sent: ((Bool) -> Void)? = nil,
                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
