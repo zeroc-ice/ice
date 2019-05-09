@@ -55,10 +55,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_timeout(_ timeout: Int32) -> Self
     func ice_fixed(_ connection: Connection) -> Self
     func ice_isFixed() -> Bool
-    func ice_getConnection() throws -> Connection?
-    func ice_getConnectionAsync() -> Promise<Ice.Connection?>
     func ice_getCachedConnection() -> Connection?
-    func ice_flushBatchRequests() throws
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
     func ice_collocationOptimized(_ collocated: Bool) -> Self
@@ -290,6 +287,34 @@ public extension ObjectPrx {
                                                  }
                 })
             }
+        }
+    }
+
+    func ice_getConnection() throws -> Connection? {
+        return try autoreleasepool {
+            //
+            // Returns Any which is either NSNull or ICEConnection
+            //
+            guard let handle = try _impl.handle.ice_getConnection() as? ICEConnection else {
+                return nil
+            }
+            return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
+        }
+    }
+
+    func ice_getConnectionAsync() -> Promise<Connection?> {
+        return Promise<Connection?> { seal in
+            self._impl.handle.ice_getConnectionAsync({ conn in
+                seal.fulfill(conn?.getSwiftObject(ConnectionI.self) {
+                    ConnectionI(handle: conn!)
+                })
+            }, exception: { ex in seal.reject(ex) })
+        }
+    }
+
+    func ice_flushBatchRequests() throws {
+        return try autoreleasepool {
+            try _impl.handle.ice_flushBatchRequests()
         }
     }
 
@@ -659,40 +684,11 @@ open class ObjectPrxI: ObjectPrx {
         return handle.ice_isFixed()
     }
 
-    public func ice_getConnection() throws -> Connection? {
-        return try autoreleasepool {
-            //
-            // Returns Any which is either NSNull or ICEConnection
-            //
-            guard let handle = try handle.ice_getConnection() as? ICEConnection else {
-                return nil
-            }
-            return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
-        }
-    }
-
-    public func ice_getConnectionAsync() -> Promise<Connection?> {
-        return Promise<Connection?> { seal in
-            handle.ice_getConnectionAsync({ conn in
-                seal.fulfill(conn?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: conn!) })
-            },
-                                          exception: { ex in
-                seal.reject(ex)
-            })
-        }
-    }
-
     public func ice_getCachedConnection() -> Connection? {
         guard let handle = handle.ice_getCachedConnection() else {
             return nil
         }
         return handle.getSwiftObject(ConnectionI.self) { ConnectionI(handle: handle) }
-    }
-
-    public func ice_flushBatchRequests() throws {
-        return try autoreleasepool {
-            try handle.ice_flushBatchRequests()
-        }
     }
 
     public func ice_write(to os: OutputStream) {
