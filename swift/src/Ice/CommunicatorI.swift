@@ -251,11 +251,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
 public extension Communicator {
     func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                 sent: ((Bool) -> Void)? = nil,
                                  sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+                                 sentFlags: DispatchWorkItemFlags? = nil,
+                                 sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! CommunicatorI
-        let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return Promise<Void> { seal in
             try autoreleasepool {
                 try impl.handle.flushBatchRequestsAsync(compress.rawValue,

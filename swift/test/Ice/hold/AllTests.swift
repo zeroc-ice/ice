@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
-import TestCommon
-import PromiseKit
 import Foundation
+import Ice
+import PromiseKit
+import TestCommon
 
 class Condition {
-
     var _lock = os_unfair_lock()
     var _value: Bool
 
@@ -24,7 +23,7 @@ class Condition {
 
     func value() -> Bool {
         return withLock(&_lock) {
-            return self._value
+            self._value
         }
     }
 }
@@ -52,19 +51,19 @@ func allTests(_ helper: TestHelper) throws {
     output.writeLine("ok")
 
     output.write("changing state between active and hold rapidly... ")
-    for _ in 0..<100 {
+    for _ in 0 ..< 100 {
         try hold.putOnHold(0)
     }
 
-    for _ in 0..<100 {
+    for _ in 0 ..< 100 {
         try holdOneway.putOnHold(0)
     }
 
-    for _ in 0..<100 {
+    for _ in 0 ..< 100 {
         try holdSerialized.putOnHold(0)
     }
 
-    for _ in 0..<100 {
+    for _ in 0 ..< 100 {
         try holdSerializedOneway.putOnHold(0)
     }
     output.writeLine("ok")
@@ -77,14 +76,12 @@ func allTests(_ helper: TestHelper) throws {
         var completed: Promise<Int32>!
         var sent: Promise<Bool>!
         while cond.value() {
-
             let expected = value
             sent = Promise<Bool> { seal in
                 completed = hold.setAsync(value: value + 1,
-                                          delay: Int32.random(in: 0..<5),
-                                          sent: {
-                                              seal.fulfill($0)
-                                          })
+                                          delay: Int32.random(in: 0 ..< 5)) {
+                    seal.fulfill($0)
+                }
             }
 
             _ = completed!.done { (v: Int32) throws -> Void in
@@ -98,14 +95,14 @@ func allTests(_ helper: TestHelper) throws {
                 _ = try sent.wait()
             }
 
-            if value > 100000 {
+            if value > 100_000 {
                 // Don't continue, it's possible that out-of-order dispatch doesn't occur
                 // after 100000 iterations and we don't want the test to last for too long
                 // when this occurs.
                 break
             }
         }
-        try test(value > 100000 || !cond.value())
+        try test(value > 100_000 || !cond.value())
         _ = try sent.wait()
     }
     output.writeLine("ok")
@@ -116,13 +113,12 @@ func allTests(_ helper: TestHelper) throws {
         var value: Int32 = 0
 
         var completed: Promise<Int32>?
-        while value < 3000 && cond.value() {
+        while value < 3000, cond.value() {
             let expected = value
             let sent = Promise<Bool> { seal in
-                completed = holdSerialized.setAsync(value: value + 1, delay: 0,
-                                          sent: {
-                                              seal.fulfill($0)
-                                          })
+                completed = holdSerialized.setAsync(value: value + 1, delay: 0) {
+                    seal.fulfill($0)
+                }
             }
 
             _ = completed!.done { (v: Int32) throws -> Void in
@@ -138,7 +134,7 @@ func allTests(_ helper: TestHelper) throws {
         _ = try completed!.wait()
         try test(cond.value())
 
-        for i in 0..<10000 {
+        for i in 0 ..< 10000 {
             try holdSerializedOneway.setOneway(value: value + 1, expected: value)
             value += 1
             if i % 100 == 0 {
@@ -153,7 +149,7 @@ func allTests(_ helper: TestHelper) throws {
         var value: Int32 = 0
         _ = try holdSerialized.set(value: value, delay: 0)
         var completed: Promise<Void>!
-        for i in 0..<10000 {
+        for i in 0 ..< 10000 {
             // Create a new proxy for each request
             completed = holdSerialized.ice_oneway().setOnewayAsync(value: value + 1, expected: value)
             value += 1
@@ -171,7 +167,7 @@ func allTests(_ helper: TestHelper) throws {
     do {
         try hold.waitForHold()
         try hold.waitForHold()
-        for i in 0..<1000 {
+        for i in 0 ..< 1000 {
             try holdOneway.ice_ping()
             if (i % 20) == 0 {
                 try hold.putOnHold(0)

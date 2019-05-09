@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -128,33 +128,33 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
     output.write("testing sent callback... ")
     _ = try Promise<Bool> { seal in
-        _ = p.ice_isAAsync(id: "", sent: { sentSynchronously in
-                                       seal.fulfill(sentSynchronously)
-                                   })
+        _ = p.ice_isAAsync(id: "") { sentSynchronously in
+            seal.fulfill(sentSynchronously)
+        }
     }.wait()
 
     _ = try Promise<Bool> { seal in
-        _ = p.ice_pingAsync(sent: { sentSynchronously in
-                                seal.fulfill(sentSynchronously)
-                            })
+        _ = p.ice_pingAsync { sentSynchronously in
+            seal.fulfill(sentSynchronously)
+        }
     }.wait()
 
     _ = try Promise<Bool> { seal in
-        _ = p.ice_idAsync(sent: { sentSynchronously in
-                              seal.fulfill(sentSynchronously)
-                          })
+        _ = p.ice_idAsync { sentSynchronously in
+            seal.fulfill(sentSynchronously)
+        }
     }.wait()
 
     _ = try Promise<Bool> { seal in
-        _ = p.ice_idsAsync(sent: { sentSynchronously in
-                               seal.fulfill(sentSynchronously)
-                           })
+        _ = p.ice_idsAsync { sentSynchronously in
+            seal.fulfill(sentSynchronously)
+        }
     }.wait()
 
     _ = try Promise<Bool> { seal in
-        _ = p.opAsync(sent: { sentSynchronously in
-                          seal.fulfill(sentSynchronously)
-                      })
+        _ = p.opAsync { sentSynchronously in
+            seal.fulfill(sentSynchronously)
+        }
     }.wait()
 
     let seq = ByteSeq(repeating: 0, count: 1024)
@@ -170,10 +170,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
         while true {
             cb = Promise<Bool> { seal in
-                _ = p.opWithPayloadAsync(seq,
-                                         sent: { sentSynchronously in
-                                             seal.fulfill(sentSynchronously)
-                                         })
+                _ = p.opWithPayloadAsync(seq) { sentSynchronously in
+                    seal.fulfill(sentSynchronously)
+                }
             }
             Thread.sleep(forTimeInterval: 0.01)
             cbs.append(cb)
@@ -192,10 +191,10 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
     output.write("testing batch requests with proxy... ")
     do {
         try test(Promise<Bool> { seal in
-                     _ = p.ice_batchOneway().ice_flushBatchRequestsAsync(sent: { sentSynchronously in
-                                                                             seal.fulfill(sentSynchronously)
-                                                                         })
-                 }.wait())
+            _ = p.ice_batchOneway().ice_flushBatchRequestsAsync { sentSynchronously in
+                seal.fulfill(sentSynchronously)
+            }
+        }.wait())
 
         do {
             try test(p.opBatchCount() == 0)
@@ -205,26 +204,25 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             try test(b1r.isFulfilled)
             var r: Promise<Void>!
             try Promise<Void> { seal in
-                r = b1.ice_flushBatchRequestsAsync(sent: { _ in
-                                                       seal.fulfill(())
-                                                   })
+                r = b1.ice_flushBatchRequestsAsync { _ in
+                    seal.fulfill(())
+                }
             }.wait()
             try test(r.isResolved)
             try test(p.waitForBatch(2))
         }
 
         if try p.ice_getConnection() != nil {
-
             try test(p.opBatchCount() == 0)
             let b1 = p.ice_batchOneway()
             try b1.opBatch()
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
 
             var r: Promise<Void>!
-            try Promise<Void> { seal  in
-                r = b1.ice_flushBatchRequestsAsync(sent: { _ in
-                                                       seal.fulfill(())
-                                                   })
+            try Promise<Void> { seal in
+                r = b1.ice_flushBatchRequestsAsync { _ in
+                    seal.fulfill(())
+                }
             }.wait()
             try test(r.isResolved)
 
@@ -244,10 +242,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
                 try b1.opBatch()
                 var r: Promise<Void>!
                 try Promise<Void> { seal in
-                    r = try b1.ice_getConnection()!.flushBatchRequestsAsync(.BasedOnProxy,
-                                                                            sent: { _ in
-                                                                                seal.fulfill(())
-                                                                            })
+                    r = try b1.ice_getConnection()!.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+                        seal.fulfill(())
+                    }
                 }.wait()
                 try r.wait()
                 try test(r.isResolved)
@@ -279,8 +276,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             try b1.opBatch()
             var r: Promise<Void>!
             try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy,
-                                                         sent: { _ in seal.fulfill(()) })
+                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in seal.fulfill(()) }
             }.wait()
             try r.wait()
             try test(r.isResolved)
@@ -298,10 +294,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
             var r: Promise<Void>!
             try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy,
-                                                         sent: { _ in
-                                                             seal.fulfill(())
-                                                         })
+                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+                    seal.fulfill(())
+                }
             }.wait()
             try test(r.isResolved)
             try test(p.opBatchCount() == 0)
@@ -327,10 +322,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
             var r: Promise<Void>!
             try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy,
-                                                         sent: { _ in
-                                                             seal.fulfill(())
-                                                         })
+                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+                    seal.fulfill(())
+                }
             }.wait()
             try test(r.isResolved)
             try test(p.waitForBatch(4))
@@ -357,10 +351,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
             var r: Promise<Void>!
             try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy,
-                                                         sent: { _ in
-                                                             seal.fulfill(())
-                                                         })
+                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+                    seal.fulfill(())
+                }
             }.wait()
             try test(r.isResolved)
             try test(p.waitForBatch(1))
@@ -387,10 +380,9 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             try b2.ice_getConnection()!.close(.GracefullyWithWait)
             var r: Promise<Void>!
             try Promise<Void> { seal in
-                r = communicator.flushBatchRequestsAsync(.BasedOnProxy,
-                                                         sent: { _ in
-                                                             seal.fulfill(())
-                                                         })
+                r = communicator.flushBatchRequestsAsync(.BasedOnProxy) { _ in
+                    seal.fulfill(())
+                }
             }.wait()
             try test(r.isResolved)
             try test(p.opBatchCount() == 0)
@@ -432,25 +424,24 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             //
             var maxQueue = 2
             var done = false
-            while !done && maxQueue < 50 {
+            while !done, maxQueue < 50 {
                 done = true
                 try p.ice_ping()
                 var results: [Promise<Void>] = []
-                for _ in 0..<maxQueue {
+                for _ in 0 ..< maxQueue {
                     results.append(p.opWithPayloadAsync(seq))
                 }
 
                 var cb = Promise<Bool> { seal in
-                    _ = p.closeAsync(.GracefullyWithWait, sent: {
+                    _ = p.closeAsync(.GracefullyWithWait) {
                         seal.fulfill($0)
-                    })
+                    }
                 }
 
                 if try !cb.isResolved || cb.wait() {
-                    for _ in 0..<maxQueue {
-
+                    for _ in 0 ..< maxQueue {
                         cb = Promise<Bool> { seal in
-                            results.append(p.opWithPayloadAsync(seq, sent: { seal.fulfill($0) }))
+                            results.append(p.opWithPayloadAsync(seq) { seal.fulfill($0) })
                         }
 
                         if try cb.isResolved && cb.wait() {
@@ -484,7 +475,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             var t: Promise<Void>!
 
             _ = try Promise<Bool> { seal in
-                t = p.startDispatchAsync(sent: { seal.fulfill($0) })
+                t = p.startDispatchAsync { seal.fulfill($0) }
             }.wait() // Ensure the request was sent before we close the connection.
             try con.close(.Gracefully)
 
@@ -504,8 +495,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
 
             let cb = Promise<Void> { seal in
                 try con.setCloseCallback { _ in
-                        seal.fulfill(())
-                    }
+                    seal.fulfill(())
+                }
             }
             t = p.sleepAsync(100)
             try p.close(.Gracefully) // Close is delayed until sleep completes.
@@ -524,7 +515,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             let con = try p.ice_getConnection()!
             var t: Promise<Void>!
             _ = try Promise<Bool> { seal in
-                t = p.startDispatchAsync(sent: { seal.fulfill($0)})
+                t = p.startDispatchAsync { seal.fulfill($0) }
             }.wait() // Ensure the request was sent before we close the connection.
             try con.close(.Forcefully)
             do {

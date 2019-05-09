@@ -1772,9 +1772,9 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
               << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
             out << s.str();
         }
-        out << "sent: ((Swift.Bool) -> Swift.Void)?";
         out << "sentOn: Dispatch.DispatchQueue?";
         out << "sentFlags: Dispatch.DispatchWorkItemFlags?";
+        out << "sent: ((Swift.Bool) -> Swift.Void)?";
         out << epar;
 
         out << " -> ";

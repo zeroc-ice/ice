@@ -23,9 +23,9 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     return (major, minor)
 }
 
-func createSentCallback(sent: ((Bool) -> Void)?,
-                        sentOn: DispatchQueue?,
-                        sentFlags: DispatchWorkItemFlags? = nil) -> ((Bool) -> Void)? {
+func createSentCallback(sentOn: DispatchQueue?,
+                        sentFlags: DispatchWorkItemFlags?,
+                        sent: ((Bool) -> Void)?) -> ((Bool) -> Void)? {
     guard let s = sent, let q = sentOn else {
         //
         // This is either a nil sent callback or a sent callback that is dispatch

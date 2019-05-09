@@ -3,19 +3,18 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) throws {
-
     let p = uncheckedCast(prx: proxy.ice_oneway(), type: MyClassPrx.self)
 
     do {
         let group = DispatchGroup()
         group.enter()
-        _ = p.ice_pingAsync(sent: { _ in
+        _ = p.ice_pingAsync { _ in
             group.leave()
-        })
+        }
         group.wait()
     }
 
@@ -38,33 +37,33 @@ func onewaysAMI(_ helper: TestHelper, _ proxy: MyClassPrx) throws {
     do {
         let group = DispatchGroup()
         group.enter()
-        _ = p.opVoidAsync(sent: { _ in
+        _ = p.opVoidAsync { _ in
             group.leave()
-        })
+        }
         group.wait()
     }
 
     do {
         let group = DispatchGroup()
         group.enter()
-        _ = p.opIdempotentAsync(sent: { _ in
+        _ = p.opIdempotentAsync { _ in
             group.leave()
-        })
+        }
         group.wait()
     }
 
     do {
         let group = DispatchGroup()
         group.enter()
-        _ = p.opNonmutatingAsync(sent: { _ in
+        _ = p.opNonmutatingAsync { _ in
             group.leave()
-        })
+        }
         group.wait()
     }
 
     do {
         try firstly {
-            p.opByteAsync(p1: 0xff, p2: 0x0f)
+            p.opByteAsync(p1: 0xFF, p2: 0x0F)
         }.done { _ in
             try helper.test(false)
         }.wait()

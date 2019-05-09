@@ -1853,9 +1853,9 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
         }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
-    out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
     out << "sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.return";
     out << "sentFlags: Dispatch.DispatchWorkItemFlags? = nil";
+    out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
 
     out << epar;
     out << " -> PromiseKit.Promise<";
@@ -1909,9 +1909,9 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     }
 
     out << nl << "context: context,";
-    out << nl << "sent: sent,";
     out << nl << "sentOn: sentOn,";
-    out << nl << "sentFlags: sentFlags)";
+    out << nl << "sentFlags: sentFlags,";
+    out << nl << "sent: sent)";
     out.restoreIndent();
 
     out << eb;

@@ -7,11 +7,11 @@ import PromiseKit
 
 public extension Connection {
     func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                 sent: ((Bool) -> Void)? = nil,
                                  sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                 sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+                                 sentFlags: DispatchWorkItemFlags? = nil,
+                                 sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI
-        let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return Promise<Void> { seal in
             try autoreleasepool {
                 try impl.handle.flushBatchRequestsAsync(compress.rawValue,
@@ -26,15 +26,16 @@ public extension Connection {
         }
     }
 
-    func heartbeatAsync(sent: ((Bool) -> Void)? = nil,
-                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                        sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+    func heartbeatAsync(sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                        sentFlags: DispatchWorkItemFlags? = nil,
+                        sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI
         return Promise<Void> { seal in
             try autoreleasepool {
                 try impl.handle.heartbeatAsync(exception: { error in seal.reject(error) },
-                                               sent: createSentCallback(sent: sent, sentOn: sentOn,
-                                                                        sentFlags: sentFlags))
+                                               sent: createSentCallback(sentOn: sentOn,
+                                                                        sentFlags: sentFlags,
+                                                                        sent: sent))
             }
         }
     }

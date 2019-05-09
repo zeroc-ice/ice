@@ -59,9 +59,6 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getConnectionAsync() -> Promise<Ice.Connection?>
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
-    func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)?,
-                                     sentOn: DispatchQueue?,
-                                     sentFlags: DispatchWorkItemFlags?) -> Promise<Void>
     func ice_toString() -> String
     func ice_isCollocationOptimized() -> Bool
     func ice_collocationOptimized(_ collocated: Bool) -> Self
@@ -123,21 +120,21 @@ public extension ObjectPrx {
     ///
     /// - Parameters:
     ///   - context: Optional explicit `Context`.
-    ///   - sent: Closure executed when the request is sent; the Bool
-    ///           parameter is true when the request was sent synchronously.
     ///   - sentOn: Dispatch queue used to execute the `sent` closure.
     ///   - sentFlags: Optional flags when dispatching the `sent` closure.
+    ///   - sent: Closure executed when the request is sent; the Bool
+    ///           parameter is true when the request was sent synchronously.
     /// - Returns: A promise that is resolved when the request completes.
     func ice_pingAsync(context: Context? = nil,
-                       sent: ((Bool) -> Void)? = nil,
                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                       sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+                       sentFlags: DispatchWorkItemFlags? = nil,
+                       sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         return _impl._invokeAsync(operation: "ice_ping",
                                   mode: .Nonmutating,
                                   context: context,
-                                  sent: sent,
                                   sentOn: sentOn,
-                                  sentFlags: sentFlags)
+                                  sentFlags: sentFlags,
+                                  sent: sent)
     }
 
     func ice_isA(id: String, context: Context? = nil) throws -> Bool {
@@ -151,9 +148,9 @@ public extension ObjectPrx {
     }
 
     func ice_isAAsync(id: String, context: Context? = nil,
-                      sent: ((Bool) -> Void)? = nil,
                       sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                      sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Bool> {
+                      sentFlags: DispatchWorkItemFlags? = nil,
+                      sent: ((Bool) -> Void)? = nil) -> Promise<Bool> {
         return _impl._invokeAsync(operation: "ice_isA",
                                   mode: .Nonmutating,
                                   write: { ostr in
@@ -161,9 +158,9 @@ public extension ObjectPrx {
                                   },
                                   read: { istr in try istr.read() as Bool },
                                   context: context,
-                                  sent: sent,
                                   sentOn: sentOn,
-                                  sentFlags: sentFlags)
+                                  sentFlags: sentFlags,
+                                  sent: sent)
     }
 
     func ice_id(context: Context? = nil) throws -> String {
@@ -174,16 +171,16 @@ public extension ObjectPrx {
     }
 
     func ice_idAsync(context: Context? = nil,
-                     sent: ((Bool) -> Void)? = nil,
                      sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                     sentFlags: DispatchWorkItemFlags? = nil) -> Promise<String> {
+                     sentFlags: DispatchWorkItemFlags? = nil,
+                     sent: ((Bool) -> Void)? = nil) -> Promise<String> {
         return _impl._invokeAsync(operation: "ice_id",
                                   mode: .Nonmutating,
                                   read: { istr in try istr.read() as String },
                                   context: context,
-                                  sent: sent,
                                   sentOn: sentOn,
-                                  sentFlags: sentFlags)
+                                  sentFlags: sentFlags,
+                                  sent: sent)
     }
 
     func ice_ids(context: Context? = nil) throws -> StringSeq {
@@ -194,16 +191,16 @@ public extension ObjectPrx {
     }
 
     func ice_idsAsync(context: Context? = nil,
-                      sent: ((Bool) -> Void)? = nil,
                       sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                      sentFlags: DispatchWorkItemFlags? = nil) -> Promise<StringSeq> {
+                      sentFlags: DispatchWorkItemFlags? = nil,
+                      sent: ((Bool) -> Void)? = nil) -> Promise<StringSeq> {
         return _impl._invokeAsync(operation: "ice_ids",
                                   mode: .Nonmutating,
                                   read: { istr in try istr.read() as StringSeq },
                                   context: context,
-                                  sent: sent,
                                   sentOn: sentOn,
-                                  sentFlags: sentFlags)
+                                  sentFlags: sentFlags,
+                                  sent: sent)
     }
 
     func ice_invoke(operation: String,
@@ -246,9 +243,9 @@ public extension ObjectPrx {
                          mode: OperationMode,
                          inEncaps: Data,
                          context: Context? = nil,
-                         sent: ((Bool) -> Void)? = nil,
                          sentOn: DispatchQueue? = nil,
-                         sentFlags: DispatchWorkItemFlags? = nil) -> Promise<(ok: Bool, outEncaps: Data)> {
+                         sentFlags: DispatchWorkItemFlags? = nil,
+                         sent: ((Bool) -> Void)? = nil) -> Promise<(ok: Bool, outEncaps: Data)> {
         if _impl.isTwoway {
             return Promise<(ok: Bool, outEncaps: Data)> { seal in
                 try _impl.handle.invokeAsync(operation,
@@ -269,12 +266,12 @@ public extension ObjectPrx {
                                              exception: { error in
                                                  seal.reject(error)
                                              },
-                                             sent: createSentCallback(sent: sent,
-                                                                      sentOn: sentOn,
-                                                                      sentFlags: sentFlags))
+                                             sent: createSentCallback(sentOn: sentOn,
+                                                                      sentFlags: sentFlags,
+                                                                      sent: sent))
             }
         } else {
-            let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+            let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
             return Promise<(ok: Bool, outEncaps: Data)> { seal in
                 try _impl.handle.invokeAsync(operation,
                                              mode: Int(mode.rawValue),
@@ -296,10 +293,10 @@ public extension ObjectPrx {
         }
     }
 
-    func ice_flushBatchRequestsAsync(sent: ((Bool) -> Void)? = nil,
-                                     sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                     sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
-        let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+    func ice_flushBatchRequestsAsync(sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                     sentFlags: DispatchWorkItemFlags? = nil.self,
+                                     sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
+        let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return Promise<Void> { seal in
             try _impl.handle.ice_flushBatchRequestsAsync(
                 exception: {
@@ -858,9 +855,9 @@ open class ObjectPrxI: ObjectPrx {
                              write: ((OutputStream) -> Void)? = nil,
                              userException: ((UserException) throws -> Void)? = nil,
                              context: Context? = nil,
-                             sent: ((Bool) -> Void)? = nil,
                              sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                             sentFlags: DispatchWorkItemFlags? = nil) -> Promise<Void> {
+                             sentFlags: DispatchWorkItemFlags? = nil,
+                             sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         if userException != nil, !isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
@@ -894,7 +891,7 @@ open class ObjectPrxI: ObjectPrx {
                                        exception: { error in
                                            seal.reject(error)
                                        },
-                                       sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                                       sent: createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent))
             }
         } else {
             if ice_isBatchOneway() || ice_isBatchDatagram() {
@@ -907,7 +904,7 @@ open class ObjectPrxI: ObjectPrx {
                 }
             } else {
                 return Promise<Void> { seal in
-                    let sentCB = createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags)
+                    let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
                     try handle.invokeAsync(operation,
                                            mode: Int(mode.rawValue),
                                            inParams: ostr.finished(),
@@ -936,9 +933,9 @@ open class ObjectPrxI: ObjectPrx {
                                 read: @escaping (InputStream) throws -> T,
                                 userException: ((UserException) throws -> Void)? = nil,
                                 context: Context? = nil,
-                                sent: ((Bool) -> Void)? = nil,
                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
-                                sentFlags: DispatchWorkItemFlags? = nil) -> Promise<T> {
+                                sentFlags: DispatchWorkItemFlags? = nil,
+                                sent: ((Bool) -> Void)? = nil) -> Promise<T> {
         if !isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
@@ -973,7 +970,7 @@ open class ObjectPrxI: ObjectPrx {
                                    exception: { error in
                                        seal.reject(error)
                                    },
-                                   sent: createSentCallback(sent: sent, sentOn: sentOn, sentFlags: sentFlags))
+                                   sent: createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent))
         }
     }
 
