@@ -45,6 +45,10 @@ public:
     Optional(IceUtilInternal::NoneType) : _isSet(false)
     {
     }
+    
+    Optional(const Optional<T>& r) : _value(r._value), _isSet(r._isSet)
+    {
+    }
 
     /**
      * Constructs an optional with the given value.
