@@ -46,7 +46,11 @@ public:
     {
     }
     
-    Optional(const Optional<T>& r) : _value(r._value), _isSet(r._isSet)
+    /**
+     * Constructs an optional as a copy of the given optional.
+     * @param r The source optional.
+     */
+    Optional(const Optional& r) : _value(r._value), _isSet(r._isSet)
     {
     }
 
