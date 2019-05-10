@@ -491,9 +491,8 @@
     }
 }
 
--(BOOL) ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
+-(void) ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
                                sent:(void (^_Nullable)(bool))sent
-                              error:(NSError**)error
 {
     try
     {
@@ -508,12 +507,13 @@
                                                    sent(sentSynchronously);
                                                }
                                            });
-        return YES;
     }
     catch(const std::exception& ex)
     {
-        *error = convertException(ex);
-        return NO;
+        // Typically CommunicatorNotExistException. Note that the callback is called on the
+        // thread making the invocation, which is fine since we only use it to fulfill the
+        // PromiseKit promise.
+        exception(convertException(ex));
     }
 }
 
@@ -624,14 +624,13 @@
     }
 }
 
--(BOOL) invokeAsync:(NSString* _Nonnull)op
+-(void) invokeAsync:(NSString* _Nonnull)op
                mode:(NSInteger)mode
            inParams:(NSData*)inParams
             context:(NSDictionary* _Nullable)context
            response:(void (^)(bool, NSData*))response
           exception:(void (^)(NSError*))exception
                sent:(void (^_Nullable)(bool))sent
-              error:(NSError* _Nullable * _Nullable)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
     params.first = static_cast<const Ice::Byte*>(inParams.bytes);
@@ -668,13 +667,13 @@
                                                 }
                                             },
                               context ? ctx : Ice::noExplicitContext);
-
-        return YES;
     }
     catch(const std::exception& ex)
     {
-        *error = convertException(ex);
-        return NO;
+        // Typically CommunicatorNotExistException. Note that the callback is called on the
+        // thread making the invocation, which is fine since we only use it to fulfill the
+        // PromiseKit promise.
+        exception(convertException(ex));
     }
 }
 

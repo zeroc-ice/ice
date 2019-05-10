@@ -31,10 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable ICEObjectPrx*) getDefaultLocator;
 -(BOOL) setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError* _Nullable * _Nullable)error;
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable * _Nullable)error;
--(BOOL) flushBatchRequestsAsync:(uint8_t)compress
+-(void) flushBatchRequestsAsync:(uint8_t)compress
                       exception:(void (^)(NSError*))exception
-                           sent:(void (^_Nullable)(bool))sent
-                          error:(NSError**)error;
+                           sent:(void (^_Nullable)(bool))sent;
 -(nullable ICEObjectPrx*) createAdmin:(ICEObjectAdapter* _Nullable)adminAdapter
                                  name:(NSString*)name
                              category:(NSString*)category

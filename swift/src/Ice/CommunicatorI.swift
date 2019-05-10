@@ -257,16 +257,14 @@ public extension Communicator {
         let impl = self as! CommunicatorI
         let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return Promise<Void> { seal in
-            try autoreleasepool {
-                try impl.handle.flushBatchRequestsAsync(compress.rawValue,
-                                                        exception: { seal.reject($0) },
-                                                        sent: {
-                                                            seal.fulfill(())
-                                                            if let sentCB = sentCB {
-                                                                sentCB($0)
-                                                            }
-                })
-            }
+            impl.handle.flushBatchRequestsAsync(compress.rawValue,
+                                                exception: { seal.reject($0) },
+                                                sent: {
+                                                    seal.fulfill(())
+                                                    if let sentCB = sentCB {
+                                                        sentCB($0)
+                                                    }
+            })
         }
     }
 

@@ -76,9 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
                      exception:(void (^)(NSError*))exception;
 -(nullable ICEConnection*) ice_getCachedConnection;
 -(BOOL) ice_flushBatchRequests:(NSError* _Nullable * _Nullable)error;
--(BOOL) ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
+-(void) ice_flushBatchRequestsAsync:(void (^)(NSError*))exception
                                sent:(void (^_Nullable)(bool))sent
-                              error:(NSError**)error
     NS_SWIFT_NAME(ice_flushBatchRequestsAsync(exception:sent:));
 -(bool) ice_isCollocationOptimized;
 -(nullable instancetype) ice_collocationOptimized:(bool)collocated
@@ -103,14 +102,13 @@ NS_ASSUME_NONNULL_BEGIN
              context:(NSDictionary* _Nullable)context
                error:(NSError* _Nullable * _Nullable)error;
 
--(BOOL) invokeAsync:(NSString* _Nonnull)op
+-(void) invokeAsync:(NSString* _Nonnull)op
                mode:(NSInteger)mode
            inParams:(NSData*)inParams
             context:(NSDictionary* _Nullable)context
            response:(void (^)(bool, NSData*))response
           exception:(void (^)(NSError*))exception
-               sent:(void (^_Nullable)(bool))sent
-              error:(NSError* _Nullable * _Nullable)error;
+               sent:(void (^_Nullable)(bool))sent;
 
 -(bool) isEqual:(ICEObjectPrx* _Nullable)prx;
 
