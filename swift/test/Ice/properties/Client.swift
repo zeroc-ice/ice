@@ -7,30 +7,41 @@ import TestCommon
 
 public class Client: TestHelperI {
     public override func run(args _: [String]) throws {
-        let writer = getWriter()
+        let output = getWriter()
+
+        output.write("testing load properties exception... ")
         do {
-            writer.write("testing load properties from UTF-8 path... ")
+            let properties = Ice.createProperties()
+            try properties.load("./config/xxxx.config")
+            try test(false)
+        } catch is FileException {
+            // Expected when try to load a non existing config file
+        }
+        output.writeLine("ok")
+
+        do {
+            output.write("testing load properties from UTF-8 path... ")
             let properties = Ice.createProperties()
             try properties.load("./config/中国_client.config")
             try test(properties.getProperty("Ice.Trace.Network") == "1")
             try test(properties.getProperty("Ice.Trace.Protocol") == "1")
             try test(properties.getProperty("Config.Path") == "./config/中国_client.config")
             try test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
-            writer.writeLine("ok")
+            output.writeLine("ok")
         }
 
         do {
-            writer.write("testing using Ice.Config with multiple config files... ")
+            output.write("testing using Ice.Config with multiple config files... ")
             let args1 = ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
             let properties = try Ice.createProperties(args1)
             try test(properties.getProperty("Config1") == "Config1")
             try test(properties.getProperty("Config2") == "Config2")
             try test(properties.getProperty("Config3") == "Config3")
-            writer.writeLine("ok")
+            output.writeLine("ok")
         }
 
         do {
-            writer.write("testing configuration file escapes... ")
+            output.write("testing configuration file escapes... ")
             let args1 = ["--Ice.Config=config/escapes.cfg"]
             let properties = try Ice.createProperties(args1)
 
@@ -59,11 +70,11 @@ public class Client: TestHelperI {
             for prop in props {
                 try test(properties.getProperty(prop.0) == prop.1)
             }
-            writer.writeLine("ok")
+            output.writeLine("ok")
         }
 
         do {
-            writer.write("testing arg parsing...")
+            output.write("testing arg parsing...")
             var args1 = ["--Foo=1", "--Ice.Default.Timeout=12345", "-T", "--Bar=2"]
             let properties1 = try Ice.createProperties(args1)
             var properties2 = try Ice.createProperties(&args1)
@@ -82,7 +93,7 @@ public class Client: TestHelperI {
             }
             try test(communicator.getProperties().getPropertyAsInt("Ice.Default.Timeout") == 12345)
             try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
-            writer.writeLine("ok")
+            output.writeLine("ok")
         }
     }
 }
