@@ -510,7 +510,7 @@
     }
     catch(const std::exception& ex)
     {
-        // Typically CommunicatorNotExistException. Note that the callback is called on the
+        // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
         exception(convertException(ex));
@@ -644,9 +644,6 @@
             fromNSDictionary(context, ctx);
         }
 
-        //
-        // It is possible to throw a CommunicatorDestroyedException
-        //
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                                             [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                                             {
@@ -670,7 +667,7 @@
     }
     catch(const std::exception& ex)
     {
-        // Typically CommunicatorNotExistException. Note that the callback is called on the
+        // Typically CommunicatorDestroyedException. Note that the callback is called on the
         // thread making the invocation, which is fine since we only use it to fulfill the
         // PromiseKit promise.
         exception(convertException(ex));
