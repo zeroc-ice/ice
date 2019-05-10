@@ -4,8 +4,15 @@
 
 import IceObjc
 
-// Factories are registed once, when this file is loaded
-private let initialized: Bool = {
+//
+// Factories are registered once when `factoriesRegistered' is lazzy initialized,
+// all Swift global variables are lazzy initialized.
+//
+// All code paths that require the use of the factories before `initialize' is call
+// should check `factoriesRegistered' to ensure lazzy initinialization occurrs before
+// the factories are used.
+//
+internal let factoriesRegistered: Bool = {
     ICEUtil.registerFactories(exception: ExceptionFactory.self,
                               connectionInfo: ConnectionInfoFactory.self,
                               endpointInfo: EndpointInfoFactory.self,
@@ -52,7 +59,7 @@ private func initializeImpl(args: [String],
                             initData userInitData: InitializationData,
                             withConfigFile: Bool) throws -> (Communicator, [String]) {
     // Ensure factories are initialized
-    guard initialized else {
+    guard factoriesRegistered else {
         fatalError("Unable to initialie Ice")
     }
 
@@ -128,10 +135,16 @@ private func initializeImpl(args: [String],
 }
 
 public func createProperties() -> Properties {
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
     return PropertiesI(handle: ICEUtil.createProperties())
 }
 
 public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
     return try autoreleasepool {
         let propertiesHandle = try ICEUtil.createProperties(args,
                                                             defaults: (defaults as? PropertiesI)?.handle,
@@ -141,6 +154,9 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
 }
 
 public func createProperties(_ args: inout [String], defaults: Properties? = nil) throws -> Properties {
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
     return try autoreleasepool {
         var remArgs: NSArray?
         let propertiesHandle = try ICEUtil.createProperties(args,
@@ -162,6 +178,9 @@ public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
 public let currentEncoding = Encoding_1_1
 
 public func stringToIdentity(_ string: String) throws -> Identity {
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
     return try autoreleasepool {
         var name = NSString()
         var category = NSString()

@@ -53,6 +53,9 @@ func createSentCallback(sentOn: DispatchQueue?,
 }
 
 func escapeString(string: String, special: String, communicator: Communicator) throws -> String {
+    guard factoriesRegistered else {
+        fatalError("Unable to initialie Ice")
+    }
     return try autoreleasepool {
         try ICEUtil.escapeString(string: string,
                                  special: special,
