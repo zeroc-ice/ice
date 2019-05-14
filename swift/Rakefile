@@ -429,6 +429,7 @@ def create_platform_targets(project, platform)
     #
     scheme = Xcodeproj::XCScheme.new
     scheme.add_build_target(ice_target)
+    scheme.add_build_target(glacier2_target)
     scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
 end
 

@@ -14,9 +14,23 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "253C2989EAF9D450752E5398"
+               BlueprintIdentifier = "2F083B98B006ECC149461D2D"
                BuildableName = "Ice.framework"
                BlueprintName = "Ice iOS"
+               ReferencedContainer = "container:ice.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForAnalyzing = "YES"
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A5A5303B45C1C0A36E3246D4"
+               BuildableName = "Glacier2.framework"
+               BlueprintName = "Glacier2 iOS"
                ReferencedContainer = "container:ice.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
