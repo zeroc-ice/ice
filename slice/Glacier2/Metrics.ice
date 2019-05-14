@@ -24,7 +24,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX"]
+["objc:prefix:ICEMX", "swift:module:Glacier2:MX"]
 module IceMX
 {
 

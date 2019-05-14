@@ -242,6 +242,35 @@ def create_platform_targets(project, platform)
     target_add_swiftlint_build_phase(target, "src/Ice")
 
     #
+    # Glacier2 for Swift Framework
+    #
+    glacier2_target = project.new_target(:framework, "Glacier2", platform)
+    glacier2_target.name = "Glacier2 #{platform_name}"
+
+    target = glacier2_target
+    target.frameworks_build_phases.clear()
+
+    target_set_common_build_settings(target, "Glacier2", plist: "src/Glacier2/Info.plist", swift: true)
+
+
+    target.build_configurations.each { |config|
+        config.build_settings["DEFINES_MODULE"] = "YES"
+    }
+    target_set_framework_build_settings(target)
+    target_add_carthage_framework(target, platform, "PromiseKit.framework")
+
+    group = project_group(project, "src/Glacier2")
+    group_add_files(group, "src/Glacier2", ["*.plist"])
+    target_add_headers(target, group, "src/Glacier2", ["*.h"])
+    target_add_files(target, group, "src/Glacier2", ["*.swift"])
+
+    group = project_group(project, "slice/Glacier2")
+    target_add_files(target, group, "../slice/Glacier2", ["*.ice"])
+    target_add_slice2swift_build_rule(project, target, "Glacier2")
+
+    target.frameworks_build_phases.add_file_reference(ice_target.product_reference)
+
+    #
     # TestCommon framework
     #
     target = project.new_target(:framework, "TestCommon", platform)
