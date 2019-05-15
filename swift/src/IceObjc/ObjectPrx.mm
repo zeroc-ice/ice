@@ -594,6 +594,60 @@
     [os copy:bytes];
 }
 
+-(BOOL) invoke:(NSString* _Nonnull)op
+          mode:(uint8_t)mode
+      inParams:(NSData*)inParams
+       context:(NSDictionary* _Nullable)context
+      response:(void (^_Nullable)(bool, NSData*))response
+         error:(NSError**)error
+{
+    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    params.second = params.first + inParams.length;
+
+    try
+    {
+        Ice::Context ctx;
+        if(context)
+        {
+            fromNSDictionary(context, ctx);
+        }
+        std::vector<Ice::Byte> outParams;
+
+        // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer
+        // and to avoid calling PromiseKit wait. PromiseKit issues a warning if wait() is called on the main thread.
+        // This is particularly an issue in command line applications which may make sync calls on the main thread.
+        std::promise<void> p;
+
+        _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
+                              [response, &p](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
+                              {
+                                  if(response)
+                                  {
+                                      NSData* encaps = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(outParams.first)
+                                                                                    length:outParams.second - outParams.first
+                                                                              freeWhenDone:NO];
+                                      response(ok, encaps);
+                                  }
+                                  p.set_value();
+                              },
+                              [&p](std::exception_ptr e)
+                              {
+                                  p.set_exception(e);
+                              },
+                              nullptr,
+                              context ? ctx : Ice::noExplicitContext);
+
+        p.get_future().get();
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
 -(BOOL) onewayInvoke:(NSString*)op
                 mode:(uint8_t)mode
             inParams:(NSData*)inParams
@@ -625,7 +679,7 @@
 }
 
 -(void) invokeAsync:(NSString* _Nonnull)op
-               mode:(NSInteger)mode
+               mode:(uint8_t)mode
            inParams:(NSData*)inParams
             context:(NSDictionary* _Nullable)context
            response:(void (^)(bool, NSData*))response
