@@ -22,7 +22,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX", "js:module:ice"]
+["objc:prefix:ICEMX", "js:module:ice", "swift:module:IceStorm:MX"]
 module IceMX
 {
 

@@ -242,33 +242,43 @@ def create_platform_targets(project, platform)
     target_add_swiftlint_build_phase(target, "src/Ice")
 
     #
-    # Glacier2 for Swift Framework
+    # Glacier2, IceStorm and IceGrid Frameworks
     #
     glacier2_target = project.new_target(:framework, "Glacier2", platform)
-    glacier2_target.name = "Glacier2 #{platform_name}"
+    icestorm_target = project.new_target(:framework, "IceStorm", platform)
+    icegrid_target = project.new_target(:framework, "IceGrid", platform)
 
-    target = glacier2_target
-    target.frameworks_build_phases.clear()
+    [glacier2_target, icestorm_target, icegrid_target].each do | t |
+        target = t
+        framework = target.name
+        target.name = "#{target.name} #{platform_name}"
 
-    target_set_common_build_settings(target, "Glacier2", plist: "src/Glacier2/Info.plist", swift: true)
+        target.frameworks_build_phases.clear()
+
+        target_set_common_build_settings(target, framework, plist: "src/#{framework}/Info.plist", swift: true)
 
 
-    target.build_configurations.each { |config|
-        config.build_settings["DEFINES_MODULE"] = "YES"
-    }
-    target_set_framework_build_settings(target)
-    target_add_carthage_framework(target, platform, "PromiseKit.framework")
+        target.build_configurations.each { |config|
+            config.build_settings["DEFINES_MODULE"] = "YES"
+        }
+        target_set_framework_build_settings(target)
+        target_add_carthage_framework(target, platform, "PromiseKit.framework")
 
-    group = project_group(project, "src/Glacier2")
-    group_add_files(group, "src/Glacier2", ["*.plist"])
-    target_add_headers(target, group, "src/Glacier2", ["*.h"])
-    target_add_files(target, group, "src/Glacier2", ["*.swift"])
+        group = project_group(project, "src/#{framework}")
+        group_add_files(group, "src/#{framework}", ["*.plist"])
+        target_add_headers(target, group, "src/#{framework}", ["*.h"])
+        target_add_files(target, group, "src/#{framework}", ["*.swift"])
 
-    group = project_group(project, "slice/Glacier2")
-    target_add_files(target, group, "../slice/Glacier2", ["*.ice"])
-    target_add_slice2swift_build_rule(project, target, "Glacier2")
+        group = project_group(project, "slice/#{framework}")
+        target_add_files(target, group, "../slice/#{framework}", ["*.ice"])
+        target_add_slice2swift_build_rule(project, target, framework)
+        target.frameworks_build_phases.add_file_reference(ice_target.product_reference)
+    end
 
-    target.frameworks_build_phases.add_file_reference(ice_target.product_reference)
+    #
+    # IceGrid requires Glacier2
+    #
+    icegrid_target.frameworks_build_phases.add_file_reference(glacier2_target.product_reference)
 
     #
     # TestCommon framework
@@ -430,6 +440,8 @@ def create_platform_targets(project, platform)
     scheme = Xcodeproj::XCScheme.new
     scheme.add_build_target(ice_target)
     scheme.add_build_target(glacier2_target)
+    scheme.add_build_target(icestorm_target)
+    scheme.add_build_target(icegrid_target)
     scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
 end
 
@@ -538,9 +550,11 @@ def target_set_common_build_settings(target, product, plist: nil, swift: false)
             config.build_settings["SWIFT_VERSION"] = "5.0"
         end
 
+        config.build_settings["SUPPORTED_PLATFORMS"] =
+            (target.name.include? "macOS") ? "macosx" : "iphoneos iphonesimulator"
+
         config.build_settings["AVAILABLE_PLATFORMS"] =
-            (target.name.include? "macOS") ?
-                "macosx" : "appletvos appletvsimulator iphoneos iphonesimulator watchos watchsimulator"
+            (target.name.include? "macOS") ? "macosx" : "iphoneos iphonesimulator"
     }
 end
 
