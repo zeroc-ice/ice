@@ -768,8 +768,8 @@ open class ObjectPrxI: ObjectPrx {
                               inParams: ostr.finished(), context: context,
                               response: { ok, encaps in
                                   do {
-                                      let istr = InputStream(communicator: communicator,
-                                                             encoding: encoding,
+                                      let istr = InputStream(communicator: self.communicator,
+                                                             encoding: self.encoding,
                                                              bytes: encaps)
                                       if ok == false {
                                           try ObjectPrxI.throwUserException(istr: istr,
@@ -815,8 +815,8 @@ open class ObjectPrxI: ObjectPrx {
                           context: context,
                           response: { ok, encaps in
                               do {
-                                  let istr = InputStream(communicator: communicator,
-                                                         encoding: encoding,
+                                  let istr = InputStream(communicator: self.communicator,
+                                                         encoding: self.encoding,
                                                          bytes: encaps)
                                   if ok == false {
                                       try ObjectPrxI.throwUserException(istr: istr,
