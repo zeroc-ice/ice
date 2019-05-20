@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8A16BCEDA2804DC24CB0C224"
+               BlueprintIdentifier = "CC81FDCEF0A7BBE261611DEB"
                BuildableName = "Ice.framework"
                BlueprintName = "Ice iOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -28,9 +28,37 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "76EA2672F1011F41326221D5"
+               BlueprintIdentifier = "52721702A2D01AD3EEC7BC8A"
                BuildableName = "Glacier2.framework"
                BlueprintName = "Glacier2 iOS"
+               ReferencedContainer = "container:ice.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForAnalyzing = "YES"
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4033A86621CB9593AC8FDCC6"
+               BuildableName = "IceStorm.framework"
+               BlueprintName = "IceStorm iOS"
+               ReferencedContainer = "container:ice.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForAnalyzing = "YES"
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F2D2D491864CED06EFE6EE62"
+               BuildableName = "IceGrid.framework"
+               BlueprintName = "IceGrid iOS"
                ReferencedContainer = "container:ice.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
