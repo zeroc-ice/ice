@@ -792,6 +792,31 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         (p2, p3) = try initial.opByte(nil)
         try test(p2 == nil && p3 == nil)
 
+        (p2, p3) = try initial.opByte()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opByteAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opByteAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
         p1 = 56
         (p2, p3) = try initial.opByte(p1)
         try test(p2 == 56 && p3 == 56)
@@ -854,6 +879,31 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         (p2, p3) = try initial.opBool(nil)
         try test(p2 == nil && p3 == nil)
 
+        (p2, p3) = try initial.opBool()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opBoolAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opBoolAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
         p1 = true
         (p2, p3) = try initial.opBool(p1)
         try test(p2 == true && p3 == true)
@@ -909,10 +959,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: Int16?
         var p2: Int16?
         var p3: Int16?
+
         (p2, p3) = try initial.opShort(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opShort(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opShort()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opShortAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opShortAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = 56
         (p2, p3) = try initial.opShort(p1)
@@ -969,10 +1046,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: Int32?
         var p2: Int32?
         var p3: Int32?
+
         (p2, p3) = try initial.opInt(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opInt(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opInt()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = 56
         (p2, p3) = try initial.opInt(p1)
@@ -1029,10 +1133,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: Int64?
         var p2: Int64?
         var p3: Int64?
+
         (p2, p3) = try initial.opLong(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opLong(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opLong()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opLongAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opLongAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = 56
         (p2, p3) = try initial.opLong(p1)
@@ -1089,10 +1220,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: Float?
         var p2: Float?
         var p3: Float?
+
         (p2, p3) = try initial.opFloat(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opFloat(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opFloat()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFloatAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFloatAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = 1.0
         (p2, p3) = try initial.opFloat(p1)
@@ -1151,8 +1309,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p3: Double?
         (p2, p3) = try initial.opDouble(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opDouble(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opDouble()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opDoubleAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opDoubleAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = 1.0
         (p2, p3) = try initial.opDouble(p1)
@@ -1211,8 +1395,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p3: String?
         (p2, p3) = try initial.opString(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opString(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opString()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opStringAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opStringAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = "test"
         (p2, p3) = try initial.opString(p1)
@@ -1271,10 +1481,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: MyEnum?
         var p2: MyEnum?
         var p3: MyEnum?
+
         (p2, p3) = try initial.opMyEnum(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opMyEnum(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opMyEnum()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opMyEnumAsync(nil)
+            }.done {p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opMyEnumAsync()
+            }.done {p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = .MyEnumMember
         (p2, p3) = try initial.opMyEnum(p1)
@@ -1333,9 +1570,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p3: SmallStruct?
         (p2, p3) = try initial.opSmallStruct(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opSmallStruct(nil)
         try test(p2 == nil && p3 == nil)
 
+        (p2, p3) = try initial.opSmallStruct()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opSmallStructAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opSmallStructAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
         p1 = SmallStruct(m: 56)
         (p2, p3) = try initial.opSmallStruct(p1)
         try test(p2!.m == 56 && p3!.m == 56)
@@ -1394,8 +1656,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opFixedStruct(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3)  = try initial.opFixedStruct(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3)  = try initial.opFixedStruct()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFixedStructAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFixedStructAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = FixedStruct(m: 56)
         (p2, p3) = try initial.opFixedStruct(p1)
@@ -1456,8 +1744,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opVarStruct(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opVarStruct(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opVarStruct()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opVarStructAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opVarStructAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                    seal.reject(e)
+            }
+        }.wait()
 
         p1 = VarStruct(m: "test")
         (p2, p3) = try initial.opVarStruct(p1)
@@ -1518,10 +1832,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: OneOptional?
         var p2: OneOptional?
         var p3: OneOptional?
+
         (p2, p3) = try initial.opOneOptional(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opOneOptional(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opOneOptional()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opOneOptionalAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opOneOptionalAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = OneOptional(a: 58)
         (p2, p3) = try initial.opOneOptional(p1)
@@ -1587,6 +1928,31 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         (p2, p3) = try initial.opOneOptionalProxy(nil)
         try test(p2 == nil && p3 == nil)
 
+        (p2, p3) = try initial.opOneOptionalProxy()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opOneOptionalProxyAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opOneOptionalProxyAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
         p1 = try communicator.stringToProxy("test")
         (p2, p3) = try initial.opOneOptionalProxy(p1)
         try test(p2 == p1 && p3 == p1)
@@ -1631,10 +1997,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opByteSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opByteSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opByteSeq(nil)
+
+        (p2, p3) = try initial.opByteSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opByteSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opByteSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = ByteSeq(repeating: 56, count: 100)
         (p2, p3) = try initial.opByteSeq(p1)
@@ -1692,10 +2082,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opBoolSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opBoolSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opBoolSeq(nil)
+
+        (p2, p3) = try initial.opBoolSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opBoolSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opBoolSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [Bool](repeating: true, count: 100)
         (p2, p3) = try initial.opBoolSeq(p1)
@@ -1753,10 +2167,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opShortSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opShortSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opShortSeq(nil)
+
+        (p2, p3) = try initial.opShortSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opShortSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opShortSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [Int16](repeating: 56, count: 100)
         (p2, p3) = try initial.opShortSeq(p1)
@@ -1814,10 +2252,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opIntSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opIntSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opIntSeq(nil)
+
+        (p2, p3) = try initial.opIntSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [Int32](repeating: 56, count: 100)
         (p2, p3) = try initial.opIntSeq(p1)
@@ -1875,10 +2337,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opLongSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opLongSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opLongSeq(nil)
+
+        (p2, p3) = try initial.opLongSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opLongSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opLongSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [Int64](repeating: 56, count: 100)
         (p2, p3) = try initial.opLongSeq(p1)
@@ -1936,10 +2422,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opFloatSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opFloatSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opFloatSeq(nil)
+
+        (p2, p3) = try initial.opFloatSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFloatSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFloatSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [Float](repeating: 1.0, count: 100)
         (p2, p3) = try initial.opFloatSeq(p1)
@@ -1997,10 +2507,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opDoubleSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opDoubleSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opDoubleSeq(nil)
+
+        (p2, p3) = try initial.opDoubleSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opDoubleSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opDoubleSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [Double](repeating: 1.0, count: 100)
         (p2, p3) = try initial.opDoubleSeq(p1)
@@ -2058,10 +2592,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opStringSeq(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opStringSeq(nil)
         try test(p2 == nil && p3 == nil)
-        (p2, p3) = try initial.opStringSeq(nil)
+
+        (p2, p3) = try initial.opStringSeq()
         try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opStringSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opStringSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [String](repeating: "test", count: 100)
         (p2, p3) = try initial.opStringSeq(p1)
@@ -2116,11 +2674,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: SmallStructSeq?
         var p2: SmallStructSeq?
         var p3: SmallStructSeq?
+
         (p2, p3) = try initial.opSmallStructSeq(p1)
         try test(p2 == nil && p3 == nil)
 
         (p2, p3) = try initial.opSmallStructSeq(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opSmallStructSeq()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opSmallStructSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opSmallStructSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = SmallStructSeq(repeating: SmallStruct(), count: 100)
         (p2, p3) = try initial.opSmallStructSeq(p1)
@@ -2175,11 +2759,26 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: FixedStructSeq?
         var p2: FixedStructSeq?
         var p3: FixedStructSeq?
+
         (p2, p3) = try initial.opFixedStructSeq(p1)
         try test(p2 == nil && p3 == nil)
 
         (p2, p3) = try initial.opFixedStructSeq(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opFixedStructSeq()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opFixedStructSeqAsync(p1)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = FixedStructSeq(repeating: FixedStruct(), count: 100)
         (p2, p3) = try initial.opFixedStructSeq(p1)
@@ -2234,11 +2833,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: VarStructSeq?
         var p2: VarStructSeq?
         var p3: VarStructSeq?
+
         (p2, p3) = try initial.opVarStructSeq(p1)
         try test(p2 == nil && p3 == nil)
 
         (p2, p3) = try initial.opVarStructSeq(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opVarStructSeq()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opVarStructSeqAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opVarStructSeqAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = VarStructSeq(repeating: VarStruct(), count: 100)
         (p2, p3) = try initial.opVarStructSeq(p1)
@@ -2293,10 +2918,37 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         var p1: [Int32: Int32]?
         var p2: [Int32: Int32]?
         var p3: [Int32: Int32]?
+
         (p2, p3) = try initial.opIntIntDict(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opIntIntDict(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opIntIntDict()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntIntDictAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntIntDictAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [1: 2, 2: 3]
         (p2, p3) = try initial.opIntIntDict(p1)
@@ -2357,6 +3009,31 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opStringIntDict(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opStringIntDict()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opStringIntDictAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opStringIntDictAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = ["1": 1, "2": 2]
         (p2, p3) = try initial.opStringIntDict(p1)
@@ -2433,8 +3110,34 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         (p2, p3) = try initial.opIntOneOptionalDict(p1)
         try test(p2 == nil && p3 == nil)
+
         (p2, p3) = try initial.opIntOneOptionalDict(nil)
         try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opIntOneOptionalDict()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntOneOptionalDictAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opIntOneOptionalDictAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
 
         p1 = [1: OneOptional(a: 58), 2: OneOptional(a: 59)]
         (p2, p3) = try initial.opIntOneOptionalDict(p1)
@@ -2498,6 +3201,30 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
     }
 
     do {
+        try initial.opOptionalException(o: nil)
+    } catch let ex as OptionalException {
+        try test(ex.a == nil)
+        try test(ex.b == nil)
+        try test(ex.o == nil)
+    }
+
+    do {
+        try initial.opOptionalException(b: nil)
+    } catch let ex as OptionalException {
+        try test(ex.a == nil)
+        try test(ex.b == nil)
+        try test(ex.o == nil)
+    }
+
+    do {
+        try initial.opOptionalException()
+    } catch let ex as OptionalException {
+        try test(ex.a == nil)
+        try test(ex.b == nil)
+        try test(ex.o == nil)
+    }
+
+    do {
         try initial.opOptionalException(a: 30, b: "test", o: OneOptional(a: 53))
     } catch let ex as OptionalException {
         try test(ex.a == 30)
@@ -2539,6 +3266,36 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
     do {
         try initial.opRequiredException(a: nil, b: nil, o: nil)
+    } catch let ex as RequiredException {
+        try test(ex.a == nil)
+        try test(ex.b == nil)
+        try test(ex.o == nil)
+        try test(ex.ss == "test")
+        try test(ex.o2 == nil)
+    }
+
+    do {
+        try initial.opRequiredException(b: nil)
+    } catch let ex as RequiredException {
+        try test(ex.a == nil)
+        try test(ex.b == nil)
+        try test(ex.o == nil)
+        try test(ex.ss == "test")
+        try test(ex.o2 == nil)
+    }
+
+    do {
+        try initial.opRequiredException(o: nil)
+    } catch let ex as RequiredException {
+        try test(ex.a == nil)
+        try test(ex.b == nil)
+        try test(ex.o == nil)
+        try test(ex.ss == "test")
+        try test(ex.o2 == nil)
+    }
+
+    do {
+        try initial.opRequiredException()
     } catch let ex as RequiredException {
         try test(ex.a == nil)
         try test(ex.b == nil)

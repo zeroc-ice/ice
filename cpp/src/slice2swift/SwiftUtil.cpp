@@ -1760,11 +1760,11 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     {
         if(allInParams.size() == 1)
         {
-            out << ("_ iceP_" + q->name + ": " + q->typeStr);
+            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
         }
         else
         {
-            out << (q->name + " iceP_" + q->name + ": " + q->typeStr);
+            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
         }
     }
     out << ("context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil");
@@ -1845,11 +1845,11 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     {
         if(allInParams.size() == 1)
         {
-            out << ("_ iceP_" + q->name + ": " + q->typeStr);
+            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
         }
         else
         {
-            out << (q->name + " iceP_" + q->name + ": " + q->typeStr);
+            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
         }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
