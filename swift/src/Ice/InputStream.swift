@@ -378,9 +378,10 @@ public class InputStream {
 }
 
 public extension InputStream {
-    //
-    // StreamableNumeric
-    //
+    /// Extract a numeric element from the stream, the extracted element must support
+    /// the `StreamableNumeric` protocol.
+    ///
+    /// - returns: `StreamableNumeric` - The extracted numeric element.
     func read<Element>() throws -> Element where Element: StreamableNumeric {
         let size = MemoryLayout<Element>.size
         guard size <= remaining else {
@@ -1771,10 +1772,8 @@ public class DictEntryArray<K, V> {
     }
 }
 
-//
-// A Numeric type that can be marshaled (written) using an OutputStream and
-// unmarshaled (read) using an InputStream
-//
+/// A Numeric type that can be marshaled (written) using an OutputStream and
+/// unmarshaled (read) using an InputStream
 public protocol StreamableNumeric: Numeric {}
 
 extension UInt8: StreamableNumeric {}

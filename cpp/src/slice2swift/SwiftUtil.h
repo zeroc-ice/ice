@@ -82,10 +82,10 @@ protected:
 
     bool operationIsAmd(const OperationPtr&);
 
-    ParamInfoList getAllInParams(const OperationPtr&);
+    ParamInfoList getAllInParams(const OperationPtr&, int = 0);
     void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-    ParamInfoList getAllOutParams(const OperationPtr&);
+    ParamInfoList getAllOutParams(const OperationPtr&, int = 0);
     void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
     std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false,

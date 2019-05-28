@@ -75,7 +75,7 @@ open class UserException: Exception {
     /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
     /// un-marshaling, nil is returned otherwise.
     ///
-    /// - returns: The sliced data or nil.
+    /// - returns: `SlicedData?` - The sliced data or nil.
     open func ice_getSlicedData() -> SlicedData? {
         return nil
     }
