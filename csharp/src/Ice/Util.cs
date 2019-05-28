@@ -545,7 +545,7 @@ namespace Ice
         /// Converts a string to an encoding version.
         /// </summary>
         /// <param name="version">The string to convert.</param>
-        /// <returns>The converted object identity.</returns>
+        /// <returns>The converted encoding version.</returns>
         public static EncodingVersion stringToEncodingVersion(string version)
         {
             byte major, minor;

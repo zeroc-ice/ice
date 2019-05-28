@@ -19,7 +19,7 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <Ice/UUID.h>
 #ifdef ICE_SWIFT
-#include <Ice/ThreadPool.h>
+#   include <Ice/ThreadPool.h>
 #endif
 
 using namespace std;

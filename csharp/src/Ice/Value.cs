@@ -39,7 +39,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// This Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
+        /// This Ice run time invokes this method after unmarshaling an object's data members. This allows a
         /// subclass to override this method in order to perform additional initialization.
         /// </summary>
         public virtual void ice_postUnmarshal()

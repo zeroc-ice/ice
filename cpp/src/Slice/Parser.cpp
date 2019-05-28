@@ -4358,6 +4358,7 @@ Slice::ClassDef::isDelegate() const
 {
     return isLocal() && isInterface() && hasMetaData("delegate") && allOperations().size() == 1;
 }
+
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases,
                           bool local) :
     SyntaxTreeBase(container->unit()),
