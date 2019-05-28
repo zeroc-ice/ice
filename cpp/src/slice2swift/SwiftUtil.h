@@ -37,6 +37,18 @@ struct ParamInfo
 
 typedef std::list<ParamInfo> ParamInfoList;
 
+struct DocElements
+{
+    StringList overview;
+    bool deprecated;
+    StringList deprecateReason;
+    StringList misc;
+    StringList seeAlso;
+    StringList returns;
+    std::map<std::string, StringList> params;
+    std::map<std::string, StringList> exceptions;
+};
+
 class SwiftGenerator : private IceUtil::noncopyable
 {
 public:
@@ -46,6 +58,21 @@ public:
     static void validateMetaData(const UnitPtr&);
 
 protected:
+
+    void trimLines(StringList&);
+    StringList splitComment(const std::string&);
+    bool parseCommentLine(const std::string&, const std::string&, bool, std::string&, std::string&);
+    DocElements parseComment(const ContainedPtr&);
+    void writeDocLines(IceUtilInternal::Output&, const StringList&, bool commentFirst = true,
+                       const std::string& space = " ");
+    void writeDocSentence(IceUtilInternal::Output&, const StringList&);
+    void writeSeeAlso(IceUtilInternal::Output&, const StringList&, const ContainerPtr&);
+    void writeDocSummary(IceUtilInternal::Output&, const ContainedPtr&);
+    void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool, bool = false);
+
+    void writeProxyDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
+    void writeServantDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
+    void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
 
     std::string paramLabel(const std::string&, const ParamDeclList&);
     std::string operationReturnType(const OperationPtr&);

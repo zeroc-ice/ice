@@ -5,6 +5,8 @@
 import Foundation
 import IceObjc
 
+/// Interface for output streams used to write Slice types to a sequence
+/// of bytes.
 public class OutputStream {
     private var data: Data = Data(capacity: 240)
     private let communicator: Communicator
@@ -14,6 +16,7 @@ public class OutputStream {
 
     private var encaps: Encaps!
 
+    /// Determines the current encoding version.
     var currentEncoding: EncodingVersion {
         return encaps != nil ? encaps.encoding : encoding
     }
@@ -30,10 +33,16 @@ public class OutputStream {
         format = (communicator as! CommunicatorI).defaultsAndOverrides.defaultFormat
     }
 
+    /// Writes the start of an encapsulation to the stream.
     public func startEncapsulation() {
         startEncapsulation(encoding: encoding, format: FormatType.DefaultFormat)
     }
 
+    /// Writes the start of an encapsulation to the stream.
+    ///
+    /// - parameter encoding: `Ice.EncodingVersion` - The encoding version of the encapsulation.
+    ///
+    /// - parameter format: `Ice.FormatType` - Specify the compact or sliced format.
     public func startEncapsulation(encoding: EncodingVersion, format: FormatType) {
         precondition(encaps == nil, "Nested or sequential encapsulations are not supported")
         encaps = Encaps(encoding: encoding, format: format, start: data.count)
@@ -41,6 +50,7 @@ public class OutputStream {
         write(encaps.encoding)
     }
 
+    /// Ends the previous encapsulation.
     public func endEncapsulation() {
         // Size includes size and version.
         let start = encaps.start
@@ -48,11 +58,17 @@ public class OutputStream {
         write(bytesOf: sz, at: start)
     }
 
+    /// Writes an empty encapsulation using the given encoding version.
+    ///
+    /// - parameter encoding: `Ice.EncodingVersion` - The encoding version of the encapsulation.
     func writeEmptyEncapsulation(_ encoding: EncodingVersion) {
         write(Int32(6)) // Size
         write(encoding)
     }
 
+    /// Writes a pre-encoded encapsulation.
+    ///
+    /// - parameter _: `Data` - The encapsulation data.
     func writeEncapsulation(_ v: Data) {
         precondition(v.count >= 6, "Encapsulation is invalid. Size is too small.")
         data.append(v)
@@ -72,21 +88,29 @@ public class OutputStream {
         }
     }
 
+    /// Marks the start of a class instance.
+    ///
+    /// - parameter data: `Ice.SlicedData?` - Preserved slices for this instance, or nil.
     public func startValue(data: SlicedData?) {
         precondition(encaps.encoder != nil)
         encaps.encoder.startInstance(type: .ValueSlice, data: data)
     }
 
+    /// Marks the end of a class instance.
     public func endValue() {
         precondition(encaps.encoder != nil)
         encaps.encoder.endInstance()
     }
 
+    /// Marks the start of a user exception.
+    ///
+    /// - parameter data: `Ice.SlicedData` Preserved slices for this exception, or nil.
     public func startException(data: SlicedData?) {
         precondition(encaps.encoder != nil)
         encaps.encoder.startInstance(type: .ExceptionSlice, data: data)
     }
 
+    /// Marks the end of a user exception.
     public func endException() {
         precondition(encaps.encoder != nil)
         encaps.encoder.endInstance()
@@ -109,6 +133,7 @@ public class OutputStream {
         }
     }
 
+     /// Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
     public func writePendingValues() {
         if encaps != nil, encaps.encoder != nil {
             encaps.encoder.writePendingValues()
@@ -129,11 +154,20 @@ public class OutputStream {
         return data
     }
 
+    /// Marks the start of a new slice for a class instance or user exception.
+    ///
+    /// - parameter typeId: `String` - The Slice type ID corresponding to this slice.
+    ///
+    /// - parameter compactId: `Int32` - The Slice compact type ID corresponding to this
+    ///   slice or -1 if no compact ID is defined for the type ID.
+    ///
+    /// - parameter last: `Bool` - True if this is the last slice, false otherwise.
     public func startSlice(typeId: String, compactId: Int32, last: Bool) {
         precondition(encaps != nil && encaps.encoder != nil)
         encaps.encoder.startSlice(typeId: typeId, compactId: compactId, last: last)
     }
 
+    /// Marks the end of a slice for a class instance or user exception.
     public func endSlice() {
         precondition(encaps != nil && encaps.encoder != nil)
         encaps.encoder.endSlice()

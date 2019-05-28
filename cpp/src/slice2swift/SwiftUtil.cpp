@@ -213,6 +213,697 @@ Slice::getTopLevelModule(const TypePtr& type)
 }
 
 void
+SwiftGenerator::trimLines(StringList& l)
+{
+    //
+    // Remove empty trailing lines.
+    //
+    while(!l.empty() && l.back().empty())
+    {
+        l.pop_back();
+    }
+}
+
+StringList
+SwiftGenerator::splitComment(const string& c)
+{
+    string comment = c;
+
+    //
+    // Strip HTML markup and javadoc links -- MATLAB doesn't display them.
+    //
+    string::size_type pos = 0;
+    do
+    {
+        pos = comment.find('<', pos);
+        if(pos != string::npos)
+        {
+            string::size_type endpos = comment.find('>', pos);
+            if(endpos == string::npos)
+            {
+                break;
+            }
+            comment.erase(pos, endpos - pos + 1);
+        }
+    }
+    while(pos != string::npos);
+
+    const string link = "{@link";
+    pos = 0;
+    do
+    {
+        pos = comment.find(link, pos);
+        if(pos != string::npos)
+        {
+            comment.erase(pos, link.size() + 1); // Erase trailing white space too.
+            string::size_type endpos = comment.find('}', pos);
+            if(endpos != string::npos)
+            {
+                string ident = comment.substr(pos, endpos - pos);
+                comment.erase(pos, endpos - pos + 1);
+
+                //
+                // Check for links of the form {@link Type#member}.
+                //
+                string::size_type hash = ident.find('#');
+                string rest;
+                if(hash != string::npos)
+                {
+                    rest = ident.substr(hash + 1);
+                    ident = ident.substr(0, hash);
+                    if(!ident.empty())
+                    {
+                        ident = fixIdent(ident);
+                        if(!rest.empty())
+                        {
+                            ident += "." + fixIdent(rest);
+                        }
+                    }
+                    else if(!rest.empty())
+                    {
+                        ident = fixIdent(rest);
+                    }
+                }
+                else
+                {
+                    ident = fixIdent(ident);
+                }
+
+                comment.insert(pos, ident);
+            }
+        }
+    }
+    while(pos != string::npos);
+
+    StringList result;
+
+    pos = 0;
+    string::size_type nextPos;
+    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+    {
+        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+        pos = nextPos + 1;
+    }
+    string lastLine = IceUtilInternal::trim(string(comment, pos));
+    if(!lastLine.empty())
+    {
+        result.push_back(lastLine);
+    }
+
+    trimLines(result);
+
+    return result;
+}
+
+bool
+SwiftGenerator::parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
+{
+    doc.clear();
+
+    if(l.find(tag) == 0)
+    {
+        const string ws = " \t";
+
+        if(namedTag)
+        {
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            string::size_type end = l.find_first_of(ws, n);
+            if(end == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            name = l.substr(n, end - n);
+            n = l.find_first_not_of(ws, end);
+            if(n != string::npos)
+            {
+                doc = l.substr(n);
+            }
+        }
+        else
+        {
+            name.clear();
+
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            doc = l.substr(n);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+DocElements
+SwiftGenerator::parseComment(const ContainedPtr& p)
+{
+    DocElements doc;
+
+    doc.deprecated = false;
+
+    //
+    // First check metadata for a deprecated tag.
+    //
+    string deprecateMetadata;
+    if(p->findMetaData("deprecate", deprecateMetadata))
+    {
+        doc.deprecated = true;
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            doc.deprecateReason.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
+        }
+    }
+
+    //
+    // Split up the comment into lines.
+    //
+    StringList lines = splitComment(p->comment());
+
+    StringList::const_iterator i;
+    for(i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string l = *i;
+        if(l[0] == '@')
+        {
+            break;
+        }
+        doc.overview.push_back(l);
+    }
+
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    State state = StateMisc;
+    string name;
+    const string ws = " \t";
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+    const string deprecatedTag = "@deprecated";
+    const string seeTag = "@see";
+    for(; i != lines.end(); ++i)
+    {
+        const string l = IceUtilInternal::trim(*i);
+        string line;
+        if(parseCommentLine(l, paramTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateParam;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                doc.params[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, throwsTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                doc.exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, exceptionTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                doc.exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, seeTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                doc.seeAlso.push_back(line);
+            }
+        }
+        else if(parseCommentLine(l, returnTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateReturn;
+                doc.returns.push_back(line); // The first line of the description.
+            }
+        }
+        else if(parseCommentLine(l, deprecatedTag, false, name, line))
+        {
+            doc.deprecated = true;
+            if(!line.empty())
+            {
+                state = StateDeprecated;
+                doc.deprecateReason.push_back(line); // The first line of the description.
+            }
+        }
+        else if(!l.empty())
+        {
+            if(l[0] == '@')
+            {
+                //
+                // Treat all other tags as miscellaneous comments.
+                //
+                state = StateMisc;
+            }
+
+            switch(state)
+            {
+                case StateMisc:
+                {
+                    doc.misc.push_back(l);
+                    break;
+                }
+                case StateParam:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(doc.params.find(name) != doc.params.end())
+                    {
+                        sl = doc.params[name];
+                    }
+                    sl.push_back(l);
+                    doc.params[name] = sl;
+                    break;
+                }
+                case StateThrows:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(doc.exceptions.find(name) != doc.exceptions.end())
+                    {
+                        sl = doc.exceptions[name];
+                    }
+                    sl.push_back(l);
+                    doc.exceptions[name] = sl;
+                    break;
+                }
+                case StateReturn:
+                {
+                    doc.returns.push_back(l);
+                    break;
+                }
+                case StateDeprecated:
+                {
+                    doc.deprecateReason.push_back(l);
+                    break;
+                }
+            }
+        }
+    }
+
+    trimLines(doc.overview);
+    trimLines(doc.deprecateReason);
+    trimLines(doc.misc);
+    trimLines(doc.returns);
+
+    return doc;
+}
+
+void
+SwiftGenerator::writeDocLines(IceUtilInternal::Output& out, const StringList& lines, bool commentFirst,
+                              const string& space)
+{
+    StringList l = lines;
+    if(!commentFirst)
+    {
+        out << l.front();
+        l.pop_front();
+    }
+
+    for(StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+    {
+        out << nl << "///";
+        if(!i->empty())
+        {
+            out << space << *i;
+        }
+    }
+}
+
+void
+SwiftGenerator::writeDocSentence(IceUtilInternal::Output& out, const StringList& lines)
+{
+    //
+    // Write the first sentence.
+    //
+    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string ws = " \t";
+
+        if(i->empty())
+        {
+            break;
+        }
+        if(i != lines.begin() && i->find_first_not_of(ws) == 0)
+        {
+            out << " ";
+        }
+        string::size_type pos = i->find('.');
+        if(pos == string::npos)
+        {
+            out << *i;
+        }
+        else if(pos == i->size() - 1)
+        {
+            out << *i;
+            break;
+        }
+        else
+        {
+            //
+            // Assume a period followed by whitespace indicates the end of the sentence.
+            //
+            while(pos != string::npos)
+            {
+                if(ws.find((*i)[pos + 1]) != string::npos)
+                {
+                    break;
+                }
+                pos = i->find('.', pos + 1);
+            }
+            if(pos != string::npos)
+            {
+                out << i->substr(0, pos + 1);
+                break;
+            }
+            else
+            {
+                out << *i;
+            }
+        }
+    }
+}
+
+void
+SwiftGenerator::writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
+{
+    DocElements doc = parseComment(p);
+
+    string n = fixIdent(p->name());
+
+    //
+    // No leading newline.
+    //
+    if(!doc.overview.empty())
+    {
+        writeDocLines(out, doc.overview);
+    }
+
+    if(!doc.misc.empty())
+    {
+        out << "///" << nl;
+        writeDocLines(out, doc.misc);
+    }
+
+    if(doc.deprecated)
+    {
+        out << nl << "///";
+        out << nl << "/// ## Deprecated";
+        if(!doc.deprecateReason.empty())
+        {
+            writeDocLines(out, doc.deprecateReason);
+        }
+    }
+}
+
+void
+SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
+                                  const OperationPtr& p,
+                                  bool async,
+                                  bool dispatch,
+                                  bool local)
+{
+    DocElements doc = parseComment(p);
+    if(!doc.overview.empty())
+    {
+        writeDocLines(out, doc.overview);
+    }
+
+    if(doc.deprecated)
+    {
+        out << nl << "///";
+        out << nl << "///  ## Deprecated";
+        if(!doc.deprecateReason.empty())
+        {
+            writeDocLines(out, doc.deprecateReason);
+        }
+    }
+
+    const ParamInfoList allInParams = getAllInParams(p);
+    for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    {
+        out << nl << "///";
+        out << nl << "/// - parameter " << (!dispatch && allInParams.size() == 1 ? "_" : q->name)
+            << ": `" << q->typeStr << "`";
+        map<string, StringList>::const_iterator r = doc.params.find(q->name);
+        if(r != doc.params.end() && !r->second.empty())
+        {
+            out << " ";
+            writeDocLines(out, r->second, false);
+        }
+    }
+
+    if(!local)
+    {
+        out << nl << "///";
+        if(dispatch)
+        {
+            out << nl << "/// - parameter current: `Ice.Current` The Current object for the invocation.";
+        }
+        else
+        {
+            out << nl << "/// - parameter context: `Ice.Context` Optional request context.";
+        }
+    }
+
+    if(async)
+    {
+        if(!dispatch)
+        {
+            out << nl << "///";
+            out << nl << "/// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to";
+            out << nl << "///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.";
+            out << nl << "///";
+            out << nl << "/// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used";
+            out << nl << "///   to dispatch sent callback";
+            out << nl << "///";
+            out << nl << "/// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.";
+        }
+
+        out << nl << "///";
+        out << nl << "/// - returns: `PromiseKit.Promise` - Promise object that ";
+        if(dispatch)
+        {
+            out << "must be resolved with the return values of the dispatch.";
+        }
+        else
+        {
+            out << "will be resolved with the return values of the invocation.";
+        }
+    }
+    else
+    {
+        const ParamInfoList allOutParams = getAllOutParams(p);
+        if(allOutParams.size() == 1)
+        {
+            ParamInfo ret = allOutParams.front();
+            out << nl << "///";
+            out << nl << "/// - returns: `" << ret.typeStr << "`";
+            if(p->returnType())
+            {
+                if(!doc.returns.empty())
+                {
+                    out << " ";
+                    writeDocLines(out, doc.returns, false);
+                }
+            }
+            else
+            {
+                map<string, StringList>::const_iterator r = doc.params.find(ret.name);
+                if(r != doc.params.end() && !r->second.empty())
+                {
+                    out << " ";
+                    writeDocLines(out, r->second, false);
+                }
+            }
+        }
+        else if(allOutParams.size() > 1)
+        {
+            out << nl << "///";
+            out << nl << "/// - returns: a tuple with the following fields:";
+            for(ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
+            {
+                out << nl << "///";
+                out << nl << "///   - " << q->name << ": `" << q->typeStr << "`";
+                map<string, StringList>::const_iterator r = doc.params.find(q->name);
+                if(r != doc.params.end() && !r->second.empty())
+                {
+                    out << " - ";
+                    writeDocLines(out, r->second, false);
+                }
+            }
+        }
+    }
+
+    if(!doc.exceptions.empty() && !async)
+    {
+        out << nl << "///";
+        out << nl << "/// - throws:";
+        for(map<string, StringList>::const_iterator q = doc.exceptions.begin(); q != doc.exceptions.end(); ++q)
+        {
+            out << nl << "///";
+            out << nl << "///   - "  << q->first;
+            if(!q->second.empty())
+            {
+                out << " - ";
+                writeDocLines(out, q->second, false, "     ");
+            }
+        }
+    }
+
+    if(!doc.misc.empty())
+    {
+        out << nl;
+        writeDocLines(out, doc.misc, false);
+    }
+}
+
+void
+SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p, const string& swiftModule)
+{
+    DocElements doc = parseComment(p);
+
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string prx = name + "Prx";
+
+    if(doc.overview.empty())
+    {
+        out << nl << "/// " << prx << " overview.";
+    }
+    else
+    {
+        writeDocLines(out, doc.overview);
+    }
+
+    const OperationList ops = p->operations();
+    if(!ops.empty())
+    {
+        out << nl << "///";
+        out << nl << "/// " << prx << " Methods:";
+        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        {
+            OperationPtr op = *q;
+            DocElements opdoc = parseComment(op);
+            out << nl << "///";
+            out << nl << "///  - " << fixIdent(op->name()) << ": ";
+            if(!opdoc.overview.empty())
+            {
+                writeDocSentence(out, opdoc.overview);
+            }
+
+            out << nl << "///";
+            out << nl << "///  - " << op->name() << "Async: ";
+            if(!opdoc.overview.empty())
+            {
+                writeDocSentence(out, opdoc.overview);
+            }
+        }
+    }
+
+    if(!doc.misc.empty())
+    {
+        writeDocLines(out, doc.misc, false);
+    }
+}
+
+void
+SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p, const string& swiftModule)
+{
+    DocElements doc = parseComment(p);
+
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+
+    if(doc.overview.empty())
+    {
+        out << nl << "/// " << name << " overview.";
+    }
+    else
+    {
+        writeDocLines(out, doc.overview);
+    }
+
+    const OperationList ops = p->operations();
+    if(!ops.empty())
+    {
+        out << nl << "///";
+        out << nl << "/// " << name << " Methods:";
+        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        {
+            OperationPtr op = *q;
+            DocElements opdoc = parseComment(op);
+            out << nl << "///";
+            out << nl << "///  - " << fixIdent(op->name()) << ": ";
+            if(!opdoc.overview.empty())
+            {
+                writeDocSentence(out, opdoc.overview);
+            }
+        }
+    }
+
+    if(!doc.misc.empty())
+    {
+        writeDocLines(out, doc.misc, false);
+    }
+}
+
+void
+SwiftGenerator::writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+{
+    DocElements doc = parseComment(p);
+
+    //
+    // Skip if there are no doc comments.
+    //
+    if(doc.overview.empty() && doc.misc.empty() && doc.seeAlso.empty() && doc.deprecateReason.empty() &&
+       !doc.deprecated)
+    {
+        return;
+    }
+
+    if(doc.overview.empty())
+    {
+        out << nl << "/// " << fixIdent(p->name());
+    }
+    else
+    {
+        writeDocLines(out, doc.overview);
+    }
+
+    if(!doc.misc.empty())
+    {
+        writeDocLines(out, doc.misc);
+    }
+
+    if(doc.deprecated)
+    {
+        out << nl << "/// ##Deprecated";
+        if(!doc.deprecateReason.empty())
+        {
+            writeDocLines(out, doc.deprecateReason);
+        }
+    }
+}
+
+void
 SwiftGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
@@ -873,6 +1564,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         DataMemberPtr member = *q;
         TypePtr type = member->type();
         string defaultValue = member->defaultValue();
+        writeMemberDoc(out, member);
         out << nl << access << "var " << fixIdent(member->name()) << ": "
             << typeToString(type, p, member->getMetaData(), member->optional(), typeCtx);
         if(protocol)
@@ -1754,6 +2446,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
 
     out << sp;
+    writeOpDocSummary(out, op, false, false);
     out << nl << "func " << opName;
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
@@ -1839,6 +2532,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
 
     out << sp;
+    writeOpDocSummary(out, op, true, false);
     out << nl << "func " << opName;
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)

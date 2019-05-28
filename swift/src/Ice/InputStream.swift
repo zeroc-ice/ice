@@ -5,6 +5,7 @@
 import Foundation
 import IceObjc
 
+/// Interface for input streams used to extract Slice types from a sequence of bytes.
 public class InputStream {
     let data: Data
     let classResolverPrefix: [String]?
@@ -63,6 +64,9 @@ public class InputStream {
         return (bytes, encoding)
     }
 
+    /// Reads the start of an encapsulation.
+    ///
+    /// - returns: `Ice.EncodingVersion` - The encapsulation encoding version.
     @discardableResult
     public func startEncapsulation() throws -> EncodingVersion {
         precondition(encaps == nil, "Nested or sequential encapsulations are not supported")
@@ -93,6 +97,7 @@ public class InputStream {
         return encoding
     }
 
+    /// Ends the previous encapsulation.
     public func endEncapsulation() throws {
         if !encaps.encoding_1_0 {
             try skipOptionals()
@@ -114,6 +119,9 @@ public class InputStream {
         }
     }
 
+    /// Skips an empty encapsulation.
+    ///
+    /// - returns: `Ice.EncodingVersion` - The encapsulation's encoding version.
     @discardableResult
     func skipEmptyEncapsulation() throws -> EncodingVersion {
         let sz: Int32 = try read()
@@ -144,6 +152,9 @@ public class InputStream {
         return encoding
     }
 
+    /// Skips over an encapsulation.
+    ///
+    /// - returns: `Ice.EncodingVersion` - The encoding version of the skipped encapsulation.
     func skipEncapsulation() throws -> EncodingVersion {
         let sz: Int32 = try read()
 
@@ -156,28 +167,31 @@ public class InputStream {
         return encodingVersion
     }
 
+    /// Reads the start of a class instance or exception slice.
+    ///
+    /// - returns: The Slice type ID for this slice.
     @discardableResult
     public func startSlice() throws -> String {
         precondition(encaps.decoder != nil)
         return try encaps.decoder.startSlice()
     }
 
+    /// Indicates that the end of a class instance or exception slice has been reached.
     public func endSlice() throws {
         precondition(encaps.decoder != nil)
         try encaps.decoder.endSlice()
     }
 
+    /// Skips over a class instance or exception slice.
     public func skipSlice() throws {
         precondition(encaps.decoder != nil)
         try encaps.decoder.skipSlice()
     }
 
-    /**
-     * Indicates that unmarshaling is complete, except for any class instances. The application must call this method
-     * only if the stream actually contains class instances. Calling <code>readPendingValues</code> triggers the
-     * calls to consumers provided with {@link #readValue} to inform the application that unmarshaling of an instance
-     * is complete.
-     **/
+    /// Indicates that unmarshaling is complete, except for any class instances. The application must call this method
+    /// only if the stream actually contains class instances. Calling `readPendingValues` triggers the
+    /// calls to consumers provided with {@link #readValue} to inform the application that unmarshaling of an instance
+    /// is complete.
     public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
@@ -195,6 +209,7 @@ public class InputStream {
         }
     }
 
+    /// Extracts a user exception from the stream and throws it.
     public func throwException() throws {
         initEncaps()
         try encaps.decoder.throwException()
@@ -257,15 +272,22 @@ public class InputStream {
         pos += offset
     }
 
+    /// Skip the given number of bytes.
+    ///
+    /// - parameter _: `Int` - The number of bytes to skip.
     public func skip(_ count: Int) throws {
         precondition(count >= 0, "skip count is negative")
         try changePos(offset: count)
     }
 
+    /// Skip the given number of bytes.
+    ///
+    /// - parameter _: `Int32` - The number of bytes to skip.
     public func skip(_ count: Int32) throws {
         try changePos(offset: Int(count))
     }
 
+    /// Skip over a size value.
     public func skipSize() throws {
         let b: UInt8 = try read()
         if b == 255 {
@@ -273,22 +295,35 @@ public class InputStream {
         }
     }
 
+    /// Marks the start of a class instance.
     public func startValue() {
         precondition(encaps.decoder != nil)
         encaps.decoder.startInstance(type: .ValueSlice)
     }
 
+    /// Marks the end of a class instance.
+    ///
+    /// - parameter preserve: `Bool` - True if unknown slices should be preserved, false otherwise.
+    ///
+    /// - returns: `Ice.SlicedData` - A SlicedData object containing the preserved slices for unknown types.
     @discardableResult
     public func endValue(preserve: Bool) throws -> SlicedData? {
         precondition(encaps.decoder != nil)
         return try encaps.decoder.endInstance(preserve: preserve)
     }
 
+    /// Marks the start of a user exception.
     public func startException() {
         precondition(encaps.decoder != nil)
         encaps.decoder.startInstance(type: .ExceptionSlice)
     }
 
+    /// Marks the end of a user exception.
+    ///
+    /// - parameter preserve: `Bool` - True if unknown slices should be preserved, false otherwise.
+    ///
+    /// - returns: `Ice.SlicedData?` - A `SlicedData` object containing the preserved slices for unknown
+    ///   types.
     @discardableResult
     public func endException(preserve: Bool) throws -> SlicedData? {
         precondition(encaps.decoder != nil)

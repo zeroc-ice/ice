@@ -20,16 +20,44 @@ internal let factoriesRegistered: Bool = {
     return true
 }()
 
+/// Creates a communicator.
+///
+/// - parameter _: `[String]` - A command-line argument vector. Any Ice-related options
+///   in this vector are used to initialize the communicator.
+///
+/// - parameter initData: `Ice.InitializationData` - Additional intialization data. Property
+///   settings in args override property settings in initData.
+///
+/// - returns: The initialized communicator.
 public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator {
     return try initializeImpl(args: args, initData: initData ?? InitializationData(), withConfigFile: true).0
 }
 
+/// Creates a communicator.
+///
+/// - parameter _: `[String]` - A command-line argument vector. Any Ice-related options
+///   in this vector are used to initialize the communicator. This method modifies the
+///   argument vector by removing any Ice-related options.
+///
+/// - parameter initData: `Ice.InitializationData` - Additional intialization data. Property
+///   settings in args override property settings in initData.
+///
+/// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ args: inout [String], initData: InitializationData? = nil) throws -> Communicator {
     let result = try initializeImpl(args: args, initData: initData ?? InitializationData(), withConfigFile: true)
     args = result.1
     return result.0
 }
 
+/// Creates a communicator.
+///
+/// - parameter args: `[String]` - A command-line argument array. Any Ice-related options
+///   in this array are used to initialize the communicator.
+///
+/// - parameter configFile: `String` - Path to a config file that sets the new communicator's
+///   default properties.
+///
+/// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(args: [String], configFile: String) throws -> Communicator {
     var initData = InitializationData()
     let properties = createProperties()
@@ -38,6 +66,16 @@ public func initialize(args: [String], configFile: String) throws -> Communicato
     return try initialize(args, initData: initData)
 }
 
+/// Creates a communicator.
+///
+/// - parameter args: `[String]` - A command-line argument array. Any Ice-related options
+///   in this array are used to initialize the communicator. This method modifies the
+///   argument array by removing any Ice-related options.
+///
+/// - parameter configFile: `String` - Path to a config file that sets the new communicator's
+///   default properties.
+///
+/// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(args: inout [String], configFile: String) throws -> Communicator {
     var initData = InitializationData()
     let properties = createProperties()
@@ -46,11 +84,22 @@ public func initialize(args: inout [String], configFile: String) throws -> Commu
     return try initialize(&args, initData: initData)
 }
 
+/// Creates a communicator.
+///
+/// - parameter _: `Ice.InitializationData` - Additional intialization data.
+///
+/// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ initData: InitializationData? = nil) throws -> Communicator {
     // This is the no-configFile flavor: we never load config from ICE_CONFIG
     return try initializeImpl(args: [], initData: initData ?? InitializationData(), withConfigFile: false).0
 }
 
+/// Creates a communicator.
+///
+/// - parameter _: `String` - Path to a config file that sets the new communicator's default
+///   properties.
+///
+/// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ configFile: String) throws -> Communicator {
     return try initialize(args: [], configFile: configFile)
 }
@@ -134,6 +183,9 @@ private func initializeImpl(args: [String],
     }
 }
 
+/// Creates a new empty property set.
+///
+/// - returns: `Properties` - A new empty property set.
 public func createProperties() -> Properties {
     guard factoriesRegistered else {
         fatalError("Unable to initialie Ice")
@@ -141,6 +193,18 @@ public func createProperties() -> Properties {
     return PropertiesI(handle: ICEUtil.createProperties())
 }
 
+/// Creates a property set initialized from an argument array.
+///
+/// - parameter _: `[String]` - A command-line argument array, possibly containing options to
+///   set properties. If the command-line options include a `--Ice.Config` option, the
+///   corresponding configuration files are parsed. If the same property is set in a configuration
+///   file and in the argument array, the argument array takes precedence.
+///
+/// - parameter defaults: `Ice.Properties` - Optional default values for the property set. Settings in
+///   configuration files and argument array override these defaults.
+///
+/// - returns: `Ice.Properties` - A new property set initialized with the property settings from the arguments
+///   array and defaults.
 public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
     guard factoriesRegistered else {
         fatalError("Unable to initialie Ice")
@@ -153,6 +217,19 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
     }
 }
 
+/// Creates a property set initialized from an argument array.
+///
+/// - parameter _: `[String]` - A command-line argument array, possibly containing options to
+///   set properties. If the command-line options include a `--Ice.Config` option, the
+///   corresponding configuration files are parsed. If the same property is set in a configuration
+///   file and in the argument array, the argument array takes precedence. This method modifies the
+///   argument array by removing any Ice-related options.
+///
+/// - parameter defaults: `Ice.Properties` - Optional default values for the property set. Settings in
+///   configuration files and argument array override these defaults.
+///
+/// - returns: `Ice.Properties` - A new property set initialized with the property settings from args
+///   and defaults.
 public func createProperties(_ args: inout [String], defaults: Properties? = nil) throws -> Properties {
     guard factoriesRegistered else {
         fatalError("Unable to initialie Ice")
@@ -169,7 +246,14 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
     }
 }
 
+/// Returns the Ice version as an integer in the form A.BB.CC, where A
+/// indicates the major version, BB indicates the minor version, and CC
+/// indicates the patch level. For example, for Ice 3.3.1, the returned
+/// value is 30301.
 public let intVersion: Int = 30702
+
+/// The Ice version in the form A.B.C, where A indicates the major version,
+/// B indicates the minor version, and C indicates the patch level.
 public let stringVersion: String = "3.7.2"
 
 public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
@@ -177,6 +261,11 @@ public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
 
 public let currentEncoding = Encoding_1_1
 
+/// Converts a string to an object identity.
+///
+/// - parameter _: `String` - The string to convert.
+///
+/// - returns: `Ice.Identity` - The converted object identity.
 public func stringToIdentity(_ string: String) throws -> Identity {
     guard factoriesRegistered else {
         fatalError("Unable to initialie Ice")
@@ -189,10 +278,23 @@ public func stringToIdentity(_ string: String) throws -> Identity {
     }
 }
 
+/// Converts an object identity to a string.
+///
+/// - parameter id: `Ice.Identity` - The object identity to convert.
+///
+/// - parameter mode: `ToStringMode` - Specifies if and how non-printable ASCII characters are escaped
+///   in the result.
+///
+/// - returns: `String` - The string representation of the object identity.
 public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) -> String {
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
 }
 
+/// Converts an encoding version to a string.
+///
+/// - parameter _: `Ice.EncodingVersion` - The encoding version to convert.
+///
+/// - returns: `String` - The converted string.
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
     return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
 }

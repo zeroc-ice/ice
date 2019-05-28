@@ -5,6 +5,11 @@
 import Dispatch
 import IceObjc
 
+/// Converts a string to an encoding version.
+///
+/// - parameter _: `String` - The string to convert.
+///
+/// - returns: `Ice.EncodingVersion` - The converted encoding version.</returns>
 func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
     let (major, minor) = try stringToMajorMinor(s)
     return EncodingVersion(major: major, minor: minor)

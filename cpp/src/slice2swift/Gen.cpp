@@ -363,6 +363,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
+    writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
@@ -408,6 +409,9 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), rootClass, extraParams);
 
     out << sp;
+    out << nl << "/// Returns the Slice type ID of this exception.";
+    out << nl << "///";
+    out << nl << "/// - returns: `Swift.String` - the Slice type ID of this exception.";
     out << nl << "open override class func ice_staticId() -> Swift.String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
@@ -416,6 +420,9 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(p->isLocal())
     {
         out << sp;
+        out << nl << "/// Returns a string representation of this exception";
+        out << nl << "///";
+        out << nl << "/// - returns: `Swift.String` - The string representaton of this exception.";
         out << nl << "open override func ice_print() -> Swift.String";
         out << sb;
         out << nl << "return _" << name << "Description";
@@ -467,6 +474,10 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(preserved && !basePreserved)
         {
             out << sp;
+            out << nl << "/// Returns the sliced data if the exception has a preserved-slice base class and has been";
+            out << nl << "/// sliced during un-marshaling, nil is returned otherwise.";
+            out << nl << "///";
+            out << nl << "/// - returns: `Ice.SlicedData` - The sliced data.";
             out << nl << "open override func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData", swiftModule)
                 << "?" << sb;
             out << nl << "return _slicedData";
@@ -506,6 +517,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     bool isClass = containsClassMembers(p);
     out << sp;
+    writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
     out << nl << "public " << (isClass ? "class " : "struct ") << name;
     if(legalKeyType)
@@ -518,14 +530,19 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeDefaultInitializer(out, false, true);
     writeMemberwiseInitializer(out, members, p);
 
-    out << eb << nl;
+    out << eb;
 
     if(!p->isLocal())
     {
+        out << sp;
+        out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` structured values from the stream.";
         out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
         out << sb;
 
         out << sp;
+        out << nl << "/// Read a `" << name << "` structured value from the stream.";
+        out << nl << "///";
+        out << nl << "/// - returns: `" << name << "` - The structured value read from the stream.";
         out << nl << "func read() throws -> " << name;
         out << sb;
         out << nl << (isClass ? "let" : "var") << " v = " << name << "()";
@@ -537,6 +554,11 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << eb;
 
         out << sp;
+        out << nl << "/// Read an optional `" << name << "?` structured value from the stream.";
+        out << nl << "///";
+        out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
+        out << nl << "///";
+        out << nl << "/// - returns: `" << name << "?` - The structured value read from the stream.";
         out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
         out << sb;
         out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
@@ -557,9 +579,13 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << eb;
 
         out << sp;
+        out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` structured values from the stream.";
         out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
         out << sb;
 
+        out << nl << "/// Write a `" << name << "` structured value to the stream.";
+        out << nl << "///";
+        out << nl << "/// - parameter _: `" << name << "` - The value to write to the stream.";
         out << nl << "func write(_ v: " << name << ")" << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
@@ -568,6 +594,11 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << eb;
 
         out << sp;
+        out << nl << "/// Write an optional `" << name << "?` structured value to the stream.";
+        out << nl << "///";
+        out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
+        out << nl << "///";
+        out << nl << "/// - parameter value: `" << name << "?` - The value to write to the stream.";
         out << nl << "func write(tag: Swift.Int32, value: " << name << "?)" << sb;
         out << nl << "if let v = value" << sb;
         out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
@@ -604,6 +635,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
 
     out << sp;
+    writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = ";
 
     if(builtin && builtin->kind() == Builtin::KindByte)
@@ -631,9 +663,16 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
 
     out << sp;
+    out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` sequence values from";
+    out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
     out << nl << "public struct " << name << "Helper";
     out << sb;
 
+    out << nl << "/// Read a `" << fixIdent(name) << "` sequence from the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter istr: `Ice.InputStream` - The stream to read from.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << fixIdent(name) << "` - The sequence read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ") throws -> "
         << fixIdent(name);
     out << sb;
@@ -662,6 +701,13 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v";
     out << eb;
 
+    out << nl << "/// Read an optional `" << fixIdent(name) << "?` sequence from the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter istr: `Ice.InputStream` - The stream to read from.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << fixIdent(name) << "` - The sequence read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> "
         << fixIdent(name) << "?";
     out << sb;
@@ -681,6 +727,11 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// Wite a `" << fixIdent(name) << "` sequence to the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter ostr: `Ice.OuputStream` - The stream to write to.";
+    out << nl << "///";
+    out << nl << "/// - parameter value: `" << fixIdent(name) << "` - The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << fixIdent(name) << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -691,6 +742,13 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// Wite an optional `" << fixIdent(name) << "?` sequence to the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter ostr: `Ice.OuputStream` - The stream to write to.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - parameter value: `" << fixIdent(name) << "` The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: "
         << fixIdent(name) << "?)";
     out << sb;
@@ -737,6 +795,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string keyType = typeToString(p->keyType(), p, p->keyMetaData(), false, typeCtx);
     const string valueType = typeToString(p->valueType(), p, p->valueMetaData(), false, typeCtx);
     out << sp;
+    writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
 
     if(p->isLocal())
@@ -752,9 +811,16 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const int minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
     out << sp;
+    out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` dictionary values from";
+    out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
     out << nl << "public struct " << name << "Helper";
     out << sb;
 
+    out << nl << "/// Read a `" << fixIdent(name) << "` dictionary from the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter istr: `Ice.InputStream` - The stream to read from.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << fixIdent(name) << "` - The dictionary read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ") throws -> " << fixIdent(name);
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
@@ -794,6 +860,13 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "return v";
     out << eb;
 
+    out << nl << "/// Read an optional `" << fixIdent(name) << "?` dictionary from the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter istr: `Ice.InputStream` - The stream to read from.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << fixIdent(name) << "` - The dictionary read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> "
         << fixIdent(name) << "?";
     out << sb;
@@ -813,6 +886,11 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// Wite a `" << fixIdent(name) << "` dictionary to the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter ostr: `Ice.OuputStream` - The stream to write to.";
+    out << nl << "///";
+    out << nl << "/// - parameter value: `" << fixIdent(name) << "` - The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << fixIdent(name) << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -824,6 +902,13 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// Wite an optional `" << fixIdent(name) << "?` dictionary to the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter ostr: `Ice.OuputStream` - The stream to write to.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - parameter value: `" << fixIdent(name) << "` - The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: "
         << fixIdent(name) << "?)";
     out << sb;
@@ -862,12 +947,20 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
+    writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
     out << nl << "public enum " << name << ": " << enumType;
     out << sb;
 
     for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
     {
+        StringList sl = splitComment((*en)->comment());
+        out << nl << "/// " << fixIdent((*en)->name());
+        if(!sl.empty())
+        {
+            out << " ";
+            writeDocLines(out, sl, false);
+        }
         out << nl << "case " << fixIdent((*en)->name()) << " = " << (*en)->value();
     }
 
@@ -883,6 +976,9 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sb;
 
     out << sp;
+    out << nl << "/// Read an enumerated value.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << name << "` - The enumarated value.";
     out << nl << "func read() throws -> " << name;
     out << sb;
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
@@ -894,6 +990,11 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// Read an optional enumerated value from the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << name << "` - The enumerated value.";
     out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
@@ -910,12 +1011,20 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sb;
 
     out << sp;
+    out << nl << "/// Writes an enumerated value to the stream.";
+    out << nl << "///";
+    out << nl << "/// parameter _: `" << name << "` - The enumerator to write.";
     out << nl << "func write(_ v: " << name << ")";
     out << sb;
     out << nl << "write(enum: v.rawValue, maxValue: " << p->maxValue() << ")";
     out << eb;
 
     out << sp;
+    out << nl << "/// Writes an optional enumerated value to the stream.";
+    out << nl << "///";
+    out << nl << "/// parameter tag: `Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// parameter _: `" << name << "` - The enumerator to write.";
     out << nl << "func write(tag: Swift.Int32, value: " << name << "?)";
     out << sb;
     out << nl << "guard let v = value else";
@@ -935,6 +1044,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
     const TypePtr type = p->type();
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
 
+    writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
     writeConstantValue(out, type, p->valueType(), p->value(), p->getMetaData(), swiftModule);
     out << nl;
@@ -985,6 +1095,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string prxI = name + "PrxI";
 
     out << sp;
+    writeProxyDocSummary(out, p, swiftModule);
     out << nl << "public protocol " << prx << ":";
     if(!hasBase)
     {
@@ -1005,6 +1116,10 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "///  Returns the Slice type id of the interface or class associated with this proxy class.";
+    out << nl << "///";
+    out << nl << "/// - returns: `String` the Slice type id of the interface or class associated with";
+    out << nl << "///   this proxy type";
     out << nl;
     if(swiftModule == "Ice")
     {
@@ -1028,6 +1143,24 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     // checkedCast
     //
     out << sp;
+    out << nl << "/// Casts a proxy to the requested type. This call contacts the server and verifies that the object";
+    out << nl << "/// implements this type.";
+    out << nl << "///";
+    out << nl << "/// It will throw a local exception if a communication error occurs. You can optionally supply a";
+    out << nl << "/// facet name and a context map.";
+    out << nl << "///";
+    out << nl << "/// - parameter prx: `Ice.ObjectPrx` - The proxy to be cast.";
+    out << nl << "///";
+    out << nl << "/// - parameter type: `" << prx << ".Protocol` - The proxy type to cast to.";
+    out << nl << "///";
+    out << nl << "/// - parameter facet: `String` - The optional name of the desired facet.";
+    out << nl << "///";
+    out << nl << "/// - parameter context: `Ice.Context` The optional context dictionary for the remote invocation.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << prx << "` - A proxy with the requested type or nil if the objet does not";
+    out << nl << "///   support this type.";
+    out << nl << "///";
+    out << nl << "/// - throws: `Ice.LocalException` if a communication error occurs.";
     out << nl << "public func checkedCast" << spar
         << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol")
@@ -1042,6 +1175,16 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     // uncheckedCast
     //
     out << sp;
+    out << nl << "/// Downcasts the given proxy to this type without contacting the remote server.";
+    out << nl << "///";
+    out << nl << "///";
+    out << nl << "/// - parameter prx: `Ice.ObjectPrx` The proxy to be cast.";
+    out << nl << "///";
+    out << nl << "/// - parameter type: `" << prx << ".Protocol` - The proxy type to cast to.";
+    out << nl << "///";
+    out << nl << "/// - parameter facet: `String` - The optional name of the desired facet";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << prx << "` - A proxy with the requested type";
     out << nl << "public func uncheckedCast" << spar
         << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol")
@@ -1054,6 +1197,11 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     // ice_staticId
     //
     out << sp;
+    out << nl << "/// Returns the Slice type id of the interface or class associated with this proxy type.";
+    out << nl << "///";
+    out << nl << "/// parameter type: `" << prx << ".Protocol` -  The proxy type to retrieve the type id.";
+    out << nl << "///";
+    out << nl << "/// returns: `String` - The type id of the interface or class associated with this proxy type.";
     out << nl << "public func ice_staticId" << spar << ("_ type: " + prx + ".Protocol") << epar << " -> Swift.String";
     out << sb;
     out << nl << "return " << prxI << ".ice_staticId()";
@@ -1063,15 +1211,28 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     // InputStream extension
     //
     out << sp;
+    out << nl << "/// Extension to `Ice.InputStream` class to support reading proxy of type";
+    out << nl << "/// `" << prx << "`.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
+    out << nl << "/// Extracts a proxy from the stream. The stream must have been initialized with a communicator.";
+    out << nl << "///";
+    out << nl << "/// - parameter type: `" << prx << ".Protocol` - The type of the proxy to be extracted.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << prx << "?` - The extracted proxy";
     out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read() as " << prxI << "?";
     out << eb;
 
-    out << sp;
+    out << nl << "/// Extracts a proxy from the stream. The stream must have been initialized with a communicator.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - parameter type: `" << prx << ".Protocol` - The type of the proxy to be extracted.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << prx << "` - The extracted proxy.";
     out << nl << "func read(tag: Swift.Int32, type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read(tag: tag) as " << prxI << "?";
@@ -1080,6 +1241,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
+    writeProxyDocSummary(out, p, swiftModule);
     out << nl << "public extension " << prx;
     out << sb;
 
@@ -1173,6 +1335,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
+    writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetaData());
     out << nl << "open class " << fixIdent(name) << ": ";
     if(base)
@@ -1206,11 +1369,17 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), !base);
 
     out << sp;
+    out << nl << "/// Returns the Slice type ID of the most-derived interface supported by this object.";
+    out << nl << "///";
+    out << nl << "/// - returns: `String` - The Slice type ID of the most-derived interface supported by this object";
     out << nl << "open override func ice_id() -> Swift.String" << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
+    out << nl << "/// Returns the Slice type ID of the interface supported by this object.";
+    out << nl << "///";
+    out << nl << "/// - returns: `String` - The Slice type ID of the interface supported by this object.";
     out << nl << "open override class func ice_staticId() -> Swift.String" << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
@@ -1268,6 +1437,10 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(preserved && !basePreserved)
     {
         out << sp;
+        out << nl << "/// Returns the sliced data if the value has a preserved-slice base class and has been sliced";
+        out << nl << "/// during un-marshaling of the value, nil is returned otherwise.";
+        out << nl << "///";
+        out << nl << "/// returns: `Ice.SlicedData?` - The sliced data or nil";
         out << nl << "open override func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData?", swiftModule)
             << sb;
         out << nl << "return _slicedData";
@@ -1347,6 +1520,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + (p->isInterface() ? "" : "Disp"));
 
     out << sp;
+    writeDocSummary(out, p);
     out << nl << "public protocol " << name << ":";
 
     if(!hasBase)
@@ -1387,6 +1561,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     const ExceptionList allExceptions = op->throws();
 
     out << sp;
+    writeOpDocSummary(out, op, isAmd, true);
     out << nl << "func " << opName;
     out << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
@@ -1461,23 +1636,43 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     ids << "]";
 
     out << sp;
+    writeServantDocSummary(out, p, swiftModule);
     out << nl << "public extension " << fixIdent(name);
 
     out << sb;
 
     out << sp;
+    out << nl << "/// Returns the Slice type ID of the most-derived interface supported by this object.";
+    out << nl << "///";
+    out << nl << "/// parameter current: `Ice.Current` - The Current object for the invocation.";
+    out << nl << "///";
+    out << nl << "/// - returns: `String` - The Slice type ID of the most-derived interface supported by this object";
     out << nl << "func ice_id(current _: Current) throws -> Swift.String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
+    out << nl << "/// Returns the Slice type IDs of the interfaces supported by this object";
+    out << nl << "///";
+    out << nl << "/// - parameter current: `Ice.Current` The Current object for the invocation.";
+    out << nl << "///";
+    out << nl << "/// - returns: `[Swift.String]` The Slice type IDs of the interfaces supported by this object,";
+    out << nl << "///   in base-to-derived  order.";
     out << nl << "func ice_ids(current _: Current) throws -> [Swift.String]";
     out << sb;
     out << nl << "return " << ids.str();
     out << eb;
 
     out << sp;
+    out << nl << "/// Tests whether this object supports a specific Slice interface.";
+    out << nl << "///";
+    out << nl << "/// - parameter s: `Swift.String` - The name of the interface to be check.";
+    out << nl << "///";
+    out << nl << "/// - parameter current: `Ice.Current` - The Current object for the invocation.";
+    out << nl << "///";
+    out << nl << "/// - returns: `Bool` - True if this object supports the interface specified by s or derives";
+    out << nl << "///   from the interface specified by s.";
     out << nl << "func ice_isA(s: Swift.String, current _: Current) throws -> Swift.Bool";
     out << sb;
     out << nl << "return " << ids.str() << ".contains(s)";
@@ -1582,6 +1777,9 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         const ParamDeclList params = op->parameters();
 
         out << sp;
+        writeDocSummary(out, p);
+        out << nl << "///";
+        writeOpDocSummary(out, op, false, false, true);
         out << nl << "public typealias " << name << " = ";
         out << spar;
         for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
@@ -1654,6 +1852,7 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Local interfaces and local classes map to Swift protocol
     //
     out << sp;
+    writeDocSummary(out, p);
     out << nl << "public protocol " << fixIdent(name) << ":";
     if(bases.empty())
     {
@@ -1691,6 +1890,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
     int typeCtx = TypeContextInParam | TypeContextLocal;
 
     out << sp;
+    writeOpDocSummary(out, p, false, false, true);
     writeSwiftAttributes(out, p->getMetaData());
     out << nl << "func " << name;
     out << spar;
@@ -1757,6 +1957,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
     if(p->hasMetaData("async-oneway"))
     {
         out << sp;
+        writeOpDocSummary(out, p, true, false, true);
         out << nl << "func " << name << "Async";
         out << spar;
         for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)

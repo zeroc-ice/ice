@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/**
- * Unknown sliced value holds an instance of an unknown Slice class type.
- **/
+/// Unknown sliced value holds an instance of an unknown Slice class type.
 public final class UnknownSlicedValue: Value {
     private let unknownTypeId: String
     private var slicedData: SlicedData?
@@ -17,6 +15,9 @@ public final class UnknownSlicedValue: Value {
         self.unknownTypeId = unknownTypeId
     }
 
+    /// Returns the Slice type ID associated with this object.
+    ///
+    /// - returns: `String` - The type ID.
     public override func ice_id() -> String {
         return unknownTypeId
     }
@@ -25,6 +26,10 @@ public final class UnknownSlicedValue: Value {
         return "::Ice::UnknownSlicedValue"
     }
 
+    /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+    /// un-marshaling of the value, nil is returned otherwise.
+    ///
+    /// - returns: `Ice.SlicedData?` - The sliced data or nil.
     public override func ice_getSlicedData() -> SlicedData? {
         return slicedData
     }

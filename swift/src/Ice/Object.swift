@@ -5,9 +5,34 @@
 import IceObjc
 
 public protocol Object {
+    /// Returns the Slice type ID of the most-derived interface supported by this object.
+    ///
+    /// - parameter current: `Ice.Current` - The Current object for the invocation.
+    ///
+    /// - returns: `String` - The Slice type ID of the most-derived interface.
     func ice_id(current: Current) throws -> String
+
+    /// Returns the Slice type IDs of the interfaces supported by this object.
+    ///
+    /// - parameter current: `Ice.Current` - The Current object for the invocation.
+    ///
+    /// - returns: `[String]` The Slice type IDs of the interfaces supported by this object, in base-to-derived
+    ///   order. The first element of the returned array is always `::Ice::Object`.
     func ice_ids(current: Current) throws -> [String]
+
+    /// Tests whether this object supports a specific Slice interface.
+    ///
+    /// - parameter s: `String` - The type ID of the Slice interface to test against.
+    ///
+    /// - parameter current: `Ice.Current` - The Current object for the invocation.
+    ///
+    /// - returns: `Bool` - True if this object has the interface specified by s or
+    ///   derives from the interface specified by s.
     func ice_isA(s: String, current: Current) throws -> Bool
+
+    /// Tests whether this object can be reached.
+    ///
+    /// - parameter current: The Current object for the invocation.
     func ice_ping(current: Current) throws
 
     func _iceDispatch(incoming: Incoming, current: Current) throws

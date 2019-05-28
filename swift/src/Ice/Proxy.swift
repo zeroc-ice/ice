@@ -8,59 +8,334 @@ import PromiseKit
 
 /// The base protocol for all Ice proxies.
 public protocol ObjectPrx: CustomStringConvertible, AnyObject {
+    /// Returns the communicator that created this proxy.
+    ///
+    /// - returns: `Ice.Communicator` - The communicator that created this proxy.
     func ice_getCommunicator() -> Communicator
+
+    /// Returns the identity embedded in this proxy.
+    ///
+    /// - returns: `Ice.Identity` - The identity of the target object.
     func ice_getIdentity() -> Identity
-    func ice_identity(_ id: Identity) -> ObjectPrx
+
+    /// Creates a new proxy that is identical to this proxy, except for the identity.
+    ///
+    /// - parameter _: `Ice.Identity` - The identity for the new proxy.
+    ///
+    /// - returns: A proxy with the new identity.
+    func ice_identity(_ id: Identity) -> Self
+
+    /// Returns the per-proxy context for this proxy.
+    ///
+    /// - returns: `Ice.Context` - The per-proxy context.
     func ice_getContext() -> Context
+
+    /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
+    ///
+    /// - parameter newContext: `Ice.Context` - The context for the new proxy.
+    ///
+    /// - returns: The proxy with the new per-proxy context.
     func ice_context(_ context: Context) -> Self
+
+    /// Returns the facet for this proxy.
+    ///
+    /// - returns: `String` - The facet for this proxy. If the proxy uses the default facet,
+    ///   the return value is the empty string.
     func ice_getFacet() -> String
+
+    /// Creates a new proxy that is identical to this proxy, except for the facet.
+    ///
+    /// - parameter _: `String` - The facet for the new proxy.
+    ///
+    /// - returns: `Ice.ObjectPrx` - The proxy with the new facet.
     func ice_facet(_ facet: String) -> ObjectPrx
+
+    /// Returns the adapter ID for this proxy.
+    ///
+    /// - returns: `String` - The adapter ID. If the proxy does not have an adapter ID, the return value is the
+    ///   empty string.
     func ice_getAdapterId() -> String
+
+    /// Creates a new proxy that is identical to this proxy, except for the adapter ID.
+    ///
+    /// - parameter _: `String` - The adapter ID for the new proxy.
+    ///
+    /// - returns: The proxy with the new adapter ID.
     func ice_adapterId(_ id: String) -> Self
+
+    /// Returns the endpoints used by this proxy.
+    ///
+    /// - returns: `EndpointSeq` - The endpoints used by this proxy.
     func ice_getEndpoints() -> EndpointSeq
+
+    /// Creates a new proxy that is identical to this proxy, except for the endpoints.
+    ///
+    /// - parameter _: `EndpointSeq` - The endpoints for the new proxy.
+    ///
+    /// - returns: The proxy with the new endpoints.
     func ice_endpoints(_ endpoints: EndpointSeq) -> Self
+
+    /// Returns the locator cache timeout of this proxy.
+    ///
+    /// - returns: `Int32` - The locator cache timeout value (in seconds).
     func ice_getLocatorCacheTimeout() -> Int32
+
+    /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+    ///
+    /// - parameter _: `Int32` - The new locator cache timeout (in seconds).
+    ///
+    /// - returns: A new proxy with the specified cache timeout.
     func ice_locatorCacheTimeout(_ timeout: Int32) -> Self
+
+    /// Returns the invocation timeout of this proxy.
+    ///
+    /// - returns: `Int32` - The invocation timeout value (in seconds).
     func ice_getInvocationTimeout() -> Int32
+
+    /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+    ///
+    /// - parameter _: `Int32` - The new invocation timeout (in seconds).
+    ///
+    /// - returns: A new proxy with the specified invocation timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
+
+    /// Returns the connection id of this proxy.
+    ///
+    /// returns: `String` - The connection id.
     func ice_getConnectionId() -> String
+
+    /// Creates a new proxy that is identical to this proxy, except for its connection ID.
+    ///
+    /// - parameter _: `String` - The connection ID for the new proxy. An empty string removes the
+    ///   connection ID.
+    ///
+    /// - returns: A new proxy with the specified connection ID.
     func ice_connectionId(_ id: String) -> Self
+
+    /// Returns whether this proxy caches connections.
+    ///
+    /// - returns: `Bool` - True if this proxy caches connections; false, otherwise.
     func ice_isConnectionCached() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, except for connection caching.
+    ///
+    /// - parameter _: `Bool` - True if the new proxy should cache connections; false, otherwise.
+    ///
+    /// - returns: The new proxy with the specified caching policy.
     func ice_connectionCached(_ cached: Bool) -> Self
+
+    /// Returns how this proxy selects endpoints (randomly or ordered).
+    ///
+    /// - returns: `Ice.EndpointSelectionType` - The endpoint selection policy.
     func ice_getEndpointSelection() -> EndpointSelectionType
+
+    /// Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
+    ///
+    /// - parameter _: `Ice.EndpointSelectionType` - The new endpoint selection policy.
+    ///
+    /// - returns: The new proxy with the specified endpoint selection policy.
     func ice_endpointSelection(_ type: EndpointSelectionType) -> Self
+
+    /// Returns the encoding version used to marshal requests parameters.
+    ///
+    /// - returns: `Ice.EncodingVersion` - The encoding version.
     func ice_getEncodingVersion() -> EncodingVersion
+
+    /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
+    /// parameters.
+    ///
+    /// - parameter _: `Ice.EncodingVersion` - The encoding version to use to marshal requests parameters.
+    ///
+    /// - returns: The new proxy with the specified encoding version.
     func ice_encodingVersion(_ encoding: EncodingVersion) -> Self
+
+    /// Returns the router for this proxy.
+    ///
+    /// - returns: `Ice.RouterPrx?` - The router for the proxy. If no router is configured for the proxy,
+    ///   the return value is nil.
     func ice_getRouter() -> RouterPrx?
+
+    /// Creates a new proxy that is identical to this proxy, except for the router.
+    ///
+    /// - parameter router: `Ice.RouterPrx?` - The router for the new proxy.
+    ///
+    /// - returns: The new proxy with the specified router.
     func ice_router(_ router: RouterPrx?) -> Self
+
+    /// Returns the locator for this proxy.
+    ///
+    /// - returns: `Ice.LocatorPrx?` - The locator for this proxy. If no locator is configured, the
+    ///   return value is nil.
     func ice_getLocator() -> LocatorPrx?
+
+    /// Creates a new proxy that is identical to this proxy, except for the locator.
+    ///
+    /// - parameter _: `Ice.LocatorPrx` The locator for the new proxy.
+    ///
+    /// - returns: The new proxy with the specified locator.
     func ice_locator(_ locator: LocatorPrx?) -> Self
+
+    /// Returns whether this proxy communicates only via secure endpoints.
+    ///
+    /// - returns: `Bool` - True if this proxy communicates only via secure endpoints; false, otherwise.
     func ice_isSecure() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
+    ///
+    /// - parameter _: `Bool` - If true only endpoints that use a secure transport are used by the new proxy.
+    ///   otherwise the returned proxy uses both secure and insecure endpoints.
+    ///
+    /// - returns: The new proxy with the specified selection policy.
     func ice_secure(_ secure: Bool) -> Self
+
+    /// Returns whether this proxy prefers secure endpoints.
+    ///
+    /// - returns: `Bool` - True if the proxy always attempts to invoke via secure endpoints before it
+    ///   attempts to use insecure endpoints; false, otherwise.
     func ice_isPreferSecure() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
+    ///
+    /// - parameter _: `Bool` - If true, the new proxy will use secure endpoints for invocations
+    ///   and only use insecure endpoints if an invocation cannot be made via secure endpoints. Otherwise
+    ///   the proxy prefers insecure endpoints to secure ones.
+    ///
+    /// - returns: The new proxy with the new endpoint selection policy.
     func ice_preferSecure(_ preferSecure: Bool) -> Self
+
+    /// Returns whether this proxy uses twoway invocations.
+    ///
+    /// - returns: `Bool` - True if this proxy uses twoway invocations; false, otherwise.
     func ice_isTwoway() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, but uses twoway invocations.
+    ///
+    /// - returns: A new proxy that uses twoway invocations.
     func ice_twoway() -> Self
+
+    /// Returns whether this proxy uses oneway invocations.
+    ///
+    /// - returns: `Bool` - True if this proxy uses oneway invocations; false, otherwise.
     func ice_isOneway() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, but uses oneway invocations.
+    ///
+    /// - returns: A new proxy that uses oneway invocations.
     func ice_oneway() -> Self
+
+    /// Returns whether this proxy uses batch oneway invocations.
+    ///
+    /// - returns: `Bool` - True if this proxy uses batch oneway invocations; false, otherwise.
     func ice_isBatchOneway() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
+    ///
+    /// - returns: A new proxy that uses batch oneway invocations.
     func ice_batchOneway() -> Self
+
+    /// Returns whether this proxy uses datagram invocations.
+    ///
+    /// - returns: `Bool` - True if this proxy uses datagram invocations; false, otherwise.
     func ice_isDatagram() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, but uses datagram invocations.
+    ///
+    /// - returns: A new proxy that uses datagram invocations.
     func ice_datagram() -> Self
+
+    /// Returns whether this proxy uses batch datagram invocations.
+    ///
+    /// - returns: `Bool` - True if this proxy uses batch datagram invocations; false, otherwise.
     func ice_isBatchDatagram() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
+    ///
+    /// - returns: A new proxy that uses batch datagram invocations.
     func ice_batchDatagram() -> Self
+
+    /// Obtains the compression override setting of this proxy.
+    ///
+    /// - returns: `Bool` - The compression override setting. If no optional value is present, no override is
+    ///   set. Otherwise, true if compression is enabled, false otherwise.
     func ice_getCompress() -> Bool?
+
+    /// Creates a new proxy that is identical to this proxy, except for compression.
+    ///
+    /// - parameter _: `Bool` - True enables compression for the new proxy; false disables compression.
+    ///
+    /// - returns: A new proxy with the specified compression setting.
     func ice_compress(_ compress: Bool) -> Self
+
+    /// Obtains the timeout override of this proxy.
+    ///
+    /// - returns: `Int32?` - The timeout override. If no optional value is present, no override is set.
+    ///   Otherwise, returns the timeout override value.
     func ice_getTimeout() -> Int32?
+
+    /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
+    ///
+    /// - parameter _: `Int32` - The timeout for the new proxy in milliseconds.
+    ///
+    /// - returns: A new proxy with the specified timeout.
     func ice_timeout(_ timeout: Int32) -> Self
+
+    /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+    /// to the given connection.
+    ///
+    /// - parameter _: `Ice.Connection` - The fixed proxy connection.
+    ///
+    /// - returns: A fixed proxy bound to the given connection.
     func ice_fixed(_ connection: Connection) -> Self
+
+    /// Returns whether this proxy is a fixed proxy.
+    ///
+    /// - returns: `Bool` - True if this is a fixed proxy, false otherwise.
     func ice_isFixed() -> Bool
+
+    /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
+    /// connection, it does not attempt to create a connection.
+    ///
+    /// - returns: `Ice.Connection?` - The cached Connection for this proxy (nil if the proxy does not have
+    ///   an established connection).
+    ///
+    /// - throws: `CollocationOptimizationException` - If the proxy uses collocation optimization and denotes a
+    ///   collocated object.
     func ice_getCachedConnection() -> Connection?
+
+    /// Returns the stringified form of this proxy.
+    ///
+    /// - returns: `String` - The stringified proxy
     func ice_toString() -> String
+
+    /// Returns whether this proxy uses collocation optimization.
+    ///
+    /// - returns: `Bool` - True if the proxy uses collocation optimization; false, otherwise.
     func ice_isCollocationOptimized() -> Bool
+
+    /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
+    ///
+    /// - parameter _: `Bool` - True if the new proxy enables collocation optimization; false, otherwise.
+    ///
+    /// - returns: The new proxy the specified collocation optimization.
     func ice_collocationOptimized(_ collocated: Bool) -> Self
 }
 
+/// Casts a proxy to `Ice.ObjectPrx`. This call contacts the server and will throw an Ice run-time exception
+/// if the target object does not exist or the server cannot be reached.
+///
+/// - parameter prx: `Ice.ObjectPrx` - The proxy to cast to `Ice.ObjectPrx`.
+///
+/// - parameter type: `Ice.ObjectPrx.Protocol` - The proxy type to cast to.
+///
+/// - parameter facet: `String?` - The optional facet for the new proxy.
+///
+/// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
+///
+/// - throws: Throws an Ice run-time exception if the target object does not exist, the specified facet
+///   does not exist, or the server cannot be reached.
+///
+/// - returns: The new proxy with the specified facet or nil if the target object does not support the specified
+///   interface.
 public func checkedCast(prx: Ice.ObjectPrx,
                         type _: ObjectPrx.Protocol,
                         facet: String? = nil,
@@ -68,12 +343,25 @@ public func checkedCast(prx: Ice.ObjectPrx,
     return try ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as ObjectPrxI?
 }
 
+/// Creates a new proxy that is identical to the passed proxy, except for its facet. This call does
+/// not contact the server and always succeeds.
+///
+/// - parameter prx: `Ice.ObjectPrx` - The proxy to cast to `Ice.ObjectPrx`.
+///
+/// - parameter type: `Ice.ObjectPrx.Protocol` - The proxy type to cast to.
+///
+/// - parameter facet: `String?` - The optional facet for the new proxy.
+///
+/// - returns: The new proxy with the specified facet.
 public func uncheckedCast(prx: Ice.ObjectPrx,
                           type _: ObjectPrx.Protocol,
                           facet: String? = nil) -> ObjectPrx {
     return ObjectPrxI.uncheckedCast(prx: prx, facet: facet) as ObjectPrxI
 }
 
+/// Returns the Slice type id of the interface or class associated with this proxy class.
+///
+/// - returns: `String` - The type id, "::Ice::Object".
 public func ice_staticId(_: ObjectPrx.Protocol) -> Swift.String {
     return ObjectPrxI.ice_staticId()
 }
@@ -104,9 +392,10 @@ public extension ObjectPrx {
 
     /// Sends ping request to the target object.
     ///
-    /// - Parameter context: Optional explicit `Context`.
-    /// - Throws: `Ice.LocalException` such as `Ice.ObjectNotExistException` and
-    ///           `Ice.ConnectionRefusedException`.
+    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
+    ///
+    /// - throws: `Ice.LocalException` such as `Ice.ObjectNotExistException` and
+    ///   `Ice.ConnectionRefusedException`.
     func ice_ping(context: Context? = nil) throws {
         try _impl._invoke(operation: "ice_ping",
                           mode: OperationMode.Nonmutating,
@@ -115,13 +404,18 @@ public extension ObjectPrx {
 
     /// Sends ping request to the target object asynchronously.
     ///
-    /// - Parameters:
-    ///   - context: Optional explicit `Context`.
-    ///   - sentOn: Dispatch queue used to execute the `sent` closure.
-    ///   - sentFlags: Optional flags when dispatching the `sent` closure.
-    ///   - sent: Closure executed when the request is sent; the Bool
-    ///           parameter is true when the request was sent synchronously.
-    /// - Returns: A promise that is resolved when the request completes.
+    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
+    ///
+    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
+    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///
+    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
+    ///   dispatch sent callback
+    ///
+    /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
+    ///
+    /// - returns: `PromiseKit.Promise<Void>` - A promise object that will be resolved with
+    ///   the return values of invocation.
     func ice_pingAsync(context: Context? = nil,
                        sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                        sentFlags: DispatchWorkItemFlags? = nil,
@@ -134,6 +428,14 @@ public extension ObjectPrx {
                                   sent: sent)
     }
 
+    /// Tests whether this object supports a specific Slice interface.
+    ///
+    /// - parameter id: `String` - The type ID of the Slice interface to test against.
+    ///
+    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
+    ///
+    /// - returns: `Bool` - True if the target object has the interface specified by id or derives
+    ///   from the interface specified by id.
     func ice_isA(id: String, context: Context? = nil) throws -> Bool {
         return try _impl._invoke(operation: "ice_isA",
                                  mode: .Nonmutating,
@@ -144,6 +446,22 @@ public extension ObjectPrx {
                                  context: context)
     }
 
+    /// Tests whether this object supports a specific Slice interface.
+    ///
+    /// - parameter id: `String` - The type ID of the Slice interface to test against.
+    ///
+    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
+    ///
+    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
+    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///
+    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
+    ///   dispatch sent callback
+    ///
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
+    ///
+    /// - returns: `PromiseKit.Promise<Bool>` - A promise object that will be resolved with
+    ///   the return values of invocation.
     func ice_isAAsync(id: String, context: Context? = nil,
                       sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                       sentFlags: DispatchWorkItemFlags? = nil,
@@ -160,6 +478,11 @@ public extension ObjectPrx {
                                   sent: sent)
     }
 
+    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    ///
+    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
+    ///
+    /// - returns: `String` - The Slice type ID of the most-derived interface.
     func ice_id(context: Context? = nil) throws -> String {
         return try _impl._invoke(operation: "ice_id",
                                  mode: .Nonmutating,
@@ -167,6 +490,20 @@ public extension ObjectPrx {
                                  context: context)
     }
 
+    /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    ///
+    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
+    ///
+    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
+    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///
+    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
+    ///   dispatch sent callback
+    ///
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
+    ///
+    /// - returns: `PromiseKit.Promise<String>` A promise object that will be resolved with
+    ///   the return values of invocation.
     func ice_idAsync(context: Context? = nil,
                      sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                      sentFlags: DispatchWorkItemFlags? = nil,
@@ -180,6 +517,12 @@ public extension ObjectPrx {
                                   sent: sent)
     }
 
+    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    ///
+    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
+    ///
+    /// - returns: `Ice.StringSeq` - The Slice type IDs of the interfaces supported by the target object,
+    ///   in base-to-derived order. The first element of the returned array is always `::Ice::Object`.
     func ice_ids(context: Context? = nil) throws -> StringSeq {
         return try _impl._invoke(operation: "ice_ids",
                                  mode: .Nonmutating,
@@ -187,6 +530,20 @@ public extension ObjectPrx {
                                  context: context)
     }
 
+    /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    ///
+    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
+    ///
+    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
+    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///
+    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
+    ///   dispatch sent callback
+    ///
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
+    ///
+    /// - returns: `PromiseKit.Promise<Ice.StringSeq>` - A promise object that will be resolved with
+    ///   the return values of invocation.
     func ice_idsAsync(context: Context? = nil,
                       sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                       sentFlags: DispatchWorkItemFlags? = nil,
@@ -200,6 +557,25 @@ public extension ObjectPrx {
                                   sent: sent)
     }
 
+    /// Invokes an operation dynamically.
+    ///
+    /// - parameter operation: `String` - The name of the operation to invoke.
+    ///
+    /// - parameter mode: `Ice.OperationMode` - The operation mode (normal or idempotent).
+    ///
+    /// - parameter inEncaps: `Data` - The encoded in-parameters for the operation.
+    ///
+    /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
+    ///
+    /// - returns: A tuple with the following fields:
+    ///
+    ///   - ok: `Bool` - If the operation completed successfully, the value
+    ///     is set to true. If the operation raises a user exception, the return value
+    ///     is false; in this case, outEncaps contains the encoded user exception. If
+    ///     the operation raises a run-time exception, it throws it directly.
+    ///
+    ///   - outEncaps: `Data` - The encoded out-paramaters and return value for the operation.
+    ///     The return value follows any out-parameters.
     func ice_invoke(operation: String,
                     mode: OperationMode,
                     inEncaps: Data,
@@ -236,6 +612,26 @@ public extension ObjectPrx {
         }
     }
 
+    /// Invokes an operation dynamically.
+    ///
+    /// - parameter operation: `String` - The name of the operation to invoke.
+    ///
+    /// - parameter mode: `Ice.OperationMode` - The operation mode (normal or idempotent).
+    ///
+    /// - parameter inEncaps: `Data` - The encoded in-parameters for the operation.
+    ///
+    /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
+    ///
+    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
+    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///
+    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
+    ///   dispatch sent callback.
+    ///
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
+    ///
+    /// - returns: `PromiseKit.Promise<(ok: Bool, outEncaps: Data)>` - A promise object that will be
+    ////  resolved with the return values of the invocation.
     func ice_invokeAsync(operation: String,
                          mode: OperationMode,
                          inEncaps: Data,
@@ -290,6 +686,13 @@ public extension ObjectPrx {
         }
     }
 
+    /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
+    /// it first attempts to create a connection.
+    ///
+    /// - returns: `Ice.Connection?` - The Connection for this proxy.
+    ///
+    /// - throws: `Ice.CollocationOptimizationException` - If the proxy uses collocation optimization and denotes a
+    ///   collocated object.
     func ice_getConnection() throws -> Connection? {
         return try autoreleasepool {
             //
@@ -302,6 +705,14 @@ public extension ObjectPrx {
         }
     }
 
+    /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
+    /// it first attempts to create a connection.
+    ///
+    /// - returns: `PromiseKit.Promise<Ice.Connection?>` - A promise object that will be resolved with
+    ///   the return values of invocation.
+    ///
+    /// - throws: `Ice.CollocationOptimizationException` - If the proxy uses collocation optimization and denotes a
+    ///   collocated object.
     func ice_getConnectionAsync() -> Promise<Connection?> {
         return Promise<Connection?> { seal in
             self._impl.handle.ice_getConnectionAsync({ conn in
@@ -312,12 +723,25 @@ public extension ObjectPrx {
         }
     }
 
+    /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
     func ice_flushBatchRequests() throws {
         return try autoreleasepool {
             try _impl.handle.ice_flushBatchRequests()
         }
     }
 
+    /// Asynchronously flushes any pending batched requests for this proxy.
+    ///
+    /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
+    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///
+    /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` Optional dispatch flags used to
+    ///   dispatch sent callback.
+    ///
+    /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
+    ///
+    /// - returns: `PromiseKit.Promise<Void> - A promise object that will be resolved when
+    ///   the flush is complete.
     func ice_flushBatchRequestsAsync(sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
                                      sentFlags: DispatchWorkItemFlags? = nil.self,
                                      sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
@@ -398,11 +822,11 @@ open class ObjectPrxI: ObjectPrx {
         return Identity(name: name as String, category: category as String)
     }
 
-    public func ice_identity(_ id: Identity) -> ObjectPrx {
+    public func ice_identity(_ id: Identity) -> Self {
         precondition(!id.name.isEmpty, "Identity name cannot be empty")
         do {
             return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category)) as ObjectPrxI
+                try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category))
             }
         } catch {
             fatalError("\(error)")

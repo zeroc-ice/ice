@@ -2,7 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+ /// Base protocol for Ice exceptions.
 public protocol Exception: Error {
+    /// Returns the type id of this exception.
+    ///
+    /// - returns: `String` - The type id of this exception.
     func ice_id() -> String
     static func ice_staticId() -> String
 }
@@ -13,6 +17,7 @@ public extension Exception {
     }
 }
 
+/// Base class for Ice run-time exceptions.
 open class LocalException: Exception, CustomStringConvertible {
     public let file: String
     public let line: Int
@@ -30,6 +35,9 @@ open class LocalException: Exception, CustomStringConvertible {
         return "::Ice::LocalException"
     }
 
+    /// Returns a stringified description of this exception.
+    ///
+    /// - returns: `String` - The exception description.
     open func ice_print() -> String {
         return ""
     }
@@ -45,6 +53,9 @@ open class UserException: Exception {
         return false
     }
 
+    /// Returns the Slice type ID of the exception.
+    ///
+    /// - returns: `String` The Slice type ID.
     open class func ice_staticId() -> String {
         return "::Ice::UserException"
     }
@@ -61,12 +72,16 @@ open class UserException: Exception {
         ostr.endException()
     }
 
+    /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
+    /// un-marshaling, nil is returned otherwise.
+    ///
+    /// - returns: The sliced data or nil.
     open func ice_getSlicedData() -> SlicedData? {
         return nil
     }
 }
 
-// Used to wrap C++ std::exception errors
+/// Error used to wrap C++ std::exception errors
 public struct RuntimeError: Error, CustomStringConvertible {
     let message: String
 
