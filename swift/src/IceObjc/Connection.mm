@@ -76,10 +76,9 @@
     }
 }
 
--(BOOL) flushBatchRequestsAsync:(uint8_t)compress
+-(void) flushBatchRequestsAsync:(uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
-                          error:(NSError* _Nullable * _Nullable)error
 {
     try
     {
@@ -95,12 +94,13 @@
                                                        sent(sentSynchronously);
                                                    }
                                                });
-        return YES;
     }
     catch(const std::exception& ex)
     {
-        *error = convertException(ex);
-        return NO;
+        // Typically CommunicatorDestroyedException. Note that the callback is called on the
+        // thread making the invocation, which is fine since we only use it to fulfill the
+        // PromiseKit promise.
+        exception(convertException(ex));
     }
 }
 
@@ -161,9 +161,8 @@
     }
 }
 
--(BOOL) heartbeatAsync:(void (^)(NSError*))exception
+-(void) heartbeatAsync:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
-                 error:(NSError* _Nullable * _Nullable)error
 {
     try
     {
@@ -178,12 +177,13 @@
                                             sent(sentSynchronously);
                                         }
                                     });
-        return YES;
     }
     catch(const std::exception& ex)
     {
-        *error = convertException(ex);
-        return NO;
+        // Typically CommunicatorDestroyedException. Note that the callback is called on the
+        // thread making the invocation, which is fine since we only use it to fulfill the
+        // PromiseKit promise.
+        exception(convertException(ex));
     }
 }
 

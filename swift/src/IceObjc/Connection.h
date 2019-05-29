@@ -17,16 +17,15 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable ICEObjectAdapter*) getAdapter;
 -(ICEEndpoint*) getEndpoint;
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError* _Nullable * _Nullable)error;
--(BOOL) flushBatchRequestsAsync:(uint8_t)compress
+-(void) flushBatchRequestsAsync:(uint8_t)compress
                       exception:(void (^)(NSError*))exception
-                           sent:(void (^_Nullable)(bool))sent
-                          error:(NSError* _Nullable * _Nullable)error;
+                           sent:(void (^_Nullable)(bool))sent;
 -(BOOL) setCloseCallback:(nullable void (^)(ICEConnection*))callback  error:(NSError* _Nullable * _Nullable)error;
 -(void) setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback;
 -(BOOL) heartbeat:(NSError* _Nullable * _Nullable)error;
--(BOOL) heartbeatAsync:(void (^)(NSError*))exception
+-(void) heartbeatAsync:(void (^)(NSError*))exception
                   sent:(void (^_Nullable)(bool))sent
-                 error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
+                    NS_SWIFT_NAME(heartbeatAsync(exception:sent:));
 -(void) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat;
 -(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat;
 -(NSString*) type;

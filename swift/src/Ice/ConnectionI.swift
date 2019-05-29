@@ -13,14 +13,14 @@ public extension Connection {
         let impl = self as! ConnectionI
         let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
         return Promise<Void> { seal in
-            try autoreleasepool {
-                try impl.handle.flushBatchRequestsAsync(compress.rawValue,
+            autoreleasepool {
+                impl.handle.flushBatchRequestsAsync(compress.rawValue,
                                                         exception: { error in seal.reject(error) },
-                                                        sent: {
-                                                            seal.fulfill(())
-                                                            if let sentCB = sentCB {
-                                                                sentCB($0)
-                                                            }
+                                                             sent: {
+                                                                 seal.fulfill(())
+                                                                 if let sentCB = sentCB {
+                                                                     sentCB($0)
+                                                                 }
                 })
             }
         }
@@ -31,11 +31,11 @@ public extension Connection {
                         sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI
         return Promise<Void> { seal in
-            try autoreleasepool {
-                try impl.handle.heartbeatAsync(exception: { error in seal.reject(error) },
-                                               sent: createSentCallback(sentOn: sentOn,
-                                                                        sentFlags: sentFlags,
-                                                                        sent: sent))
+            autoreleasepool {
+                impl.handle.heartbeatAsync(exception: { error in seal.reject(error) },
+                                                sent: createSentCallback(sentOn: sentOn,
+                                                                      sentFlags: sentFlags,
+                                                                           sent: sent))
             }
         }
     }

@@ -467,6 +467,9 @@
     }
     catch(const std::exception& ex)
     {
+        // Typically CommunicatorDestroyedException. Note that the callback is called on the
+        // thread making the invocation, which is fine since we only use it to fulfill the
+        // PromiseKit promise.
         exception(convertException(ex));
     }
 }
