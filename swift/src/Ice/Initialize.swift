@@ -116,31 +116,6 @@ private func initializeImpl(args: [String],
     if initData.properties == nil {
         initData.properties = createProperties()
     }
-    //
-    // Logger
-    //
-    // precedence:
-    // - initData.logger
-    // - logger property
-    // - C++ plugin loggers
-    // - Swift logger
-    //
-    // If no user logger or property has been specified then use the Swift logger.
-    // This logger may be overwritten by a logger plug-in during initialization
-    if initData.logger == nil,
-        initData.properties!.getProperty("Ice.LogFile").isEmpty,
-        initData.properties!.getProperty("Ice.UseSyslog").isEmpty {
-        initData.logger = LoggerI()
-    }
-
-    var loggerP: ICELoggerProtocol?
-    if let l = initData.logger {
-        loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
-    }
-
-    if let l = initData.logger {
-        loggerP = l as? LoggerI ?? LoggerWrapper(handle: l)
-    }
 
     let propsHandle = (initData.properties as! PropertiesI).handle
 
@@ -149,7 +124,6 @@ private func initializeImpl(args: [String],
         let handle = try ICEUtil.initialize(args,
                                             properties: propsHandle,
                                             withConfigFile: withConfigFile,
-                                            logger: loggerP,
                                             remArgs: &remArgs)
 
         //

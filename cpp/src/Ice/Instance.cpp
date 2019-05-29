@@ -51,6 +51,10 @@
 #include <stdio.h>
 #include <list>
 
+#ifdef __APPLE__
+#   include <Ice/OSLogLoggerI.h>
+#endif
+
 #ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
 #   include <Ice/SystemdJournalI.h>
@@ -1096,13 +1100,24 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                                                    _initData.properties->getProperty("Ice.ProgramName"),
                                                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
-#   ifdef ICE_USE_SYSTEMD
-            else if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
+            else
+#endif
+
+#ifdef __APPLE__
+            if(!_initData.logger && _initData.properties->getPropertyAsInt("Ice.UseOSLog") > 0)
+            {
+                _initData.logger = ICE_MAKE_SHARED(OSLogLoggerI,
+                                                   _initData.properties->getProperty("Ice.ProgramName"));
+            }
+            else
+#endif
+
+#ifdef ICE_USE_SYSTEMD
+            if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
             {
                 _initData.logger = ICE_MAKE_SHARED(SystemdJournalI,
                                                    _initData.properties->getProperty("Ice.ProgramName"));
             }
-#   endif
             else
 #endif
             if(!logfile.empty())

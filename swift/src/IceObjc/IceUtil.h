@@ -31,7 +31,6 @@ NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet
 +(nullable ICECommunicator*) initialize:(NSArray*)swiftArgs
                              properties:(ICEProperties*)properties
                          withConfigFile:(BOOL)withConfiFile
-                                 logger:(id<ICELoggerProtocol> _Nullable)logger
                                 remArgs:(NSArray* _Null_unspecified * _Null_unspecified)remArgs
                                   error:(NSError* _Nullable * _Nullable)error;
 

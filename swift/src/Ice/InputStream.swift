@@ -353,12 +353,10 @@ public class InputStream {
             return
         }
 
-        let logger = communicator.getLogger()
-        let l: ICELoggerProtocol = logger as? LoggerI ?? LoggerWrapper(handle: logger)
         ICETraceUtil.traceSlicing(kind: sliceType == SliceType.ExceptionSlice ? "exception" : "object",
                                   typeId: typeId,
                                   slicingCat: "Slicing",
-                                  logger: l)
+                                  logger: LoggerWrapper(handle: communicator.getLogger()))
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {

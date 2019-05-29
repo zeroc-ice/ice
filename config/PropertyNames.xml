@@ -391,6 +391,7 @@ generated from the section label.
         <property name="TCP.RcvSize" />
         <property name="TCP.SndSize" />
         <property name="UseApplicationClassLoader" />
+        <property name="UseOSLog" />
         <property name="UseSyslog" />
         <property name="UseSystemdJournal" />
         <property name="Warn.AMICallback" />
