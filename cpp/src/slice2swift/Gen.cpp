@@ -1519,23 +1519,43 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + (p->isInterface() ? "" : "Disp"));
 
-    out << sp;
-    writeDocSummary(out, p);
-    out << nl << "public protocol " << name << ":";
-
+    StringList baseNames;
     if(!hasBase)
     {
-        out << " " << getUnqualified("Ice.Object", swiftModule);
+        baseNames.push_back(getUnqualified("Ice.Object", swiftModule));
     }
     else
     {
         for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
         {
-            out << " " << fixIdent(getUnqualified(getAbsolute(*i), swiftModule) + ((*i)->isInterface() ? "" : "Disp"));
-            if(++i != bases.end())
-            {
-                out << ",";
-            }
+            baseNames.push_back(fixIdent(getUnqualified(getAbsolute(*i), swiftModule) +
+                                         ((*i)->isInterface() ? "" : "Disp")));
+        }
+    }
+
+    //
+    // Check for swift:adopt metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string adoptPrefix = "swift:adopt:";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(adoptPrefix) == 0)
+        {
+            baseNames.push_back(q->substr(adoptPrefix.size()));
+        }
+    }
+
+    out << sp;
+    writeDocSummary(out, p);
+    out << nl << "public protocol " << name << ":";
+
+    for(StringList::const_iterator i = baseNames.begin(); i != baseNames.end();)
+    {
+        out << " " << (*i);
+        if(++i != baseNames.end())
+        {
+            out << ",";
         }
     }
 
@@ -1847,6 +1867,31 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     ClassList bases = p->bases();
+    StringList baseNames;
+    if(bases.empty())
+    {
+        baseNames.push_back(" Swift.AnyObject");
+    }
+    else
+    {
+        for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+        {
+            baseNames.push_back(getUnqualified(getAbsolute(*i), swiftModule));
+        }
+    }
+
+    //
+    // Check for swift:adopt metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string adoptPrefix = "swift:adopt:";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(adoptPrefix) == 0)
+        {
+            baseNames.push_back(q->substr(adoptPrefix.size()));
+        }
+    }
 
     //
     // Local interfaces and local classes map to Swift protocol
@@ -1854,21 +1899,16 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public protocol " << fixIdent(name) << ":";
-    if(bases.empty())
+
+    for(StringList::const_iterator i = baseNames.begin(); i != baseNames.end();)
     {
-        out << " Swift.AnyObject";
-    }
-    else
-    {
-        for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+        out << " " << (*i);
+        if(++i != baseNames.end())
         {
-            out << " " << fixIdent(getUnqualified(getAbsolute(*i), swiftModule));
-            if(++i != bases.end())
-            {
-                out << ",";
-            }
+            out << ",";
         }
     }
+
     out << sb;
     writeMembers(out, p->dataMembers(), p, TypeContextProtocol | TypeContextLocal);
     return true;

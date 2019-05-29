@@ -39,6 +39,11 @@ public extension Connection {
             }
         }
     }
+
+    // CustomStringConvertible implementation
+    var description: String {
+        return toString()
+    }
 }
 
 class ConnectionI: LocalObject<ICEConnection>, Connection {
