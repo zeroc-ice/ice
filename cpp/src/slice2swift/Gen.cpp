@@ -1526,7 +1526,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+        for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
         {
             baseNames.push_back(fixIdent(getUnqualified(getAbsolute(*i), swiftModule) +
                                          ((*i)->isInterface() ? "" : "Disp")));
