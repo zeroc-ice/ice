@@ -5,7 +5,7 @@
 import IceObjc
 
 class AdminFacetFacade: ICEBlobjectFacade {
-    let communicator: Communicator
+    private let communicator: Communicator
     let servant: Object
 
     init(communicator: Communicator, servant: Object) {

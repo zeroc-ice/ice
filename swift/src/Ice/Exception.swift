@@ -83,7 +83,7 @@ open class UserException: Exception {
 
 /// Error used to wrap C++ std::exception errors
 public struct RuntimeError: Error, CustomStringConvertible {
-    let message: String
+    private let message: String
 
     public var description: String {
         return message

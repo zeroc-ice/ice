@@ -6,12 +6,12 @@ import Foundation
 import IceObjc
 
 public final class Incoming {
-    var current: Current
-    var format: FormatType
-    var istr: InputStream
-    var ostr: OutputStream
-    var responseCallback: ICEBlobjectResponse
-    var exceptionCallback: ICEBlobjectException
+    private let current: Current
+    private var format: FormatType
+    private let istr: InputStream
+    private var ostr: OutputStream
+    private let responseCallback: ICEBlobjectResponse
+    private let exceptionCallback: ICEBlobjectException
 
     var servant: Object?
     var locator: ServantLocator?
