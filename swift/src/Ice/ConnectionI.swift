@@ -47,10 +47,6 @@ public extension Connection {
 }
 
 class ConnectionI: LocalObject<ICEConnection>, Connection {
-    var description: String {
-        return toString()
-    }
-
     func close(_ mode: ConnectionClose) {
         handle.close(mode.rawValue)
     }
