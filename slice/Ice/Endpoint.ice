@@ -157,7 +157,7 @@ local class EndpointInfo
  * The user-level interface to an endpoint.
  *
  **/
-["cpp:comparable", "js:comparable"]
+["cpp:comparable", "js:comparable", "swift:inherits:Swift.CustomStringConvertible"]
 local interface Endpoint
 {
     /**

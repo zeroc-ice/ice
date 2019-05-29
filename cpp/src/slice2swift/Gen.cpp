@@ -1534,15 +1534,15 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     //
-    // Check for swift:adopt metadata.
+    // Check for swift:inherit metadata.
     //
     const StringList metaData = p->getMetaData();
-    static const string adoptPrefix = "swift:adopt:";
+    static const string prefix = "swift:inherits:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
-        if(q->find(adoptPrefix) == 0)
+        if(q->find(prefix) == 0)
         {
-            baseNames.push_back(q->substr(adoptPrefix.size()));
+            baseNames.push_back(q->substr(prefix.size()));
         }
     }
 
@@ -1881,15 +1881,15 @@ Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     //
-    // Check for swift:adopt metadata.
+    // Check for swift:inherits metadata.
     //
     const StringList metaData = p->getMetaData();
-    static const string adoptPrefix = "swift:adopt:";
+    static const string prefix = "swift:inherits:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
-        if(q->find(adoptPrefix) == 0)
+        if(q->find(prefix) == 0)
         {
-            baseNames.push_back(q->substr(adoptPrefix.size()));
+            baseNames.push_back(q->substr(prefix.size()));
         }
     }
 

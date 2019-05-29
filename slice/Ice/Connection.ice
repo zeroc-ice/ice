@@ -217,7 +217,7 @@ local enum ConnectionClose
  * The user-level interface to a connection.
  *
  **/
-["swift:adopt:Swift.CustomStringConvertible"]
+["swift:inherits:Swift.CustomStringConvertible"]
 local interface Connection
 {
     /**
