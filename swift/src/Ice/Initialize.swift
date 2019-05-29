@@ -117,6 +117,11 @@ private func initializeImpl(args: [String],
         initData.properties = createProperties()
     }
 
+    var loggerP: ICELoggerProtocol?
+    if let l = initData.logger {
+        loggerP = LoggerWrapper(handle: l)
+    }
+
     let propsHandle = (initData.properties as! PropertiesI).handle
 
     return try autoreleasepool {
@@ -124,6 +129,7 @@ private func initializeImpl(args: [String],
         let handle = try ICEUtil.initialize(args,
                                             properties: propsHandle,
                                             withConfigFile: withConfigFile,
+                                            logger: loggerP,
                                             remArgs: &remArgs)
 
         //
