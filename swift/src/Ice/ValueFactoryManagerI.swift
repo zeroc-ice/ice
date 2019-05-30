@@ -3,8 +3,8 @@
 //
 
 class ValueFactoryManagerI: ValueFactoryManager {
-    var factories = [String: ValueFactory]()
-    var mutex = Mutex()
+    private var factories = [String: ValueFactory]()
+    private var mutex = Mutex()
 
     func add(factory: @escaping ValueFactory, id: String) throws {
         try mutex.sync {

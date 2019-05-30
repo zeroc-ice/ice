@@ -54,7 +54,7 @@ open class Value {
 }
 
 open class InterfaceByValue: Value {
-    var id: String
+    private var id: String
 
     public required init() {
         precondition(false, "Not supported")

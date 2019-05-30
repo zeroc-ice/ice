@@ -5,7 +5,7 @@
 import IceObjc
 
 class PropertiesAdminI: LocalObject<ICEPropertiesAdmin>, PropertiesAdmin, NativePropertiesAdmin {
-    let communicator: Communicator
+    private let communicator: Communicator
 
     init(communicator: Communicator, handle: ICEPropertiesAdmin) {
         self.communicator = communicator

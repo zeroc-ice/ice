@@ -5,7 +5,7 @@
 import Foundation
 
 struct Mutex {
-    var unfairLock = os_unfair_lock()
+    private var unfairLock = os_unfair_lock()
 
     mutating func lock() {
         os_unfair_lock_lock(&unfairLock)

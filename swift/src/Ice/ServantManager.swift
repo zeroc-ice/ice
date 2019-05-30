@@ -3,18 +3,18 @@
 //
 
 class ServantManager {
-    let adapterName: String
-    let communicator: Communicator
+    private let adapterName: String
+    private let communicator: Communicator
 
-    var servantMapMap = [Identity: [String: Object]]()
-    var defaultServantMap = [String: Object]()
-    var locatorMap = [String: ServantLocator]()
+    private var servantMapMap = [Identity: [String: Object]]()
+    private var defaultServantMap = [String: Object]()
+    private var locatorMap = [String: ServantLocator]()
 
     // This is used to distingish between ObjectNotExistException and FacetNotExistException
     // when a servant is not found on a Swift Admin OA.
-    var adminId: Identity?
+    private var adminId: Identity?
 
-    var mutex = Mutex()
+    private var mutex = Mutex()
 
     init(adapterName: String, communicator: Communicator) {
         self.adapterName = adapterName
