@@ -440,7 +440,7 @@ SecureTransportCertificateI::getAuthorityKeyIdentifier() const
     if(property)
     {
         CFTypeRef type = 0;
-        CFTypeRef value;
+        CFTypeRef value = 0;
         if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyType, &type))
         {
             if(CFEqual(type, kSecPropertyTypeSection))
@@ -479,7 +479,7 @@ SecureTransportCertificateI::getSubjectKeyIdentifier() const
     if(property)
     {
         CFTypeRef type = 0;
-        CFTypeRef value;
+        CFTypeRef value = 0;
         if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyType, &type))
         {
             if(CFEqual(type, kSecPropertyTypeSection))
