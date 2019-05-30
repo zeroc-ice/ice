@@ -132,7 +132,6 @@ IceInternal::Base64::decode(const string& str)
 
     for(size_t i = 0; i < newStr.length(); i += 4)
     {
-        c1 = 'A';
         c2 = 'A';
         c3 = 'A';
         c4 = 'A';
