@@ -26,7 +26,7 @@ this compiler.
 
 ### Swift Version
 
-Ice for Swift requires Swift 4.2 or later.
+Ice for Swift requires Swift 5 or later.
 
 ## Building Ice for Swift
 
@@ -71,6 +71,5 @@ In your `Cartfile` add a reference to Ice package
 github "zeroc-ice/ice" ~> swift
 ```
 
-### Manually
-
-TBD
+[1]: https://zeroc.com/distributions/ice
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
