@@ -1103,7 +1103,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             else
 #endif
 
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
             if(!_initData.logger && _initData.properties->getPropertyAsInt("Ice.UseOSLog") > 0)
             {
                 _initData.logger = ICE_MAKE_SHARED(OSLogLoggerI,

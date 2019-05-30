@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
 
 #include <Ice/OSLogLoggerI.h>
 #include <os/log.h>
