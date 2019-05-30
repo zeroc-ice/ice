@@ -581,33 +581,15 @@ public extension ObjectPrx {
                     inEncaps: Data,
                     context: Context? = nil) throws -> (ok: Bool, outEncaps: Data) {
         if _impl.isTwoway {
-            let p = Promise<(ok: Bool, outEncaps: Data)> { seal in
-                _impl.handle.invokeAsync(operation,
-                                         mode: mode.rawValue,
-                                         inParams: inEncaps,
-                                         context: context,
-                                         response: { ok, encaps in
-                                             do {
-                                                 let istr =
-                                                     InputStream(communicator: self._impl.communicator,
-                                                                 encoding: self._impl.encoding,
-                                                                 bytes: Data(encaps)) // make a copy
-                                                 seal.fulfill((ok, try istr.readEncapsulation().bytes))
-                                             } catch {
-                                                 seal.reject(error)
-                                             }
-                                         },
-                                         exception: { error in
-                                             seal.reject(error)
-                                         },
-                                         sent: nil)
-            }
-            return try p.wait()
+            var data: Data?
+            var ok: Bool = false
+            try _impl.handle.invoke(operation, mode: mode.rawValue, inParams: inEncaps, context: context) {
+                                        ok = $0
+                                        data = Data($1) // make a copy
+                                    }
+            return (ok, data!)
         } else {
-            try _impl.handle.onewayInvoke(operation,
-                                          mode: mode.rawValue,
-                                          inParams: inEncaps,
-                                          context: context)
+            try _impl.handle.onewayInvoke(operation, mode: mode.rawValue, inParams: inEncaps, context: context)
             return (true, Data())
         }
     }
