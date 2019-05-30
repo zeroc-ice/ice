@@ -39,19 +39,19 @@ public protocol Object {
 }
 
 public extension Object {
-    func ice_id(current _: Current) throws -> String {
+    func ice_id(current _: Current) -> String {
         return "::Ice::Object"
     }
 
-    func ice_ids(current _: Current) throws -> [String] {
+    func ice_ids(current _: Current) -> [String] {
         return ["::Ice::Object"]
     }
 
-    func ice_isA(s: String, current _: Current) throws -> Bool {
+    func ice_isA(s: String, current _: Current) -> Bool {
         return s == "::Ice::Object"
     }
 
-    func ice_ping(current _: Current) throws {
+    func ice_ping(current _: Current) {
         // Do nothing
     }
 

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+// The base class for all Ice values.
 open class Value {
     public required init() {}
 
@@ -53,6 +54,8 @@ open class Value {
     }
 }
 
+/// Helper class used to represent an interface passed by value. Note that
+/// passing interface by values is deprecated.
 open class InterfaceByValue: Value {
     private var id: String
 

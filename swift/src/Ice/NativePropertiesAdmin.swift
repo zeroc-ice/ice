@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/// Called when the communicator's properties have been updated.
+/// Closure called when the communicator's properties have been updated.
 ///
 /// - parameter: `PropertyDict` A dictionary containing the properties that were added,
 ///   changed or removed, with a removed property denoted by an entry whose value is an

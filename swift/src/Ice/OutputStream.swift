@@ -5,8 +5,7 @@
 import Foundation
 import IceObjc
 
-/// Interface for output streams used to write Slice types to a sequence
-/// of bytes.
+/// Stream class to write (marshal) Slice types into a sequence of bytes.
 public class OutputStream {
     private var data: Data = Data(capacity: 240)
     private let communicator: Communicator
@@ -78,9 +77,8 @@ public class OutputStream {
         return data.count
     }
 
-    //
-    // Overwrite an existing Numeric at the specified position
-    //
+    /// Overwrite an existing Numeric at the specified position
+    ///
     func write<Element>(bytesOf value: Element, at: Int) where Element: StreamableNumeric {
         withUnsafePointer(to: value) { ptr in
             self.data.replaceSubrange(at ..< at + MemoryLayout<Element>.size,
@@ -133,7 +131,7 @@ public class OutputStream {
         }
     }
 
-     /// Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
+    /// Writes the state of Slice classes whose index was previously written with writeValue() to the stream.
     public func writePendingValues() {
         if encaps != nil, encaps.encoder != nil {
             encaps.encoder.writePendingValues()
@@ -149,7 +147,7 @@ public class OutputStream {
         }
     }
 
-    // Returns the underlying data
+    /// Returns the underlying data
     public func finished() -> Data {
         return data
     }
@@ -175,9 +173,9 @@ public class OutputStream {
 }
 
 public extension OutputStream {
-    //
-    // StreamableNumeric
-    //
+    /// Writes a numeric value to the stream.
+    ///
+    /// - parameter _: `Element` - The numeric value to write.
     func write<Element>(_ v: Element) where Element: StreamableNumeric {
         // We assume a little-endian platform
         withUnsafePointer(to: v) { ptr in
@@ -185,6 +183,11 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional numeric value to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `Element?` - The numeric value to write.
     func write<Element>(tag: Int32, value: Element?) where Element: StreamableNumeric {
         let format = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
         if let val = value {
@@ -194,6 +197,9 @@ public extension OutputStream {
         }
     }
 
+    /// Writes a sequence of numeric values to the stream.
+    ///
+    /// - parameter _: `[Element]` - The sequence of numeric values.
     func write<Element>(_ v: [Element]) where Element: StreamableNumeric {
         write(size: v.count)
 
@@ -208,6 +214,11 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional sequence of numeric values to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `[Element]?` - The sequence of numeric numeric values to write.
     func write<Element>(tag: Int32, value: [Element]?) where Element: StreamableNumeric {
         if let val = value {
             if writeOptionalVSize(tag: tag, len: val.count, elemSize: MemoryLayout<Element>.size) {
@@ -219,10 +230,17 @@ public extension OutputStream {
     //
     // UInt8 optimization
     //
+
+    /// Writes a byte to the stream.
+    ///
+    /// - parameter _: `UInt8` - The byte to write.
     func write(_ v: UInt8) {
         data.append(v)
     }
 
+    /// Writes a sequence of bytes to the stream.
+    ///
+    /// - parameter _: `[UInt8]` - The sequence of bytes to write.
     func write(_ v: [UInt8]) {
         write(size: v.count)
         if v.count > 0 {
@@ -230,6 +248,9 @@ public extension OutputStream {
         }
     }
 
+    /// Writes a sequence of bytes to the stream.
+    ///
+    /// - parameter _: `Data` - The sequence of bytes to write.
     func write(_ v: Data) {
         write(size: v.count)
         if v.count > 0 {
@@ -237,6 +258,11 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional sequence of bytes to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `Data` - The sequence of bytes to write.
     func write(tag: Int32, value: Data?) {
         if let val = value {
             // Note: not the same as larger Numeric
@@ -246,13 +272,18 @@ public extension OutputStream {
         }
     }
 
-    //
-    // Bool
-    //
+    /// Writes a boolean value to the stream.
+    ///
+    /// - parameter _: `Bool` - The boolean value to write.
     func write(_ v: Bool) {
         write(UInt8(v == true ? 1 : 0))
     }
 
+    /// Writes an optional boolean value to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `Bool?` - The boolean value to write.
     func write(tag: Int32, value: Bool?) {
         if let val = value {
             if writeOptional(tag: tag, format: .F1) {
@@ -261,6 +292,9 @@ public extension OutputStream {
         }
     }
 
+    /// Writes a sequence of boolean values to the stream.
+    ///
+    /// - parameter _: `[Bool]` - The sequence of boolean values to write.
     func write(_ v: [Bool]) {
         write(size: v.count)
         if MemoryLayout<Bool>.size == 1, MemoryLayout<Bool>.stride == 1 {
@@ -272,6 +306,11 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional sequence of boolean values to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `[Bool]?` - The sequence of boolean values to write.
     func write(tag: Int32, value: [Bool]?) {
         if let val = value {
             if writeOptional(tag: tag, format: .VSize) {
@@ -280,9 +319,9 @@ public extension OutputStream {
         }
     }
 
-    //
-    // Size
-    //
+    /// Writes a size to the stream.
+    ///
+    /// - parameter size: `Int32` - The size to write.
     func write(size: Int32) {
         if size > 254 {
             write(UInt8(255))
@@ -292,6 +331,9 @@ public extension OutputStream {
         }
     }
 
+    /// Writes a size to the stream.
+    ///
+    /// - parameter size: `Int` - The size to write.
     func write(size: Int) {
         precondition(size <= Int32.max, "Size is too large")
         write(size: Int32(size))
@@ -308,9 +350,12 @@ public extension OutputStream {
         write(bytesOf: Int32(data.count) - position - 4, at: Int(position))
     }
 
-    //
-    // Enum
-    //
+    /// Writes an enumerator to the stream.
+    ///
+    /// - parameter val: `UInt8` - The value of the enumerator to write.
+    ///
+    /// - parameter maxValue: `Int32` - The maximum value for the enumeration's enumerators
+    /// (used only for the 1.0 encoding).
     func write(enum val: UInt8, maxValue: Int32) {
         if currentEncoding == Encoding_1_0 {
             if maxValue < 127 {
@@ -325,12 +370,26 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional enumerator to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter val: `UInt8` - The value of the enumerator to write.
+    ///
+    /// - parameter maxValue: `Int32` - The maximum value for the enumeration's enumerators
+    /// (used only for the 1.0 encoding).
     func write(tag: Int32, val: UInt8, maxValue: Int32) {
         if writeOptional(tag: tag, format: .Size) {
             write(enum: val, maxValue: maxValue)
         }
     }
 
+    /// Writes an enumerator to the stream.
+    ///
+    /// - parameter val: `Int32` - The value of the enumerator to write.
+    ///
+    /// - parameter maxValue: `Int32` - The maximum value for the enumeration's enumerators
+    /// (used only for the 1.0 encoding).
     func write(enum val: Int32, maxValue: Int32) {
         if currentEncoding == Encoding_1_0 {
             if maxValue < 127 {
@@ -345,21 +404,34 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional enumerator to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter val: `Int32` - The value of the enumerator to write.
+    ///
+    /// - parameter maxValue: `Int32` - The maximum value for the enumeration's enumerators
+    /// (used only for the 1.0 encoding).
     func write(tag: Int32, val: Int32, maxValue: Int32) {
         if writeOptional(tag: tag, format: .Size) {
             write(enum: val, maxValue: maxValue)
         }
     }
 
-    //
-    // String
-    //
+    /// Writes a string to the stream.
+    ///
+    /// - parameter _: `String` - The string to write.
     func write(_ v: String) {
         let bytes = v.data(using: .utf8)!
         write(size: bytes.count)
         data.append(bytes)
     }
 
+    /// Writes a string to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `String?` - The string to write.
     func write(tag: Int32, value v: String?) {
         if let val = v {
             if writeOptional(tag: tag, format: .VSize) {
@@ -368,6 +440,9 @@ public extension OutputStream {
         }
     }
 
+    /// Writes a sequence of strings to the stream.
+    ///
+    /// - parameter _: `String` - The sequence of strings to write.
     func write(_ v: [String]) {
         write(size: v.count)
         for s in v {
@@ -375,6 +450,11 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional sequence of strings to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `[String]?` - The sequence of strings to write.
     func write(tag: Int32, value v: [String]?) {
         if let val = v {
             if writeOptional(tag: tag, format: .FSize) {
@@ -385,9 +465,9 @@ public extension OutputStream {
         }
     }
 
-    //
-    // Proxy
-    //
+    /// Writes a proxy to the stream.
+    ///
+    /// - parameter _: `ObjectPrx?` - The proxy to write.
     func write(_ v: ObjectPrx?) {
         if let prxImpl = v as? ObjectPrxI {
             prxImpl.ice_write(to: self)
@@ -399,6 +479,11 @@ public extension OutputStream {
         }
     }
 
+    /// Writes an optional proxy to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `ObjectPrx?` - The proxy to write.
     func write(tag: Int32, value v: ObjectPrx?) {
         if let val = v {
             if writeOptional(tag: tag, format: .FSize) {
@@ -409,14 +494,19 @@ public extension OutputStream {
         }
     }
 
-    //
-    // Value
-    //
+    /// Writes a value to the stream.
+    ///
+    /// - parameter _: `Value?` - The value to write.
     func write(_ v: Value?) {
         initEncaps()
         encaps.encoder.writeValue(v: v)
     }
 
+    /// Writes an optional value to the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - parameter value: `Value?` - The value to write.
     func write(tag: Int32, value v: Value?) {
         if let val = v {
             if writeOptional(tag: tag, format: .Class) {
@@ -425,9 +515,9 @@ public extension OutputStream {
         }
     }
 
-    //
-    // UserException
-    //
+    /// Writes a user exception to the stream.
+    ///
+    /// - parameter _: `UserException` - The user exception to write.
     func write(_ v: UserException) {
         initEncaps()
         encaps.encoder.writeException(v: v)
@@ -470,9 +560,9 @@ public extension OutputStream {
         return false
     }
 
-    //
-    // Raw Bytes
-    //
+    /// Writes bytes to the stream.
+    ///
+    /// - parameter raw: `Data` - The bytes to write as-is.
     func write(raw: Data) {
         data.append(raw)
     }

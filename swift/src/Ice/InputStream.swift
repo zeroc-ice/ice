@@ -5,7 +5,7 @@
 import Foundation
 import IceObjc
 
-/// Interface for input streams used to extract Slice types from a sequence of bytes.
+/// Stream class to read (unmarshal) Slice types from a sequence of bytes.
 public class InputStream {
     let data: Data
     let classResolverPrefix: [String]?
@@ -47,6 +47,9 @@ public class InputStream {
         classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
     }
 
+    /// Reads an encapsulation from the stream.
+    ///
+    /// - returns: `(bytes: Data, encoding: EncodingVersion)` The encapsulation.
     public func readEncapsulation() throws -> (bytes: Data, encoding: EncodingVersion) {
         let sz: Int32 = try read()
         if sz < 6 {
@@ -272,7 +275,7 @@ public class InputStream {
         pos += offset
     }
 
-    /// Skip the given number of bytes.
+    /// Skips the given number of bytes.
     ///
     /// - parameter _: `Int` - The number of bytes to skip.
     public func skip(_ count: Int) throws {
@@ -280,7 +283,7 @@ public class InputStream {
         try changePos(offset: count)
     }
 
-    /// Skip the given number of bytes.
+    /// Skips the given number of bytes.
     ///
     /// - parameter _: `Int32` - The number of bytes to skip.
     public func skip(_ count: Int32) throws {
@@ -376,10 +379,9 @@ public class InputStream {
 }
 
 public extension InputStream {
-    /// Extract a numeric element from the stream, the extracted element must support
-    /// the `StreamableNumeric` protocol.
+    /// Reads a numeric value from the stream.
     ///
-    /// - returns: `StreamableNumeric` - The extracted numeric element.
+    /// - returns: `Element` - The numeric value read from the stream.
     func read<Element>() throws -> Element where Element: StreamableNumeric {
         let size = MemoryLayout<Element>.size
         guard size <= remaining else {
@@ -396,6 +398,11 @@ public extension InputStream {
         return value
     }
 
+    /// Reads an optional numeric value from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `Element?` - The optional numeric value read from the stream.
     func read<Element>(tag: Int32) throws -> Element? where Element: StreamableNumeric {
         let expectedFormat = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
         guard try readOptional(tag: tag, expectedFormat: expectedFormat!) else {
@@ -404,6 +411,9 @@ public extension InputStream {
         return try read()
     }
 
+    /// Reads a sequence of numeric values from the stream.
+    ///
+    /// - returns: `[Element]` - The sequence of numeric values read from the stream.
     func read<Element>() throws -> [Element] where Element: StreamableNumeric {
         let sz = try readAndCheckSeqSize(minSize: MemoryLayout<Element>.size)
 
@@ -429,6 +439,11 @@ public extension InputStream {
         }
     }
 
+    /// Reads an optional sequence of numeric values from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `[Element]?` - The optional sequence read from the stream.
     func read<Element>(tag: Int32) throws -> [Element]? where Element: StreamableNumeric {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
@@ -439,9 +454,9 @@ public extension InputStream {
         return try read()
     }
 
-    //
-    // UInt8
-    //
+    /// Reads a byte from the stream.
+    ///
+    /// - returns: `UInt8` - The byte read from the stream.
     func read() throws -> UInt8 {
         guard remaining > 0 else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
@@ -451,6 +466,9 @@ public extension InputStream {
         return value
     }
 
+    /// Reads a sequence of bytes from the stream.
+    ///
+    /// - returns: `[UInt8]` - The sequence of bytes read from the stream.
     func read() throws -> [UInt8] {
         let sz = try readAndCheckSeqSize(minSize: 1)
         let start = pos
@@ -458,6 +476,9 @@ public extension InputStream {
         return [UInt8](data[start ..< pos])
     }
 
+    /// Reads a sequence of bytes from the stream.
+    ///
+    /// - returns: `Data` - The sequence of bytes read from the stream.
     func read() throws -> Data {
         let sz = try readAndCheckSeqSize(minSize: 1)
         let start = pos
@@ -465,6 +486,11 @@ public extension InputStream {
         return data.subdata(in: start ..< pos) // copy
     }
 
+    /// Reads an optional sequence of bytes from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `Data?` - The optional sequence of bytes read from the stream.
     func read(tag: Int32) throws -> Data? {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
@@ -473,14 +499,19 @@ public extension InputStream {
         return try read()
     }
 
-    //
-    // Bool
-    //
+    /// Reads a boolean value from the stream.
+    ///
+    /// - returns: `Bool` - The boolean value read from the stream.
     func read() throws -> Bool {
         let value: UInt8 = try read()
         return value == 1
     }
 
+    /// Reads an optional boolean value from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `Bool?` - The optional boolean value read from the stream.
     func read(tag: Int32) throws -> Bool? {
         guard try readOptional(tag: tag, expectedFormat: .F1) else {
             return nil
@@ -488,6 +519,9 @@ public extension InputStream {
         return try read() as Bool
     }
 
+    /// Reads a sequence of boolean value from the stream.
+    ///
+    /// - returns: `[Bool]` - The sequence of boolean values read from the stream.
     func read() throws -> [Bool] {
         let sz = try readAndCheckSeqSize(minSize: 1)
 
@@ -505,6 +539,11 @@ public extension InputStream {
         }
     }
 
+    /// Reads an optional sequence of boolean value from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `[Bool]?` - The optional sequence of boolean values read from the stream.
     func read(tag: Int32) throws -> [Bool]? {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
@@ -512,9 +551,9 @@ public extension InputStream {
         return try read()
     }
 
-    //
-    // Size
-    //
+    /// Reads a size from the stream.
+    ///
+    /// - returns: `Int32` - The size read from the stream.
     func readSize() throws -> Int32 {
         let byteVal: UInt8 = try read()
         if byteVal == 255 {
@@ -524,6 +563,12 @@ public extension InputStream {
         }
     }
 
+    /// Reads a sequence size from the stream and ensures the stream has enough
+    /// bytes for `size` elements, where each element's size is at least minSize.
+    ///
+    /// - parameter minSize: `Int` - The mininum element size to use for the check.
+    ///
+    /// - returns: `Int` - The size read from the stream.
     func readAndCheckSeqSize(minSize: Int) throws -> Int {
         let sz = try Int(readSize())
 
@@ -618,9 +663,11 @@ public extension InputStream {
         }
     }
 
-    //
-    // Enum
-    //
+    /// Reads an enumerator from the stream, as a byte.
+    ///
+    /// - parameter enumMaxValue: `Int32` - The maximum value for the enumerators (used only for the 1.0 encoding).
+    ///
+    /// - returns: `UInt8` - The enumerator's byte value.
     func read(enumMaxValue: Int32) throws -> UInt8 {
         if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
@@ -641,12 +688,17 @@ public extension InputStream {
         } else {
             let v = try readSize()
             guard v <= UInt8.max else {
-                throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
+                throw UnmarshalOutOfBoundsException(reason: "1.1 encoded enum value is larger than UInt8")
             }
             return UInt8(v)
         }
     }
 
+    /// Reads an enumerator from the stream, as a Int32.
+    ///
+    /// - parameter enumMaxValue: `Int32` - The maximum value for the enumerators (used only for the 1.0 encoding).
+    ///
+    /// - returns: `Int32` - The enumerator's Int32 value.
     func read(enumMaxValue: Int32) throws -> Int32 {
         if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
@@ -661,9 +713,9 @@ public extension InputStream {
         }
     }
 
-    //
-    // String
-    //
+    /// Reads a string from the stream.
+    ///
+    /// - returns: `String` - The string read from the stream.
     func read() throws -> String {
         let size = try readSize()
         if size == 0 {
@@ -679,6 +731,11 @@ public extension InputStream {
         }
     }
 
+    /// Reads an optional string from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `String?` - The optional string read from the stream.
     func read(tag: Int32) throws -> String? {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
             return nil
@@ -686,6 +743,9 @@ public extension InputStream {
         return try read() as String
     }
 
+    /// Reads a sequence of strings from the stream.
+    ///
+    /// - returns: `[String]` - The sequence of strings read from the stream.
     func read() throws -> [String] {
         let sz = try readAndCheckSeqSize(minSize: 1)
         var r: [String] = [String]()
@@ -696,6 +756,11 @@ public extension InputStream {
         return r
     }
 
+    /// Reads an optional sequence of strings from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `[String]?` - The optional sequence of strings read from the stream.
     func read(tag: Int32) throws -> [String]? {
         guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
@@ -704,13 +769,18 @@ public extension InputStream {
         return try read() as [String]
     }
 
-    //
-    // Proxy
-    //
+    /// Reads a proxy from the stream (internal helper).
+    ///
+    /// - returns: `ProxyImpl?` - The proxy read from the stream.
     func read<ProxyImpl>() throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
         return try ProxyImpl.ice_read(from: self)
     }
 
+    /// Reads an optional proxy from the stream (internal helper).
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    ///
+    /// - returns: `ProxyImpl?` - The proxy read from the stream.
     func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
         guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
@@ -719,28 +789,36 @@ public extension InputStream {
         return try read() as ProxyImpl?
     }
 
+    /// Reads a base proxy from the stream.
+    ///
+    /// - returns: `ObjectPrx?` - The proxy read from the stream.
     func read(_: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read() as ObjectPrxI?
     }
 
+    /// Reads an optional base proxy from the stream.
+    ///
+    /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
+    /// 
+    /// - returns: `ObjectPrx?` - The proxy read from the stream.
     func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read(tag: tag) as ObjectPrxI?
     }
 
-    //
-    // Value
-    //
+    /// Reads a value from the stream.
     func read(cb: ((Value?) throws -> Void)?) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
+    /// Reads an optional value from the stream.
     func read(tag: Int32, cb: ((Value?) throws -> Void)?) throws {
         if try readOptional(tag: tag, expectedFormat: .Class) {
             try read(cb: cb)
         }
     }
 
+    /// Reads a value from the stream.
     func read<ValueType>(_ value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
@@ -756,6 +834,7 @@ public extension InputStream {
         }
     }
 
+    /// Reads an optional value from the stream.
     func read<ValueType>(tag: Int32, value: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
         if try readOptional(tag: tag, expectedFormat: .Class) {
             try read(value, cb: cb)

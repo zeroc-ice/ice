@@ -4,7 +4,7 @@
 
 import Foundation
 
-//// SliceInfo encapsulates the details of a slice for an unknown class or exception type.
+/// SliceInfo encapsulates the details of a slice for an unknown class or exception type.
 public struct SliceInfo {
     /// The Slice type ID for this slice.
     public let typeId: String

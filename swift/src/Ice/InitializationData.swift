@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/// A structured type that encpasulates data to initialize a communicator.
+/// Settings optionally supplied during communicator initialization.
 public struct InitializationData {
     /// The properties for the communicator.
     public var properties: Properties?

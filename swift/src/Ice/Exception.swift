@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
- /// Base protocol for Ice exceptions.
+/// Base protocol for Ice exceptions.
 public protocol Exception: Error {
     /// Returns the type id of this exception.
     ///
@@ -43,6 +43,7 @@ open class LocalException: Exception, CustomStringConvertible {
     }
 }
 
+/// Base class for Ice user exceptions.
 open class UserException: Exception {
     public required init() {}
 
@@ -81,7 +82,7 @@ open class UserException: Exception {
     }
 }
 
-/// Error used to wrap C++ std::exception errors
+/// Error used to wrap C++ std::exception errors.
 public struct RuntimeError: Error, CustomStringConvertible {
     private let message: String
 
