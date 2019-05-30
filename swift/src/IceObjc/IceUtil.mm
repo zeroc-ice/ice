@@ -76,6 +76,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 +(ICECommunicator*) initialize:(NSArray*)swiftArgs
                     properties:(ICEProperties*)properties
                 withConfigFile:(BOOL)withConfigFile
+                        logger:(id<ICELoggerProtocol>)logger
                        remArgs:(NSArray**)remArgs
                          error:(NSError**)error
 {
@@ -90,6 +91,11 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     //
     Ice::InitializationData initData;
     initData.properties = [properties properties];
+
+    if(logger)
+    {
+        initData.logger = std::make_shared<LoggerWrapperI>(logger);
+    }
 
     try
     {
