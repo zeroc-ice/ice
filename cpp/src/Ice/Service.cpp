@@ -1585,37 +1585,30 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             //
             // Read an error message.
             //
-            char msg[1024];
-            size_t pos = 0;
-            while(pos < sizeof(msg))
+            ssize_t rs;
+            char s[16];
+            string message;
+            while((rs = read(fds[0], &s, 16)) > 0)
             {
-                ssize_t n = read(fds[0], &msg[pos], sizeof(msg) - pos);
-                if(n == -1)
-                {
-                    if(IceInternal::interrupted())
-                    {
-                        continue;
-                    }
-
-                    if(argv[0])
-                    {
-                        consoleErr << ": ";
-                    }
-                    consoleErr << "I/O error while reading error message from child:\n"
-                               << IceUtilInternal::errorToString(errno) << endl;
-                    _exit(EXIT_FAILURE);
-                }
-                pos += n;
-                break;
+                message.append(s, rs);
             }
+
             if(argv[0])
             {
                 consoleErr << argv[0] << ": ";
             }
-            consoleErr << "failure occurred in daemon";
-            if(strlen(msg) > 0)
+
+            if(rs == -1)
             {
-                consoleErr << ':' << endl << msg;
+                consoleErr << "I/O error while reading error message from child:\n" << IceUtilInternal::errorToString(errno);
+            }
+            else
+            {
+                consoleErr << "failure occurred in daemon";
+                if(!message.empty())
+                {
+                    consoleErr << ":\n" << message;
+                }
             }
             consoleErr << endl;
             _exit(EXIT_FAILURE);
