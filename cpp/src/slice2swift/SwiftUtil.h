@@ -75,7 +75,7 @@ protected:
     void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
 
     std::string paramLabel(const std::string&, const ParamDeclList&);
-    std::string operationReturnType(const OperationPtr&);
+    std::string operationReturnType(const OperationPtr&, int typeCtx = 0);
     bool operationReturnIsTuple(const OperationPtr&);
     std::string operationReturnDeclaration(const OperationPtr&);
     std::string operationInParamsDeclaration(const OperationPtr&);

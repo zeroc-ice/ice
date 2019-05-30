@@ -1116,10 +1116,6 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "///  Returns the Slice type id of the interface or class associated with this proxy class.";
-    out << nl << "///";
-    out << nl << "/// - returns: `String` the Slice type id of the interface or class associated with";
-    out << nl << "///   this proxy type";
     out << nl;
     if(swiftModule == "Ice")
     {
@@ -1675,9 +1671,9 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "/// Returns the Slice type IDs of the interfaces supported by this object";
     out << nl << "///";
-    out << nl << "/// - parameter current: `Ice.Current` The Current object for the invocation.";
+    out << nl << "/// - parameter current: `Ice.Current` - The Current object for the invocation.";
     out << nl << "///";
-    out << nl << "/// - returns: `[Swift.String]` The Slice type IDs of the interfaces supported by this object,";
+    out << nl << "/// - returns: `[Swift.String]` - The Slice type IDs of the interfaces supported by this object,";
     out << nl << "///   in base-to-derived  order.";
     out << nl << "func ice_ids(current _: Current) throws -> [Swift.String]";
     out << sb;
@@ -1687,7 +1683,7 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "/// Tests whether this object supports a specific Slice interface.";
     out << nl << "///";
-    out << nl << "/// - parameter s: `Swift.String` - The name of the interface to be check.";
+    out << nl << "/// - parameter s: `String` - The name of the interface to be check.";
     out << nl << "///";
     out << nl << "/// - parameter current: `Ice.Current` - The Current object for the invocation.";
     out << nl << "///";

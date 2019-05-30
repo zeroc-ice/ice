@@ -683,13 +683,15 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         out << nl << "///";
         if(dispatch)
         {
-            out << nl << "/// - parameter current: `Ice.Current` The Current object for the invocation.";
+            out << nl << "/// - parameter current: `Ice.Current` - The Current object for the invocation.";
         }
         else
         {
-            out << nl << "/// - parameter context: `Ice.Context` Optional request context.";
+            out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
         }
     }
+
+    typeCtx = local ? TypeContextLocal : 0;
 
     if(async)
     {
@@ -706,23 +708,11 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         }
 
         out << nl << "///";
-        out << nl << "/// - returns: `PromiseKit.Promise` - Promise object that ";
-        if(local)
-        {
-            out << "will be resolved with the operation result.";
-        }
-        else if(dispatch)
-        {
-            out << "must be resolved with the return values of the dispatch.";
-        }
-        else
-        {
-            out << "will be resolved with the return values of the invocation.";
-        }
+        out << nl << "/// - returns: `PromiseKit.Promise<" << operationReturnType(p, typeCtx)
+            << ">` - The result of the operation";
     }
     else
     {
-        typeCtx = local ? TypeContextLocal : 0;
         const ParamInfoList allOutParams = getAllOutParams(p, typeCtx);
         if(allOutParams.size() == 1)
         {
@@ -750,16 +740,31 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         else if(allOutParams.size() > 1)
         {
             out << nl << "///";
-            out << nl << "/// - returns: a tuple with the following fields:";
-            for(ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
+            out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "`:";
+            if(p->returnType())
             {
+                ParamInfo ret = allOutParams.back();
                 out << nl << "///";
-                out << nl << "///   - " << q->name << ": `" << q->typeStr << "`";
-                map<string, StringList>::const_iterator r = doc.params.find(q->name);
-                if(r != doc.params.end() && !r->second.empty())
+                out << nl << "///   - " << ret.name << ": `" << ret.typeStr << "`";
+                if(!doc.returns.empty())
                 {
                     out << " - ";
-                    writeDocLines(out, r->second, false);
+                    writeDocLines(out, doc.returns, false);
+                }
+            }
+
+            for(ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
+            {
+                if(q->param != 0)
+                {
+                    out << nl << "///";
+                    out << nl << "///   - " << q->name << ": `" << q->typeStr << "`";
+                    map<string, StringList>::const_iterator r = doc.params.find(q->name);
+                    if(r != doc.params.end() && !r->second.empty())
+                    {
+                        out << " - ";
+                        writeDocLines(out, r->second, false);
+                    }
                 }
             }
         }
@@ -1943,7 +1948,7 @@ SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 }
 
 string
-SwiftGenerator::operationReturnType(const OperationPtr& op)
+SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
 {
     ostringstream os;
     bool returnIsTuple = operationReturnIsTuple(op);
@@ -1960,7 +1965,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         {
             os << paramLabel("returnValue", outParams) << ": ";
         }
-        os << typeToString(returnType, op, op->getMetaData(), op->returnIsOptional());
+        os << typeToString(returnType, op, op->getMetaData(), op->returnIsOptional(), typeCtx);
     }
 
     for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -1975,7 +1980,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
             os << (*q)->name() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional());
+        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional(), typeCtx);
     }
 
     if(returnIsTuple)
