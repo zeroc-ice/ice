@@ -76,7 +76,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
     func getEndpoint() -> Endpoint {
         let handle = self.handle.getEndpoint()
-        return endpoint.getSwiftObject(EndpointI.self) {
+        return handle.getSwiftObject(EndpointI.self) {
             EndpointI(handle: handle)
         }
     }
