@@ -75,7 +75,10 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     }
 
     func getEndpoint() -> Endpoint {
-        return EndpointI(handle: handle.getEndpoint())
+        let handle = self.handle.getEndpoint()
+        return endpoint.getSwiftObject(EndpointI.self) {
+            EndpointI(handle: handle)
+        }
     }
 
     func flushBatchRequests(_ compress: CompressBatch) throws {
