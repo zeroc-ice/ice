@@ -68,17 +68,27 @@ class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {}
 class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEBlobjectFacade {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
-        return AdminFacetFacade(communicator: c, servant: ProcessI(handle: handle))
+        return AdminFacetFacade(communicator: c,
+                                servant: handle.getSwiftObject(ProcessI.self) {
+                                    ProcessI(handle: handle)
+                                })
     }
 
     static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEBlobjectFacade {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
-        return AdminFacetFacade(communicator: c, servant: PropertiesAdminI(communicator: c, handle: handle))
+
+        return AdminFacetFacade(communicator: c,
+                                servant: handle.getSwiftObject(PropertiesAdminI.self) {
+                                    PropertiesAdminI(communicator: c, handle: handle)
+                                })
     }
 
     static func createUnsupported(_ communicator: ICECommunicator,
                                   handle: ICEUnsupportedAdminFacet) -> ICEBlobjectFacade {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
-        return AdminFacetFacade(communicator: c, servant: UnsupportedAdminFacet(handle: handle))
+        return AdminFacetFacade(communicator: c,
+                                servant: handle.getSwiftObject(UnsupportedAdminFacet.self) {
+                                    UnsupportedAdminFacet(handle: handle)
+                                })
     }
 }
