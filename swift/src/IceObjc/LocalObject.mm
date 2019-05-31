@@ -13,7 +13,7 @@ namespace
 
 @implementation ICELocalObject
 
--(instancetype) initWithCppObjcet:(std::shared_ptr<void>)cppObject
+-(instancetype) initWithCppObject:(std::shared_ptr<void>)cppObject
 {
     assert(cppObject);
     self = [super init];
@@ -47,7 +47,7 @@ namespace
         }
         else
         {
-            return [[[self class] alloc] initWithCppObjcet:std::move(cppObject)];
+            return [[[self class] alloc] initWithCppObject:std::move(cppObject)];
         }
     }
 }
