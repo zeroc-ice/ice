@@ -11,6 +11,7 @@
 //
 [["suppress-warning:invalid-metadata, deprecated"]]
 
+[["swift:class-resolver-prefix:IceStrem"]]
 module Test
 {
 

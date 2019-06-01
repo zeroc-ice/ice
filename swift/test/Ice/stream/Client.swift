@@ -10,7 +10,11 @@ public class Client: TestHelperI {
     public override func run(args: [String]) throws {
         var writer = getWriter()
         writer.write("testing primitive types... ")
-        let communicator = try initialize(args)
+
+        var initData = Ice.InitializationData()
+        initData.properties = try createTestProperties(args)
+        initData.classResolverPrefix = ["IceStrem"]
+        let communicator = try self.initialize(initData)
         defer {
             communicator.destroy()
         }
