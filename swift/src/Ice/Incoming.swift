@@ -13,9 +13,9 @@ public final class Incoming {
     private let responseCallback: ICEBlobjectResponse
     private let exceptionCallback: ICEBlobjectException
 
-    var servant: Object?
-    var locator: ServantLocator?
-    var cookie: AnyObject?
+    private var servant: Object?
+    private var locator: ServantLocator?
+    private var cookie: AnyObject?
 
     init(istr: InputStream, response: @escaping ICEBlobjectResponse, exception: @escaping ICEBlobjectException,
          current: Current) {
