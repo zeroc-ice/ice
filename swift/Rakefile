@@ -257,7 +257,6 @@ def create_platform_targets(project, platform)
 
         target_set_common_build_settings(target, framework, plist: "src/#{framework}/Info.plist", swift: true)
 
-
         target.build_configurations.each { |config|
             config.build_settings["DEFINES_MODULE"] = "YES"
         }
@@ -469,15 +468,39 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
     rule = project.new(Xcodeproj::Project::PBXBuildRule)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
+
+    slic2swift = <<~EOF
+        if [ -f "$ICE_HOME/cpp/bin/slice2swift" ]; then
+            SLICE2SWIFT="$ICE_HOME/cpp/bin/slice2swift"
+        elif [ -f "$SRCROOT/../cpp/bin/slice2swift" ]; then
+            SLICE2SWIFT="$SRCROOT/../cpp/bin/slice2swift"
+        elif [ -f /usr/local/bin/slice2swift ]; then
+            SLICE2SWIFT=/usr/local/bin/slice2swift
+        else
+            echo "Failed to locate slice2swift compiler"
+            exit 1
+        fi
+    EOF
+
     if prefix then
         rule.name = "Slice Compiler for #{prefix}/*.ice"
         rule.file_patterns = "*/#{prefix}/*.ice"
-        rule.script = "$SRCROOT/config/xcode-slice2swift.sh #{prefix}"
+        rule.script = <<~EOF
+            #{slic2swift}
+            BASENAME=$(basename -- "$INPUT_FILE_PATH")
+            BASENAME="${BASENAME%.*}"
+            mkdir -p "$DERIVED_FILE_DIR/#{prefix}"
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
+            mv "$DERIVED_FILE_DIR/#{prefix}/$BASENAME.swift" "$DERIVED_FILE_DIR/#{prefix}_$BASENAME.swift"
+        EOF
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
     else
         rule.name = "Slice Compiler"
         rule.file_patterns = "*.ice"
-        rule.script = "$SRCROOT/config/xcode-slice2swift.sh"
+        rule.script = <<~EOF
+            #{slic2swift}
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR" "$INPUT_FILE_PATH"
+        EOF
         rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
     end
     target.build_rules << rule
@@ -492,7 +515,27 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.file_type = "pattern.proxy"
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
     rule.file_patterns = "*/#{prefix}/*.ice"
-    rule.script = "$SRCROOT/config/xcode-slice2cpp.sh #{prefix}"
+    rule.script = <<~EOF
+        if [ -f "$ICE_HOME/cpp/bin/slice2cpp" ]; then
+            SLICE2CPP="$ICE_HOME/cpp/bin/slice2cpp"
+        elif [ -f "$SRCROOT/../cpp/bin/slice2cpp" ]; then
+            SLICE2CPP="$SRCROOT/../cpp/bin/slice2cpp"
+        elif [ -f /usr/local/opt/slice2swift/libexec/bin/slice2cpp ]; then
+            SLICE2CPP=/usr/local/opt/slice2swift/libexec/bin/slice2cpp
+        elif [ -f /usr/local/bin/slice2cpp ]; then
+            SLICE2CPP=/usr/local/bin/slice2cpp
+        else
+            echo "Failed to locate slice2cpp compiler"
+            exit 1
+        fi
+
+        BASENAME=$(basename -- "$INPUT_FILE_PATH")
+        BASENAME="${BASENAME%.*}"
+        mkdir -p "$DERIVED_FILE_DIR/#{prefix}"
+        $SLICE2CPP -I"$SRCROOT/../slice" -D ICE_SWIFT --include-dir #{prefix} --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
+        mkdir -p "$SYMROOT/$PLATFORM_NAME/include/#{prefix}"
+        mv "$DERIVED_FILE_DIR/#{prefix}/$BASENAME.h" "$SYMROOT/$PLATFORM_NAME/include/#{prefix}/$BASENAME.h"
+    EOF
     rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).cpp",
                          "$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/$(INPUT_FILE_BASE).h"]
     target.build_rules << rule
@@ -500,7 +543,13 @@ end
 
 def target_add_swiftlint_build_phase(target, basedir)
     phase = target.new_shell_script_build_phase("Swiftformat & Swiftlint")
-    phase.shell_script = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/#{basedir} $SRCROOT/.swiftlint.yml"
+    phase.shell_script = <<~EOF
+        if which swiftlint >/dev/null; then
+            swiftlint --path "$SRCROOT/#{basedir}" --config "$SRCROOT/.swiftlint.yml"
+        else
+            echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
+        fi
+    EOF
 end
 
 def group_add_files(group, basedir, patterns, exclude = [])
