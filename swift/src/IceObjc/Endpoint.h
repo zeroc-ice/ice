@@ -78,6 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 +(nullable ICEEndpointInfo*) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
 @end
 
+@interface ICEEndpointInfo()
+@property (nonatomic, readonly) std::shared_ptr<Ice::EndpointInfo> info;
+@end
+
 #endif
 
 NS_ASSUME_NONNULL_END
