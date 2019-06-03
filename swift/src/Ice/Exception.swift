@@ -83,11 +83,15 @@ open class UserException: Exception {
 }
 
 /// Error used to wrap C++ std::exception errors.
-public struct RuntimeError: Error, CustomStringConvertible {
+public class RuntimeError: LocalException {
     private let message: String
 
-    public var description: String {
+    override public var description: String {
         return message
+    }
+
+    open override class func ice_staticId() -> String {
+        return "::Ice::RuntimeError"
     }
 
     public init(_ message: String) {
