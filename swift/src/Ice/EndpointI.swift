@@ -37,6 +37,9 @@ public func == (lhs: Endpoint?, rhs: Endpoint?) -> Bool {
     }
 }
 
+// We implement EndpointInfo as a LocalObject that delegates to an ObjC/C++ object.
+// The alternative - delegating to the Endpoint object - is not practical since the public API
+// of Endpoint in C++ does not expose type, datagram or secure.
 class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
     var underlying: EndpointInfo?
     var timeout: Int32
@@ -50,18 +53,19 @@ class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
     }
 
     func type() -> Int16 {
-        return underlying?.type() ?? handle.getType()
+        return handle.getType()
     }
 
     func datagram() -> Bool {
-        return underlying?.datagram() ?? handle.getDatagram()
+        return handle.getDatagram()
     }
 
     func secure() -> Bool {
-        return underlying?.secure() ?? handle.getSecure()
+        return handle.getSecure()
     }
 }
 
+// This class is logically abstract and only derived classes should be created.
 class IPEndpointInfoI: EndpointInfoI, IPEndpointInfo {
     var host: String
     var port: Int32

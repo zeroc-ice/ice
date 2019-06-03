@@ -125,17 +125,6 @@
                                      compress:infoPtr->compress];
     }
 
-    if(ipInfo)
-    {
-        return [factory createIPEndpointInfo:handle
-                                  underlying:underlying
-                                     timeout:ipInfo->timeout
-                                    compress:ipInfo->compress
-                                        host:toNSString(ipInfo->host)
-                                        port:ipInfo->port
-                               sourceAddress:toNSString(ipInfo->sourceAddress)];
-    }
-
 #if TARGET_OS_IPHONE
 
     auto iapInfo = std::dynamic_pointer_cast<IceIAP::EndpointInfo>(infoPtr);

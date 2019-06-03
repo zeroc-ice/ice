@@ -5,22 +5,6 @@
 import IceObjc
 
 class EndpointInfoFactory: ICEEndpointInfoFactory {
-    static func createIPEndpointInfo(_ handle: ICEEndpointInfo,
-                                     underlying: Any,
-                                     timeout: Int32,
-                                     compress: Bool,
-                                     host: String,
-                                     port: Int32,
-                                     sourceAddress: String) -> Any {
-        return IPEndpointInfoI(handle: handle,
-                               underlying: getUnderlying(underlying),
-                               timeout: timeout,
-                               compress: compress,
-                               host: host,
-                               port: port,
-                               sourceAddress: sourceAddress)
-    }
-
     static func createTCPEndpointInfo(_ handle: ICEEndpointInfo,
                                       underlying: Any,
                                       timeout: Int32,

@@ -19,14 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @protocol ICEEndpointInfoFactory
-+(id) createIPEndpointInfo:(ICEEndpointInfo*)handle
-                underlying:(id)underlying
-                   timeout:(int32_t)timeout
-                  compress:(BOOL)compress
-                      host:(NSString*)host
-                      port:(int32_t)port
-             sourceAddress:(NSString*)sourceAddress;
-
 +(id) createTCPEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying
                     timeout:(int32_t)timeout
@@ -83,7 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ICEEndpoint()
 @property (nonatomic, readonly) std::shared_ptr<Ice::Endpoint> endpoint;
-@property (nonatomic, readonly) std::shared_ptr<Ice::EndpointInfo> info;
 +(nullable ICEEndpointInfo*) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr NS_RETURNS_RETAINED;
 @end
 
