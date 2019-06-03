@@ -136,20 +136,26 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
 
     func createProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try ObjectPrxI(handle: handle.createProxy(name: id.name, category: id.category),
-                              communicator: communicator)
+        return try autoreleasepool {
+            return try ObjectPrxI(handle: handle.createProxy(name: id.name, category: id.category),
+                                  communicator: communicator)
+        }
     }
 
     func createDirectProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try ObjectPrxI(handle: handle.createDirectProxy(name: id.name, category: id.category),
-                              communicator: communicator)
+        return try autoreleasepool {
+            return try ObjectPrxI(handle: handle.createDirectProxy(name: id.name, category: id.category),
+                                  communicator: communicator)
+        }
     }
 
     func createIndirectProxy(_ id: Identity) throws -> ObjectPrx {
         precondition(!id.name.isEmpty, "Identity cannot have an empty name")
-        return try ObjectPrxI(handle: handle.createIndirectProxy(name: id.name, category: id.category),
-                              communicator: communicator)
+        return try autoreleasepool {
+            return try ObjectPrxI(handle: handle.createIndirectProxy(name: id.name, category: id.category),
+                                  communicator: communicator)
+        }
     }
 
     func setLocator(_ locator: LocatorPrx?) {
@@ -179,7 +185,9 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
     }
 
     func setPublishedEndpoints(_ newEndpoints: EndpointSeq) throws {
-        try handle.setPublishedEndpoints(newEndpoints.toObjc())
+        try autoreleasepool {
+            try handle.setPublishedEndpoints(newEndpoints.toObjc())
+        }
     }
 
     func getDispatchQueue() throws -> DispatchQueue {

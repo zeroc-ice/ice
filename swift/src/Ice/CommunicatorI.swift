@@ -279,7 +279,9 @@ public extension Communicator {
     }
 
     func initializePlugins() throws {
-        try (self as! CommunicatorI).handle.initializePlugins()
+        try autoreleasepool {
+            try (self as! CommunicatorI).handle.initializePlugins()
+        }
     }
 }
 

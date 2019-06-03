@@ -1170,30 +1170,35 @@ open class ObjectPrxI: ObjectPrx {
 
         if isTwoway {
             var uex: Error?
-            try handle.invoke(operation, mode: mode.rawValue,
-                              inParams: ostr.finished(), context: context,
-                              response: { ok, encaps in
-                                  do {
-                                      let istr = InputStream(communicator: self.communicator,
-                                                             encoding: self.encoding,
-                                                             bytes: encaps)
-                                      if ok == false {
-                                          try ObjectPrxI.throwUserException(istr: istr,
-                                                                            userException: userException)
+            try autoreleasepool {
+                try handle.invoke(operation, mode: mode.rawValue,
+                                  inParams: ostr.finished(), context: context,
+                                  response: { ok, encaps in
+                                      do {
+                                          let istr = InputStream(communicator: self.communicator,
+                                                                 encoding: self.encoding,
+                                                                 bytes: encaps)
+                                          if ok == false {
+                                              try ObjectPrxI.throwUserException(istr: istr,
+                                                                                userException: userException)
+                                          }
+                                          try istr.skipEmptyEncapsulation()
+                                      } catch {
+                                          uex = error
                                       }
-                                      try istr.skipEmptyEncapsulation()
-                                  } catch {
-                                      uex = error
-                                  }
-            })
-            if let e = uex {
-                throw e
+                })
+
+                if let e = uex {
+                    throw e
+                }
             }
         } else {
-            try handle.onewayInvoke(operation,
-                                    mode: mode.rawValue,
-                                    inParams: ostr.finished(),
-                                    context: context)
+            try autoreleasepool {
+                try handle.onewayInvoke(operation,
+                                        mode: mode.rawValue,
+                                        inParams: ostr.finished(),
+                                        context: context)
+            }
         }
     }
 
@@ -1215,29 +1220,31 @@ open class ObjectPrxI: ObjectPrx {
         }
         var uex: Error?
         var ret: T!
-        try handle.invoke(operation,
-                          mode: mode.rawValue,
-                          inParams: ostr.finished(),
-                          context: context,
-                          response: { ok, encaps in
-                              do {
-                                  let istr = InputStream(communicator: self.communicator,
-                                                         encoding: self.encoding,
-                                                         bytes: encaps)
-                                  if ok == false {
-                                      try ObjectPrxI.throwUserException(istr: istr,
-                                                                        userException: userException)
+        try autoreleasepool {
+            try handle.invoke(operation,
+                              mode: mode.rawValue,
+                              inParams: ostr.finished(),
+                              context: context,
+                              response: { ok, encaps in
+                                  do {
+                                      let istr = InputStream(communicator: self.communicator,
+                                                             encoding: self.encoding,
+                                                             bytes: encaps)
+                                      if ok == false {
+                                          try ObjectPrxI.throwUserException(istr: istr,
+                                                                            userException: userException)
+                                      }
+                                      try istr.startEncapsulation()
+                                      ret = try read(istr)
+                                      try istr.endEncapsulation()
+                                  } catch {
+                                      uex = error
                                   }
-                                  try istr.startEncapsulation()
-                                  ret = try read(istr)
-                                  try istr.endEncapsulation()
-                              } catch {
-                                  uex = error
-                              }
-        })
+            })
 
-        if let e = uex {
-            throw e
+            if let e = uex {
+                throw e
+            }
         }
 
         precondition(ret != nil)
@@ -1291,12 +1298,14 @@ open class ObjectPrxI: ObjectPrx {
         } else {
             if ice_isBatchOneway() || ice_isBatchDatagram() {
                 return Promise<Void> { seal in
-                    try handle.onewayInvoke(operation,
-                                            mode: mode.rawValue,
-                                            inParams: ostr.finished(),
-                                            context: context)
+                    try autoreleasepool {
+                        try handle.onewayInvoke(operation,
+                                                mode: mode.rawValue,
+                                                inParams: ostr.finished(),
+                                                context: context)
 
-                    seal.fulfill(())
+                        seal.fulfill(())
+                    }
                 }
             } else {
                 return Promise<Void> { seal in
