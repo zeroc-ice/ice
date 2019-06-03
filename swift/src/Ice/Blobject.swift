@@ -12,7 +12,7 @@ public protocol Blobject: Object {
     ///
     /// - parameter current: `Ice.Current` - The Current object to pass to the operation.
     ///
-    /// - returns: A tuple with the following fields:
+    /// - returns: `(ok: Bool, outParams: Data)` - A tuple with the following fields:
     ///
     ///   - ok: `Bool` - True if the operation completed successfully, false if
     ///     the operation raised a user exception (in this case, outParams

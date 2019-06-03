@@ -13,8 +13,7 @@ public protocol BlobjectAsync: Object {
     ///
     /// - parameter current: `Ice.Current` - The Current object to pass to the operation.
     ///
-    /// - returns: `PromiseKit.Promise` - A promise object that must be completed with
-    ///   a tuple with the following fields:
+    /// - returns: `PromiseKit.Promise<(ok: Bool, outParams: Data)>` - The result of the operation.
     ///
     ///   - ok: `Bool` - True if the operation completed successfully, false if
     ///     the operation raised a user exception (in this case, outParams
