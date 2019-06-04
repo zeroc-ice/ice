@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!-- Use bin and lib directories that match the used platform toolset -->
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v142'">
+        <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
+        <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
+        <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
+    </PropertyGroup>
+
+    <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v142'">
+        <ClCompile>
+            <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        </ClCompile>
+        <Link>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\Release;$(MSBuildThisFileDirectory)lib\$(Platform)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        </Link>
+    </ItemDefinitionGroup>
+
+</Project>
