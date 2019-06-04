@@ -13,7 +13,7 @@
 +(void) traceSlicing:(NSString*)kind
               typeId:(NSString*)typeId
           slicingCat:(NSString*)slicingCat
-logger:(id<ICELoggerProtocol>)logger
+              logger:(id<ICELoggerProtocol>)logger
 {
     auto l = std::make_shared<LoggerWrapperI>(logger);
     IceInternal::traceSlicing(fromNSString(kind).c_str(), fromNSString(typeId), fromNSString(slicingCat).c_str(), l);

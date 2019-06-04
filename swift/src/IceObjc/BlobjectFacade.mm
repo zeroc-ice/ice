@@ -14,7 +14,7 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                 std::function<void(std::exception_ptr)> error,
                                 const Ice::Current& current)
 {
-   ICEBlobjectResponse responseCallback = ^(bool ok, NSData* outParams) {
+    ICEBlobjectResponse responseCallback = ^(bool ok, NSData* outParams) {
         const Ice::Byte* start = static_cast<const Ice::Byte*>(outParams.bytes);
         response(ok, std::make_pair(start, start + outParams.length));
     };
@@ -31,8 +31,8 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
                                                   freeWhenDone:NO];
 
     [_facade facadeInvoke:adapter
-                    inEncaps: inEncapsData
-                      con: con
+                 inEncaps:inEncapsData
+                      con:con
                      name:toNSString(current.id.name) category:toNSString(current.id.category)
                     facet:toNSString(current.facet)
                 operation:toNSString(current.operation)
