@@ -1,0 +1,17 @@
+module: Ice
+author: ZeroC
+author_url: https://zeroc.com
+github_url: https://github.com/zeroc-ice/ice
+theme: fullwidth
+copyright: Copyright (c) ZeroC, Inc. All rights reserved.
+xcodebuild_arguments: ['-project', 'ice.xcodeproj', '-scheme', 'Ice macOS']
+skip_undocumented: true
+hide_documentation_coverage: true
+exclude:
+- src/Ice/ClassResolver.swift
+
+# custom_categories:
+# - name: Exceptions
+#   children:
+#   - Exception
+#   - LocalException
