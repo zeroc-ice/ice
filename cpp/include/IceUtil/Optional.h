@@ -45,7 +45,7 @@ public:
     Optional(IceUtilInternal::NoneType) : _isSet(false)
     {
     }
-    
+
     /**
      * Constructs an optional as a copy of the given optional.
      * @param r The source optional.
