@@ -51,7 +51,6 @@
 -(void) ice_getIdentity:(NSString* __strong _Nonnull * _Nonnull)name
                category:(NSString* __strong _Nonnull * _Nonnull)category
 {
-    // TODO: verify that __strong does not leak back in Swift
     auto identity = _prx->ice_getIdentity();
     *name = toNSString(identity.name);
     *category = toNSString(identity.category);
