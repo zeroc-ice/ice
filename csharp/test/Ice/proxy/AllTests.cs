@@ -400,14 +400,7 @@ namespace Ice
                 prop.setProperty(property, "locator:default -p 10000");
                 b1 = communicator.propertyToProxy(propertyPrefix);
                 test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name.Equals("locator"));
-                try
-                {
-                    prop.setProperty(property, "");
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+                prop.setProperty(property, "");
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 test(b1.ice_getLocatorCacheTimeout() == -1);
                 prop.setProperty(property, "1");
