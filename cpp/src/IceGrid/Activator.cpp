@@ -634,11 +634,14 @@ Activator::activate(const string& name,
     struct passwd pwbuf;
     vector<char> buffer(4096); // 4KB initial buffer size
     struct passwd *pw;
-    int err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw);
-    while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
+
+    int err;
+    while((err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw)) == ERANGE &&
+          buffer.size() < 1024 * 1024) // Limit buffer to 1M
     {
         buffer.resize(buffer.size() * 2);
     }
+
     if(err != 0)
     {
         SyscallException ex(__FILE__, __LINE__);
