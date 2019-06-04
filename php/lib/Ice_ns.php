@@ -115,6 +115,12 @@ namespace Ice
         }
     }
 
+    global $Ice__t_Value;
+    global $Ice__t_ObjectSeq;
+    global $Ice__t_LocalObject;
+    global $Ice__t_ObjectPrx;
+    global $Ice__t_ObjectProxySeq;
+
     $Ice__t_Value = IcePHP_defineClass('::Ice::Object', "\\Ice\\Value", -1, false, false, null, null);
     $Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Value);
     $Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "\\Ice\\LocalObject", -1, false, false, null, null);
@@ -133,6 +139,7 @@ namespace Ice
         }
     }
 
+    global $Ice__t_UnknownSlicedValue
     $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true, false, $Ice__t_Value, null);
 
     interface ObjectFactory
