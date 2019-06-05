@@ -141,6 +141,7 @@ namespace Ice
 
     global $Ice__t_UnknownSlicedValue
     $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true, false, $Ice__t_Value, null);
+    global $Ice__t_UnknownSlicedValue;
 
     interface ObjectFactory
     {
