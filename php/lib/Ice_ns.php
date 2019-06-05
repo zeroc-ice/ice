@@ -139,9 +139,9 @@ namespace Ice
         }
     }
 
-    global $Ice__t_UnknownSlicedValue
-    $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true, false, $Ice__t_Value, null);
     global $Ice__t_UnknownSlicedValue;
+    $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true,
+                                                    false, $Ice__t_Value, null);
 
     interface ObjectFactory
     {
@@ -237,7 +237,8 @@ namespace
     $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);
     $Ice_Encoding_1_1 = new Ice\EncodingVersion(1, 1);
 
-    IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 2, 1, 0, array(array($IcePHP__t_string)), null, array($IcePHP__t_bool), null);
+    IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 2, 1, 0, array(array($IcePHP__t_string)), null,
+                           array($IcePHP__t_bool), null);
     IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ping', 2, 1, 0, null, null, null, null);
     IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_id', 2, 1, 0, null, null, array($IcePHP__t_string), null);
     IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 2, 1, 0, null, null, array($Ice__t_StringSeq), null);
