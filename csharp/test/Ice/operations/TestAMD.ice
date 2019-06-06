@@ -356,7 +356,7 @@ const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194
 // Test proxy inheritance for class with operations
 // see: https://github.com/zeroc-ice/ice/issues/406
 //
-["cs:namespace:Ice.operations"]
+["cs:namespace:Ice.operations.AMD"]
 module M
 {
     class A
