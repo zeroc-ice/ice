@@ -41,7 +41,6 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D638D692-8549-48F7-897B-1EF24D0E3A59}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <IceBuilderImpl Condition="'$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">--impl-c++98</IceBuilderImpl>
     <IceBuilderImpl Condition="'$(Configuration)' == 'Cpp11-Debug' or '$(Configuration)' == 'Cpp11-Release'">--impl-c++11</IceBuilderImpl>
   </PropertyGroup>
