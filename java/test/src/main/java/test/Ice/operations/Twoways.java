@@ -12,7 +12,7 @@ import java.util.Map;
 import com.zeroc.Ice.*;
 
 import test.Ice.operations.Test.*;
-
+import test.Ice.operations.M.*;
 class Twoways
 {
     private static void test(boolean b)
@@ -1524,6 +1524,12 @@ class Twoways
             p1.put("test", "test");
             MyClass.OpMDict2Result r = p.opMDict2(p1);
             test(r.p2.equals(p1) && r.returnValue.equals(p1));
+        }
+
+        {
+            BPrx b = BPrx.uncheckedCast(communicator.stringToProxy("b:" + helper.getTestEndpoint()));
+            b.opB();
+            b.opIntf();
         }
     }
 }

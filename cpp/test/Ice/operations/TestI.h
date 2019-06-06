@@ -328,4 +328,16 @@ private:
     int _opByteSOnewayCallCount;
 };
 
+#ifdef ICE_CPP11_MAPPING
+class BI : public M::BDisp
+#else
+class BI : public M::B
+#endif
+{
+public:
+
+    void opIntf(const Ice::Current&);
+    void opB(const Ice::Current&);
+};
+
 #endif

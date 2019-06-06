@@ -5,6 +5,7 @@
 package test.Ice.operations;
 
 import test.Ice.operations.AMD.Test._MyDerivedClassTie;
+import test.Ice.operations.AMD.M._BTie;
 
 public class AMDTieServer extends test.TestHelper
 {
@@ -24,6 +25,7 @@ public class AMDTieServer extends test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new _MyDerivedClassTie(new AMDTieMyDerivedClassI()), Ice.Util.stringToIdentity("test"));
+            adapter.add(new _BTie(new AMDBI()), Ice.Util.stringToIdentity("b"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

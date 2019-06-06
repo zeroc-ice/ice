@@ -3,7 +3,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-def twoways(helper, communicator, p)
+def twoways(helper, communicator, p, bprx)
 
     literals = p.opStringLiterals();
 
@@ -1266,4 +1266,7 @@ def twoways(helper, communicator, p)
 
         ic.destroy()
     end
+
+    bprx.opB()
+    bprx.opIntf()
 end

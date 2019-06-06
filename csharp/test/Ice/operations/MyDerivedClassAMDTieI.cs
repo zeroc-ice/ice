@@ -15,6 +15,26 @@ namespace Ice
         {
             namespace tie
             {
+                public sealed class BI : M.BTie_
+                {
+                    public BI() : base(new BTieI())
+                    {
+                    }
+                }
+
+                public sealed class BTieI : M.BOperations_
+                {
+                    public Task opBAsync(Ice.Current current)
+                    {
+                        return Task.Delay(0);
+                    }
+
+                    public Task opIntfAsync(Ice.Current current)
+                    {
+                        return Task.Delay(0);
+                    }
+                }
+
                 public sealed class MyDerivedClassI : Test.MyDerivedClassTie_
                 {
                     public MyDerivedClassI() : base(new MyDerivedClassTieI())

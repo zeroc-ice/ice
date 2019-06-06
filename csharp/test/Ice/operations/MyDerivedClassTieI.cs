@@ -11,6 +11,24 @@ namespace Ice
     {
         namespace tie
         {
+            public sealed class BI : M.BTie_
+            {
+                public BI() : base(new BTieI())
+                {
+                }
+            }
+
+            public sealed class BTieI : M.BOperations_
+            {
+                public void opIntf(Ice.Current current)
+                {
+                }
+
+                public void opB(Ice.Current current)
+                {
+                }
+            }
+
             public sealed class MyDerivedClassI : Test.MyDerivedClassTie_
             {
                 public MyDerivedClassI() : base(new MyDerivedClassTieI())
