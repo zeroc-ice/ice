@@ -398,8 +398,10 @@ class Windows(Platform):
                     self.compiler = "v120"
                 elif out.find("Version 19.00.") != -1:
                     self.compiler = "v140"
-                elif out.find("Version 19.") != -1:
+                elif out.find("Version 19.1") != -1:
                     self.compiler = "v141"
+                elif out.find("Version 19.2") != -1:
+                    self.compiler = "v142"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
             except:
