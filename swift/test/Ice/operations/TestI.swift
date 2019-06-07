@@ -6,6 +6,11 @@ import Ice
 import TestCommon
 import Foundation
 
+class BI: MBDisp {
+    func opB(current: Ice.Current) throws {}
+    func opIntf(current: Ice.Current) throws {}
+}
+
 class MyDerivedClassI: MyDerivedClass {
 
     var _helper: TestHelper

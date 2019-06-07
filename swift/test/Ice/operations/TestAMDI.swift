@@ -7,6 +7,16 @@ import TestCommon
 import Foundation
 import PromiseKit
 
+class BI: MBDisp {
+    func opBAsync(current: Ice.Current) -> Promise<Void> {
+        return Promise.value(())
+    }
+
+    func opIntfAsync(current: Ice.Current) -> Promise<Void> {
+        return Promise.value(())
+    }
+}
+
 class MyDerivedClassI: MyDerivedClass {
     var _helper: TestHelper
     var _opByteSOnewayCallCount: Int32 = 0

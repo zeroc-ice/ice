@@ -5,7 +5,7 @@
 import Ice
 import TestCommon
 
-func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
+func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
 
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
@@ -1218,5 +1218,10 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
         try test(c.tesT == "MyClass1.testT")
         try test(c.myClass == nil)
         try test(c.myClass1 == "MyClass1.myClass1")
+    }
+
+    do {
+        try bprx.opB()
+        try bprx.opIntf()
     }
 }

@@ -17,9 +17,12 @@ func allTests(helper: TestHelper) throws -> MyClassPrx {
     let cl = try checkedCast(prx: baseProxy, type: MyClassPrx.self)!
     let derivedProxy = try checkedCast(prx: cl, type: MyDerivedClassPrx.self)!
 
+    let bprx = try checkedCast(prx: try communicator.stringToProxy("b:\(helper.getTestEndpoint(num: 0))")!,
+                               type: MBPrx.self)!
+
     output.write("testing twoway operations... ")
-    try twoways(helper, cl)
-    try twoways(helper, derivedProxy)
+    try twoways(helper, cl, bprx)
+    try twoways(helper, derivedProxy, bprx)
     try derivedProxy.opDerived()
     output.writeLine("ok")
 
