@@ -6,14 +6,14 @@ import Foundation
 
 open class ValueTypeResolver: NSObject {
     open func type() -> Value.Type {
-        precondition(false, "Abstract method")
+        fatalError("Abstract method")
         return Value.self
     }
 }
 
 open class UserExceptionTypeResolver: NSObject {
     open func type() -> UserException.Type {
-        precondition(false, "Abstract method")
+        fatalError("Abstract method")
         return UserException.self
     }
 }

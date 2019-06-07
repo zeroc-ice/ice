@@ -60,8 +60,7 @@ open class InterfaceByValue: Value {
     private var id: String
 
     public required init() {
-        precondition(false, "Not supported")
-        id = ""
+        fatalError("Not supported")
     }
 
     public init(id: String) {

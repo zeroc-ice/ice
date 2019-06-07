@@ -653,7 +653,7 @@ public extension ObjectPrx {
                                          inParams: inEncaps,
                                          context: context,
                                          response: { _, _ in
-                                             precondition(false)
+                                             fatalError("Unexpected response")
                                          },
                                          exception: { error in
                                              seal.reject(error)
@@ -1315,7 +1315,7 @@ open class ObjectPrxI: ObjectPrx {
                                        inParams: ostr.finished(),
                                        context: context,
                                        response: { _, _ in
-                                           precondition(false)
+                                           fatalError("Unexpected response")
                                        },
                                        exception: { error in
                                            seal.reject(error)
@@ -1390,7 +1390,7 @@ open class ObjectPrxI: ObjectPrx {
             }
             throw UnknownUserException(unknown: error.ice_id())
         }
-        precondition(false)
+        fatalError("Failed to throw user exception")
     }
 
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
