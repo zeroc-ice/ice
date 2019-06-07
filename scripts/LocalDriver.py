@@ -571,19 +571,26 @@ class LocalDriver(Driver):
                 # behind.
                 #
                 failure = []
+                sem = threading.Semaphore(0)
                 def stopServerSide():
                     try:
                         self.runner.stopServerSide(server, current, success)
                     except Exception as ex:
                         failure.append(ex)
+                    sem.release()
 
                 t=threading.Thread(target = stopServerSide)
                 t.start()
                 while True:
                     try:
-                        t.join()
+                        #
+                        # NOTE: we can't just use join() here because of https://bugs.python.org/issue21822
+                        # We use a semaphore to wait for the servers to be stopped and return.
+                        #
+                        sem.acquire()
                         if failure:
                             raise failure[0]
+                        t.join()
                         break
                     except KeyboardInterrupt:
                         pass # Ignore keyboard interrupts

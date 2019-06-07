@@ -1040,6 +1040,22 @@ MyDerivedClassI::opMDict2Async(Test::StringStringD p1,
     response(OpMDict2MarshaledResult(p1, p1, current));
 }
 
+void
+BI::opIntfAsync(function<void()> response,
+                function<void(std::exception_ptr)>,
+                const Ice::Current&)
+{
+    response();
+}
+
+void
+BI::opBAsync(function<void()> response,
+             function<void(std::exception_ptr)>,
+             const Ice::Current&)
+{
+    response();
+}
+
 #else
 
 class Thread_opVoid : public IceUtil::Thread
@@ -1913,4 +1929,17 @@ MyDerivedClassI::opMDict2_async(const Test::AMD_MyClass_opMDict2Ptr& cb,
     cb->ice_response(p1,p1);
 }
 
+void
+BI::opIntf_async(const ::M::AMD_Intf_opIntfPtr& cb,
+                 const ::Ice::Current&)
+{
+    cb->ice_response();
+}
+
+void
+BI::opB_async(const ::M::AMD_B_opBPtr& cb,
+              const ::Ice::Current&)
+{
+    cb->ice_response();
+}
 #endif

@@ -54,7 +54,7 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
-    <AndroidSupportedAbis>armeabi;armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
+    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>

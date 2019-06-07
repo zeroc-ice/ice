@@ -40,7 +40,6 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3BD0D95D-8DC6-4A07-B4D9-72EC85C4C97A}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

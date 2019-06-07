@@ -6747,12 +6747,17 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(H, p);
     H << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
-    if(bases.empty() || (base && base->allOperations().empty()))
+    if(bases.empty() || (bases.size() == 1 && base && base->allOperations().empty()))
     {
         H << getUnqualified("::Ice::ObjectPrx", scope);
     }
     else
     {
+        if(base && base->allOperations().empty())
+        {
+            bases.pop_front();
+        }
+
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
@@ -7877,12 +7882,17 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(H, p);
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
-    if(bases.empty() || (base && base->allOperations().empty()))
+    if(bases.empty() || (base && bases.size() == 1 && base->allOperations().empty()))
     {
         H << "public virtual " << getUnqualified("::Ice::Object", scope);
     }
     else
     {
+        if(base && base->allOperations().empty())
+        {
+            bases.pop_front();
+        }
+
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {

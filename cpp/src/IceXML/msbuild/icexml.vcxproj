@@ -99,6 +99,7 @@
     <Import Project="..\..\..\msbuild\packages\expat.v120.2.2.6\build\native\expat.v120.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v120.2.2.6\build\native\expat.v120.targets')" />
     <Import Project="..\..\..\msbuild\packages\expat.v140.2.2.6\build\native\expat.v140.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v140.2.2.6\build\native\expat.v140.targets')" />
     <Import Project="..\..\..\msbuild\packages\expat.v141.2.2.6\build\native\expat.v141.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v141.2.2.6\build\native\expat.v141.targets')" />
+    <Import Project="..\..\..\msbuild\packages\expat.v142.2.2.6\build\native\expat.v142.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v142.2.2.6\build\native\expat.v142.targets')" />
   </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -108,5 +109,6 @@
     <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v120.2.2.6\build\native\expat.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v120.2.2.6\build\native\expat.v120.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v140.2.2.6\build\native\expat.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v140.2.2.6\build\native\expat.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v141.2.2.6\build\native\expat.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v141.2.2.6\build\native\expat.v141.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v142.2.2.6\build\native\expat.v142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v142.2.2.6\build\native\expat.v142.targets'))" />
   </Target>
 </Project>

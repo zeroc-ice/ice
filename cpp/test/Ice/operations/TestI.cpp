@@ -874,6 +874,16 @@ MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, const Ice::Current& cu
     return OpMDict2MarshaledResult(p1, p1, current);
 }
 
+void
+BI::opIntf(const Ice::Current&)
+{
+}
+
+void
+BI::opB(const Ice::Current&)
+{
+}
+
 #else
 
 Test::Structure
@@ -917,4 +927,13 @@ MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, Test::StringStringD& p
     return p1;
 }
 
+void
+BI::opIntf(const Ice::Current&)
+{
+}
+
+void
+BI::opB(const Ice::Current&)
+{
+}
 #endif

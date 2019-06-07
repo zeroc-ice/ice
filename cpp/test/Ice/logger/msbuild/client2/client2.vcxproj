@@ -46,7 +46,6 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BDA98D7E-A92B-4B18-89C0-5F5C5D52934D}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>

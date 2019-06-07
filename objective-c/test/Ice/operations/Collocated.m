@@ -13,6 +13,7 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestOperationsAdapter"];
     id<ICEObjectPrx> prx = [adapter add:[TestOperationsMyDerivedClassI myDerivedClass]
                            identity:[ICEUtil stringToIdentity:@"test"]];
+    [adapter add:[TestOperationsBI b] identity:[ICEUtil stringToIdentity:@"b"]];
     //[adapter activate]; // Don't activate OA to ensure collocation is used.
 
     test(![prx ice_getConnection]);

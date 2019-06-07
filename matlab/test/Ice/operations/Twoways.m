@@ -4,7 +4,7 @@
 
 classdef Twoways
     methods(Static)
-        function twoways(helper, p)
+        function twoways(helper, p, bprx)
             import Test.*;
 
             literals = p.opStringLiterals();
@@ -1391,6 +1391,9 @@ classdef Twoways
             assert(strcmp(c.tesT, 'Test.MyClass1.testT'));
             assert(isempty(c.myClass));
             assert(strcmp(c.myClass1, 'Test.MyClass1.myClass1'));
+
+            bprx.opB();
+            bprx.opIntf();
         end
     end
 end

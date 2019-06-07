@@ -7,6 +7,7 @@ package test.Ice.operations;
 import Ice.*;
 import Ice.Object;
 import test.Ice.operations.Test.*;
+import test.Ice.operations.M.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1592,5 +1593,11 @@ class Twoways
         test(c.tesT.equals("Test.MyClass1.testT"));
         test(c.myClass == null);
         test(c.myClass1.equals("Test.MyClass1.myClass1"));
+
+        {
+            BPrx b = BPrxHelper.uncheckedCast(communicator.stringToProxy("b:" + helper.getTestEndpoint()));
+            b.opB();
+            b.opIntf();
+        }
     }
 }

@@ -11,7 +11,7 @@ if not slice_dir:
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
-import Test
+import Test, M
 
 def test(b):
     if not b:

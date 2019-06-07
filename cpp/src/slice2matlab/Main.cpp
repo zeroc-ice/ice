@@ -1616,7 +1616,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-    const ClassList bases = p->bases();
+    ClassList bases = p->bases();
     const OperationList allOps = p->allOperations();
     const string self = name == "obj" ? "this" : "obj";
 
@@ -2527,16 +2527,28 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
         out.inc();
-        if(!bases.empty())
+
+        ClassDefPtr base;
+        if(!bases.empty() && !bases.front()->isInterface())
         {
+            base = bases.front();
+        }
+
+        if(bases.empty() || (bases.size() == 1 && base && base->allOperations().empty()))
+        {
+            out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
+        }
+        else
+        {
+            if(base && base->allOperations().empty())
+            {
+                bases.pop_front();
+            }
+
             for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
             {
                 out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
             }
-        }
-        else
-        {
-            out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
         }
         out.dec();
         out << nl << "end";

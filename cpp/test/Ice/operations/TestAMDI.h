@@ -689,4 +689,25 @@ private:
     int _opByteSOnewayCallCount;
 };
 
+#ifdef ICE_CPP11_MAPPING
+class BI : public M::BDisp
+{
+public:
+
+    void opIntfAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void opBAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+};
+
+#else
+
+class BI : public M::B
+{
+public:
+
+        void opIntf_async(const ::M::AMD_Intf_opIntfPtr&, const ::Ice::Current& current);
+        void opB_async(const ::M::AMD_B_opBPtr&, const ::Ice::Current& current);
+};
+
+#endif
+
 #endif
