@@ -70,7 +70,7 @@
     "Ice/operations":
     {
         "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js",
-                  "MyDerivedClassI.js", "AMDMyDerivedClassI.js", "Server.js", "ServerAMD.js"]
+                  "AMDBI.js", "BI.js", "MyDerivedClassI.js", "AMDMyDerivedClassI.js", "Server.js", "ServerAMD.js"]
     },
     "Ice/objects":
     {

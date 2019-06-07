@@ -4,7 +4,6 @@
 
 (function(module, require, exports)
 {
-    const Ice = require("ice").Ice;
     const M = require("Test").M;
 
     class AMDBI extends M.BDisp
