@@ -390,6 +390,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
 
         out << sp;
+        out << nl << "/// :nodoc:";
         out << nl << "public class " << name << "_TypeResolver: "
             << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
         out << sb;
@@ -1330,6 +1331,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp;
+    out << nl << "/// :nodoc:";
     out << nl << "public class " << name << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
@@ -1550,7 +1552,6 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
     const string servant = fixIdent(getUnqualified(getAbsolute(p), swiftModule) +
                                     (p->isInterface() ? "" : "Operations"));
-
 
     //
     // Disp struct
