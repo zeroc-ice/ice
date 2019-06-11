@@ -30,7 +30,7 @@ class Collocated: TestHelperI {
                                                  value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
-        try adapter.add(servant: UnexpectedObjectExceptionTestI(),
+        try adapter.add(servant: BlobjectDisp(UnexpectedObjectExceptionTestI()),
                         id: Ice.stringToIdentity("uoet"))
         try adapter.activate()
 

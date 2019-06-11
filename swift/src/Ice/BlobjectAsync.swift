@@ -6,7 +6,7 @@ import Foundation
 import PromiseKit
 
 /// Base protocol for dynamic asynchronous dispatch servants.
-public protocol BlobjectAsync: Disp {
+public protocol BlobjectAsync {
     /// Dispatch an incoming request.
     ///
     /// - parameter inEncaps: `Data` - The encoded in-parameters for the operation.
@@ -25,11 +25,18 @@ public protocol BlobjectAsync: Disp {
     func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)>
 }
 
-public extension BlobjectAsync {
-    func dispatch(incoming inS: Incoming, current: Current) throws {
+public struct BlobjectAsyncDisp: Disp {
+
+    public let servant: BlobjectAsync
+
+    public init(_ servant: BlobjectAsync) {
+        self.servant = servant
+    }
+
+    public func dispatch(incoming inS: Incoming, current: Current) throws {
         let inEncaps = try inS.readParamEncaps()
         firstly {
-            ice_invokeAsync(inEncaps: inEncaps, current: current)
+            self.servant.ice_invokeAsync(inEncaps: inEncaps, current: current)
         }.done(on: nil) { invokeResult in
             inS.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
         }.catch(on: nil) { err in

@@ -11,9 +11,9 @@ class ServantLocatorI: Ice.ServantLocator {
 
     init (_ async: Bool) {
         if async {
-            _blobject = BlobjectAsyncI()
+            _blobject = Ice.BlobjectAsyncDisp(BlobjectAsyncI())
         } else {
-            _blobject = BlobjectI()
+            _blobject = Ice.BlobjectDisp(BlobjectI())
         }
     }
 
