@@ -7,14 +7,12 @@ import Foundation
 open class ValueTypeResolver: NSObject {
     open func type() -> Value.Type {
         fatalError("Abstract method")
-        return Value.self
     }
 }
 
 open class UserExceptionTypeResolver: NSObject {
     open func type() -> UserException.Type {
         fatalError("Abstract method")
-        return UserException.self
     }
 }
 
