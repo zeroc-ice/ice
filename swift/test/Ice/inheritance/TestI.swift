@@ -5,13 +5,13 @@
 import Ice
 import TestCommon
 
-class CAI: MACADisp {
+class CAI: MACAOperations {
     func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
         return p
     }
 }
 
-class CBI: MBCBDisp {
+class CBI: MBCBOperations {
     func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
         return p
     }
@@ -21,7 +21,7 @@ class CBI: MBCBDisp {
     }
 }
 
-class CCI: MACCDisp {
+class CCI: MACCOperations {
     func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
         return p
     }
@@ -35,7 +35,7 @@ class CCI: MACCDisp {
     }
 }
 
-class CDI: MACDDisp {
+class CDI: MACDOperations {
     func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
         return p
     }
@@ -123,14 +123,14 @@ class InitialI: Initial {
     let _ic: MAICPrx
 
     init(_ adapter: Ice.ObjectAdapter) throws {
-        _ca = try uncheckedCast(prx: adapter.addWithUUID(CAI()), type: MACAPrx.self)
-        _cb = try uncheckedCast(prx: adapter.addWithUUID(CBI()), type: MBCBPrx.self)
-        _cc = try uncheckedCast(prx: adapter.addWithUUID(CCI()), type: MACCPrx.self)
-        _cd = try uncheckedCast(prx: adapter.addWithUUID(CDI()), type: MACDPrx.self)
-        _ia = try uncheckedCast(prx: adapter.addWithUUID(IAI()), type: MAIAPrx.self)
-        _ib1 = try uncheckedCast(prx: adapter.addWithUUID(IB1I()), type: MBIB1Prx.self)
-        _ib2 = try uncheckedCast(prx: adapter.addWithUUID(IB2I()), type: MBIB2Prx.self)
-        _ic = try uncheckedCast(prx: adapter.addWithUUID(ICI()), type: MAICPrx.self)
+        _ca = try uncheckedCast(prx: adapter.addWithUUID(MACADisp(CAI())), type: MACAPrx.self)
+        _cb = try uncheckedCast(prx: adapter.addWithUUID(MBCBDisp(CBI())), type: MBCBPrx.self)
+        _cc = try uncheckedCast(prx: adapter.addWithUUID(MACCDisp(CCI())), type: MACCPrx.self)
+        _cd = try uncheckedCast(prx: adapter.addWithUUID(MACDDisp(CDI())), type: MACDPrx.self)
+        _ia = try uncheckedCast(prx: adapter.addWithUUID(MAIADisp(IAI())), type: MAIAPrx.self)
+        _ib1 = try uncheckedCast(prx: adapter.addWithUUID(MBIB1Disp(IB1I())), type: MBIB1Prx.self)
+        _ib2 = try uncheckedCast(prx: adapter.addWithUUID(MBIB2Disp(IB2I())), type: MBIB2Prx.self)
+        _ic = try uncheckedCast(prx: adapter.addWithUUID(MAICDisp(ICI())), type: MAICPrx.self)
     }
 
     func caop(current: Ice.Current) throws -> MACAPrx? {

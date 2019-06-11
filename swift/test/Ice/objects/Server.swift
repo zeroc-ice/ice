@@ -23,7 +23,7 @@ class Server: TestHelperI {
 
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: InitialI(adapter), id: Ice.stringToIdentity("initial"))
+        try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
         try adapter.add(servant: UnexpectedObjectExceptionTestI(), id: Ice.stringToIdentity("uoet"))
         try adapter.activate()
         serverReady()

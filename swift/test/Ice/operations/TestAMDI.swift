@@ -7,7 +7,7 @@ import TestCommon
 import Foundation
 import PromiseKit
 
-class BI: MBDisp {
+class BI: MBOperations {
     func opBAsync(current: Ice.Current) -> Promise<Void> {
         return Promise.value(())
     }

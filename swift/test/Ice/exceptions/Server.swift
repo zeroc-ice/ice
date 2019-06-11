@@ -46,9 +46,9 @@ class Server: TestHelperI {
         let adapter3 = try communicator.createObjectAdapter("TestAdapter3")
 
         let obj = ThrowerI()
-        try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
-        try adapter2.add(servant: obj, id: Ice.stringToIdentity("thrower"))
-        try adapter3.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
+        try adapter2.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
+        try adapter3.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
 
         try adapter.activate()
         try adapter2.activate()

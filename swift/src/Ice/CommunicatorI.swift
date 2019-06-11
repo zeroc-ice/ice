@@ -189,29 +189,29 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func addAdminFacet(servant: Object, facet: String) throws {
+    func addAdminFacet(servant disp: Disp, facet: String) throws {
         try autoreleasepool {
-            try handle.addAdminFacet(AdminFacetFacade(communicator: self, servant: servant), facet: facet)
+            try handle.addAdminFacet(AdminFacetFacade(communicator: self, disp: disp), facet: facet)
         }
     }
 
-    func removeAdminFacet(_ facet: String) throws -> Object {
+    func removeAdminFacet(_ facet: String) throws -> Disp {
         return try autoreleasepool {
             guard let facade = try handle.removeAdminFacet(facet) as? AdminFacetFacade else {
                 preconditionFailure()
             }
 
-            return facade.servant
+            return facade.disp
         }
     }
 
-    func findAdminFacet(_ facet: String) -> Object? {
+    func findAdminFacet(_ facet: String) -> Disp? {
         do {
             return try autoreleasepool {
                 guard let facade = try handle.findAdminFacet(facet) as? AdminFacetFacade else {
                     return nil
                 }
-                return facade.servant
+                return facade.disp
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -225,7 +225,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         do {
             return try autoreleasepool {
                 try handle.findAllAdminFacets().mapValues { facade in
-                    (facade as! AdminFacetFacade).servant
+                    (facade as! AdminFacetFacade).disp
                 }
             }
         } catch is CommunicatorDestroyedException {

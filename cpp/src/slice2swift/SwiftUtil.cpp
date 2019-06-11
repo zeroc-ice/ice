@@ -1085,7 +1085,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Object",       // Object
+        "Ice.Disp",         // Object
         "Ice.ObjectPrx",    // ObjectPrx
         "Swift.AnyObject",  // LocalObject
         "Ice.Value"         // Value
@@ -1191,7 +1191,7 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Object",       // Object
+        "Ice.Disp",         // Object
         "Ice.ObjectPrx",    // ObjectPrx
         "Swift.AnyObject",  // LocalObject
         "Ice.Value"         // Value

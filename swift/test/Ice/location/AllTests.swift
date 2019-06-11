@@ -485,7 +485,7 @@ func allTests(_ helper: TestHelper) throws {
 
     var ident = Ice.Identity()
     ident.name = UUID().uuidString
-    try registry.addObject(adapter.add(servant: HelloI(), id: ident))
+    try registry.addObject(adapter.add(servant: HelloDisp(HelloI()), id: ident))
     try adapter.activate()
 
     /*let helloPrx*/ _ = try checkedCast(

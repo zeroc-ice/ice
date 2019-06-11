@@ -18,7 +18,7 @@ class Server: TestHelperI {
         }
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: RetryI(), id: Ice.stringToIdentity("retry"))
+        try adapter.add(servant: RetryDisp(RetryI()), id: Ice.stringToIdentity("retry"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

@@ -23,7 +23,7 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                  value: getTestEndpoint(num: 0, prot: "tcp"))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: ServerFactoryI(defaultDir: path, helper: self),
+        try adapter.add(servant: SSLServerFactoryDisp(ServerFactoryI(defaultDir: path, helper: self)),
                         id: Ice.stringToIdentity("factory"))
         try adapter.activate()
         serverReady()

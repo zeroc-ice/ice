@@ -23,7 +23,7 @@ class TestI: TestIntf {
         _adapter2 = adapter2
         _registry = registry
 
-        try _registry.addObject(_adapter1.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
+        try _registry.addObject(_adapter1.add(servant: HelloDisp(HelloI()), id: Ice.stringToIdentity("hello")))
     }
 
     func shutdown(current: Ice.Current) throws {
@@ -112,9 +112,9 @@ class ServerManagerI: ServerManager {
                 try adapter2.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
                 let object = try TestI(adapter1: adapter, adapter2: adapter2, registry: _registry)
-                try _registry.addObject(adapter.add(servant: object, id: Ice.stringToIdentity("test")))
-                try _registry.addObject(adapter.add(servant: object, id: Ice.stringToIdentity("test2")))
-                _ = try adapter.add(servant: object, id: Ice.stringToIdentity("test3"))
+                try _registry.addObject(adapter.add(servant: TestIntfDisp(object), id: Ice.stringToIdentity("test")))
+                try _registry.addObject(adapter.add(servant: TestIntfDisp(object), id: Ice.stringToIdentity("test2")))
+                _ = try adapter.add(servant: TestIntfDisp(object), id: Ice.stringToIdentity("test3"))
 
                 try adapter.activate()
                 try adapter2.activate()

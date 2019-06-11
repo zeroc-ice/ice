@@ -34,8 +34,9 @@ class RemoteCommunicatorI: RemoteCommunicator {
                 }
                 communicator.getProperties().setProperty(key: "\(name).ThreadPool.Size", value: "1")
                 let adapter = try communicator.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
-                return try uncheckedCast(prx: current.adapter!.addWithUUID(RemoteObjectAdapterI(adapter)),
-                                         type: RemoteObjectAdapterPrx.self)
+                return try uncheckedCast(
+                    prx: current.adapter!.addWithUUID(RemoteObjectAdapterDisp(RemoteObjectAdapterI(adapter))),
+                    type: RemoteObjectAdapterPrx.self)
             } catch let ex as Ice.SocketException {
                 retry -= 1
                 if retry == 0 {
@@ -57,7 +58,8 @@ class RemoteCommunicatorI: RemoteCommunicator {
 class RemoteObjectAdapterI: RemoteObjectAdapter {
     init(_ adapter: Ice.ObjectAdapter ) throws {
         _adapter = adapter
-        _testIntf = try uncheckedCast(prx: _adapter.add(servant: TestI(), id: Ice.stringToIdentity("test")),
+        _testIntf = try uncheckedCast(prx: _adapter.add(servant: TestIntfDisp(TestI()),
+                                                        id: Ice.stringToIdentity("test")),
                                       type: TestIntfPrx.self)
         try _adapter.activate()
     }

@@ -64,22 +64,22 @@ class ServantLocatorI: Ice.ServantLocator {
         precondition(_deactivated)
     }
 
-    func locate(_ current: Ice.Current) throws -> (returnValue: Object?, cookie: AnyObject?) {
+    func locate(_ current: Ice.Current) throws -> (returnValue: Disp?, cookie: AnyObject?) {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
 
         if current.id.name == "router" {
-            return (_router, CookieI())
+            return (RouterDisp(_router), CookieI())
         }
 
         try _helper.test(current.id.category == "")
         try _helper.test(current.id.name == "test")
 
-        return (TestI(), CookieI())
+        return (TestIntfDisp(TestI()), CookieI())
     }
 
-    func finished(curr current: Ice.Current, servant: Ice.Object, cookie: Swift.AnyObject?) throws {
+    func finished(curr current: Ice.Current, servant: Ice.Disp, cookie: Swift.AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }

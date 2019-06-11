@@ -7,7 +7,7 @@ import TestCommon
 import Dispatch
 
 class ServantLocatorI: Ice.ServantLocator {
-    var _blobject: Ice.Object
+    var _blobject: Ice.Disp
 
     init (_ async: Bool) {
         if async {
@@ -17,11 +17,11 @@ class ServantLocatorI: Ice.ServantLocator {
         }
     }
 
-    func locate(_ curr: Ice.Current) -> (returnValue: Ice.Object?, cookie: AnyObject?) {
+    func locate(_ curr: Ice.Current) -> (returnValue: Ice.Disp?, cookie: AnyObject?) {
         return (_blobject, nil)
     }
 
-    func finished(curr: Ice.Current, servant: Ice.Object, cookie: AnyObject?) {}
+    func finished(curr: Ice.Current, servant: Ice.Disp, cookie: AnyObject?) {}
 
     func deactivate(_ category: String) {}
 }

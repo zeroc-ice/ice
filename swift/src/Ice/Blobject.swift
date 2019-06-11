@@ -5,7 +5,7 @@
 import Foundation
 
 /// Base protocol for dynamic dispatch servants.
-public protocol Blobject: Object {
+public protocol Blobject: Disp {
     /// Dispatch an incoming request.
     ///
     /// - parameter inEncaps: `Data` - The encoded in-parameters for the operation.
@@ -25,7 +25,7 @@ public protocol Blobject: Object {
 }
 
 public extension Blobject {
-    func _iceDispatch(incoming inS: Incoming, current: Current) throws {
+    func dispatch(incoming inS: Incoming, current: Current) throws {
         let inEncaps = try inS.readParamEncaps()
         let invokeResult = try ice_invoke(inEncaps: inEncaps, current: current)
         inS.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)

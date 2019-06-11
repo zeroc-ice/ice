@@ -323,7 +323,7 @@ public func allTests(helper: TestHelper) throws {
         let adapter = try communicator.createObjectAdapter("TimeoutCollocated")
         try adapter.activate()
 
-        let proxy = try uncheckedCast(prx: adapter.addWithUUID(TimeoutI()),
+        let proxy = try uncheckedCast(prx: adapter.addWithUUID(TimeoutDisp(TimeoutI())),
                                       type: TimeoutPrx.self).ice_invocationTimeout(100)
         do {
             try proxy.sleep(500)

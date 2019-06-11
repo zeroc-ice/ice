@@ -8,11 +8,11 @@ import PromiseKit
 
 class ServantLocatorI: Ice.ServantLocator {
 
-    func locate(_ curr: Current) throws -> (returnValue: Object?, cookie: AnyObject?) {
+    func locate(_ curr: Current) throws -> (returnValue: Disp?, cookie: AnyObject?) {
         return (nil, nil)
     }
 
-    func finished(curr: Current, servant: Object, cookie: AnyObject?) throws {
+    func finished(curr: Current, servant: Disp, cookie: AnyObject?) throws {
     }
 
     func deactivate(_ category: String) {
@@ -50,9 +50,9 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     communicator.getProperties().setProperty(key: "TestAdapter1.Endpoints", value: "tcp -h *")
     var adapter = try communicator.createObjectAdapter("TestAdapter1")
     let obj = EmptyI()
-    _ = try adapter.add(servant: obj, id: Ice.stringToIdentity("x"))
+    _ = try adapter.add(servant: EmptyDisp(obj), id: Ice.stringToIdentity("x"))
     do {
-        _ = try adapter.add(servant: obj, id: Ice.stringToIdentity("x"))
+        _ = try adapter.add(servant: EmptyDisp(obj), id: Ice.stringToIdentity("x"))
         try test(false)
     } catch is Ice.AlreadyRegisteredException {}
 

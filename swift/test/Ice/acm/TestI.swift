@@ -34,7 +34,8 @@ class RemoteCommunicatorI: RemoteCommunicator {
             endpoints: "\(defaultProtocol) -h \"\(defaultHost)\""
         )
 
-        return try uncheckedCast(prx: current.adapter!.addWithUUID(RemoteObjectAdapterI(adapter: adapter)),
+        return try uncheckedCast(
+            prx: current.adapter!.addWithUUID(RemoteObjectAdapterDisp(RemoteObjectAdapterI(adapter: adapter))),
                                  type: RemoteObjectAdapterPrx.self)
     }
 
@@ -49,7 +50,8 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
 
     init(adapter: Ice.ObjectAdapter) throws {
         _adapter = adapter
-        _testIntf = try uncheckedCast(prx: adapter.add(servant: TestI(), id: Ice.stringToIdentity("test")),
+        _testIntf = try uncheckedCast(prx: adapter.add(servant: TestIntfDisp(TestI()),
+                                                       id: Ice.stringToIdentity("test")),
                                       type: TestIntfPrx.self)
         try _adapter.activate()
     }

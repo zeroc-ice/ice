@@ -6,11 +6,11 @@ import IceObjc
 
 class AdminFacetFacade: ICEBlobjectFacade {
     private let communicator: Communicator
-    let servant: Object
+    var disp: Disp
 
-    init(communicator: Communicator, servant: Object) {
+    init(communicator: Communicator, disp: Disp) {
         self.communicator = communicator
-        self.servant = servant
+        self.disp = disp
     }
 
     func facadeInvoke(_ adapter: ICEObjectAdapter, inEncaps: Data, con: ICEConnection?,
@@ -54,7 +54,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
     func dispatch(incoming: Incoming, current: Current) {
         // Dispatch directly to the servant. Do not call invoke on Incoming
         do {
-            try servant._iceDispatch(incoming: incoming, current: current)
+            try disp.dispatch(incoming: incoming, current: current)
         } catch {
             incoming.exception(error)
         }
@@ -63,32 +63,47 @@ class AdminFacetFacade: ICEBlobjectFacade {
     func facadeRemoved() {}
 }
 
-class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {}
+final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {
+    func ice_id(current: Current) -> String {
+        return "::Ice::Object"
+    }
+
+    func ice_ids(current: Current) -> [String] {
+        return ["::Ice::Object"]
+    }
+
+    func ice_isA(s: String, current: Current) -> Bool {
+        return s == "::Ice::Object"
+    }
+
+    func ice_ping(current: Current) {
+    }
+}
 
 class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEBlobjectFacade {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(communicator: c,
-                                servant: handle.getSwiftObject(ProcessI.self) {
+                                disp: ProcessDisp(handle.getSwiftObject(ProcessI.self) {
                                     ProcessI(handle: handle)
-                                })
+                                }))
     }
 
     static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEBlobjectFacade {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         return AdminFacetFacade(communicator: c,
-                                servant: handle.getSwiftObject(PropertiesAdminI.self) {
+                                disp: PropertiesAdminDisp(handle.getSwiftObject(PropertiesAdminI.self) {
                                     PropertiesAdminI(communicator: c, handle: handle)
-                                })
+                                }))
     }
 
     static func createUnsupported(_ communicator: ICECommunicator,
                                   handle: ICEUnsupportedAdminFacet) -> ICEBlobjectFacade {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(communicator: c,
-                                servant: handle.getSwiftObject(UnsupportedAdminFacet.self) {
+                                disp: ObjectDisp(handle.getSwiftObject(UnsupportedAdminFacet.self) {
                                     UnsupportedAdminFacet(handle: handle)
-                                })
+                                }))
     }
 }

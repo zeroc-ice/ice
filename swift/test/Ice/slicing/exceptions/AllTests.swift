@@ -489,7 +489,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     do {
         let adapter = try communicator.createObjectAdapter("")
-        let relay = try uncheckedCast(prx: adapter.addWithUUID(RelayI()),
+        let relay = try uncheckedCast(prx: adapter.addWithUUID(RelayDisp(RelayI())),
                                       type: RelayPrx.self)
         try adapter.activate()
         try testPrx.ice_getConnection()!.setAdapter(adapter)

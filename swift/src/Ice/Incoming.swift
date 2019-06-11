@@ -13,7 +13,7 @@ public final class Incoming {
     private let responseCallback: ICEBlobjectResponse
     private let exceptionCallback: ICEBlobjectException
 
-    private var servant: Object?
+    private var servant: Disp?
     private var locator: ServantLocator?
     private var cookie: AnyObject?
 
@@ -145,7 +145,7 @@ public final class Incoming {
         // Dispatch in the incoming call
         //
         do {
-            try s._iceDispatch(incoming: self, current: current)
+            try s.dispatch(incoming: self, current: current)
         } catch {
             exception(error)
         }

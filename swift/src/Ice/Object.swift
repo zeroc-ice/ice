@@ -4,6 +4,15 @@
 
 import IceObjc
 
+public protocol Disp {
+    func dispatch(incoming: Incoming, current: Current) throws
+}
+
+public protocol InterfaceTraits {
+    static var staticIds: [String] { get }
+    static var staticId: String { get }
+}
+
 public protocol Object {
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     ///
@@ -34,27 +43,9 @@ public protocol Object {
     ///
     /// - parameter current: The Current object for the invocation.
     func ice_ping(current: Current) throws
-
-    func _iceDispatch(incoming: Incoming, current: Current) throws
 }
 
 public extension Object {
-    func ice_id(current _: Current) -> String {
-        return "::Ice::Object"
-    }
-
-    func ice_ids(current _: Current) -> [String] {
-        return ["::Ice::Object"]
-    }
-
-    func ice_isA(s: String, current _: Current) -> Bool {
-        return s == "::Ice::Object"
-    }
-
-    func ice_ping(current _: Current) {
-        // Do nothing
-    }
-
     func _iceD_ice_id(incoming inS: Incoming, current: Current) throws {
         try inS.readEmptyParams()
 
@@ -92,17 +83,45 @@ public extension Object {
         try ice_ping(current: current)
         inS.writeEmptyParams()
     }
+}
 
-    func _iceDispatch(incoming: Incoming, current: Current) throws {
+public class DefaultObjectImpl<T: InterfaceTraits>: Object {
+    public init() {}
+
+    public func ice_id(current _: Current) -> String {
+        return T.staticId
+    }
+
+    public func ice_ids(current _: Current) -> [String] {
+        return T.staticIds
+    }
+
+    public func ice_isA(s: String, current _: Current) -> Bool {
+        return T.staticIds.contains(s)
+    }
+
+    public func ice_ping(current _: Current) {
+        // Do nothing
+    }
+}
+
+struct ObjectDisp: Disp {
+    let servant: Object
+
+    init(_ servant: Object) {
+        self.servant = servant
+    }
+
+    func dispatch(incoming: Incoming, current: Current) throws {
         switch current.operation {
         case "ice_id":
-            try _iceD_ice_id(incoming: incoming, current: current)
+            try servant._iceD_ice_id(incoming: incoming, current: current)
         case "ice_ids":
-            try _iceD_ice_ids(incoming: incoming, current: current)
+            try servant._iceD_ice_ids(incoming: incoming, current: current)
         case "ice_isA":
-            try _iceD_ice_isA(incoming: incoming, current: current)
+            try servant._iceD_ice_isA(incoming: incoming, current: current)
         case "ice_ping":
-            try _iceD_ice_ping(incoming: incoming, current: current)
+            try servant._iceD_ice_ping(incoming: incoming, current: current)
         default:
             throw OperationNotExistException(id: current.id, facet: current.facet, operation: current.operation)
         }

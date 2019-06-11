@@ -3,7 +3,7 @@
 //
 import Ice
 
-class MyDerivedClassI: MyDerivedClass {
+final class MyDerivedClassI: MyDerivedClass, Object {
     var _ctx: [String: String]
 
     init() {
@@ -25,8 +25,22 @@ class MyDerivedClassI: MyDerivedClass {
         return _ctx
     }
 
-    func ice_isA(s: String, current: Ice.Current) throws -> Bool {
+    func ice_isA(s: String, current: Ice.Current) -> Bool {
         _ctx = current.ctx
-        return try ice_ids(current: current).contains(s)
+        return MyDerivedClassDisp.staticIds.contains(s)
+    }
+
+    func ice_id(current: Ice.Current) -> String {
+        _ctx = current.ctx
+        return MyDerivedClassDisp.staticId
+    }
+
+    func ice_ids(current: Ice.Current) -> [String] {
+        _ctx = current.ctx
+        return MyDerivedClassDisp.staticIds
+    }
+
+    func ice_ping(current: Current) {
+        _ctx = current.ctx
     }
 }

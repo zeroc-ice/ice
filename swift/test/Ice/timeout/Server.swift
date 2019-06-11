@@ -37,11 +37,11 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "ControllerAdapter.ThreadPool.Size", value: "1")
 
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: TimeoutI(), id: Ice.stringToIdentity("timeout"))
+        try adapter.add(servant: TimeoutDisp(TimeoutI()), id: Ice.stringToIdentity("timeout"))
         try adapter.activate()
 
         let controllerAdapter = try communicator.createObjectAdapter("ControllerAdapter")
-        try controllerAdapter.add(servant: ControllerI(adapter), id: Ice.stringToIdentity("controller"))
+        try controllerAdapter.add(servant: ControllerDisp(ControllerI(adapter)), id: Ice.stringToIdentity("controller"))
         try controllerAdapter.activate()
 
         serverReady()

@@ -52,7 +52,8 @@ public func allTests(_ helper: TestHelper) throws {
     communicator.getProperties().setProperty(key: "ReplyAdapter.Endpoints", value: "udp")
     let adapter = try communicator.createObjectAdapter("ReplyAdapter")
     var replyI = PingReplyI()
-    var reply = try uncheckedCast(prx: adapter.addWithUUID(replyI), type: PingReplyPrx.self).ice_datagram()
+    var reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)),
+                                  type: PingReplyPrx.self).ice_datagram()
     try adapter.activate()
 
     let output = helper.getWriter()
@@ -75,7 +76,8 @@ public func allTests(_ helper: TestHelper) throws {
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = PingReplyI()
-        reply = try uncheckedCast(prx: adapter.addWithUUID(replyI), type: PingReplyPrx.self).ice_datagram()
+        reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)),
+                                  type: PingReplyPrx.self).ice_datagram()
     }
     try test(ret)
 
@@ -139,7 +141,7 @@ public func allTests(_ helper: TestHelper) throws {
             break
         }
         replyI = PingReplyI()
-        reply = try uncheckedCast(prx: adapter.addWithUUID(replyI).ice_datagram(),
+        reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)).ice_datagram(),
                                   type: PingReplyPrx.self)
     }
 
@@ -162,7 +164,8 @@ public func allTests(_ helper: TestHelper) throws {
             break // Success
         }
         replyI = PingReplyI()
-        reply = try uncheckedCast(prx: adapter.addWithUUID(replyI), type: PingReplyPrx.self).ice_datagram()
+        reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)),
+                                  type: PingReplyPrx.self).ice_datagram()
     }
     try test(ret)
     output.writeLine("ok")

@@ -32,7 +32,7 @@ class ServantLocatorI: Ice.ServantLocator {
         }
     }
 
-    func locate(_ curr: Ice.Current) throws -> (returnValue: Ice.Object?, cookie: AnyObject?) {
+    func locate(_ curr: Ice.Current) throws -> (returnValue: Ice.Disp?, cookie: AnyObject?) {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
@@ -55,10 +55,10 @@ class ServantLocatorI: Ice.ServantLocator {
         try _helper.test(_requestId == -1)
         _requestId = curr.requestId
 
-        return (TestI(), CookieI())
+        return (TestIntfDisp(TestI()), CookieI())
     }
 
-    func finished(curr: Ice.Current, servant: Ice.Object, cookie: AnyObject?) throws {
+    func finished(curr: Ice.Current, servant: Ice.Disp, cookie: AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }

@@ -5,7 +5,19 @@
 import Ice
 import TestCommon
 
-class MyObjectI: MyObject {
+final class MyObjectI: MyObject, Object {
+    func ice_id(current: Current) -> String {
+        return MyObjectDisp.staticId
+    }
+
+    func ice_ids(current: Current) -> [String] {
+        return MyObjectDisp.staticIds
+    }
+
+    func ice_isA(s: String, current: Current) -> Bool {
+        return MyObjectDisp.staticIds.contains(s)
+    }
+
     func ice_ping(current: Ice.Current) throws {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")
@@ -40,7 +52,7 @@ func allTests(_ helper: TestHelper) throws {
     //
     // Register default servant with category "foo"
     //
-    try oa.addDefaultServant(servant: servant, category: "foo")
+    try oa.addDefaultServant(servant: MyObjectDisp(servant), category: "foo")
 
     //
     // Start test
@@ -48,7 +60,7 @@ func allTests(_ helper: TestHelper) throws {
     output.write("testing single category... ")
 
     var r = oa.findDefaultServant("foo")
-    try test((r as? MyObjectI) === servant)
+    try test((r as! MyObjectDisp).servant as? MyObjectI === servant)
 
     r = oa.findDefaultServant("bar")
     try test(r == nil)
@@ -118,13 +130,13 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing default category... ")
 
-    try oa.addDefaultServant(servant: servant, category: "")
+    try oa.addDefaultServant(servant: MyObjectDisp(servant), category: "")
 
     r = oa.findDefaultServant("bar")
     try test(r == nil)
 
     r = oa.findDefaultServant("")
-    try test((r as? MyObjectI) === servant)
+    try test((r as! MyObjectDisp).servant as? MyObjectI === servant)
 
     for name in names {
         identity.name = name

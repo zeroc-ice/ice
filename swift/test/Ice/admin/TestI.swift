@@ -115,7 +115,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         // Install a custom admin facet.
         //
-        try communicator.addAdminFacet(servant: TestFacetI(), facet: "TestFacet")
+        try communicator.addAdminFacet(servant: TestFacetDisp(TestFacetI()), facet: "TestFacet")
 
         //
         // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
@@ -123,12 +123,14 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         let servant = RemoteCommunicatorI(communicator: communicator)
 
-        if let propFacet = communicator.findAdminFacet("Properties") as? NativePropertiesAdmin {
+        if  let propDisp = communicator.findAdminFacet("Properties") as? PropertiesAdminDisp,
+            let propFacet = propDisp.servant as? NativePropertiesAdmin {
             _ = propFacet.addUpdateCallback { changes in
                 servant.updated(changes: changes)
             }
         }
-        return try uncheckedCast(prx: current.adapter!.addWithUUID(servant), type: RemoteCommunicatorPrx.self)
+        return try uncheckedCast(prx: current.adapter!.addWithUUID(RemoteCommunicatorDisp(servant)),
+                                 type: RemoteCommunicatorPrx.self)
     }
 
     func shutdown(current: Ice.Current) throws {

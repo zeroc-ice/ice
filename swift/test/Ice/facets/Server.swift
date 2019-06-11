@@ -18,14 +18,14 @@ class Server: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
 
         let d = DI()
-        try adapter.add(servant: d, id: Ice.stringToIdentity("d"))
-        try adapter.addFacet(servant: d, id: Ice.stringToIdentity("d"), facet: "facetABCD")
+        try adapter.add(servant: DDisp(d), id: Ice.stringToIdentity("d"))
+        try adapter.addFacet(servant: DDisp(d), id: Ice.stringToIdentity("d"), facet: "facetABCD")
 
         let f = FI()
-        try adapter.addFacet(servant: f, id: Ice.stringToIdentity("d"), facet: "facetEF")
+        try adapter.addFacet(servant: FDisp(f), id: Ice.stringToIdentity("d"), facet: "facetEF")
 
         let h = HI(communicator: communicator)
-        try adapter.addFacet(servant: h, id: Ice.stringToIdentity("d"), facet: "facetGH")
+        try adapter.addFacet(servant: HDisp(h), id: Ice.stringToIdentity("d"), facet: "facetGH")
 
         try adapter.activate()
 

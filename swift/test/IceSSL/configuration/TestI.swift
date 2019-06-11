@@ -71,7 +71,7 @@ class ServerFactoryI: SSLServerFactory {
         let communicator = try Ice.initialize(initData)
         let adapter = try communicator.createObjectAdapterWithEndpoints(name: "ServerAdapter", endpoints: "ssl")
         let server = ServerI(communicator: communicator, helper: _helper)
-        let obj = try adapter.addWithUUID(server)
+        let obj = try adapter.addWithUUID(SSLServerDisp(server))
         _servers[obj.ice_getIdentity()] = server
         try adapter.activate()
         return uncheckedCast(prx: obj, type: SSLServerPrx.self)
