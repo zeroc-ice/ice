@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
-import TestCommon
-import PromiseKit
 import Foundation
+import Ice
+import PromiseKit
+import TestCommon
 
 func allTests(_ helper: TestHelper) throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -17,7 +17,8 @@ func allTests(_ helper: TestHelper) throws {
 
     let manager = try checkedCast(
         prx: communicator.stringToProxy("ServerManager:\(helper.getTestEndpoint(num: 0))")!,
-        type: ServerManagerPrx.self)!
+        type: ServerManagerPrx.self
+    )!
 
     let locator = uncheckedCast(prx: communicator.getDefaultLocator()!, type: TestLocatorPrx.self)
 
@@ -241,7 +242,7 @@ func allTests(_ helper: TestHelper) throws {
     }
     results.removeAll()
     try test(locator.getRequestCount() > count &&
-             locator.getRequestCount() < count + 999)
+        locator.getRequestCount() < count + 999)
 
     if try locator.getRequestCount() > count + 800 {
         try output.write("queuing = \(locator.getRequestCount() - count)")
@@ -261,7 +262,7 @@ func allTests(_ helper: TestHelper) throws {
     // XXX:
     // Take into account the retries.
     try test(locator.getRequestCount() > count &&
-             locator.getRequestCount() < count + 1999)
+        locator.getRequestCount() < count + 1999)
 
     if try locator.getRequestCount() > count + 800 {
         try output.write("queuing = \(locator.getRequestCount() - count)")
@@ -282,7 +283,8 @@ func allTests(_ helper: TestHelper) throws {
         try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
         try registry.setAdapterDirectProxy(
             id: "TestAdapter3",
-            proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))"))
+            proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))")
+        )
         try communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
     } catch {
         try test(false)
@@ -383,13 +385,13 @@ func allTests(_ helper: TestHelper) throws {
 
         count = try locator.getRequestCount()
         try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(0).ice_ping() // No locator cache.
-        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(0).ice_ping() // No locator cache.
         count += 3
         try test(count == locator.getRequestCount())
         try registry.setAdapterDirectProxy(id: "TestAdapter5", proxy: nil)
         try registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(num: 99)))
-        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
-        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+        try ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping() // 10s timeout.
+        try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(10).ice_ping() // 10s timeout.
         try test(count == locator.getRequestCount())
         Thread.sleep(forTimeInterval: 1.2)
 
@@ -410,7 +412,7 @@ func allTests(_ helper: TestHelper) throws {
 
         do {
             while true {
-                try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                try ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping() // 1s timeout.
                 Thread.sleep(forTimeInterval: 0.1)
             }
         } catch is Ice.LocalException {
@@ -488,14 +490,14 @@ func allTests(_ helper: TestHelper) throws {
     try registry.addObject(adapter.add(servant: HelloDisp(HelloI()), id: ident))
     try adapter.activate()
 
-    /*let helloPrx*/ _ = try checkedCast(
+    /* let helloPrx */ _ = try checkedCast(
         prx: communicator.stringToProxy("\"\(communicator.identityToString(ident))\"")!,
-        type: HelloPrx.self)!
+        type: HelloPrx.self
+    )!
 
-    // TODO in Swift the call doesn't use collocation optimization because
+    // TODO: in Swift the call doesn't use collocation optimization because
     // ServantManager::hasServant only checks C++ ASM for the given identity
     // try test(helloPrx.ice_getConnection() == nil)
-
     adapter.deactivate()
     output.writeLine("ok")
 

@@ -101,9 +101,6 @@ Gen::generate(const UnitPtr& p)
     ObjectExtVisitor objectExtVisitor(_out);
     p->visit(&objectExtVisitor, false);
 
-    ObjectDispVisitor objectDispVisitor(_out);
-    p->visit(&objectDispVisitor, false);
-
     LocalObjectVisitor localObjectVisitor(_out);
     p->visit(&localObjectVisitor, false);
 }
@@ -312,8 +309,56 @@ Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o)
 }
 
 bool
-Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
+Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
+    const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
+
+    ClassList allBases = p->allBases();
+    StringList allIds;
+    transform(allBases.begin(), allBases.end(), back_inserter(allIds), ::IceUtil::constMemFun(&Contained::scoped));
+    allIds.push_back(p->scoped());
+    allIds.push_back("::Ice::Object");
+    allIds.sort();
+    allIds.unique();
+
+    ostringstream ids;
+
+    ids << "[";
+    for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
+    {
+        if(r != allIds.begin())
+        {
+            ids << ", ";
+        }
+        ids << "\"" << (*r) << "\"";
+
+    }
+    ids << "]";
+
+    out << sp;
+    out << nl << "/// Traits for Slice ";
+    if(p->isInterface())
+    {
+        out << "interface ";
+    }
+    else
+    {
+        out << "class ";
+    }
+    out << '`' << name << "`.";
+    out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
+    out << sb;
+    out << nl << "public static let staticIds = " << ids.str();
+    out << nl << "public static let staticId = \"" << p->scoped() << '"';
+    out << eb;
+
     return false;
 }
 
@@ -1094,6 +1139,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string traits = name + "Traits";
     const string prx = name + "Prx";
     const string prxI = name + "PrxI";
 
@@ -1133,7 +1179,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << nl << "public override class func ice_staticId() -> Swift.String";
     out << sb;
-    out << nl << "return \"" << p->scoped() << "\"";
+    out << nl << "return " << traits << ".staticId";
     out << eb;
 
     out << eb;
@@ -1176,7 +1222,6 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "/// Downcasts the given proxy to this type without contacting the remote server.";
     out << nl << "///";
-    out << nl << "///";
     out << nl << "/// - parameter prx: `Ice.ObjectPrx` The proxy to be cast.";
     out << nl << "///";
     out << nl << "/// - parameter type: `" << prx << ".Protocol` - The proxy type to cast to.";
@@ -1203,7 +1248,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "/// returns: `String` - The type id of the interface or class associated with this proxy type.";
     out << nl << "public func ice_staticId" << spar << ("_ type: " + prx + ".Protocol") << epar << " -> Swift.String";
     out << sb;
-    out << nl << "return " << prxI << ".ice_staticId()";
+    out << nl << "return " << traits << ".staticId";
     out << eb;
 
     //
@@ -1275,6 +1320,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string prefix = getClassResolverPrefix(p->unit());
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string traits = name + "Traits";
 
     ClassList bases = p->bases();
     ClassDefPtr base;
@@ -1372,7 +1418,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "///";
     out << nl << "/// - returns: `String` - The Slice type ID of the most-derived interface supported by this object";
     out << nl << "open override func ice_id() -> Swift.String" << sb;
-    out << nl << "return \"" << p->scoped() << "\"";
+    out << nl << "return " << traits << ".staticId";
     out << eb;
 
     out << sp;
@@ -1380,7 +1426,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "///";
     out << nl << "/// - returns: `String` - The Slice type ID of the interface supported by this object.";
     out << nl << "open override class func ice_staticId() -> Swift.String" << sb;
-    out << nl << "return \"" << p->scoped() << "\"";
+    out << nl << "return " << traits << ".staticId";
     out << eb;
 
     out << sp;
@@ -1411,7 +1457,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "open override func _iceWriteImpl(to ostr: "
         << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
+    out << nl << "ostr.startSlice(typeId: " << name << "Traits.staticId, compactId: " << p->compactId()
         << ", last: " << (!base ? "true" : "false") << ")";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
@@ -1499,6 +1545,85 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string disp = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Disp");
+    const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
+    const string servant = fixIdent(getUnqualified(getAbsolute(p), swiftModule) +
+                                    (p->isInterface() ? "" : "Operations"));
+
+
+    //
+    // Disp struct
+    //
+    out << sp;
+    out << sp;
+    out << nl << "/// Dispatcher for `" << servant << "` servants.";
+    out << nl << "public struct " << disp << ": " << getUnqualified("Ice.Disp", swiftModule);
+    out << sb;
+    out << nl << "public let servant: " << servant;
+
+    out << nl << "private static let defaultObjectImpl = " << getUnqualified("Ice.DefaultObjectImpl", swiftModule)
+        << "<" << traits << ">()";
+
+    out << sp;
+    out << nl << "public init(_ servant: " << servant << ")";
+    out << sb;
+    out << nl << "self.servant = servant";
+    out << eb;
+
+    const OperationList allOps = p->allOperations();
+
+    StringList allOpNames;
+    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
+
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+    allOpNames.sort();
+    allOpNames.unique();
+
+    out << sp;
+    out << nl;
+    out << "public func dispatch";
+    out << spar;
+    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
+    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
+    out << epar;
+    out << " throws";
+
+    out << sb;
+    out << nl << "switch current.operation";
+    out << sb;
+    out.dec(); // to align case with switch
+    for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+    {
+        const string opName = *q;
+        out << nl << "case \"" << opName << "\":";
+        out.inc();
+        if(opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
+        {
+            out << nl << "try (servant as? Object ?? " << disp << ".defaultObjectImpl)._iceD_"
+                << opName << "(incoming: inS, current: current)";
+        }
+        else
+        {
+            out << nl << "try servant._iceD_" << opName << "(incoming: inS, current: current)";
+        }
+        out.dec();
+    }
+    out << nl << "default:";
+    out.inc();
+    out << nl << "throw " << getUnqualified("Ice.OperationNotExistException", swiftModule)
+        << "(id: current.id, facet: current.facet, operation: current.operation)";
+    // missing dec to compensate for the extra dec after switch sb
+    out << eb;
+    out << eb;
+    out << eb;
+
+    //
+    // Protocol
+    //
     ClassList bases = p->bases();
     bool hasBase = false;
     while(!bases.empty() && !hasBase)
@@ -1515,9 +1640,6 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + (p->isInterface() ? "" : "Operations"));
-
     StringList baseNames;
     for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
@@ -1526,7 +1648,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     //
-    // Check for swift:inherit metadata.
+    // Check for swift:inherits metadata.
     //
     const StringList metaData = p->getMetaData();
     static const string prefix = "swift:inherits:";
@@ -1540,7 +1662,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public protocol " << name;
+    out << nl << "public protocol " << servant;
     if(!baseNames.empty())
     {
         out << ":";
@@ -1656,139 +1778,6 @@ Gen::ObjectExtVisitor::visitOperation(const OperationPtr& op)
     {
         writeDispatchOperation(out, op);
     }
-}
-
-Gen::ObjectDispVisitor::ObjectDispVisitor(::IceUtilInternal::Output& o) : out(o)
-{
-}
-
-bool
-Gen::ObjectDispVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-void
-Gen::ObjectDispVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
-bool
-Gen::ObjectDispVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
-    {
-        return false;
-    }
-
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Disp");
-    const string servant = fixIdent(getUnqualified(getAbsolute(p), swiftModule) +
-                                    (p->isInterface() ? "" : "Operations"));
-
-    ClassList allBases = p->allBases();
-    StringList allIds;
-    transform(allBases.begin(), allBases.end(), back_inserter(allIds), ::IceUtil::constMemFun(&Contained::scoped));
-    allIds.push_back(p->scoped());
-    allIds.push_back("::Ice::Object");
-    allIds.sort();
-    allIds.unique();
-
-    ostringstream ids;
-
-    ids << "[";
-    for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
-    {
-        if(r != allIds.begin())
-        {
-            ids << ", ";
-        }
-        ids << "\"" << (*r) << "\"";
-
-    }
-    ids << "]";
-
-    out << sp;
-    writeServantDocSummary(out, p, swiftModule);
-    out << nl << "public struct " << name << ": "
-        << getUnqualified("Ice.Disp", swiftModule) << ", "
-        << getUnqualified("Ice.InterfaceTraits", swiftModule);
-
-    out << sb;
-
-    out << nl << "public static let staticIds = " << ids.str();
-    out << nl << "public static let staticId = \"" << p->scoped() << '"';
-    out << nl << "public let servant: " << servant;
-
-    out << nl << "private static let defaultObjectImpl = " << getUnqualified("Ice.DefaultObjectImpl", swiftModule)
-        << "<" << name << ">()";
-
-    out << sp;
-    out << nl << "public init(_ servant: " << servant << ")";
-    out << sb;
-    out << nl << "self.servant = servant";
-    out << eb;
-
-    return true;
-}
-
-void
-Gen::ObjectDispVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = getUnqualified(getAbsolute(p), swiftModule);
-
-    const OperationList allOps = p->allOperations();
-
-    StringList allOpNames;
-    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
-
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
-    allOpNames.sort();
-    allOpNames.unique();
-
-    out << sp;
-    out << nl;
-    out << "public func dispatch";
-    out << spar;
-    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
-    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
-    out << epar;
-    out << " throws";
-
-    out << sb;
-    out << nl << "switch current.operation";
-
-    out << sb;
-    for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
-    {
-        const string opName = *q;
-        out << nl << "case \"" << opName << "\":";
-        out.inc();
-        if(opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
-        {
-            out << nl << "try (servant as? Object ?? " << fixIdent(name + "Disp") << ".defaultObjectImpl)._iceD_"
-                << opName << "(incoming: inS, current: current)";
-        }
-        else
-        {
-            out << nl << "try servant._iceD_" << opName << "(incoming: inS, current: current)";
-        }
-        out.dec();
-    }
-    out << nl << "default:";
-    out.inc();
-    out << nl << "throw " << getUnqualified("Ice.OperationNotExistException", swiftModule)
-        << "(id: current.id, facet: current.facet, operation: current.operation)";
-    out.dec();
-    out << eb;
-
-    out << eb;
-
-    out << eb;
 }
 
 Gen::LocalObjectVisitor::LocalObjectVisitor(::IceUtilInternal::Output& o) : out(o)

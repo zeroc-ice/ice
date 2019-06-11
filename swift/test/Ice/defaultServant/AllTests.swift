@@ -5,20 +5,8 @@
 import Ice
 import TestCommon
 
-final class MyObjectI: MyObject, Object {
-    func ice_id(current: Current) -> String {
-        return MyObjectDisp.staticId
-    }
-
-    func ice_ids(current: Current) -> [String] {
-        return MyObjectDisp.staticIds
-    }
-
-    func ice_isA(s: String, current: Current) -> Bool {
-        return MyObjectDisp.staticIds.contains(s)
-    }
-
-    func ice_ping(current: Ice.Current) throws {
+final class MyObjectI: DefaultObjectImpl<MyObjectTraits>, MyObject {
+    override func ice_ping(current: Ice.Current) throws {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")
         } else if current.id.name == "FacetNotExist" {
@@ -68,9 +56,9 @@ func allTests(_ helper: TestHelper) throws {
     var identity = Ice.Identity()
     identity.category = "foo"
 
-    let  names = ["foo", "bar", "x", "y", "abcdefg"]
+    let names = ["foo", "bar", "x", "y", "abcdefg"]
 
-    var prx: MyObjectPrx! = nil
+    var prx: MyObjectPrx!
     for name in names {
         identity.name = name
         prx = try uncheckedCast(prx: oa.createProxy(identity), type: MyObjectPrx.self)

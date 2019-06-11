@@ -363,7 +363,7 @@ public func uncheckedCast(prx: Ice.ObjectPrx,
 ///
 /// - returns: `String` - The type id, "::Ice::Object".
 public func ice_staticId(_: ObjectPrx.Protocol) -> Swift.String {
-    return ObjectPrxI.ice_staticId()
+    return ObjectTraits.staticId
 }
 
 public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
@@ -584,9 +584,9 @@ public extension ObjectPrx {
             var data: Data?
             var ok: Bool = false
             try _impl.handle.invoke(operation, mode: mode.rawValue, inParams: inEncaps, context: context) {
-                                        ok = $0
-                                        data = Data($1) // make a copy
-                                    }
+                ok = $0
+                data = Data($1) // make a copy
+            }
             return (ok, data!)
         } else {
             try _impl.handle.onewayInvoke(operation, mode: mode.rawValue, inParams: inEncaps, context: context)

@@ -144,22 +144,6 @@ private:
         IceUtilInternal::Output& out;
     };
 
-    class ObjectDispVisitor : public SwiftGenerator, public ParserVisitor
-    {
-    public:
-
-        ObjectDispVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-
-    private:
-
-        IceUtilInternal::Output& out;
-    };
-
     class LocalObjectVisitor : public SwiftGenerator, public ParserVisitor
     {
     public:

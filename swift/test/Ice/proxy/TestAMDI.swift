@@ -4,10 +4,10 @@
 import Ice
 import PromiseKit
 
-final class MyDerivedClassI: MyDerivedClass, Object {
+final class MyDerivedClassI: DefaultObjectImpl<MyDerivedClassTraits>, MyDerivedClass {
     var _ctx: [String: String]
 
-    init() {
+    override init() {
         _ctx = [String: String]()
     }
 
@@ -23,26 +23,26 @@ final class MyDerivedClassI: MyDerivedClass, Object {
         return Promise.value(())
     }
 
-    func getContextAsync(current: Ice.Current) -> PromiseKit.Promise<[String: String]> {
+    func getContextAsync(current _: Ice.Current) -> PromiseKit.Promise<[String: String]> {
         return Promise.value(_ctx)
     }
 
-    func ice_isA(s: String, current: Ice.Current) -> Bool {
+    override func ice_isA(s: String, current: Ice.Current) throws -> Bool {
         _ctx = current.ctx
-        return MyDerivedClassDisp.staticIds.contains(s)
+        return try super.ice_isA(s: s, current: current)
     }
 
-    func ice_ids(current: Ice.Current) -> [String] {
+    override func ice_ids(current: Ice.Current) throws -> [String] {
         _ctx = current.ctx
-        return MyDerivedClassDisp.staticIds
+        return try super.ice_ids(current: current)
     }
 
-    func ice_id(current: Ice.Current) -> String {
+    override func ice_id(current: Ice.Current) throws -> String {
         _ctx = current.ctx
-        return MyDerivedClassDisp.staticId
+        return try super.ice_id(current: current)
     }
 
-    func ice_ping(current: Ice.Current) {
+    override func ice_ping(current: Ice.Current) {
         _ctx = current.ctx
     }
 }

@@ -46,11 +46,11 @@ open class Value {
         os.endValue()
     }
 
-    /// Returns the Slice type ID of the interface supported by this object.
+    /// Returns the Slice type ID of this object.
     ///
     /// - returns: `String` - The Slice type ID.
     open class func ice_staticId() -> String {
-        return "::Ice::Value"
+        return "::Ice::Object"
     }
 }
 

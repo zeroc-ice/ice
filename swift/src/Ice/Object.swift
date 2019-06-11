@@ -10,9 +10,12 @@ public protocol Disp {
     func dispatch(incoming: Incoming, current: Current) throws
 }
 
-/// An InterfacesTraits struct describes a Slice interface.
-public protocol InterfaceTraits {
+/// A SliceTraits struct describes a Slice interface, class or exception.
+public protocol SliceTraits {
+    /// List of all type-ids.
     static var staticIds: [String] { get }
+
+    /// Most derived type-id.
     static var staticId: String { get }
 }
 
@@ -89,24 +92,30 @@ public extension Object {
     }
 }
 
+/// Traits for Object.
+public struct ObjectTraits: SliceTraits {
+    public static let staticIds = ["::Ice::Object"]
+    public static let staticId = "::Ice::Object"
+}
+
 /// class DefaultObjectImpl provides the default implementation of Object operations (ice_id,
 /// ice_ping etc.) for a given Slice interface.
-public class DefaultObjectImpl<T: InterfaceTraits>: Object {
+open class DefaultObjectImpl<T: SliceTraits>: Object {
     public init() {}
 
-    public func ice_id(current _: Current) throws -> String {
+    open func ice_id(current _: Current) throws -> String {
         return T.staticId
     }
 
-    public func ice_ids(current _: Current) throws -> [String] {
+    open func ice_ids(current _: Current) throws -> [String] {
         return T.staticIds
     }
 
-    public func ice_isA(s: String, current _: Current) throws -> Bool {
+    open func ice_isA(s: String, current _: Current) throws -> Bool {
         return T.staticIds.contains(s)
     }
 
-    public func ice_ping(current _: Current) throws {
+    open func ice_ping(current _: Current) throws {
         // Do nothing
     }
 }
