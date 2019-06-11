@@ -4,15 +4,19 @@
 
 import IceObjc
 
+/// A Dispatcher (Disp) is a helper struct used by object adapters to dispatch requests
+/// to servants. Its dispatch method should not be called directly by user applications.
 public protocol Disp {
     func dispatch(incoming: Incoming, current: Current) throws
 }
 
+/// An InterfacesTraits struct describes a Slice interface.
 public protocol InterfaceTraits {
     static var staticIds: [String] { get }
     static var staticId: String { get }
 }
 
+/// The base class for servants.
 public protocol Object {
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     ///
@@ -85,6 +89,8 @@ public extension Object {
     }
 }
 
+/// class DefaultObjectImpl provides the default implementation of Object operations (ice_id,
+/// ice_ping etc.) for a given Slice interface.
 public class DefaultObjectImpl<T: InterfaceTraits>: Object {
     public init() {}
 
@@ -105,14 +111,15 @@ public class DefaultObjectImpl<T: InterfaceTraits>: Object {
     }
 }
 
-struct ObjectDisp: Disp {
-    let servant: Object
+/// Dispatcher for plain Object servants.
+public struct ObjectDisp: Disp {
+    public let servant: Object
 
-    init(_ servant: Object) {
+    public init(_ servant: Object) {
         self.servant = servant
     }
 
-    func dispatch(incoming: Incoming, current: Current) throws {
+    public func dispatch(incoming: Incoming, current: Current) throws {
         switch current.operation {
         case "ice_id":
             try servant._iceD_ice_id(incoming: incoming, current: current)

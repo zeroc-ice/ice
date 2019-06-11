@@ -24,8 +24,8 @@ public protocol Blobject {
     func ice_invoke(inEncaps: Data, current: Current) throws -> (ok: Bool, outParams: Data)
 }
 
+/// Dispatcher for Blobject servants.
 public struct BlobjectDisp: Disp {
-
     public let servant: Blobject
 
     public init(_ servant: Blobject) {

@@ -25,8 +25,8 @@ public protocol BlobjectAsync {
     func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)>
 }
 
+/// Dispatcher for BlobjectAsync servants.
 public struct BlobjectAsyncDisp: Disp {
-
     public let servant: BlobjectAsync
 
     public init(_ servant: BlobjectAsync) {
