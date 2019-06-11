@@ -88,19 +88,19 @@ public extension Object {
 public class DefaultObjectImpl<T: InterfaceTraits>: Object {
     public init() {}
 
-    public func ice_id(current _: Current) -> String {
+    public func ice_id(current _: Current) throws -> String {
         return T.staticId
     }
 
-    public func ice_ids(current _: Current) -> [String] {
+    public func ice_ids(current _: Current) throws -> [String] {
         return T.staticIds
     }
 
-    public func ice_isA(s: String, current _: Current) -> Bool {
+    public func ice_isA(s: String, current _: Current) throws -> Bool {
         return T.staticIds.contains(s)
     }
 
-    public func ice_ping(current _: Current) {
+    public func ice_ping(current _: Current) throws {
         // Do nothing
     }
 }
