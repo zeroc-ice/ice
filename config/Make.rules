@@ -98,9 +98,9 @@ dotnet := $(shell command -v dotnet 2> /dev/null)
 supported-languages     ?= cpp $(if $(filter %/dotnet,$(dotnet)),csharp) java java-compat python js ruby php $(if $(filter Darwin,$(os)),objective-c)
 supported-configs       ?= shared
 
-version                 = 3.7.2
+version                 = 3.7b1
 mmversion               = 3.7
-soversion               = 37
+soversion               = 37b1
 
 #
 # The compatversion is the lowest patch release with the same API.
