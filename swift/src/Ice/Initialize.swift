@@ -230,11 +230,11 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
 /// indicates the major version, BB indicates the minor version, and CC
 /// indicates the patch level. For example, for Ice 3.3.1, the returned
 /// value is 30301.
-public let intVersion: Int = 30702
+public let intVersion: Int = 30761
 
 /// The Ice version in the form A.B.C, where A indicates the major version,
 /// B indicates the minor version, and C indicates the patch level.
-public let stringVersion: String = "3.7.2"
+public let stringVersion: String = "3.7b1"
 
 public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
 public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
