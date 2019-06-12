@@ -24,9 +24,9 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     //
     // Override the Object "pseudo" operations to verify the operation mode.
     //
-    override func ice_isA(s: String, current: Ice.Current) throws -> Bool {
+    override func ice_isA(id: String, current: Ice.Current) throws -> Bool {
         try _helper.test(current.mode == .Nonmutating)
-        return try super.ice_isA(s: s, current: current)
+        return try super.ice_isA(id: id, current: current)
     }
 
     override func ice_ping(current: Ice.Current) throws {

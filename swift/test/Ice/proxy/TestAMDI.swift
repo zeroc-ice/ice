@@ -27,9 +27,9 @@ final class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return Promise.value(_ctx)
     }
 
-    override func ice_isA(s: String, current: Ice.Current) throws -> Bool {
+    override func ice_isA(id: String, current: Ice.Current) throws -> Bool {
         _ctx = current.ctx
-        return try super.ice_isA(s: s, current: current)
+        return try super.ice_isA(id: id, current: current)
     }
 
     override func ice_ids(current: Ice.Current) throws -> [String] {

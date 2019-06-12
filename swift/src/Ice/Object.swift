@@ -44,7 +44,7 @@ public protocol Object {
     ///
     /// - returns: `Bool` - True if this object has the interface specified by s or
     ///   derives from the interface specified by s.
-    func ice_isA(s: String, current: Current) throws -> Bool
+    func ice_isA(id: String, current: Current) throws -> Bool
 
     /// Tests whether this object can be reached.
     ///
@@ -78,7 +78,7 @@ public extension Object {
             try istr.read()
         }
 
-        let returnValue = try ice_isA(s: ident, current: current)
+        let returnValue = try ice_isA(id: ident, current: current)
 
         inS.write { ostr in
             ostr.write(returnValue)
@@ -111,8 +111,8 @@ open class ObjectI<T: SliceTraits>: Object {
         return T.staticIds
     }
 
-    open func ice_isA(s: String, current _: Current) throws -> Bool {
-        return T.staticIds.contains(s)
+    open func ice_isA(id: String, current _: Current) throws -> Bool {
+        return T.staticIds.contains(id)
     }
 
     open func ice_ping(current _: Current) throws {

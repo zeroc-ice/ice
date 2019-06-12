@@ -64,20 +64,19 @@ class AdminFacetFacade: ICEBlobjectFacade {
 }
 
 final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {
-    func ice_id(current: Current) -> String {
-        return "::Ice::Object"
+    func ice_id(current _: Current) -> String {
+        return ObjectTraits.staticId
     }
 
-    func ice_ids(current: Current) -> [String] {
-        return ["::Ice::Object"]
+    func ice_ids(current _: Current) -> [String] {
+        return ObjectTraits.staticIds
     }
 
-    func ice_isA(s: String, current: Current) -> Bool {
-        return s == "::Ice::Object"
+    func ice_isA(id: String, current _: Current) -> Bool {
+        return id == ObjectTraits.staticId
     }
 
-    func ice_ping(current: Current) {
-    }
+    func ice_ping(current _: Current) {}
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
@@ -86,7 +85,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(communicator: c,
                                 disp: ProcessDisp(handle.getSwiftObject(ProcessI.self) {
                                     ProcessI(handle: handle)
-                                }))
+        }))
     }
 
     static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEBlobjectFacade {
@@ -95,7 +94,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(communicator: c,
                                 disp: PropertiesAdminDisp(handle.getSwiftObject(PropertiesAdminI.self) {
                                     PropertiesAdminI(communicator: c, handle: handle)
-                                }))
+        }))
     }
 
     static func createUnsupported(_ communicator: ICECommunicator,
@@ -104,6 +103,6 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(communicator: c,
                                 disp: ObjectDisp(handle.getSwiftObject(UnsupportedAdminFacet.self) {
                                     UnsupportedAdminFacet(handle: handle)
-                                }))
+        }))
     }
 }

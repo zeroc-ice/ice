@@ -794,7 +794,7 @@ open class ObjectPrxI: ObjectPrx {
     }
 
     open class func ice_staticId() -> String {
-        return "::Ice::Object"
+        return ObjectTraits.staticId
     }
 
     public func ice_getIdentity() -> Identity {
