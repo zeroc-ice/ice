@@ -98,9 +98,9 @@ public struct ObjectTraits: SliceTraits {
     public static let staticId = "::Ice::Object"
 }
 
-/// class DefaultObjectImpl provides the default implementation of Object operations (ice_id,
+/// class ObjectI provides the default implementation of Object operations (ice_id,
 /// ice_ping etc.) for a given Slice interface.
-open class DefaultObjectImpl<T: SliceTraits>: Object {
+open class ObjectI<T: SliceTraits>: Object {
     public init() {}
 
     open func ice_id(current _: Current) throws -> String {

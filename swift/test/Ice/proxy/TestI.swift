@@ -3,7 +3,7 @@
 //
 import Ice
 
-final class MyDerivedClassI: DefaultObjectImpl<MyDerivedClassTraits>, MyDerivedClass {
+final class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     var _ctx: [String: String]
 
     override init() {

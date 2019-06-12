@@ -4,7 +4,7 @@
 import Ice
 import PromiseKit
 
-final class MyDerivedClassI: DefaultObjectImpl<MyDerivedClassTraits>, MyDerivedClass {
+final class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     var _ctx: [String: String]
 
     override init() {

@@ -12,7 +12,7 @@ class BI: MBOperations {
     func opIntf(current _: Ice.Current) throws {}
 }
 
-class MyDerivedClassI: DefaultObjectImpl<MyDerivedClassTraits>, MyDerivedClass {
+class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     var _helper: TestHelper
     var _opByteSOnewayCallCount: Int32 = 0
     var _lock = os_unfair_lock()

@@ -5,7 +5,7 @@
 import Ice
 import TestCommon
 
-final class MyObjectI: DefaultObjectImpl<MyObjectTraits>, MyObject {
+final class MyObjectI: ObjectI<MyObjectTraits>, MyObject {
     override func ice_ping(current: Ice.Current) throws {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException(id: current.id, facet: "", operation: "ice_ping")

@@ -1563,7 +1563,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "public let servant: " << servant;
 
-    out << nl << "private static let defaultObjectImpl = " << getUnqualified("Ice.DefaultObjectImpl", swiftModule)
+    out << nl << "private static let defaultObject = " << getUnqualified("Ice.ObjectI", swiftModule)
         << "<" << traits << ">()";
 
     out << sp;
@@ -1604,7 +1604,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         if(opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
         {
-            out << nl << "try (servant as? Object ?? " << disp << ".defaultObjectImpl)._iceD_"
+            out << nl << "try (servant as? Object ?? " << disp << ".defaultObject)._iceD_"
                 << opName << "(incoming: inS, current: current)";
         }
         else
