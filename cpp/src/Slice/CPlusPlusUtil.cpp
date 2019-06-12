@@ -527,7 +527,7 @@ Slice::printVersionCheck(Output& out)
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
     int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
-    if(iceVersion % 100 > 50)
+    if(iceVersion % 100 >= 50)
     {
         //
         // Beta version: exact match required
@@ -545,7 +545,7 @@ Slice::printVersionCheck(Output& out)
         //
         // Generated code is release; reject beta header
         //
-        out << "\n#   if ICE_INT_VERSION % 100 > 50";
+        out << "\n#   if ICE_INT_VERSION % 100 >= 50";
         out << "\n#       error Beta header file detected";
         out << "\n#   endif";
 
