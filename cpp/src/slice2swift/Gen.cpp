@@ -1993,7 +1993,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
                 ParamDeclPtr param = *i;
                 if(param->name() == "returnValue")
                 {
-                    returnValueS = "returnValue_";
+                    returnValueS = "_returnValue";
                     break;
                 }
             }
