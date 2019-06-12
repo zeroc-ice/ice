@@ -4,11 +4,10 @@
 
 import Darwin
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
-
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -20,7 +19,7 @@ func batchOnewaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
         batch.ice_flushBatchRequestsAsync()
     }.wait()
 
-    for _ in 0..<30 {
+    for _ in 0 ..< 30 {
         _ = batch.opByteSOnewayAsync(bs1)
     }
 

@@ -166,7 +166,10 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     func opShortIntLongSSAsync(p1: ShortSS,
                                p2: IntSS,
                                p3: LongSS,
-                               current _: Current) -> Promise<(returnValue: LongSS, p4: ShortSS, p5: IntSS, p6: LongSS)> {
+                               current _: Current) -> Promise<(returnValue: LongSS,
+                                                               p4: ShortSS,
+                                                               p5: IntSS,
+                                                               p6: LongSS)> {
         return Promise.value((p3, p1, p2.reversed(), p3 + p3))
     }
 

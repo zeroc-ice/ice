@@ -3,11 +3,10 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
-
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -41,10 +40,10 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opByteAsync(p1: 0xff, p2: 0x0f)
+        p.opByteAsync(p1: 0xFF, p2: 0x0F)
     }.done { returnValue, p3 in
-        try test(returnValue == 0xff)
-        try test(p3 == 0xf0)
+        try test(returnValue == 0xFF)
+        try test(p3 == 0xF0)
     }.wait()
 
     try firstly {
@@ -64,7 +63,7 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opFloatDoubleAsync(p1: 3.14, p2: 1.1E10)
+        p.opFloatDoubleAsync(p1: 3.14, p2: 1.1e10)
     }.done { returnValue, p3, p4 in
         try test(p3 == 3.14)
         try test(p4 == 1.1e10)
@@ -80,7 +79,7 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
     try firstly {
         p.opMyEnumAsync(MyEnum.enum2)
-    }.done {returnValue, p2 in
+    }.done { returnValue, p2 in
         try test(p2 == MyEnum.enum2)
         try test(returnValue == MyEnum.enum3)
     }.wait()
@@ -124,7 +123,7 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
     try firstly {
         p.opByteSAsync(p1: ByteSeq([0x01, 0x11, 0x12, 0x22]),
-                       p2: ByteSeq([0xf1, 0xf2, 0xf3, 0xf4]))
+                       p2: ByteSeq([0xF1, 0xF2, 0xF3, 0xF4]))
     }.done { returnValue, p3 in
         try test(p3.count == 4)
         try test(p3[0] == 0x22)
@@ -136,10 +135,10 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
         try test(returnValue[1] == 0x11)
         try test(returnValue[2] == 0x12)
         try test(returnValue[3] == 0x22)
-        try test(returnValue[4] == 0xf1)
-        try test(returnValue[5] == 0xf2)
-        try test(returnValue[6] == 0xf3)
-        try test(returnValue[7] == 0xf4)
+        try test(returnValue[4] == 0xF1)
+        try test(returnValue[5] == 0xF2)
+        try test(returnValue[6] == 0xF3)
+        try test(returnValue[7] == 0xF4)
     }.wait()
 
     try firstly {
@@ -218,12 +217,12 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opByteSSAsync(p1: [ByteSeq([0x01, 0x11, 0x12]), ByteSeq([0xff])],
-                        p2: [ByteSeq([0x0e]), ByteSeq([0xf2, 0xf1])])
+        p.opByteSSAsync(p1: [ByteSeq([0x01, 0x11, 0x12]), ByteSeq([0xFF])],
+                        p2: [ByteSeq([0x0E]), ByteSeq([0xF2, 0xF1])])
     }.done { returnValue, p3 in
         try test(p3.count == 2)
         try test(p3[0].count == 1)
-        try test(p3[0][0] == 0xff)
+        try test(p3[0][0] == 0xFF)
         try test(p3[1].count == 3)
         try test(p3[1][0] == 0x01)
         try test(p3[1][1] == 0x11)
@@ -234,12 +233,12 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
         try test(returnValue[0][1] == 0x11)
         try test(returnValue[0][2] == 0x12)
         try test(returnValue[1].count == 1)
-        try test(returnValue[1][0] == 0xff)
+        try test(returnValue[1][0] == 0xFF)
         try test(returnValue[2].count == 1)
-        try test(returnValue[2][0] == 0x0e)
+        try test(returnValue[2][0] == 0x0E)
         try test(returnValue[3].count == 2)
-        try test(returnValue[3][0] == 0xf2)
-        try test(returnValue[3][1] == 0xf1)
+        try test(returnValue[3][0] == 0xF2)
+        try test(returnValue[3][1] == 0xF1)
     }.wait()
 
     try firstly {
@@ -395,19 +394,19 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opShortIntDAsync(p1: [110: -1, 1100: 123123],
+        p.opShortIntDAsync(p1: [110: -1, 1100: 123_123],
                            p2: [110: -1, 111: -100, 1101: 0])
     }.done { returnValue, p3 in
-        try test(p3 == [110: -1, 1100: 123123])
-        try test(returnValue == [110: -1, 111: -100, 1100: 123123, 1101: 0])
+        try test(p3 == [110: -1, 1100: 123_123])
+        try test(returnValue == [110: -1, 111: -100, 1100: 123_123, 1101: 0])
     }.wait()
 
     try firstly {
-        p.opLongFloatDAsync(p1: [999999110: -1.1, 999999111: 123123.2],
-                            p2: [999999110: -1.1, 999999120: -100.4, 999999130: 0.5])
+        p.opLongFloatDAsync(p1: [999_999_110: -1.1, 999_999_111: 123_123.2],
+                            p2: [999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5])
     }.done { returnValue, p3 in
-        try test(p3 == [999999110: -1.1, 999999111: 123123.2])
-        try test(returnValue == [999999110: -1.1, 999999120: -100.4, 999999111: 123123.2, 999999130: 0.5])
+        try test(p3 == [999_999_110: -1.1, 999_999_111: 123_123.2])
+        try test(returnValue == [999_999_110: -1.1, 999_999_120: -100.4, 999_999_111: 123_123.2, 999_999_130: 0.5])
     }.wait()
 
     try firstly {
@@ -470,25 +469,25 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opShortIntDSAsync(p1: [[110: -1, 1100: 123123], [110: -1, 111: -100, 1101: 0]],
+        p.opShortIntDSAsync(p1: [[110: -1, 1100: 123_123], [110: -1, 111: -100, 1101: 0]],
                             p2: [[100: -1001]])
     }.done { returnValue, p3 in
-        try test(returnValue == [[110: -1, 111: -100, 1101: 0], [110: -1, 1100: 123123]])
+        try test(returnValue == [[110: -1, 111: -100, 1101: 0], [110: -1, 1100: 123_123]])
         try test(p3 == [[100: -1001],
-                        [110: -1, 1100: 123123],
+                        [110: -1, 1100: 123_123],
                         [110: -1, 111: -100, 1101: 0]])
     }.wait()
 
     try firstly {
-        p.opLongFloatDSAsync(p1: [[999999110: -1.1, 999999111: 123123.2],
-                                  [999999110: -1.1, 999999120: -100.4, 999999130: 0.5]],
-                             p2: [[999999140: 3.14]])
+        p.opLongFloatDSAsync(p1: [[999_999_110: -1.1, 999_999_111: 123_123.2],
+                                  [999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5]],
+                             p2: [[999_999_140: 3.14]])
     }.done { returnValue, p3 in
-        try test(returnValue == [[999999110: -1.1, 999999120: -100.4, 999999130: 0.5],
-                                 [999999110: -1.1, 999999111: 123123.2]])
-        try test(p3 == [[999999140: 3.14],
-                        [999999110: -1.1, 999999111: 123123.2],
-                        [999999110: -1.1, 999999120: -100.4, 999999130: 0.5]])
+        try test(returnValue == [[999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5],
+                                 [999_999_110: -1.1, 999_999_111: 123_123.2]])
+        try test(p3 == [[999_999_140: 3.14],
+                        [999_999_110: -1.1, 999_999_111: 123_123.2],
+                        [999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5]])
     }.wait()
 
     try firstly {
@@ -554,13 +553,13 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     try firstly {
         p.opByteByteSDAsync(p1: [0x01: ByteSeq([0x01, 0x11]),
                                  0x22: ByteSeq([0x12])],
-                            p2: [0xf1: ByteSeq([0xf2, 0xf3])])
+                            p2: [0xF1: ByteSeq([0xF2, 0xF3])])
     }.done { returnValue, p3 in
 
-        try test(p3 == [0xf1: ByteSeq([0xf2, 0xf3])])
+        try test(p3 == [0xF1: ByteSeq([0xF2, 0xF3])])
         try test(returnValue == [0x01: ByteSeq([0x01, 0x11]),
                                  0x22: ByteSeq([0x12]),
-                                 0xf1: ByteSeq([0xf2, 0xf3])])
+                                 0xF1: ByteSeq([0xF2, 0xF3])])
     }.wait()
 
     try firstly {
@@ -588,36 +587,36 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }.wait()
 
     try firstly {
-        p.opLongLongSDAsync(p1: [999999990: [999999110, 999999111, 999999110],
-                                 999999991: [999999120, 999999130]],
-                            p2: [999999992: [999999110, 999999120]])
+        p.opLongLongSDAsync(p1: [999_999_990: [999_999_110, 999_999_111, 999_999_110],
+                                 999_999_991: [999_999_120, 999_999_130]],
+                            p2: [999_999_992: [999_999_110, 999_999_120]])
     }.done { returnValue, p3 in
-        try test(p3 == [999999992: [999999110, 999999120]])
-        try test(returnValue == [999999990: [999999110, 999999111, 999999110],
-                                 999999991: [999999120, 999999130],
-                                 999999992: [999999110, 999999120]])
+        try test(p3 == [999_999_992: [999_999_110, 999_999_120]])
+        try test(returnValue == [999_999_990: [999_999_110, 999_999_111, 999_999_110],
+                                 999_999_991: [999_999_120, 999_999_130],
+                                 999_999_992: [999_999_110, 999_999_120]])
     }.wait()
 
     try firstly {
-        p.opStringFloatSDAsync(p1: ["abc": [-1.1, 123123.2, 100.0],
+        p.opStringFloatSDAsync(p1: ["abc": [-1.1, 123_123.2, 100.0],
                                     "ABC": [42.24, -1.61]],
                                p2: ["aBc": [-3.14, 3.14]])
     }.done { returnValue, p3 in
         try test(p3 == ["aBc": [-3.14, 3.14]])
-        try test(returnValue == ["abc": [-1.1, 123123.2, 100.0],
+        try test(returnValue == ["abc": [-1.1, 123_123.2, 100.0],
                                  "ABC": [42.24, -1.61],
                                  "aBc": [-3.14, 3.14]])
     }.wait()
 
     try firstly {
-        p.opStringDoubleSDAsync(p1: ["Hello!!": [1.1E10, 1.2E10, 1.3E10],
-                                     "Goodbye": [1.4E10, 1.5E10]],
-                                p2: ["": [1.6E10, 1.7E10]])
+        p.opStringDoubleSDAsync(p1: ["Hello!!": [1.1e10, 1.2e10, 1.3e10],
+                                     "Goodbye": [1.4e10, 1.5e10]],
+                                p2: ["": [1.6e10, 1.7e10]])
     }.done { returnValue, p3 in
-        try test(p3 == ["": [1.6E10, 1.7E10]])
-        try test(returnValue == ["Hello!!": [1.1E10, 1.2E10, 1.3E10],
-                                 "Goodbye": [1.4E10, 1.5E10],
-                                 "": [1.6E10, 1.7E10]])
+        try test(p3 == ["": [1.6e10, 1.7e10]])
+        try test(returnValue == ["Hello!!": [1.1e10, 1.2e10, 1.3e10],
+                                 "Goodbye": [1.4e10, 1.5e10],
+                                 "": [1.6e10, 1.7e10]])
     }.wait()
 
     try firstly {
@@ -646,16 +645,16 @@ func twowaysAMI(_ helper: TestHelper, _ p: MyClassPrx) throws {
     do {
         let lengths: [Int32] = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000]
 
-        for i in 0..<lengths.count {
+        for i in 0 ..< lengths.count {
             var s = [Int32]()
-            for j in 0..<lengths[i] {
+            for j in 0 ..< lengths[i] {
                 s.append(j)
             }
 
             try firstly {
                 p.opIntSAsync(s)
             }.done { r in
-                for j in 0..<r.count {
+                for j in 0 ..< r.count {
                     try test(r[j] == -j)
                 }
             }.wait()

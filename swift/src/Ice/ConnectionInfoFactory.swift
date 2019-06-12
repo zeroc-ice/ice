@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
 import Foundation
+import IceObjc
 
 private class ConnectionInfoI: ConnectionInfo {
     var underlying: ConnectionInfo?

@@ -7,8 +7,7 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-
-        let communicator = try self.initialize(args)
+        let communicator = try initialize(args)
         defer {
             communicator.destroy()
         }

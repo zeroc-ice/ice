@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 class TestFacetI: TestFacet {
-    func op(current: Ice.Current) {
-    }
+    func op(current _: Ice.Current) {}
 }
 
 class RemoteCommunicatorI: RemoteCommunicator {
@@ -20,37 +19,37 @@ class RemoteCommunicatorI: RemoteCommunicator {
         _communicator = communicator
     }
 
-    func getAdmin(current: Ice.Current) throws -> Ice.ObjectPrx? {
+    func getAdmin(current _: Ice.Current) throws -> Ice.ObjectPrx? {
         return try _communicator.getAdmin()
     }
 
-    func getChanges(current: Ice.Current) throws -> [String: String] {
+    func getChanges(current _: Ice.Current) throws -> [String: String] {
         return withLock(&_lock) {
-            return _changes
+            _changes
         }
     }
 
-    func print(message: String, current: Ice.Current) throws {
+    func print(message: String, current _: Ice.Current) throws {
         _communicator.getLogger().print(message)
     }
 
-    func trace(category: String, message: String, current: Ice.Current) throws {
+    func trace(category: String, message: String, current _: Ice.Current) throws {
         _communicator.getLogger().trace(category: category, message: message)
     }
 
-    func warning(message: String, current: Ice.Current) throws {
+    func warning(message: String, current _: Ice.Current) throws {
         _communicator.getLogger().warning(message)
     }
 
-    func error(message: String, current: Ice.Current) throws {
+    func error(message: String, current _: Ice.Current) throws {
         _communicator.getLogger().error(message)
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) throws {
         _communicator.shutdown()
     }
 
-    func waitForShutdown(current: Ice.Current) throws {
+    func waitForShutdown(current _: Ice.Current) throws {
         //
         // Note that we are executing in a thread of the *main* communicator,
         // not the one that is being shut down.
@@ -58,7 +57,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
         _communicator.waitForShutdown()
     }
 
-    func destroy(current: Ice.Current) throws {
+    func destroy(current _: Ice.Current) throws {
         _communicator.destroy()
     }
 
@@ -70,23 +69,19 @@ class RemoteCommunicatorI: RemoteCommunicator {
 }
 
 class NullLogger: Ice.Logger {
-    func print(_ message: String) {
-    }
+    func print(_: String) {}
 
-    func trace(category: String, message: String) {
-    }
+    func trace(category _: String, message _: String) {}
 
-    func warning(_ message: String) {
-    }
+    func warning(_: String) {}
 
-    func error(_ message: String) {
-    }
+    func error(_: String) {}
 
     func getPrefix() -> String {
         return "NullLogger"
     }
 
-    func cloneWithPrefix(_ prefix: String) -> Logger {
+    func cloneWithPrefix(_: String) -> Logger {
         return self
     }
 }
@@ -123,7 +118,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         let servant = RemoteCommunicatorI(communicator: communicator)
 
-        if  let propDisp = communicator.findAdminFacet("Properties") as? PropertiesAdminDisp,
+        if let propDisp = communicator.findAdminFacet("Properties") as? PropertiesAdminDisp,
             let propFacet = propDisp.servant as? NativePropertiesAdmin {
             _ = propFacet.addUpdateCallback { changes in
                 servant.updated(changes: changes)

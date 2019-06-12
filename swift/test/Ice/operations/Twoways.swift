@@ -6,7 +6,6 @@ import Ice
 import TestCommon
 
 func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
-
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -16,81 +15,81 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     let literals = try p.opStringLiterals()
 
     try test(s0 == "\\" &&
-             s0 == sw0 &&
-             s0 == literals[0] &&
-             s0 == literals[11])
+        s0 == sw0 &&
+        s0 == literals[0] &&
+        s0 == literals[11])
 
     try test(s1 == "A" &&
-             s1 == sw1 &&
-             s1 == literals[1] &&
-             s1 == literals[12])
+        s1 == sw1 &&
+        s1 == literals[1] &&
+        s1 == literals[12])
 
     try test(s2 == "Ice" &&
-             s2 == sw2 &&
-             s2 == literals[2] &&
-             s2 == literals[13])
+        s2 == sw2 &&
+        s2 == literals[2] &&
+        s2 == literals[13])
 
     try test(s3 == "A21" &&
-             s3 == sw3 &&
-             s3 == literals[3] &&
-             s3 == literals[14])
+        s3 == sw3 &&
+        s3 == literals[3] &&
+        s3 == literals[14])
 
     try test(s4 == "\\u0041 \\U00000041" &&
-             s4 == sw4 &&
-             s4 == literals[4] &&
-             s4 == literals[15])
+        s4 == sw4 &&
+        s4 == literals[4] &&
+        s4 == literals[15])
 
     try test(s5 == "\u{00FF}" &&
-             s5 == sw5 &&
-             s5 == literals[5] &&
-             s5 == literals[16])
+        s5 == sw5 &&
+        s5 == literals[5] &&
+        s5 == literals[16])
 
     try test(s6 == "\u{03FF}" &&
-             s6 == sw6 &&
-             s6 == literals[6] &&
-             s6 == literals[17])
+        s6 == sw6 &&
+        s6 == literals[6] &&
+        s6 == literals[17])
 
     try test(s7 == "\u{05F0}" &&
-             s7 == sw7 &&
-             s7 == literals[7] &&
-             s7 == literals[18])
+        s7 == sw7 &&
+        s7 == literals[7] &&
+        s7 == literals[18])
 
     try test(s8 == "\u{10000}" &&
-             s8 == sw8 &&
-             s8 == literals[8] &&
-             s8 == literals[19])
+        s8 == sw8 &&
+        s8 == literals[8] &&
+        s8 == literals[19])
 
     try test(s9 == "\u{1F34C}" &&
-             s9 == sw9 &&
-             s9 == literals[9] &&
-             s9 == literals[20])
+        s9 == sw9 &&
+        s9 == literals[9] &&
+        s9 == literals[20])
 
     try test(s10 == "\u{0DA7}" &&
-             s10 == sw10 &&
-             s10 == literals[10] &&
-             s10 == literals[21])
+        s10 == sw10 &&
+        s10 == literals[10] &&
+        s10 == literals[21])
 
     try test(ss0 == "\'\"\u{003f}\\\u{0007}\u{0008}\u{000c}\n\r\t\u{000b}\u{0006}" &&
-             ss0 == ss1 &&
-             ss0 == ss2 &&
-             ss0 == literals[22] &&
-             ss0 == literals[23] &&
-             ss0 == literals[24])
+        ss0 == ss1 &&
+        ss0 == ss2 &&
+        ss0 == literals[22] &&
+        ss0 == literals[23] &&
+        ss0 == literals[24])
 
     try test(ss3 == "\\\\U\\u\\" &&
-             ss3 == literals[25])
+        ss3 == literals[25])
 
     try test(ss4 == "\\A\\" &&
-             ss4 == literals[26])
+        ss4 == literals[26])
 
     try test(ss5 == "\\u0041\\" &&
-             ss5 == literals[27])
+        ss5 == literals[27])
 
     try test(su0 == su1 &&
-             su0 == su2 &&
-             su0 == literals[28] &&
-             su0 == literals[29] &&
-             su0 == literals[30])
+        su0 == su2 &&
+        su0 == literals[28] &&
+        su0 == literals[29] &&
+        su0 == literals[30])
 
     try p.ice_ping()
 
@@ -113,9 +112,9 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     }
 
     do {
-        let (r, b) = try p.opByte(p1: 0xff, p2: 0x0f)
-        try test(b == 0xf0)
-        try test(r == 0xff)
+        let (r, b) = try p.opByte(p1: 0xFF, p2: 0x0F)
+        try test(b == 0xF0)
+        try test(r == 0xFF)
     }
 
     do {
@@ -217,7 +216,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
 
     do {
         let bsi1 = ByteSeq([0x01, 0x11, 0x12, 0x22])
-        let bsi2 = ByteSeq([0xf1, 0xf2, 0xf3, 0xf4])
+        let bsi2 = ByteSeq([0xF1, 0xF2, 0xF3, 0xF4])
 
         let (rso, bso) = try p.opByteS(p1: bsi1, p2: bsi2)
         try test(bso.count == 4)
@@ -230,10 +229,10 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
         try test(rso[1] == 0x11)
         try test(rso[2] == 0x12)
         try test(rso[3] == 0x22)
-        try test(rso[4] == 0xf1)
-        try test(rso[5] == 0xf2)
-        try test(rso[6] == 0xf3)
-        try test(rso[7] == 0xf4)
+        try test(rso[4] == 0xF1)
+        try test(rso[5] == 0xF2)
+        try test(rso[6] == 0xF3)
+        try test(rso[7] == 0xF4)
     }
 
     do {
@@ -318,17 +317,17 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
 
     do {
         let s11 = ByteSeq([0x01, 0x11, 0x12])
-        let s12 = ByteSeq([0xff])
+        let s12 = ByteSeq([0xFF])
         let bsi1 = [s11, s12]
 
-        let s21 = ByteSeq([0x0e])
-        let s22 = ByteSeq([0xf2, 0xf1])
+        let s21 = ByteSeq([0x0E])
+        let s22 = ByteSeq([0xF2, 0xF1])
         let bsi2 = [s21, s22]
 
         let (rso, bso) = try p.opByteSS(p1: bsi1, p2: bsi2)
         try test(bso.count == 2)
         try test(bso[0].count == 1)
-        try test(bso[0][0] == 0xff)
+        try test(bso[0][0] == 0xFF)
         try test(bso[1].count == 3)
         try test(bso[1][0] == 0x01)
         try test(bso[1][1] == 0x11)
@@ -339,12 +338,12 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
         try test(rso[0][1] == 0x11)
         try test(rso[0][2] == 0x12)
         try test(rso[1].count == 1)
-        try test(rso[1][0] == 0xff)
+        try test(rso[1][0] == 0xFF)
         try test(rso[2].count == 1)
-        try test(rso[2][0] == 0x0e)
+        try test(rso[2][0] == 0x0E)
         try test(rso[3].count == 2)
-        try test(rso[3][0] == 0xf2)
-        try test(rso[3][1] == 0xf1)
+        try test(rso[3][0] == 0xF2)
+        try test(rso[3][1] == 0xF1)
     }
 
     do {
@@ -546,7 +545,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     }
 
     do {
-        let di1: [Int16: Int32] = [110: -1, 1100: 123123]
+        let di1: [Int16: Int32] = [110: -1, 1100: 123_123]
         let di2: [Int16: Int32] = [110: -1, 111: -100, 1101: 0]
         let (ro, `do`) = try p.opShortIntD(p1: di1, p2: di2)
 
@@ -554,21 +553,21 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
         try test(ro.count == 4)
         try test(ro[110] == -1)
         try test(ro[111] == -100)
-        try test(ro[1100] == 123123)
+        try test(ro[1100] == 123_123)
         try test(ro[1101] == 0)
     }
 
     do {
-        let di1: [Int64: Float] = [999999110: -1.1, 999999111: 123123.2]
-        let di2: [Int64: Float] = [999999110: -1.1, 999999120: -100.4, 999999130: 0.5]
+        let di1: [Int64: Float] = [999_999_110: -1.1, 999_999_111: 123_123.2]
+        let di2: [Int64: Float] = [999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5]
         let (ro, `do`) = try p.opLongFloatD(p1: di1, p2: di2)
 
         try test(`do` == di1)
         try test(ro.count == 4)
-        try test(ro[999999110] == -1.1)
-        try test(ro[999999120] == -100.4)
-        try test(ro[999999111] == 123123.2)
-        try test(ro[999999130] == 0.5)
+        try test(ro[999_999_110] == -1.1)
+        try test(ro[999_999_120] == -100.4)
+        try test(ro[999_999_111] == 123_123.2)
+        try test(ro[999_999_130] == 0.5)
     }
 
     do {
@@ -661,7 +660,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     }
 
     do {
-        let di1: [Int16: Int32] = [110: -1, 1100: 123123]
+        let di1: [Int16: Int32] = [110: -1, 1100: 123_123]
         let di2: [Int16: Int32] = [110: -1, 111: -100, 1101: 0]
         let di3: [Int16: Int32] = [100: -1001]
 
@@ -677,14 +676,14 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
         try test(ro[0][1101] == 0)
         try test(ro[1].count == 2)
         try test(ro[1][110] == -1)
-        try test(ro[1][1100] == 123123)
+        try test(ro[1][1100] == 123_123)
 
         try test(`do`.count == 3)
         try test(`do`[0].count == 1)
         try test(`do`[0][100] == -1001)
         try test(`do`[1].count == 2)
         try test(`do`[1][110] == -1)
-        try test(`do`[1][1100] == 123123)
+        try test(`do`[1][1100] == 123_123)
         try test(`do`[2].count == 3)
         try test(`do`[2][110] == -1)
         try test(`do`[2][111] == -100)
@@ -692,9 +691,9 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     }
 
     do {
-        let di1: [Int64: Float] = [999999110: -1.1, 999999111: 123123.2]
-        let di2: [Int64: Float] = [999999110: -1.1, 999999120: -100.4, 999999130: 0.5]
-        let di3: [Int64: Float] = [999999140: 3.14]
+        let di1: [Int64: Float] = [999_999_110: -1.1, 999_999_111: 123_123.2]
+        let di2: [Int64: Float] = [999_999_110: -1.1, 999_999_120: -100.4, 999_999_130: 0.5]
+        let di3: [Int64: Float] = [999_999_140: 3.14]
 
         let dsi1 = [di1, di2]
         let dsi2 = [di3]
@@ -703,24 +702,23 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
 
         try test(ro.count == 2)
         try test(ro[0].count == 3)
-        try test(ro[0][999999110] == -1.1)
-        try test(ro[0][999999120] == -100.4)
-        try test(ro[0][999999130] == 0.5)
+        try test(ro[0][999_999_110] == -1.1)
+        try test(ro[0][999_999_120] == -100.4)
+        try test(ro[0][999_999_130] == 0.5)
         try test(ro[1].count == 2)
-        try test(ro[1][999999110] == -1.1)
-        try test(ro[1][999999111] == 123123.2)
+        try test(ro[1][999_999_110] == -1.1)
+        try test(ro[1][999_999_111] == 123_123.2)
 
         try test(`do`.count == 3)
         try test(`do`[0].count == 1)
-        try test(`do`[0][999999140] == 3.14)
+        try test(`do`[0][999_999_140] == 3.14)
         try test(`do`[1].count == 2)
-        try test(`do`[1][999999110] == -1.1)
-        try test(`do`[1][999999111] == 123123.2)
+        try test(`do`[1][999_999_110] == -1.1)
+        try test(`do`[1][999_999_111] == 123_123.2)
         try test(`do`[2].count == 3)
-        try test(`do`[2][999999110] == -1.1)
-        try test(`do`[2][999999120] == -100.4)
-        try test(`do`[2][999999130] == 0.5)
-
+        try test(`do`[2][999_999_110] == -1.1)
+        try test(`do`[2][999_999_120] == -100.4)
+        try test(`do`[2][999_999_130] == 0.5)
     }
 
     do {
@@ -852,17 +850,17 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     do {
         let si1 = ByteSeq([0x01, 0x11])
         let si2 = ByteSeq([0x12])
-        let si3 = ByteSeq([0xf2, 0xf3])
+        let si3 = ByteSeq([0xF2, 0xF3])
 
         let sdi1: [UInt8: ByteSeq] = [0x01: si1, 0x22: si2]
-        let sdi2: [UInt8: ByteSeq] = [0xf1: si3]
+        let sdi2: [UInt8: ByteSeq] = [0xF1: si3]
 
         let (ro, `do`) = try p.opByteByteSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
-        try test(`do`[0xf1]!.count == 2)
-        try test(`do`[0xf1]![0] == 0xf2)
-        try test(`do`[0xf1]![1] == 0xf3)
+        try test(`do`[0xF1]!.count == 2)
+        try test(`do`[0xF1]![0] == 0xF2)
+        try test(`do`[0xF1]![1] == 0xF3)
 
         try test(ro.count == 3)
         try test(ro[0x01]!.count == 2)
@@ -870,9 +868,9 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
         try test(ro[0x01]![1] == 0x11)
         try test(ro[0x22]!.count == 1)
         try test(ro[0x22]![0] == 0x12)
-        try test(ro[0xf1]!.count == 2)
-        try test(ro[0xf1]![0] == 0xf2)
-        try test(ro[0xf1]![1] == 0xf3)
+        try test(ro[0xF1]!.count == 2)
+        try test(ro[0xF1]![0] == 0xF2)
+        try test(ro[0xF1]![1] == 0xF3)
     }
 
     do {
@@ -955,34 +953,34 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     }
 
     do {
-        let si1: [Int64] = [999999110, 999999111, 999999110]
-        let si2: [Int64] = [999999120, 999999130]
-        let si3: [Int64] = [999999110, 999999120]
+        let si1: [Int64] = [999_999_110, 999_999_111, 999_999_110]
+        let si2: [Int64] = [999_999_120, 999_999_130]
+        let si3: [Int64] = [999_999_110, 999_999_120]
 
-        let sdi1: [Int64: [Int64]] = [999999990: si1, 999999991: si2]
-        let sdi2: [Int64: [Int64]] = [999999992: si3]
+        let sdi1: [Int64: [Int64]] = [999_999_990: si1, 999_999_991: si2]
+        let sdi2: [Int64: [Int64]] = [999_999_992: si3]
 
         let (ro, `do`) = try p.opLongLongSD(p1: sdi1, p2: sdi2)
 
         try test(`do`.count == 1)
-        try test(`do`[999999992]!.count == 2)
-        try test(`do`[999999992]![0] == 999999110)
-        try test(`do`[999999992]![1] == 999999120)
+        try test(`do`[999_999_992]!.count == 2)
+        try test(`do`[999_999_992]![0] == 999_999_110)
+        try test(`do`[999_999_992]![1] == 999_999_120)
         try test(ro.count == 3)
-        try test(ro[999999990]!.count == 3)
-        try test(ro[999999990]![0] == 999999110)
-        try test(ro[999999990]![1] == 999999111)
-        try test(ro[999999990]![2] == 999999110)
-        try test(ro[999999991]!.count == 2)
-        try test(ro[999999991]![0] == 999999120)
-        try test(ro[999999991]![1] == 999999130)
-        try test(ro[999999992]!.count == 2)
-        try test(ro[999999992]![0] == 999999110)
-        try test(ro[999999992]![1] == 999999120)
+        try test(ro[999_999_990]!.count == 3)
+        try test(ro[999_999_990]![0] == 999_999_110)
+        try test(ro[999_999_990]![1] == 999_999_111)
+        try test(ro[999_999_990]![2] == 999_999_110)
+        try test(ro[999_999_991]!.count == 2)
+        try test(ro[999_999_991]![0] == 999_999_120)
+        try test(ro[999_999_991]![1] == 999_999_130)
+        try test(ro[999_999_992]!.count == 2)
+        try test(ro[999_999_992]![0] == 999_999_110)
+        try test(ro[999_999_992]![1] == 999_999_120)
     }
 
     do {
-        let si1: [Float] = [-1.1, 123123.2, 100.0]
+        let si1: [Float] = [-1.1, 123_123.2, 100.0]
         let si2: [Float] = [42.24, -1.61]
         let si3: [Float] = [-3.14, 3.14]
 
@@ -999,7 +997,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
         try test(ro.count == 3)
         try test(ro["abc"]!.count == 3)
         try test(ro["abc"]![0] == -1.1)
-        try test(ro["abc"]![1] == 123123.2)
+        try test(ro["abc"]![1] == 123_123.2)
         try test(ro["abc"]![2] == 100.0)
         try test(ro["ABC"]!.count == 2)
         try test(ro["ABC"]![0] == 42.24)
@@ -1010,9 +1008,9 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     }
 
     do {
-        let si1: [Double] = [1.1E10, 1.2E10, 1.3E10]
-        let si2: [Double] = [1.4E10, 1.5E10]
-        let si3: [Double] = [1.6E10, 1.7E10]
+        let si1: [Double] = [1.1e10, 1.2e10, 1.3e10]
+        let si2: [Double] = [1.4e10, 1.5e10]
+        let si3: [Double] = [1.6e10, 1.7e10]
 
         let sdi1 = ["Hello!!": si1, "Goodbye": si2]
         let sdi2 = ["": si3]
@@ -1021,19 +1019,19 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
 
         try test(`do`.count == 1)
         try test(`do`[""]!.count == 2)
-        try test(`do`[""]![0] == 1.6E10)
-        try test(`do`[""]![1] == 1.7E10)
+        try test(`do`[""]![0] == 1.6e10)
+        try test(`do`[""]![1] == 1.7e10)
         try test(ro.count == 3)
         try test(ro["Hello!!"]!.count == 3)
-        try test(ro["Hello!!"]![0] == 1.1E10)
-        try test(ro["Hello!!"]![1] == 1.2E10)
-        try test(ro["Hello!!"]![2] == 1.3E10)
+        try test(ro["Hello!!"]![0] == 1.1e10)
+        try test(ro["Hello!!"]![1] == 1.2e10)
+        try test(ro["Hello!!"]![2] == 1.3e10)
         try test(ro["Goodbye"]!.count == 2)
-        try test(ro["Goodbye"]![0] == 1.4E10)
-        try test(ro["Goodbye"]![1] == 1.5E10)
+        try test(ro["Goodbye"]![0] == 1.4e10)
+        try test(ro["Goodbye"]![1] == 1.5e10)
         try test(ro[""]!.count == 2)
-        try test(ro[""]![0] == 1.6E10)
-        try test(ro[""]![1] == 1.7E10)
+        try test(ro[""]![0] == 1.6e10)
+        try test(ro[""]![1] == 1.7e10)
     }
 
     do {
@@ -1094,15 +1092,15 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     do {
         let lengths: [Int32] = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000]
 
-        for l in 0..<lengths.count {
+        for l in 0 ..< lengths.count {
             var s: [Int32] = [Int32]()
-            for i in 0..<lengths[l] {
+            for i in 0 ..< lengths[l] {
                 s.append(i)
             }
 
             let r = try p.opIntS(s)
             try test(r.count == lengths[l])
-            for j in 0..<r.count {
+            for j in 0 ..< r.count {
                 try test(r[j] == -j)
             }
         }
@@ -1191,8 +1189,8 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     do {
         try test(p.opByte1(0xFF) == 0xFF)
         try test(p.opShort1(0x7FFF) == 0x7FFF)
-        try test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF)
-        try test(p.opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF)
+        try test(p.opInt1(0x7FFF_FFFF) == 0x7FFF_FFFF)
+        try test(p.opLong1(0x7FFF_FFFF_FFFF_FFFF) == 0x7FFF_FFFF_FFFF_FFFF)
         try test(p.opFloat1(1.0) == 1.0)
         try test(p.opDouble1(1.0) == 1.0)
         try test(p.opString1("opString1") == "opString1")

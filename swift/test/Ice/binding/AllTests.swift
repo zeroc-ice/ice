@@ -6,7 +6,7 @@ import TestCommon
 
 func createTestIntfPrx(_ adapters: [RemoteObjectAdapterPrx]) throws -> TestIntfPrx {
     var endpoints: [Ice.Endpoint] = []
-    var obj: TestIntfPrx! = nil
+    var obj: TestIntfPrx!
     for adapter in adapters {
         obj = try adapter.getTestIntf()!
         for e in obj.ice_getEndpoints() {
@@ -56,7 +56,10 @@ func allTests(_ helper: TestHelper) throws {
             try test3.ice_ping()
             try test(false)
         } catch is Ice.ConnectFailedException {
-        } catch is Ice.ConnectTimeoutException {}
+            // expected
+        } catch is Ice.ConnectTimeoutException {
+            // expected
+        }
     }
     output.writeLine("ok")
 
@@ -84,7 +87,7 @@ func allTests(_ helper: TestHelper) throws {
             try test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
-            names.removeAll(where: { $0 == adapterName})
+            names.removeAll(where: { $0 == adapterName })
             try test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
@@ -133,7 +136,7 @@ func allTests(_ helper: TestHelper) throws {
             try test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
-            names.removeAll(where: { $0 == adapterName})
+            names.removeAll(where: { $0 == adapterName })
 
             try test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
@@ -152,11 +155,11 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple random endpoints... ")
     do {
-        var adapters = [ try com.createObjectAdapter(name: "AdapterRandom11", endpoints: "default")!,
-                         try com.createObjectAdapter(name: "AdapterRandom12", endpoints: "default")!,
-                         try com.createObjectAdapter(name: "AdapterRandom13", endpoints: "default")!,
-                         try com.createObjectAdapter(name: "AdapterRandom14", endpoints: "default")!,
-                         try com.createObjectAdapter(name: "AdapterRandom15", endpoints: "default")!]
+        var adapters = [try com.createObjectAdapter(name: "AdapterRandom11", endpoints: "default")!,
+                        try com.createObjectAdapter(name: "AdapterRandom12", endpoints: "default")!,
+                        try com.createObjectAdapter(name: "AdapterRandom13", endpoints: "default")!,
+                        try com.createObjectAdapter(name: "AdapterRandom14", endpoints: "default")!,
+                        try com.createObjectAdapter(name: "AdapterRandom15", endpoints: "default")!]
 
         var count: Int32 = 20
         var adapterCount = adapters.count
@@ -168,9 +171,9 @@ func allTests(_ helper: TestHelper) throws {
                 adapterCount -= 1
             }
 
-            for _ in 0..<10 {
+            for _ in 0 ..< 10 {
                 var adpts: [RemoteObjectAdapterPrx] = []
-                for _ in 0..<Int.random(in: 1...adapters.count) {
+                for _ in 0 ..< Int.random(in: 1 ... adapters.count) {
                     adpts.append(adapters.randomElement()!)
                 }
                 proxies.append(try createTestIntfPrx(adpts))
@@ -229,7 +232,7 @@ func allTests(_ helper: TestHelper) throws {
             try test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
-            names.removeAll(where: { $0 == adapterName})
+            names.removeAll(where: { $0 == adapterName })
             try test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
@@ -275,7 +278,7 @@ func allTests(_ helper: TestHelper) throws {
             try test(test2.ice_getConnection() === test3.ice_getConnection())
 
             let adapterName = try test1.getAdapterName()
-            names.removeAll(where: { $0 == adapterName})
+            names.removeAll(where: { $0 == adapterName })
             try test1.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
@@ -303,7 +306,7 @@ func allTests(_ helper: TestHelper) throws {
         var names = ["Adapter21", "Adapter22", "Adapter23"]
         while names.count > 0 {
             let adapterName = try obj.getAdapterName()
-            names.removeAll(where: { $0 == adapterName})
+            names.removeAll(where: { $0 == adapterName })
             try obj.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
@@ -316,7 +319,7 @@ func allTests(_ helper: TestHelper) throws {
 
         while names.count > 0 {
             let adapterName = try obj.getAdapterName()
-            names.removeAll(where: { $0 == adapterName})
+            names.removeAll(where: { $0 == adapterName })
             try obj.ice_getConnection()!.close(.GracefullyWithWait)
         }
 
@@ -363,7 +366,9 @@ func allTests(_ helper: TestHelper) throws {
         do {
             _ = try obj.getAdapterName()
         } catch is Ice.ConnectFailedException {
+            // expected
         } catch is Ice.ConnectTimeoutException {
+            // expected
         }
 
         var endpoints = obj.ice_getEndpoints()
@@ -412,7 +417,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(!test1.ice_isConnectionCached())
         try test(!test2.ice_isConnectionCached())
         try test(test1.ice_getConnection() != nil &&
-                 test2.ice_getConnection() != nil)
+            test2.ice_getConnection() != nil)
         try test(test1.ice_getConnection() === test2.ice_getConnection())
 
         try test1.ice_ping()
@@ -424,7 +429,10 @@ func allTests(_ helper: TestHelper) throws {
             try test(test3.ice_getConnection() === test1.ice_getConnection())
             try test(false)
         } catch is Ice.ConnectFailedException {
-        } catch is Ice.ConnectTimeoutException {}
+            // expected
+        } catch is Ice.ConnectTimeoutException {
+            // expected
+        }
     }
     output.writeLine("ok")
 
@@ -535,7 +543,9 @@ func allTests(_ helper: TestHelper) throws {
         do {
             _ = try obj.getAdapterName()
         } catch is Ice.ConnectFailedException {
+            // expected
         } catch is Ice.ConnectTimeoutException {
+            // expected
         }
 
         let endpoints = obj.ice_getEndpoints()
@@ -612,7 +622,10 @@ func allTests(_ helper: TestHelper) throws {
         do {
             _ = try obj.getAdapterName()
         } catch is Ice.ConnectFailedException {
-        } catch is Ice.ConnectTimeoutException {}
+            // expected
+        } catch is Ice.ConnectTimeoutException {
+            // expected
+        }
 
         let endpoints = obj.ice_getEndpoints()
 
@@ -670,7 +683,7 @@ func allTests(_ helper: TestHelper) throws {
                             try com.createObjectAdapter(name: "Adapter82", endpoints: "tcp")!]
 
             let obj = try createTestIntfPrx(adapters)
-            for _ in 0..<5 {
+            for _ in 0 ..< 5 {
                 try test(obj.getAdapterName() == "Adapter82")
                 try obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
@@ -685,7 +698,7 @@ func allTests(_ helper: TestHelper) throws {
 
             try com.deactivateObjectAdapter(adapters[1])
 
-            for _ in 0..<5 {
+            for _ in 0 ..< 5 {
                 try test(obj.getAdapterName() == "Adapter81")
                 try obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
@@ -693,7 +706,7 @@ func allTests(_ helper: TestHelper) throws {
             // Reactive tcp OA.
             _ = try com.createObjectAdapter(name: "Adapter83", endpoints: obj.ice_getEndpoints()[1].toString())
 
-            for _ in 0..<5 {
+            for _ in 0 ..< 5 {
                 try test(obj.getAdapterName() == "Adapter83")
                 try obj.ice_getConnection()!.close(.GracefullyWithWait)
             }
@@ -703,7 +716,9 @@ func allTests(_ helper: TestHelper) throws {
                 try testSecure.ice_ping()
                 try test(false)
             } catch is Ice.ConnectFailedException {
+                // expected
             } catch is Ice.ConnectTimeoutException {
+                // expected
             }
 
             try deactivate(communicator: com, adapters: adapters)
@@ -764,7 +779,7 @@ func allTests(_ helper: TestHelper) throws {
         let serverProps = [anyipv4, anyipv6, anyboth, localipv4, localipv6]
 
         var ipv6NotSupported = false
-        for  p in serverProps {
+        for p in serverProps {
             var serverInitData = Ice.InitializationData()
             serverInitData.properties = p
             let serverCommunicator = try Ice.initialize(serverInitData)
@@ -811,12 +826,12 @@ func allTests(_ helper: TestHelper) throws {
                 } catch is Ice.SocketException {
                     try test(
                         (p === ipv4 && q === ipv6) || (p === ipv6 && q === ipv4) ||
-                        (p === bothPreferIPv4 && q === ipv6) || (p === bothPreferIPv6 && q === ipv4) ||
-                        (p === bothPreferIPv6 && q === ipv6 && ipv6NotSupported) ||
-                        (p === anyipv4 && q === ipv6) || (p === anyipv6 && q === ipv4) ||
-                        (p === localipv4 && q === ipv6) || (p === localipv6 && q === ipv4) ||
-                        (p === ipv6 && q === bothPreferIPv4) || (p === ipv6 && q === bothPreferIPv6) ||
-                        (p === bothPreferIPv6 && q === ipv6))
+                            (p === bothPreferIPv4 && q === ipv6) || (p === bothPreferIPv6 && q === ipv4) ||
+                            (p === bothPreferIPv6 && q === ipv6 && ipv6NotSupported) ||
+                            (p === anyipv4 && q === ipv6) || (p === anyipv6 && q === ipv4) ||
+                            (p === localipv4 && q === ipv6) || (p === localipv6 && q === ipv4) ||
+                            (p === ipv6 && q === bothPreferIPv4) || (p === ipv6 && q === bothPreferIPv6) ||
+                            (p === bothPreferIPv6 && q === ipv6))
                 }
                 clientCommunicator.destroy()
             }

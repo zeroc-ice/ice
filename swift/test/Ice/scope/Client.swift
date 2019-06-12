@@ -10,7 +10,7 @@ public class Client: TestHelperI {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceScope"]
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

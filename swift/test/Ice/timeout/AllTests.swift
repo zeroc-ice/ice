@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 func connect(_ prx: Ice.ObjectPrx) throws -> Ice.Connection {
-    for _ in 0..<10 {
+    for _ in 0 ..< 10 {
         do {
             _ = try prx.ice_getConnection()
             break
@@ -47,25 +47,25 @@ public func allTests(helper: TestHelper) throws {
             // Expected.
         }
         try controller.resumeAdapter()
-        try timeout.op(); // Ensure adapter is active.
+        try timeout.op() // Ensure adapter is active.
     }
 
     do {
-            //
-            // Expect success.
-            //
-            let to = timeout.ice_timeout(-1)
-            try controller.holdAdapter(100)
-            do {
-                try to.op()
-            } catch is Ice.ConnectTimeoutException {
-                try test(false)
-            }
+        //
+        // Expect success.
+        //
+        let to = timeout.ice_timeout(-1)
+        try controller.holdAdapter(100)
+        do {
+            try to.op()
+        } catch is Ice.ConnectTimeoutException {
+            try test(false)
+        }
     }
     output.writeLine("ok")
 
     // The sequence needs to be large enough to fill the write/recv buffers
-    let seq = ByteSeq(repeating: 0, count: 2000000)
+    let seq = ByteSeq(repeating: 0, count: 2_000_000)
 
     output.write("testing connection timeout... ")
     do {
@@ -86,16 +86,16 @@ public func allTests(helper: TestHelper) throws {
     }
 
     do {
-            //
-            // Expect success.
-            //
-            let to = timeout.ice_timeout(2000)
-            try controller.holdAdapter(100)
-            do {
-                try to.sendData(ByteSeq(repeating: 0, count: 1000000))
-            } catch is Ice.TimeoutException {
-                try test(false)
-            }
+        //
+        // Expect success.
+        //
+        let to = timeout.ice_timeout(2000)
+        try controller.holdAdapter(100)
+        do {
+            try to.sendData(ByteSeq(repeating: 0, count: 1_000_000))
+        } catch is Ice.TimeoutException {
+            try test(false)
+        }
     }
     output.writeLine("ok")
 
@@ -357,7 +357,7 @@ public func allTests(helper: TestHelper) throws {
         try batchTimeout.ice_ping()
         try batchTimeout.ice_ping()
 
-        _ = proxy.ice_invocationTimeout(-1).sleepAsync(300); // Keep the server thread pool busy.
+        _ = proxy.ice_invocationTimeout(-1).sleepAsync(300) // Keep the server thread pool busy.
         do {
             try batchTimeout.ice_flushBatchRequestsAsync().wait()
             try test(false)

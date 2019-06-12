@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 public func allTests(helper: TestHelper) throws -> RetryPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -64,8 +64,7 @@ public func allTests(helper: TestHelper) throws -> RetryPrx {
     output.write("calling AMI operation to kill connection with second proxy... ")
     do {
         try retry2.opAsync(true).wait()
-    } catch is Ice.ConnectionLostException {
-    } catch is Ice.UnknownLocalException {}
+    } catch is Ice.ConnectionLostException {} catch is Ice.UnknownLocalException {}
     output.writeLine("ok")
 
     output.write("calling regular AMI operation with first proxy again... ")
@@ -112,7 +111,7 @@ public func allTests(helper: TestHelper) throws -> RetryPrx {
         _ = try retry2.ice_invocationTimeout(500).opIdempotent(4)
         try test(false)
     } catch is Ice.InvocationTimeoutException {
-        _ = try retry2.opIdempotent(-1);// Reset the counter
+        _ = try retry2.opIdempotent(-1) // Reset the counter
     }
 
     do {

@@ -295,7 +295,7 @@ func allTests(helper: TestHelper) throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let  i = try checkedCast(prx: obj, type: IPrx.self)!
+        let i = try checkedCast(prx: obj, type: IPrx.self)!
         try i.shutdown()
     }
     output.writeLine("ok")

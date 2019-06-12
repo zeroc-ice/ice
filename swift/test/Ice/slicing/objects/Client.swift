@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 class PreservedI: Preserved {
     public required init() {
@@ -29,7 +29,7 @@ public class Client: TestHelperI {
         var initData = InitializationData()
         initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceSlicingObjects", "IceSlicingObjectsClient"]
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

@@ -2,32 +2,32 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 class I1: I {
-    func opS(s1: S, current: Current) throws -> (returnValue: S, s2: S) {
+    func opS(s1: S, current _: Current) throws -> (returnValue: S, s2: S) {
         return (s1, s1)
     }
 
-    func opSSeq(s1: SSeq, current: Current) throws -> (returnValue: SSeq, s2: SSeq) {
+    func opSSeq(s1: SSeq, current _: Current) throws -> (returnValue: SSeq, s2: SSeq) {
         return (s1, s1)
     }
 
-    func opSMap(s1: SMap, current: Current) throws -> (returnValue: SMap, s2: SMap) {
+    func opSMap(s1: SMap, current _: Current) throws -> (returnValue: SMap, s2: SMap) {
         return (s1, s1)
     }
 
-    func opC(c1: C?, current: Current) throws -> (returnValue: C?, c2: C?) {
+    func opC(c1: C?, current _: Current) throws -> (returnValue: C?, c2: C?) {
         return (c1, c1)
     }
 
-    func opCSeq(s1: CSeq, current: Current) throws -> (returnValue: CSeq, s2: CSeq) {
+    func opCSeq(s1: CSeq, current _: Current) throws -> (returnValue: CSeq, s2: CSeq) {
         return (s1, s1)
     }
 
-    func opCMap(c1: CMap, current: Current) throws -> (returnValue: CMap, c2: CMap) {
+    func opCMap(c1: CMap, current _: Current) throws -> (returnValue: CMap, c2: CMap) {
         return (c1, c1)
     }
 
@@ -37,27 +37,27 @@ class I1: I {
 }
 
 class I2: InnerI {
-    func opS(s1: InnerInner2S, current: Current) throws -> (returnValue: InnerInner2S, s2: InnerInner2S) {
+    func opS(s1: InnerInner2S, current _: Current) throws -> (returnValue: InnerInner2S, s2: InnerInner2S) {
         return (s1, s1)
     }
 
-    func opSSeq(s1: InnerInner2SSeq, current: Current) throws -> (returnValue: InnerInner2SSeq, s2: InnerInner2SSeq) {
+    func opSSeq(s1: InnerInner2SSeq, current _: Current) throws -> (returnValue: InnerInner2SSeq, s2: InnerInner2SSeq) {
         return (s1, s1)
     }
 
-    func opSMap(s1: InnerInner2SMap, current: Current) throws -> (returnValue: InnerInner2SMap, s2: InnerInner2SMap) {
+    func opSMap(s1: InnerInner2SMap, current _: Current) throws -> (returnValue: InnerInner2SMap, s2: InnerInner2SMap) {
         return (s1, s1)
     }
 
-    func opC(c1: InnerInner2C?, current: Current) throws -> (returnValue: InnerInner2C?, c2: InnerInner2C?) {
+    func opC(c1: InnerInner2C?, current _: Current) throws -> (returnValue: InnerInner2C?, c2: InnerInner2C?) {
         return (c1, c1)
     }
 
-    func opCSeq(c1: InnerInner2CSeq, current: Current) throws -> (returnValue: InnerInner2CSeq, c2: InnerInner2CSeq) {
+    func opCSeq(c1: InnerInner2CSeq, current _: Current) throws -> (returnValue: InnerInner2CSeq, c2: InnerInner2CSeq) {
         return (c1, c1)
     }
 
-    func opCMap(c1: InnerInner2CMap, current: Current) throws -> (returnValue: InnerInner2CMap, c2: InnerInner2CMap) {
+    func opCMap(c1: InnerInner2CMap, current _: Current) throws -> (returnValue: InnerInner2CMap, c2: InnerInner2CMap) {
         return (c1, c1)
     }
 
@@ -67,27 +67,27 @@ class I2: InnerI {
 }
 
 class I3: InnerInner2I {
-    func opS(s1: InnerInner2S, current: Current) throws -> (returnValue: InnerInner2S, s2: InnerInner2S) {
+    func opS(s1: InnerInner2S, current _: Current) throws -> (returnValue: InnerInner2S, s2: InnerInner2S) {
         return (s1, s1)
     }
 
-    func opSSeq(s1: InnerInner2SSeq, current: Current) throws -> (returnValue: InnerInner2SSeq, s2: InnerInner2SSeq) {
+    func opSSeq(s1: InnerInner2SSeq, current _: Current) throws -> (returnValue: InnerInner2SSeq, s2: InnerInner2SSeq) {
         return (s1, s1)
     }
 
-    func opSMap(s1: InnerInner2SMap, current: Current) throws -> (returnValue: InnerInner2SMap, s2: InnerInner2SMap) {
+    func opSMap(s1: InnerInner2SMap, current _: Current) throws -> (returnValue: InnerInner2SMap, s2: InnerInner2SMap) {
         return (s1, s1)
     }
 
-    func opC(c1: InnerInner2C?, current: Current) throws -> (returnValue: InnerInner2C?, c2: InnerInner2C?) {
+    func opC(c1: InnerInner2C?, current _: Current) throws -> (returnValue: InnerInner2C?, c2: InnerInner2C?) {
         return (c1, c1)
     }
 
-    func opCSeq(c1: InnerInner2CSeq, current: Current) throws -> (returnValue: InnerInner2CSeq, c2: InnerInner2CSeq) {
+    func opCSeq(c1: InnerInner2CSeq, current _: Current) throws -> (returnValue: InnerInner2CSeq, c2: InnerInner2CSeq) {
         return (c1, c1)
     }
 
-    func opCMap(c1: InnerInner2CMap, current: Current) throws -> (returnValue: InnerInner2CMap, c2: InnerInner2CMap) {
+    func opCMap(c1: InnerInner2CMap, current _: Current) throws -> (returnValue: InnerInner2CMap, c2: InnerInner2CMap) {
         return (c1, c1)
     }
 
@@ -97,27 +97,27 @@ class I3: InnerInner2I {
 }
 
 class I4: InnerTestInner2I {
-    func opS(s1: S, current: Current) throws -> (returnValue: S, s2: S) {
+    func opS(s1: S, current _: Current) throws -> (returnValue: S, s2: S) {
         return (s1, s1)
     }
 
-    func opSSeq(s1: SSeq, current: Current) throws -> (returnValue: SSeq, s2: SSeq) {
+    func opSSeq(s1: SSeq, current _: Current) throws -> (returnValue: SSeq, s2: SSeq) {
         return (s1, s1)
     }
 
-    func opSMap(s1: SMap, current: Current) throws -> (returnValue: SMap, s2: SMap) {
+    func opSMap(s1: SMap, current _: Current) throws -> (returnValue: SMap, s2: SMap) {
         return (s1, s1)
     }
 
-    func opC(c1: C?, current: Current) throws -> (returnValue: C?, c2: C?) {
+    func opC(c1: C?, current _: Current) throws -> (returnValue: C?, c2: C?) {
         return (c1, c1)
     }
 
-    func opCSeq(c1: CSeq, current: Current) throws -> (returnValue: CSeq, c2: CSeq) {
+    func opCSeq(c1: CSeq, current _: Current) throws -> (returnValue: CSeq, c2: CSeq) {
         return (c1, c1)
     }
 
-    func opCMap(c1: CMap, current: Current) throws -> (returnValue: CMap, c2: CMap) {
+    func opCMap(c1: CMap, current _: Current) throws -> (returnValue: CMap, c2: CMap) {
         return (c1, c1)
     }
 

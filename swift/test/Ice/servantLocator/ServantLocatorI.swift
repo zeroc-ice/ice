@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 class CookieI: Cookie {
     func message() -> String {
@@ -58,7 +58,7 @@ class ServantLocatorI: Ice.ServantLocator {
         return (TestIntfDisp(TestI()), CookieI())
     }
 
-    func finished(curr: Ice.Current, servant: Ice.Disp, cookie: AnyObject?) throws {
+    func finished(curr: Ice.Current, servant _: Ice.Disp, cookie: AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }
@@ -79,7 +79,7 @@ class ServantLocatorI: Ice.ServantLocator {
         try _helper.test((cookie as! Cookie).message() == "blahblah")
     }
 
-    func deactivate(_ category: String) {
+    func deactivate(_: String) {
         withLock(&_lock) {
             precondition(!_deactivated)
             self._deactivated = true

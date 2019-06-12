@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 class TestValueReader: Ice.Value {
     public override func _iceRead(from istr: Ice.InputStream) throws {
@@ -79,7 +79,6 @@ class DValueWriter: Ice.Value {
 }
 
 class DValueReader: Ice.Value {
-
     var a: A?
     var helper: TestHelper?
 
@@ -101,11 +100,11 @@ class DValueReader: Ice.Value {
         try istr.skip(4)
         let o: [String] = try istr.read()
         try helper!.test(o.count == 4 &&
-                           o[0] == "test1" &&
-                           o[1] == "test2" &&
-                           o[2] == "test3" &&
-                           o[3] == "test4")
-        try istr.read(tag: 1000, value: A.self) { self.a = $0}
+            o[0] == "test1" &&
+            o[1] == "test2" &&
+            o[2] == "test3" &&
+            o[3] == "test4")
+        try istr.read(tag: 1000, value: A.self) { self.a = $0 }
         try istr.endSlice()
         // ::Test::B
         _ = try istr.startSlice()
@@ -124,17 +123,17 @@ class DValueReader: Ice.Value {
 }
 
 class FValueReader: Ice.Value {
-
     public required init() {
         _f = F()
         super.init()
     }
+
     public override func _iceRead(from istr: Ice.InputStream) throws {
         _f = F()
         _ = istr.startValue()
         _ = try istr.startSlice()
         // Don't read af on purpose
-        //in.read(1, _f.af);
+        // in.read(1, _f.af);
         try istr.endSlice()
         _ = try istr.startSlice()
         try istr.read(A.self) { self._f.ae = $0 }
@@ -150,7 +149,6 @@ class FValueReader: Ice.Value {
 }
 
 class FactoryI {
-
     init(helper: TestHelper) {
         _enabled = false
         _helper = helper
@@ -186,7 +184,7 @@ class FactoryI {
     let _helper: TestHelper
 }
 
-func allTests(_ helper: TestHelper)  throws -> InitialPrx {
+func allTests(_ helper: TestHelper) throws -> InitialPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -274,7 +272,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
     try test(mo1.shs![0] == 1)
     try test(mo1.es![0] == .MyEnumMember &&
-               mo1.es![1] == .MyEnumMember)
+        mo1.es![1] == .MyEnumMember)
 
     try test(mo1.fss![0] == FixedStruct(m: 78))
     try test(mo1.vss![0] == VarStruct(m: "hello"))
@@ -367,7 +365,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         try test(mo5.vs == mo1.vs)
         try test(mo5.shs == mo1.shs)
         try test(mo5.es![0] == .MyEnumMember &&
-                   mo1.es![1] == .MyEnumMember)
+            mo1.es![1] == .MyEnumMember)
         try test(mo5.fss![0] == FixedStruct(m: 78))
         try test(mo5.vss![0] == VarStruct(m: "hello"))
         try test(mo5.oos![0]!.a! == 15)
@@ -478,7 +476,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
 
         try test(mo9.shs == nil)
         try test(mo9.es![0] == .MyEnumMember &&
-                   mo9.es![1] == .MyEnumMember)
+            mo9.es![1] == .MyEnumMember)
         try test(mo9.fss == nil)
         try test(mo9.vss![0] == VarStruct(m: "hello"))
         try test(mo9.oos == nil)
@@ -530,7 +528,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         _ = try istr.startEncapsulation()
 
         var v: Ice.Value?
-        try istr.read { v = $0  }
+        try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil && v is TestValueReader)
     }
@@ -581,10 +579,10 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         g.gg2Opt = G2(a: 20)
         g.gg1 = G1(a: "gg1")
         g = try initial.opG(g)
-        try test("gg1Opt" == g.gg1Opt!.a)
-        try test(10 == g.gg2!.a)
-        try test(20 == g.gg2Opt!.a)
-        try test("gg1" == g.gg1!.a)
+        try test(g.gg1Opt!.a == "gg1Opt")
+        try test(g.gg2!.a == 10)
+        try test(g.gg2Opt!.a == 20)
+        try test(g.gg1!.a == "gg1")
 
         try initial.opVoid()
 
@@ -610,7 +608,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         mc.fss = FixedStructSeq(repeating: FixedStruct(), count: 300)
 
         mc.ifsd = IntFixedStructDict()
-        for i: Int32 in 0..<300 {
+        for i: Int32 in 0 ..< 300 {
             mc.ifsd![i] = FixedStruct()
         }
 
@@ -1494,7 +1492,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         try Promise<Void> { seal in
             firstly {
                 initial.opMyEnumAsync(nil)
-            }.done {p2, p3 in
+            }.done { p2, p3 in
                 try test(p2 == nil && p3 == nil)
                 seal.fulfill(())
             }.catch { e in
@@ -1505,7 +1503,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         try Promise<Void> { seal in
             firstly {
                 initial.opMyEnumAsync()
-            }.done {p2, p3 in
+            }.done { p2, p3 in
                 try test(p2 == nil && p3 == nil)
                 seal.fulfill(())
             }.catch { e in
@@ -1520,7 +1518,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         try Promise<Void> { seal in
             firstly {
                 initial.opMyEnumAsync(p1)
-            }.done {p2, p3 in
+            }.done { p2, p3 in
                 try test(p2 == .MyEnumMember && p3 == .MyEnumMember)
                 seal.fulfill(())
             }.catch { e in
@@ -1657,10 +1655,10 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         (p2, p3) = try initial.opFixedStruct(p1)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3)  = try initial.opFixedStruct(nil)
+        (p2, p3) = try initial.opFixedStruct(nil)
         try test(p2 == nil && p3 == nil)
 
-        (p2, p3)  = try initial.opFixedStruct()
+        (p2, p3) = try initial.opFixedStruct()
         try test(p2 == nil && p3 == nil)
 
         try Promise<Void> { seal in
@@ -1734,7 +1732,6 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
         try istr.endEncapsulation()
-
     }
 
     do {
@@ -1769,7 +1766,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
                 try test(p2 == nil && p3 == nil)
                 seal.fulfill(())
             }.catch { e in
-                    seal.reject(e)
+                seal.reject(e)
             }
         }.wait()
 
@@ -2056,7 +2053,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opByteSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2141,7 +2138,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opBoolSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2226,7 +2223,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opShortSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2311,7 +2308,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opIntSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2396,7 +2393,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opLongSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2481,7 +2478,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opFloatSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2566,7 +2563,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opDoubleSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()
@@ -2651,7 +2648,7 @@ func allTests(_ helper: TestHelper)  throws -> InitialPrx {
         }.wait()
 
         (p2, p3) = try initial.opStringSeq(nil)
-        try test(p2 == nil && p3 == nil); // Ensure out parameter is cleared.
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
 
         let ostr = Ice.OutputStream(communicator: communicator)
         ostr.startEncapsulation()

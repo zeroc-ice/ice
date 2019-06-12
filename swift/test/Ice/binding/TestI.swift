@@ -36,7 +36,8 @@ class RemoteCommunicatorI: RemoteCommunicator {
                 let adapter = try communicator.createObjectAdapterWithEndpoints(name: name, endpoints: endpoints)
                 return try uncheckedCast(
                     prx: current.adapter!.addWithUUID(RemoteObjectAdapterDisp(RemoteObjectAdapterI(adapter))),
-                    type: RemoteObjectAdapterPrx.self)
+                    type: RemoteObjectAdapterPrx.self
+                )
             } catch let ex as Ice.SocketException {
                 retry -= 1
                 if retry == 0 {
@@ -46,7 +47,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
         }
     }
 
-    func deactivateObjectAdapter(adapter: RemoteObjectAdapterPrx?, current: Ice.Current) throws {
+    func deactivateObjectAdapter(adapter: RemoteObjectAdapterPrx?, current _: Ice.Current) throws {
         try adapter!.deactivate() // Collocated call.
     }
 
@@ -56,7 +57,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
 }
 
 class RemoteObjectAdapterI: RemoteObjectAdapter {
-    init(_ adapter: Ice.ObjectAdapter ) throws {
+    init(_ adapter: Ice.ObjectAdapter) throws {
         _adapter = adapter
         _testIntf = try uncheckedCast(prx: _adapter.add(servant: TestIntfDisp(TestI()),
                                                         id: Ice.stringToIdentity("test")),
@@ -64,11 +65,11 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
         try _adapter.activate()
     }
 
-    func getTestIntf(current: Ice.Current) throws -> TestIntfPrx? {
+    func getTestIntf(current _: Ice.Current) throws -> TestIntfPrx? {
         return _testIntf
     }
 
-    func deactivate(current: Ice.Current) throws {
+    func deactivate(current _: Ice.Current) throws {
         _adapter.destroy()
     }
 

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
-import TestCommon
-import Foundation
 import Dispatch
+import Foundation
+import Ice
 import PromiseKit
+import TestCommon
 
 public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -38,15 +38,15 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.SBaseAsObjectAsync()
-            }.map { o in
-                let sb = o as! SBase
-                try test(sb.ice_id() == "::Test::SBase")
-                try test(sb.sb == "SBase.sb")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.map { o in
+            let sb = o as! SBase
+            try test(sb.ice_id() == "::Test::SBase")
+            try test(sb.sb == "SBase.sb")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("base as base... ")
@@ -60,13 +60,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.SBaseAsSBaseAsync()
-            }.done { sb in
-                try test(sb!.sb == "SBase.sb")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { sb in
+            try test(sb!.sb == "SBase.sb")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("base with known derived as base... ")
@@ -82,15 +82,15 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.SBSKnownDerivedAsSBaseAsync()
-            }.done { sb in
-                try test(sb!.sb == "SBSKnownDerived.sb")
-                let sbskd = sb as! SBSKnownDerived
-                try test(sbskd.sbskd == "SBSKnownDerived.sbskd")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { sb in
+            try test(sb!.sb == "SBSKnownDerived.sb")
+            let sbskd = sb as! SBSKnownDerived
+            try test(sbskd.sbskd == "SBSKnownDerived.sbskd")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("base with known derived as known derived... ")
@@ -104,13 +104,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.SBSKnownDerivedAsSBSKnownDerivedAsync()
-            }.done { sbskd in
-                try test(sbskd!.sbskd == "SBSKnownDerived.sbskd")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { sbskd in
+            try test(sbskd!.sbskd == "SBSKnownDerived.sbskd")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("base with unknown derived as base... ")
@@ -141,13 +141,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.SBSUnknownDerivedAsSBaseAsync()
-            }.done { sb in
-                try test(sb!.sb == "SBSUnknownDerived.sb")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { sb in
+            try test(sb!.sb == "SBSUnknownDerived.sb")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
 
     if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
         //
@@ -156,13 +156,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try Promise<Void> { seal in
             firstly {
                 testPrx.SBSUnknownDerivedAsSBaseCompactAsync()
-                }.done { sb in
-                    try test(sb!.sb == "SBSUnknownDerived.sb")
-                    seal.fulfill(())
-                }.catch { e in
-                    seal.reject(e)
+            }.done { sb in
+                try test(sb!.sb == "SBSUnknownDerived.sb")
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
             }
-            }.wait()
+        }.wait()
     } else {
         //
         // This test fails when using the compact format because the instance cannot
@@ -171,17 +171,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try Promise<Void> { seal in
             firstly {
                 testPrx.SBSUnknownDerivedAsSBaseCompactAsync()
-                }.done { _ in
-                    try test(false)
-                }.catch { ex in
-                    do {
-                        try test(ex is Ice.NoValueFactoryException)
-                        seal.fulfill(())
-                    } catch {
-                        seal.reject(error)
-                    }
+            }.done { _ in
+                try test(false)
+            }.catch { ex in
+                do {
+                    try test(ex is Ice.NoValueFactoryException)
+                    seal.fulfill(())
+                } catch {
+                    seal.reject(error)
+                }
             }
-            }.wait()
+        }.wait()
     }
     output.writeLine("ok")
 
@@ -203,32 +203,32 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try Promise<Void> { seal in
             firstly {
                 testPrx.SUnknownAsObjectAsync()
-                }.done { _ in
-                    try test(false)
-                }.catch { ex in
-                    do {
-                        try test(ex is Ice.NoValueFactoryException)
-                        seal.fulfill(())
-                    } catch {
-                        seal.reject(error)
-                    }
+            }.done { _ in
+                try test(false)
+            }.catch { ex in
+                do {
+                    try test(ex is Ice.NoValueFactoryException)
+                    seal.fulfill(())
+                } catch {
+                    seal.reject(error)
+                }
             }
-            }.wait()
+        }.wait()
     } else {
         try Promise<Void> { seal in
             firstly {
                 testPrx.SUnknownAsObjectAsync()
-                }.done { o in
-                    if let unknown = o as? Ice.UnknownSlicedValue {
-                        try test(unknown.ice_id() == "::Test::SUnknown")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                }.catch { e in
-                    seal.reject(e)
+            }.done { o in
+                if let unknown = o as? Ice.UnknownSlicedValue {
+                    try test(unknown.ice_id() == "::Test::SUnknown")
+                } else {
+                    try test(false)
+                }
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
             }
-            }.wait()
+        }.wait()
     }
     output.writeLine("ok")
 
@@ -245,15 +245,15 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.oneElementCycleAsync()
-            }.done { b in
-                try test(b!.ice_id() == "::Test::B")
-                try test(b!.sb == "B1.sb")
-                try test(b!.pb === b)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { b in
+            try test(b!.ice_id() == "::Test::B")
+            try test(b!.sb == "B1.sb")
+            try test(b!.pb === b)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("two-element cycle... ")
@@ -272,20 +272,20 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.twoElementCycleAsync()
-            }.done { o in
-                let b1 = o!
-                try test(b1.ice_id() == "::Test::B")
-                try test(b1.sb == "B1.sb")
+        }.done { o in
+            let b1 = o!
+            try test(b1.ice_id() == "::Test::B")
+            try test(b1.sb == "B1.sb")
 
-                let b2 = b1.pb!
-                try test(b2.ice_id() == "::Test::B")
-                try test(b2.sb == "B2.sb")
-                try test(b2.pb === b1)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            let b2 = b1.pb!
+            try test(b2.ice_id() == "::Test::B")
+            try test(b2.sb == "B2.sb")
+            try test(b2.pb === b1)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("known derived pointer slicing as base... ")
@@ -315,32 +315,32 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.D1AsBAsync()
-            }.done { o in
-                let b1 = o!
+        }.done { o in
+            let b1 = o!
 
-                try test(b1.ice_id() == "::Test::D1")
-                try test(b1.sb == "D1.sb")
-                try test(b1.pb !== nil)
-                try test(b1.pb !== b1)
+            try test(b1.ice_id() == "::Test::D1")
+            try test(b1.sb == "D1.sb")
+            try test(b1.pb !== nil)
+            try test(b1.pb !== b1)
 
-                if let d1 = b1 as? D1 {
-                    try test(d1.sd1 == "D1.sd1")
-                    try test(d1.pd1 !== nil)
-                    try test(d1.pd1 !== b1)
-                    try test(b1.pb === d1.pd1)
-                } else {
-                    try test(false)
-                }
+            if let d1 = b1 as? D1 {
+                try test(d1.sd1 == "D1.sd1")
+                try test(d1.pd1 !== nil)
+                try test(d1.pd1 !== b1)
+                try test(b1.pb === d1.pd1)
+            } else {
+                try test(false)
+            }
 
-                let b2 = b1.pb!
-                try test(b2.pb === b1)
-                try test(b2.sb == "D2.sb")
-                try test(b2.ice_id() == "::Test::B")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            let b2 = b1.pb!
+            try test(b2.pb === b1)
+            try test(b2.sb == "D2.sb")
+            try test(b2.ice_id() == "::Test::B")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("known derived pointer slicing as derived... ")
@@ -362,23 +362,23 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.D1AsD1Async()
-            }.done { o in
-                let d1 = o!
-                try test(d1.ice_id() == "::Test::D1")
-                try test(d1.sb == "D1.sb")
-                try test(d1.pb !== nil)
-                try test(d1.pb !== d1)
+        }.done { o in
+            let d1 = o!
+            try test(d1.ice_id() == "::Test::D1")
+            try test(d1.sb == "D1.sb")
+            try test(d1.pb !== nil)
+            try test(d1.pb !== d1)
 
-                let b2 = d1.pb!
-                try test(b2.ice_id() == "::Test::B")
-                try test(b2.sb == "D2.sb")
-                try test(b2.pb === d1)
+            let b2 = d1.pb!
+            try test(b2.ice_id() == "::Test::B")
+            try test(b2.sb == "D2.sb")
+            try test(b2.pb === d1)
 
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("unknown derived pointer slicing as base... ")
@@ -406,31 +406,31 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.D2AsBAsync()
-            }.done { o in
-                let b2 = o!
+        }.done { o in
+            let b2 = o!
 
-                try test(b2.ice_id() == "::Test::B")
-                try test(b2.sb == "D2.sb")
-                try test(b2.pb !== nil)
-                try test(b2.pb !== b2)
+            try test(b2.ice_id() == "::Test::B")
+            try test(b2.sb == "D2.sb")
+            try test(b2.pb !== nil)
+            try test(b2.pb !== b2)
 
-                let b1 = b2.pb!
+            let b1 = b2.pb!
 
-                try test(b1.ice_id() == "::Test::D1")
-                try test(b1.sb == "D1.sb")
-                try test(b1.pb === b2)
+            try test(b1.ice_id() == "::Test::D1")
+            try test(b1.sb == "D1.sb")
+            try test(b1.pb === b2)
 
-                if let d1 = b1 as? D1 {
-                    try test(d1.sd1 == "D1.sd1")
-                    try test(d1.pd1 === b2)
-                } else {
-                    try test(false)
-                }
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            if let d1 = b1 as? D1 {
+                try test(d1.sd1 == "D1.sd1")
+                try test(d1.pd1 === b2)
+            } else {
+                try test(false)
+            }
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("param ptr slicing with known first... ")
@@ -456,25 +456,25 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.paramTest1Async()
-            }.done { o1, o2 in
-                try test(o1 != nil && o2 != nil)
-                let b1 = o1!
-                let b2 = o2!
-                try test(b1.ice_id() == "::Test::D1")
-                try test(b1.sb == "D1.sb")
-                try test(b1.pb === b2)
-                let d1 = b1 as! D1
-                try test(d1.sd1 == "D1.sd1")
-                try test(d1.pd1 === b2)
-                // No factory, must be sliced
-                try test(b2.ice_id() == "::Test::B")
-                try test(b2.sb == "D2.sb")
-                try test(b2.pb === b1)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { o1, o2 in
+            try test(o1 != nil && o2 != nil)
+            let b1 = o1!
+            let b2 = o2!
+            try test(b1.ice_id() == "::Test::D1")
+            try test(b1.sb == "D1.sb")
+            try test(b1.pb === b2)
+            let d1 = b1 as! D1
+            try test(d1.sd1 == "D1.sd1")
+            try test(d1.pd1 === b2)
+            // No factory, must be sliced
+            try test(b2.ice_id() == "::Test::B")
+            try test(b2.sb == "D2.sb")
+            try test(b2.pb === b1)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("param ptr slicing with unknown first... ")
@@ -506,29 +506,29 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.paramTest2Async()
-            }.done { o2, o1 in
-                try test(o2 != nil && o1 != nil)
-                let b1 = o1!
-                let b2 = o2!
+        }.done { o2, o1 in
+            try test(o2 != nil && o1 != nil)
+            let b1 = o1!
+            let b2 = o2!
 
-                try test(b1.ice_id() == "::Test::D1")
-                try test(b1.sb == "D1.sb")
-                try test(b1.pb === b2)
-                if let d1 = b1 as? D1 {
-                    try test(d1.sd1 == "D1.sd1")
-                    try test(d1.pd1 === b2)
-                } else {
-                    try test(false)
-                }
-                // No factory, must be sliced
-                try test(b2.ice_id() == "::Test::B")
-                try test(b2.sb == "D2.sb")
-                try test(b2.pb === b1)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            try test(b1.ice_id() == "::Test::D1")
+            try test(b1.sb == "D1.sb")
+            try test(b1.pb === b2)
+            if let d1 = b1 as? D1 {
+                try test(d1.sd1 == "D1.sd1")
+                try test(d1.pd1 === b2)
+            } else {
+                try test(false)
+            }
+            // No factory, must be sliced
+            try test(b2.ice_id() == "::Test::B")
+            try test(b2.sb == "D2.sb")
+            try test(b2.pb === b1)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("return value identity with known first... ")
@@ -542,13 +542,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.returnTest1Async()
-            }.done { r, p1, _ in
-                try test(r === p1)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { r, p1, _ in
+            try test(r === p1)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("return value identity with unknown first... ")
@@ -562,13 +562,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.returnTest2Async()
-            }.done { r, p1, _ in
-                try test(r === p1)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { r, p1, _ in
+            try test(r === p1)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("return value identity for input params known first... ")
@@ -625,36 +625,36 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try Promise<Void> { seal in
             firstly {
                 testPrx.returnTest3Async(p1: d1, p2: d3)
-                }.done { b in
-                    try test(b != nil)
-                    let b1 = b!
+            }.done { b in
+                try test(b != nil)
+                let b1 = b!
 
-                    try test(b1.sb == "D1.sb")
-                    try test(b1.ice_id() == "::Test::D1")
+                try test(b1.sb == "D1.sb")
+                try test(b1.ice_id() == "::Test::D1")
 
-                    if let p1 = b1 as? D1 {
-                        try test(p1.sd1 == "D1.sd1")
-                        try test(p1.pd1 === b1.pb)
-                    } else {
-                        try test(false)
-                    }
+                if let p1 = b1 as? D1 {
+                    try test(p1.sd1 == "D1.sd1")
+                    try test(p1.pd1 === b1.pb)
+                } else {
+                    try test(false)
+                }
 
-                    let b2 = b1.pb!
-                    try test(b2.sb == "D3.sb")
-                    // Sliced by server
-                    try test(b2.ice_id() == "::Test::B")
-                    try test(b2.pb === b1)
-                    try test(!(b2 is D3))
-                    try test(b1 !== d1)
-                    try test(b1 !== d3)
-                    try test(b2 !== d1)
-                    try test(b2 !== d3)
+                let b2 = b1.pb!
+                try test(b2.sb == "D3.sb")
+                // Sliced by server
+                try test(b2.ice_id() == "::Test::B")
+                try test(b2.pb === b1)
+                try test(!(b2 is D3))
+                try test(b1 !== d1)
+                try test(b1 !== d3)
+                try test(b2 !== d1)
+                try test(b2 !== d3)
 
-                    seal.fulfill(())
-                }.catch { e in
-                    seal.reject(e)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
             }
-            }.wait()
+        }.wait()
         output.writeLine("ok")
     }
 
@@ -712,36 +712,36 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.returnTest3Async(p1: d3, p2: d1)
-            }.done { b in
-                try test(b != nil)
+        }.done { b in
+            try test(b != nil)
 
-                let b1 = b!
+            let b1 = b!
 
-                try test(b1.sb == "D3.sb")
-                try test(b1.ice_id() == "::Test::B") // Sliced by server
+            try test(b1.sb == "D3.sb")
+            try test(b1.ice_id() == "::Test::B") // Sliced by server
 
-                try test(!(b1 is D3))
+            try test(!(b1 is D3))
 
-                let b2 = b1.pb!
-                try test(b2.sb == "D1.sb")
-                try test(b2.ice_id() == "::Test::D1")
-                try test(b2.pb === b1)
-                if let p3 = b2 as? D1 {
-                    try test(p3.sd1 == "D1.sd1")
-                    try test(p3.pd1 === b1)
-                } else {
-                    try test(false)
-                }
+            let b2 = b1.pb!
+            try test(b2.sb == "D1.sb")
+            try test(b2.ice_id() == "::Test::D1")
+            try test(b2.pb === b1)
+            if let p3 = b2 as? D1 {
+                try test(p3.sd1 == "D1.sd1")
+                try test(p3.pd1 === b1)
+            } else {
+                try test(false)
+            }
 
-                try test(b1 !== d1)
-                try test(b1 !== d3)
-                try test(b2 !== d1)
-                try test(b2 !== d3)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            try test(b1 !== d1)
+            try test(b1 !== d3)
+            try test(b2 !== d1)
+            try test(b2 !== d3)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("remainder unmarshaling (3 instances)... ")
@@ -771,29 +771,29 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.paramTest3Async()
-            }.done { ret1, o1, o2 in
-                try test(o1 != nil)
-                let p1 = o1!
-                try test(p1.sb == "D2.sb (p1 1)")
-                try test(p1.pb == nil)
-                try test(p1.ice_id() == "::Test::B")
+        }.done { ret1, o1, o2 in
+            try test(o1 != nil)
+            let p1 = o1!
+            try test(p1.sb == "D2.sb (p1 1)")
+            try test(p1.pb == nil)
+            try test(p1.ice_id() == "::Test::B")
 
-                try test(o2 != nil)
-                let p2 = o2!
-                try test(p2.sb == "D2.sb (p2 1)")
-                try test(p2.pb == nil)
-                try test(p2.ice_id() == "::Test::B")
+            try test(o2 != nil)
+            let p2 = o2!
+            try test(p2.sb == "D2.sb (p2 1)")
+            try test(p2.pb == nil)
+            try test(p2.ice_id() == "::Test::B")
 
-                try test(ret1 != nil)
-                let ret = ret1!
-                try test(ret.sb == "D1.sb (p2 2)")
-                try test(ret.pb == nil)
-                try test(ret.ice_id() == "::Test::D1")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            try test(ret1 != nil)
+            let ret = ret1!
+            try test(ret.sb == "D1.sb (p2 2)")
+            try test(ret.pb == nil)
+            try test(ret.ice_id() == "::Test::D1")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("remainder unmarshaling (4 instances)... ")
@@ -818,23 +818,23 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.paramTest4Async()
-            }.done {ret1, b1 in
-                try test(b1 != nil)
-                let b = b1!
-                try test(b.sb == "D4.sb (1)")
-                try test(b.pb == nil)
-                try test(b.ice_id() == "::Test::B")
+        }.done { ret1, b1 in
+            try test(b1 != nil)
+            let b = b1!
+            try test(b.sb == "D4.sb (1)")
+            try test(b.pb == nil)
+            try test(b.ice_id() == "::Test::B")
 
-                try test(ret1 != nil)
-                let ret = ret1!
-                try test(ret.sb == "B.sb (2)")
-                try test(ret.pb == nil)
-                try test(ret.ice_id() == "::Test::B")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            try test(ret1 != nil)
+            let ret = ret1!
+            try test(ret.sb == "B.sb (2)")
+            try test(ret.pb == nil)
+            try test(ret.ice_id() == "::Test::B")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("param ptr slicing, instance marshaled in unknown derived as base... ")
@@ -879,17 +879,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.returnTest3Async(p1: d3, p2: b2)
-            }.done { r in
-                try test(r != nil)
-                let ret = r!
-                try test(ret.ice_id() == "::Test::B")
-                try test(ret.sb == "D3.sb")
-                try test(ret.pb === ret)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { r in
+            try test(r != nil)
+            let ret = r!
+            try test(ret.ice_id() == "::Test::B")
+            try test(ret.sb == "D3.sb")
+            try test(ret.pb === ret)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("param ptr slicing, instance marshaled in unknown derived as derived... ")
@@ -939,17 +939,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.returnTest3Async(p1: d3, p2: d12)
-            }.done { r in
-                try test(r != nil)
-                let ret = r!
-                try test(ret.ice_id() == "::Test::B")
-                try test(ret.sb == "D3.sb")
-                try test(ret.pb === ret)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { r in
+            try test(r != nil)
+            let ret = r!
+            try test(ret.ice_id() == "::Test::B")
+            try test(ret.sb == "D3.sb")
+            try test(ret.pb === ret)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("sequence slicing... ")
@@ -1069,45 +1069,45 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.sequenceTestAsync(p1: ss1, p2: ss2)
-            }.done { ss in
-                try test(ss.c1 != nil)
-                let ss1b2 = ss.c1!.s[0]
-                let ss1d2 = ss.c1!.s[1]
-                try test(ss.c2 != nil)
-                let ss1d4 = ss.c1!.s[2]
+        }.done { ss in
+            try test(ss.c1 != nil)
+            let ss1b2 = ss.c1!.s[0]
+            let ss1d2 = ss.c1!.s[1]
+            try test(ss.c2 != nil)
+            let ss1d4 = ss.c1!.s[2]
 
-                try test(ss.c2 != nil)
-                let ss2b2 = ss.c2!.s[0]
-                let ss2d2 = ss.c2!.s[1]
-                let ss2d4 = ss.c2!.s[2]
+            try test(ss.c2 != nil)
+            let ss2b2 = ss.c2!.s[0]
+            let ss2d2 = ss.c2!.s[1]
+            let ss2d4 = ss.c2!.s[2]
 
-                try test(ss1b2!.pb === ss1b2)
-                try test(ss1d2!.pb === ss1b2)
-                try test(ss1d4!.pb === ss1b2)
+            try test(ss1b2!.pb === ss1b2)
+            try test(ss1d2!.pb === ss1b2)
+            try test(ss1d4!.pb === ss1b2)
 
-                try test(ss2b2!.pb === ss1b2)
-                try test(ss2d2!.pb === ss2b2)
-                try test(ss2d4!.pb === ss2b2)
+            try test(ss2b2!.pb === ss1b2)
+            try test(ss2d2!.pb === ss2b2)
+            try test(ss2d4!.pb === ss2b2)
 
-                try test(ss1b2!.ice_id() == "::Test::B")
-                try test(ss1d2!.ice_id() == "::Test::D1")
-                try test(ss1d4!.ice_id() == "::Test::B")
+            try test(ss1b2!.ice_id() == "::Test::B")
+            try test(ss1d2!.ice_id() == "::Test::D1")
+            try test(ss1d4!.ice_id() == "::Test::B")
 
-                try test(ss2b2!.ice_id() == "::Test::B")
-                try test(ss2d2!.ice_id() == "::Test::D1")
-                try test(ss2d4!.ice_id() == "::Test::B")
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            try test(ss2b2!.ice_id() == "::Test::B")
+            try test(ss2d2!.ice_id() == "::Test::D1")
+            try test(ss2d4!.ice_id() == "::Test::B")
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("dictionary slicing... ")
     do {
         var bin = [Int32: B]()
 
-        for i: Int32 in 0..<10 {
+        for i: Int32 in 0 ..< 10 {
             let s = "D1.\(i)"
             let d1 = D1()
             d1.sb = s
@@ -1119,7 +1119,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         let (ret, bout) = try testPrx.dictionaryTest(bin)
 
         try test(bout.count == 10)
-        for i: Int32 in 0..<10 {
+        for i: Int32 in 0 ..< 10 {
             let b = bout[i * 10]!!
             let s = "D1.\(i)"
             try test(b.sb == s)
@@ -1130,7 +1130,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         }
 
         try test(ret.count == 10)
-        for i: Int32 in 0..<10 {
+        for i: Int32 in 0 ..< 10 {
             let b = ret[i * 20]!!
             let s = "D1.\(i * 20)"
             try test(b.sb == s)
@@ -1155,7 +1155,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         var bin = [Int32: B]()
 
-        for i: Int32 in 0..<10 {
+        for i: Int32 in 0 ..< 10 {
             let s = "D1.\(i)"
             let d1 = D1()
             d1.sb = s
@@ -1166,42 +1166,42 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.dictionaryTestAsync(bin)
-            }.done { ret, bout in
-                try test(bout.count == 10)
-                for i: Int32 in 0..<10 {
-                    let b = bout[i * 10]!!
-                    let s = "D1.\(i)"
-                    try test(b.sb == s)
-                    try test(b.pb !== nil)
-                    try test(b.pb !== b)
-                    try test(b.pb!.sb == s)
-                    try test(b.pb!.pb === b.pb)
+        }.done { ret, bout in
+            try test(bout.count == 10)
+            for i: Int32 in 0 ..< 10 {
+                let b = bout[i * 10]!!
+                let s = "D1.\(i)"
+                try test(b.sb == s)
+                try test(b.pb !== nil)
+                try test(b.pb !== b)
+                try test(b.pb!.sb == s)
+                try test(b.pb!.pb === b.pb)
+            }
+
+            try test(ret.count == 10)
+            for i: Int32 in 0 ..< 10 {
+                let b = ret[i * 20]!!
+                let s = "D1.\(i * 20)"
+                try test(b.sb == s)
+
+                if i == 0 {
+                    try test(b.pb == nil)
+                } else {
+                    try test(b.pb === ret[(i - 1) * 20]!)
                 }
 
-                try test(ret.count == 10)
-                for i: Int32 in 0..<10 {
-                    let b = ret[i * 20]!!
-                    let s = "D1.\(i * 20)"
-                    try test(b.sb == s)
-
-                    if i == 0 {
-                        try test(b.pb == nil)
-                    } else {
-                        try test(b.pb === ret[(i - 1) * 20]!)
-                    }
-
-                    if let d1 = b as? D1 {
-                        try test(d1.sd1 == s)
-                        try test(d1.pd1 === d1)
-                    } else {
-                        try test(false)
-                    }
+                if let d1 = b as? D1 {
+                    try test(d1.sd1 == s)
+                    try test(d1.pd1 === d1)
+                } else {
+                    try test(false)
                 }
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+            }
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("base exception thrown as base exception... ")
@@ -1220,24 +1220,24 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.throwBaseAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { ex in
-                do {
-                    if let e = ex as? BaseException {
-                        try test(e.sbe == "sbe")
-                        try test(e.pb != nil)
-                        try test(e.pb!.sb == "sb")
-                        try test(e.pb!.pb === e.pb)
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { ex in
+            do {
+                if let e = ex as? BaseException {
+                    try test(e.sbe == "sbe")
+                    try test(e.pb != nil)
+                    try test(e.pb!.sb == "sb")
+                    try test(e.pb!.pb === e.pb)
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("derived exception thrown as base exception... ")
@@ -1262,30 +1262,30 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.throwDerivedAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { ex in
-                do {
-                    if let e = ex as? DerivedException {
-                        try test(e.sbe == "sbe")
-                        try test(e.pb != nil)
-                        try test(e.pb!.sb == "sb1")
-                        try test(e.pb!.pb === e.pb)
-                        try test(e.sde == "sde1")
-                        try test(e.pd1 != nil)
-                        try test(e.pd1!.sb == "sb2")
-                        try test(e.pd1!.pb === e.pd1)
-                        try test(e.pd1!.sd1 == "sd2")
-                        try test(e.pd1!.pd1 === e.pd1)
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { ex in
+            do {
+                if let e = ex as? DerivedException {
+                    try test(e.sbe == "sbe")
+                    try test(e.pb != nil)
+                    try test(e.pb!.sb == "sb1")
+                    try test(e.pb!.pb === e.pb)
+                    try test(e.sde == "sde1")
+                    try test(e.pd1 != nil)
+                    try test(e.pd1!.sb == "sb2")
+                    try test(e.pd1!.pb === e.pd1)
+                    try test(e.pd1!.sd1 == "sd2")
+                    try test(e.pd1!.pd1 === e.pd1)
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("derived aexception thrown as derived exception... ")
@@ -1310,30 +1310,30 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.throwDerivedAsDerivedAsync()
-            }.done {
-                try test(false)
-            }.catch { ex in
-                do {
-                    if let e = ex as? DerivedException {
-                        try test(e.sbe == "sbe")
-                        try test(e.pb != nil)
-                        try test(e.pb!.sb == "sb1")
-                        try test(e.pb!.pb === e.pb)
-                        try test(e.sde == "sde1")
-                        try test(e.pd1 != nil)
-                        try test(e.pd1!.sb == "sb2")
-                        try test(e.pd1!.pb === e.pd1)
-                        try test(e.pd1!.sd1 == "sd2")
-                        try test(e.pd1!.pd1 === e.pd1)
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { ex in
+            do {
+                if let e = ex as? DerivedException {
+                    try test(e.sbe == "sbe")
+                    try test(e.pb != nil)
+                    try test(e.pb!.sb == "sb1")
+                    try test(e.pb!.pb === e.pb)
+                    try test(e.sde == "sde1")
+                    try test(e.pd1 != nil)
+                    try test(e.pd1!.sb == "sb2")
+                    try test(e.pd1!.pb === e.pd1)
+                    try test(e.pd1!.sd1 == "sd2")
+                    try test(e.pd1!.pd1 === e.pd1)
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("unknown derived exception thrown as base exception... ")
@@ -1349,27 +1349,27 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     output.writeLine("ok")
 
     output.write("unknown derived exception thrown as base exception (AMI)... ")
-    try Promise <Void> { seal in
+    try Promise<Void> { seal in
         firstly {
             testPrx.throwUnknownDerivedAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { ex in
-                do {
-                    if let e = ex as? BaseException {
-                        try test(e.sbe == "sbe")
-                        try test(e.pb != nil)
-                        try test(e.pb!.sb == "sb d2")
-                        try test(e.pb!.pb === e.pb)
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { ex in
+            do {
+                if let e = ex as? BaseException {
+                    try test(e.sbe == "sbe")
+                    try test(e.pb != nil)
+                    try test(e.pb!.sb == "sb d2")
+                    try test(e.pb!.pb === e.pb)
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("forward-declared class... ")
@@ -1383,13 +1383,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.useForwardAsync()
-            }.done { f in
-                try test(f != nil)
-                seal.fulfill(())
-            }.catch { e in
-                seal.reject(e)
+        }.done { f in
+            try test(f != nil)
+            seal.fulfill(())
+        }.catch { e in
+            seal.reject(e)
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("preserved classes... ")
@@ -1403,7 +1403,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     //
     try communicator.getValueFactoryManager().add(
         factory: { id in Preserved.ice_staticId() == id ? PreservedI() : nil },
-        id: Preserved.ice_staticId())
+        id: Preserved.ice_staticId()
+    )
     do {
         //
         // Server knows the most-derived class PDerived.
@@ -1493,7 +1494,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         // Sending more than 254 objects exercises the encoding for object ids.
         //
         pcd.pbs = [PBase]()
-        for i: Int32 in 0..<300 {
+        for i: Int32 in 0 ..< 300 {
             let p2 = PCDerived2()
             p2.pi = i
             p2.pbs = [nil] // Nil reference. This slice should not have an indirection table.
@@ -1511,7 +1512,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         } else {
             if let p3 = r as? PCDerived3 {
                 try test(p3.pi == 3)
-                for i in 0..<300 {
+                for i in 0 ..< 300 {
                     if let p2 = p3.pbs[i] as? PCDerived2 {
                         try test(p2.pi == i)
                         try test(p2.pbs.count == 1)
@@ -1567,23 +1568,23 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         pd.pb = pd
         firstly {
             testPrx.exchangePBaseAsync(pd)
-            }.done { r in
-                if let p2 = r as? PDerived {
-                    try test(p2.pi == 3)
-                    try test(p2.ps == "preserved")
-                    try test(p2.pb === p2)
-                } else {
-                    try test(false)
-                }
+        }.done { r in
+            if let p2 = r as? PDerived {
+                try test(p2.pi == 3)
+                try test(p2.ps == "preserved")
+                try test(p2.pb === p2)
+            } else {
+                try test(false)
+            }
+            seal.fulfill(())
+        }.catch { e in
+            if e is Ice.OperationNotExistException {
                 seal.fulfill(())
-            }.catch { e in
-                if e is Ice.OperationNotExistException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
+            } else {
+                seal.reject(e)
+            }
         }
-        }.wait()
+    }.wait()
 
     try Promise<Void> { seal in
         //
@@ -1594,19 +1595,19 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         pu.pu = "preserved"
         firstly {
             testPrx.exchangePBaseAsync(pu)
-            }.done { ret in
-                let r = ret!
-                try test(!(r is PCUnknown))
-                try test(r.pi == 3)
+        }.done { ret in
+            let r = ret!
+            try test(!(r is PCUnknown))
+            try test(r.pi == 3)
+            seal.fulfill(())
+        }.catch { e in
+            if e is Ice.OperationNotExistException {
                 seal.fulfill(())
-            }.catch { e in
-                if e is Ice.OperationNotExistException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
+            } else {
+                seal.reject(e)
+            }
         }
-        }.wait()
+    }.wait()
 
     try Promise<Void> { seal in
         //
@@ -1619,28 +1620,28 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.exchangePBaseAsync(pcd)
-            }.done { ret in
-                let r = ret!
-                if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
-                    try test(!(r is PCDerived))
-                    try test(r.pi == 3)
+        }.done { ret in
+            let r = ret!
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(!(r is PCDerived))
+                try test(r.pi == 3)
+            } else {
+                if let p2 = r as? PCDerived {
+                    try test(p2.pi == 3)
+                    try test(p2.pbs[0] === p2)
                 } else {
-                    if let p2 = r as? PCDerived {
-                        try test(p2.pi == 3)
-                        try test(p2.pbs[0] === p2)
-                    } else {
-                        try test(false)
-                    }
+                    try test(false)
                 }
+            }
+            seal.fulfill(())
+        }.catch { e in
+            if e is Ice.OperationNotExistException {
                 seal.fulfill(())
-            }.catch { e in
-                if e is Ice.OperationNotExistException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
+            } else {
+                seal.reject(e)
+            }
         }
-        }.wait()
+    }.wait()
 
     try Promise<Void> { seal in
         //
@@ -1653,28 +1654,28 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.exchangePBaseAsync(pcd)
-            }.done { ret in
-                let r = ret!
-                if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
-                    try test(!(r is CompactPCDerived))
-                    try test(r.pi == 3)
+        }.done { ret in
+            let r = ret!
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(!(r is CompactPCDerived))
+                try test(r.pi == 3)
+            } else {
+                if let p2 = r as? CompactPCDerived {
+                    try test(p2.pi == 3)
+                    try test(p2.pbs[0] === p2)
                 } else {
-                    if let p2 = r as? CompactPCDerived {
-                        try test(p2.pi == 3)
-                        try test(p2.pbs[0] === p2)
-                    } else {
-                        try test(false)
-                    }
+                    try test(false)
                 }
+            }
+            seal.fulfill(())
+        }.catch { e in
+            if e is Ice.OperationNotExistException {
                 seal.fulfill(())
-            }.catch { e in
-                if e is Ice.OperationNotExistException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
+            } else {
+                seal.reject(e)
+            }
         }
-        }.wait()
+    }.wait()
 
     try Promise<Void> { seal in
         //
@@ -1687,7 +1688,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         // Sending more than 254 objects exercises the encoding for object ids.
         //
         pcd.pbs = [PBase]()
-        for i: Int32 in 0..<300 {
+        for i: Int32 in 0 ..< 300 {
             let p2 = PCDerived2()
             p2.pi = i
             p2.pbs = [nil] // Nil reference. This slice should not have an indirection table.
@@ -1699,40 +1700,40 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         firstly {
             testPrx.exchangePBaseAsync(pcd)
-            }.done { ret in
-                let r = ret!
-                if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
-                    try test(!(r is PCDerived3))
-                    try test(r is Preserved)
-                    try test(r.pi == 3)
-                } else {
-                    if let p3 = r as? PCDerived3 {
-                        try test(p3.pi == 3)
-                        for i in 0..<300 {
-                            if let p2 = p3.pbs[i] as? PCDerived2 {
-                                try test(p2.pi == i)
-                                try test(p2.pbs.count == 1)
-                                try test(p2.pbs[0] == nil)
-                                try test(p2.pcd2 == i)
-                            } else {
-                                try test(false)
-                            }
+        }.done { ret in
+            let r = ret!
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(!(r is PCDerived3))
+                try test(r is Preserved)
+                try test(r.pi == 3)
+            } else {
+                if let p3 = r as? PCDerived3 {
+                    try test(p3.pi == 3)
+                    for i in 0 ..< 300 {
+                        if let p2 = p3.pbs[i] as? PCDerived2 {
+                            try test(p2.pi == i)
+                            try test(p2.pbs.count == 1)
+                            try test(p2.pbs[0] == nil)
+                            try test(p2.pcd2 == i)
+                        } else {
+                            try test(false)
                         }
-                        try test(p3.pcd2 == p3.pi)
-                        try test(p3.pcd3 === p3.pbs[10])
-                    } else {
-                        try test(false)
                     }
-                }
-                seal.fulfill(())
-            }.catch { e in
-                if e is Ice.OperationNotExistException {
-                    seal.fulfill(())
+                    try test(p3.pcd2 == p3.pi)
+                    try test(p3.pcd3 === p3.pbs[10])
                 } else {
-                    seal.reject(e)
+                    try test(false)
                 }
+            }
+            seal.fulfill(())
+        }.catch { e in
+            if e is Ice.OperationNotExistException {
+                seal.fulfill(())
+            } else {
+                seal.reject(e)
+            }
         }
-        }.wait()
+    }.wait()
 
     try Promise<Void> { seal in
         //
@@ -1742,26 +1743,26 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         //
         firstly {
             testPrx.PBSUnknownAsPreservedAsync()
-            }.done { p1 in
-                let p = p1!
-                try testPrx.checkPBSUnknown(p)
-                if testPrx.ice_getEncodingVersion() != Ice.Encoding_1_0 {
-                    let slicedData = p.ice_getSlicedData()!
-                    try test(slicedData.slices.count == 1)
-                    try test(slicedData.slices[0].typeId == "::Test::PSUnknown")
-                    try testPrx.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
-                } else {
-                    try test(p.ice_getSlicedData() == nil)
-                }
+        }.done { p1 in
+            let p = p1!
+            try testPrx.checkPBSUnknown(p)
+            if testPrx.ice_getEncodingVersion() != Ice.Encoding_1_0 {
+                let slicedData = p.ice_getSlicedData()!
+                try test(slicedData.slices.count == 1)
+                try test(slicedData.slices[0].typeId == "::Test::PSUnknown")
+                try testPrx.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
+            } else {
+                try test(p.ice_getSlicedData() == nil)
+            }
+            seal.fulfill(())
+        }.catch { e in
+            if e is Ice.OperationNotExistException {
                 seal.fulfill(())
-            }.catch { e in
-                if e is Ice.OperationNotExistException {
-                    seal.fulfill(())
-                } else {
-                    seal.reject(e)
-                }
+            } else {
+                seal.reject(e)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("garbage collection for preserved classes... ")
@@ -1772,7 +1773,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         //
         try communicator.getValueFactoryManager().add(
             factory: { id in id == PNode.ice_staticId() ? PNodeI() : nil },
-            id: PNode.ice_staticId())
+            id: PNode.ice_staticId()
+        )
 
         //
         // Relay a graph through the server.

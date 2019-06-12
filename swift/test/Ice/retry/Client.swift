@@ -15,7 +15,7 @@ class Client: TestHelperI {
             // This test kills connections, so we don't want warnings.
             //
             properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-            let communicator = try self.initialize(properties)
+            let communicator = try initialize(properties)
             defer {
                 communicator.destroy()
             }

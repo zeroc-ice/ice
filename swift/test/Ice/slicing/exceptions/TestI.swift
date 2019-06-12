@@ -6,86 +6,85 @@ import Ice
 import TestCommon
 
 class TestI: TestIntf {
-
     var _helper: TestHelper
 
     init(_ helper: TestHelper) {
         _helper = helper
     }
 
-    func baseAsBase(current: Current) throws {
+    func baseAsBase(current _: Current) throws {
         throw Base(b: "Base.b")
     }
 
-    func unknownDerivedAsBase(current: Current) throws {
+    func unknownDerivedAsBase(current _: Current) throws {
         throw UnknownDerived(b: "UnknownDerived.b", ud: "UnknownDerived.ud")
     }
 
-    func knownDerivedAsBase(current: Current) throws {
+    func knownDerivedAsBase(current _: Current) throws {
         throw KnownDerived(b: "KnownDerived.b", kd: "KnownDerived.kd")
     }
 
-    func knownDerivedAsKnownDerived(current: Current) throws {
+    func knownDerivedAsKnownDerived(current _: Current) throws {
         throw KnownDerived(b: "KnownDerived.b", kd: "KnownDerived.kd")
     }
 
-    func unknownIntermediateAsBase(current: Current) throws {
+    func unknownIntermediateAsBase(current _: Current) throws {
         throw UnknownIntermediate(b: "UnknownIntermediate.b", ui: "UnknownIntermediate.ui")
     }
 
-    func knownIntermediateAsBase(current: Current) throws {
+    func knownIntermediateAsBase(current _: Current) throws {
         throw KnownIntermediate(b: "KnownIntermediate.b", ki: "KnownIntermediate.ki")
     }
 
-    func knownMostDerivedAsBase(current: Current) throws {
+    func knownMostDerivedAsBase(current _: Current) throws {
         throw KnownMostDerived(b: "KnownMostDerived.b", ki: "KnownMostDerived.ki", kmd: "KnownMostDerived.kmd")
     }
 
-    func knownIntermediateAsKnownIntermediate(current: Current) throws {
-        throw  KnownIntermediate(b: "KnownIntermediate.b", ki: "KnownIntermediate.ki")
+    func knownIntermediateAsKnownIntermediate(current _: Current) throws {
+        throw KnownIntermediate(b: "KnownIntermediate.b", ki: "KnownIntermediate.ki")
     }
 
-    func knownMostDerivedAsKnownIntermediate(current: Current) throws {
+    func knownMostDerivedAsKnownIntermediate(current _: Current) throws {
         throw KnownMostDerived(b: "KnownMostDerived.b", ki: "KnownMostDerived.ki", kmd: "KnownMostDerived.kmd")
     }
 
-    func knownMostDerivedAsKnownMostDerived(current: Current) throws {
+    func knownMostDerivedAsKnownMostDerived(current _: Current) throws {
         throw KnownMostDerived(b: "KnownMostDerived.b",
                                ki: "KnownMostDerived.ki",
                                kmd: "KnownMostDerived.kmd")
     }
 
-    func unknownMostDerived1AsBase(current: Current) throws {
+    func unknownMostDerived1AsBase(current _: Current) throws {
         throw UnknownMostDerived1(b: "UnknownMostDerived1.b",
                                   ki: "UnknownMostDerived1.ki",
                                   umd1: "UnknownMostDerived1.umd1")
     }
 
-    func unknownMostDerived1AsKnownIntermediate(current: Current) throws {
+    func unknownMostDerived1AsKnownIntermediate(current _: Current) throws {
         throw UnknownMostDerived1(b: "UnknownMostDerived1.b",
                                   ki: "UnknownMostDerived1.ki",
                                   umd1: "UnknownMostDerived1.umd1")
     }
 
-    func unknownMostDerived2AsBase(current: Current) throws {
+    func unknownMostDerived2AsBase(current _: Current) throws {
         throw UnknownMostDerived2(b: "UnknownMostDerived2.b",
                                   ui: "UnknownMostDerived2.ui",
                                   umd2: "UnknownMostDerived2.umd2")
     }
 
-    func unknownMostDerived2AsBaseCompact(current: Current) throws {
+    func unknownMostDerived2AsBaseCompact(current _: Current) throws {
         throw UnknownMostDerived2(b: "UnknownMostDerived2.b",
                                   ui: "UnknownMostDerived2.ui",
                                   umd2: "UnknownMostDerived2.umd2")
     }
 
-    func knownPreservedAsBase(current: Current) throws {
+    func knownPreservedAsBase(current _: Current) throws {
         throw KnownPreservedDerived(b: "base",
                                     kp: "preserved",
                                     kpd: "derived")
     }
 
-    func knownPreservedAsKnownPreserved(current: Current) throws {
+    func knownPreservedAsKnownPreserved(current _: Current) throws {
         throw KnownPreservedDerived(b: "base",
                                     kp: "preserved",
                                     kpd: "derived")
@@ -105,7 +104,7 @@ class TestI: TestIntf {
         try _helper.test(false)
     }
 
-    func unknownPreservedAsBase(current: Current) throws {
+    func unknownPreservedAsBase(current _: Current) throws {
         let ex = SPreserved2()
         ex.b = "base"
         ex.kp = "preserved"
@@ -115,7 +114,7 @@ class TestI: TestIntf {
         throw ex
     }
 
-    func unknownPreservedAsKnownPreserved(current: Current) throws {
+    func unknownPreservedAsKnownPreserved(current _: Current) throws {
         let ex = SPreserved2()
         ex.b = "base"
         ex.kp = "preserved"

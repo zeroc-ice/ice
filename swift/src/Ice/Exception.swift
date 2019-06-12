@@ -86,7 +86,7 @@ open class UserException: Exception {
 public class RuntimeError: LocalException {
     private let message: String
 
-    override public var description: String {
+    public override var description: String {
         return message
     }
 

@@ -6,7 +6,6 @@ import Ice
 import TestCommon
 
 func allTests(_ helper: TestHelper) throws {
-
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -48,7 +47,7 @@ func allTests(_ helper: TestHelper) throws {
 
     do {
         output.write("testing connection closure... ")
-        for _ in 0..<10 {
+        for _ in 0 ..< 10 {
             var initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
             let comm = try Ice.initialize(initData)
@@ -67,19 +66,19 @@ func allTests(_ helper: TestHelper) throws {
         let endpt = adapter.getPublishedEndpoints()[0]
         try test(endpt.toString() == "tcp -h localhost -p 12345 -t 30000")
         let prx = try communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:" +
-                                                 "tcp -h localhost -p 12347 -t 10000")!
+            "tcp -h localhost -p 12347 -t 10000")!
         try adapter.setPublishedEndpoints(prx.ice_getEndpoints())
         try test(adapter.getPublishedEndpoints().count == 2)
         var id = Ice.Identity()
         id.name = "dummy"
 
-        try test(adapter.createProxy(id).ice_getEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1})
+        try test(adapter.createProxy(id).ice_getEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1 })
         try test(adapter.getPublishedEndpoints().elementsEqual(prx.ice_getEndpoints()) { $0 == $1 })
         try adapter.refreshPublishedEndpoints()
         try test(adapter.getPublishedEndpoints().count == 1)
         try test(adapter.getPublishedEndpoints()[0] == endpt)
         communicator.getProperties().setProperty(key: "PAdapter.PublishedEndpoints",
-                                                     value: "tcp -h localhost -p 12345 -t 20000")
+                                                 value: "tcp -h localhost -p 12345 -t 20000")
         try adapter.refreshPublishedEndpoints()
         try test(adapter.getPublishedEndpoints().count == 1)
         try test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 12345 -t 20000")

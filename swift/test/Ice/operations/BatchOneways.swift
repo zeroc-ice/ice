@@ -7,7 +7,6 @@ import Ice
 import TestCommon
 
 func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
-
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -18,7 +17,7 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
     _ = try p.opByteSOnewayCallCount() // Reset the call count
 
-    for _ in 0..<30 {
+    for _ in 0 ..< 30 {
         do {
             try batch.opByteSOneway(bs1)
         } catch is Ice.MemoryLimitException {
@@ -73,10 +72,9 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     } catch is Ice.OperationNotExistException {}
 
     conn = try p.ice_getConnection()
-    if supportsCompress &&
-       conn != nil &&
-       p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress") == "" {
-
+    if supportsCompress,
+        conn != nil,
+        p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress") == "" {
         let prx = try p.ice_getConnection()!.createProxy(p.ice_getIdentity()).ice_batchOneway()
 
         let batchC1 = uncheckedCast(prx: prx.ice_compress(false), type: MyClassPrx.self)

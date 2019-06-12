@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import UIKit
 import Darwin
+import UIKit
 
 class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
-
-    @IBOutlet weak var interfaceIPv4: UIPickerView!
-    @IBOutlet weak var interfaceIPv6: UIPickerView!
-    @IBOutlet weak var output: UITextView!
+    @IBOutlet var interfaceIPv4: UIPickerView!
+    @IBOutlet var interfaceIPv6: UIPickerView!
+    @IBOutlet var output: UITextView!
 
     var interfacesIPv4: [String]!
     var interfacesIPv6: [String]!
@@ -27,9 +26,8 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
 
         if getifaddrs(&ifap) == 0 {
             for curr in sequence(first: ifap!, next: { $0.pointee.ifa_next }) {
-                if (curr.pointee.ifa_flags & UInt32(IFF_UP)) != 0 &&
+                if (curr.pointee.ifa_flags & UInt32(IFF_UP)) != 0,
                     (curr.pointee.ifa_flags & UInt32(IFF_LOOPBACK)) == 0 {
-
                     if curr.pointee.ifa_addr!.pointee.sa_family == UInt32(AF_INET) {
                         var buf = [Int8](repeating: 0, count: Int(INET_ADDRSTRLEN))
                         curr.pointee.ifa_addr!.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { addr in
@@ -75,11 +73,11 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         print("\(msg)\n")
     }
 
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+    func numberOfComponents(in _: UIPickerView) -> Int {
         return 1
     }
 
-    func pickerView(_ view: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ view: UIPickerView, numberOfRowsInComponent _: Int) -> Int {
         if view === interfaceIPv4 {
             return interfacesIPv4.count
         } else {
@@ -87,7 +85,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         }
     }
 
-    func pickerView(_ view: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    func pickerView(_ view: UIPickerView, titleForRow row: Int, forComponent _: Int) -> String? {
         if view === interfaceIPv4 {
             return interfacesIPv4[row]
         } else {
@@ -95,7 +93,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         }
     }
 
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    func pickerView(_: UIPickerView, didSelectRow _: Int, inComponent _: Int) {
         do {
             ControllerI.stopController()
             try ControllerI.startController(view: self,

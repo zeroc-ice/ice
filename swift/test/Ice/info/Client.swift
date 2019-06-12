@@ -3,12 +3,12 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let communicator = try self.initialize(args)
+        let communicator = try initialize(args)
         defer {
             communicator.destroy()
         }

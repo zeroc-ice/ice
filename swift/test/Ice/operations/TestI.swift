@@ -142,7 +142,10 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     func opShortIntLongS(p1: [Int16],
                          p2: [Int32],
                          p3: [Int64],
-                         current _: Ice.Current) throws -> (returnValue: [Int64], p4: [Int16], p5: [Int32], p6: [Int64]) {
+                         current _: Ice.Current) throws -> (returnValue: [Int64],
+                                                            p4: [Int16],
+                                                            p5: [Int32],
+                                                            p6: [Int64]) {
         return (p3, p1, p2.reversed(), p3 + p3)
     }
 

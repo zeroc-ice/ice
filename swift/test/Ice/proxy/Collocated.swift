@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import PromiseKit
 import Ice
+import PromiseKit
 import TestCommon
 
 class Collocated: TestHelperI {
@@ -15,7 +15,7 @@ class Collocated: TestHelperI {
         properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
-        let communicator = try self.initialize(properties)
+        let communicator = try initialize(properties)
         defer {
             communicator.destroy()
         }

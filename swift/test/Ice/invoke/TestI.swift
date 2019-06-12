@@ -3,11 +3,10 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 class BlobjectI: Ice.Blobject {
-
     func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter!.getCommunicator()
         let inS = Ice.InputStream(communicator: communicator, bytes: inEncaps)

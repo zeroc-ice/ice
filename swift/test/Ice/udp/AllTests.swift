@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Dispatch
+import Foundation
 import Ice
 import TestCommon
-import Foundation
-import Dispatch
 
 class PingReplyI: PingReply {
-
     var _replies: Int32 = 0
     var _lock = os_unfair_lock()
     var _semaphore = DispatchSemaphore(value: 0)
@@ -19,7 +18,7 @@ class PingReplyI: PingReply {
         }
     }
 
-    func reply(current: Current) throws {
+    func reply(current _: Current) throws {
         withLock(&_lock) {
             _replies += 1
             _semaphore.signal()
@@ -63,7 +62,7 @@ public func allTests(_ helper: TestHelper) throws {
     let obj = uncheckedCast(prx: base, type: TestIntfPrx.self)
 
     var ret = false
-    for _ in 0..<5 {
+    for _ in 0 ..< 5 {
         replyI.reset()
         try obj.ping(reply)
         try obj.ping(reply)
@@ -133,7 +132,7 @@ public func allTests(_ helper: TestHelper) throws {
     base = try communicator.stringToProxy("test -d:\(endpoint)")!
     let objMcast = uncheckedCast(prx: base, type: TestIntfPrx.self)
 
-    for _ in 0..<5 {
+    for _ in 0 ..< 5 {
         replyI.reset()
         try objMcast.ping(reply)
         ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
@@ -154,7 +153,7 @@ public func allTests(_ helper: TestHelper) throws {
     output.write("testing udp bi-dir connection... ")
     try obj.ice_getConnection()!.setAdapter(adapter)
     try objMcast.ice_getConnection()!.setAdapter(adapter)
-    for _ in 0..<5 {
+    for _ in 0 ..< 5 {
         replyI.reset()
         try obj.pingBiDir(reply.ice_getIdentity())
         try obj.pingBiDir(reply.ice_getIdentity())

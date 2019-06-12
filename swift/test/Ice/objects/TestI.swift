@@ -6,31 +6,31 @@ import Ice
 import PromiseKit
 
 public class BI: B {
-    override public func ice_preMarshal() {
-        self.preMarshalInvoked = true
+    public override func ice_preMarshal() {
+        preMarshalInvoked = true
     }
 
-    override public func ice_postUnmarshal() {
-        self.postUnmarshalInvoked = true
+    public override func ice_postUnmarshal() {
+        postUnmarshalInvoked = true
     }
 }
 
 public class CI: C {
-    override public func ice_preMarshal() {
+    public override func ice_preMarshal() {
         preMarshalInvoked = true
     }
 
-    override public func ice_postUnmarshal() {
+    public override func ice_postUnmarshal() {
         postUnmarshalInvoked = true
     }
 }
 
 public class DI: D {
-    override public func ice_preMarshal() {
+    public override func ice_preMarshal() {
         preMarshalInvoked = true
     }
 
-    override public func ice_postUnmarshal() {
+    public override func ice_postUnmarshal() {
         postUnmarshalInvoked = true
     }
 }
@@ -106,130 +106,130 @@ class InitialI: Initial {
         _d.theC = nil // Reference to a C.
     }
 
-    func getAll(current: Ice.Current) throws -> (b1: B?, b2: B?, theC: C?, theD: D?) {
+    func getAll(current _: Ice.Current) throws -> (b1: B?, b2: B?, theC: C?, theD: D?) {
         return (_b1, _b2, _c, _d)
     }
 
-    func getMB(current: Current) throws -> B? {
+    func getMB(current _: Current) throws -> B? {
         return _b1
     }
 
-    func getB1(current: Ice.Current) throws -> B? {
+    func getB1(current _: Ice.Current) throws -> B? {
         return _b1
     }
 
-    func getB2(current: Ice.Current) throws -> B? {
+    func getB2(current _: Ice.Current) throws -> B? {
         return _b2
     }
 
-    func getC(current: Ice.Current) throws -> C? {
+    func getC(current _: Ice.Current) throws -> C? {
         return _c
     }
 
-    func getD(current: Ice.Current) throws -> D? {
+    func getD(current _: Ice.Current) throws -> D? {
         return _d
     }
 
-    func getE(current: Ice.Current) throws -> E? {
+    func getE(current _: Ice.Current) throws -> E? {
         return _e
     }
 
-    func getF(current: Ice.Current) throws -> F? {
+    func getF(current _: Ice.Current) throws -> F? {
         return _f
     }
 
-    func getI(current: Ice.Current) throws -> Ice.Value? {
+    func getI(current _: Ice.Current) throws -> Ice.Value? {
         return II()
     }
 
-    func getJ(current: Ice.Current) throws -> Ice.Value? {
+    func getJ(current _: Ice.Current) throws -> Ice.Value? {
         return JI()
     }
 
-    func getH(current: Ice.Current) throws -> Ice.Value? {
+    func getH(current _: Ice.Current) throws -> Ice.Value? {
         return HI()
     }
 
-    func getK(current: Ice.Current) throws -> K? {
+    func getK(current _: Ice.Current) throws -> K? {
         return K(value: L(data: "l"))
     }
 
-    func opValue(v1: Ice.Value?, current: Ice.Current) throws -> (returnValue: Ice.Value?, v2: Ice.Value?) {
+    func opValue(v1: Ice.Value?, current _: Ice.Current) throws -> (returnValue: Ice.Value?, v2: Ice.Value?) {
         return (v1, v1)
     }
 
-    func opValueSeq(v1: [Ice.Value?], current: Ice.Current) throws -> (returnValue: [Ice.Value?], v2: [Ice.Value?]) {
+    func opValueSeq(v1: [Ice.Value?], current _: Ice.Current) throws -> (returnValue: [Ice.Value?], v2: [Ice.Value?]) {
         return (v1, v1)
     }
 
     func opValueMap(v1: [String: Ice.Value?],
-                    current: Ice.Current) throws -> (returnValue: [String: Ice.Value?],
-                                                              v2: [String: Ice.Value?]) {
+                    current _: Ice.Current) throws -> (returnValue: [String: Ice.Value?],
+                                                       v2: [String: Ice.Value?]) {
         return (v1, v1)
     }
 
-    func setRecursive(p: Recursive?, current: Ice.Current) {}
+    func setRecursive(p _: Recursive?, current _: Ice.Current) {}
 
-    func supportsClassGraphDepthMax(current: Ice.Current) throws -> Bool {
+    func supportsClassGraphDepthMax(current _: Ice.Current) throws -> Bool {
         return true
     }
 
-    func getD1(d1: D1?, current: Ice.Current) throws -> D1? {
+    func getD1(d1: D1?, current _: Ice.Current) throws -> D1? {
         return d1
     }
 
-    func throwEDerived(current: Ice.Current) throws {
+    func throwEDerived(current _: Ice.Current) throws {
         throw EDerived(a1: A1(name: "a1"),
                        a2: A1(name: "a2"),
                        a3: A1(name: "a3"),
                        a4: A1(name: "a4"))
     }
 
-    func setG(theG: G?, current: Ice.Current) throws {}
+    func setG(theG _: G?, current _: Ice.Current) throws {}
 
-    func setI(theI: Ice.Value?, current: Ice.Current) throws {}
+    func setI(theI _: Ice.Value?, current _: Ice.Current) throws {}
 
-    func opBaseSeq(inSeq: [Base?], current: Ice.Current) throws -> (returnValue: [Base?], outSeq: [Base?]) {
+    func opBaseSeq(inSeq: [Base?], current _: Ice.Current) throws -> (returnValue: [Base?], outSeq: [Base?]) {
         return (inSeq, inSeq)
     }
 
-    func getCompact(current: Ice.Current) throws -> Compact? {
+    func getCompact(current _: Ice.Current) throws -> Compact? {
         return CompactExt()
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) throws {
         _adapter.getCommunicator().shutdown()
     }
 
-    func getInnerA(current: Ice.Current) throws -> InnerA? {
+    func getInnerA(current _: Ice.Current) throws -> InnerA? {
         return InnerA(theA: _b1)
     }
 
-    func getInnerSubA(current: Ice.Current) throws -> InnerSubA? {
+    func getInnerSubA(current _: Ice.Current) throws -> InnerSubA? {
         return InnerSubA(theA: InnerA(theA: _b1))
     }
 
-    func throwInnerEx(current: Ice.Current) throws {
+    func throwInnerEx(current _: Ice.Current) throws {
         throw InnerEx(reason: "Inner::Ex")
     }
 
-    func throwInnerSubEx(current: Ice.Current) throws {
+    func throwInnerSubEx(current _: Ice.Current) throws {
         throw InnerSubEx(reason: "Inner::Sub::Ex")
     }
 
-    func getAMDMBAsync(current: Ice.Current) -> Promise<B?> {
-        return Promise<B?> {seal in
+    func getAMDMBAsync(current _: Ice.Current) -> Promise<B?> {
+        return Promise<B?> { seal in
             seal.fulfill(_b1)
         }
     }
 
-    func opM(v1: M?, current: Ice.Current) throws -> (returnValue: M?, v2: M?) {
+    func opM(v1: M?, current _: Ice.Current) throws -> (returnValue: M?, v2: M?) {
         return (v1, v1)
     }
 }
 
 class UnexpectedObjectExceptionTestI: Ice.Blobject {
-    func ice_invoke(inEncaps: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
+    func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter!.getCommunicator()
         let ostr = Ice.OutputStream(communicator: communicator)
         _ = ostr.startEncapsulation(encoding: current.encoding, format: .DefaultFormat)

@@ -3,8 +3,8 @@
 //
 
 import Ice
+import PromiseKit
 import TestCommon
-import  PromiseKit
 
 class TestI: TestIntf {
     var _helper: TestHelper
@@ -13,61 +13,61 @@ class TestI: TestIntf {
         _helper = helper
     }
 
-    func baseAsBaseAsync(current: Current) -> Promise<Void> {
+    func baseAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw Base(b: "Base.b")
         }
     }
 
-    func unknownDerivedAsBaseAsync(current: Current) -> Promise<Void> {
+    func unknownDerivedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw UnknownDerived(b: "UnknownDerived.b", ud: "UnknownDerived.ud")
         }
     }
 
-    func knownDerivedAsBaseAsync(current: Current) -> Promise<Void> {
+    func knownDerivedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownDerived(b: "KnownDerived.b", kd: "KnownDerived.kd")
         }
     }
 
-    func knownDerivedAsKnownDerivedAsync(current: Current) -> Promise<Void> {
+    func knownDerivedAsKnownDerivedAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownDerived(b: "KnownDerived.b", kd: "KnownDerived.kd")
         }
     }
 
-    func unknownIntermediateAsBaseAsync(current: Current) -> Promise<Void> {
+    func unknownIntermediateAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw UnknownIntermediate(b: "UnknownIntermediate.b", ui: "UnknownIntermediate.ui")
         }
     }
 
-    func knownIntermediateAsBaseAsync(current: Current) -> Promise<Void> {
+    func knownIntermediateAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownIntermediate(b: "KnownIntermediate.b", ki: "KnownIntermediate.ki")
         }
     }
 
-    func knownMostDerivedAsBaseAsync(current: Current) -> Promise<Void> {
+    func knownMostDerivedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownMostDerived(b: "KnownMostDerived.b", ki: "KnownMostDerived.ki", kmd: "KnownMostDerived.kmd")
         }
     }
 
-    func knownIntermediateAsKnownIntermediateAsync(current: Current) -> Promise<Void> {
+    func knownIntermediateAsKnownIntermediateAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
-            throw  KnownIntermediate(b: "KnownIntermediate.b", ki: "KnownIntermediate.ki")
+            throw KnownIntermediate(b: "KnownIntermediate.b", ki: "KnownIntermediate.ki")
         }
     }
 
-    func knownMostDerivedAsKnownIntermediateAsync(current: Current) -> Promise<Void> {
+    func knownMostDerivedAsKnownIntermediateAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownMostDerived(b: "KnownMostDerived.b", ki: "KnownMostDerived.ki", kmd: "KnownMostDerived.kmd")
         }
     }
 
-    func knownMostDerivedAsKnownMostDerivedAsync(current: Current) -> Promise<Void> {
+    func knownMostDerivedAsKnownMostDerivedAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownMostDerived(b: "KnownMostDerived.b",
                                    ki: "KnownMostDerived.ki",
@@ -75,7 +75,7 @@ class TestI: TestIntf {
         }
     }
 
-    func unknownMostDerived1AsBaseAsync(current: Current) -> Promise<Void> {
+    func unknownMostDerived1AsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw UnknownMostDerived1(b: "UnknownMostDerived1.b",
                                       ki: "UnknownMostDerived1.ki",
@@ -83,7 +83,7 @@ class TestI: TestIntf {
         }
     }
 
-    func unknownMostDerived1AsKnownIntermediateAsync(current: Current) -> Promise<Void> {
+    func unknownMostDerived1AsKnownIntermediateAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw UnknownMostDerived1(b: "UnknownMostDerived1.b",
                                       ki: "UnknownMostDerived1.ki",
@@ -91,7 +91,7 @@ class TestI: TestIntf {
         }
     }
 
-    func unknownMostDerived2AsBaseAsync(current: Current) -> Promise<Void> {
+    func unknownMostDerived2AsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw UnknownMostDerived2(b: "UnknownMostDerived2.b",
                                       ui: "UnknownMostDerived2.ui",
@@ -99,7 +99,7 @@ class TestI: TestIntf {
         }
     }
 
-    func unknownMostDerived2AsBaseCompactAsync(current: Current) -> Promise<Void> {
+    func unknownMostDerived2AsBaseCompactAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw UnknownMostDerived2(b: "UnknownMostDerived2.b",
                                       ui: "UnknownMostDerived2.ui",
@@ -107,7 +107,7 @@ class TestI: TestIntf {
         }
     }
 
-    func knownPreservedAsBaseAsync(current: Current) -> Promise<Void> {
+    func knownPreservedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownPreservedDerived(b: "base",
                                         kp: "preserved",
@@ -115,7 +115,7 @@ class TestI: TestIntf {
         }
     }
 
-    func knownPreservedAsKnownPreservedAsync(current: Current) -> Promise<Void> {
+    func knownPreservedAsKnownPreservedAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             throw KnownPreservedDerived(b: "base",
                                         kp: "preserved",
@@ -141,7 +141,7 @@ class TestI: TestIntf {
         }
     }
 
-    func unknownPreservedAsBaseAsync(current: Current) -> Promise<Void> {
+    func unknownPreservedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let ex = SPreserved2()
             ex.b = "base"
@@ -153,7 +153,7 @@ class TestI: TestIntf {
         }
     }
 
-    func unknownPreservedAsKnownPreservedAsync(current: Current) -> Promise<Void> {
+    func unknownPreservedAsKnownPreservedAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let ex = SPreserved2()
             ex.b = "base"

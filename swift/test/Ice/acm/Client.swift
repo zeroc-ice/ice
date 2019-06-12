@@ -2,17 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import PromiseKit
 import Ice
+import PromiseKit
 import TestCommon
 
 class Client: TestHelperI {
-     override func run(args: [String]) throws {
-
+    override func run(args: [String]) throws {
         let properties = try Ice.createProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
-        let communicator = try self.initialize(properties)
+        let communicator = try initialize(properties)
         defer {
             communicator.destroy()
         }

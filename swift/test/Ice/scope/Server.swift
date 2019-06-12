@@ -7,7 +7,6 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceScope"]

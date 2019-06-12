@@ -66,13 +66,13 @@ class ProcessControllerI: CommonProcessController {
         // For a Client test reuse the Server or ServerAMD bundle
         // if it has been loaded.
         //
-        _bundleName = testsuite.split(separator: "/").map({
+        _bundleName = testsuite.split(separator: "/").map {
             if let c = $0.first {
                 return c.uppercased() + $0.dropFirst()
             } else {
                 return String($0)
             }
-        }).joined(separator: "")
+        }.joined(separator: "")
 
         if exe == "ServerAMD" {
             _bundleName += "AMD"

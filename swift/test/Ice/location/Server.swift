@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Dispatch
 import Ice
 import TestCommon
-import Dispatch
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-
         //
         // Register the server manager. The server manager creates a new
         // 'server'(a server isn't a different process, it's just a new
@@ -19,7 +18,7 @@ class Server: TestHelperI {
         var initData = Ice.InitializationData()
         initData.properties = properties
 
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

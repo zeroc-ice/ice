@@ -8,7 +8,7 @@ import TestCommon
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
         var initData = Ice.InitializationData()
-        initData.properties =  try createTestProperties(args)
+        initData.properties = try createTestProperties(args)
         initData.classResolverPrefix = ["IceServantLocator"]
         let communicator = try initialize(initData)
         defer {
@@ -25,6 +25,6 @@ class Collocated: TestHelperI {
         try adapter.add(servant: TestIntfDisp(TestI()), id: Ice.stringToIdentity("asm"))
         try adapter.add(servant: TestActivationDisp(TestActivationI(self)), id: Ice.stringToIdentity("test/activation"))
         try adapter.activate()
-        _ =  try allTests(self)
+        _ = try allTests(self)
     }
 }

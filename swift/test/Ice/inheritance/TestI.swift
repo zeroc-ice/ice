@@ -6,108 +6,105 @@ import Ice
 import TestCommon
 
 class CAI: MACAOperations {
-    func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
+    func caop(p: MACAPrx?, current _: Ice.Current) throws -> MACAPrx? {
         return p
     }
 }
 
 class CBI: MBCBOperations {
-    func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
+    func caop(p: MACAPrx?, current _: Ice.Current) throws -> MACAPrx? {
         return p
     }
 
-    func cbop(p: MBCBPrx?, current: Ice.Current) throws -> MBCBPrx? {
+    func cbop(p: MBCBPrx?, current _: Ice.Current) throws -> MBCBPrx? {
         return p
     }
 }
 
 class CCI: MACCOperations {
-    func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
+    func caop(p: MACAPrx?, current _: Ice.Current) throws -> MACAPrx? {
         return p
     }
 
-    func ccop(p: MACCPrx?, current: Ice.Current) throws -> MACCPrx? {
+    func ccop(p: MACCPrx?, current _: Ice.Current) throws -> MACCPrx? {
         return p
     }
 
-    func cbop(p: MBCBPrx?, current: Ice.Current) throws -> MBCBPrx? {
+    func cbop(p: MBCBPrx?, current _: Ice.Current) throws -> MBCBPrx? {
         return p
     }
 }
 
 class CDI: MACDOperations {
-    func caop(p: MACAPrx?, current: Ice.Current) throws -> MACAPrx? {
+    func caop(p: MACAPrx?, current _: Ice.Current) throws -> MACAPrx? {
         return p
     }
 
-    func ccop(p: MACCPrx?, current: Ice.Current) throws -> MACCPrx? {
+    func ccop(p: MACCPrx?, current _: Ice.Current) throws -> MACCPrx? {
         return p
     }
 
-    func cdop(p: MACDPrx?, current: Ice.Current) throws -> MACDPrx? {
+    func cdop(p: MACDPrx?, current _: Ice.Current) throws -> MACDPrx? {
         return p
     }
 
-    func iaop(p: MAIAPrx?, current: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
         return p
     }
 
-    func cbop(p: MBCBPrx?, current: Ice.Current) throws -> MBCBPrx? {
+    func cbop(p: MBCBPrx?, current _: Ice.Current) throws -> MBCBPrx? {
         return p
     }
 
-    func ib1op(p: MBIB1Prx?, current: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(p: MBIB1Prx?, current _: Ice.Current) throws -> MBIB1Prx? {
         return p
     }
 
-    func ib2op(p: MBIB2Prx?, current: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(p: MBIB2Prx?, current _: Ice.Current) throws -> MBIB2Prx? {
         return p
     }
 }
 
 class IAI: MAIA {
-    func iaop(p: MAIAPrx?, current: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
         return p
     }
 }
 
 class IB1I: MBIB1 {
-
-    func iaop(p: MAIAPrx?, current: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
         return p
     }
 
-    func ib1op(p: MBIB1Prx?, current: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(p: MBIB1Prx?, current _: Ice.Current) throws -> MBIB1Prx? {
         return p
     }
 }
 
 class IB2I: MBIB2 {
-
-    func iaop(p: MAIAPrx?, current: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
         return p
     }
 
-    func ib2op(p: MBIB2Prx?, current: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(p: MBIB2Prx?, current _: Ice.Current) throws -> MBIB2Prx? {
         return p
     }
 }
 
 class ICI: MAIC {
-
-    func iaop(p: MAIAPrx?, current: Ice.Current) throws -> MAIAPrx? {
+    func iaop(p: MAIAPrx?, current _: Ice.Current) throws -> MAIAPrx? {
         return p
     }
 
-    func icop(p: MAICPrx?, current: Ice.Current) throws -> MAICPrx? {
+    func icop(p: MAICPrx?, current _: Ice.Current) throws -> MAICPrx? {
         return p
     }
 
-    func ib1op(p: MBIB1Prx?, current: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(p: MBIB1Prx?, current _: Ice.Current) throws -> MBIB1Prx? {
         return p
     }
 
-    func ib2op(p: MBIB2Prx?, current: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(p: MBIB2Prx?, current _: Ice.Current) throws -> MBIB2Prx? {
         return p
     }
 }
@@ -133,35 +130,35 @@ class InitialI: Initial {
         _ic = try uncheckedCast(prx: adapter.addWithUUID(MAICDisp(ICI())), type: MAICPrx.self)
     }
 
-    func caop(current: Ice.Current) throws -> MACAPrx? {
+    func caop(current _: Ice.Current) throws -> MACAPrx? {
         return _ca
     }
 
-    func cbop(current: Ice.Current) throws -> MBCBPrx? {
+    func cbop(current _: Ice.Current) throws -> MBCBPrx? {
         return _cb
     }
 
-    func ccop(current: Ice.Current) throws -> MACCPrx? {
+    func ccop(current _: Ice.Current) throws -> MACCPrx? {
         return _cc
     }
 
-    func cdop(current: Ice.Current) throws -> MACDPrx? {
+    func cdop(current _: Ice.Current) throws -> MACDPrx? {
         return _cd
     }
 
-    func iaop(current: Ice.Current) throws -> MAIAPrx? {
+    func iaop(current _: Ice.Current) throws -> MAIAPrx? {
         return _ia
     }
 
-    func ib1op(current: Ice.Current) throws -> MBIB1Prx? {
+    func ib1op(current _: Ice.Current) throws -> MBIB1Prx? {
         return _ib1
     }
 
-    func ib2op(current: Ice.Current) throws -> MBIB2Prx? {
+    func ib2op(current _: Ice.Current) throws -> MBIB2Prx? {
         return _ib2
     }
 
-    func icop(current: Ice.Current) throws -> MAICPrx? {
+    func icop(current _: Ice.Current) throws -> MAICPrx? {
         return _ic
     }
 

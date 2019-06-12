@@ -14,7 +14,7 @@ func oneways(_ helper: TestHelper, _ prx: MyClassPrx) throws {
     try p.opNonmutating()
 
     do {
-        _ = try p.opByte(p1: 0xff, p2: 0x0f)
+        _ = try p.opByte(p1: 0xFF, p2: 0x0F)
         try helper.test(false)
     } catch is Ice.TwowayOnlyException {}
 }

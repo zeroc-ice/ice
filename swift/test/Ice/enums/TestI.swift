@@ -5,35 +5,35 @@
 import Ice
 
 class TestI: TestIntf {
-    func opByte(b1: ByteEnum, current: Ice.Current) throws -> (returnValue: ByteEnum, b2: ByteEnum) {
+    func opByte(b1: ByteEnum, current _: Ice.Current) throws -> (returnValue: ByteEnum, b2: ByteEnum) {
         return (b1, b1)
     }
 
-    func opShort(s1: ShortEnum, current: Ice.Current) throws -> (returnValue: ShortEnum, s2: ShortEnum) {
+    func opShort(s1: ShortEnum, current _: Ice.Current) throws -> (returnValue: ShortEnum, s2: ShortEnum) {
         return (s1, s1)
     }
 
-    func opInt(i1: IntEnum, current: Ice.Current) throws -> (returnValue: IntEnum, i2: IntEnum) {
+    func opInt(i1: IntEnum, current _: Ice.Current) throws -> (returnValue: IntEnum, i2: IntEnum) {
         return (i1, i1)
     }
 
-    func opSimple(s1: SimpleEnum, current: Ice.Current) throws -> (returnValue: SimpleEnum, s2: SimpleEnum) {
+    func opSimple(s1: SimpleEnum, current _: Ice.Current) throws -> (returnValue: SimpleEnum, s2: SimpleEnum) {
         return (s1, s1)
     }
 
-    func opByteSeq(b1: [ByteEnum], current: Ice.Current) throws -> (returnValue: [ByteEnum], b2: [ByteEnum]) {
+    func opByteSeq(b1: [ByteEnum], current _: Ice.Current) throws -> (returnValue: [ByteEnum], b2: [ByteEnum]) {
         return (b1, b1)
     }
 
-    func opShortSeq(s1: [ShortEnum], current: Ice.Current) throws -> (returnValue: [ShortEnum], s2: [ShortEnum]) {
+    func opShortSeq(s1: [ShortEnum], current _: Ice.Current) throws -> (returnValue: [ShortEnum], s2: [ShortEnum]) {
         return (s1, s1)
     }
 
-    func opIntSeq(i1: [IntEnum], current: Ice.Current) throws -> (returnValue: [IntEnum], i2: [IntEnum]) {
+    func opIntSeq(i1: [IntEnum], current _: Ice.Current) throws -> (returnValue: [IntEnum], i2: [IntEnum]) {
         return (i1, i1)
     }
 
-    func opSimpleSeq(s1: [SimpleEnum], current: Ice.Current) throws -> (returnValue: [SimpleEnum], s2: [SimpleEnum]) {
+    func opSimpleSeq(s1: [SimpleEnum], current _: Ice.Current) throws -> (returnValue: [SimpleEnum], s2: [SimpleEnum]) {
         return (s1, s1)
     }
 

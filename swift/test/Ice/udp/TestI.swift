@@ -5,7 +5,7 @@
 import Ice
 
 class TestIntfI: TestIntf {
-    func ping(reply: PingReplyPrx?, current: Current) throws {
+    func ping(reply: PingReplyPrx?, current _: Current) throws {
         do {
             try reply!.reply()
         } catch {
@@ -13,7 +13,7 @@ class TestIntfI: TestIntf {
         }
     }
 
-    func sendByteSeq(seq: ByteSeq, reply: PingReplyPrx?, current: Current) throws {
+    func sendByteSeq(seq _: ByteSeq, reply: PingReplyPrx?, current _: Current) throws {
         do {
             try reply!.reply()
         } catch {

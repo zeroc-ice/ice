@@ -14,7 +14,7 @@ class Server: TestHelperI {
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.UDP.RcvSize", value: "16384")
 
-        let communicator = try self.initialize(properties)
+        let communicator = try initialize(properties)
         defer {
             communicator.destroy()
         }

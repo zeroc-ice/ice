@@ -133,6 +133,7 @@ open class TestHelperI: TestHelper {
         remainingArgs = try properties.parseCommandLineOptions(prefix: "Test", options: remainingArgs)
         return properties
     }
+
     public func createTestProperties(_ args: inout [String]) throws -> Ice.Properties {
         let properties = try Ice.createProperties(&args)
         args = try properties.parseCommandLineOptions(prefix: "Test", options: args)

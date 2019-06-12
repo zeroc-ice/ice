@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 class RemoteLoggerI: Ice.RemoteLogger {
     var _helper: TestHelper
@@ -19,7 +19,7 @@ class RemoteLoggerI: Ice.RemoteLogger {
         _helper = helper
     }
 
-    func `init`(prefix: String, logMessages: [Ice.LogMessage], current: Ice.Current) throws {
+    func `init`(prefix: String, logMessages: [Ice.LogMessage], current _: Ice.Current) throws {
         withLock(&_lock) {
             _prefix = prefix
             _initMessages += logMessages
@@ -28,7 +28,7 @@ class RemoteLoggerI: Ice.RemoteLogger {
         }
     }
 
-    func log(message: Ice.LogMessage, current: Ice.Current) throws {
+    func log(message: Ice.LogMessage, current _: Ice.Current) throws {
         withLock(&_lock) {
             _logMessages.append(message)
             _receivedCalls += 1
@@ -265,9 +265,10 @@ func allTests(_ helper: TestHelper) throws {
         let setProps = [
             "Prop1": "10", // Changed
             "Prop2": "20", // Changed
-            "Prop3": "",   // Removed
-            "Prop4": "4",  // Added
-            "Prop5": "5"]  // Added
+            "Prop3": "", // Removed
+            "Prop4": "4", // Added
+            "Prop5": "5" // Added
+        ]
         try pa.setProperties(setProps)
         try test(pa.getProperty("Prop1") == "10")
         try test(pa.getProperty("Prop2") == "20")
@@ -294,7 +295,8 @@ func allTests(_ helper: TestHelper) throws {
         let props = [
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
-            "NullLogger": "1"]
+            "NullLogger": "1"
+        ]
 
         let com = try factory.createCommunicator(props)!
 
@@ -314,7 +316,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(logMessages.count == 4)
         try test(prefix == "NullLogger")
         try test(logMessages[0].traceCategory == "testCat" &&
-                 logMessages[0].message == "trace")
+            logMessages[0].message == "trace")
         try test(logMessages[1].message == "warning")
         try test(logMessages[2].message == "error")
         try test(logMessages[3].message == "print")
@@ -337,7 +339,7 @@ func allTests(_ helper: TestHelper) throws {
 
         for msg in logMessages {
             try test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                     msg.type == Ice.LogMessageType.WarningMessage)
+                msg.type == Ice.LogMessageType.WarningMessage)
         }
 
         //
@@ -356,7 +358,7 @@ func allTests(_ helper: TestHelper) throws {
 
         for msg in logMessages {
             try test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                     (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory == "testCat"))
+                (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory == "testCat"))
         }
 
         //
@@ -495,7 +497,8 @@ func allTests(_ helper: TestHelper) throws {
         let props = [
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
-            "Ice.Admin.Facets": "Properties"]
+            "Ice.Admin.Facets": "Properties"
+        ]
 
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
@@ -514,7 +517,8 @@ func allTests(_ helper: TestHelper) throws {
         let props = [
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
-            "Ice.Admin.Facets": "Process"]
+            "Ice.Admin.Facets": "Process"
+        ]
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
         let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")
@@ -532,7 +536,8 @@ func allTests(_ helper: TestHelper) throws {
         let props = [
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
-            "Ice.Admin.Facets": "TestFacet"]
+            "Ice.Admin.Facets": "TestFacet"
+        ]
 
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
@@ -551,7 +556,8 @@ func allTests(_ helper: TestHelper) throws {
         let props = [
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
-            "Ice.Admin.Facets": "Properties TestFacet"]
+            "Ice.Admin.Facets": "Properties TestFacet"
+        ]
 
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
@@ -572,7 +578,8 @@ func allTests(_ helper: TestHelper) throws {
         let props = [
             "Ice.Admin.Endpoints": "tcp -h 127.0.0.1",
             "Ice.Admin.InstanceName": "Test",
-            "Ice.Admin.Facets": "TestFacet, Process"]
+            "Ice.Admin.Facets": "TestFacet, Process"
+        ]
         let com = try factory.createCommunicator(props)!
         let obj = try com.getAdmin()!
         let pa = try checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")

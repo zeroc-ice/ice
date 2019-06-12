@@ -3,20 +3,17 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 class ServantLocatorI: Ice.ServantLocator {
-
-    func locate(_ curr: Current) throws -> (returnValue: Disp?, cookie: AnyObject?) {
+    func locate(_: Current) throws -> (returnValue: Disp?, cookie: AnyObject?) {
         return (nil, nil)
     }
 
-    func finished(curr: Current, servant: Disp, cookie: AnyObject?) throws {
-    }
+    func finished(curr _: Current, servant _: Disp, cookie _: AnyObject?) throws {}
 
-    func deactivate(_ category: String) {
-    }
+    func deactivate(_: String) {}
 }
 
 func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
@@ -207,24 +204,21 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
         do {
             try thrower.throwUndeclaredA(1)
             try test(false)
-        } catch is Ice.UnknownUserException {
-        } catch {
+        } catch is Ice.UnknownUserException {} catch {
             try test(false)
         }
 
         do {
             try thrower.throwUndeclaredB(a: 1, b: 2)
             try test(false)
-        } catch is Ice.UnknownUserException {
-        } catch {
+        } catch is Ice.UnknownUserException {} catch {
             try test(false)
         }
 
         do {
             try thrower.throwUndeclaredC(a: 1, b: 2, c: 3)
             try test(false)
-        } catch is Ice.UnknownUserException {
-        } catch {
+        } catch is Ice.UnknownUserException {} catch {
             try test(false)
         }
         output.writeLine("ok")
@@ -236,16 +230,14 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
         do {
             _ = try thrower.throwMemoryLimitException(ByteSeq())
             try test(false)
-        } catch is Ice.MemoryLimitException {
-        } catch {
+        } catch is Ice.MemoryLimitException {} catch {
             try test(false)
         }
 
         do {
             _ = try thrower.throwMemoryLimitException(ByteSeq(repeating: 0, count: 20 * 1024)) // 20KB
             try test(false)
-        } catch is Ice.ConnectionLostException {
-        } catch is Ice.UnknownLocalException {
+        } catch is Ice.ConnectionLostException {} catch is Ice.UnknownLocalException {
             // Expected with JS bidir server
         } catch {
             try test(false)
@@ -315,17 +307,14 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     do {
         try thrower.throwLocalException()
         try test(false)
-    } catch is Ice.UnknownLocalException {
-    } catch {
+    } catch is Ice.UnknownLocalException {} catch {
         try test(false)
     }
 
     do {
         try thrower.throwLocalExceptionIdempotent()
         try test(false)
-    } catch is Ice.UnknownLocalException {
-    } catch is Ice.OperationNotExistException {
-    } catch {
+    } catch is Ice.UnknownLocalException {} catch is Ice.OperationNotExistException {} catch {
         try test(false)
     }
     output.writeLine("ok")
@@ -334,8 +323,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     do {
         try thrower.throwNonIceException()
         try test(false)
-    } catch is Ice.UnknownException {
-    } catch {
+    } catch is Ice.UnknownException {} catch {
         try test(false)
     }
     output.writeLine("ok")
@@ -350,8 +338,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     do {
         try thrower.throwAfterException()
         try test(false)
-    } catch is A {
-    } catch {
+    } catch is A {} catch {
         try test(false)
     }
     output.writeLine("ok")
@@ -556,7 +543,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
 
     output.write("catching object not exist exception with new AMI mapping... ")
     try Promise<Void> { seal in
-        let  id = try Ice.stringToIdentity("does not exist")
+        let id = try Ice.stringToIdentity("does not exist")
         let thrower2 = uncheckedCast(prx: thrower.ice_identity(id), type: ThrowerPrx.self)
         firstly {
             thrower2.throwAasAAsync(1)
@@ -709,7 +696,7 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
                 try test(false)
             }.catch { e in
                 do {
-                    try test( e is Ice.UnknownUserException)
+                    try test(e is Ice.UnknownUserException)
                     seal.fulfill(())
                 } catch {
                     seal.reject(error)

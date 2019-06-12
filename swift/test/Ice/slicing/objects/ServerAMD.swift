@@ -12,7 +12,7 @@ class ServerAMD: TestHelperI {
         var initData = InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = ["IceSlicingObjectsAMD", "IceSlicingObjectsAMD"]
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

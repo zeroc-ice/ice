@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Dispatch
 import Ice
 import TestCommon
-import Dispatch
 
 class ServantLocatorI: Ice.ServantLocator {
     var _blobject: Ice.Disp
 
-    init (_ async: Bool) {
+    init(_ async: Bool) {
         if async {
             _blobject = Ice.BlobjectAsyncDisp(BlobjectAsyncI())
         } else {
@@ -17,25 +17,24 @@ class ServantLocatorI: Ice.ServantLocator {
         }
     }
 
-    func locate(_ curr: Ice.Current) -> (returnValue: Ice.Disp?, cookie: AnyObject?) {
+    func locate(_: Ice.Current) -> (returnValue: Ice.Disp?, cookie: AnyObject?) {
         return (_blobject, nil)
     }
 
-    func finished(curr: Ice.Current, servant: Ice.Disp, cookie: AnyObject?) {}
+    func finished(curr _: Ice.Current, servant _: Ice.Disp, cookie _: AnyObject?) {}
 
-    func deactivate(_ category: String) {}
+    func deactivate(_: String) {}
 }
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-
         let async = args.contains("--async")
 
-        let properties  = try self.createTestProperties(args)
+        let properties = try createTestProperties(args)
         var initData = Ice.InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = ["IceInvoke"]
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

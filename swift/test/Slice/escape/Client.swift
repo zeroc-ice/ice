@@ -2,33 +2,31 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import TestCommon
 import Ice
 import PromiseKit
+import TestCommon
 
 class breakI: `break` {
-    func caseAsync(catch: Int32, current: Current) -> Promise<Int32> {
+    func caseAsync(catch _: Int32, current _: Current) -> Promise<Int32> {
         return Promise.value(0)
     }
 }
 
 class funcI: `func` {
-    func `public`(current: Current) throws {
-    }
+    func `public`(current _: Current) throws {}
 }
 
 class doI: `do` {
-    func `public`(current: Current) throws {
-    }
+    func `public`(current _: Current) throws {}
 
-    func caseAsync(catch: Int32, current: Current) -> Promise<Int32> {
+    func caseAsync(catch _: Int32, current _: Current) -> Promise<Int32> {
         return Promise.value(0)
     }
 }
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        let communicator = try self.initialize(args)
+        let communicator = try initialize(args)
         defer {
             communicator.destroy()
         }

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
 import Foundation
+import Ice
 import TestCommon
 
 class TestI: TestIntf {
@@ -31,11 +31,11 @@ class CookieI: Cookie {
 }
 
 class RouterI: Ice.Router {
-    func getClientProxy(current: Ice.Current) throws -> (returnValue: ObjectPrx?, hasRoutingTable: Bool?) {
+    func getClientProxy(current _: Ice.Current) throws -> (returnValue: ObjectPrx?, hasRoutingTable: Bool?) {
         return (nil, false)
     }
 
-    func addProxies(proxies: [ObjectPrx?], current: Current) throws -> [ObjectPrx?] {
+    func addProxies(proxies _: [ObjectPrx?], current _: Current) throws -> [ObjectPrx?] {
         return []
     }
 
@@ -79,7 +79,7 @@ class ServantLocatorI: Ice.ServantLocator {
         return (TestIntfDisp(TestI()), CookieI())
     }
 
-    func finished(curr current: Ice.Current, servant: Ice.Disp, cookie: Swift.AnyObject?) throws {
+    func finished(curr current: Ice.Current, servant _: Ice.Disp, cookie: Swift.AnyObject?) throws {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }

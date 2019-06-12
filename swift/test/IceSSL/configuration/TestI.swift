@@ -6,11 +6,10 @@ import Ice
 import TestCommon
 
 class ServerI: SSLServer {
-
     var _communicator: Ice.Communicator
     var _helper: TestHelper
 
-    init (communicator: Ice.Communicator, helper: TestHelper) {
+    init(communicator: Ice.Communicator, helper: TestHelper) {
         _communicator = communicator
         _helper = helper
     }
@@ -24,7 +23,7 @@ class ServerI: SSLServer {
         }
     }
 
-    func checkCert(subjectDN: String, issuerDN: String, current: Ice.Current) throws {
+    func checkCert(subjectDN _: String, issuerDN _: String, current: Ice.Current) throws {
         do {
             let info = try current.con!.getInfo() as! SSLConnectionInfo
             try _helper.test(info.verified)
@@ -49,7 +48,6 @@ class ServerI: SSLServer {
 }
 
 class ServerFactoryI: SSLServerFactory {
-
     var _defaultDir: String
     var _helper: TestHelper
     var _servers: [Identity: ServerI]
@@ -60,7 +58,7 @@ class ServerFactoryI: SSLServerFactory {
         _servers = [:]
     }
 
-    func createServer(props: [String: String], current: Ice.Current) throws -> SSLServerPrx? {
+    func createServer(props: [String: String], current _: Ice.Current) throws -> SSLServerPrx? {
         let properties = Ice.createProperties()
         for (key, value) in props {
             properties.setProperty(key: key, value: value)
@@ -77,7 +75,7 @@ class ServerFactoryI: SSLServerFactory {
         return uncheckedCast(prx: obj, type: SSLServerPrx.self)
     }
 
-    func destroyServer(srv: SSLServerPrx?, current: Ice.Current) throws {
+    func destroyServer(srv: SSLServerPrx?, current _: Ice.Current) throws {
         if let srv = srv {
             if let server = _servers.removeValue(forKey: srv.ice_getIdentity()) {
                 try server.destroy()

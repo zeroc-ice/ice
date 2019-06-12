@@ -21,7 +21,7 @@ class RetryI: Retry {
         }
     }
 
-    func opIdempotent(c: Int32, current: Ice.Current) throws -> Int32 {
+    func opIdempotent(c: Int32, current _: Ice.Current) throws -> Int32 {
         if c > _counter {
             _counter += 1
             throw Ice.ConnectionLostException(error: 1)
@@ -31,11 +31,11 @@ class RetryI: Retry {
         return counter
     }
 
-    func opNotIdempotent(current: Ice.Current) throws {
+    func opNotIdempotent(current _: Ice.Current) throws {
         throw Ice.ConnectionLostException(error: 1)
     }
 
-    func opSystemException(current: Ice.Current) throws {
+    func opSystemException(current _: Ice.Current) throws {
         throw Ice.RuntimeError("")
     }
 

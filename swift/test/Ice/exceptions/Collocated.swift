@@ -7,7 +7,7 @@ import TestCommon
 
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
-        let properties = try self.createTestProperties(args)
+        let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max
@@ -16,7 +16,7 @@ class Collocated: TestHelperI {
         initData.properties = properties
         initData.classResolverPrefix = ["IceExceptions"]
 
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

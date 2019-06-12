@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -37,21 +37,21 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.baseAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let b = e as? Base {
-                        try test(b.b == "Base.b")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let b = e as? Base {
+                    try test(b.b == "Base.b")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of unknown derived... ")
@@ -67,21 +67,21 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.unknownDerivedAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let b = e as? Base {
-                        try test(b.b == "UnknownDerived.b")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let b = e as? Base {
+                    try test(b.b == "UnknownDerived.b")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("non-slicing of known derived as base... ")
@@ -98,22 +98,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownDerivedAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let k = e as? KnownDerived {
-                        try test(k.b == "KnownDerived.b")
-                        try test(k.kd == "KnownDerived.kd")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let k = e as? KnownDerived {
+                    try test(k.b == "KnownDerived.b")
+                    try test(k.kd == "KnownDerived.kd")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("non-slicing of known derived as derived... ")
@@ -130,22 +130,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownDerivedAsKnownDerivedAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let k = e as? KnownDerived {
-                        try test(k.b == "KnownDerived.b")
-                        try test(k.kd == "KnownDerived.kd")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let k = e as? KnownDerived {
+                    try test(k.b == "KnownDerived.b")
+                    try test(k.kd == "KnownDerived.kd")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of unknown intermediate as base... ")
@@ -161,21 +161,21 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.unknownIntermediateAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let b = e as? Base {
-                        try test(b.b == "UnknownIntermediate.b")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let b = e as? Base {
+                    try test(b.b == "UnknownIntermediate.b")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of known intermediate as base... ")
@@ -192,22 +192,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownIntermediateAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let ki = e as? KnownIntermediate {
-                        try test(ki.b == "KnownIntermediate.b")
-                        try test(ki.ki == "KnownIntermediate.ki")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let ki = e as? KnownIntermediate {
+                    try test(ki.b == "KnownIntermediate.b")
+                    try test(ki.ki == "KnownIntermediate.ki")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of known most derived as base... ")
@@ -225,23 +225,23 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownMostDerivedAsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let kmd = e as? KnownMostDerived {
-                        try test(kmd.b == "KnownMostDerived.b")
-                        try test(kmd.ki == "KnownMostDerived.ki")
-                        try test(kmd.kmd == "KnownMostDerived.kmd")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let kmd = e as? KnownMostDerived {
+                    try test(kmd.b == "KnownMostDerived.b")
+                    try test(kmd.ki == "KnownMostDerived.ki")
+                    try test(kmd.kmd == "KnownMostDerived.kmd")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("non-slicing of known intermediate as intermediate... ")
@@ -258,22 +258,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownIntermediateAsKnownIntermediateAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let ki = e as? KnownIntermediate {
-                        try test(ki.b == "KnownIntermediate.b")
-                        try test(ki.ki == "KnownIntermediate.ki")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let ki = e as? KnownIntermediate {
+                    try test(ki.b == "KnownIntermediate.b")
+                    try test(ki.ki == "KnownIntermediate.ki")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("non-slicing of known most derived as intermediate... ")
@@ -291,23 +291,23 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownMostDerivedAsKnownIntermediateAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let kmd = e as? KnownMostDerived {
-                        try test(kmd.b == "KnownMostDerived.b")
-                        try test(kmd.ki == "KnownMostDerived.ki")
-                        try test(kmd.kmd == "KnownMostDerived.kmd")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let kmd = e as? KnownMostDerived {
+                    try test(kmd.b == "KnownMostDerived.b")
+                    try test(kmd.ki == "KnownMostDerived.ki")
+                    try test(kmd.kmd == "KnownMostDerived.kmd")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("non-slicing of known most derived as most derived... ")
@@ -325,23 +325,23 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.knownMostDerivedAsKnownMostDerivedAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let kmd = e as? KnownMostDerived {
-                        try test(kmd.b == "KnownMostDerived.b")
-                        try test(kmd.ki == "KnownMostDerived.ki")
-                        try test(kmd.kmd == "KnownMostDerived.kmd")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let kmd = e as? KnownMostDerived {
+                    try test(kmd.b == "KnownMostDerived.b")
+                    try test(kmd.ki == "KnownMostDerived.ki")
+                    try test(kmd.kmd == "KnownMostDerived.kmd")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of unknown most derived, known intermediate as base... ")
@@ -358,22 +358,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.unknownMostDerived1AsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let ki = e as? KnownIntermediate {
-                        try test(ki.b == "UnknownMostDerived1.b")
-                        try test(ki.ki == "UnknownMostDerived1.ki")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let ki = e as? KnownIntermediate {
+                    try test(ki.b == "UnknownMostDerived1.b")
+                    try test(ki.ki == "UnknownMostDerived1.ki")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of unknown most derived, known intermediate as intermediate... ")
@@ -390,22 +390,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.unknownMostDerived1AsKnownIntermediateAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let ki = e as? KnownIntermediate {
-                        try test(ki.b == "UnknownMostDerived1.b")
-                        try test(ki.ki == "UnknownMostDerived1.ki")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let ki = e as? KnownIntermediate {
+                    try test(ki.b == "UnknownMostDerived1.b")
+                    try test(ki.ki == "UnknownMostDerived1.ki")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("slicing of unknown most derived, unknown intermediate thrown as base... ")
@@ -421,21 +421,21 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.unknownMostDerived2AsBaseAsync()
-            }.done {
-                try test(false)
-            }.catch { e in
-                do {
-                    if let b = e as? Base {
-                        try test(b.b == "UnknownMostDerived2.b")
-                    } else {
-                        try test(false)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
+        }.done {
+            try test(false)
+        }.catch { e in
+            do {
+                if let b = e as? Base {
+                    try test(b.b == "UnknownMostDerived2.b")
+                } else {
+                    try test(false)
                 }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
         }
-        }.wait()
+    }.wait()
     output.writeLine("ok")
 
     output.write("unknown most derived in compact format... ")
@@ -453,8 +453,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         // most-derived type is unknown and the exception cannot be sliced.
         //
         try test(testPrx.ice_getEncodingVersion() != Ice.Encoding_1_0)
-    } catch is Ice.OperationNotExistException {
-    }
+    } catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
 
     output.write("preserved exceptions... ")
@@ -564,19 +563,19 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 }
 
 class RelayI: Relay {
-    func knownPreservedAsBase(current: Current) throws {
+    func knownPreservedAsBase(current _: Current) throws {
         throw KnownPreservedDerived(b: "base",
                                     kp: "preserved",
                                     kpd: "derived")
     }
 
-    func knownPreservedAsKnownPreserved(current: Current) throws {
+    func knownPreservedAsKnownPreserved(current _: Current) throws {
         throw KnownPreservedDerived(b: "base",
                                     kp: "preserved",
                                     kpd: "derived")
     }
 
-    func unknownPreservedAsBase(current: Current) throws {
+    func unknownPreservedAsBase(current _: Current) throws {
         let ex = Preserved2()
         ex.b = "base"
         ex.kp = "preserved"
@@ -586,7 +585,7 @@ class RelayI: Relay {
         throw ex
     }
 
-    func unknownPreservedAsKnownPreserved(current: Current) throws {
+    func unknownPreservedAsKnownPreserved(current _: Current) throws {
         let ex = Preserved2()
         ex.b = "base"
         ex.kp = "preserved"

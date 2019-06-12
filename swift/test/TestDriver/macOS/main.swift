@@ -3,8 +3,8 @@
 //
 
 import Foundation
-import TestCommon
 import PromiseKit
+import TestCommon
 
 PromiseKit.conf.Q.map = .global()
 PromiseKit.conf.Q.return = .global()
@@ -17,13 +17,13 @@ if args.count < 3 {
 }
 
 do {
-    var bundleName = args[1].split(separator: ".").map({
+    var bundleName = args[1].split(separator: ".").map {
         if let c = $0.first {
             return c.uppercased() + $0.dropFirst()
         } else {
             return String($0)
         }
-    }).joined(separator: "")
+    }.joined(separator: "")
 
     let exe = args[2]
     if exe == "ServerAMD" {

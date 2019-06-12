@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
@@ -16,9 +16,9 @@ class Server: TestHelperI {
 
         var path = Bundle.main.bundlePath
         #if os(iOS) || os(watchOS) || os(tvOS)
-        path += "/Frameworks/IceSSLConfiguration.bundle/certs"
+            path += "/Frameworks/IceSSLConfiguration.bundle/certs"
         #else
-        path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
+            path += "/Contents/Frameworks/IceSSLConfiguration.bundle/Contents/Resources/certs"
         #endif
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
                                                  value: getTestEndpoint(num: 0, prot: "tcp"))

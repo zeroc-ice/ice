@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 class TestI: TestIntf {
     var _helper: TestHelper
@@ -13,43 +13,43 @@ class TestI: TestIntf {
         _helper = helper
     }
 
-    func SBaseAsObjectAsync(current: Current) -> Promise<Value?> {
+    func SBaseAsObjectAsync(current _: Current) -> Promise<Value?> {
         return Promise<Value?> { seal in
             seal.fulfill(SBase(sb: "SBase.sb"))
         }
     }
 
-    func SBaseAsSBaseAsync(current: Current) -> Promise<SBase?> {
+    func SBaseAsSBaseAsync(current _: Current) -> Promise<SBase?> {
         return Promise<SBase?> { seal in
             seal.fulfill(SBase(sb: "SBase.sb"))
         }
     }
 
-    func SBSKnownDerivedAsSBaseAsync(current: Current) -> Promise<SBase?> {
+    func SBSKnownDerivedAsSBaseAsync(current _: Current) -> Promise<SBase?> {
         return Promise<SBase?> { seal in
             seal.fulfill(SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd"))
         }
     }
 
-    func SBSKnownDerivedAsSBSKnownDerivedAsync(current: Current) -> Promise<SBSKnownDerived?> {
+    func SBSKnownDerivedAsSBSKnownDerivedAsync(current _: Current) -> Promise<SBSKnownDerived?> {
         return Promise<SBSKnownDerived?> { seal in
             seal.fulfill(SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd"))
         }
     }
 
-    func SBSUnknownDerivedAsSBaseAsync(current: Current) -> Promise<SBase?> {
+    func SBSUnknownDerivedAsSBaseAsync(current _: Current) -> Promise<SBase?> {
         return Promise<SBase?> { seal in
             seal.fulfill(SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud"))
         }
     }
 
-    func SBSUnknownDerivedAsSBaseCompactAsync(current: Current) -> Promise<SBase?> {
+    func SBSUnknownDerivedAsSBaseCompactAsync(current _: Current) -> Promise<SBase?> {
         return Promise<SBase?> { seal in
             seal.fulfill(SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud"))
         }
     }
 
-    func SUnknownAsObjectAsync(current: Current) -> Promise<Value?> {
+    func SUnknownAsObjectAsync(current _: Current) -> Promise<Value?> {
         return Promise<Value?> { seal in
             let su = SUnknown()
             su.su = "SUnknown.su"
@@ -68,7 +68,7 @@ class TestI: TestIntf {
         }
     }
 
-    func oneElementCycleAsync(current: Current) -> Promise<B?> {
+    func oneElementCycleAsync(current _: Current) -> Promise<B?> {
         return Promise<B?> { seal in
             let b = B()
             b.sb = "B1.sb"
@@ -77,7 +77,7 @@ class TestI: TestIntf {
         }
     }
 
-    func twoElementCycleAsync(current: Current) -> Promise<B?> {
+    func twoElementCycleAsync(current _: Current) -> Promise<B?> {
         return Promise<B?> { seal in
             let b1 = B()
             b1.sb = "B1.sb"
@@ -89,7 +89,7 @@ class TestI: TestIntf {
         }
     }
 
-    func D1AsBAsync(current: Current) -> Promise<B?> {
+    func D1AsBAsync(current _: Current) -> Promise<B?> {
         return Promise<B?> { seal in
             let d1 = D1()
             d1.sb = "D1.sb"
@@ -105,7 +105,7 @@ class TestI: TestIntf {
         }
     }
 
-    func D1AsD1Async(current: Current) -> Promise<D1?> {
+    func D1AsD1Async(current _: Current) -> Promise<D1?> {
         return Promise<D1?> { seal in
             let d1 = D1()
             d1.sb = "D1.sb"
@@ -121,7 +121,7 @@ class TestI: TestIntf {
         }
     }
 
-    func D2AsBAsync(current: Current) -> Promise<B?> {
+    func D2AsBAsync(current _: Current) -> Promise<B?> {
         return Promise<B?> { seal in
             let d2 = D2()
             d2.sb = "D2.sb"
@@ -137,7 +137,7 @@ class TestI: TestIntf {
         }
     }
 
-    func paramTest1Async(current: Current) -> Promise<(p1: B?, p2: B?)> {
+    func paramTest1Async(current _: Current) -> Promise<(p1: B?, p2: B?)> {
         return Promise<(p1: B?, p2: B?)> { seal in
             let d1 = D1()
             d1.sb = "D1.sb"
@@ -153,7 +153,7 @@ class TestI: TestIntf {
         }
     }
 
-    func paramTest2Async(current: Current) -> Promise<(p2: B?, p1: B?)> {
+    func paramTest2Async(current _: Current) -> Promise<(p2: B?, p1: B?)> {
         return Promise<(p2: B?, p1: B?)> { seal in
             let d1 = D1()
             d1.sb = "D1.sb"
@@ -169,7 +169,7 @@ class TestI: TestIntf {
         }
     }
 
-    func paramTest3Async(current: Current) -> Promise<(returnValue: B?, p1: B?, p2: B?)> {
+    func paramTest3Async(current _: Current) -> Promise<(returnValue: B?, p1: B?, p2: B?)> {
         return Promise<(returnValue: B?, p1: B?, p2: B?)> { seal in
             let d2 = D2()
             d2.sb = "D2.sb (p1 1)"
@@ -199,7 +199,7 @@ class TestI: TestIntf {
         }
     }
 
-    func paramTest4Async(current: Current) -> Promise<(returnValue: B?, p: B?)> {
+    func paramTest4Async(current _: Current) -> Promise<(returnValue: B?, p: B?)> {
         return Promise<(returnValue: B?, p: B?)> { seal in
             let d4 = D4()
             d4.sb = "D4.sb (1)"
@@ -213,7 +213,7 @@ class TestI: TestIntf {
         }
     }
 
-    func returnTest1Async(current: Current) -> Promise<(returnValue: B?, p1: B?, p2: B?)> {
+    func returnTest1Async(current _: Current) -> Promise<(returnValue: B?, p1: B?, p2: B?)> {
         return Promise<(returnValue: B?, p1: B?, p2: B?)> { seal in
             let d1 = D1()
             d1.sb = "D1.sb"
@@ -230,7 +230,7 @@ class TestI: TestIntf {
         }
     }
 
-    func returnTest2Async(current: Current) -> Promise<(returnValue: B?, p2: B?, p1: B?)> {
+    func returnTest2Async(current _: Current) -> Promise<(returnValue: B?, p2: B?, p1: B?)> {
         return Promise<(returnValue: B?, p2: B?, p1: B?)> { seal in
             let d1 = D1()
             d1.sb = "D1.sb"
@@ -247,22 +247,22 @@ class TestI: TestIntf {
         }
     }
 
-    func returnTest3Async(p1: B?, p2: B?, current: Current) -> Promise<B?> {
+    func returnTest3Async(p1: B?, p2 _: B?, current _: Current) -> Promise<B?> {
         return Promise<B?> { seal in
             seal.fulfill(p1)
         }
     }
 
-    func sequenceTestAsync(p1: SS1?, p2: SS2?, current: Current) -> Promise<SS3> {
+    func sequenceTestAsync(p1: SS1?, p2: SS2?, current _: Current) -> Promise<SS3> {
         return Promise<SS3> { seal in
             seal.fulfill(SS3(c1: p1, c2: p2))
         }
     }
 
-    func dictionaryTestAsync(bin: BDict, current: Current) -> Promise<(returnValue: BDict, bout: BDict)> {
+    func dictionaryTestAsync(bin: BDict, current _: Current) -> Promise<(returnValue: BDict, bout: BDict)> {
         return Promise<(returnValue: BDict, bout: BDict)> { seal in
             var bout = [Int32: B?]()
-            for i: Int32 in 0..<10 {
+            for i: Int32 in 0 ..< 10 {
                 let b = bin[i]!!
                 let d2 = D2()
                 d2.sb = b.sb
@@ -273,7 +273,7 @@ class TestI: TestIntf {
             }
 
             var r = [Int32: B]()
-            for i: Int32 in 0..<10 {
+            for i: Int32 in 0 ..< 10 {
                 let s = "D1.\(i * 20)"
                 let d1 = D1()
                 d1.sb = s
@@ -286,7 +286,7 @@ class TestI: TestIntf {
         }
     }
 
-    func exchangePBaseAsync(pb: PBase?, current: Current) -> Promise<PBase?> {
+    func exchangePBaseAsync(pb: PBase?, current _: Current) -> Promise<PBase?> {
         return Promise<PBase?> { seal in
             seal.fulfill(pb)
         }
@@ -327,7 +327,7 @@ class TestI: TestIntf {
         }
     }
 
-    func PBSUnknownAsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
+    func PBSUnknownAsPreservedWithGraphAsync(current _: Current) -> Promise<Preserved?> {
         return Promise<Preserved?> { seal in
             let r = PSUnknown()
             r.pi = 5
@@ -359,7 +359,7 @@ class TestI: TestIntf {
         }
     }
 
-    func PBSUnknown2AsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
+    func PBSUnknown2AsPreservedWithGraphAsync(current _: Current) -> Promise<Preserved?> {
         return Promise<Preserved?> { seal in
             let r = PSUnknown2()
             r.pi = 5
@@ -384,13 +384,13 @@ class TestI: TestIntf {
         }
     }
 
-    func exchangePNodeAsync(pn: PNode?, current: Current) -> Promise<PNode?> {
+    func exchangePNodeAsync(pn: PNode?, current _: Current) -> Promise<PNode?> {
         return Promise<PNode?> { seal in
             seal.fulfill(pn)
         }
     }
 
-    func throwBaseAsBaseAsync(current: Current) -> Promise<Void> {
+    func throwBaseAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let be = BaseException()
             be.sbe = "sbe"
@@ -401,7 +401,7 @@ class TestI: TestIntf {
         }
     }
 
-    func throwDerivedAsBaseAsync(current: Current) -> Promise<Void> {
+    func throwDerivedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let de = DerivedException()
             de.sbe = "sbe"
@@ -418,7 +418,7 @@ class TestI: TestIntf {
         }
     }
 
-    func throwDerivedAsDerivedAsync(current: Current) -> Promise<Void> {
+    func throwDerivedAsDerivedAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let de = DerivedException()
             de.sbe = "sbe"
@@ -435,7 +435,7 @@ class TestI: TestIntf {
         }
     }
 
-    func throwUnknownDerivedAsBaseAsync(current: Current) -> Promise<Void> {
+    func throwUnknownDerivedAsBaseAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let d2 = D2()
             d2.sb = "sb d2"
@@ -452,7 +452,7 @@ class TestI: TestIntf {
         }
     }
 
-    func throwPreservedExceptionAsync(current: Current) -> Promise<Void> {
+    func throwPreservedExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { _ in
             let ue = PSUnknownException()
             ue.p = PSUnknown2()
@@ -463,7 +463,7 @@ class TestI: TestIntf {
         }
     }
 
-    func useForwardAsync(current: Current) -> Promise<Forward?> {
+    func useForwardAsync(current _: Current) -> Promise<Forward?> {
         return Promise<Forward?> { seal in
             let f = Forward()
             f.h = Hidden()

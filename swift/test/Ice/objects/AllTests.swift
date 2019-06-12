@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
-import TestCommon
-import PromiseKit
 import Foundation
+import Ice
+import PromiseKit
+import TestCommon
 
 func allTests(_ helper: TestHelper) throws -> InitialPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
@@ -180,7 +180,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     let top = Recursive()
     var p = top
     do {
-        for depth in 0..<1000 {
+        for depth in 0 ..< 1000 {
             p.v = Recursive()
             p = p.v!
             if (depth < 10 && (depth % 10) == 0) ||

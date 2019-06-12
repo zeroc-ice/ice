@@ -12,7 +12,7 @@ class Server: TestHelperI {
         var initData = InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = ["IceSlicingObjects", "IceSlicingObjectsServer"]
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

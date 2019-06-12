@@ -12,7 +12,7 @@ class Server: TestHelperI {
         let properties = try Ice.createProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
-        let communicator = try self.initialize(properties)
+        let communicator = try initialize(properties)
         defer {
             communicator.destroy()
         }

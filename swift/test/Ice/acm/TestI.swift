@@ -36,7 +36,8 @@ class RemoteCommunicatorI: RemoteCommunicator {
 
         return try uncheckedCast(
             prx: current.adapter!.addWithUUID(RemoteObjectAdapterDisp(RemoteObjectAdapterI(adapter: adapter))),
-                                 type: RemoteObjectAdapterPrx.self)
+            type: RemoteObjectAdapterPrx.self
+        )
     }
 
     func shutdown(current: Ice.Current) throws {

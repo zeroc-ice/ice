@@ -1,15 +1,15 @@
 //
+import Foundation
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 import Ice
-import Foundation
 
 class TimeoutI: Timeout {
-    func op(current: Current) throws {}
+    func op(current _: Current) throws {}
 
-    func sendData(seq: ByteSeq, current: Current) throws {}
+    func sendData(seq _: ByteSeq, current _: Current) throws {}
 
-    func sleep(to: Int32, current: Current) throws {
+    func sleep(to: Int32, current _: Current) throws {
         Thread.sleep(forTimeInterval: TimeInterval(to) / 1000)
     }
 }
@@ -38,7 +38,7 @@ class ControllerI: Controller {
         }
     }
 
-    func resumeAdapter(current: Ice.Current) throws {
+    func resumeAdapter(current _: Ice.Current) throws {
         try _adapter.activate()
     }
 

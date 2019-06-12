@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Dispatch
 import Ice
 import TestCommon
-import Dispatch
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-
         let properties = try createTestProperties(args)
 
         //
@@ -29,17 +28,17 @@ class Server: TestHelperI {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }
 
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints",
-                                                     value: getTestEndpoint(num: 0))
+                                                 value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(key: "ControllerAdapter.Endpoints",
-                                                     value: getTestEndpoint(num: 1))
+                                                 value: getTestEndpoint(num: 1))
         communicator.getProperties().setProperty(key: "ControllerAdapter.ThreadPool.Size",
-                                                     value: "1")
+                                                 value: "1")
 
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let adapter2 = try communicator.createObjectAdapter("ControllerAdapter")

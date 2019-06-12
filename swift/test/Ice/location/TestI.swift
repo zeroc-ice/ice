@@ -6,11 +6,10 @@ import PromiseKit
 import TestCommon
 
 class HelloI: Hello {
-    func sayHello(current: Ice.Current) {}
+    func sayHello(current _: Ice.Current) {}
 }
 
 class TestI: TestIntf {
-
     var _adapter1: Ice.ObjectAdapter
     var _adapter2: Ice.ObjectAdapter
     var _registry: ServerLocatorRegistry
@@ -18,7 +17,6 @@ class TestI: TestIntf {
     init(adapter1: Ice.ObjectAdapter,
          adapter2: Ice.ObjectAdapter,
          registry: ServerLocatorRegistry) throws {
-
         _adapter1 = adapter1
         _adapter2 = adapter2
         _registry = registry
@@ -26,21 +24,21 @@ class TestI: TestIntf {
         try _registry.addObject(_adapter1.add(servant: HelloDisp(HelloI()), id: Ice.stringToIdentity("hello")))
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) throws {
         _adapter1.getCommunicator().shutdown()
     }
 
-    func getHello(current: Ice.Current) throws -> HelloPrx? {
+    func getHello(current _: Ice.Current) throws -> HelloPrx? {
         return try uncheckedCast(prx: _adapter1.createIndirectProxy(Ice.stringToIdentity("hello")),
                                  type: HelloPrx.self)
     }
 
-    func getReplicatedHello(current: Ice.Current) throws -> HelloPrx? {
+    func getReplicatedHello(current _: Ice.Current) throws -> HelloPrx? {
         return try uncheckedCast(prx: _adapter1.createProxy(Ice.stringToIdentity("hello")),
                                  type: HelloPrx.self)
     }
 
-    func migrateHello(current: Ice.Current) throws {
+    func migrateHello(current _: Ice.Current) throws {
         let id = try Ice.stringToIdentity("hello")
         do {
             try _registry.addObject(_adapter2.add(servant: _adapter1.remove(id), id: id))
@@ -51,7 +49,6 @@ class TestI: TestIntf {
 }
 
 class ServerManagerI: ServerManager {
-
     var _registry: ServerLocatorRegistry
     var _helper: TestHelper
     var _communicators = [Ice.Communicator]()
@@ -62,7 +59,7 @@ class ServerManagerI: ServerManager {
         _helper = helper
     }
 
-    func startServer(current: Ice.Current) throws {
+    func startServer(current _: Ice.Current) throws {
         for c in _communicators {
             c.waitForShutdown()
             c.destroy()
@@ -91,7 +88,7 @@ class ServerManagerI: ServerManager {
         // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
         // another OA(e.g.: TestAdapter2 is re-activated using port of TestAdapter).
         //
-        for i in 1...10 {
+        for i in 1 ... 10 {
             var adapter: Ice.ObjectAdapter!
             var adapter2: Ice.ObjectAdapter!
 
@@ -147,7 +144,6 @@ class ServerManagerI: ServerManager {
 }
 
 class ServerLocator: TestLocator {
-
     var _registry: ServerLocatorRegistry
     var _registryPrx: Ice.LocatorRegistryPrx
     var _requestCount: Int32
@@ -183,7 +179,7 @@ class ServerLocator: TestLocator {
         }
     }
 
-    func findObjectByIdAsync(id: Ice.Identity, current: Ice.Current) -> Promise<ObjectPrx?> {
+    func findObjectByIdAsync(id: Ice.Identity, current _: Ice.Current) -> Promise<ObjectPrx?> {
         _requestCount += 1
         // We add a small delay to make sure locator request queuing gets tested when
         // running the test on a fast machine
@@ -197,22 +193,21 @@ class ServerLocator: TestLocator {
         }
     }
 
-    func getRegistry(current: Ice.Current) throws -> Ice.LocatorRegistryPrx? {
+    func getRegistry(current _: Ice.Current) throws -> Ice.LocatorRegistryPrx? {
         return _registryPrx
     }
 
-    func getRequestCount(current: Ice.Current) throws -> Int32 {
+    func getRequestCount(current _: Ice.Current) throws -> Int32 {
         return _requestCount
     }
 }
 
 class ServerLocatorRegistry: TestLocatorRegistry {
-
     var _adapters = [String: Ice.ObjectPrx]()
     var _objects = [Ice.Identity: Ice.ObjectPrx]()
     var _lock = os_unfair_lock()
 
-    func setAdapterDirectProxyAsync(id: String, proxy: ObjectPrx?, current: Current) -> Promise<Void> {
+    func setAdapterDirectProxyAsync(id: String, proxy: ObjectPrx?, current _: Current) -> Promise<Void> {
         return Promise<Void> { seal in
             withLock(&_lock) {
                 if let obj = proxy {
@@ -228,7 +223,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
     func setReplicatedAdapterDirectProxyAsync(adapterId adapter: String,
                                               replicaGroupId replica: String,
                                               p: Ice.ObjectPrx?,
-                                              current: Ice.Current) -> Promise<Void> {
+                                              current _: Ice.Current) -> Promise<Void> {
         return Promise<Void> { seal in
             withLock(&_lock) {
                 if let obj = p {
@@ -243,7 +238,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    func setServerProcessProxyAsync(id: String, proxy: Ice.ProcessPrx?, current: Ice.Current) -> Promise<Void> {
+    func setServerProcessProxyAsync(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current) -> Promise<Void> {
         return Promise<Void> { seal in
             seal.fulfill(())
         }
@@ -255,7 +250,7 @@ class ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    func addObject(obj: Ice.ObjectPrx?, current: Ice.Current) throws {
+    func addObject(obj: Ice.ObjectPrx?, current _: Ice.Current) throws {
         addObject(obj)
     }
 

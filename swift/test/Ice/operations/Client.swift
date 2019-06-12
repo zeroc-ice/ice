@@ -14,7 +14,7 @@ public class Client: TestHelperI {
         properties.setProperty(key: "Ice.BatchAutoFlushSize", value: "100")
         initData.properties = properties
         initData.classResolverPrefix = ["IceOperations"]
-        let communicator = try self.initialize(initData)
+        let communicator = try initialize(initData)
         defer {
             communicator.destroy()
         }

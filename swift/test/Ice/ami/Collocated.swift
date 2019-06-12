@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Dispatch
 import Ice
 import TestCommon
-import Dispatch
 
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
@@ -26,7 +26,7 @@ class Collocated: TestHelperI {
         //
         properties.setProperty(key: "Ice.TCP.RcvSize", value: "50000")
 
-        let communicator = try self.initialize(args)
+        let communicator = try initialize(args)
         defer {
             communicator.destroy()
         }

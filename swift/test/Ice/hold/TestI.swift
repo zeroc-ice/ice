@@ -2,18 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
-import TestCommon
 import Dispatch
 import Foundation
+import Ice
+import TestCommon
 
 class HoldI: Hold {
-
     var _adapter: Ice.ObjectAdapter
     var _helper: TestHelper
     var _last: Int32 = 0
     var _lock = os_unfair_lock()
-    var _queue =  DispatchQueue(label: "ice.hold.Server")
+    var _queue = DispatchQueue(label: "ice.hold.Server")
 
     init(adapter: Ice.ObjectAdapter, helper: TestHelper) {
         _adapter = adapter
@@ -30,8 +29,7 @@ class HoldI: Hold {
             _queue.asyncAfter(deadline: .now() + .milliseconds(Int(seconds))) {
                 do {
                     try self.putOnHold(seconds: 0, current: current)
-                } catch is Ice.ObjectAdapterDeactivatedException {
-                } catch {
+                } catch is Ice.ObjectAdapterDeactivatedException {} catch {
                     precondition(false)
                 }
             }
@@ -53,8 +51,8 @@ class HoldI: Hold {
         }
     }
 
-    func set(value: Int32, delay: Int32, current: Ice.Current) throws -> Int32 {
-        Thread.sleep(forTimeInterval: Double(delay/1000))
+    func set(value: Int32, delay: Int32, current _: Ice.Current) throws -> Int32 {
+        Thread.sleep(forTimeInterval: Double(delay / 1000))
         return withLock(&_lock) {
             let tmp = _last
             _last = value
@@ -62,14 +60,14 @@ class HoldI: Hold {
         }
     }
 
-    func setOneway(value: Int32, expected: Int32, current: Ice.Current) throws {
+    func setOneway(value: Int32, expected: Int32, current _: Ice.Current) throws {
         try withLock(&_lock) {
             try self._helper.test(_last == expected)
             _last = value
         }
     }
 
-    func shutdown(current: Ice.Current) throws {
+    func shutdown(current _: Ice.Current) throws {
         _adapter.hold()
         _adapter.getCommunicator().shutdown()
     }

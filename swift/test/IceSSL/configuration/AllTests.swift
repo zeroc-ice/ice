@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
 var keychainN = 0
 
@@ -24,7 +24,7 @@ func createClientProps(_ defaultProperties: Ice.Properties) -> Ice.Properties {
                                value: defaultProperties.getProperty("Ice.IPv6"))
     }
     properties.setProperty(key: "Ice.RetryIntervals", value: "-1")
-    //properties.setProperty("IceSSL.Trace.Security", "1")
+    // properties.setProperty("IceSSL.Trace.Security", "1")
 
     keychainN += 1
     properties.setProperty(key: "IceSSL.Keychain", value: "client\(keychainN).keychain")
@@ -41,7 +41,7 @@ func createServerProps(_ defaultProperties: Ice.Properties) -> [String: String] 
     if defaultProperties.getProperty("Ice.IPv6") != "" {
         result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6")
     }
-    //result["IceSSL.Trace.Security"] = "1";
+    // result["IceSSL.Trace.Security"] = "1";
 
     keychainN += 1
     result["IceSSL.Keychain"] = "client\(keychainN).keychain"
@@ -494,7 +494,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     //
     properties = createClientProps(defaultProperties: defaultProperties, cert: "", ca: "cacert1")
     properties.setProperty(key: "IceSSL.VerifyPeer", value: "1")
-    //initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
+    // initData.properties->setProperty("IceSSL.VerifyDepthMax", "3");
     comm = try helper.initialize(properties)
 
     fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
@@ -815,8 +815,8 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     comm = try helper.initialize(properties)
     var count = 0
     comm.setSslPasswordPrompt {
-            count += 1
-            return "client"
+        count += 1
+        return "client"
     }
     try comm.initializePlugins()
     try test(count == 1)
@@ -897,7 +897,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
         comm = try helper.initialize(properties)
         try test(false)
     } catch is Ice.PluginInitializationException {
-        //Expected when disabled all cipher suites.
+        // Expected when disabled all cipher suites.
     }
 
     //
@@ -945,8 +945,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     do {
         try server.ice_ping()
         try test(false)
-    } catch is LocalException {
-    }
+    } catch is LocalException {}
     try fact.destroyServer(server)
     comm.destroy()
 
@@ -1133,7 +1132,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
 
     fact = try checkedCast(prx: comm.stringToProxy(factoryRef)!, type: SSLServerFactoryPrx.self)!
     d = createServerProps(defaultProperties: defaultProperties, cert: "s_rsa_ca1", ca: "cacert1")
-    d["IceSSL.TrustOnly"] = "!CN=Client1"; // Should not match "Client"
+    d["IceSSL.TrustOnly"] = "!CN=Client1" // Should not match "Client"
     server = try fact.createServer(d)!
     try server.ice_ping()
     try fact.destroyServer(server)
@@ -1346,7 +1345,7 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     d["IceSSL.TrustOnly.Server"] = "!CN=Client"
     server = try fact.createServer(d)!
     do {
-        try  server.ice_ping()
+        try server.ice_ping()
         try test(false)
     } catch is LocalException {}
     try fact.destroyServer(server)

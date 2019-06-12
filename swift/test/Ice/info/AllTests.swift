@@ -39,8 +39,8 @@ func allTests(_ helper: TestHelper) throws {
     do {
         let p1 = try communicator.stringToProxy(
             "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
-            "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
-            "opaque -e 1.8 -t 100 -v ABCD")!
+                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
+                "opaque -e 1.8 -t 100 -v ABCD")!
 
         var endps = p1.ice_getEndpoints()
 
@@ -54,14 +54,14 @@ func allTests(_ helper: TestHelper) throws {
         try test(!tcpEndpoint.datagram())
 
         try test(tcpEndpoint.type() == Ice.TCPEndpointType && !tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == Ice.SSLEndpointType && tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == Ice.WSEndpointType && !tcpEndpoint.secure() ||
-                 tcpEndpoint.type() == Ice.WSSEndpointType && tcpEndpoint.secure())
+            tcpEndpoint.type() == Ice.SSLEndpointType && tcpEndpoint.secure() ||
+            tcpEndpoint.type() == Ice.WSEndpointType && !tcpEndpoint.secure() ||
+            tcpEndpoint.type() == Ice.WSSEndpointType && tcpEndpoint.secure())
 
         try test(tcpEndpoint.type() == Ice.TCPEndpointType && info is Ice.TCPEndpointInfo ||
-                 tcpEndpoint.type() == Ice.SSLEndpointType && info is Ice.SSLEndpointInfo ||
-                 tcpEndpoint.type() == Ice.WSEndpointType && info is Ice.WSEndpointInfo ||
-                 tcpEndpoint.type() == Ice.WSSEndpointType && info is Ice.WSEndpointInfo)
+            tcpEndpoint.type() == Ice.SSLEndpointType && info is Ice.SSLEndpointInfo ||
+            tcpEndpoint.type() == Ice.WSEndpointType && info is Ice.WSEndpointInfo ||
+            tcpEndpoint.type() == Ice.WSSEndpointType && info is Ice.WSEndpointInfo)
 
         let udpEndpoint = (endps[1].getInfo() as? Ice.UDPEndpointInfo)!
         try test(udpEndpoint.host == "udphost")
@@ -92,13 +92,13 @@ func allTests(_ helper: TestHelper) throws {
         try test(endpoints.count == 2)
         var publishedEndpoints = adapter.getPublishedEndpoints()
 
-        try test(endpoints.elementsEqual(publishedEndpoints) { $0 == $1})
+        try test(endpoints.elementsEqual(publishedEndpoints) { $0 == $1 })
 
         var tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo()!)!
         try test(tcpEndpoint.type() == Ice.TCPEndpointType ||
-                 tcpEndpoint.type() == Ice.SSLEndpointType ||
-                 tcpEndpoint.type() == Ice.WSEndpointType ||
-                 tcpEndpoint.type() == Ice.WSSEndpointType)
+            tcpEndpoint.type() == Ice.SSLEndpointType ||
+            tcpEndpoint.type() == Ice.WSEndpointType ||
+            tcpEndpoint.type() == Ice.WSSEndpointType)
 
         try test(tcpEndpoint.host == host)
         try test(tcpEndpoint.port > 0)
@@ -112,7 +112,7 @@ func allTests(_ helper: TestHelper) throws {
         endpoints = [endpoints[0]]
         try adapter.setPublishedEndpoints(endpoints)
         publishedEndpoints = adapter.getPublishedEndpoints()
-        try test(endpoints.elementsEqual(publishedEndpoints) { $0 == $1})
+        try test(endpoints.elementsEqual(publishedEndpoints) { $0 == $1 })
 
         adapter.destroy()
 
@@ -199,8 +199,7 @@ func allTests(_ helper: TestHelper) throws {
         try test(ctx["localPort"] == "\(ipInfo.remotePort)")
 
         if try base.ice_getConnection()!.type() == "ws" ||
-               base.ice_getConnection()!.type() == "wss" {
-
+            base.ice_getConnection()!.type() == "wss" {
             let headers = (info as? Ice.WSConnectionInfo)!.headers
 
             try test(headers["Upgrade"] == "websocket")

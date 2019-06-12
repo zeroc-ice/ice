@@ -3,8 +3,8 @@
 //
 
 import Ice
-import TestCommon
 import PromiseKit
+import TestCommon
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
@@ -14,8 +14,8 @@ public class Client: TestHelperI {
         var initData = Ice.InitializationData()
         initData.properties = properties
         initData.classResolverPrefix = ["IceExceptions"]
-        let communicator = try self.initialize(initData)
-        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: self.getTestEndpoint(num: 0))
+        let communicator = try initialize(initData)
+        communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         defer {
             communicator.destroy()
         }

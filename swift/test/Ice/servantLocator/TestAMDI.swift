@@ -6,31 +6,31 @@ import PromiseKit
 import TestCommon
 
 class TestI: TestIntf {
-    func requestFailedExceptionAsync(current: Current) -> Promise<Void> {
+    func requestFailedExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func unknownUserExceptionAsync(current: Current) -> Promise<Void> {
+    func unknownUserExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func unknownLocalExceptionAsync(current: Current) -> Promise<Void> {
+    func unknownLocalExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func unknownExceptionAsync(current: Current) -> Promise<Void> {
+    func unknownExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func localExceptionAsync(current: Current) -> Promise<Void> {
+    func localExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func userExceptionAsync(current: Current) -> Promise<Void> {
+    func userExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func csExceptionAsync(current: Current) -> Promise<Void> {
+    func csExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
@@ -40,7 +40,7 @@ class TestI: TestIntf {
         }
     }
 
-    func impossibleExceptionAsync(throw t: Bool, current: Current) -> Promise<String> {
+    func impossibleExceptionAsync(throw t: Bool, current _: Current) -> Promise<String> {
         return Promise<String> { seal in
             if t {
                 seal.reject(TestImpossibleException())
@@ -54,7 +54,7 @@ class TestI: TestIntf {
         }
     }
 
-    func intfUserExceptionAsync(throw t: Bool, current: Current) -> Promise<String> {
+    func intfUserExceptionAsync(throw t: Bool, current _: Current) -> Promise<String> {
         return Promise<String> { seal in
             if t {
                 seal.reject(TestIntfUserException())
@@ -68,11 +68,11 @@ class TestI: TestIntf {
         }
     }
 
-    func asyncResponseAsync(current: Current) -> Promise<Void> {
+    func asyncResponseAsync(current _: Current) -> Promise<Void> {
         return Promise.value(())
     }
 
-    func asyncExceptionAsync(current: Current) -> Promise<Void> {
+    func asyncExceptionAsync(current _: Current) -> Promise<Void> {
         return Promise<Void> { seal in
             seal.reject(TestIntfUserException())
         }
