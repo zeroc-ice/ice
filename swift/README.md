@@ -13,7 +13,7 @@ resulting build.
 
 ### Operating Systems
 
-Ice for Swift builds and runs properly on macOS  and is fully supported on
+Ice for Swift builds and runs properly on macOS and is fully supported on
 the platforms listed on the [supported platforms][2] page.
 
 ### Slice to Swift Compiler
