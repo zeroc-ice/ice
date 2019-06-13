@@ -21,8 +21,6 @@ public class InputStream {
     private var minSeqSize: Int32 = 0
     private let classGraphDepthMax: Int32
 
-    public var sliceValues: Bool = true
-
     private var remaining: Int {
         return data.count - pos
     }
@@ -340,11 +338,11 @@ public class InputStream {
         if encaps.decoder == nil { // Lazy initialization
             let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
-                encaps.decoder = EncapsDecoder10(stream: self, sliceValues: sliceValues,
+                encaps.decoder = EncapsDecoder10(stream: self,
                                                  valueFactoryManager: valueFactoryManager,
                                                  classGraphDepthMax: classGraphDepthMax)
             } else {
-                encaps.decoder = EncapsDecoder11(stream: self, sliceValues: sliceValues,
+                encaps.decoder = EncapsDecoder11(stream: self,
                                                  valueFactoryManager: valueFactoryManager,
                                                  classGraphDepthMax: classGraphDepthMax)
             }
@@ -877,7 +875,6 @@ private struct PatchEntry {
 
 private protocol EncapsDecoder: AnyObject {
     var stream: InputStream { get }
-    var sliceValues: Bool { get }
     var valueFactoryManager: ValueFactoryManager { get }
 
     //
@@ -1056,7 +1053,6 @@ extension EncapsDecoder {
 private class EncapsDecoder10: EncapsDecoder {
     // EncapsDecoder members
     unowned let stream: InputStream
-    let sliceValues: Bool
     let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value]()
@@ -1076,9 +1072,8 @@ private class EncapsDecoder10: EncapsDecoder {
     let classGraphDepthMax: Int32
     var classGraphDepth: Int32
 
-    init(stream: InputStream, sliceValues: Bool, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
         self.stream = stream
-        self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
         sliceType = SliceType.NoSlice
         self.classGraphDepthMax = classGraphDepthMax
@@ -1291,13 +1286,6 @@ private class EncapsDecoder10: EncapsDecoder {
             }
 
             //
-            // If slicing is disabled, stop unmarshaling.
-            //
-            if !sliceValues {
-                throw NoValueFactoryException(reason: "no value factory found and slicing is disabled", type: typeId)
-            }
-
-            //
             // Slice off what we don't understand.
             //
             try skipSlice()
@@ -1329,7 +1317,6 @@ private class EncapsDecoder10: EncapsDecoder {
 private class EncapsDecoder11: EncapsDecoder {
     // EncapsDecoder members
     unowned let stream: InputStream
-    let sliceValues: Bool
     let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
     lazy var unmarshaledMap = [Int32: Value]()
@@ -1380,9 +1367,8 @@ private class EncapsDecoder11: EncapsDecoder {
         }
     }
 
-    init(stream: InputStream, sliceValues: Bool, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
+    init(stream: InputStream, valueFactoryManager: ValueFactoryManager, classGraphDepthMax: Int32) {
         self.stream = stream
-        self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
         self.classGraphDepthMax = classGraphDepthMax
         classGraphDepth = 0
@@ -1726,14 +1712,6 @@ private class EncapsDecoder11: EncapsDecoder {
                 // We have an instance, get out of this loop.
                 //
                 break
-            }
-
-            //
-            // If slicing is disabled, stop unmarshaling.
-            //
-            if !sliceValues {
-                throw NoValueFactoryException(reason: "no value factory found and slicing is disabled",
-                                              type: current.typeId)
             }
 
             //
