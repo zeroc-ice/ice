@@ -85,7 +85,7 @@ class ProcessControllerI: CommonProcessController {
                                        queue: (exe == "Server" ||
                                            exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
         helper.run()
-        return try uncheckedCast(prx: adapter.addWithUUID(ProcessI(helper: helper)), type: CommonProcessPrx.self)
+        return try uncheckedCast(prx: adapter.addWithUUID(CommonProcessDisp(ProcessI(helper: helper))), type: CommonProcessPrx.self)
     }
 
     func getHost(protocol _: String,
@@ -122,7 +122,8 @@ class ControllerI {
         #endif
         ident.name = "com.zeroc.Swift-Test-Controller"
 
-        try adapter.add(servant: ProcessControllerI(view: view, ipv4: ipv4, ipv6: ipv6), id: ident)
+        try adapter.add(servant: CommonProcessControllerDisp(
+            ProcessControllerI(view: view, ipv4: ipv4, ipv6: ipv6)), id: ident)
         try adapter.activate()
     }
 
