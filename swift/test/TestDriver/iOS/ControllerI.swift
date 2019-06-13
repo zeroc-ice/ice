@@ -85,7 +85,8 @@ class ProcessControllerI: CommonProcessController {
                                        queue: (exe == "Server" ||
                                            exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
         helper.run()
-        return try uncheckedCast(prx: adapter.addWithUUID(CommonProcessDisp(ProcessI(helper: helper))), type: CommonProcessPrx.self)
+        return try uncheckedCast(prx: adapter.addWithUUID(
+            CommonProcessDisp(ProcessI(helper: helper))), type: CommonProcessPrx.self)
     }
 
     func getHost(protocol _: String,
