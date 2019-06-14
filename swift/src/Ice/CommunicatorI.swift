@@ -268,16 +268,34 @@ public extension Communicator {
         }
     }
 
+    /// Establish the password prompt object. This must be done before
+    /// the IceSSL plug-in is initialized.
+    ///
+    /// - parameter prompt: `(() -> String)` - The password prompt.
     func setSslPasswordPrompt(prompt: @escaping (() -> String)) {
         (self as! CommunicatorI).handle.setSslPasswordPrompt(prompt)
     }
 
+    /// Establish the certificate verifier objet. This must be done before
+    /// any connection are established.
+    ///
+    /// - parameter prompt: `((SSLConnectionInfo) -> Bool)` The certificate verifier.
     func setSslCertificateVerifier(verifier: @escaping ((SSLConnectionInfo) -> Bool)) {
         (self as! CommunicatorI).handle.setSslCertificateVerifier { info in
             verifier(info as! SSLConnectionInfo)
         }
     }
 
+    /// Initialize the configured plug-ins. The communicator automatically initializes
+    /// the plug-ins by default, but an application may need to interact directly with
+    /// a plug-in prior to initialization. In this case, the application must set
+    /// `Ice.InitPlugins=0` and then invoke `initializePlugins` manually. The plug-ins are
+    /// initialized in the order in which they are loaded. If a plug-in raises an exception
+    /// during initialization, the communicator invokes destroy on the plug-ins that have
+    /// already been initialized.
+    ///
+    /// - throws: `InitializationException` Raised if the plug-ins have already been
+    ///           initialized.
     func initializePlugins() throws {
         try autoreleasepool {
             try (self as! CommunicatorI).handle.initializePlugins()
