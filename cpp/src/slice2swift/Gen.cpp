@@ -1021,6 +1021,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` enumerated values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
@@ -1056,6 +1057,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` enumerated values to the stream.";
     out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     out << sb;
 
