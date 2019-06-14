@@ -54,7 +54,7 @@ class AdminFacetFacade: ICEBlobjectFacade {
     func dispatch(incoming: Incoming, current: Current) {
         // Dispatch directly to the servant. Do not call invoke on Incoming
         do {
-            try disp.dispatch(incoming: incoming, current: current)
+            try disp.dispatch(request: incoming, current: current)
         } catch {
             incoming.exception(error)
         }

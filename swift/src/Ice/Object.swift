@@ -4,10 +4,18 @@
 
 import IceObjc
 
-/// A Dispatcher (Disp) is a helper struct used by object adapters to dispatch requests
-/// to servants. Its dispatch method should not be called directly by user applications.
+/// Request is an opaque type that represents an incoming request.
+public typealias Request = Incoming
+
+/// A request dispatcher (Disp) is a helper struct used by object adapters to dispatch
+/// requests to servants.
 public protocol Disp {
-    func dispatch(incoming: Incoming, current: Current) throws
+    /// Dispatch request to servant.
+    ///
+    /// - parameter request: `Ice.Request` - The incoming request.
+    ///
+    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
+    func dispatch(request: Request, current: Current) throws
 }
 
 /// A SliceTraits struct describes a Slice interface, class or exception.
@@ -23,14 +31,14 @@ public protocol SliceTraits {
 public protocol Object {
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     ///
-    /// - parameter current: `Ice.Current` - The Current object for the invocation.
+    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///
     /// - returns: `String` - The Slice type ID of the most-derived interface.
     func ice_id(current: Current) throws -> String
 
     /// Returns the Slice type IDs of the interfaces supported by this object.
     ///
-    /// - parameter current: `Ice.Current` - The Current object for the invocation.
+    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///
     /// - returns: `[String]` The Slice type IDs of the interfaces supported by this object, in base-to-derived
     ///   order. The first element of the returned array is always `::Ice::Object`.
@@ -40,7 +48,7 @@ public protocol Object {
     ///
     /// - parameter s: `String` - The type ID of the Slice interface to test against.
     ///
-    /// - parameter current: `Ice.Current` - The Current object for the invocation.
+    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///
     /// - returns: `Bool` - True if this object has the interface specified by s or
     ///   derives from the interface specified by s.
@@ -48,7 +56,7 @@ public protocol Object {
 
     /// Tests whether this object can be reached.
     ///
-    /// - parameter current: The Current object for the invocation.
+    /// - parameter current: The Current object for the dispatch.
     func ice_ping(current: Current) throws
 }
 
@@ -120,7 +128,7 @@ open class ObjectI<T: SliceTraits>: Object {
     }
 }
 
-/// Dispatcher for plain Object servants.
+/// Request dispatcher for plain Object servants.
 public struct ObjectDisp: Disp {
     public let servant: Object
 
@@ -128,16 +136,16 @@ public struct ObjectDisp: Disp {
         self.servant = servant
     }
 
-    public func dispatch(incoming: Incoming, current: Current) throws {
+    public func dispatch(request: Request, current: Current) throws {
         switch current.operation {
         case "ice_id":
-            try servant._iceD_ice_id(incoming: incoming, current: current)
+            try servant._iceD_ice_id(incoming: request, current: current)
         case "ice_ids":
-            try servant._iceD_ice_ids(incoming: incoming, current: current)
+            try servant._iceD_ice_ids(incoming: request, current: current)
         case "ice_isA":
-            try servant._iceD_ice_isA(incoming: incoming, current: current)
+            try servant._iceD_ice_isA(incoming: request, current: current)
         case "ice_ping":
-            try servant._iceD_ice_ping(incoming: incoming, current: current)
+            try servant._iceD_ice_ping(incoming: request, current: current)
         default:
             throw OperationNotExistException(id: current.id, facet: current.facet, operation: current.operation)
         }

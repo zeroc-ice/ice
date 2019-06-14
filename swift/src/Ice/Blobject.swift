@@ -24,7 +24,7 @@ public protocol Blobject {
     func ice_invoke(inEncaps: Data, current: Current) throws -> (ok: Bool, outParams: Data)
 }
 
-/// Dispatcher for Blobject servants.
+/// Request dispatcher for Blobject servants.
 public struct BlobjectDisp: Disp {
     public let servant: Blobject
 
@@ -32,9 +32,9 @@ public struct BlobjectDisp: Disp {
         self.servant = servant
     }
 
-    public func dispatch(incoming inS: Incoming, current: Current) throws {
-        let inEncaps = try inS.readParamEncaps()
+    public func dispatch(request: Request, current: Current) throws {
+        let inEncaps = try request.readParamEncaps()
         let invokeResult = try servant.ice_invoke(inEncaps: inEncaps, current: current)
-        inS.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
+        request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
     }
 }

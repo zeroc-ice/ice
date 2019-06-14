@@ -1590,7 +1590,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl;
     out << "public func dispatch";
     out << spar;
-    out << ("incoming inS: " + getUnqualified("Ice.Incoming", swiftModule));
+    out << ("request: " + getUnqualified("Ice.Request", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
     out << " throws";
@@ -1607,11 +1607,11 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
         {
             out << nl << "try (servant as? Object ?? " << disp << ".defaultObject)._iceD_"
-                << opName << "(incoming: inS, current: current)";
+                << opName << "(incoming: request, current: current)";
         }
         else
         {
-            out << nl << "try servant._iceD_" << opName << "(incoming: inS, current: current)";
+            out << nl << "try servant._iceD_" << opName << "(incoming: request, current: current)";
         }
         out.dec();
     }

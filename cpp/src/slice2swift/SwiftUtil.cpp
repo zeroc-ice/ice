@@ -683,7 +683,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         out << nl << "///";
         if(dispatch)
         {
-            out << nl << "/// - parameter current: `Ice.Current` - The Current object for the invocation.";
+            out << nl << "/// - parameter current: `Ice.Current` - The Current object for the dispatch.";
         }
         else
         {

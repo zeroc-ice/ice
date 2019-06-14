@@ -25,7 +25,7 @@ public protocol BlobjectAsync {
     func ice_invokeAsync(inEncaps: Data, current: Current) -> Promise<(ok: Bool, outParams: Data)>
 }
 
-/// Dispatcher for BlobjectAsync servants.
+/// Request dispatcher for BlobjectAsync servants.
 public struct BlobjectAsyncDisp: Disp {
     public let servant: BlobjectAsync
 
@@ -33,14 +33,14 @@ public struct BlobjectAsyncDisp: Disp {
         self.servant = servant
     }
 
-    public func dispatch(incoming inS: Incoming, current: Current) throws {
-        let inEncaps = try inS.readParamEncaps()
+    public func dispatch(request: Request, current: Current) throws {
+        let inEncaps = try request.readParamEncaps()
         firstly {
             self.servant.ice_invokeAsync(inEncaps: inEncaps, current: current)
         }.done(on: nil) { invokeResult in
-            inS.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
+            request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
         }.catch(on: nil) { err in
-            inS.exception(err)
+            request.exception(err)
         }
     }
 }
