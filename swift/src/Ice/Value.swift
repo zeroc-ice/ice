@@ -10,7 +10,7 @@ open class Value {
     ///
     /// - returns: `String` - The Slice type ID.
     open func ice_id() -> String {
-        return "::Ice::Object"
+        return ObjectTraits.staticId
     }
 
     open func _iceReadImpl(from _: InputStream) throws {}
@@ -50,7 +50,7 @@ open class Value {
     ///
     /// - returns: `String` - The Slice type ID.
     open class func ice_staticId() -> String {
-        return "::Ice::Object"
+        return ObjectTraits.staticId
     }
 }
 
