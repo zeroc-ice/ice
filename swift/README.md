@@ -31,14 +31,14 @@ Ice for Swift requires Swift 5 or later.
 ## Building Ice for Swift
 
 The build system requires the Slice to Swift and the Slice to C++
-compilers. If you have not install a binary distribution that provides
-this command-line tools, refer to the [C++ build instructions](../cpp/README.md)
+compilers. If you have not installed a binary distribution that provides
+these command-line tools, refer to the [C++ build instructions](../cpp/README.md)
 to build these compilers using the Ice for C++ sources.
 
 Open `ice.xcproject` with Xcode and build the `Ice macOS` or `Ice iOS` target
 to build Ice for Swift macOS framework or Ice for Swift iOS framework respectively.
 
-The tests programs for macOS and iOS can be build using the `TestDriver macOS` and
+The test programs for macOS and iOS can be built using `TestDriver macOS` and
 `TestDriver iOS` respectively
 
 ## Running the Swift Tests on
