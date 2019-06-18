@@ -1933,7 +1933,7 @@ SwiftGenerator::paramLabel(const string& param, const ParamDeclList& params)
     {
         if((*q)->name() == param)
         {
-            s += "_";
+            s = "_" + s;
             break;
         }
     }
