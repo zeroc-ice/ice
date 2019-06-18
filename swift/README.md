@@ -28,6 +28,13 @@ this compiler.
 
 Ice for Swift requires Swift 5 or later.
 
+### Carthage
+
+Carthage must be installed to build Ice for Swift. You can install Carthage using Homebrew:
+```
+brew install carthage
+```
+
 ## Building Ice for Swift
 
 The build system requires the Slice to Swift and the Slice to C++
@@ -35,7 +42,13 @@ compilers. If you have not installed a binary distribution that provides
 these command-line tools, refer to the [C++ build instructions](../cpp/README.md)
 to build these compilers using the Ice for C++ sources.
 
-Open `ice.xcproject` with Xcode and build the `Ice macOS` or `Ice iOS` target
+To first download and build the necessary dependency frameworks, run
+```
+carthage update
+```
+from the base folder you downloaded ice into.
+
+Then open `ice.xcproject` with Xcode and build the `Ice macOS` or `Ice iOS` target
 to build Ice for Swift macOS framework or Ice for Swift iOS framework respectively.
 
 The test programs for macOS and iOS can be built using `TestDriver macOS` and
