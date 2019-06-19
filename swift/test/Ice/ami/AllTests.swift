@@ -339,10 +339,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
-                                       type: TestIntfPrx.self).ice_batchOneway()
-
-            _ = try b2.ice_getConnection() // Ensure connection is established.
+            let b2 = p.ice_fixed(con).ice_batchOneway()
             try b1.opBatch()
             try b2.opBatch()
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
@@ -366,10 +363,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
-            let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
-                                       type: TestIntfPrx.self).ice_batchOneway()
-
-            _ = try b2.ice_getConnection() // Ensure connection is established.
+            let b2 = p.ice_fixed(con).ice_batchOneway()
             try b1.opBatch()
             try b2.opBatch()
             try b1.ice_getConnection()!.close(.GracefullyWithWait)
