@@ -811,18 +811,18 @@ IceSSL::SecureTransport::CertificatePtr
 IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    string::size_type size, startpos, endpos = 0;
+    string::size_type size = 0;
+    string::size_type startpos = 0;
     startpos = encoding.find("-----BEGIN CERTIFICATE-----", endpos);
     if(startpos != string::npos)
     {
         startpos += sizeof("-----BEGIN CERTIFICATE-----");
-        endpos = encoding.find("-----END CERTIFICATE-----", startpos);
+        string::size_type endpos = encoding.find("-----END CERTIFICATE-----", startpos);
         size = endpos - startpos;
     }
     else
     {
         startpos = 0;
-        endpos = string::npos;
         size = encoding.size();
     }
 
