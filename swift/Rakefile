@@ -272,12 +272,14 @@ def create_platform_targets(project, platform)
         target_add_files(target, group, "../slice/#{framework}", ["*.ice"])
         target_add_slice2swift_build_rule(project, target, framework)
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference)
+        target.add_dependency(ice_target)
     end
 
     #
     # IceGrid requires Glacier2
     #
     icegrid_target.frameworks_build_phases.add_file_reference(glacier2_target.product_reference)
+    icegrid_target.add_dependency(glacier2_target)
 
     #
     # TestCommon framework
