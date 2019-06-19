@@ -779,10 +779,6 @@ open class ObjectPrxI: ObjectPrx {
         return ObjectPrxType(handle: h, communicator: communicator)
     }
 
-    internal func fromICEObjectPrx(_ h: ICEObjectPrx) -> Self {
-        return type(of: self).init(handle: h, communicator: communicator)
-    }
-
     internal static func fromICEObjectPrx(handle: ICEObjectPrx,
                                           communicator c: Communicator? = nil) -> Self {
         let communicator = c ?? handle.ice_getCommunicator().getCachedSwiftObject(CommunicatorI.self)
