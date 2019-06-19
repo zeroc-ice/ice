@@ -307,9 +307,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
         //
         do {
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
-                                       type: TestIntfPrx.self).ice_batchOneway()
-
+            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
             let con = try p.ice_connectionId("2").ice_getConnection()!
             let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
                                        type: TestIntfPrx.self).ice_batchOneway()
@@ -338,8 +336,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // Exceptions should not be reported.
             //
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
-                                       type: TestIntfPrx.self).ice_batchOneway()
+            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
             let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
@@ -366,8 +363,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
             // The sent callback should be invoked even if all connections fail.
             //
             try test(p.opBatchCount() == 0)
-            let b1 = try uncheckedCast(prx: p.ice_getConnection()!.createProxy(p.ice_getIdentity()),
-                                       type: TestIntfPrx.self).ice_batchOneway()
+            let b1 = try p.ice_fixed(p.ice_getConnection()!).ice_batchOneway()
 
             let con = try p.ice_connectionId("2").ice_getConnection()!
             let b2 = try uncheckedCast(prx: con.createProxy(p.ice_getIdentity()),
