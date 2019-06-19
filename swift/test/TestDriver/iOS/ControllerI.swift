@@ -24,7 +24,7 @@ class ProcessI: CommonProcess {
     func terminate(current: Ice.Current) throws -> String {
         _helper.shutdown()
         guard let adapter = current.adapter else {
-            precondition(false)
+            fatalError()
         }
         try adapter.remove(current.id)
         return _helper.getOutput()
