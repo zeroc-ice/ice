@@ -43,7 +43,7 @@ IcePatch2::FileServerI::getLargeFileInfoSeq(Int node0, const Current&) const
         throw PartitionOutOfRangeException();
     }
 
-    return _tree0.nodes[node0].files;
+    return _tree0.nodes[static_cast<size_t>(node0)].files;
 }
 
 ByteSeqSeq
@@ -51,7 +51,7 @@ IcePatch2::FileServerI::getChecksumSeq(const Current&) const
 {
     ByteSeqSeq checksums(256);
 
-    for(int node0 = 0; node0 < 256; ++node0)
+    for(size_t node0 = 0; node0 < 256; ++node0)
     {
         checksums[node0] = _tree0.nodes[node0].checksum;
     }
@@ -176,7 +176,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Lo
                                   IceUtilInternal::errorToString(errno));
     }
 
-    buffer.resize(num);
+    buffer.resize(static_cast<size_t>(num));
 #ifdef _WIN32
     int r;
     if((r = _read(fd, &buffer[0], static_cast<unsigned int>(num))) == -1)

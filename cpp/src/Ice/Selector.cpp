@@ -612,7 +612,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation> >& handlers)
                                                 ((ev.events & (EPOLLOUT | EPOLLERR)) ?
                                                  SocketOperationWrite : SocketOperationNone));
 #elif defined(ICE_USE_KQUEUE)
-        struct kevent& ev = _events[i];
+        struct kevent& ev = _events[static_cast<size_t>(i)];
         if(ev.flags & EV_ERROR)
         {
             Ice::Error out(_instance->initializationData().logger);
@@ -822,11 +822,12 @@ Selector::updateSelector()
             // Check for errors, we ignore EINPROGRESS that started showing up with macOS Sierra
             // and which occurs when another thread removes the FD from the kqueue (see ICE-7419).
             //
-            if(_changes[i].flags & EV_ERROR && _changes[i].data != EINPROGRESS)
+            if(_changes[static_cast<size_t>(i)].flags & EV_ERROR &&
+               _changes[static_cast<size_t>(i)].data != EINPROGRESS)
             {
                 Ice::Error out(_instance->initializationData().logger);
                 out << "error while updating selector:\n"
-                    << IceUtilInternal::errorToString(static_cast<int>(_changes[i].data));
+                    << IceUtilInternal::errorToString(static_cast<int>(_changes[static_cast<size_t>(i)].data));
             }
         }
     }

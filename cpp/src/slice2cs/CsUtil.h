@@ -49,8 +49,8 @@ protected:
     static std::string resultStructName(const std::string&, const std::string&, bool = false);
     static std::string resultType(const OperationPtr&, const std::string&, bool = false);
     static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);
-    static std::string fixId(const std::string&, int = 0, bool = false);
-    static std::string fixId(const ContainedPtr&, int = 0, bool = false);
+    static std::string fixId(const std::string&, unsigned int = 0, bool = false);
+    static std::string fixId(const ContainedPtr&, unsigned int = 0, bool = false);
     static std::string getOptionalFormat(const TypePtr&, const std::string&);
     static std::string getStaticId(const TypePtr&);
     static std::string typeToString(const TypePtr&, const std::string&, bool = false, bool = false,

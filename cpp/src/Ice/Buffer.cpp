@@ -27,8 +27,8 @@ IceInternal::Buffer::Container::Container() :
 
 IceInternal::Buffer::Container::Container(const_iterator beg, const_iterator end) :
     _buf(const_cast<iterator>(beg)),
-    _size(end - beg),
-    _capacity(end - beg),
+    _size(static_cast<size_t>(end - beg)),
+    _capacity(static_cast<size_t>(end - beg)),
     _shrinkCounter(0),
     _owned(false)
 {

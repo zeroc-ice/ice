@@ -178,7 +178,7 @@ StreamSocket::read(Buffer& buf)
     {
         while(true)
         {
-            ssize_t ret = read(reinterpret_cast<char*>(&*buf.i), buf.b.end() - buf.i);
+            ssize_t ret = read(reinterpret_cast<char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
             if(ret == 0)
             {
                 return SocketOperationRead;
@@ -191,7 +191,7 @@ StreamSocket::read(Buffer& buf)
             }
         }
     }
-    buf.i += read(reinterpret_cast<char*>(&*buf.i), buf.b.end() - buf.i);
+    buf.i += read(reinterpret_cast<char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
 #endif
     return buf.i != buf.b.end() ? SocketOperationRead : SocketOperationNone;
 }
@@ -204,7 +204,7 @@ StreamSocket::write(Buffer& buf)
     {
         while(true)
         {
-            ssize_t ret = write(reinterpret_cast<const char*>(&*buf.i), buf.b.end() - buf.i);
+            ssize_t ret = write(reinterpret_cast<const char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
             if(ret == 0)
             {
                 return SocketOperationWrite;
@@ -217,7 +217,7 @@ StreamSocket::write(Buffer& buf)
             }
         }
     }
-    buf.i += write(reinterpret_cast<const char*>(&*buf.i), buf.b.end() - buf.i);
+    buf.i += write(reinterpret_cast<const char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
 #endif
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationNone;
 }
@@ -272,7 +272,7 @@ StreamSocket::read(char* buf, size_t length)
 
         buf += ret;
         read += ret;
-        length -= ret;
+        length -= static_cast<size_t>(ret);
 
         if(packetSize > length)
         {
@@ -339,7 +339,7 @@ StreamSocket::write(const char* buf, size_t length)
 
         buf += ret;
         sent += ret;
-        length -= ret;
+        length -= static_cast<size_t>(ret);
 
         if(packetSize > length)
         {

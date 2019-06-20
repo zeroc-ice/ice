@@ -44,7 +44,7 @@ public:
             vector<string>::const_iterator q = p->second->_stack.begin();
             if(p->second->_stack.size() > 10)
             {
-                q = p->second->_stack.begin() + p->second->_stack.size() - 10;
+                q = p->second->_stack.begin() + static_cast<ssize_t>(p->second->_stack.size()) - 10;
             }
             cerr << "Last 10 updates of observer `" << p->second->_name << "':" << endl;
             for(; q != p->second->_stack.end(); ++q)

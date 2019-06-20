@@ -165,7 +165,8 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         GetSystemInfo(&si);
         pageSize = si.dwPageSize;
 #else
-        pageSize = sysconf(_SC_PAGESIZE);
+        long sz = sysconf(_SC_PAGESIZE);
+        pageSize = static_cast<size_t>(sz == -1 ? 4096 : sz);
 #endif
         size_t remainder = mapSize % pageSize;
         if(remainder != 0)
@@ -194,7 +195,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 
-    size_t envMaxKeySize = mdb_env_get_maxkeysize(_menv);
+    size_t envMaxKeySize = static_cast<size_t>(mdb_env_get_maxkeysize(_menv));
     if(maxKeySize > envMaxKeySize)
     {
         throw BadEnvException(__FILE__, __LINE__, envMaxKeySize);
@@ -497,5 +498,5 @@ IceDB::getMapSize(int configValue)
     const size_t defaultMapSize = 100;
 #endif
 
-   return ((configValue <= 0) ? defaultMapSize : configValue) * 1024 * 1024;
+    return ((configValue <= 0) ? defaultMapSize : static_cast<size_t>(configValue)) * 1024 * 1024;
 }

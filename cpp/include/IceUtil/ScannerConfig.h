@@ -30,4 +30,9 @@
 #   pragma warning(disable:5033)
 #endif
 
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wconversion"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #endif

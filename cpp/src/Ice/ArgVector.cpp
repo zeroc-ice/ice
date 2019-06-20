@@ -8,8 +8,8 @@
 IceInternal::ArgVector::ArgVector(int argcP, const char* const argvP[])
 {
     assert(argcP >= 0);
-    _args.resize(argcP);
-    for(int i = 0; i < argcP; ++i)
+    _args.resize(static_cast<size_t>(argcP));
+    for(size_t i = 0; i < static_cast<size_t>(argcP); ++i)
     {
         _args[i] = argvP[i];
     }
@@ -51,7 +51,7 @@ IceInternal::ArgVector::setupArgcArgv()
     {
         throw ::std::bad_alloc();
     }
-    for(int i = 0; i < argc; i++)
+    for(size_t i = 0; i < static_cast<size_t>(argc); i++)
     {
         argv[i] = const_cast<char*>(_args[i].c_str());
     }

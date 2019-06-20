@@ -33,9 +33,13 @@ extern "C"
 
 #ifdef _WIN32
 #   pragma warning( disable : 4018) // suppress signed/unsigned mismatch in zend_execute.h (PHP 5.3.x)
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wconversion"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic warning "-Wsign-compare"
 #endif
+
 
 #ifdef _WIN64
 #   pragma warning( disable : 4267) // suppress size_t/uint conversion warnings in zend macros for Windows x64 builds

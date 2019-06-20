@@ -209,7 +209,7 @@ getPassword(const string& prompt)
     struct termios newConf;
     tcgetattr(0, &oldConf);
     newConf = oldConf;
-    newConf.c_lflag &= (~ECHO);
+    newConf.c_lflag &= static_cast<tcflag_t>(~(ECHO));
     tcsetattr(0, TCSANOW, &newConf);
     getline(cin, password);
     tcsetattr(0, TCSANOW, &oldConf);

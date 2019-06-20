@@ -597,7 +597,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
 
     if(sz > 0)
     {
-        endpoints.reserve(sz);
+        endpoints.reserve(static_cast<size_t>(sz));
         while(sz--)
         {
             EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);

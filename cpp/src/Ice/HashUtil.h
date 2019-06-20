@@ -11,7 +11,7 @@ namespace IceInternal
 inline void
 hashAdd(Ice::Int& hashCode, Ice::Int value)
 {
-    hashCode = ((hashCode << 5) + hashCode) ^ (2654435761u * value);
+    hashCode = ((hashCode << 5) + hashCode) ^ static_cast<Ice::Int>(2654435761u) * value;
 }
 
 inline void

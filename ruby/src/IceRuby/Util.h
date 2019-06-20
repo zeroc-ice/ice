@@ -8,6 +8,14 @@
 #include <Config.h>
 #include <Ice/Ice.h>
 
+//
+// Avoid clang conversion warnings in "callRuby" calls
+//
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wconversion"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 namespace IceRuby
 {
 
@@ -228,7 +236,7 @@ class RF_2
 public:
 
     RF_2(Fun f, T1 t1, T2 t2) : _f(f), _t1(t1), _t2(t2) {}
-    inline VALUE operator()() { return _f(_t1, _t2); }
+    inline VALUE operator()(){ return _f(_t1, _t2); }
     static inline VALUE call(VALUE f)
     {
         return (*reinterpret_cast<RF_2*>(f))();
@@ -468,8 +476,6 @@ inline void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
     callProtected(RubyFunction(RF::call), reinterpret_cast<VALUE>(&f));
 }
 
-VALUE createArrayHelper(long);
-
 //
 // Create an array with the given size. May raise RubyException.
 //
@@ -485,11 +491,7 @@ VALUE createArrayHelper(long);
 //     RARRAY_ASET(arr, i, val);
 // }
 //
-template<typename T>
-inline VALUE createArray(T sz)
-{
-    return createArrayHelper(static_cast<long>(sz));
-}
+VALUE createArray(long);
 
 //
 // Create the Ruby equivalent of an Ice local exception.

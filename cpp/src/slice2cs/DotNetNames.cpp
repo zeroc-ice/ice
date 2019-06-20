@@ -120,14 +120,14 @@ mangle(const string& s, const Node* np, string& newName)
 }
 
 string
-Slice::DotNet::mangleName(const string& s, int baseTypes)
+Slice::DotNet::mangleName(const string& s, unsigned int baseTypes)
 {
     if(baseTypes == 0)
     {
         return s;
     }
     string newName;
-    for(unsigned int mask = 1, i=0; mask < END; mask <<= 1, ++i)
+    for(unsigned int mask = 1, i = 0; mask < END; mask <<= 1, ++i)
     {
         if(baseTypes & mask)
         {

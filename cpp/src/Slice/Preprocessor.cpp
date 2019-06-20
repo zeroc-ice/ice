@@ -469,7 +469,8 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
                     {
                         if(file.compare(0, p->length(), *p) == 0)
                         {
-                            string s = includePaths[p - fullIncludePaths.begin()] + file.substr(p->length());
+                            string s = includePaths[static_cast<size_t>(p - fullIncludePaths.begin())] +
+                                file.substr(p->length());
                             if(IceUtilInternal::isAbsolutePath(newFile) || s.size() < newFile.size())
                             {
                                 newFile = s;

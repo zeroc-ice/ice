@@ -259,7 +259,7 @@ IceInternal::UdpTransceiver::read(Buffer& buf)
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET);
 
-    const int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
+    const size_t packetSize = static_cast<size_t>(min(_maxPacketSize, _rcvSize - _udpOverhead));
     buf.b.resize(packetSize);
     buf.i = buf.b.begin();
 
@@ -341,7 +341,7 @@ repeat:
         }
     }
 
-    buf.b.resize(ret);
+    buf.b.resize(static_cast<size_t>(ret));
     buf.i = buf.b.end();
     return SocketOperationNone;
 #endif

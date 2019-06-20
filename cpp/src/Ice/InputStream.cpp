@@ -331,7 +331,7 @@ Ice::InputStream::skipEncapsulation()
     EncodingVersion encoding;
     read(encoding.major);
     read(encoding.minor);
-    i += sz - sizeof(Int) - 2;
+    i += static_cast<size_t>(sz) - sizeof(Int) - 2;
     return encoding;
 }
 
@@ -432,7 +432,7 @@ Ice::InputStream::read(std::vector<Ice::Byte>& v)
     read(p);
     if(p.first != p.second)
     {
-        v.resize(static_cast<Ice::Int>(p.second - p.first));
+        v.resize(static_cast<size_t>(p.second - p.first));
         copy(p.first, p.second, v.begin());
     }
     else
@@ -463,7 +463,7 @@ Ice::InputStream::read(vector<bool>& v)
     Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
-        v.resize(sz);
+        v.resize(static_cast<size_t>(sz));
         copy(i, i + sz, v.begin());
         i += sz;
     }
@@ -571,7 +571,7 @@ Ice::InputStream::read(vector<Short>& v)
     {
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Short));
-        v.resize(sz);
+        v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
         Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Short) - 1;
@@ -651,7 +651,7 @@ Ice::InputStream::read(vector<Int>& v)
     {
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Int));
-        v.resize(sz);
+        v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
         Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Int) - 1;
@@ -768,7 +768,7 @@ Ice::InputStream::read(vector<Long>& v)
     {
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Long));
-        v.resize(sz);
+        v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
         Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Long) - 1;
@@ -885,7 +885,7 @@ Ice::InputStream::read(vector<Float>& v)
     {
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Float));
-        v.resize(sz);
+        v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
         Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Float) - 1;
@@ -1002,7 +1002,7 @@ Ice::InputStream::read(vector<Double>& v)
     {
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Double));
-        v.resize(sz);
+        v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
         Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Double) - 1;
@@ -1266,8 +1266,8 @@ Ice::InputStream::read(vector<string>& v, bool convert)
     Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
-        v.resize(sz);
-        for(int j = 0; j < sz; ++j)
+        v.resize(static_cast<size_t>(sz));
+        for(size_t j = 0; j < static_cast<size_t>(sz); ++j)
         {
             read(v[j], convert);
         }
@@ -1318,11 +1318,11 @@ Ice::InputStream::read(wstring& v)
 void
 Ice::InputStream::read(vector<wstring>& v)
 {
-    Int sz = readAndCheckSeqSize(1);
+    size_t sz = static_cast<size_t>(readAndCheckSeqSize(1));
     if(sz > 0)
     {
         v.resize(sz);
-        for(int j = 0; j < sz; ++j)
+        for(size_t j = 0; j < sz; ++j)
         {
             read(v[j]);
         }
@@ -1479,7 +1479,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
         }
         case ICE_SCOPED_ENUM(OptionalFormat, VSize):
         {
-            skip(readSize());
+            skip(static_cast<size_t>(readSize()));
             break;
         }
         case ICE_SCOPED_ENUM(OptionalFormat, FSize):
@@ -1490,7 +1490,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
             {
                 throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            skip(sz);
+            skip(static_cast<size_t>(sz));
             break;
         }
         case ICE_SCOPED_ENUM(OptionalFormat, Class):
@@ -2116,7 +2116,7 @@ Ice::InputStream::EncapsDecoder10::skipSlice()
 {
     _stream->traceSkipSlice(_typeId, _sliceType);
     assert(_sliceSize >= 4);
-    _stream->skip(_sliceSize - sizeof(Int));
+    _stream->skip(static_cast<size_t>(_sliceSize) - sizeof(Int));
 }
 
 void
@@ -2446,7 +2446,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
     //
     if(_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
-        IndexList indirectionTable(_stream->readAndCheckSeqSize(1));
+        IndexList indirectionTable(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
         for(IndexList::iterator p = indirectionTable.begin(); p != indirectionTable.end(); ++p)
         {
             *p = readInstance(_stream->readSize(), 0, 0);
@@ -2477,7 +2477,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
             {
                 throw MarshalException(__FILE__, __LINE__, "indirection out of range");
             }
-            addPatchEntry(indirectionTable[p->index], p->patchFunc, p->patchAddr);
+            addPatchEntry(indirectionTable[static_cast<size_t>(p->index)], p->patchFunc, p->patchAddr);
         }
         _current->indirectPatchList.clear();
     }
@@ -2493,7 +2493,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     if(_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
         assert(_current->sliceSize >= 4);
-        _stream->skip(_current->sliceSize - sizeof(Int));
+        _stream->skip(static_cast<size_t>(_current->sliceSize) - sizeof(Int));
     }
     else
     {
@@ -2544,7 +2544,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     if(_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
         IndexList& table = _current->indirectionTables.back();
-        table.resize(_stream->readAndCheckSeqSize(1));
+        table.resize(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
         for(IndexList::iterator p = table.begin(); p != table.end(); ++p)
         {
             *p = readInstance(_stream->readSize(), 0, 0);

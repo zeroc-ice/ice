@@ -261,8 +261,8 @@ public:
         }
 
         Container::size_type position = b.size();
-        resize(position + sz);
-        memcpy(&b[position], &v[0], sz);
+        resize(position + static_cast<size_t>(sz));
+        memcpy(&b[position], &v[0], static_cast<size_t>(sz));
     }
 
     /**
@@ -680,8 +680,8 @@ public:
             if(sz > 0)
             {
                 Container::size_type position = b.size();
-                resize(position + sz);
-                memcpy(&b[position], v.data(), sz);
+                resize(position + static_cast<size_t>(sz));
+                memcpy(&b[position], v.data(), static_cast<size_t>(sz));
             }
         }
     }
@@ -706,7 +706,7 @@ public:
             if(sz > 0)
             {
                 Container::size_type position = b.size();
-                resize(position + sz);
+                resize(position + static_cast<size_t>(sz));
                 memcpy(&b[position], vdata, vsize);
             }
         }

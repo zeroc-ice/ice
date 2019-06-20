@@ -316,7 +316,7 @@ run(const Ice::StringSeq& args)
                            << endl;
                 return 1;
             }
-            fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
+            fs.write(reinterpret_cast<const char*>(stream.b.begin()), static_cast<streamsize>(stream.b.size()));
             fs.close();
         }
     }

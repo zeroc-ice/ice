@@ -660,7 +660,7 @@ getInterfaceIndex(const string& intf)
                     struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(curr->ifa_addr);
                     if(memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
                     {
-                        index = if_nametoindex(curr->ifa_name);
+                        index = static_cast<int>(if_nametoindex(curr->ifa_name));
                         break;
                     }
                 }
@@ -725,7 +725,7 @@ getInterfaceIndex(const string& intf)
                     struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(&ifr[i].ifr_addr);
                     if(memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
                     {
-                        index = if_nametoindex(ifr[i].ifr_name);
+                        index = static_cast<int>(if_nametoindex(ifr[i].ifr_name));
                         break;
                     }
                 }
@@ -736,7 +736,7 @@ getInterfaceIndex(const string& intf)
     }
     else // Look for an interface with the given name.
     {
-        index = if_nametoindex(name.c_str());
+        index = static_cast<int>(if_nametoindex(name.c_str()));
     }
     if(index <= 0)
     {
@@ -1821,7 +1821,8 @@ IceInternal::inetAddrToString(const Address& ss)
 
     char namebuf[1024];
     namebuf[0] = '\0';
-    getnameinfo(&ss.sa, size, namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0, NI_NUMERICHOST);
+    getnameinfo(&ss.sa, static_cast<socklen_t>(size), namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0,
+                NI_NUMERICHOST);
     return string(namebuf);
 #else
     if(ss.host == nullptr)
@@ -2161,7 +2162,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
                 indexes.insert(index);
                 struct ipv6_mreq mreq;
                 mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
-                mreq.ipv6mr_interface = index;
+                mreq.ipv6mr_interface = static_cast<unsigned int>(index);
                 rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
             }
         }
@@ -2404,7 +2405,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
     int size = getAddressStorageSize(addr);
     assert(size != 0);
 
-    if(::bind(fd, &addr.sa, size) == SOCKET_ERROR)
+    if(::bind(fd, &addr.sa, static_cast<socklen_t>(size)) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
@@ -2626,7 +2627,7 @@ repeatConnect:
     int size = getAddressStorageSize(addr);
     assert(size != 0);
 
-    if(::connect(fd, &addr.sa, size) == SOCKET_ERROR)
+    if(::connect(fd, &addr.sa, static_cast<socklen_t>(size)) == SOCKET_ERROR)
     {
         if(interrupted())
         {
