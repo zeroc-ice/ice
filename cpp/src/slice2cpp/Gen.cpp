@@ -6577,7 +6577,7 @@ Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
     H << nl << "/**";
-    H << nl << " * Obtains a tuple containing all of the exception's data members.";
+    H << nl << " * Obtains a tuple containing all of the struct's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
     writeIceTuple(H, fixKwd(p->scope()), p->dataMembers(), _useWstring);
