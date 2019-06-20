@@ -31,7 +31,8 @@ using namespace IceInternal;
 @implementation iAPTransceiverCallback
 -(id) init:(SelectorReadyCallback*)cb
 {
-    if(![super init])
+    self = [super init];
+    if(!self)
     {
         return nil;
     }
@@ -417,7 +418,6 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
     {
         errno = static_cast<int>([err code]);
-        [err release];
         if(interrupted() || noBuffers())
         {
             return;
@@ -446,6 +446,5 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     CFNetworkException ex(file, line);
     ex.domain = [domain UTF8String];
     ex.error = static_cast<int>([err code]);
-    [err release];
     throw ex;
 }
