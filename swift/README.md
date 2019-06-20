@@ -7,9 +7,9 @@ resulting build.
   * [Slice to Swift Compiler](#slice-to-swift-compiler)
   * [Swift Version](#swift-version)
 * [Building Ice for Swift](#building-ice-for-swift)
-* [Running the Swift Test Suite(#running-the-swift-test-suite)
-  * [maOS(#macos)
-  * [iOS(#ios)]
+* [Running the Swift Test Suite](#running-the-swift-test-suite)
+  * [macOS](#macos)
+  * [iOS](#ios)
 
 ## Swift Build Requirements
 
