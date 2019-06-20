@@ -45,7 +45,7 @@ Then open `ice.xcodeproj` with Xcode and build the `Ice macOS` or `Ice iOS` targ
 The test programs for macOS and iOS can be built using `TestDriver macOS` and
 `TestDriver iOS` respectively.
 
-## Running the Swift Tests Suite
+## Running the Swift Test Suite
 Python is required to run the test suite.
 
 ### macOS
