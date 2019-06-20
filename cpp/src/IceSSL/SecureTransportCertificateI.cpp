@@ -813,7 +813,7 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     string::size_type size = 0;
     string::size_type startpos = 0;
-    startpos = encoding.find("-----BEGIN CERTIFICATE-----", endpos);
+    startpos = encoding.find("-----BEGIN CERTIFICATE-----", 0);
     if(startpos != string::npos)
     {
         startpos += sizeof("-----BEGIN CERTIFICATE-----");
