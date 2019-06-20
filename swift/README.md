@@ -57,11 +57,16 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 ### iOS
-Start the `TestDriver iOS` app on your iOS device, from Xcode.
+Start the `TestDriver iOS` app on your iOS device or simulator, from Xcode.
 
-Then on your mac:
+Then on your mac to run the tests on a iOS device:
 ```
 python allTests.py --config Debug --platform iphoneos
+```
+
+Or to run the tests on a iOS simulator:
+```
+python allTests.py --config Debug --platform iphonesimulator
 ```
 
 [1]: https://zeroc.com/downloads//ice#swift
