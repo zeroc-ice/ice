@@ -59,15 +59,15 @@ failure, the tests abort with `failed`.
 ### iOS
 Start the `TestDriver iOS` app on your iOS device or simulator, from Xcode.
 
-Then on your mac to run the tests on a iOS device:
+Then on your mac, run:
 ```
 python allTests.py --config Debug --platform iphoneos
 ```
-
-Or to run the tests on a iOS simulator:
+or
 ```
 python allTests.py --config Debug --platform iphonesimulator
 ```
+depending on your target.
 
 [1]: https://zeroc.com/downloads//ice#swift
 [2]: https://doc.zeroc.com/ice/latest/release-notes/supported-platforms-for-ice-3-7-swift
