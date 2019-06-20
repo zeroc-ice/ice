@@ -81,7 +81,7 @@ python allTests.py --config Debug --platform iphoneos
 
 In your `Cartfile` add a reference to Ice package
 ```
-github "zeroc-ice/ice" ~> swift
+github "zeroc-ice/ice" swift
 ```
 
 [1]: https://zeroc.com/distributions/ice
