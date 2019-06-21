@@ -141,7 +141,7 @@ fromNSData(NSData* array, std::vector<T>& seq)
 {
     if(array != nil)
     {
-        int len = [array length] / sizeof(T);
+        size_t len = static_cast<size_t>([array length]) / sizeof(T);
         seq.reserve(len);
         T* src = (T*)[array bytes];
         while(len-- > 0)

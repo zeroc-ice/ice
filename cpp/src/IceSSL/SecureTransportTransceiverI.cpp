@@ -213,8 +213,10 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
     //
     if(_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
     {
-        _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd()));
-        _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd()));
+        _maxSendPacketSize =
+            static_cast<size_t>(std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd())));
+        _maxRecvPacketSize =
+            static_cast<size_t>(std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd())));
     }
     else
     {
@@ -584,7 +586,7 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
         IceInternal::SocketOperation op = _delegate->write(buf);
         if(op == IceInternal::SocketOperationWrite)
         {
-            *length = buf.i - buf.b.begin();
+            *length = static_cast<size_t>(buf.i - buf.b.begin());
             _tflags |= SSLWantWrite;
             return errSSLWouldBlock;
         }
@@ -617,7 +619,7 @@ IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
         IceInternal::SocketOperation op = _delegate->read(buf);
         if(op == IceInternal::SocketOperationRead)
         {
-            *length = buf.i - buf.b.begin();
+            *length = static_cast<size_t>(buf.i - buf.b.begin());
             _tflags |= SSLWantRead;
             return errSSLWouldBlock;
         }

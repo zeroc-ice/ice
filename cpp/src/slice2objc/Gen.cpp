@@ -2089,7 +2089,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
                     }
                     default:
                     {
-                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (2654435761u * " << name << ");";
+                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (2654435761u * (uint)" << name << ");";
                         break;
                     }
                 }

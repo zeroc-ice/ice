@@ -47,7 +47,7 @@ public:
         int p = GetCurrentProcessId();
 #endif
         myPid[0] = (p >> 8) & 0x7F;
-        myPid[1] = p & 0xFF;
+        myPid[1] = static_cast<char>(p & 0xFF);
     }
 };
 
@@ -65,11 +65,11 @@ inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
 {
     if(hb < 10)
     {
-        *hexBuffer++ = '0' + hb;
+        *hexBuffer++ = '0' + static_cast<char>(hb);
     }
     else
     {
-        *hexBuffer++ = 'A' + (hb - 10);
+        *hexBuffer++ = 'A' + static_cast<char>(hb - 10);
     }
 }
 
@@ -143,8 +143,8 @@ IceUtil::generateUUID()
     //
     // Replace the end of the node by myPid (15 bits)
     //
-    uuid.node[4] = (uuid.node[4] & 0x80) | myPid[0];
-    uuid.node[5] = myPid[1];
+    uuid.node[4] = (uuid.node[4] & 0x80) | static_cast<unsigned char>(myPid[0]);
+    uuid.node[5] = static_cast<unsigned char>(myPid[1]);
 
     //
     // Convert to a UUID string

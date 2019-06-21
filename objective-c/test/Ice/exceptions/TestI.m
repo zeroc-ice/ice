@@ -109,7 +109,7 @@
 
 -(ICEByteSeq*) throwMemoryLimitException:(ICEMutableByteSeq*)__unused bs current:(ICECurrent*)__unused current
 {
-    int limit = 20 * 1024;
+    NSUInteger limit = 20 * 1024;
     ICEMutableByteSeq *r = [NSMutableData dataWithLength:limit];
     ICEByte *p = (ICEByte *)[r bytes];
     while(--limit > 0)

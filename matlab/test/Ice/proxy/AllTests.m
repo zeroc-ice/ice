@@ -674,6 +674,8 @@ classdef AllTests
             fprintf('testing ice_fixed... ');
             connection = cl.ice_getConnection();
             if ~isempty(connection)
+                assert(~(cl.ice_isFixed()));
+                assert(cl.ice_fixed(connection).ice_isFixed());
                 prx = cl.ice_fixed(connection); % Test factory method return type
                 prx.ice_ping();
                 assert(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());

@@ -145,8 +145,8 @@
     *p5 = [TestOperationsMutableIntS dataWithLength:[p2 length]];
     ICEInt *target = (ICEInt *)[*p5 bytes];
     ICEInt *src = (ICEInt *)([p2 bytes] + [p2 length]);
-    int i;
-    for(i = 0; i != (int)[p2 length] / sizeof(ICEInt); ++i)
+    NSUInteger i;
+    for(i = 0; i != [p2 length] / sizeof(ICEInt); ++i)
     {
         *target++ = *--src;
     }
@@ -854,8 +854,6 @@
     return YES;
 }
 @end
-
-
 
 @implementation TestOperationsBI
 

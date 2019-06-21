@@ -319,16 +319,11 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
+        assert(expected != ICE_ENUM(OperationMode, Nonmutating)); // We never expect Nonmutating
         if(expected == ICE_ENUM(OperationMode, Idempotent) && received == ICE_ENUM(OperationMode, Nonmutating))
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
-            //
-
-            //
-            // Note that expected == Nonmutating and received == Idempotent is not ok:
-            // the server may still use the deprecated nonmutating keyword to detect updates
-            // and the client should not break this (deprecated) feature.
             //
         }
         else

@@ -153,7 +153,7 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         checkArgs("ice_ids", 0, argc, argv, ctx);
 
         vector<string> ids = p->ice_ids(ctx);
-        volatile VALUE result = createArray(ids.size());
+        volatile VALUE result = createArray(static_cast<long>(ids.size()));
         long i = 0;
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
         {
@@ -307,7 +307,7 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::EndpointSeq seq = p->ice_getEndpoints();
-        volatile VALUE result = createArray(seq.size());
+        volatile VALUE result = createArray(static_cast<long>(seq.size()));
         long i = 0;
         for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
         {
@@ -921,6 +921,19 @@ IceRuby_ObjectPrx_ice_fixed(VALUE self, VALUE con)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_isFixed(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isFixed() ? Qtrue : Qfalse;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_getConnection(VALUE self)
 {
     ICE_RUBY_TRY
@@ -1329,6 +1342,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_getTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getTimeout), 0);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
     rb_define_method(_proxyClass, "ice_fixed", CAST_METHOD(IceRuby_ObjectPrx_ice_fixed), 1);
+    rb_define_method(_proxyClass, "ice_isFixed", CAST_METHOD(IceRuby_ObjectPrx_ice_isFixed), 0);
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
     rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
     rb_define_method(_proxyClass, "ice_flushBatchRequests", CAST_METHOD(IceRuby_ObjectPrx_ice_flushBatchRequests), 0);

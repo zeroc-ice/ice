@@ -144,7 +144,7 @@ IceUtil::Time::now(Clock clock)
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
 #elif defined(__APPLE__)
-       return Time(mach_absolute_time() * machMultiplier);
+        return Time(static_cast<IceUtil::Int64>(mach_absolute_time() * machMultiplier));
 #else
         struct timespec ts;
         if(clock_gettime(CLOCK_MONOTONIC, &ts) < 0)

@@ -1866,6 +1866,29 @@ proxyIceFixed(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceIsFixed(ProxyObject* self, PyObject* /*args*/)
+{
+    assert(self->proxy);
+
+    PyObject* b;
+    try
+    {
+        b = (*self->proxy)->ice_isFixed() ? getTrue() : getFalse();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(b);
+    return b;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceGetConnection(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
@@ -2763,6 +2786,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
     { STRCAST("ice_fixed"), reinterpret_cast<PyCFunction>(proxyIceFixed), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_fixed(Ice.Connection) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isFixed"), reinterpret_cast<PyCFunction>(proxyIceIsFixed), METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isFixed() -> bool")) },
     { STRCAST("ice_getConnection"), reinterpret_cast<PyCFunction>(proxyIceGetConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
     { STRCAST("ice_getConnectionAsync"), reinterpret_cast<PyCFunction>(proxyIceGetConnectionAsync),

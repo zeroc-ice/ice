@@ -25,8 +25,8 @@
 
     <replica-group id="ReplicatedAdapter 2" proxy-options="-e 1.4">
       <description>REPLICA GROUP ${AppVar}</description>
-      <object identity="ReplicatedObject15" type="::Test" proxy-options="-e 1.5"/>
-      <object identity="ReplicatedObject14" type="::Test"/>
+      <object identity="ReplicatedObject15" type="::Test14" proxy-options="-e 1.5"/>
+      <object identity="ReplicatedObject14" type="::Test15"/>
     </replica-group>
 
     <!-- Variables for variable test -->
@@ -110,7 +110,7 @@
         <adapter name="Server" endpoints="default">
           <description>ADAPTER ${NodeVar}</description>
           <object identity="${server}" type="::Test"/>
-          <object identity="cat\/cat/name\/name" type="::Test"/>
+          <object identity="cat\/cat/name\/name" type="::TestCN"/>
           <object identity="${ObjectId}" type="::TestId1"/>
           <object identity="${ObjectCategory1}/${ObjectName1}" type="::TestId2"/>
           <object identity="${ObjectCategory1}${ObjectIdSlash}${ObjectName1}-bis" type="::TestId3"/>
@@ -175,7 +175,7 @@
 
       <server id="LogServer" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-          <object identity="${server}" type="::Test"/>
+          <object identity="${server}" type="::TestLog"/>
         </adapter>
 
         <log path="${server.dir}/log1.txt"/>

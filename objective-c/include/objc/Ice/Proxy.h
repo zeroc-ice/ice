@@ -145,6 +145,7 @@ ICE_API @protocol ICEObjectPrx <NSObject, NSCopying>
 -(id) ice_timeout:(int)timeout;
 -(id) ice_getTimeout;
 -(id) ice_fixed:(id<ICEConnection>)connection;
+-(BOOL) ice_isFixed;
 -(id) ice_connectionId:(NSString*)connectionId;
 -(id<ICEConnection>) ice_getConnection;
 -(id<ICEAsyncResult>) begin_ice_getConnection;

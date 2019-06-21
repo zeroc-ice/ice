@@ -91,10 +91,10 @@ readFile(const string& file, vector<char>& buffer)
     }
 
     is.seekg(0, is.end);
-    buffer.resize(static_cast<int>(is.tellg()));
+    buffer.resize(static_cast<size_t>(is.tellg()));
     is.seekg(0, is.beg);
 
-    is.read(&buffer[0], buffer.size());
+    is.read(&buffer[0], static_cast<streamsize>(buffer.size()));
 
     if(!is.good())
     {

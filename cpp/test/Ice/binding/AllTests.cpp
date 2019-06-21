@@ -239,7 +239,7 @@ allTests(Test::TestHelper* helper)
 #else
             if(count < 20 && count % 4 == 0)
             {
-                com->deactivateObjectAdapter(adapters[count / 4 - 1]);
+                com->deactivateObjectAdapter(adapters[static_cast<size_t>(count / 4 - 1)]);
                 --adapterCount;
             }
 #endif

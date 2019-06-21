@@ -459,8 +459,8 @@ SecureTransportCertificateI::getAuthorityKeyIdentifier() const
             {
                 CFDataRef data = static_cast<CFDataRef>(
                     CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyValue));
-                keyid.resize(CFDataGetLength(data));
-                memcpy(&keyid[0], CFDataGetBytePtr(data), CFDataGetLength(data));
+                keyid.resize(static_cast<size_t>(CFDataGetLength(data)));
+                memcpy(&keyid[0], CFDataGetBytePtr(data), static_cast<size_t>(CFDataGetLength(data)));
             }
         }
     }
@@ -498,8 +498,8 @@ SecureTransportCertificateI::getSubjectKeyIdentifier() const
             {
                 CFDataRef data = static_cast<CFDataRef>(
                     CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyValue));
-                keyid.resize(CFDataGetLength(data));
-                memcpy(&keyid[0], CFDataGetBytePtr(data), CFDataGetLength(data));
+                keyid.resize(static_cast<size_t>(CFDataGetLength(data)));
+                memcpy(&keyid[0], CFDataGetBytePtr(data), static_cast<size_t>(CFDataGetLength(data)));
             }
         }
     }
@@ -589,7 +589,8 @@ SecureTransportCertificateI::encode() const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
     }
-    return string(reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())), CFDataGetLength(exported.get()));
+    return string(reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())),
+                  static_cast<size_t>(CFDataGetLength(exported.get())));
 #endif
 }
 
@@ -839,7 +840,7 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
     UniqueRef<CFDataRef> data(
         CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                     reinterpret_cast<const UInt8*>(encoding.c_str()),
-                                    encoding.size(), kCFAllocatorNull));
+                                    static_cast<CFIndex>(encoding.size()), kCFAllocatorNull));
 
     SecExternalFormat format = kSecFormatUnknown;
     SecExternalItemType type = kSecItemTypeCertificate;

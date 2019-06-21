@@ -186,7 +186,7 @@ private:
         {
             termios term;
             memcpy(&term, &_savedTerm, sizeof(termios));
-            term.c_lflag &= ~(ECHO | ICANON);
+            term.c_lflag &= static_cast<tcflag_t>(~(ECHO | ICANON));
             term.c_cc[VTIME] = 0;
             term.c_cc[VMIN] = 1;
             tcsetattr(0, TCSANOW, &term);

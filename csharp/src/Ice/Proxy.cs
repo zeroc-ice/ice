@@ -706,6 +706,13 @@ namespace Ice
         ObjectPrx ice_fixed(Ice.Connection connection);
 
         /// <summary>
+        /// Returns whether this proxy is a fixed proxy.
+        /// </summary>
+        /// <returns>True if this is a fixed proxy, false otherwise.
+        /// </returns>
+        bool ice_isFixed();
+
+        /// <summary>
         /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
         /// </summary>
@@ -2184,6 +2191,16 @@ namespace Ice
             {
                 return newInstance(@ref);
             }
+        }
+
+        /// <summary>
+        /// Returns whether this proxy is a fixed proxy.
+        /// </summary>
+        /// <returns>True if this is a fixed proxy, false otherwise.
+        /// </returns>
+        public bool ice_isFixed()
+        {
+            return _reference is IceInternal.FixedReference;
         }
 
         private class ProxyGetConnectionAsyncCallback : ProxyAsyncResultCompletionCallback<Callback_Object_ice_getConnection>

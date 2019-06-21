@@ -259,13 +259,21 @@ IceInternal::UdpTransceiver::read(Buffer& buf)
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET);
 
-    const int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
+#ifdef _WIN32
+    int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
+#else
+    const size_t packetSize = static_cast<size_t>(min(_maxPacketSize, _rcvSize - _udpOverhead));
+#endif
     buf.b.resize(packetSize);
     buf.i = buf.b.begin();
 
 repeat:
 
+#ifdef _WIN32
+    int ret;
+#else
     ssize_t ret;
+#endif
     if(_state == StateConnected)
     {
         ret = ::recv(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0);
@@ -341,7 +349,7 @@ repeat:
         }
     }
 
-    buf.b.resize(ret);
+    buf.b.resize(static_cast<size_t>(ret));
     buf.i = buf.b.end();
     return SocketOperationNone;
 #endif

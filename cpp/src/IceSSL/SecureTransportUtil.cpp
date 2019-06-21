@@ -36,12 +36,13 @@ readCertFile(const string& file)
     }
 
     is.seekg(0, is.end);
-    size_t size = is.tellg();
+    size_t size = static_cast<size_t>(is.tellg());
     is.seekg(0, is.beg);
 
-    UniqueRef<CFMutableDataRef> data(CFDataCreateMutable(kCFAllocatorDefault, size));
-    CFDataSetLength(data.get(), size);
-    is.read(reinterpret_cast<char*>(CFDataGetMutableBytePtr(data.get())), size);
+    UniqueRef<CFMutableDataRef> data(CFDataCreateMutable(kCFAllocatorDefault, static_cast<CFIndex>(size)));
+    CFDataSetLength(data.get(), static_cast<CFIndex>(size));
+    is.read(reinterpret_cast<char*>(CFDataGetMutableBytePtr(data.get())),
+            static_cast<streamsize>(size));
     if(!is.good())
     {
         throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
@@ -243,7 +244,7 @@ openKeychain(const std::string& path, const std::string& keychainPassword)
     if(err == noErr)
     {
         const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
-        if((err = SecKeychainUnlock(keychain.get(), static_cast<int>(keychainPassword.size()), pass, pass != 0)))
+        if((err = SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != 0)))
         {
             throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: unable to unlock keychain:\n" + sslErrorToString(err));
@@ -253,7 +254,8 @@ openKeychain(const std::string& path, const std::string& keychainPassword)
     {
         const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
         keychain.reset(0);
-        if((err = SecKeychainCreate(keychainPath.c_str(), static_cast<int>(keychainPassword.size()), pass, pass == 0, 0, &keychain.get())))
+        if((err = SecKeychainCreate(keychainPath.c_str(),
+                                    static_cast<UInt32>(keychainPassword.size()), pass, pass == 0, 0, &keychain.get())))
         {
             throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: unable to create keychain:\n" + sslErrorToString(err));
@@ -405,7 +407,7 @@ loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keycha
         SecKeychainAttribute attr;
         attr.tag = kSecKeyLabel;
         attr.data = const_cast<UInt8*>(CFDataGetBytePtr(hash.get()));
-        attr.length = static_cast<int>(CFDataGetLength(hash.get()));
+        attr.length = static_cast<UInt32>(CFDataGetLength(hash.get()));
         attributes.push_back(attr);
     }
 
@@ -421,13 +423,13 @@ loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keycha
         SecKeychainAttribute attr;
         attr.tag = kSecKeyPrintName;
         attr.data = const_cast<char*>(label.c_str());
-        attr.length = static_cast<int>(label.size());
+        attr.length = static_cast<UInt32>(label.size());
         attributes.push_back(attr);
     }
 
     SecKeychainAttributeList attrs;
     attrs.attr = &attributes[0];
-    attrs.count = static_cast<int>(attributes.size());
+    attrs.count = static_cast<UInt32>(attributes.size());
     SecKeychainItemModifyAttributesAndData(reinterpret_cast<SecKeychainItemRef>(key.get()), &attrs, 0, 0);
 
     UniqueRef<SecIdentityRef> identity;
@@ -760,7 +762,7 @@ IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
             {
                 throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
             }
-            UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], buffer.size()));
+            UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], static_cast<CFIndex>(buffer.size())));
             CFDictionarySetValue(query.get(), field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber,
                                  v.get());
             valid = true;

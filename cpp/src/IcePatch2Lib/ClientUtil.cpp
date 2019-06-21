@@ -341,15 +341,15 @@ PatcherI::prepare()
             AsyncResultPtr nxtCB;
             try
             {
-                for(int node0 = 0; node0 < 256; ++node0)
+                for(size_t node0 = 0; node0 < 256; ++node0)
                 {
                     if(tree0.nodes[node0].checksum != checksumSeq[node0])
                     {
                         if(!curCB)
                         {
                             assert(!nxtCB);
-                            curCB = _useSmallFileAPI ? _serverCompress->begin_getFileInfoSeq(node0) :
-                                                       _serverCompress->begin_getLargeFileInfoSeq(node0);
+                            curCB = _useSmallFileAPI ? _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0)) :
+                                _serverCompress->begin_getLargeFileInfoSeq(static_cast<Int>(node0));
                         }
                         else
                         {
@@ -357,7 +357,7 @@ PatcherI::prepare()
                             swap(nxtCB, curCB);
                         }
 
-                        int node0Nxt = node0;
+                        size_t node0Nxt = node0;
 
                         do
                         {
@@ -367,8 +367,9 @@ PatcherI::prepare()
 
                         if(node0Nxt < 256)
                         {
-                            nxtCB = _useSmallFileAPI ? _serverCompress->begin_getFileInfoSeq(node0Nxt) :
-                                                       _serverCompress->begin_getLargeFileInfoSeq(node0Nxt);
+                            nxtCB = _useSmallFileAPI ?
+                                _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0Nxt)) :
+                                _serverCompress->begin_getLargeFileInfoSeq(static_cast<Int>(node0Nxt));
                         }
 
                         LargeFileInfoSeq files;
@@ -434,7 +435,7 @@ PatcherI::prepare()
                                        FileInfoLess());
                     }
 
-                    if(!_feedback->fileListProgress((node0 + 1) * 100 / 256))
+                    if(!_feedback->fileListProgress(static_cast<Int>(node0 + 1) * 100 / 256))
                     {
                         return false;
                     }
@@ -859,7 +860,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         // 'bytes' is always returned with size '_chunkSize'. When a file is smaller than '_chunkSize'
                         // or we are reading the last chunk of a file, 'bytes' will be larger than necessary. In this
                         // case we calculate the current position and updated size based on the known file size.
-                        size_t size = (pos + bytes.size()) > static_cast<size_t>(p->size) ?
+                        size_t size = (static_cast<size_t>(pos) + bytes.size()) > static_cast<size_t>(p->size) ?
                             static_cast<size_t>(p->size - pos) : bytes.size();
 
                         pos += size;

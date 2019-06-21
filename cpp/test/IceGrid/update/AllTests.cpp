@@ -450,7 +450,6 @@ allTests(Test::TestHelper* helper)
         try
         {
             admin->updateApplication(update);
-            test(true);
         }
         catch(const Ice::Exception& ex)
         {
@@ -490,7 +489,6 @@ allTests(Test::TestHelper* helper)
         try
         {
             admin->updateApplication(update);
-            test(true);
         }
         catch(const Ice::Exception& ex)
         {

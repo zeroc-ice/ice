@@ -133,7 +133,7 @@ public:
                 else
                 {
                     session = _registry->createSession(os.str(), "");
-                    session->setAllocationTimeout(IceUtilInternal::random(200)); // 200ms timeout
+                    session->setAllocationTimeout(static_cast<Ice::Int>(IceUtilInternal::random(200))); // 200ms timeout
                 }
             }
 

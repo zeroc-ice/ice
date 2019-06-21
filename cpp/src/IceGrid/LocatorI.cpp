@@ -233,7 +233,7 @@ public:
         _encoding(encoding),
         _adapters(adapters),
         _traceLevels(locator->getTraceLevels()),
-        _count(count),
+        _count(static_cast<unsigned int>(count)),
         _lastAdapter(_adapters.begin())
     {
         assert(_adapters.empty() || _count > 0);

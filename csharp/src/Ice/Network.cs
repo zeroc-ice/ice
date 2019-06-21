@@ -526,7 +526,7 @@ namespace IceInternal
 
 #if NETSTANDARD2_0
         [DllImport("libc", SetLastError = true)]
-        private static extern int setsockopt(int socket, int level, int name, IntPtr value, uint len);
+        private static extern int setsockopt(int socket, int level, int name, ref int value, uint len);
 
         private const int SOL_SOCKET_MACOS= 0xffff;
         private const int SO_REUSEADDR_MACOS = 0x0004;
@@ -534,7 +534,7 @@ namespace IceInternal
         private const int SO_REUSEADDR_LINUX = 0x0002;
 #endif
 
-        public static unsafe IPEndPoint doBind(Socket socket, EndPoint addr)
+        public static IPEndPoint doBind(Socket socket, EndPoint addr)
         {
             try
             {
@@ -549,11 +549,11 @@ namespace IceInternal
                 var fd = socket.Handle.ToInt32();
                 if(AssemblyUtil.isLinux)
                 {
-                    err = setsockopt(fd, SOL_SOCKET_LINUX, SO_REUSEADDR_LINUX, (IntPtr)(&value), sizeof(int));
+                    err = setsockopt(fd, SOL_SOCKET_LINUX, SO_REUSEADDR_LINUX, ref value, sizeof(int));
                 }
                 else if(AssemblyUtil.isMacOS)
                 {
-                    err = setsockopt(fd, SOL_SOCKET_MACOS, SO_REUSEADDR_MACOS, (IntPtr)(&value), sizeof(int));
+                    err = setsockopt(fd, SOL_SOCKET_MACOS, SO_REUSEADDR_MACOS, ref value, sizeof(int));
                 }
                 if(err != 0)
                 {

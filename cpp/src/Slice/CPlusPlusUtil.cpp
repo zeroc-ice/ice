@@ -1621,7 +1621,7 @@ Slice::writeStreamHelpers(Output& out,
 void
 Slice::writeIceTuple(::IceUtilInternal::Output& out, const string& scope, DataMemberList dataMembers, int typeCtx)
 {
-    out << sp << nl << "std::tuple<";
+    out << nl << "std::tuple<";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(q != dataMembers.begin())

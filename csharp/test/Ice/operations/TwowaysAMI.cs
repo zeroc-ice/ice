@@ -489,7 +489,7 @@ namespace Ice
                     di1[100] = false;
                     test(Ice.CollectionComparer.Equals(_do, di1));
                     test(ro.Count == 4);
-                    // test(ro[10] == true); // Disabled since new dictionary mapping.
+                    test(ro[10] == true);
                     test(ro[11] == false);
                     test(ro[100] == false);
                     test(ro[101] == true);
@@ -503,7 +503,7 @@ namespace Ice
                     di1[1100] = 123123;
                     test(Ice.CollectionComparer.Equals(_do, di1));
                     test(ro.Count == 4);
-                    // test(ro[110] == -1); // Disabled since new dictionary mapping.
+                    test(ro[110] == -1);
                     test(ro[111] == -100);
                     test(ro[1100] == 123123);
                     test(ro[1101] == 0);

@@ -103,8 +103,8 @@ Transceiver::read(IceInternal::Buffer& buf)
                 }
             }
             assert(_readBuffer.i > _readBufferPos);
-            size_t requested = buf.b.end() - buf.i;
-            size_t available = _readBuffer.i - _readBufferPos;
+            size_t requested = static_cast<size_t>(buf.b.end() - buf.i);
+            size_t available = static_cast<size_t>(_readBuffer.i - _readBufferPos);
             assert(available > 0);
             if(available >= requested)
             {

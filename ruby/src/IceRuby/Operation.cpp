@@ -64,8 +64,8 @@ private:
     bool _returnsClasses;
     string _deprecateMessage;
 
-    void convertParams(VALUE, ParamInfoList&, int, bool&);
-    ParamInfoPtr convertParam(VALUE, int);
+    void convertParams(VALUE, ParamInfoList&, long, bool&);
+    ParamInfoPtr convertParam(VALUE, long);
     void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
@@ -367,7 +367,7 @@ IceRuby::OperationI::deprecate(const string& msg)
 }
 
 void
-IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset, bool& usesClasses)
+IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, long posOffset, bool& usesClasses)
 {
     assert(TYPE(v) == T_ARRAY);
 
@@ -383,14 +383,14 @@ IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset
 }
 
 ParamInfoPtr
-IceRuby::OperationI::convertParam(VALUE v, int pos)
+IceRuby::OperationI::convertParam(VALUE v, long pos)
 {
     assert(TYPE(v) == T_ARRAY);
     ParamInfoPtr param = new ParamInfo;
     param->type = getType(RARRAY_AREF(v, 0));
     param->optional = static_cast<bool>(RTEST(RARRAY_AREF(v, 1)));
     param->tag = static_cast<int>(getInteger(RARRAY_AREF(v, 2)));
-    param->pos = pos;
+    param->pos = static_cast<int>(pos);
     return param;
 }
 

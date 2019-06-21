@@ -159,7 +159,7 @@ IcePatch2Internal::stringToBytes(const string& str)
     ByteSeq bytes;
     bytes.reserve((str.size() + 1) / 2);
 
-    for(unsigned int i = 0; i + 1 < str.size(); i += 2)
+    for(size_t i = 0; i + 1 < str.size(); i += 2)
     {
 /*
         istringstream is(str.substr(i, 2));
@@ -169,7 +169,7 @@ IcePatch2Internal::stringToBytes(const string& str)
 
         int byte = 0;
 
-        for(int j = 0; j < 2; ++j)
+        for(size_t j = 0; j < 2; ++j)
         {
             char c = str[i + j];
 
@@ -500,7 +500,8 @@ IcePatch2Internal::readDirectory(const string& pa)
     }
 
     StringSeq result;
-    result.reserve(n - 2);
+    assert(n >= 2);
+    result.reserve(static_cast<size_t>(n - 2));
 
     for(int i = 0; i < n; ++i)
     {
@@ -591,7 +592,8 @@ IcePatch2Internal::compressBytesToFile(const string& pa, const ByteSeq& bytes, I
         throw runtime_error(reason);
     }
 
-    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[pos]), static_cast<int>(bytes.size() - pos));
+    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[static_cast<size_t>(pos)]),
+                static_cast<int>(bytes.size()) - pos);
     if(bzError != BZ_OK)
     {
         string reason = "BZ2_bzWrite failed";
@@ -679,7 +681,7 @@ IcePatch2Internal::decompressFile(const string& pa)
                     throw runtime_error("cannot get read position for `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString());
                 }
 
-                if(fwrite(bytesBZ2, sz, 1, fp) != 1)
+                if(fwrite(bytesBZ2, static_cast<size_t>(sz), 1, fp) != 1)
                 {
                     throw runtime_error("cannot write to `" + path + "':\n" + IceUtilInternal::lastErrorToString());
                 }
@@ -879,7 +881,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
 
             ByteSeq bytesSHA;
 
-            if(relPath.size() + buf.st_size == 0)
+            if(relPath.size() == 0 && buf.st_size == 0)
             {
                 bytesSHA.resize(20);
                 fill(bytesSHA.begin(), bytesSHA.end(), Byte(0));
@@ -927,10 +929,10 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
                         }
                     }
 
-                    long bytesLeft = buf.st_size;
+                    size_t bytesLeft = static_cast<size_t>(buf.st_size);
                     while(bytesLeft > 0)
                     {
-                        ByteSeq bytes(min(bytesLeft, 1024l*1024));
+                        ByteSeq bytes(min(bytesLeft, static_cast<size_t>(1024 * 1024)));
                         if(
 #if defined(_MSC_VER)
                             _read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
@@ -1192,7 +1194,7 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
 
     for(int i = 0; i < 256; ++i, c0 += 20)
     {
-        FileTree1& tree1 = tree0.nodes[i];
+        FileTree1& tree1 = tree0.nodes[static_cast<size_t>(i)];
 
         tree1.files.clear();
         tree1.checksum.resize(20);

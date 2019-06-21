@@ -58,6 +58,14 @@
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
+//
+// Avoid clang conversion warnings
+//
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wconversion"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #undef BYTE_ORDER       /* 1 = big-endian, -1 = little-endian, 0 = unknown */
 #ifdef ARCH_IS_BIG_ENDIAN
 #  define BYTE_ORDER (ARCH_IS_BIG_ENDIAN ? 1 : -1)

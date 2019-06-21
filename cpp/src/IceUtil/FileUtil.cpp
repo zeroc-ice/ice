@@ -379,7 +379,7 @@ IceUtilInternal::rmdir(const string& path)
 int
 IceUtilInternal::mkdir(const string& path, int perm)
 {
-    return ::mkdir(path.c_str(), perm);
+    return ::mkdir(path.c_str(), static_cast<mode_t>(perm));
 }
 
 FILE*

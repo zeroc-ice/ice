@@ -1813,7 +1813,7 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
         ICEFloat buf1[] = { -1.1f, 123123.2f, 100.0f };
         ICEFloat buf2[] = { 42.24f, -1.61f };
-        ICEFloat buf3[] = { -3.14, 3.14 };
+        ICEFloat buf3[] = { -3.14f, 3.14f };
 
         TestOperationsMutableFloatS *si1 = [TestOperationsMutableFloatS data];
         TestOperationsMutableFloatS *si2 = [TestOperationsMutableFloatS data];
@@ -1928,17 +1928,18 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     }
 
     {
-        const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+        const NSUInteger lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
-        int l;
+        NSUInteger l;
         for(l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
         {
-            TestOperationsMutableIntS *s = [TestOperationsMutableIntS dataWithLength:(lengths[l] * sizeof(ICEInt))];
+            TestOperationsMutableIntS *s =
+                [TestOperationsMutableIntS dataWithLength:(lengths[l] * sizeof(ICEInt))];
             ICEInt *ip = (ICEInt *)[s bytes];
-            int i;
+            NSUInteger i;
             for(i = 0; i < lengths[l]; ++i)
             {
-                *ip++ = i;
+                *ip++ = (ICEInt)i;
             }
 
             TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];

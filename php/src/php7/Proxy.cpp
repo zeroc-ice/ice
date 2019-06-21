@@ -1335,6 +1335,28 @@ ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_isFixed)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
+    assert(_this);
+
+    try
+    {
+        bool b = _this->proxy->ice_isFixed();
+        RETURN_BOOL(b ? 1 : 0);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_FALSE;
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_getConnection)
 {
     if(ZEND_NUM_ARGS() != 0)
@@ -1742,6 +1764,7 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_getInvocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_connectionId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_fixed, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isFixed, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)

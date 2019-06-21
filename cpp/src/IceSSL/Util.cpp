@@ -36,8 +36,8 @@ IceSSL::fromCFString(CFStringRef v)
     {
         CFIndex size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(v), kCFStringEncodingUTF8);
         vector<char> buffer;
-        buffer.resize(size + 1);
-        CFStringGetCString(v, &buffer[0], buffer.size(), kCFStringEncodingUTF8);
+        buffer.resize(static_cast<size_t>(size + 1));
+        CFStringGetCString(v, &buffer[0], static_cast<CFIndex>(buffer.size()), kCFStringEncodingUTF8);
         s.assign(&buffer[0]);
     }
     return s;
@@ -118,12 +118,12 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     }
 
     is.seekg(0, is.end);
-    buffer.resize(static_cast<int>(is.tellg()));
+    buffer.resize(static_cast<size_t>(is.tellg()));
     is.seekg(0, is.beg);
 
     if(!buffer.empty())
     {
-        is.read(&buffer[0], buffer.size());
+        is.read(&buffer[0], static_cast<streamsize>(buffer.size()));
         if(!is.good())
         {
             throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);

@@ -174,7 +174,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
             if(totalSize + 5 < size)
             {
                 // There's some room left for a part of the string, return a partial string
-                line = line.substr(0, size - totalSize - 5);
+                line = line.substr(0, static_cast<size_t>(size - totalSize - 5));
                 lines.push_back(line);
                 newOffset += line.size();
             }

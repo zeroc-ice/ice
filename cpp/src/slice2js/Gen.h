@@ -165,7 +165,6 @@ private:
 
         bool _icejs;
         int _nextImport;
-        std::map<std::string, std::string> _modulePrefix;
     };
 
     class TypeScriptAliasVisitor : public JsVisitor
