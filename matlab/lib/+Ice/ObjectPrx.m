@@ -101,6 +101,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %   ice_getTimeout - Obtains the timeout override of this proxy.
     %   ice_fixed - Obtains a proxy that is identical to this proxy, except it's
     %     a fixed proxy bound to the given connection.
+    %   ice_isFixed - Returns whether this proxy is a fixed proxy.
     %   ice_getConnection - Returns the Connection for this proxy.
     %   ice_getConnectionAsync - Returns the Connection for this proxy.
     %   ice_getCachedConnection - Returns the cached Connection for this
@@ -884,6 +885,14 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
 
             r = obj.factory_('ice_fixed', true, connection.iceGetImpl());
+        end
+
+        function r = ice_isFixed(obj)
+            % ice_isFixed - Determines whether this proxy is a fixed proxy.
+            %
+            % Returns (logical) - True if this proxy is a fixed proxy, false otherwise.
+
+            r = obj.iceCallWithResult('ice_isFixed');
         end
 
         function r = ice_getConnection(obj)

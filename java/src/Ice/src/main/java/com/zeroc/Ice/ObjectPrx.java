@@ -330,6 +330,13 @@ public interface ObjectPrx
     }
 
     /**
+     * Returns whether this proxy is a fixed proxy.
+     *
+     * @return <code>true</code> if this is a fixed proxy, <code>false</code> otherwise.
+     **/
+    boolean ice_isFixed();
+
+    /**
      * Returns a proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).

@@ -808,7 +808,9 @@ namespace Ice
                     Ice.Connection connection = cl.ice_getConnection();
                     if(connection != null)
                     {
+                        test(!cl.ice_isFixed());
                         Test.MyClassPrx prx =(Test.MyClassPrx)cl.ice_fixed(connection);
+                        test(prx.ice_isFixed());
                         prx.ice_ping();
                         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));

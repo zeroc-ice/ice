@@ -993,6 +993,12 @@ public:
     ::std::shared_ptr<::Ice::ObjectPrx> ice_fixed(const ::std::shared_ptr<::Ice::Connection>& connection) const;
 
     /**
+     * Determines whether this proxy is a fixed proxy.
+     * @return True if this proxy is a fixed proxy, false otherwise.
+     */
+    bool ice_isFixed() const;
+
+    /**
      * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
      * it first attempts to create a connection.
      * @return The connection for this proxy.
@@ -2657,6 +2663,12 @@ public:
      * @return A fixed proxy bound to the given connection.
      */
     ::Ice::ObjectPrx ice_fixed(const ::Ice::ConnectionPtr& connection) const;
+
+    /**
+     * Determines whether this proxy is a fixed proxy.
+     * @return True if this proxy is a fixed proxy, false otherwise.
+     */
+    bool ice_isFixed() const;
 
     /**
      * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,

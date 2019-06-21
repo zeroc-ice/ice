@@ -1112,6 +1112,13 @@ public interface ObjectPrx
     ObjectPrx ice_fixed(Ice.Connection connection);
 
     /**
+     * Returns whether this proxy is a fixed proxy.
+     *
+     * @return <code>true</code> if this is a fixed proxy, <code>false</code> otherwise.
+     **/
+    boolean ice_isFixed();
+
+    /**
      * Returns the {@link Connection} for this proxy. If the proxy does not yet have an established connection,
      * it first attempts to create a connection.
      *

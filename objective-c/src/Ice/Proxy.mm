@@ -1629,6 +1629,10 @@ BOOL _returnsData;
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
+-(BOOL) ice_isFixed
+{
+    return OBJECTPRX->ice_isFixed();
+}
 -(id) ice_connectionId:(NSString*)connectionId
 {
     return [[self class] iceObjectPrxWithObjectPrx:OBJECTPRX->ice_connectionId(fromNSString(connectionId))];

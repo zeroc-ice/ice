@@ -352,6 +352,13 @@ declare module "ice"
             ice_fixed(conn:Connection):this;
 
             /**
+             * Returns whether this proxy is a fixed proxy.
+             *
+             * @return True if this is a fixed proxy, false otherwise.
+             **/
+            ice_isFixed():boolean;
+
+            /**
              * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
              * it first attempts to create a connection.
              * @return The asynchronous result object for the invocation.

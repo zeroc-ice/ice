@@ -102,6 +102,7 @@ ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getCompress(void*);
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_timeout(void*, void**, int);
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getTimeout(void*);
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_fixed(void*, void**, void*);
+ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_isFixed(void* self);
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getConnection(void*, void**);
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getConnectionAsync(void*, void**);
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getCachedConnection(void*, void**);

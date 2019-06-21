@@ -654,6 +654,8 @@ def allTests(helper, communicator, collocated):
     sys.stdout.flush()
     connection = cl.ice_getConnection()
     if connection != None:
+        test(cl.ice_isFixed() == False)
+        test(cl.ice_fixed(connection).ice_isFixed())
         cl.ice_fixed(connection).getContext()
         test(cl.ice_secure(True).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")

@@ -248,6 +248,11 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return _reference.getEndpointSelection();
     }
 
+    public boolean ice_isFixed()
+    {
+        return _reference instanceof com.zeroc.IceInternal.FixedReference;
+    }
+
     public boolean ice_isSecure()
     {
         return _reference.getSecure();

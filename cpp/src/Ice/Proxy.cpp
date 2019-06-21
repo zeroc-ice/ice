@@ -1287,6 +1287,12 @@ ICE_OBJECT_PRX::ice_fixed(const ::Ice::ConnectionPtr& connection) const
     }
 }
 
+bool
+ICE_OBJECT_PRX::ice_isFixed() const
+{
+    return FixedReferencePtr::dynamicCast(_reference);
+}
+
 ConnectionPtr
 ICE_OBJECT_PRX::ice_getCachedConnection() const
 {

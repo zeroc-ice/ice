@@ -447,6 +447,11 @@ class ObjectPrx
         }
     }
 
+    ice_isFixed()
+    {
+        return this._reference instanceof Ice.FixedReference;
+    }
+
     ice_getConnectionId()
     {
         return this._reference.getConnectionId();

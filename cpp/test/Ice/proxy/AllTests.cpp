@@ -1155,7 +1155,9 @@ allTests(Test::TestHelper* helper)
             Ice::ConnectionPtr connection = cl->ice_getConnection();
             if(connection)
             {
+                test(!cl->ice_isFixed());
                 Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
+                test(prx->ice_isFixed());
                 prx->ice_ping();
                 test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
                 test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
