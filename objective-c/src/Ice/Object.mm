@@ -247,16 +247,11 @@ ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, I
     ICEOperationMode received = current.mode;
     if(expected != received)
     {
+        assert(expected != ICENonmutating); // We never expect Nonmutating
         if(expected == ICEIdempotent && received == ICENonmutating)
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
-            //
-
-            //
-            // Note that expected == Nonmutating and received == Idempotent is not ok:
-            // the server may still use the deprecated nonmutating keyword to detect updates
-            // and the client should not break this (deprecated) feature.
             //
         }
         else
