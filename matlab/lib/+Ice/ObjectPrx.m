@@ -952,9 +952,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_flushBatchRequestsAsync(obj)
-            % ice_flushBatchRequestsAsync - Flushes any pending batched
-            %   requests for this communicator. The call blocks until the
-            %   flush is complete.
+            % ice_flushBatchRequestsAsync - Flushes asynchronously any pending batched
+            %   requests for this communicator.
             %
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.

@@ -1057,7 +1057,7 @@ public:
     }
 
     /**
-     * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+     * Flushes asynchronously any pending batched requests for this communicator.
      * @param ex The exception callback.
      * @param sent The sent callback.
      * @return A function that can be called to cancel the invocation locally.
@@ -1073,7 +1073,7 @@ public:
     }
 
     /**
-     * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+     * Flushes asynchronously any pending batched requests for this communicator.
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise> auto
@@ -2729,7 +2729,7 @@ public:
     }
 
     /**
-     * Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
+     * Flushes asynchronously any pending batched requests for this proxy.
      * @return The asynchronous result object for the invocation.
      */
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests()
@@ -2738,7 +2738,7 @@ public:
     }
 
     /**
-     * Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
+     * Flushes asynchronously any pending batched requests for this proxy.
      * @param cb Asynchronous callback object.
      * @param cookie User-defined data to associate with the invocation.
      * @return The asynchronous result object for the invocation.
@@ -2750,7 +2750,7 @@ public:
     }
 
     /**
-     * Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
+     * Flushes asynchronously any pending batched requests for this proxy.
      * @param cb Asynchronous callback object.
      * @param cookie User-defined data to associate with the invocation.
      * @return The asynchronous result object for the invocation.

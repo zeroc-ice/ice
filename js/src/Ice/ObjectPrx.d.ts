@@ -380,7 +380,7 @@ declare module "ice"
             ice_isConnectionCached():boolean;
 
             /**
-             * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+             * Flushes any pending batched requests for this communicator.
              * @return The asynchronous result object for the invocation.
              */
             ice_flushBatchRequests():AsyncResult<void>;
