@@ -16,7 +16,6 @@
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45;$(DefineConstants)</DefineConstants>
