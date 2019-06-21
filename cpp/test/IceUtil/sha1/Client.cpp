@@ -62,8 +62,7 @@ string toHex(const string& data)
     {
         os.width(2);
         os.fill('0');
-        unsigned char c = data[i];
-        os << hex << (int)c;
+        os << hex << (int)static_cast<unsigned char>(data[i]);
     }
     return os.str();
 }

@@ -570,11 +570,12 @@ Ice::stringToIdentity(const string& s)
     // Find unescaped separator; note that the string may contain an escaped
     // backslash before the separator.
     //
-    string::size_type slash = string::npos, pos = 0;
+    string::size_type slash = string::npos;
+    string::size_type pos = 0;
     while((pos = s.find('/', pos)) != string::npos)
     {
-        int escapes = 0;
-        while(static_cast<int>(pos) - escapes > 0 && s[pos - escapes - 1] == '\\')
+        string::size_type escapes = 0;
+        while(static_cast<int>(pos - escapes) > 0 && s[pos - escapes - 1] == '\\')
         {
             escapes++;
         }

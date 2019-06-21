@@ -551,10 +551,11 @@ run(const Ice::StringSeq& args)
             ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                consoleErr << args[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno) << endl;
+                consoleErr << args[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno)
+                           << endl;
                 return 1;
             }
-            fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
+            fs.write(reinterpret_cast<const char*>(stream.b.begin()), static_cast<streamsize>(stream.b.size()));
             fs.close();
         }
     }

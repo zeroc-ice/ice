@@ -588,11 +588,11 @@ IceInternal::WSTransceiver::read(Buffer& buf)
                 // no more than the payload length. The remaining of the buffer will be
                 // sent over in another frame.
                 //
-                size_t readSz = _readPayloadLength - (buf.i - _readStart); // Already read
+                size_t readSz = _readPayloadLength - static_cast<size_t>(buf.i - _readStart); // Already read
                 if(static_cast<size_t>(buf.b.end() - buf.i) > readSz)
                 {
                     size_t size = buf.b.size();
-                    buf.b.resize(buf.i - buf.b.begin() + readSz);
+                    buf.b.resize(static_cast<size_t>(buf.i - buf.b.begin()) + readSz);
                     s = _delegate->read(buf);
                     buf.b.resize(size);
                 }
@@ -1394,7 +1394,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 return false;
             }
 
-            size_t n = min(_readBuffer.i - _readI, buf.b.end() - buf.i);
+            size_t n = min(static_cast<size_t>(_readBuffer.i - _readI), static_cast<size_t>(buf.b.end() - buf.i));
 
             if(n > _readPayloadLength)
             {
@@ -1435,13 +1435,13 @@ IceInternal::WSTransceiver::postRead(Buffer& buf)
         // Unmask the data we just read.
         //
         IceInternal::Buffer::Container::iterator p = _readStart;
-        for(size_t n = _readStart - _readFrameStart; p < buf.i; ++p, ++n)
+        for(size_t n = static_cast<size_t>(_readStart - _readFrameStart); p < buf.i; ++p, ++n)
         {
             *p ^= _readMask[n % 4];
         }
     }
 
-    _readPayloadLength -= buf.i - _readStart;
+    _readPayloadLength -= static_cast<size_t>(buf.i - _readStart);
     _readStart = buf.i;
     if(_readPayloadLength == 0)
     {
@@ -1474,7 +1474,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         {
             prepareWriteHeader(OP_PING, 0); // Don't send any payload
 
-            _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+            _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             _writeState = WriteStateControlFrame;
             _writeBuffer.i = _writeBuffer.b.begin();
         }
@@ -1483,7 +1483,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             prepareWriteHeader(OP_PONG, _pingPayload.size());
             if(_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
             {
-                size_t pos = _writeBuffer.i - _writeBuffer.b.begin();
+                size_t pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
                 _writeBuffer.b.resize(pos + _pingPayload.size());
                 _writeBuffer.i = _writeBuffer.b.begin() + pos;
             }
@@ -1491,7 +1491,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             _writeBuffer.i += _pingPayload.size();
             _pingPayload.clear();
 
-            _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+            _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             _writeState = WriteStateControlFrame;
             _writeBuffer.i = _writeBuffer.b.begin();
         }
@@ -1513,7 +1513,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             }
 
             _writeState = WriteStateControlFrame;
-            _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+            _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             _writeBuffer.i = _writeBuffer.b.begin();
         }
         else
@@ -1543,7 +1543,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
                 _writeBuffer.i = _writeBuffer.b.begin();
             }
 
-            size_t n = buf.i - buf.b.begin();
+            size_t n = static_cast<size_t>(buf.i - buf.b.begin());
             for(; n < buf.b.size() && _writeBuffer.i < _writeBuffer.b.end(); ++_writeBuffer.i, ++n)
             {
                 *_writeBuffer.i = buf.b[n] ^ _writeMask[n % 4];
@@ -1551,20 +1551,21 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             _writePayloadLength = n;
             if(_writeBuffer.i < _writeBuffer.b.end())
             {
-                _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+                _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             }
             _writeBuffer.i = _writeBuffer.b.begin();
         }
         else if(_writePayloadLength == 0)
         {
-            size_t n = min(_writeBuffer.b.end() - _writeBuffer.i, buf.b.end() - buf.i);
+            size_t n = min(static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i),
+                           static_cast<size_t>(buf.b.end() - buf.i));
             memcpy(_writeBuffer.i, buf.i, n);
             _writeBuffer.i += n;
             buf.i += n;
             _writePayloadLength = n;
             if(_writeBuffer.i < _writeBuffer.b.end())
             {
-                _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
+                _writeBuffer.b.resize(static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin()));
             }
             _writeBuffer.i = _writeBuffer.b.begin();
         }
@@ -1670,7 +1671,7 @@ IceInternal::WSTransceiver::readBuffered(IceInternal::Buffer::Container::size_ty
     }
     else
     {
-        IceInternal::Buffer::Container::size_type available = _readBuffer.i - _readI;
+        size_t available = static_cast<size_t>(_readBuffer.i - _readI);
         if(available < sz)
         {
             if(_readI != &_readBuffer.b[0])
@@ -1728,7 +1729,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer:
         // Use an extra 64 bits to encode the payload length.
         //
         *_writeBuffer.i++ = static_cast<Byte>(127);
-        ice_htonll(payloadLength, _writeBuffer.i);
+        ice_htonll(static_cast<Long>(payloadLength), _writeBuffer.i);
         _writeBuffer.i += 8;
     }
 

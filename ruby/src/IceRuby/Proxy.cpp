@@ -153,7 +153,7 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         checkArgs("ice_ids", 0, argc, argv, ctx);
 
         vector<string> ids = p->ice_ids(ctx);
-        volatile VALUE result = createArray(ids.size());
+        volatile VALUE result = createArray(static_cast<long>(ids.size()));
         long i = 0;
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
         {
@@ -307,7 +307,7 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::EndpointSeq seq = p->ice_getEndpoints();
-        volatile VALUE result = createArray(seq.size());
+        volatile VALUE result = createArray(static_cast<long>(seq.size()));
         long i = 0;
         for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
         {

@@ -630,9 +630,9 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
                 wait();
             }
             _requestInProgress = true;
-            for(unsigned int i = 0; i < _replicas.size(); ++i)
+            for(size_t i = 0; i < _replicas.size(); ++i)
             {
-                replicas.push_back(_replicas[(_lastReplica + i) % _replicas.size()]);
+                replicas.push_back(_replicas[(static_cast<size_t>(_lastReplica) + i) % _replicas.size()]);
             }
             _lastReplica = (_lastReplica + 1) % static_cast<int>(_replicas.size());
             roundRobin = true;

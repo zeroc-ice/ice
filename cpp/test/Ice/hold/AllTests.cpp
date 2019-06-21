@@ -173,7 +173,7 @@ allTests(Test::TestHelper* helper)
         while(cond->value())
         {
             result = hold->begin_set(value + 1,
-                                     IceUtilInternal::random(5),
+                                     static_cast<Ice::Int>(IceUtilInternal::random(5)),
                                      newCallback_Hold_set(new SetCB(cond, value), &SetCB::response, &SetCB::exception));
             ++value;
             if(value % 100 == 0)
@@ -236,7 +236,7 @@ allTests(Test::TestHelper* helper)
         while(value < 3000 && cond->value())
         {
             result = holdSerialized->begin_set(value + 1,
-                                               IceUtilInternal::random(1),
+                                               static_cast<Ice::Int>(IceUtilInternal::random(1)),
                                                newCallback_Hold_set(new SetCB(cond, value),
                                                                     &SetCB::response,
                                                                     &SetCB::exception));

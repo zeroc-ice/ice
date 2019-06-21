@@ -423,7 +423,7 @@ allTests(Test::TestHelper* helper)
         OptionalClassPtr o = ICE_MAKE_SHARED(OptionalClass);
         o->bo = false;
         o->by = 5;
-        o->sh = 4;
+        o->sh = static_cast<Ice::Short>(4);
         o->i = 3;
         out.write(o);
         out.writePendingValues();
@@ -451,7 +451,7 @@ allTests(Test::TestHelper* helper)
         OptionalClassPtr o = ICE_MAKE_SHARED(OptionalClass);
         o->bo = false;
         o->by = 5;
-        o->sh = 4;
+        o->sh = static_cast<Ice::Short>(4);
         o->i = 3;
         out.write(o);
         out.writePendingValues();

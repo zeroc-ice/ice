@@ -104,11 +104,11 @@ Publisher::run(int argc, char** argv)
             os << argv[0] << ": Not enough endpoints in publisher proxy";
             throw invalid_argument(os.str());
         }
-        int which = 0;
-        for(int i = 0; i < 1000; ++i)
+        size_t which = 0;
+        for(size_t i = 0; i < 1000; ++i)
         {
-            single[which]->event(i);
-            which = (which + 1) % static_cast<int>(single.size());
+            single[which]->event(static_cast<Ice::Int>(i));
+            which = (which + 1) % single.size();
         }
     }
     else

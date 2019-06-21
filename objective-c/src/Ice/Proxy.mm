@@ -1340,7 +1340,7 @@ BOOL _returnsData;
                             if(response)
                             {
                                 NSMutableData* outEncaps =
-                                    [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
+                                    [NSMutableData dataWithBytes:outP.first length:static_cast<NSUInteger>(outP.second - outP.first)];
                                 response(ret, outEncaps);
                             }
                         },
@@ -1371,7 +1371,7 @@ BOOL _returnsData;
                             if(response)
                             {
                                 NSMutableData* outEncaps =
-                                    [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
+                                    [NSMutableData dataWithBytes:outP.first length:static_cast<NSUInteger>(outP.second - outP.first)];
                                 response(ret, outEncaps);
                             }
                         },
@@ -1385,7 +1385,7 @@ BOOL _returnsData;
                {
                    std::pair<const ::Ice::Byte*, const ::Ice::Byte*> outP;
                    ret = OBJECTPRX->_iceI_end_ice_invoke(outP, r);
-                   *outEncaps = [NSMutableData dataWithBytes:outP.first length:(outP.second - outP.first)];
+                   *outEncaps = [NSMutableData dataWithBytes:outP.first length:static_cast<NSUInteger>(outP.second - outP.first)];
                }, result);
     return ret;
 }

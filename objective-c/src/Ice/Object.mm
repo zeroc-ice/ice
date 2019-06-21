@@ -173,7 +173,7 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     {
         ICECurrent* c = [[ICECurrent alloc] initWithCurrent:current];
         NSData* inE = [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(inEncaps.first)
-                                           length:(inEncaps.second - inEncaps.first)
+                                           length:static_cast<NSUInteger>(inEncaps.second - inEncaps.first)
                                      freeWhenDone:NO];
         @try
         {
@@ -216,7 +216,7 @@ int
 ICEInternalLookupString(NSString* const array[], size_t count, NSString* __unsafe_unretained str)
 {
     size_t low = 0;
-    size_t high = count - 1;
+    size_t high = static_cast<size_t>(count - 1);
     while(low <= high)
     {
         size_t mid = (low + high) / 2;
@@ -233,7 +233,7 @@ ICEInternalLookupString(NSString* const array[], size_t count, NSString* __unsaf
             low = mid + 1;
             break;
         case NSOrderedSame:
-            return mid;
+            return static_cast<int>(mid);
         default:
             return -1; // Can't be reached
         }
@@ -427,9 +427,10 @@ static NSString* ICEObject_all[4] =
 
 -(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)__unused current
 {
-    int count, index;
+    int count;
+    int index;
     NSString*const* staticIds = [[self class] iceStaticIds:&count idIndex:&index];
-    return ICEInternalLookupString(staticIds, count, typeId) >= 0;
+    return ICEInternalLookupString(staticIds, static_cast<size_t>(count), typeId) >= 0;
 }
 
 -(void) ice_ping:(ICECurrent*)__unused current
@@ -446,7 +447,7 @@ static NSString* ICEObject_all[4] =
 {
     int count, index;
     NSString*const* staticIds = [[self class] iceStaticIds:&count idIndex:&index];
-    return [NSArray arrayWithObjects:staticIds count:count];
+    return [NSArray arrayWithObjects:staticIds count:static_cast<NSUInteger>(count)];
 }
 
 -(void) ice_dispatch:(id<ICERequest>)request

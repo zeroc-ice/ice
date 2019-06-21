@@ -1699,7 +1699,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper* helper, cons
             test(r.size() == static_cast<size_t>(lengths[l]));
             for(int j = 0; j < static_cast<int>(r.size()); ++j)
             {
-                test(r[j] == -j);
+                test(r[static_cast<size_t>(j)] == -j);
             }
         }
     }

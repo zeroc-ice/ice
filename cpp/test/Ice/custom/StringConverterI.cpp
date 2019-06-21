@@ -30,7 +30,7 @@ Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     target.resize(size);
     for(size_t i = 0; i < size; ++i)
     {
-        target[i] = static_cast<Byte>(toupper(sourceStart[i]));
+        target[i] = static_cast<char>(toupper(sourceStart[i]));
     }
 }
 

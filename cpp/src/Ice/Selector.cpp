@@ -612,11 +612,11 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation> >& handlers)
                                                 ((ev.events & (EPOLLOUT | EPOLLERR)) ?
                                                  SocketOperationWrite : SocketOperationNone));
 #elif defined(ICE_USE_KQUEUE)
-        struct kevent& ev = _events[i];
+        struct kevent& ev = _events[static_cast<size_t>(i)];
         if(ev.flags & EV_ERROR)
         {
             Ice::Error out(_instance->initializationData().logger);
-            out << "selector returned error:\n" << IceUtilInternal::errorToString(ev.data);
+            out << "selector returned error:\n" << IceUtilInternal::errorToString(static_cast<int>(ev.data));
             continue;
         }
         p.first = reinterpret_cast<EventHandler*>(ev.udata);
@@ -729,11 +729,11 @@ Selector::select(int timeout)
             struct timespec ts;
             ts.tv_sec = timeout;
             ts.tv_nsec = 0;
-            _count = kevent(_queueFd, 0, 0, &_events[0], _events.size(), &ts);
+            _count = kevent(_queueFd, 0, 0, &_events[0], static_cast<int>(_events.size()), &ts);
         }
         else
         {
-            _count = kevent(_queueFd, 0, 0, &_events[0], _events.size(), 0);
+            _count = kevent(_queueFd, 0, 0, &_events[0], static_cast<int>(_events.size()), 0);
         }
 #elif defined(ICE_USE_SELECT)
         fd_set* rFdSet = fdSetCopy(_selectedReadFdSet, _readFdSet);
@@ -807,7 +807,8 @@ void
 Selector::updateSelector()
 {
 #if defined(ICE_USE_KQUEUE)
-    int rs = kevent(_queueFd, &_changes[0], _changes.size(), &_changes[0], _changes.size(), &zeroTimeout);
+    int rs = kevent(_queueFd, &_changes[0], static_cast<int>(_changes.size()),
+                    &_changes[0], static_cast<int>(_changes.size()), &zeroTimeout);
     if(rs < 0)
     {
         Ice::Error out(_instance->initializationData().logger);
@@ -821,10 +822,12 @@ Selector::updateSelector()
             // Check for errors, we ignore EINPROGRESS that started showing up with macOS Sierra
             // and which occurs when another thread removes the FD from the kqueue (see ICE-7419).
             //
-            if(_changes[i].flags & EV_ERROR && _changes[i].data != EINPROGRESS)
+            if(_changes[static_cast<size_t>(i)].flags & EV_ERROR &&
+               _changes[static_cast<size_t>(i)].data != EINPROGRESS)
             {
                 Ice::Error out(_instance->initializationData().logger);
-                out << "error while updating selector:\n" << IceUtilInternal::errorToString(_changes[i].data);
+                out << "error while updating selector:\n"
+                    << IceUtilInternal::errorToString(static_cast<int>(_changes[static_cast<size_t>(i)].data));
             }
         }
     }

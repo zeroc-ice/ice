@@ -29,6 +29,7 @@
 #   pragma clang diagnostic ignored "-Wshadow"
 #   pragma clang diagnostic ignored "-Wshadow-all"
 #   pragma clang diagnostic ignored "-Wunused-parameter"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wshadow"
 #   pragma GCC diagnostic ignored "-Wunused-parameter"

@@ -77,7 +77,7 @@ Slice::relativePath(const string& p1, const string& p2)
     }
     else
     {
-        for(size_t i = tokens2.end() - i2; i > 0; i--)
+        for(vector<string>::difference_type i = tokens2.end() - i2; i > 0; i--)
         {
             newPath += "../";
         }

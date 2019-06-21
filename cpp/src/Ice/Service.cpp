@@ -1590,7 +1590,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             string message;
             while((rs = read(fds[0], &s, 16)) > 0)
             {
-                message.append(s, rs);
+                message.append(s, static_cast<size_t>(rs));
             }
 
             if(argv[0])
@@ -1866,8 +1866,8 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                     break;
                 }
             }
-            len -= n;
-            pos += n;
+            len -= static_cast<size_t>(n);
+            pos += static_cast<size_t>(n);
         }
         close(fds[1]);
     }
