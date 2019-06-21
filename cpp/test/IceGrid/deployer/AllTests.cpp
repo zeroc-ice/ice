@@ -440,19 +440,15 @@ allTests(const Ice::CommunicatorPtr& comm)
     {
         Ice::ObjectPrx obj = query->findObjectByType("::Test");
         string id = comm->identityToString(obj->ice_getIdentity());
-        test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
-             id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
-             id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
-             id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
+        test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
+             id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
         Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample5);
         string id = comm->identityToString(obj->ice_getIdentity());
-        test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
-             id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
-             id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
-             id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
+        test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
+             id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
