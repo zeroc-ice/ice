@@ -857,7 +857,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
     const bool isVariableLength = p->keyType()->isVariableLength() || p->valueType()->isVariableLength();
-    const int minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
+    const size_t minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
     out << sp;
     out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` dictionary values from";
