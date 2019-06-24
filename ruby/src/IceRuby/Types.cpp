@@ -1012,7 +1012,7 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* objectMa
         p = _nullMarshalValue;
     }
 
-    Ice::OutputStream::size_type sizePos;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
@@ -1765,7 +1765,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* obje
         sz = static_cast<Ice::Int>(RHASH_SIZE(hash));
     }
 
-    Ice::OutputStream::size_type sizePos;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
