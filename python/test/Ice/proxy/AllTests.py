@@ -620,6 +620,7 @@ def allTests(helper, communicator, collocated):
     test(cl == base)
     test(derived == base)
     test(cl == derived)
+    test(Test.MyDerivedClassPrx.checkedCast(cl, "facet") == None)
 
     loc = Ice.LocatorPrx.checkedCast(base)
     test(loc == None)
