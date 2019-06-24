@@ -82,7 +82,7 @@ namespace IceInternal
 
             if(_os != null)
             {
-                _os.reset();
+                _os.reset(); // Reset the output stream to prepare it for re-use.
             }
 
             _is = null;
@@ -450,7 +450,7 @@ namespace IceInternal
 
             // If there's an output stream set, re-use it for the response
             var os = _os == null ? new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding) : _os;
-            Debug.Assert(_os.pos() == 0);
+            Debug.Assert(os.pos() == 0);
             _os = null;
             os.writeBlob(Protocol.replyHdr);
             os.writeInt(_current.requestId);
@@ -473,7 +473,7 @@ namespace IceInternal
             {
                 // If there's an output stream set, re-use it for the response
                 var os = _os == null ? new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding) : _os;
-                Debug.Assert(_os.pos() == 0);
+                Debug.Assert(os.pos() == 0);
                 _os = null;
                 os.writeBlob(Protocol.replyHdr);
                 os.writeInt(_current.requestId);
@@ -498,7 +498,7 @@ namespace IceInternal
             {
                 // If there's an output stream set, re-use it for the response
                 var os = _os == null ? new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding) : _os;
-                Debug.Assert(_os.pos() == 0);
+                Debug.Assert(os.pos() == 0);
                 _os = null;
                 os.writeBlob(Protocol.replyHdr);
                 os.writeInt(_current.requestId);
@@ -616,7 +616,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     if(ex is Ice.ObjectNotExistException)
@@ -677,7 +676,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -707,7 +705,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     _os.writeByte(ReplyStatus.replyUnknownUserException);
@@ -738,7 +735,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     _os.writeByte(ReplyStatus.replyUnknownException);
@@ -763,7 +759,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     _os.writeByte(ReplyStatus.replyUserException);
@@ -795,7 +790,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -825,7 +819,6 @@ namespace IceInternal
 
                 if(_response)
                 {
-                    Debug.Assert(_os != null);
                     _os.writeBlob(Protocol.replyHdr);
                     _os.writeInt(_current.requestId);
                     _os.writeByte(ReplyStatus.replyUnknownException);

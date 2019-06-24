@@ -76,7 +76,6 @@ class IncomingBase
             throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        assert(_os != null);
         _os.writeBlob(Protocol.replyHdr);
         _os.writeInt(_current.requestId);
         _os.writeByte(ReplyStatus.replyOK);
@@ -89,7 +88,6 @@ class IncomingBase
     {
         if(_response)
         {
-            assert(_os != null);
             _os.endEncapsulation();
         }
     }
@@ -99,7 +97,6 @@ class IncomingBase
     {
         if(_response)
         {
-            assert(_os != null);
             _os.writeBlob(Protocol.replyHdr);
             _os.writeInt(_current.requestId);
             _os.writeByte(ReplyStatus.replyOK);
@@ -117,7 +114,6 @@ class IncomingBase
 
         if(_response)
         {
-            assert(_os != null);
             _os.writeBlob(Protocol.replyHdr);
             _os.writeInt(_current.requestId);
             _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
@@ -178,7 +174,7 @@ class IncomingBase
 
         if(_os != null)
         {
-            _os.reset();
+            _os.reset(); // Reset the output stream to prepare it for re-use.
         }
 
         _responseHandler = null;
@@ -301,9 +297,6 @@ class IncomingBase
 
         if(_response)
         {
-            //
-            // If there's already a response output stream, reset it to re-use it
-            //
             _os.reset();
         }
 
@@ -348,7 +341,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 if(ex instanceof Ice.ObjectNotExistException)
@@ -409,7 +401,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -439,7 +430,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
@@ -469,7 +459,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
@@ -499,7 +488,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -530,7 +518,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUserException);
@@ -562,7 +549,6 @@ class IncomingBase
 
             if(_response)
             {
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);

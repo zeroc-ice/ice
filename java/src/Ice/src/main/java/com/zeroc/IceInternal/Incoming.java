@@ -81,7 +81,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
         if(_os != null)
         {
-            _os.reset();
+            _os.reset(); // Reset the output stream to prepare it for re-use.
         }
 
         _is = null;
@@ -577,11 +577,11 @@ final public class Incoming implements com.zeroc.Ice.Request
 
         if(_response)
         {
+            //
+            // If there's already a response output stream, reset it to re-use it
+            //
             if(_os != null)
             {
-                //
-                // If there's already a response output stream, reset it to re-use it
-                //
                 _os.reset();
             }
             else
@@ -624,7 +624,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
@@ -686,7 +685,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -717,7 +715,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
@@ -748,7 +745,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
@@ -774,7 +770,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUserException);
@@ -815,7 +810,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -861,7 +855,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                assert(_os != null);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
