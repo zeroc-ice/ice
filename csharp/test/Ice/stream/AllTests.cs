@@ -588,13 +588,35 @@ namespace Ice
                     Test.MyClass[][] arrS = { myClassArray, new Test.MyClass[0], myClassArray };
                     outS = new Ice.OutputStream(communicator);
                     Test.MyClassSSHelper.write(outS, arrS);
+                    outS.writePendingValues();
                     data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var arr2S = Test.MyClassSSHelper.read(inS);
+                    inS.readPendingValues();
                     test(arr2S.Length == arrS.Length);
                     test(arr2S[0].Length == arrS[0].Length);
                     test(arr2S[1].Length == arrS[1].Length);
                     test(arr2S[2].Length == arrS[2].Length);
+
+                    for(int j = 0; j < arr2S.Length; ++j)
+                    {
+                        for(int k = 0; k < arr2S[j].Length; ++k)
+                        {
+                            test(arr2S[j][k].c == arr2S[j][k]);
+                            test(arr2S[j][k].o == arr2S[j][k]);
+                            test(arr2S[j][k].s.e == Test.MyEnum.enum2);
+                            test(Compare(arr2S[j][k].seq1, myClassArray[k].seq1));
+                            test(Compare(arr2S[j][k].seq2, myClassArray[k].seq2));
+                            test(Compare(arr2S[j][k].seq3, myClassArray[k].seq3));
+                            test(Compare(arr2S[j][k].seq4, myClassArray[k].seq4));
+                            test(Compare(arr2S[j][k].seq5, myClassArray[k].seq5));
+                            test(Compare(arr2S[j][k].seq6, myClassArray[k].seq6));
+                            test(Compare(arr2S[j][k].seq7, myClassArray[k].seq7));
+                            test(Compare(arr2S[j][k].seq8, myClassArray[k].seq8));
+                            test(Compare(arr2S[j][k].seq9, myClassArray[k].seq9));
+                            test(arr2S[j][k].d["hi"].Equals(arr2S[j][k]));
+                        }
+                    }
                 }
 
                 {
@@ -609,9 +631,11 @@ namespace Ice
                     Ice.Value[][] arrS = { myInterfaceArray, new Ice.Value[0], myInterfaceArray };
                     outS = new Ice.OutputStream(communicator);
                     Test.MyInterfaceSSHelper.write(outS, arrS);
+                    outS.writePendingValues();
                     data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
                     var arr2S = Test.MyInterfaceSSHelper.read(inS);
+                    inS.readPendingValues();
                     test(arr2S.Length == arrS.Length);
                     test(arr2S[0].Length == arrS[0].Length);
                     test(arr2S[1].Length == arrS[1].Length);
