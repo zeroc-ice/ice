@@ -83,7 +83,11 @@ class ASN1Parser
 {
 public:
 
-    ASN1Parser(CFDataRef data) : _data(CFDataGetBytePtr(data)), _length(CFDataGetLength(data)), _p(_data), _next(0)
+    ASN1Parser(CFDataRef data) :
+        _data(CFDataGetBytePtr(data)),
+        _length(static_cast<size_t>(CFDataGetLength(data))),
+        _p(_data),
+        _next(0)
     {
     }
 
@@ -170,7 +174,7 @@ public:
     parseUTF8String()
     {
         int length = parseLength(0);
-        string v(reinterpret_cast<const char*>(_p), length);
+        string v(reinterpret_cast<const char*>(_p), static_cast<size_t>(length));
         _p += length;
         return v;
     }
@@ -828,7 +832,7 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
     }
 
     vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
-    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], data.size()));
+    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], static_cast<CFIndex>(data.size())));
     SecCertificateRef cert = SecCertificateCreateWithData(0, certdata.get());
     if(!cert)
     {

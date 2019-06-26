@@ -263,7 +263,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
         checkErrorStatus(_writeStream, __FILE__, __LINE__);
     }
 
-    size_t packetSize = buf.b.end() - buf.i;
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(![_writeStream hasSpaceAvailable])
@@ -287,7 +287,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 
         if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 
@@ -303,7 +303,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
         checkErrorStatus(_readStream, __FILE__, __LINE__);
     }
 
-    size_t packetSize = buf.b.end() - buf.i;
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(![_readStream hasBytesAvailable] && [_readStream streamStatus] != NSStreamStatusError)
@@ -332,7 +332,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
 
         if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 
@@ -417,7 +417,7 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     NSString* domain = [err domain];
     if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
     {
-        errno = [err code];
+        errno = static_cast<int>([err code]);
         if(interrupted() || noBuffers())
         {
             return;
@@ -445,6 +445,6 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     // Otherwise throw a generic exception.
     CFNetworkException ex(file, line);
     ex.domain = [domain UTF8String];
-    ex.error = [err code];
+    ex.error = static_cast<int>([err code]);
     throw ex;
 }
