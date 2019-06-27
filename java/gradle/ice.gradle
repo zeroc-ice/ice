@@ -63,21 +63,23 @@ if(!(project.hasProperty('android') && project.android.sourceSets)) {
         options.debug = debug
     }
 
-    task compileModuleInfoJava(type: JavaCompile) {
-        classpath = files() // empty
-        source = 'src/main/java/module-info.java'
-        destinationDir = compileJava.destinationDir // same dir to see classes compiled by compileJava
-        doFirst {
-            options.compilerArgs = [
-                '--release', '9',
-                '--module-path', compileJava.classpath.asPath,
-                '-Xlint:-module',
-            ]
+    if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        task compileModuleInfoJava(type: JavaCompile) {
+            classpath = files() // empty
+            source = 'src/main/java/module-info.java'
+            destinationDir = compileJava.destinationDir // same dir to see classes compiled by compileJava
+            doFirst {
+                options.compilerArgs = [
+                    '--release', '9',
+                    '--module-path', compileJava.classpath.asPath,
+                    '-Xlint:-module',
+                ]
+            }
         }
-    }
 
-    compileModuleInfoJava.dependsOn compileJava
-    classes.dependsOn compileModuleInfoJava
+        compileModuleInfoJava.dependsOn compileJava
+        classes.dependsOn compileModuleInfoJava
+    }
 }
 
 // The corresponding -source and -target javac options are suppressed by gradle when
