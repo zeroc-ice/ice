@@ -74,7 +74,7 @@ namespace Ice
                 {
                     while(_batchCount < count)
                     {
-                        Monitor.Wait(this, 10000);
+                        test(Monitor.Wait(this, 10000));
                     }
                     bool result = count == _batchCount;
                     _batchCount = 0;
