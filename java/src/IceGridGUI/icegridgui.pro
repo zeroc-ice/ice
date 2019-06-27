@@ -63,6 +63,9 @@
 
 -dontnote com.jgoodies.**
 -dontnote com.javafx.**
+-dontnote com.sun.**
+
+-dontwarn sun.misc.Unsafe
 
 -dontusemixedcaseclassnames
 -dontoptimize
@@ -98,6 +101,7 @@
 -keep interface com.zeroc.IceGrid.**
 -keep class com.zeroc.IceMX.**
 -keep interface com.zeroc.IceMX.**
+
 
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticFieldCaret
