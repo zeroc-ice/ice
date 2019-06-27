@@ -16,7 +16,7 @@ public struct SliceInfo {
     public let bytes: Data
 
     /// The class instances referenced by this slice.
-    public var instances: [Ice.Value?]
+    public var instances: [Ice.Value]
 
     /// Whether or not the slice contains optional members.
     public let hasOptionalMembers: Bool

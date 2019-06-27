@@ -8,6 +8,64 @@ import Ice
 import PromiseKit
 import TestCommon
 
+private func breakCycles(_ value: Value) {
+    if let d1 = value as? D1 {
+        let tmp = d1.pd1
+        d1.pd1 = nil
+        if tmp != nil, tmp! !== d1 {
+            breakCycles(tmp!)
+        }
+    }
+    if let d2 = value as? D2 {
+        d2.pd2 = nil
+    }
+    if let d4 = value as? D4 {
+        d4.p1 = nil
+        d4.p2 = nil
+    }
+    if let b = value as? B {
+        b.pb?.pb = nil
+        b.pb = nil
+    }
+    if let p = value as? Preserved {
+        p.ice_getSlicedData()?.clear()
+    }
+    if let p = value as? PDerived {
+        p.pb = nil
+    }
+    if let p = value as? CompactPDerived {
+        p.pb = nil
+    }
+    if var curr = value as? PNode {
+        while curr.next != nil, value !== curr.next {
+            curr = curr.next!
+        }
+        curr.next = nil
+    }
+    if let p = value as? PSUnknown, p.graph != nil {
+        breakCycles(p.graph!)
+    }
+    if let p = value as? PSUnknown2 {
+        p.pb = nil
+    }
+    if let s = value as? SS1 {
+        for b in s.s where b != nil {
+            breakCycles(b!)
+        }
+    }
+    if let s = value as? SS2 {
+        for b in s.s where b != nil {
+            breakCycles(b!)
+        }
+    }
+    if let f = value as? Forward {
+        f.h = nil
+    }
+    if let u = value as? SUnknown {
+        u.cycle = nil
+    }
+}
+
 public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
@@ -31,6 +89,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         let sb = o as! SBase
         try test(sb.ice_id() == "::Test::SBase")
         try test(sb.sb == "SBase.sb")
+        breakCycles(sb)
     }
     output.writeLine("ok")
 
@@ -42,6 +101,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             let sb = o as! SBase
             try test(sb.ice_id() == "::Test::SBase")
             try test(sb.sb == "SBase.sb")
+            breakCycles(sb)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -53,6 +113,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     do {
         let sb = try testPrx.SBaseAsSBase()!
         try test(sb.sb == "SBase.sb")
+        breakCycles(sb)
     }
     output.writeLine("ok")
 
@@ -63,6 +124,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         }.done { sb in
             try test(sb!.sb == "SBase.sb")
             seal.fulfill(())
+            breakCycles(sb!)
         }.catch { e in
             seal.reject(e)
         }
@@ -75,6 +137,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(sb.sb == "SBSKnownDerived.sb")
         let sbskd = sb as! SBSKnownDerived
         try test(sbskd.sbskd == "SBSKnownDerived.sbskd")
+        breakCycles(sbskd)
     }
     output.writeLine("ok")
 
@@ -86,6 +149,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(sb!.sb == "SBSKnownDerived.sb")
             let sbskd = sb as! SBSKnownDerived
             try test(sbskd.sbskd == "SBSKnownDerived.sbskd")
+            breakCycles(sbskd)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -97,6 +161,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     do {
         let sbskd = try testPrx.SBSKnownDerivedAsSBSKnownDerived()!
         try test(sbskd.sbskd == "SBSKnownDerived.sbskd")
+        breakCycles(sbskd)
     }
     output.writeLine("ok")
 
@@ -106,6 +171,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             testPrx.SBSKnownDerivedAsSBSKnownDerivedAsync()
         }.done { sbskd in
             try test(sbskd!.sbskd == "SBSKnownDerived.sbskd")
+            breakCycles(sbskd!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -117,12 +183,14 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     do {
         let sb = try testPrx.SBSUnknownDerivedAsSBase()!
         try test(sb.sb == "SBSUnknownDerived.sb")
+        breakCycles(sb)
     }
 
     if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
         do {
             let sb = try testPrx.SBSUnknownDerivedAsSBaseCompact()!
             try test(sb.sb == "SBSUnknownDerived.sb")
+            breakCycles(sb)
         }
     } else {
         do {
@@ -143,6 +211,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             testPrx.SBSUnknownDerivedAsSBaseAsync()
         }.done { sb in
             try test(sb!.sb == "SBSUnknownDerived.sb")
+            breakCycles(sb!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -158,6 +227,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 testPrx.SBSUnknownDerivedAsSBaseCompactAsync()
             }.done { sb in
                 try test(sb!.sb == "SBSUnknownDerived.sb")
+                breakCycles(sb!)
                 seal.fulfill(())
             }.catch { e in
                 seal.reject(e)
@@ -193,6 +263,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test((o as! Ice.UnknownSlicedValue).ice_id() == "::Test::SUnknown")
         try test((o as! Ice.UnknownSlicedValue).ice_getSlicedData() != nil)
         try testPrx.checkSUnknown(o)
+        (o as! Ice.UnknownSlicedValue).ice_getSlicedData()!.clear()
     } catch is Ice.NoValueFactoryException {
         try test(testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0)
     }
@@ -238,6 +309,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b.ice_id() == "::Test::B")
         try test(b.sb == "B1.sb")
         try test(b.pb === b)
+        breakCycles(b)
     }
     output.writeLine("ok")
 
@@ -249,6 +321,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b!.ice_id() == "::Test::B")
             try test(b!.sb == "B1.sb")
             try test(b!.pb === b)
+            breakCycles(b!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -265,6 +338,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b2.ice_id() == "::Test::B")
         try test(b2.sb == "B2.sb")
         try test(b2.pb === b1)
+        breakCycles(b1)
     }
     output.writeLine("ok")
 
@@ -281,6 +355,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b2.ice_id() == "::Test::B")
             try test(b2.sb == "B2.sb")
             try test(b2.pb === b1)
+            breakCycles(b1)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -308,6 +383,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b2.pb === b1)
         try test(b2.sb == "D2.sb")
         try test(b2.ice_id() == "::Test::B")
+        breakCycles(b1)
     }
     output.writeLine("ok")
 
@@ -336,6 +412,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b2.pb === b1)
             try test(b2.sb == "D2.sb")
             try test(b2.ice_id() == "::Test::B")
+            breakCycles(b1)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -355,6 +432,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b2.ice_id() == "::Test::B")
         try test(b2.sb == "D2.sb")
         try test(b2.pb === d1)
+        breakCycles(d1)
     }
     output.writeLine("ok")
 
@@ -373,6 +451,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b2.ice_id() == "::Test::B")
             try test(b2.sb == "D2.sb")
             try test(b2.pb === d1)
+            breakCycles(d1)
 
             seal.fulfill(())
         }.catch { e in
@@ -396,6 +475,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         if let d1 = b1 as? D1 {
             try test(d1.sd1 == "D1.sd1")
             try test(d1.pd1 === b2)
+            breakCycles(b2)
         } else {
             try test(false)
         }
@@ -423,6 +503,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             if let d1 = b1 as? D1 {
                 try test(d1.sd1 == "D1.sd1")
                 try test(d1.pd1 === b2)
+                breakCycles(b2)
             } else {
                 try test(false)
             }
@@ -449,6 +530,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b2!.ice_id() == "::Test::B")
         try test(b2!.sb == "D2.sb")
         try test(b2!.pb === b1)
+        breakCycles(b1!)
+        breakCycles(b2!)
     }
     output.writeLine("ok")
 
@@ -470,6 +553,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b2.ice_id() == "::Test::B")
             try test(b2.sb == "D2.sb")
             try test(b2.pb === b1)
+            breakCycles(b1)
+            breakCycles(b2)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -499,6 +584,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b2.ice_id() == "::Test::B")
         try test(b2.sb == "D2.sb")
         try test(b2.pb === b1)
+        breakCycles(b1)
+        breakCycles(b2)
     }
     output.writeLine("ok")
 
@@ -524,6 +611,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b2.ice_id() == "::Test::B")
             try test(b2.sb == "D2.sb")
             try test(b2.pb === b1)
+            breakCycles(b1)
+            breakCycles(b2)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -535,6 +624,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     do {
         let (ret, p1, _) = try testPrx.returnTest1()
         try test(ret === p1)
+        breakCycles(ret!)
     }
     output.writeLine("ok")
 
@@ -544,6 +634,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             testPrx.returnTest1Async()
         }.done { r, p1, _ in
             try test(r === p1)
+            breakCycles(r!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -555,6 +646,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     do {
         let (ret, p1, _) = try testPrx.returnTest2()
         try test(ret === p1)
+        breakCycles(ret!)
     }
     output.writeLine("ok")
 
@@ -564,6 +656,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             testPrx.returnTest2Async()
         }.done { r, p1, _ in
             try test(r === p1)
+            breakCycles(r!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -606,6 +699,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b1 !== d3)
         try test(b2 !== d1)
         try test(b2 !== d3)
+        breakCycles(b1)
+        breakCycles(d1)
+        breakCycles(d3)
     }
     output.writeLine("ok")
 
@@ -649,7 +745,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(b1 !== d3)
                 try test(b2 !== d1)
                 try test(b2 !== d3)
-
+                breakCycles(b1)
+                breakCycles(d1)
+                breakCycles(d3)
                 seal.fulfill(())
             }.catch { e in
                 seal.reject(e)
@@ -693,6 +791,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b1 !== d3)
         try test(b2 !== d1)
         try test(b2 !== d3)
+        breakCycles(b1)
+        breakCycles(d1)
+        breakCycles(d3)
     }
     output.writeLine("ok")
 
@@ -737,6 +838,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(b1 !== d3)
             try test(b2 !== d1)
             try test(b2 !== d3)
+            breakCycles(b1)
+            breakCycles(d1)
+            breakCycles(d3)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -764,6 +868,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(ret.sb == "D1.sb (p2 2)")
         try test(ret.pb == nil)
         try test(ret.ice_id() == "::Test::D1")
+        breakCycles(ret)
+        breakCycles(p1)
+        breakCycles(p2)
     }
     output.writeLine("ok")
 
@@ -789,6 +896,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(ret.sb == "D1.sb (p2 2)")
             try test(ret.pb == nil)
             try test(ret.ice_id() == "::Test::D1")
+            breakCycles(ret)
+            breakCycles(p1)
+            breakCycles(p2)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -811,6 +921,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(ret.sb == "B.sb (2)")
         try test(ret.pb == nil)
         try test(ret.ice_id() == "::Test::B")
+        breakCycles(ret)
+        breakCycles(b)
     }
     output.writeLine("ok")
 
@@ -830,6 +942,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(ret.sb == "B.sb (2)")
             try test(ret.pb == nil)
             try test(ret.ice_id() == "::Test::B")
+            breakCycles(ret)
+            breakCycles(b)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -858,6 +972,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(ret.ice_id() == "::Test::B")
         try test(ret.sb == "D3.sb")
         try test(ret.pb === ret)
+        breakCycles(ret)
+        breakCycles(b1)
+        breakCycles(d3)
     }
     output.writeLine("ok")
 
@@ -885,6 +1002,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(ret.ice_id() == "::Test::B")
             try test(ret.sb == "D3.sb")
             try test(ret.pb === ret)
+            breakCycles(ret)
+            breakCycles(b1)
+            breakCycles(d3)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -915,6 +1035,10 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(ret.ice_id() == "::Test::B")
         try test(ret.sb == "D3.sb")
         try test(ret.pb === ret)
+        breakCycles(d3)
+        breakCycles(d11)
+        breakCycles(d12)
+        breakCycles(ret)
     }
     output.writeLine("ok")
 
@@ -945,6 +1069,10 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(ret.ice_id() == "::Test::B")
             try test(ret.sb == "D3.sb")
             try test(ret.pb === ret)
+            breakCycles(d3)
+            breakCycles(d11)
+            breakCycles(d12)
+            breakCycles(ret)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -995,6 +1123,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         ss2.s = [ss2b, ss2d1, ss2d3]
 
         let ss = try testPrx.sequenceTest(p1: ss1, p2: ss2)
+        breakCycles(ss1)
+        breakCycles(ss2)
 
         try test(ss.c1 != nil)
         let ss1b2 = ss.c1!.s[0]
@@ -1022,6 +1152,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(ss2b2!.ice_id() == "::Test::B")
         try test(ss2d2!.ice_id() == "::Test::D1")
         try test(ss2d4!.ice_id() == "::Test::B")
+
+        breakCycles(ss.c1!)
+        breakCycles(ss.c2!)
     }
     output.writeLine("ok")
 
@@ -1070,6 +1203,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         firstly {
             testPrx.sequenceTestAsync(p1: ss1, p2: ss2)
         }.done { ss in
+            breakCycles(ss1)
+            breakCycles(ss2)
+
             try test(ss.c1 != nil)
             let ss1b2 = ss.c1!.s[0]
             let ss1d2 = ss.c1!.s[1]
@@ -1096,6 +1232,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(ss2b2!.ice_id() == "::Test::B")
             try test(ss2d2!.ice_id() == "::Test::D1")
             try test(ss2d4!.ice_id() == "::Test::B")
+
+            breakCycles(ss.c1!)
+            breakCycles(ss.c2!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -1148,6 +1287,16 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(false)
             }
         }
+
+        for i in bin {
+            breakCycles(i.value)
+        }
+        for i in bout where i.value != nil {
+            breakCycles(i.value!)
+        }
+        for i in ret where i.value != nil {
+            breakCycles(i.value!)
+        }
     }
     output.writeLine("ok")
 
@@ -1197,6 +1346,15 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(false)
                 }
             }
+            for i in bin {
+                breakCycles(i.value)
+            }
+            for i in bout where i.value != nil {
+                breakCycles(i.value!)
+            }
+            for i in ret where i.value != nil {
+                breakCycles(i.value!)
+            }
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -1229,6 +1387,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(e.pb != nil)
                     try test(e.pb!.sb == "sb")
                     try test(e.pb!.pb === e.pb)
+                    breakCycles(e.pb!)
                 } else {
                     try test(false)
                 }
@@ -1277,6 +1436,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(e.pd1!.pb === e.pd1)
                     try test(e.pd1!.sd1 == "sd2")
                     try test(e.pd1!.pd1 === e.pd1)
+                    breakCycles(e.pb!)
                 } else {
                     try test(false)
                 }
@@ -1288,7 +1448,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     }.wait()
     output.writeLine("ok")
 
-    output.write("derived aexception thrown as derived exception... ")
+    output.write("derived exception thrown as derived exception... ")
     do {
         try testPrx.throwDerivedAsDerived()
         try test(false)
@@ -1303,10 +1463,12 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(e.pd1!.pb === e.pd1)
         try test(e.pd1!.sd1 == "sd2")
         try test(e.pd1!.pd1 === e.pd1)
+        breakCycles(e.pb!)
+        breakCycles(e.pd1!)
     }
     output.writeLine("ok")
 
-    output.write("derived aexception thrown as derived exception (AMI)... ")
+    output.write("derived exception thrown as derived exception (AMI)... ")
     try Promise<Void> { seal in
         firstly {
             testPrx.throwDerivedAsDerivedAsync()
@@ -1325,6 +1487,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(e.pd1!.pb === e.pd1)
                     try test(e.pd1!.sd1 == "sd2")
                     try test(e.pd1!.pd1 === e.pd1)
+                    breakCycles(e.pb!)
+                    breakCycles(e.pd1!)
                 } else {
                     try test(false)
                 }
@@ -1345,6 +1509,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(e.pb != nil)
         try test(e.pb!.sb == "sb d2")
         try test(e.pb!.pb === e.pb)
+        breakCycles(e.pb!)
     }
     output.writeLine("ok")
 
@@ -1361,6 +1526,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(e.pb != nil)
                     try test(e.pb!.sb == "sb d2")
                     try test(e.pb!.pb === e.pb)
+                    breakCycles(e.pb!)
                 } else {
                     try test(false)
                 }
@@ -1419,6 +1585,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(p2.pi == 3)
             try test(p2.ps == "preserved")
             try test(p2.pb === p2)
+            breakCycles(r!)
+            breakCycles(pd)
         } else {
             try test(false)
         }
@@ -1435,6 +1603,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         let r = try testPrx.exchangePBase(pu)!
         try test(!(r is PCUnknown))
         try test(r.pi == 3)
+        breakCycles(r)
     } catch is Ice.OperationNotExistException {}
 
     do {
@@ -1458,6 +1627,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(false)
             }
         }
+        breakCycles(r)
+        breakCycles(pcd)
     } catch is Ice.OperationNotExistException {}
 
     do {
@@ -1481,6 +1652,9 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(false)
             }
         }
+
+        breakCycles(r)
+        breakCycles(pcd)
     } catch is Ice.OperationNotExistException {}
 
     do {
@@ -1528,6 +1702,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(false)
             }
         }
+        breakCycles(r)
+        breakCycles(pcd)
     } catch is Ice.OperationNotExistException {}
 
     do {
@@ -1541,11 +1717,11 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         if testPrx.ice_getEncodingVersion() != Ice.Encoding_1_0 {
             let slicedData = p.ice_getSlicedData()!
             try test(slicedData.slices.count == 1)
-            try test(slicedData.slices[0].typeId == "::Test::PSUnknown")
             try testPrx.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
         } else {
             try test(p.ice_getSlicedData() == nil)
         }
+        breakCycles(p)
     } catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
 
@@ -1576,6 +1752,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             } else {
                 try test(false)
             }
+            breakCycles(r!)
+            breakCycles(pd)
             seal.fulfill(())
         }.catch { e in
             if e is Ice.OperationNotExistException {
@@ -1599,6 +1777,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             let r = ret!
             try test(!(r is PCUnknown))
             try test(r.pi == 3)
+            breakCycles(r)
             seal.fulfill(())
         }.catch { e in
             if e is Ice.OperationNotExistException {
@@ -1625,10 +1804,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
                 try test(!(r is PCDerived))
                 try test(r.pi == 3)
+                breakCycles(r)
             } else {
                 if let p2 = r as? PCDerived {
                     try test(p2.pi == 3)
                     try test(p2.pbs[0] === p2)
+                    breakCycles(r)
+                    breakCycles(p2)
                 } else {
                     try test(false)
                 }
@@ -1659,10 +1841,13 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
                 try test(!(r is CompactPCDerived))
                 try test(r.pi == 3)
+                breakCycles(r)
             } else {
                 if let p2 = r as? CompactPCDerived {
                     try test(p2.pi == 3)
                     try test(p2.pbs[0] === p2)
+                    breakCycles(r)
+                    breakCycles(p2)
                 } else {
                     try test(false)
                 }
@@ -1706,6 +1891,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(!(r is PCDerived3))
                 try test(r is Preserved)
                 try test(r.pi == 3)
+                breakCycles(r)
+                breakCycles(pcd)
             } else {
                 if let p3 = r as? PCDerived3 {
                     try test(p3.pi == 3)
@@ -1715,6 +1902,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                             try test(p2.pbs.count == 1)
                             try test(p2.pbs[0] == nil)
                             try test(p2.pcd2 == i)
+                            breakCycles(r)
+                            breakCycles(pcd)
                         } else {
                             try test(false)
                         }
@@ -1754,6 +1943,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             } else {
                 try test(p.ice_getSlicedData() == nil)
             }
+            breakCycles(p)
             seal.fulfill(())
         }.catch { e in
             if e is Ice.OperationNotExistException {
@@ -1763,85 +1953,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             }
         }
     }.wait()
-    output.writeLine("ok")
-
-    output.write("garbage collection for preserved classes... ")
-    do {
-        //
-        // Register a factory in order to substitute our own subclass of PNode. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        try communicator.getValueFactoryManager().add(
-            factory: { id in id == PNode.ice_staticId() ? PNodeI() : nil },
-            id: PNode.ice_staticId()
-        )
-
-        //
-        // Relay a graph through the server.
-        //
-        do {
-            let c = PNode()
-            c.next = PNode()
-            c.next!.next = PNode()
-            c.next!.next!.next = c
-
-            try test(PNodeI.counter == 0)
-            let n = try testPrx.exchangePNode(c)!
-
-            try test(PNodeI.counter == 3)
-            PNodeI.counter = 0
-            n.next = nil
-        }
-
-        //
-        // Obtain a preserved object from the server where the most-derived
-        // type is unknown. The preserved slice refers to a graph of PNode
-        // objects.
-        //
-        do {
-            try test(PNodeI.counter == 0)
-            let p = try testPrx.PBSUnknownAsPreservedWithGraph()
-            try testPrx.checkPBSUnknownWithGraph(p)
-            try test(PNodeI.counter == 3)
-            PNodeI.counter = 0
-        }
-
-        //
-        // Obtain a preserved object from the server where the most-derived
-        // type is unknown. A data member in the preserved slice refers to the
-        // outer object, so the chain of references looks like this:
-        //
-        // outer.iceSlicedData_.outer
-        //
-        do {
-            PreservedI.counter = 0
-            let p = try testPrx.PBSUnknown2AsPreservedWithGraph()
-            try testPrx.checkPBSUnknown2WithGraph(p)
-            try test(PreservedI.counter == 1)
-            PreservedI.counter = 0
-        }
-
-        //
-        // Throw a preserved exception where the most-derived type is unknown.
-        // The preserved exception slice contains a class data member. This
-        // object is also preserved, and its most-derived type is also unknown.
-        // The preserved slice of the object contains a class data member that
-        // refers to itself.
-        //
-        // The chain of references looks like this:
-        //
-        // ex.slicedData_.obj.iceSlicedData_.obj
-        //
-        do {
-            try test(PreservedI.counter == 0)
-            do {
-                try testPrx.throwPreservedException()
-            } catch is PreservedException {
-                try test(PreservedI.counter == 1)
-            }
-            PreservedI.counter = 0
-        }
-    } catch is Ice.OperationNotExistException {}
     output.writeLine("ok")
     return testPrx
 }

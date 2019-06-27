@@ -1022,7 +1022,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             // Make sure to also re-write the instance indirection table.
             //
             for o in info.instances {
-                current.indirectionTable.append(ValueHolder(o!))
+                current.indirectionTable.append(ValueHolder(o))
             }
 
             endSlice()

@@ -1784,13 +1784,12 @@ private class EncapsDecoder11: EncapsDecoder {
             // been read yet in the case of a circular reference to an
             // enclosing instance.
 
-            let m = n
-            let sz = current.indirectionTables[m].count
-            current.slices[m].instances = [Ice.Value?](repeating: nil, count: sz)
-            for j in 0 ..< current.slices[m].instances.count {
-                let k = j
-                try addPatchEntry(index: current.indirectionTables[m][j]) { v in
-                    self.current.slices[m].instances[k] = v
+            let sz = current.indirectionTables[n].count
+            current.slices[n].instances = [Ice.Value]()
+            current.slices[n].instances.reserveCapacity(sz)
+            for j in 0 ..< sz {
+                try addPatchEntry(index: current.indirectionTables[n][j]) { v in
+                    self.current.slices[n].instances.append(v!)
                 }
             }
         }

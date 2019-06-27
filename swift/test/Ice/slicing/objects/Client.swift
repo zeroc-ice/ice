@@ -12,6 +12,10 @@ class PreservedI: Preserved {
         super.init()
     }
 
+    deinit {
+        PreservedI.counter -= 1
+    }
+
     static var counter: Int32 = 0
 }
 
@@ -19,6 +23,10 @@ class PNodeI: PNode {
     public required init() {
         PNodeI.counter += 1
         super.init()
+    }
+
+    deinit {
+        PNodeI.counter -= 1
     }
 
     static var counter: Int32 = 0

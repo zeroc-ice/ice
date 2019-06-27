@@ -8,9 +8,74 @@ import TestCommon
 
 class TestI: TestIntf {
     var _helper: TestHelper
+    var _values = [Value]()
 
     init(_ helper: TestHelper) {
         _helper = helper
+    }
+
+    deinit {
+        for value in _values {
+            breakCycles(value)
+        }
+    }
+
+    private func breakCycles(_ value: Value) {
+        if let d1 = value as? D1 {
+            let tmp = d1.pd1
+            d1.pd1 = nil
+            if tmp != nil, tmp! !== d1 {
+                breakCycles(tmp!)
+            }
+        }
+        if let d2 = value as? D2 {
+            d2.pd2 = nil
+        }
+        if let d4 = value as? D4 {
+            d4.p1 = nil
+            d4.p2 = nil
+        }
+        if let b = value as? B {
+            b.pb?.pb = nil
+            b.pb = nil
+        }
+        if let p = value as? Preserved {
+            p.ice_getSlicedData()?.clear()
+        }
+        if let p = value as? PDerived {
+            p.pb = nil
+        }
+        if let p = value as? CompactPDerived {
+            p.pb = nil
+        }
+        if var curr = value as? PNode {
+            while curr.next != nil, value !== curr.next {
+                curr = curr.next!
+            }
+            curr.next = nil
+        }
+        if let p = value as? PSUnknown, p.graph != nil {
+            breakCycles(p.graph!)
+        }
+        if let p = value as? PSUnknown2 {
+            p.pb = nil
+        }
+        if let s = value as? SS1 {
+            for b in s.s where b != nil {
+                breakCycles(b!)
+            }
+        }
+        if let s = value as? SS2 {
+            for b in s.s where b != nil {
+                breakCycles(b!)
+            }
+        }
+        if let f = value as? Forward {
+            f.h = nil
+        }
+        if let u = value as? SUnknown {
+            u.cycle = nil
+        }
     }
 
     func SBaseAsObject(current _: Current) throws -> Value? {
@@ -41,14 +106,17 @@ class TestI: TestIntf {
         let su = SUnknown()
         su.su = "SUnknown.su"
         su.cycle = su
+        _values.append(su)
         return su
     }
 
     func checkSUnknown(o: Value?, current: Current) throws {
+        let su = o as? SUnknown
         if current.encoding == Ice.Encoding_1_0 {
-            try _helper.test(!(o is SUnknown))
+            try _helper.test(su == nil)
         } else {
-            try _helper.test((o as! SUnknown).su == "SUnknown.su")
+            try _helper.test(su!.su == "SUnknown.su")
+            su!.cycle = nil
         }
     }
 
@@ -56,6 +124,7 @@ class TestI: TestIntf {
         let b = B()
         b.sb = "B1.sb"
         b.pb = b
+        _values.append(b)
         return b
     }
 
@@ -66,6 +135,7 @@ class TestI: TestIntf {
         b2.sb = "B2.sb"
         b2.pb = b1
         b1.pb = b2
+        _values.append(b1)
         return b1
     }
 
@@ -80,6 +150,7 @@ class TestI: TestIntf {
         d2.pd2 = d1
         d1.pb = d2
         d1.pd1 = d2
+        _values.append(d1)
         return d1
     }
 
@@ -94,6 +165,7 @@ class TestI: TestIntf {
         d2.pd2 = d1
         d1.pb = d2
         d1.pd1 = d2
+        _values.append(d1)
         return d1
     }
 
@@ -108,6 +180,7 @@ class TestI: TestIntf {
         d1.pd1 = d2
         d2.pb = d1
         d2.pd2 = d1
+        _values.append(d1)
         return d2
     }
 
@@ -122,6 +195,7 @@ class TestI: TestIntf {
         d2.pd2 = d1
         d1.pb = d2
         d1.pd1 = d2
+        _values.append(d1)
         return (d1, d2)
     }
 
@@ -155,6 +229,11 @@ class TestI: TestIntf {
         d3.pd1 = nil
         d4.pd2 = d3
 
+        _values.append(d1)
+        _values.append(d2)
+        _values.append(d3)
+        _values.append(d4)
+
         return (d3, d2, d4)
     }
 
@@ -166,6 +245,7 @@ class TestI: TestIntf {
         d4.p1!.sb = "B.sb (1)"
         d4.p2 = B()
         d4.p2!.sb = "B.sb (2)"
+        _values.append(d4)
         return (d4.p2, d4)
     }
 
@@ -179,7 +259,9 @@ class TestI: TestIntf {
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest3(p1: B?, p2 _: B?, current _: Current) throws -> B? {
+    func returnTest3(p1: B?, p2: B?, current _: Current) -> B? {
+        _values.append(p1!)
+        _values.append(p2!)
         return p1
     }
 
@@ -187,6 +269,8 @@ class TestI: TestIntf {
         let ss = SS3()
         ss.c1 = p1
         ss.c2 = p2
+        _values.append(p1!)
+        _values.append(p2!)
         return ss
     }
 
@@ -199,6 +283,7 @@ class TestI: TestIntf {
             d2.pb = b.pb
             d2.sd2 = "D2"
             d2.pd2 = d2
+            _values.append(d2)
             bout[i * 10] = d2
         }
 
@@ -210,12 +295,14 @@ class TestI: TestIntf {
             d1.pb = i == 0 ? nil : r[(i - 1) * 20]
             d1.sd1 = s
             d1.pd1 = d1
+            _values.append(d1)
             r[i * 20] = d1
         }
         return (r, bout)
     }
 
     func exchangePBase(pb: PBase?, current _: Current) throws -> PBase? {
+        _values.append(pb!)
         return pb
     }
 
@@ -250,17 +337,28 @@ class TestI: TestIntf {
         }
     }
 
-    func PBSUnknownAsPreservedWithGraphAsync(current _: Current) -> Promise<Preserved?> {
+    func PBSUnknownAsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
+        // This code requires a regular, non-colloc dispatch
+        if let dq = try? current.adapter!.getDispatchQueue() {
+            dispatchPrecondition(condition: .onQueue(dq))
+        }
+
         return Promise<Preserved?> { seal in
-            let r = PSUnknown()
-            r.pi = 5
-            r.ps = "preserved"
-            r.psu = "unknown"
-            r.graph = PNode()
-            r.graph!.next = PNode()
-            r.graph!.next!.next = PNode()
-            r.graph!.next!.next!.next = r.graph
-            seal.fulfill(r)
+            // .barrier to ensure we execute this code after Ice has called "done" on the promise
+            // Otherwise the cycle breaking can occur before the result is marshaled by the
+            // closure given to done.
+            try current.adapter!.getDispatchQueue().async(flags: .barrier) {
+                let r = PSUnknown()
+                r.pi = 5
+                r.ps = "preserved"
+                r.psu = "unknown"
+                r.graph = PNode()
+                r.graph!.next = PNode()
+                r.graph!.next!.next = PNode()
+                r.graph!.next!.next!.next = r.graph
+                seal.fulfill(r) // Ice marshals r now
+                r.graph!.next!.next!.next = nil // break the cycle
+            }
         }
     }
 
@@ -276,17 +374,27 @@ class TestI: TestIntf {
             try _helper.test(pu.psu == "unknown")
             try _helper.test(pu.graph !== pu.graph!.next)
             try _helper.test(pu.graph!.next !== pu.graph!.next!.next)
-            try _helper.test(pu.graph!.next!.next!.next === pu.graph)
+            if pu.graph!.next!.next!.next == nil {
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                try _helper.test(false)
+
+            } else {
+                try _helper.test(pu.graph!.next!.next!.next === pu.graph)
+            }
+            pu.graph!.next!.next!.next = nil // break the cycle
         }
     }
 
-    func PBSUnknown2AsPreservedWithGraphAsync(current _: Current) -> Promise<Preserved?> {
+    func PBSUnknown2AsPreservedWithGraphAsync(current: Current) -> Promise<Preserved?> {
         return Promise<Preserved?> { seal in
-            let r = PSUnknown2()
-            r.pi = 5
-            r.ps = "preserved"
-            r.pb = r
-            seal.fulfill(r)
+            try current.adapter!.getDispatchQueue().async(flags: .barrier) {
+                let r = PSUnknown2()
+                r.pi = 5
+                r.ps = "preserved"
+                r.pb = r
+                seal.fulfill(r) // Ice marshals r immediately
+                r.pb = nil // break the cycle
+            }
         }
     }
 
@@ -300,6 +408,7 @@ class TestI: TestIntf {
             try _helper.test(pu.pi == 5)
             try _helper.test(pu.ps == "preserved")
             try _helper.test(pu.pb === pu)
+            pu.pb = nil // break the cycle
         }
     }
 
@@ -313,6 +422,7 @@ class TestI: TestIntf {
         be.pb = B()
         be.pb!.sb = "sb"
         be.pb!.pb = be.pb
+        _values.append(be.pb!)
         throw be
     }
 
@@ -328,6 +438,8 @@ class TestI: TestIntf {
         de.pd1!.pb = de.pd1
         de.pd1!.sd1 = "sd2"
         de.pd1!.pd1 = de.pd1
+        _values.append(de.pb!)
+        _values.append(de.pd1!)
         throw de
     }
 
@@ -343,6 +455,8 @@ class TestI: TestIntf {
         de.pd1!.pb = de.pd1
         de.pd1!.sd1 = "sd2"
         de.pd1!.pd1 = de.pd1
+        _values.append(de.pb!)
+        _values.append(de.pd1!)
         throw de
     }
 
@@ -352,6 +466,7 @@ class TestI: TestIntf {
         d2.pb = d2
         d2.sd2 = "sd2 d2"
         d2.pd2 = d2
+        _values.append(d2)
 
         let ude = UnknownDerivedException()
         ude.sbe = "sbe"
@@ -361,14 +476,17 @@ class TestI: TestIntf {
         throw ude
     }
 
-    func throwPreservedExceptionAsync(current _: Current) -> Promise<Void> {
-        return Promise<Void> { _ in
-            let ue = PSUnknownException()
-            ue.p = PSUnknown2()
-            ue.p!.pi = 5
-            ue.p!.ps = "preserved"
-            ue.p!.pb = ue.p
-            throw ue
+    func throwPreservedExceptionAsync(current: Current) -> Promise<Void> {
+        return Promise<Void> { seal in
+            try current.adapter!.getDispatchQueue().async(flags: .barrier) {
+                let ue = PSUnknownException()
+                ue.p = PSUnknown2()
+                ue.p!.pi = 5
+                ue.p!.ps = "preserved"
+                ue.p!.pb = ue.p
+                seal.reject(ue) // Ice marshals the error immediately
+                ue.p!.pb = nil // break the cycle
+            }
         }
     }
 
@@ -376,6 +494,7 @@ class TestI: TestIntf {
         let f = Forward()
         f.h = Hidden()
         f.h!.f = f
+        _values.append(f)
         return f
     }
 
