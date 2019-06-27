@@ -1835,6 +1835,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
     }
 
+// dispatchFromThisThread dispatches to the correct DispatchQueue
+#ifdef ICE_SWIFT
+    _threadPool->dispatchFromThisThread(new DispatchCall(ICE_SHARED_FROM_THIS, startCB, sentCBs, compress, requestId,
+                                                         invokeNum, servantManager, adapter, outAsync,
+                                                         heartbeatCallback, current.stream));
+#else
     if(!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
     {
         dispatch(startCB, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync, heartbeatCallback,
@@ -1847,6 +1853,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                                                              heartbeatCallback, current.stream));
 
     }
+#endif
 }
 
 void
@@ -1998,6 +2005,11 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
 
     current.ioCompleted();
+
+// dispatchFromThisThread dispatches to the correct DispatchQueue
+#ifdef ICE_SWIFT
+    _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
+#else
     if(!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
     {
         finish(close);
@@ -2006,6 +2018,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     {
         _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
     }
+#endif
 }
 
 void
