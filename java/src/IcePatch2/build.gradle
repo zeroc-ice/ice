@@ -3,6 +3,7 @@
 //
 
 project.ext.displayName = "IcePatch2"
+project.ext.moduleName = "com.zeroc.icepatch2"
 project.ext.description = "File distribution and patching for Ice"
 
 slice {
