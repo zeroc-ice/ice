@@ -3,6 +3,7 @@
 //
 
 project.ext.displayName = "IceBox"
+project.ext.moduleName = "com.zeroc.icebox"
 project.ext.description = "IceBox is an easy-to-use framework for Ice application services"
 
 slice {
