@@ -1,4 +1,5 @@
 lib
+doc
 build
 .gradle
 *.iml
