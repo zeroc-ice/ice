@@ -40,6 +40,16 @@ particular aspect of Ice.
   * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes-1)
 
+# Changes in Ice 3.7.3
+
+These are the changes since Ice 3.7.2.
+
+## Java Changes
+
+- Add support to build Ice as modular JAR files, this is automatically done
+  when building Ice for Java with JDK 9 or greater, the JARs are compatible
+  with JDK 8.
+
 # Changes in Ice 3.7.2
 
 These are the changes since Ice 3.7.1.
