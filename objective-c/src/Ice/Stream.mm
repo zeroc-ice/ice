@@ -2504,7 +2504,7 @@ private:
 @implementation ICELongHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
-    return [[NSNumber alloc] initWithLong:[stream readLong]];
+    return [[NSNumber alloc] initWithLongLong:[stream readLong]];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
@@ -2518,7 +2518,7 @@ private:
 {
     if([stream readOptional:tag format:ICEOptionalFormatF8])
     {
-        return [[NSNumber alloc] initWithLong:[stream readLong]];
+        return [[NSNumber alloc] initWithLongLong:[stream readLong]];
     }
     return ICENone;
 }
