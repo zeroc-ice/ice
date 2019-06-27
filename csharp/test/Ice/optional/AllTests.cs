@@ -309,7 +309,7 @@ namespace Ice
                 test(mo9.vs.Equals(mo1.vs));
 
                 test(!mo9.shs.HasValue);
-                test(mo9.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
+                test(mo9.es.Value[0] == Test.MyEnum.MyEnumMember && mo9.es.Value[1] == Test.MyEnum.MyEnumMember);
                 test(!mo9.fss.HasValue);
                 test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(!mo9.oos.HasValue);
