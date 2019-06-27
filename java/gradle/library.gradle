@@ -61,7 +61,7 @@ jar {
 task jarSources(type:Jar, dependsOn: jar){
     from sourceSets.main.allSource
     classifier = 'sources'
-    destinationDir = new File("${docDir}")
+    destinationDir = new File("${libDir}")
 }
 
 assemble.dependsOn(jarSources)
@@ -88,7 +88,7 @@ javadoc {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc
-    destinationDir = new File("${docDir}")
+    destinationDir = new File("${libDir}")
 }
 
 artifacts {

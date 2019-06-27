@@ -123,7 +123,6 @@ if(isWindows) {
 }
 
 ext.libDir = "$rootProject.projectDir/lib"
-ext.docDir = "$rootProject.projectDir/doc"
 
 ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     def dirs = []
