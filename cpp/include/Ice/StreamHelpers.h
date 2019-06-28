@@ -583,7 +583,7 @@ struct StreamHelper<T, StreamHelperCategorySequence>
     read(S* stream, T& v)
     {
         Int sz = stream->readAndCheckSeqSize(StreamableTraits<typename T::value_type>::minWireSize);
-        T(sz).swap(v);
+        T(static_cast<size_t>(sz)).swap(v);
         for(typename T::iterator p = v.begin(); p != v.end(); ++p)
         {
             stream->read(*p);

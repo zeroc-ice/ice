@@ -424,9 +424,9 @@ allTests(Test::TestHelper* helper, bool)
     test(!oon->a);
 
     MultiOptionalPtr mo1 = ICE_MAKE_SHARED(MultiOptional);
-    mo1->a = 15;
+    mo1->a = static_cast<Ice::Byte>(15);
     mo1->b = true;
-    mo1->c = 19;
+    mo1->c = static_cast<Ice::Short>(19);
     mo1->d = 78;
     mo1->e = 99;
     mo1->f = 5.5f;
@@ -1074,7 +1074,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(1, p2);
         in.read(3, p3);
 
-        IceUtil::Optional<Ice::Byte> p4 = 0x08;
+        IceUtil::Optional<Ice::Byte> p4 = static_cast<Ice::Byte>(0x08);
         in.read(89, p4);
 
         in.endEncapsulation();

@@ -398,8 +398,10 @@ class Windows(Platform):
                     self.compiler = "v120"
                 elif out.find("Version 19.00.") != -1:
                     self.compiler = "v140"
-                elif out.find("Version 19.") != -1:
+                elif out.find("Version 19.1") != -1:
                     self.compiler = "v141"
+                elif out.find("Version 19.2") != -1:
+                    self.compiler = "v142"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
             except:
@@ -3216,9 +3218,7 @@ class JavaMapping(Mapping):
                 "IceSSL.Keystore": "server.bks" if isinstance(process, Server) else "client.bks"
             })
         else:
-            # WORKAROUND JDK 11 sporadic connection failures with OpenSSL TLS 1.3 enabled server
             props.update({
-                "IceSSL.Protocols": "TLS1_2",
                 "IceSSL.Keystore": "server.jks" if isinstance(process, Server) else "client.jks",
             })
         return props

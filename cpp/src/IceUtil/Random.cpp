@@ -147,7 +147,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
         }
         else
         {
-            index += bytesRead;
+            index += static_cast<size_t>(bytesRead);
             reads++;
         }
     }
@@ -174,7 +174,7 @@ IceUtilInternal::random(int limit)
 #endif
     if(limit > 0)
     {
-        r = r % limit;
+        r = r % static_cast<unsigned int>(limit);
     }
     return r;
 }

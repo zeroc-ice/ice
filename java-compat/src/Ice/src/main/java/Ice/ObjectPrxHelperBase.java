@@ -2311,6 +2311,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Returns whether this proxy is a fixed proxy.
+     *
+     * @return <code>true</code> if this is a fixed proxy, <code>false</code> otherwise.
+     **/
+    @Override
+    public final boolean ice_isFixed()
+    {
+        return _reference instanceof IceInternal.FixedReference;
+    }
+
+    /**
      * Returns the {@link Connection} for this proxy. If the proxy does not yet have an established connection,
      * it first attempts to create a connection.
      *

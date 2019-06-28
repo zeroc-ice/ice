@@ -722,6 +722,8 @@
             test(cl.equals(base));
             test(derived.equals(base));
             test(cl.equals(derived));
+            let f = await Test.MyDerivedClassPrx.checkedCast(cl, "facet");
+            test(f === null);
             out.writeLine("ok");
 
             out.write("testing checked cast with context... ");
@@ -740,6 +742,8 @@
                 const connection = await cl.ice_getConnection();
                 if(connection !== null)
                 {
+                    test(!cl.ice_isFixed());
+                    test(cl.ice_fixed(connection).ice_isFixed());
                     await cl.ice_fixed(connection).getContext();
                     test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                     test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");

@@ -98,6 +98,14 @@
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
+//
+// Avoid clang conversion warnings
+//
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wconversion"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 using namespace std;
 using namespace Slice;
 

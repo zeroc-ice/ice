@@ -202,19 +202,18 @@ classdef AllTests
                 for depth = 0:20000
                     p.v = Recursive();
                     p = p.v;
-                    if (depth < 10 && mod(depth, 10) == 0) || ...
-                       (depth < 1000 && mod(depth, 100) == 0) || ...
-                       (depth < 10000 && mod(depth, 1000) == 0) || ...
-                       mod(depth, 10000) == 0
-                        initial.setRecursive(top);
-                    end
+                    os = communicator.createOutputStream();
+                    os.writeValue(top);
+                    os.writePendingValues();
+                    is = os.createInputStream();
+                    h = IceInternal.ValueHolder();
+                    is.readValue(@(v) h.set(v), 'Test.Recursive');
+                    is.readPendingValues();
                 end
-                assert(~initial.supportsClassGraphDepthMax());
+                assert(false);
             catch ex
-                if isa(ex, 'Ice.UnknownLocalException')
+                if isa(ex, 'Ice.MarshalException')
                     % Expected marshal exception from the server (max class graph depth reached)
-                elseif isa(ex, 'Ice.UnknownException')
-                    % Expected stack overflow from the server (Java only)
                 else
                     rethrow(ex);
                 end

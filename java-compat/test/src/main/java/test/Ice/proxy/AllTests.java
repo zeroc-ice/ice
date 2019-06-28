@@ -808,6 +808,7 @@ public class AllTests
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
+        test(MyDerivedClassPrxHelper.checkedCast(cl, "facet") == null);
         out.println("ok");
 
         out.print("testing checked cast with context... ");
@@ -901,7 +902,9 @@ public class AllTests
                 Ice.Connection connection = cl.ice_getConnection();
                 if(connection != null)
                 {
+                    test(!cl.ice_isFixed());
                     MyClassPrx prx = (MyClassPrx)cl.ice_fixed(connection); // Test proxy return type.
+                    test(prx.ice_isFixed());
                     prx.ice_ping();
                     test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                     test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));

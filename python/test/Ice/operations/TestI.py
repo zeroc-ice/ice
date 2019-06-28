@@ -2,11 +2,21 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading
+import Ice, Test, M, sys, threading
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
+
+class BI(M.BDisp):
+
+    def opB(self, current=None):
+        pass
+
+    def opIntf(self, current=None):
+        pass
+
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):

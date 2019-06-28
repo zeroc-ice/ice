@@ -52,6 +52,10 @@ These are the changes since Ice 3.7.2.
 - Added back support for caching the output stream used to marshal the response
   of a synchronous dispatch.
 
+- Add support to build Ice as modular JAR files, this is automatically done
+  when building Ice for Java with JDK 9 or greater, the JARs are compatible
+  with JDK 8.
+
 ## C# Changes
 
 - Added back support for caching the output stream used to marshal the response

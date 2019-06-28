@@ -1685,11 +1685,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
                     if(size > static_cast<Int>(_messageSizeMax))
                     {
-                        Ex::throwMemoryLimitException(__FILE__, __LINE__, size, _messageSizeMax);
+                        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
                     }
-                    if(size > static_cast<Int>(_readStream.b.size()))
+                    if(static_cast<size_t>(size) > _readStream.b.size())
                     {
-                        _readStream.b.resize(size);
+                        _readStream.b.resize(static_cast<size_t>(size));
                     }
                     _readStream.i = _readStream.b.begin() + pos;
                 }
@@ -3195,11 +3195,11 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 
     if(uncompressedSize > static_cast<Int>(_messageSizeMax))
     {
-        Ex::throwMemoryLimitException(__FILE__, __LINE__, uncompressedSize, _messageSizeMax);
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(uncompressedSize), _messageSizeMax);
     }
-    uncompressed.resize(uncompressedSize);
+    uncompressed.resize(static_cast<size_t>(uncompressedSize));
 
-    unsigned int uncompressedLen = uncompressedSize - headerSize;
+    unsigned int uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
     unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(Int));
     int bzError = BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
                                              &uncompressedLen,

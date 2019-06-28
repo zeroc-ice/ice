@@ -1019,6 +1019,12 @@ Ice_ObjectPrx_ice_fixed(void* self, void** r, void* connection)
 }
 
 mxArray*
+Ice_ObjectPrx_ice_isFixed(void* self)
+{
+    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isFixed()));
+}
+
+mxArray*
 Ice_ObjectPrx_ice_getConnection(void* self, void** r)
 {
     *r = 0;

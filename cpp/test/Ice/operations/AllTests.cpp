@@ -19,9 +19,9 @@ allTests(Test::TestHelper* helper)
     Test::MyDerivedClassPrxPtr derived = ICE_CHECKED_CAST(Test::MyDerivedClassPrx, cl);
 
     cout << "testing twoway operations... " << flush;
-    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr&);
-    twoways(communicator, cl);
-    twoways(communicator, derived);
+    void twoways(const Ice::CommunicatorPtr&, Test::TestHelper*, const Test::MyClassPrxPtr&);
+    twoways(communicator, helper, cl);
+    twoways(communicator, helper, derived);
     derived->opDerived();
     cout << "ok" << endl;
 

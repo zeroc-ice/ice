@@ -464,7 +464,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         throw AbortMarshaling();
     }
 
-    PyObjectHandle slices = PyTuple_New(slicedData->slices.size());
+    PyObjectHandle slices = PyTuple_New(static_cast<Py_ssize_t>(slicedData->slices.size()));
     if(!slices.get())
     {
         assert(PyErr_Occurred());
@@ -520,9 +520,11 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         if((*p)->bytes.size() > 0)
         {
     #if PY_VERSION_HEX >= 0x03000000
-            bytes = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+            bytes = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]),
+                                              static_cast<Py_ssize_t>((*p)->bytes.size()));
     #else
-            bytes = PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+            bytes = PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]),
+                                               static_cast<Py_ssize_t>((*p)->bytes.size()));
     #endif
         }
         else
@@ -542,7 +544,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         //
         // instances
         //
-        PyObjectHandle instances = PyTuple_New((*p)->instances.size());
+        PyObjectHandle instances = PyTuple_New(static_cast<Py_ssize_t>((*p)->instances.size()));
         if(!instances.get() || PyObject_SetAttrString(slice.get(), STRCAST("instances"), instances.get()) < 0)
         {
             assert(PyErr_Occurred());
@@ -2040,7 +2042,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindBool:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::BoolSeq seq(sz);
+        Ice::BoolSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2056,7 +2058,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[i] = isTrue ? true : false;
+            seq[static_cast<size_t>(i)] = isTrue ? true : false;
         }
         os->write(seq);
         break;
@@ -2080,7 +2082,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         else
         {
             sz = PySequence_Fast_GET_SIZE(fs.get());
-            Ice::ByteSeq seq(sz);
+            Ice::ByteSeq seq(static_cast<size_t>(sz));
             for(Py_ssize_t i = 0; i < sz; ++i)
             {
                 PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2098,7 +2100,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                                  static_cast<int>(i));
                     throw AbortMarshaling();
                 }
-                seq[i] = static_cast<Ice::Byte>(val);
+                seq[static_cast<size_t>(i)] = static_cast<Ice::Byte>(val);
             }
             os->write(seq);
         }
@@ -2107,7 +2109,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindShort:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::ShortSeq seq(sz);
+        Ice::ShortSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2125,7 +2127,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[i] = static_cast<Ice::Short>(val);
+            seq[static_cast<size_t>(i)] = static_cast<Ice::Short>(val);
         }
         os->write(seq);
         break;
@@ -2133,7 +2135,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindInt:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::IntSeq seq(sz);
+        Ice::IntSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2151,7 +2153,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[i] = static_cast<Ice::Int>(val);
+            seq[static_cast<size_t>(i)] = static_cast<Ice::Int>(val);
         }
         os->write(seq);
         break;
@@ -2159,7 +2161,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindLong:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::LongSeq seq(sz);
+        Ice::LongSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2177,7 +2179,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[i] = val;
+            seq[static_cast<size_t>(i)] = val;
         }
         os->write(seq);
         break;
@@ -2185,7 +2187,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindFloat:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::FloatSeq seq(sz);
+        Ice::FloatSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2203,7 +2205,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            seq[i] = val;
+            seq[static_cast<size_t>(i)] = val;
         }
         os->write(seq);
         break;
@@ -2211,7 +2213,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindDouble:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::DoubleSeq seq(sz);
+        Ice::DoubleSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -2229,7 +2231,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            seq[i] = val;
+            seq[static_cast<size_t>(i)] = val;
         }
         os->write(seq);
         break;
@@ -2622,7 +2624,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
 
         for(int i = 0; i < sz; ++i)
         {
-            PyObjectHandle item = createString(seq[i]);
+            PyObjectHandle item = createString(seq[static_cast<size_t>(i)]);
             if(!item.get())
             {
                 assert(PyErr_Occurred());

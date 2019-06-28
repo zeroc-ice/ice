@@ -5,7 +5,7 @@
 
 require_once('Test.php');
 
-function twoways($communicator, $p)
+function twoways($communicator, $p, $bprx)
 {
     global $NS;
 
@@ -1058,6 +1058,11 @@ function twoways($communicator, $p)
         $p3 = $p->opMDict2($p1, $p2);
         test($p3["test"] == "test" && $p2["test"] == "test");
     }
+
+    {
+        $bprx->opB();
+        $bprx->opIntf();
+    }
 }
 
 function allTests($helper)
@@ -1070,10 +1075,12 @@ function allTests($helper)
     $cl = $base->ice_checkedCast("::Test::MyClass");
     $derived = $cl->ice_checkedCast("::Test::MyDerivedClass");
 
+    $bprx = $communicator->stringToProxy(sprintf("b:%s", $helper->getTestEndpoint()))->ice_checkedCast("::M::B");
+
     echo "testing twoway operations... ";
     flush();
-    twoways($communicator, $cl);
-    twoways($communicator, $derived);
+    twoways($communicator, $cl, $bprx);
+    twoways($communicator, $derived, $bprx);
     $derived->opDerived();
     echo "ok\n";
 
@@ -1109,7 +1116,6 @@ class Client extends TestHelper
                 {
                     throw $ex;
                 }
-                echo "ok\n";
             }
             # Test multiple destroy calls
             $communicator->destroy();

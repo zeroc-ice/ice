@@ -92,7 +92,7 @@ public:
         do
         {
             assert(factor <= 4);
-            const size_t chunkSize = std::max<size_t>((sourceEnd - sourceStart) * factor, 4);
+            const size_t chunkSize = std::max<size_t>(static_cast<size_t>(sourceEnd - sourceStart) * factor, 4);
             ++factor; // at the next round, we'll allocate more bytes per remaining source character
 
             targetStart = reinterpret_cast<char*>(buffer.getMoreBytes(chunkSize, reinterpret_cast<Byte*>(targetNext)));
@@ -145,7 +145,7 @@ public:
 
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
     {
-        const size_t sourceSize = sourceEnd - sourceStart;
+        const size_t sourceSize = static_cast<size_t>(sourceEnd - sourceStart);
 
         if(sourceSize == 0)
         {
@@ -173,7 +173,7 @@ public:
                 throw IllegalConversionException(__FILE__, __LINE__, "codecvt.in failure");
             }
 
-            target.resize(targetNext - targetStart);
+            target.resize(static_cast<size_t>(targetNext - targetStart));
         }
     }
 
@@ -275,7 +275,7 @@ public:
         size_t bytesUsed = 0;
         if(firstUnused != 0)
         {
-            bytesUsed = firstUnused - reinterpret_cast<const Byte*>(_buffer.data());
+            bytesUsed = static_cast<size_t>(firstUnused - reinterpret_cast<const Byte*>(_buffer.data()));
         }
 
         if(_buffer.size() < howMany + bytesUsed)
@@ -289,7 +289,7 @@ public:
     void swap(string& other, const Byte* tail)
     {
         assert(tail >= reinterpret_cast<const Byte*>(_buffer.data()));
-        _buffer.resize(tail - reinterpret_cast<const Byte*>(_buffer.data()));
+        _buffer.resize(static_cast<size_t>(tail - reinterpret_cast<const Byte*>(_buffer.data())));
         other.swap(_buffer);
     }
 

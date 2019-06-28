@@ -207,7 +207,8 @@ NodeI::start()
     Lock sync(*this);
 
     _checkTask = new CheckTask(this);
-    _timer->schedule(_checkTask, IceUtil::Time::seconds((_nodes.size() - _id) * 2));
+    _timer->schedule(_checkTask,
+                     IceUtil::Time::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
     recovery();
 }
 
@@ -660,7 +661,7 @@ NodeI::mergeContinue()
         {
             map<int, NodePrx>::const_iterator node = _nodes.find(p->id);
             assert(node != _nodes.end());
-            node->second->ready(_id, gp, _replicaProxy, max, maxllu.generation);
+            node->second->ready(_id, gp, _replicaProxy, static_cast<Ice::Int>(max), maxllu.generation);
         }
         catch(const Ice::Exception& ex)
         {
@@ -773,7 +774,7 @@ NodeI::invitation(int j, const string& gn, const Ice::Current&)
 
         _coord = j;
         _group = gn;
-        max = _max;
+        max = static_cast<Ice::Int>(_max);
     }
 
     Ice::IntSeq forwardedInvites;
@@ -852,7 +853,7 @@ NodeI::ready(int j, const string& gn, const Ice::ObjectPrx& coordinator, int max
 
         if(static_cast<unsigned int>(max) > _max)
         {
-            _max = max;
+            _max = static_cast<unsigned int>(max);
         }
         _generation = generation;
 
@@ -888,7 +889,7 @@ NodeI::accept(int j, const string& gn, const Ice::IntSeq& forwardedInvites, cons
 
         if(static_cast<unsigned int>(max) > _max)
         {
-            _max = max;
+            _max = static_cast<unsigned int>(max);
         }
 
         if(_traceLevels->election > 0)
@@ -979,7 +980,7 @@ NodeI::query(const Ice::Current&) const
     info.group = _group;
     info.replica = _replicaProxy;
     info.state = _state;
-    info.max = _max;
+    info.max = static_cast<Ice::Int>(_max);
 
     for(set<GroupNodeInfo>::const_iterator p = _up.begin(); p != _up.end(); ++p)
     {

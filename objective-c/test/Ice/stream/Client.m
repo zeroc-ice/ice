@@ -477,7 +477,7 @@ run(id<ICECommunicator> communicator)
         TestStreamSmallStructS* arr2 = [TestStreamSmallStructSHelper read:in];
         [in readPendingValues];
         test([arr2 count] == [arr count]);
-        for(int j = 0; j < (int)[arr2 count]; ++j)
+        for(NSUInteger j = 0; j < [arr2 count]; ++j)
         {
             test([[arr objectAtIndex:j] isEqual:[arr2 objectAtIndex:j]]);
         }
@@ -548,7 +548,7 @@ run(id<ICECommunicator> communicator)
         [in readPendingValues];
         test([arr2 count] > 0);
         test([arr2 count] == [arr count]);
-        for(int j = 0; j < (int)[arr2 count]; ++j)
+        for(NSUInteger j = 0; j < [arr2 count]; ++j)
         {
             TestStreamMyClass* e = [arr2 objectAtIndex:j];
             TestStreamMyClass* f = [arr objectAtIndex:j];

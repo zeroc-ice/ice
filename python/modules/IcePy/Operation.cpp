@@ -3199,7 +3199,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         //
         // Create the output buffer and copy in the outParams.
         //
-        PyObjectHandle op = PyBuffer_New(out.size());
+        PyObjectHandle op = PyBuffer_New(static_cast<Py_ssize_t>(out.size()));
         if(!op.get())
         {
             throwPythonException();
@@ -3212,7 +3212,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             {
                 throwPythonException();
             }
-            memcpy(buf, &out[0], ssz);
+            memcpy(buf, &out[0], static_cast<size_t>(ssz));
         }
 #endif
 
@@ -3481,7 +3481,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
             return 0;
         }
         assert(sz == results.second - results.first);
-        memcpy(buf, results.first, sz);
+        memcpy(buf, results.first, static_cast<size_t>(sz));
 #endif
 
         PyTuple_SET_ITEM(args.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -3563,7 +3563,7 @@ IcePy::AsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*, c
             return;
         }
         assert(sz == results.second - results.first);
-        memcpy(buf, results.first, sz);
+        memcpy(buf, results.first, static_cast<size_t>(sz));
 #endif
 
         PyTuple_SET_ITEM(args.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -3750,7 +3750,7 @@ IcePy::NewAsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok,
         return;
     }
     assert(sz == results.second - results.first);
-    memcpy(buf, results.first, sz);
+    memcpy(buf, results.first, static_cast<size_t>(sz));
 #endif
 
     PyTuple_SET_ITEM(args.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -4082,7 +4082,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
         throwPythonException();
     }
     assert(sz == inBytes.second - inBytes.first);
-    memcpy(buf, inBytes.first, sz);
+    memcpy(buf, inBytes.first, static_cast<size_t>(sz));
 #endif
 
     PyTuple_SET_ITEM(args.get(), start, ip.release()); // PyTuple_SET_ITEM steals a reference.

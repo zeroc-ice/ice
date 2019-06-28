@@ -4,8 +4,9 @@
 
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder10(is, encaps, sliceValues, valueFactoryManager, classResolver)
-            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver);
+        function obj = EncapsDecoder10(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
+            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
+                                                classGraphDepthMax);
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end
 
@@ -240,6 +241,28 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 %
                 obj.skipSlice();
                 obj.startSlice(); % Read next Slice header for next iteration.
+            end
+
+            %
+            % Compute the biggest class graph depth of this object. To compute this,
+            % we get the class graph depth of each ancestor from the patch map and
+            % keep the biggest one.
+            %
+            obj.classGraphDepth = 0;
+
+            if obj.patchMap.isKey(index)
+                pl = obj.patchMap(index);
+                for i = 1:length(pl.list)
+                    entry = pl.list{i};
+                    if entry.classGraphDepth > obj.classGraphDepth
+                        obj.classGraphDepth = entry.classGraphDepth;
+                    end
+                end
+            end
+
+            obj.classGraphDepth = obj.classGraphDepth + 1;
+            if obj.classGraphDepth > obj.classGraphDepthMax
+                throw(Ice.MarshalException('', '', 'maximum class graph depth reached'));
             end
 
             %

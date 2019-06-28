@@ -22,11 +22,11 @@ toHexDigit(Byte b)
     assert(b < 16);
     if(b < 10)
     {
-        return '0' + b;
+        return static_cast<char>('0' + b);
     }
     else
     {
-        return 'a' - 10 + b;
+        return static_cast<char>('a' - 10 + b);
     }
 }
 
@@ -289,7 +289,7 @@ checkChar(const string& s, string::size_type pos)
         ostr << " has invalid ordinal value " << static_cast<int>(c);
         throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
     }
-    return c;
+    return static_cast<char>(c);
 }
 
 //

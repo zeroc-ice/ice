@@ -8,6 +8,7 @@
     const Test = require("Test").Test;
     const TestHelper = require("TestHelper").TestHelper;
     const AMDMyDerivedClassI = require("AMDMyDerivedClassI").AMDMyDerivedClassI;
+    const AMDBI = require("AMDBI").AMDBI;
 
     class ServerAMD extends TestHelper
     {
@@ -23,6 +24,7 @@
                 echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
                 const adapter = await communicator.createObjectAdapter("");
                 adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
+                adapter.add(new AMDBI(), Ice.stringToIdentity("b"));
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
                 this.serverReady();

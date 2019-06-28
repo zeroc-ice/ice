@@ -194,7 +194,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and '$(DefaultPlatformToolset)'=='v141'">
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and ('$(DefaultPlatformToolset)'=='v141' or '$(DefaultPlatformToolset)'=='v142')">
     <Link>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>

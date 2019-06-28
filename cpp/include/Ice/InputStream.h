@@ -382,7 +382,7 @@ public:
             _currentEncaps = new Encaps();
             _currentEncaps->previous = oldEncaps;
         }
-        _currentEncaps->start = i - b.begin();
+        _currentEncaps->start = static_cast<size_t>(i - b.begin());
 
         //
         // I don't use readSize() and writeSize() for encapsulations,
@@ -484,7 +484,7 @@ public:
         {
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
-            i += sz - sizeof(Ice::Int) - 2;
+            i += static_cast<size_t>(sz) - sizeof(Ice::Int) - 2;
         }
         return encoding;
     }
@@ -511,7 +511,7 @@ public:
         }
 
         read(encoding);
-        i += sz - sizeof(Int) - 2;
+        i += static_cast<size_t>(sz) - sizeof(Int) - 2;
         return encoding;
     }
 
@@ -1174,7 +1174,7 @@ public:
      */
     size_type pos()
     {
-        return i - b.begin();
+        return static_cast<size_t>(i - b.begin());
     }
 
     /**

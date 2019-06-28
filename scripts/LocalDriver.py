@@ -577,6 +577,8 @@ class LocalDriver(Driver):
                         self.runner.stopServerSide(server, current, success)
                     except Exception as ex:
                         failure.append(ex)
+                    except KeyboardInterrupt: # Potentially raised by Except.py if Ctrl-C
+                        pass
                     sem.release()
 
                 t=threading.Thread(target = stopServerSide)

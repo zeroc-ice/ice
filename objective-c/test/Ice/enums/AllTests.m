@@ -94,9 +94,9 @@ enumAllTests(id<ICECommunicator> communicator)
                                      TestEnumbenum6, TestEnumbenum7, TestEnumbenum8, TestEnumbenum9, TestEnumbenum10,
                                      TestEnumbenum11};
 
-        int enumSize = sizeof(TestEnumByteEnum);
-        int length = sizeof(values);
-        int elements = length/enumSize;
+        NSUInteger enumSize = sizeof(TestEnumByteEnum);
+        NSUInteger length = sizeof(values);
+        NSUInteger elements = length / enumSize;
 
         TestEnumMutableByteEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableByteEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -106,7 +106,7 @@ enumAllTests(id<ICECommunicator> communicator)
         ICEByte* p2 = (ICEByte *)[enumSeq2 bytes];
         ICEByte* p3 = (ICEByte *)[enumSeq3 bytes];
 
-        for(int i = 0; i < elements; ++i)
+        for(NSUInteger i = 0; i < elements; ++i)
         {
             test(*p1 == *p2);
             test(*p1 == *p3);
@@ -121,9 +121,9 @@ enumAllTests(id<ICECommunicator> communicator)
                                      TestEnumsenum6, TestEnumsenum7, TestEnumsenum8, TestEnumsenum9, TestEnumsenum10,
                                      TestEnumsenum11};
 
-        int enumSize = sizeof(TestEnumShortEnum);
-        int length = sizeof(values);
-        int elements = length/enumSize;
+        NSUInteger enumSize = sizeof(TestEnumShortEnum);
+        NSUInteger length = sizeof(values);
+        NSUInteger elements = length / enumSize;
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -133,7 +133,7 @@ enumAllTests(id<ICECommunicator> communicator)
         ICEByte* p2 = (ICEByte *)[enumSeq2 bytes];
         ICEByte* p3 = (ICEByte *)[enumSeq3 bytes];
 
-        for(int i = 0; i < elements; ++i)
+        for(NSUInteger i = 0; i < elements; ++i)
         {
             test(*p1 == *p2);
             test(*p1 == *p3);
@@ -149,9 +149,9 @@ enumAllTests(id<ICECommunicator> communicator)
                                      TestEnumienum6, TestEnumienum7, TestEnumienum8, TestEnumienum9, TestEnumienum10,
                                      TestEnumienum11};
 
-        int enumSize = sizeof(TestEnumShortEnum);
-        int length = sizeof(values);
-        int elements = length/enumSize;
+        NSUInteger enumSize = sizeof(TestEnumShortEnum);
+        NSUInteger length = sizeof(values);
+        NSUInteger elements = length / enumSize;
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -161,7 +161,7 @@ enumAllTests(id<ICECommunicator> communicator)
         ICEByte* p2 = (ICEByte *)[enumSeq2 bytes];
         ICEByte* p3 = (ICEByte *)[enumSeq3 bytes];
 
-        for(int i = 0; i < elements; ++i)
+        for(NSUInteger i = 0; i < elements; ++i)
         {
             test(*p1 == *p2);
             test(*p1 == *p3);
@@ -175,9 +175,9 @@ enumAllTests(id<ICECommunicator> communicator)
 
         TestEnumSimpleEnum values[] = {TestEnumred, TestEnumgreen, TestEnumblue};
 
-        int enumSize = sizeof(TestEnumShortEnum);
-        int length = sizeof(values);
-        int elements = length/enumSize;
+        NSUInteger enumSize = sizeof(TestEnumShortEnum);
+        NSUInteger length = sizeof(values);
+        NSUInteger elements = length / enumSize;
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -187,7 +187,7 @@ enumAllTests(id<ICECommunicator> communicator)
         ICEByte* p2 = (ICEByte *)[enumSeq2 bytes];
         ICEByte* p3 = (ICEByte *)[enumSeq3 bytes];
 
-        for(int i = 0; i < elements; ++i)
+        for(NSUInteger i = 0; i < elements; ++i)
         {
             test(*p1 == *p2);
             test(*p1 == *p3);
@@ -260,11 +260,11 @@ enumAllTests(id<ICECommunicator> communicator)
                                      TestEnumbenum6, (TestEnumByteEnum)-1, TestEnumbenum8, TestEnumbenum9, TestEnumbenum10,
                                      TestEnumbenum11}; // Negative enumerators are not supported
 
-        int length = sizeof(values);
+        NSUInteger length = sizeof(values);
 
         TestEnumMutableByteEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableByteEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
-         @try
+        @try
         {
             [proxy opByteSeq:enumSeq1 b2:&enumSeq2];
             test(NO);
@@ -279,11 +279,11 @@ enumAllTests(id<ICECommunicator> communicator)
                                      TestEnumbenum6, (TestEnumByteEnum)127, TestEnumbenum8, TestEnumbenum9, TestEnumbenum10,
                                      TestEnumbenum11}; // Invalid enumerator
 
-        int length = sizeof(values);
+        NSUInteger length = sizeof(values);
 
         TestEnumMutableByteEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableByteEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
-         @try
+        @try
         {
             [proxy opByteSeq:enumSeq1 b2:&enumSeq2];
             test(NO);
@@ -299,7 +299,7 @@ enumAllTests(id<ICECommunicator> communicator)
                                      (TestEnumShortEnum)-1, TestEnumsenum7, TestEnumsenum8, TestEnumsenum9, TestEnumsenum10,
                                      TestEnumsenum11}; // Negative enumerators are not supported
 
-        int length = sizeof(values);
+        NSUInteger length = sizeof(values);
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -319,7 +319,7 @@ enumAllTests(id<ICECommunicator> communicator)
                                      (TestEnumShortEnum)0, TestEnumsenum7, TestEnumsenum8, TestEnumsenum9, TestEnumsenum10,
                                      TestEnumsenum11}; // Invalid enumerator
 
-        int length = sizeof(values);
+        NSUInteger length = sizeof(values);
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -339,7 +339,7 @@ enumAllTests(id<ICECommunicator> communicator)
                                      (TestEnumShortEnum)32767, TestEnumsenum7, TestEnumsenum8, TestEnumsenum9, TestEnumsenum10,
                                      TestEnumsenum11}; // Invalid enumerator
 
-        int length = sizeof(values);
+        NSUInteger length = sizeof(values);
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];
@@ -359,7 +359,7 @@ enumAllTests(id<ICECommunicator> communicator)
                                      (TestEnumIntEnum)-1, TestEnumienum7, TestEnumienum8, TestEnumienum9, TestEnumienum10,
                                      TestEnumienum11}; // Negative enumerators are not supported
 
-        int length = sizeof(values);
+        NSUInteger length = sizeof(values);
 
         TestEnumMutableShortEnumSeq* enumSeq1 = [NSMutableData dataWithBytes:values length:length];
         TestEnumMutableShortEnumSeq* enumSeq2 = [NSMutableData dataWithLength:length];

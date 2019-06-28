@@ -63,6 +63,9 @@
 
 -dontnote com.jgoodies.**
 -dontnote com.javafx.**
+-dontnote com.sun.**
+
+-dontwarn sun.misc.Unsafe
 
 -dontusemixedcaseclassnames
 -dontoptimize

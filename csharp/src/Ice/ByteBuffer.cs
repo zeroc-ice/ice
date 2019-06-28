@@ -214,13 +214,13 @@ namespace IceInternal
         public ByteBuffer put(byte b)
         {
             checkOverflow(1);
-            System.Buffer.SetByte(_bytes, _position++, b);
+            _bytes[_position++] = b;
             return this;
         }
 
         public ByteBuffer put(int pos, byte b)
         {
-            System.Buffer.SetByte(_bytes, pos, b);
+            _bytes[pos] = b;
             return this;
         }
 

@@ -540,9 +540,20 @@ public:
     return dataptr();
   }
 
+    //
+    // WORKAROUND error: implicit conversion turns string literal into bool
+    //
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wconversion"
+#endif
   constexpr T const& operator *() const {
     return TR2_OPTIONAL_ASSERTED_EXPRESSION(initialized(), contained_val());
   }
+
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
   T& operator *() {
     assert (initialized());

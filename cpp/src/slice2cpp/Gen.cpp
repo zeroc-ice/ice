@@ -6577,7 +6577,7 @@ Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
     H << nl << "/**";
-    H << nl << " * Obtains a tuple containing all of the exception's data members.";
+    H << nl << " * Obtains a tuple containing all of the struct's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
     writeIceTuple(H, fixKwd(p->scope()), p->dataMembers(), _useWstring);
@@ -6740,12 +6740,17 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(H, p);
     H << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
-    if(bases.empty() || (base && base->allOperations().empty()))
+    if(bases.empty() || (bases.size() == 1 && base && base->allOperations().empty()))
     {
         H << getUnqualified("::Ice::ObjectPrx", scope);
     }
     else
     {
+        if(base && base->allOperations().empty())
+        {
+            bases.pop_front();
+        }
+
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
@@ -7870,12 +7875,17 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(H, p);
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
-    if(bases.empty() || (base && base->allOperations().empty()))
+    if(bases.empty() || (base && bases.size() == 1 && base->allOperations().empty()))
     {
         H << "public virtual " << getUnqualified("::Ice::Object", scope);
     }
     else
     {
+        if(base && base->allOperations().empty())
+        {
+            bases.pop_front();
+        }
+
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {

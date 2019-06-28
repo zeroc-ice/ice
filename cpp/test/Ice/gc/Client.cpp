@@ -370,14 +370,16 @@ allTests()
                 {
                     nodes.push_back(new N());
                 }
+
                 for(int j = 0; j < i; ++j)
                 {
-                    nodes[j]->left = nodes[IceUtilInternal::random(i)];
-                    nodes[j]->right = nodes[IceUtilInternal::random(i)];
+                    nodes[static_cast<size_t>(j)]->left = nodes[IceUtilInternal::random(i)];
+                    nodes[static_cast<size_t>(j)]->right = nodes[IceUtilInternal::random(i)];
                 }
+
                 for(int j = 0; j < i; ++j)
                 {
-                    nodes[j]->ice_collectable(true);
+                    nodes[static_cast<size_t>(j)]->ice_collectable(true);
                 }
                 test(getNum() == i);
             }

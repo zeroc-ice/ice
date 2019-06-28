@@ -20,7 +20,6 @@ public:
 
     Init()
     {
-        Ice::registerIceWS(true);
         Ice::registerIceSSL(false);
         Ice::registerIceDiscovery(false);
         Ice::registerIceLocatorDiscovery(false);

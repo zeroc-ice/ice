@@ -122,7 +122,7 @@ public:
     int
     operator()()
     {
-        return IceUtilInternal::random();
+        return static_cast<int>(IceUtilInternal::random());
     }
 
 };

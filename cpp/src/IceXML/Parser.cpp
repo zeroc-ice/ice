@@ -361,7 +361,7 @@ characterDataHandler(void* data, const XML_Char* s, int len)
 {
     CallbackData* cb = static_cast<CallbackData*>(data);
 
-    string str(s, len);
+    string str(s, static_cast<size_t>(len));
     int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
     int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
     cb->handler->characters(str, line, column);

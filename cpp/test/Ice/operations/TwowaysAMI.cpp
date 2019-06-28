@@ -983,7 +983,7 @@ public:
     {
         for(int j = 0; j < static_cast<int>(r.size()); ++j)
         {
-            test(r[j] == -j);
+            test(r[static_cast<size_t>(j)] == -j);
         }
         called();
     }

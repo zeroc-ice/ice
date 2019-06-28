@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, Twoways, TwowaysFuture, TwowaysAMI, Oneways, OnewaysFuture, OnewaysAMI, BatchOneways, sys
+import Ice, Test, M, Twoways, TwowaysFuture, TwowaysAMI, Oneways, OnewaysFuture, OnewaysAMI, BatchOneways, sys
 import BatchOnewaysAMI, BatchOnewaysFuture
 
 def test(b):
@@ -14,11 +14,12 @@ def allTests(helper, communicator):
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)
+    bprx = M.BPrx.checkedCast(communicator.stringToProxy("b:{0}".format(helper.getTestEndpoint())))
 
     sys.stdout.write("testing twoway operations... ")
     sys.stdout.flush()
-    Twoways.twoways(helper, cl)
-    Twoways.twoways(helper, derived)
+    Twoways.twoways(helper, cl, bprx)
+    Twoways.twoways(helper, derived, bprx)
     derived.opDerived()
     print("ok")
 

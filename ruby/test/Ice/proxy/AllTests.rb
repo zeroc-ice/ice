@@ -617,6 +617,7 @@ def allTests(helper, communicator)
     test(cl == base)
     test(derived == base)
     test(cl == derived)
+    test(Test::MyDerivedClassPrx::checkedCast(cl, "facet") == nil)
 
     loc = Ice::LocatorPrx::checkedCast(base)
     test(loc == nil)
@@ -651,6 +652,8 @@ def allTests(helper, communicator)
     STDOUT.flush
     connection = cl.ice_getConnection()
     if connection != nil
+        test(!cl.ice_isFixed())
+        test(cl.ice_fixed(connection).ice_isFixed())
         cl.ice_fixed(connection).getContext()
         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")

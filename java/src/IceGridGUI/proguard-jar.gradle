@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "net.sf.proguard:proguard-gradle:6.0.2"
+        classpath "net.sf.proguard:proguard-gradle:6.1.1"
     }
 }
 
@@ -44,6 +44,7 @@ else {
      'java.prefs.jmod',
      'java.naming.jmod',
      'java.datatransfer.jmod',
+     'jdk.unsupported.desktop.jmod',
      'javafx.base.jmod',
      'javafx.controls.jmod',
      'javafx.graphics.jmod',

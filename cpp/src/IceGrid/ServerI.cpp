@@ -2599,12 +2599,12 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
         // Get the uid/gid associated with the given user.
         //
         struct passwd pwbuf;
-        int sz = sysconf(_SC_GETPW_R_SIZE_MAX);
+        long sz = sysconf(_SC_GETPW_R_SIZE_MAX);
         if(sz == -1)
         {
             sz = 4096;
         }
-        vector<char> buffer(sz);
+        vector<char> buffer(static_cast<size_t>(sz));
         struct passwd *pw;
         int err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
         while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB

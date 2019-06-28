@@ -8,6 +8,7 @@
     const Test = require("Test").Test;
     const TestHelper = require("TestHelper").TestHelper;
     const MyDerivedClassI = require("MyDerivedClassI").MyDerivedClassI;
+    const BI = require("BI").BI;
 
     class Server extends TestHelper
     {
@@ -23,6 +24,7 @@
                 echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
                 const adapter = await communicator.createObjectAdapter("");
                 adapter.add(new MyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
+                adapter.add(new BI(), Ice.stringToIdentity("b"));
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
                 this.serverReady();

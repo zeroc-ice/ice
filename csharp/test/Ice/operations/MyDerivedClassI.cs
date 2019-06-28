@@ -9,6 +9,17 @@ namespace Ice
 {
     namespace operations
     {
+        public sealed class BI : M.BDisp_
+        {
+            public override void opIntf(Ice.Current current)
+            {
+            }
+
+            public override void opB(Ice.Current current)
+            {
+            }
+        }
+
         public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         {
             private static void test(bool b)

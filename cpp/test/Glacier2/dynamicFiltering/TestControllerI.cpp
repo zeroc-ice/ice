@@ -65,7 +65,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
         case Test::Running:
         {
-            TestConfiguration& config = _configurations[currentState.config];
+            TestConfiguration& config = _configurations[static_cast<size_t>(currentState.config)];
             assert(!config.description.empty());
 
             bool found = false;
@@ -113,14 +113,14 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
                 //
                 // New test configuration!
                 //
-                config = _configurations[newState.config];
+                config = _configurations[static_cast<size_t>(newState.config)];
 
                 newState.description = config.description;
                 newState.caseIndex = 0;
                 reconfigure = true;
             }
-            newState.expectedResult = config.cases[newState.caseIndex].expectedResult;
-            newState.testReference = config.cases[newState.caseIndex].proxy;
+            newState.expectedResult = config.cases[static_cast<size_t>(newState.caseIndex)].expectedResult;
+            newState.testReference = config.cases[static_cast<size_t>(newState.caseIndex)].proxy;
 
             if(reconfigure)
             {

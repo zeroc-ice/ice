@@ -11,7 +11,7 @@ if not slice_dir:
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
-import Test
+import Test, M
 
 def test(b):
     if not b:
@@ -26,6 +26,14 @@ class FutureThread(threading.Thread):
     def run(self):
         time.sleep(0.01)
         self.future.set_result(self.result)
+
+
+class BI(M.BDisp):
+    def opB(self, current=None):
+        return Ice.Future.completed(())
+
+    def opIntf(self, current=None):
+        return Ice.Future.completed(())
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):

@@ -144,7 +144,7 @@ IceUtil::Time::now(Clock clock)
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
 #elif defined(__APPLE__)
-       return Time(mach_absolute_time() * machMultiplier);
+        return Time(static_cast<IceUtil::Int64>(mach_absolute_time() * machMultiplier));
 #else
         struct timespec ts;
         if(clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
@@ -197,8 +197,8 @@ IceUtil::Time::microSecondsDouble(double t)
 IceUtil::Time::operator timeval() const
 {
     timeval tv;
-    tv.tv_sec = static_cast<long>(_usec / 1000000);
-    tv.tv_usec = static_cast<long>(_usec % 1000000);
+    tv.tv_sec = static_cast<time_t>(_usec / 1000000);
+    tv.tv_usec = static_cast<suseconds_t>(_usec % 1000000);
     return tv;
 }
 #endif
