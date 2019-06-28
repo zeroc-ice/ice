@@ -46,7 +46,7 @@ const CertificateOID IceSSL::certificateOIDS[] =
 const int IceSSL::certificateOIDSSize = sizeof(IceSSL::certificateOIDS) / sizeof(CertificateOID);
 
 CertificateReadException::CertificateReadException(const char* file, int line, const string& r) :
-    ExceptionHelper<CertificateReadException>(file, line),
+    IceUtil::ExceptionHelper<CertificateReadException>(file, line),
     reason(r)
 {
 }
@@ -72,7 +72,7 @@ CertificateReadException::ice_clone() const
 #endif
 
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r) :
-    ExceptionHelper<CertificateEncodingException>(file, line),
+    IceUtil::ExceptionHelper<CertificateEncodingException>(file, line),
     reason(r)
 {
 }
@@ -98,7 +98,7 @@ CertificateEncodingException::ice_clone() const
 #endif
 
 ParseException::ParseException(const char* file, int line, const string& r) :
-    ExceptionHelper<ParseException>(file, line),
+    IceUtil::ExceptionHelper<ParseException>(file, line),
     reason(r)
 {
 }
