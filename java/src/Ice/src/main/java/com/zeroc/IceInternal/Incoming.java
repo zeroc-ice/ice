@@ -81,7 +81,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
         if(_os != null)
         {
-            _os.reset();
+            _os.reset(); // Reset the output stream to prepare it for re-use.
         }
 
         _is = null;
@@ -397,7 +397,10 @@ final public class Incoming implements com.zeroc.Ice.Request
             // Let's rewind _is and reset _os
             //
             _is.pos(_inParamPos);
-            _os = null;
+            if(_response && _os != null)
+            {
+                _os.reset();
+            }
         }
     }
 
@@ -454,14 +457,17 @@ final public class Incoming implements com.zeroc.Ice.Request
         return os;
     }
 
-    public com.zeroc.Ice.OutputStream startWriteParams()
+    public OutputStream startWriteParams()
     {
         if(!_response)
         {
             throw new com.zeroc.Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+        // If there's an output stream set, re-use it for the response
+        OutputStream os = _os == null ? new OutputStream(_instance, Protocol.currentProtocolEncoding) : _os;
+        assert(os.pos() == 0);
+        _os = null;
         os.writeBlob(Protocol.replyHdr);
         os.writeInt(_current.requestId);
         os.writeByte(ReplyStatus.replyOK);
@@ -481,7 +487,10 @@ final public class Incoming implements com.zeroc.Ice.Request
     {
         if(_response)
         {
-            OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+            // If there's an output stream set, re-use it for the response
+            OutputStream os = _os == null ? new OutputStream(_instance, Protocol.currentProtocolEncoding) : _os;
+            assert(os.pos() == 0);
+            _os = null;
             os.writeBlob(Protocol.replyHdr);
             os.writeInt(_current.requestId);
             os.writeByte(ReplyStatus.replyOK);
@@ -503,7 +512,10 @@ final public class Incoming implements com.zeroc.Ice.Request
 
         if(_response)
         {
-            OutputStream os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+            // If there's an output stream set, re-use it for the response
+            OutputStream os = _os == null ? new OutputStream(_instance, Protocol.currentProtocolEncoding) : _os;
+            assert(os.pos() == 0);
+            _os = null;
             os.writeBlob(Protocol.replyHdr);
             os.writeInt(_current.requestId);
             os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
@@ -563,6 +575,21 @@ final public class Incoming implements com.zeroc.Ice.Request
     {
         assert(_responseHandler != null);
 
+        if(_response)
+        {
+            //
+            // If there's already a response output stream, reset it to re-use it
+            //
+            if(_os != null)
+            {
+                _os.reset();
+            }
+            else
+            {
+                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
+            }
+        }
+
         try
         {
             throw exc;
@@ -597,7 +624,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
@@ -659,7 +685,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -690,7 +715,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
@@ -721,7 +745,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
@@ -747,7 +770,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUserException);
@@ -788,7 +810,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -834,7 +855,6 @@ final public class Incoming implements com.zeroc.Ice.Request
             if(_response)
             {
                 assert(_responseHandler != null && _current != null);
-                _os = new OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
