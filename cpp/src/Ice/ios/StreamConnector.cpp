@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "StreamTransceiver.h"
 #include "StreamEndpointI.h"
 #include "StreamConnector.h"
@@ -139,3 +143,4 @@ IceObjC::StreamConnector::StreamConnector(const InstancePtr& instance,
 IceObjC::StreamConnector::~StreamConnector()
 {
 }
+#endif

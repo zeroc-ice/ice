@@ -5,6 +5,10 @@
 #ifndef ICE_STREAM_ENDPOINT_I_H
 #define ICE_STREAM_ENDPOINT_I_H
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include <Ice/ProtocolInstance.h>
 #include <Ice/IPEndpointI.h>
 #include <Ice/WSEndpoint.h>
@@ -149,5 +153,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif

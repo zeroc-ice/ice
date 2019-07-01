@@ -5,6 +5,10 @@
 #ifndef ICE_STREAM_TRANSCEIVER_H
 #define ICE_STREAM_TRANSCEIVER_H
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include <Ice/WSTransceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Selector.h>
@@ -83,5 +87,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif
