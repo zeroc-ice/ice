@@ -2174,10 +2174,10 @@ class RemoteProcessController(ProcessController):
         except Exception:
             pass
 
-        # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
+        # Wait 60 seconds for a process controller to be registered with the ProcessControllerRegistry
         with self.cond:
             if not ident in self.processControllerProxies:
-                self.cond.wait(30)
+                self.cond.wait(60)
             if ident in self.processControllerProxies:
                 return self.processControllerProxies[ident]
 
