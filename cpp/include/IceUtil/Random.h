@@ -37,7 +37,7 @@ struct RandomNumberGenerator : public std::unary_function<std::ptrdiff_t, std::p
 {
     std::ptrdiff_t operator()(std::ptrdiff_t d)
     {
-        return IceUtilInternal::random(static_cast<int>(d));
+        return static_cast<std::ptrdiff_t>(IceUtilInternal::random(static_cast<int>(d)));
     }
 };
 

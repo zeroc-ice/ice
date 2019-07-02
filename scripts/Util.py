@@ -2177,10 +2177,10 @@ class RemoteProcessController(ProcessController):
         except Exception:
             pass
 
-        # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
+        # Wait 60 seconds for a process controller to be registered with the ProcessControllerRegistry
         with self.cond:
             if not ident in self.processControllerProxies:
-                self.cond.wait(30)
+                self.cond.wait(60)
             if ident in self.processControllerProxies:
                 return self.processControllerProxies[ident]
 
@@ -3221,9 +3221,7 @@ class JavaMapping(Mapping):
                 "IceSSL.Keystore": "server.bks" if isinstance(process, Server) else "client.bks"
             })
         else:
-            # WORKAROUND JDK 11 sporadic connection failures with OpenSSL TLS 1.3 enabled server
             props.update({
-                "IceSSL.Protocols": "TLS1_2",
                 "IceSSL.Keystore": "server.jks" if isinstance(process, Server) else "client.jks",
             })
         return props

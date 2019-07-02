@@ -164,7 +164,7 @@ struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
 #ifdef ICE_CPP11_MAPPING
         std::pair<const T*, const T*> a;
         stream->read(a);
-        size_t count = a.second - a.first;
+        size_t count = static_cast<size_t>(a.second - a.first);
         if(count > 0)
         {
             auto b = new T[count];

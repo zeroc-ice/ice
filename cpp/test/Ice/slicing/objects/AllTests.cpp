@@ -3161,7 +3161,7 @@ allTests(Test::TestHelper* helper)
             test(p3->pi == 3);
             for(int i = 0; i < 300; ++i)
             {
-                auto p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[i]);
+                auto p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
                 test(p2->pi == i);
                 test(p2->pbs.size() == 1);
                 test(!p2->pbs[0]);

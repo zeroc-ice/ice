@@ -8,10 +8,13 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.7.3](#changes-in-ice-373)
+  * [C# Changes](#c-changes)
+  * [Java Changes](#java-changes)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   * [General Changes](#general-changes)
-  * [C++ Changes](#c-changes)
-  * [C# Changes](#c-changes-1)
+  * [C++ Changes](#c-changes-1)
+  * [C# Changes](#c-changes-2)
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
   * [MATLAB Changes](#matlab-changes)
@@ -20,8 +23,8 @@ particular aspect of Ice.
   * [Python Changes](#python-changes)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   * [General Changes](#general-changes-1)
-  * [C++ Changes](#c-changes-2)
-  * [C# Changes](#c-changes-3)
+  * [C++ Changes](#c-changes-3)
+  * [C# Changes](#c-changes-4)
   * [Java Changes](#java-changes-1)
   * [JavaScript Changes](#javascript-changes-1)
   * [MATLAB Changes](#matlab-changes-1)
@@ -31,14 +34,32 @@ particular aspect of Ice.
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   * [General Changes](#general-changes-2)
-  * [C++ Changes](#c-changes-4)
-  * [C# Changes](#c-changes-5)
+  * [C++ Changes](#c-changes-5)
+  * [C# Changes](#c-changes-6)
   * [Java Changes](#java-changes-2)
   * [JavaScript Changes](#javascript-changes-2)
   * [Objective-C Changes](#objective-c-changes-2)
   * [PHP Changes](#php-changes-2)
   * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes-1)
+
+# Changes in Ice 3.7.3
+
+These are the changes since Ice 3.7.2.
+
+## Java Changes
+
+- Added back support for caching the output stream used to marshal the response
+  of a synchronous dispatch.
+
+- Add support to build Ice as modular JAR files, this is automatically done
+  when building Ice for Java with JDK 9 or greater, the JARs are compatible
+  with JDK 8.
+
+## C# Changes
+
+- Added back support for caching the output stream used to marshal the response
+  of a synchronous dispatch.
 
 # Changes in Ice 3.7.2
 

@@ -212,12 +212,11 @@ IceInternal::DynamicLibrary::load(const string& lib)
     // Don't need to use a wide string converter as the wide string is passed
     // to Windows API.
     //
-#ifdef ICE_OS_UWP
+#if defined(ICE_OS_UWP)
     _hnd = LoadPackagedLibrary(stringToWstring(lib, getProcessStringConverter()).c_str(), 0);
 #elif defined(_WIN32)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
-
     int flags = RTLD_NOW | RTLD_GLOBAL;
 #ifdef _AIX
     flags |= RTLD_MEMBER;
@@ -230,8 +229,10 @@ IceInternal::DynamicLibrary::load(const string& lib)
         //
         // Remember the most recent error in _err.
         //
-#ifdef _WIN32
-        _err = IceUtilInternal::lastErrorToString();
+#if defined(ICE_OS_UWP)
+        _err = "LoadPackagedLibrary on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
+#elif defined(_WIN32)
+        _err = "LoadLibraryW on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if(err)
@@ -260,7 +261,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
         // Remember the most recent error in _err.
         //
 #ifdef _WIN32
-        _err = IceUtilInternal::lastErrorToString();
+        _err = "GetProcAddress for `" + name + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if(err)

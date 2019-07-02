@@ -489,6 +489,7 @@ function allTests($helper)
     test($cl == $base);
     test($derived == $base);
     test($cl == $derived);
+    test($base->ice_checkedCast("::Test::MyClass", "facet") == null);
     echo "ok\n";
 
     echo "testing checked cast with context... ";

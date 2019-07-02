@@ -12,6 +12,11 @@ classdef InputStream < handle
             obj.encoding = encoding;
             obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
             obj.size = buf.size;
+            obj.classGraphDepthMax = ...
+                communicator.getProperties().getPropertyAsIntWithDefault('Ice.ClassGraphDepthMax', 100);
+            if obj.classGraphDepthMax < 1 || obj.classGraphDepthMax > intmax('int32')
+                obj.classGraphDepthMax = intmax('int32');
+            end
         end
         function r = getCommunicator(obj)
             r = obj.communicator;
@@ -818,11 +823,11 @@ classdef InputStream < handle
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                                                    obj.communicator.getClassResolver());
+                                                    obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 else
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                                                    obj.communicator.getClassResolver());
+                                                    obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 end
             end
         end
@@ -856,5 +861,6 @@ classdef InputStream < handle
         size int32
         startSeq int32 = -1
         minSeqSize int32 = 0
+        classGraphDepthMax = 0
     end
 end

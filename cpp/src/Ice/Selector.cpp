@@ -928,7 +928,9 @@ Selector::updateSelector()
 }
 
 void
-Selector::updateSelectorForEventHandler(EventHandler* handler, SocketOperation remove, SocketOperation add)
+Selector::updateSelectorForEventHandler(EventHandler* handler,
+                                        ICE_MAYBE_UNUSED SocketOperation remove,
+                                        ICE_MAYBE_UNUSED SocketOperation add)
 {
 #if defined(ICE_USE_EPOLL)
     SocketOperation previous = handler->_registered;

@@ -263,7 +263,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
         checkErrorStatus(_writeStream, __FILE__, __LINE__);
     }
 
-    size_t packetSize = buf.b.end() - buf.i;
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(![_writeStream hasSpaceAvailable])
@@ -287,7 +287,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 
         if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 
@@ -303,7 +303,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
         checkErrorStatus(_readStream, __FILE__, __LINE__);
     }
 
-    size_t packetSize = buf.b.end() - buf.i;
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(![_readStream hasBytesAvailable] && [_readStream streamStatus] != NSStreamStatusError)
@@ -332,7 +332,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
 
         if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 

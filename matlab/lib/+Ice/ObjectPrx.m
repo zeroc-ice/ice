@@ -1236,7 +1236,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     r = p;
                 end
             catch ex
-                ex.throwAsCaller();
+                if isa(ex, 'Ice.FacetNotExistException')
+                    r = [];
+                else
+                    ex.throwAsCaller();
+                end
             end
         end
 

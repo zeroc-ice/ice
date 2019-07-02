@@ -885,6 +885,7 @@ allTests(Test::TestHelper* helper)
 
         Ice::OutputStream out2(communicator);
         out2.write(arrS);
+        out2.writePendingValues();
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
@@ -893,10 +894,30 @@ allTests(Test::TestHelper* helper)
 #endif
         MyClassSS arr2S;
         in2.read(arr2S);
+        in2.readPendingValues();
         test(arr2S.size() == arrS.size());
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
+        for(size_t j = 0; j < arr2S.size(); ++j)
+        {
+            for(size_t k = 0; k < arr2S[j].size(); ++k)
+            {
+                test(arr2S[j][k]->c == arr2S[j][k]);
+                test(arr2S[j][k]->o == arr2S[j][k]);
+                test(arr2S[j][k]->s.e == ICE_ENUM(MyEnum, enum2));
+                test(arr2S[j][k]->seq1 == arr[k]->seq1);
+                test(arr2S[j][k]->seq2 == arr[k]->seq2);
+                test(arr2S[j][k]->seq3 == arr[k]->seq3);
+                test(arr2S[j][k]->seq4 == arr[k]->seq4);
+                test(arr2S[j][k]->seq5 == arr[k]->seq5);
+                test(arr2S[j][k]->seq6 == arr[k]->seq6);
+                test(arr2S[j][k]->seq7 == arr[k]->seq7);
+                test(arr2S[j][k]->seq8 == arr[k]->seq8);
+                test(arr2S[j][k]->seq9 == arr[k]->seq9);
+                test(arr2S[j][k]->d["hi"] == arr2S[j][k]);
+            }
+        }
 
 #ifdef ICE_CPP11_MAPPING
         auto clearS = [](MyClassS& arr3) {

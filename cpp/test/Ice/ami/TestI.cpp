@@ -80,7 +80,7 @@ TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     while(_batchCount < count)
     {
-        timedWait(IceUtil::Time::milliSeconds(5000));
+        test(timedWait(IceUtil::Time::milliSeconds(5000)));
     }
     bool result = count == _batchCount;
     _batchCount = 0;

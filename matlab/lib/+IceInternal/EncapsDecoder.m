@@ -4,12 +4,14 @@
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver)
+        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
             obj.is = is;
             obj.encaps = encaps;
             obj.sliceValues = sliceValues;
             obj.valueFactoryManager = valueFactoryManager;
             obj.classResolver = classResolver;
+            obj.classGraphDepthMax = classGraphDepthMax;
+            obj.classGraphDepth = 0;
             obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.typeIdMap = containers.Map('KeyType', 'int32', 'ValueType', 'char');
@@ -156,7 +158,10 @@ classdef (Abstract) EncapsDecoder < handle
             %
             % Append a patch entry for this instance.
             %
-            pl.list{end + 1} = cb;
+            e = IceInternal.PatchEntry();
+            e.cb = cb;
+            e.classGraphDepth = obj.classGraphDepth;
+            pl.list{end + 1} = e;
         end
 
         function unmarshal(obj, index, v)
@@ -182,8 +187,8 @@ classdef (Abstract) EncapsDecoder < handle
                 % Patch all pointers that refer to the instance.
                 %
                 for i = 1:length(l.list)
-                    cb = l.list{i};
-                    cb(v);
+                    e = l.list{i};
+                    e.cb(v);
                 end
 
                 %
@@ -238,6 +243,8 @@ classdef (Abstract) EncapsDecoder < handle
         sliceValues
         valueFactoryManager
         classResolver
+        classGraphDepth
+        classGraphDepthMax
         patchMap
     end
     properties(Access=private)

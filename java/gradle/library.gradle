@@ -71,18 +71,18 @@ javadoc.dependsOn(compileSlice)
 javadoc {
     // We rely on Java9+ javadoc features
     enabled = JavaVersion.current() > JavaVersion.VERSION_1_8
-
+    doFirst {
+        exclude "**/module-info.java"
+        options.addBooleanOption('html5', true)
+    }
     failOnError = true
     options.header = project.ext.displayName
-
     if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
         // TODO: --no-module-directories is an undocumented option required for the
         // generated search to work properly. Without this option, search returns
         // .../undefined/... URLs.
         options.addBooleanOption('-no-module-directories', true)
     }
-    options.addBooleanOption('html5', true)
-    classpath = project.sourceSets.main.compileClasspath
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

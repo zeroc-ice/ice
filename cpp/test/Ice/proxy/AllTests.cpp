@@ -1083,6 +1083,7 @@ allTests(Test::TestHelper* helper)
     test(cl == base);
     test(derived == base);
     test(cl == derived);
+    test(ICE_CHECKED_CAST(Test::MyDerivedClassPrx, cl, "facet") == ICE_NULLPTR);
 
     Ice::LocatorPrxPtr loc = ICE_CHECKED_CAST(Ice::LocatorPrx, base);
     test(loc == 0);

@@ -808,6 +808,7 @@ public class AllTests
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
+        test(MyDerivedClassPrxHelper.checkedCast(cl, "facet") == null);
         out.println("ok");
 
         out.print("testing checked cast with context... ");

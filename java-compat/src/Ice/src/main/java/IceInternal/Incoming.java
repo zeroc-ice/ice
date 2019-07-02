@@ -67,9 +67,12 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 _inAsync.kill(this);
                 _inAsync = null;
             }
-            _os = null;
 
             _is.pos(_inParamPos);
+            if(_response)
+            {
+                _os.reset();
+            }
         }
     }
 

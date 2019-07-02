@@ -88,7 +88,7 @@ StreamHelper::sync()
         IceUtil::Mutex::Lock sync(_mutex);
         if(_controllerHelper)
         {
-            _controllerHelper->print(std::string(pbase(), static_cast<int>(n)));
+            _controllerHelper->print(std::string(pbase(), static_cast<size_t>(n)));
         }
     }
     pbump(-static_cast<int>(pptr() - pbase()));

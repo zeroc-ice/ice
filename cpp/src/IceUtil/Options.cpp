@@ -529,7 +529,7 @@ IceUtilInternal::Options::split(const string& line)
             }
             default:
             {
-                assert(!"Impossible parse state");
+                assert(false); // Impossible parse state
                 break;
             }
         }
@@ -559,7 +559,7 @@ IceUtilInternal::Options::split(const string& line)
         }
         default:
         {
-            assert(!"Impossible parse state");
+            assert(false); // Impossible parse state
             break;
         }
     }

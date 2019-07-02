@@ -12,7 +12,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.5'
+        classpath 'gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.7'
     }
 }
 
@@ -93,12 +93,20 @@ clean {
     delete("src/main/res/raw/server.bks")
 }
 
+ext.localDependency = { artifactId ->
+    if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
+        return ":${artifactId}-${project.slice.iceArtifactVersion}"
+    } else {
+        return "com.zeroc:${artifactId}:${project.version}"
+    }
+}
+
 dependencies {
-    implementation "com.zeroc:glacier2:${project.iceVersion}"
-    implementation "com.zeroc:ice:${project.iceVersion}"
-    implementation "com.zeroc:icessl:${project.iceVersion}"
-    runtimeOnly "com.zeroc:icediscovery:${project.iceVersion}"
-    runtimeOnly "com.zeroc:icebt:${project.iceVersion}"
+    implementation localDependency("glacier2")
+    implementation localDependency("ice")
+    implementation localDependency("icessl")
+    runtimeOnly localDependency("icediscovery")
+    runtimeOnly localDependency("icebt")
 
     implementation files("${rootProject.projectDir}/../../../lib/test.jar")
     runtimeOnly "org.apache.commons:commons-compress:1.14"

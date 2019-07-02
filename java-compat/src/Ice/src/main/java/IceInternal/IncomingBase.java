@@ -21,6 +21,11 @@ class IncomingBase
         _current.adapter = adapter;
         _current.con = connection;
         _current.requestId = requestId;
+
+        if(_response)
+        {
+            _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
+        }
     }
 
     protected
@@ -45,6 +50,11 @@ class IncomingBase
         _cookie = other._cookie;
         other._cookie = null;
 
+        if(_response)
+        {
+            _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
+        }
+
         //
         // Deep copy
         //
@@ -66,7 +76,6 @@ class IncomingBase
             throw new Ice.MarshalException("can't marshal out parameters for oneway dispatch");
         }
 
-        _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
         _os.writeBlob(Protocol.replyHdr);
         _os.writeInt(_current.requestId);
         _os.writeByte(ReplyStatus.replyOK);
@@ -88,7 +97,6 @@ class IncomingBase
     {
         if(_response)
         {
-            _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
             _os.writeBlob(Protocol.replyHdr);
             _os.writeInt(_current.requestId);
             _os.writeByte(ReplyStatus.replyOK);
@@ -106,7 +114,6 @@ class IncomingBase
 
         if(_response)
         {
-            _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
             _os.writeBlob(Protocol.replyHdr);
             _os.writeInt(_current.requestId);
             _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
@@ -142,6 +149,11 @@ class IncomingBase
         _current.con = connection;
         _current.requestId = requestId;
 
+        if(_response && _os == null)
+        {
+            _os = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
+        }
+
         _interceptorCBs = null;
     }
 
@@ -160,7 +172,10 @@ class IncomingBase
         //_observer = null;
         assert(_observer == null);
 
-        _os = null;
+        if(_os != null)
+        {
+            _os.reset(); // Reset the output stream to prepare it for re-use.
+        }
 
         _responseHandler = null;
 
@@ -280,6 +295,11 @@ class IncomingBase
     {
         assert(_responseHandler != null);
 
+        if(_response)
+        {
+            _os.reset();
+        }
+
         if(exc instanceof Ice.SystemException)
         {
             if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)exc, amd))
@@ -321,7 +341,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 if(ex instanceof Ice.ObjectNotExistException)
@@ -382,7 +401,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -412,7 +430,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
@@ -442,7 +459,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
@@ -472,7 +488,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
@@ -503,7 +518,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUserException);
@@ -535,7 +549,6 @@ class IncomingBase
 
             if(_response)
             {
-                _os = new Ice.OutputStream(_instance, Protocol.currentProtocolEncoding);
                 _os.writeBlob(Protocol.replyHdr);
                 _os.writeInt(_current.requestId);
                 _os.writeByte(ReplyStatus.replyUnknownException);
