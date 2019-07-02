@@ -273,8 +273,20 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
     int nProcessors = sysInfo.dwNumberOfProcessors;
+#   elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+    static int ncpu[2] = { CTL_HW, HW_NCPU };
+    size_t sz = sizeof(nProcessors);
+    int nProcessors;
+    if(sysctl(ncpu, 2, &nProcessors, &sz, 0, 0) == -1)
+    {
+        nProcessors = 1;
+    }
 #   else
     int nProcessors = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
+    if(nProcessors == -1)
+    {
+        nProcessors = 1;
+    }
 #   endif
 #endif
 

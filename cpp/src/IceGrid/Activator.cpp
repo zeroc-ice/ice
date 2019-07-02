@@ -743,6 +743,11 @@ Activator::activate(const string& name,
         // of the newly created pipe.
         //
         int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
+        if(maxFd <= 0)
+        {
+            maxFd = INT_MAX;
+        }
+
         for(int fd = 3; fd < maxFd; ++fd)
         {
             if(fd != fds[1] && fd != errorFds[1])
