@@ -172,31 +172,35 @@ def create_platform_targets(project, platform)
     end
 
     #
-    # Ice for Swift framework
+    # IceObjc framework
     #
-    ice_target = project.new_target(:framework, "Ice", platform)
-    ice_target.name = "Ice #{platform_name}"
+    iceobjc_target = project.new_target(:framework, "IceObjc", platform)
+    iceobjc_target.name = "IceObjc #{platform_name}"
 
-    target = ice_target
+    target = iceobjc_target
     target.frameworks_build_phases.clear()
 
     group = project_group(project, "src/IceObjc")
     target_add_files(target, group, "src/IceObjc", ["*.mm"])
-    target_add_headers(target, group, "src/IceObjc", ["*.h"], attributes: ["Private"])
+    target_add_headers(target, group, "src/IceObjc", ["*.h"],
+                       excludes: ["Convert.h", "LoggerWrapperI.h"],
+                       attributes: ["Public"])
 
-    target_set_common_build_settings(target, "Ice", plist: "src/Ice/Info.plist", swift: true)
+    target_set_common_build_settings(target, "IceObjc", plist: "src/IceObjc/Info.plist")
 
+    #
+    # IceObjc depends on Ice for C++ frameworks
+    #
+    target.frameworks_build_phases.clear()
     cpp_targets.each do |t|
         target.frameworks_build_phases.add_file_reference(t.product_reference, true)
     end
-
     target.build_configurations.each { |config|
         config.build_settings["HEADER_SEARCH_PATHS"] = [
             "$(SRCROOT)/../cpp/include/",
             "$(SYMROOT)/$(PLATFORM_NAME)/include/",
             "$(SRCROOT)/../cpp/src/"
         ]
-        config.build_settings["SWIFT_INCLUDE_PATHS"] = "$(SRCROOT)/src/IceObjc"
         config.build_settings["DEFINES_MODULE"] = "YES"
         config.build_settings["OTHER_LDFLAGS"] = [
             "-lbz2",
@@ -213,15 +217,31 @@ def create_platform_targets(project, platform)
         end
     }
     target_set_framework_build_settings(target)
-    target_add_carthage_framework(target, platform, "PromiseKit.framework")
-
+    target.add_system_framework("Security")
     if platform == :ios then
         target.add_system_framework("ExternalAccessory")
-        target.add_system_framework("Security")
         target.add_system_framework("CFNetwork")
         target.add_system_framework("Foundation")
         target.add_system_framework("UIKit")
     end
+
+    #
+    # Ice for Swift framework
+    #
+    ice_target = project.new_target(:framework, "Ice", platform)
+    ice_target.name = "Ice #{platform_name}"
+
+    target = ice_target
+    target.frameworks_build_phases.clear()
+    target.frameworks_build_phases.add_file_reference(iceobjc_target.product_reference, true)
+
+    target_set_common_build_settings(target, "Ice", plist: "src/Ice/Info.plist", swift: true)
+
+    target.build_configurations.each { |config|
+        config.build_settings["DEFINES_MODULE"] = "YES"
+    }
+    target_set_framework_build_settings(target)
+    target_add_carthage_framework(target, platform, "PromiseKit.framework")
 
     group = project_group(project, "src/Ice")
     group_add_files(group, "src/Ice", ["*.plist"])
@@ -324,12 +344,12 @@ def create_platform_targets(project, platform)
     end
 
     #
-    # Copy Ice and TestCommon frameworks to the test driver
+    # Copy IceObjc, Ice and TestCommon frameworks to the test driver
     #
     copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
 
-    [ice_target, test_common_target].each do |t|
+    [iceobjc_target, ice_target, test_common_target].each do |t|
         file = copy_phase.add_file_reference(t.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
         target.frameworks_build_phases.add_file_reference(t.product_reference)
@@ -439,6 +459,7 @@ def create_platform_targets(project, platform)
     # Ensure Ice.framework has a shared scheme to build it, this is required for Carthage builds
     #
     scheme = Xcodeproj::XCScheme.new
+    scheme.add_build_target(iceobjc_target)
     scheme.add_build_target(ice_target)
     scheme.add_build_target(glacier2_target)
     scheme.add_build_target(icestorm_target)

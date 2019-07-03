@@ -3,10 +3,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Config.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ICEExceptionFactory
+ICEOBJC_API @protocol ICEExceptionFactory
 +(NSError*) initializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) pluginInitializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) collocationOptimizationException:(NSString*)file line:(size_t)line;
@@ -89,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 +(NSError*) runtimeError:(NSString*)message;
 @end
 
-@interface ICERuntimeException : NSObject
+ICEOBJC_API @interface ICERuntimeException : NSObject
 @property NSString* file;
 @property int line;
 @end
@@ -97,33 +98,33 @@ NS_ASSUME_NONNULL_BEGIN
 //
 // Request Failed exceptions
 //
-@interface ICERequestFailedException : ICERuntimeException
+ICEOBJC_API @interface ICERequestFailedException : ICERuntimeException
 @property (nonatomic) NSString* name;
 @property (nonatomic) NSString* category;
 @property (nonatomic) NSString* facet;
 @property (nonatomic) NSString* operation;
 @end
 
-@interface ICEObjectNotExistException : ICERequestFailedException
+ICEOBJC_API @interface ICEObjectNotExistException : ICERequestFailedException
 @end
 
-@interface ICEFacetNotExistException : ICERequestFailedException
+ICEOBJC_API @interface ICEFacetNotExistException : ICERequestFailedException
 @end
 
-@interface ICEOperationNotExistException : ICERequestFailedException
+ICEOBJC_API @interface ICEOperationNotExistException : ICERequestFailedException
 @end
 
 //
 // Unknown exceptions
 //
-@interface ICEUnknownException : ICERuntimeException
+ICEOBJC_API @interface ICEUnknownException : ICERuntimeException
 @property (nonatomic) NSString* unknown;
 @end
 
-@interface ICEUnknownLocalException : ICEUnknownException
+ICEOBJC_API @interface ICEUnknownLocalException : ICEUnknownException
 @end
 
-@interface ICEUnknownUserException : ICEUnknownException
+ICEOBJC_API @interface ICEUnknownUserException : ICEUnknownException
 @end
 
 NS_ASSUME_NONNULL_END

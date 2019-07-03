@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICEProperties : ICELocalObject
+ICEOBJC_API @interface ICEProperties : ICELocalObject
 -(nonnull NSString*) getProperty:(NSString*)key;
 -(nonnull NSString*) getPropertyWithDefault:(NSString*)key value:(NSString*)value;
 -(int32_t) getPropertyAsInt:(NSString*)key;

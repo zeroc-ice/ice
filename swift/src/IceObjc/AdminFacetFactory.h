@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ICEAdminFacetFactory
+ICEOBJC_API @protocol ICEAdminFacetFactory
 +(id<ICEBlobjectFacade>) createProcess:(ICECommunicator*)communicator handle:(ICEProcess*)handle;
 +(id<ICEBlobjectFacade>) createProperties:(ICECommunicator*)communicator handle:(ICEPropertiesAdmin*)handle;
 +(id<ICEBlobjectFacade>) createUnsupported:(ICECommunicator*)communicator handle:(ICEUnsupportedAdminFacet*)handle;

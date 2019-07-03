@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ICEOutputStreamHelper
+ICEOBJC_API @protocol ICEOutputStreamHelper
 -(void) copy:(NSData*)bytes;
 @end
 

@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICECommunicator : ICELocalObject
+ICEOBJC_API @interface ICECommunicator : ICELocalObject
 -(void) destroy;
 -(void) shutdown;
 -(void) waitForShutdown;

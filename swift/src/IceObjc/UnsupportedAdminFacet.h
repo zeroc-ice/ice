@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICEUnsupportedAdminFacet: ICELocalObject
+ICEOBJC_API @interface ICEUnsupportedAdminFacet: ICELocalObject
 @end
 
 NS_ASSUME_NONNULL_END

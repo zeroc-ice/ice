@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICEProcess : ICELocalObject
+ICEOBJC_API @interface ICEProcess : ICELocalObject
 -(void) shutdown;
 -(void) writeMessage:(NSString*)message fd:(int32_t)fd;
 @end

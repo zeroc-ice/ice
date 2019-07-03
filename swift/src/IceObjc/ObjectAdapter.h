@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICEObjectAdapter: ICELocalObject
+ICEOBJC_API @interface ICEObjectAdapter: ICELocalObject
 -(NSString*) getName;
 -(ICECommunicator*) getCommunicator;
 -(BOOL) activate:(NSError* _Nullable * _Nullable)error;
