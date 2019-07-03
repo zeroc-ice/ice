@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 
 class PropertiesI: LocalObject<ICEProperties>, Properties {
     public func getProperty(_ key: String) -> String {

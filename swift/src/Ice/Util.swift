@@ -3,7 +3,7 @@
 //
 
 import Dispatch
-import IceObjc
+import IceImpl
 
 /// Converts a string to an encoding version.
 ///

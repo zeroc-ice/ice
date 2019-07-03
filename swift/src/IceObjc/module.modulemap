@@ -1,5 +1,0 @@
-framework module IceObjc {
-  umbrella header "IceObjc.h"
-
-  export *
-}

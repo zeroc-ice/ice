@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import IceObjc
+import IceImpl
 
 public final class Incoming {
     private let current: Current

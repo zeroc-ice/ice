@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 
 /// Request is an opaque type that represents an incoming request.
 public typealias Request = Incoming

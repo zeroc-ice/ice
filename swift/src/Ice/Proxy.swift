@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import IceObjc
+import IceImpl
 import PromiseKit
 
 /// The base protocol for all Ice proxies.

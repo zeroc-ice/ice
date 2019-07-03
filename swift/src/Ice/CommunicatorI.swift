@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 import PromiseKit
 
 class CommunicatorI: LocalObject<ICECommunicator>, Communicator {

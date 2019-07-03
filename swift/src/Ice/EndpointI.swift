@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 
 class EndpointI: LocalObject<ICEEndpoint>, Endpoint {
     func toString() -> String {

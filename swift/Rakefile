@@ -172,24 +172,24 @@ def create_platform_targets(project, platform)
     end
 
     #
-    # IceObjc framework
+    # IceImpl framework
     #
-    iceobjc_target = project.new_target(:framework, "IceObjc", platform)
-    iceobjc_target.name = "IceObjc #{platform_name}"
+    iceimpl_target = project.new_target(:framework, "IceImpl", platform)
+    iceimpl_target.name = "IceImpl #{platform_name}"
 
-    target = iceobjc_target
+    target = iceimpl_target
     target.frameworks_build_phases.clear()
 
-    group = project_group(project, "src/IceObjc")
-    target_add_files(target, group, "src/IceObjc", ["*.mm"])
-    target_add_headers(target, group, "src/IceObjc", ["*.h"],
+    group = project_group(project, "src/IceImpl")
+    target_add_files(target, group, "src/IceImpl", ["*.mm"])
+    target_add_headers(target, group, "src/IceImpl", ["*.h"],
                        excludes: ["Convert.h", "LoggerWrapperI.h"],
                        attributes: ["Public"])
 
-    target_set_common_build_settings(target, "IceObjc", plist: "src/IceObjc/Info.plist")
+    target_set_common_build_settings(target, "IceImpl", plist: "src/IceImpl/Info.plist")
 
     #
-    # IceObjc depends on Ice for C++ frameworks
+    # IceImpl depends on Ice for C++ frameworks
     #
     target.frameworks_build_phases.clear()
     cpp_targets.each do |t|
@@ -233,7 +233,7 @@ def create_platform_targets(project, platform)
 
     target = ice_target
     target.frameworks_build_phases.clear()
-    target.frameworks_build_phases.add_file_reference(iceobjc_target.product_reference, true)
+    target.frameworks_build_phases.add_file_reference(iceimpl_target.product_reference, true)
 
     target_set_common_build_settings(target, "Ice", plist: "src/Ice/Info.plist", swift: true)
 
@@ -344,12 +344,12 @@ def create_platform_targets(project, platform)
     end
 
     #
-    # Copy IceObjc, Ice and TestCommon frameworks to the test driver
+    # Copy IceImpl, Ice and TestCommon frameworks to the test driver
     #
     copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
 
-    [iceobjc_target, ice_target, test_common_target].each do |t|
+    [iceimpl_target, ice_target, test_common_target].each do |t|
         file = copy_phase.add_file_reference(t.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
         target.frameworks_build_phases.add_file_reference(t.product_reference)
@@ -451,10 +451,10 @@ def create_platform_targets(project, platform)
     end
 
     #
-    # Ensure Ice.framework has a shared scheme to build it, this is required for Carthage builds
+    # Ensure there is a shared scheme to build the frameworks distributed with Carthage builds
     #
     scheme = Xcodeproj::XCScheme.new
-    scheme.add_build_target(iceobjc_target)
+    scheme.add_build_target(iceimpl_target)
     scheme.add_build_target(ice_target)
     scheme.add_build_target(glacier2_target)
     scheme.add_build_target(icestorm_target)

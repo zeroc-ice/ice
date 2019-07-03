@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import IceObjc
+import IceImpl
 
 private class ConnectionInfoI: ConnectionInfo {
     var underlying: ConnectionInfo?

@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import IceObjc
+import IceImpl
 
 /// Stream class to write (marshal) Slice types into a sequence of bytes.
 public class OutputStream {

@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import IceObjc
+import IceImpl
 
 /// Stream class to read (unmarshal) Slice types from a sequence of bytes.
 public class InputStream {

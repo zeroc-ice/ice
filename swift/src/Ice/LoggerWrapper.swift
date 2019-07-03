@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 
 // Wraps Swift Loggers so they can be called by ObjC/C++
 class LoggerWrapper: ICELoggerProtocol {

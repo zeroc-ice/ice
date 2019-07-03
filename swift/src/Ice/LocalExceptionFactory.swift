@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 
 class ExceptionFactory: ICEExceptionFactory {
     static func initializationException(_ reason: String, file: String, line: Int) -> Error {

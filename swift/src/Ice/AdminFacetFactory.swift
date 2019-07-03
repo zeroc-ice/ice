@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import IceObjc
+import IceImpl
 
 class AdminFacetFacade: ICEBlobjectFacade {
     private let communicator: Communicator
