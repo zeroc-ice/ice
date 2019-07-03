@@ -359,12 +359,7 @@ def create_platform_targets(project, platform)
     target_add_carthage_framework(target, platform, "PromiseKit.framework", true)
 
     target.build_configurations.each { |config|
-        if target.name.include? "macOS"
-            config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
-        else
-            config.build_settings["CODE_SIGN_IDENTITY"] = "iPhone Developer"
-        end
-        config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
+        config.build_settings["CODE_SIGN_IDENTITY"] = "-"
     }
     test_driver_target = target
 
