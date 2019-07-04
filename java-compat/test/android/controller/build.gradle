@@ -92,9 +92,9 @@ clean {
 
 ext.localDependency = { artifactId ->
     if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
-        return ":${artifactId}-${project.slice.iceArtifactVersion}"
+        return ":${artifactId}-${project.iceVersion}"
     } else {
-        return "com.zeroc:${artifactId}:${project.version}"
+        return "com.zeroc:${artifactId}:${project.iceVersion}"
     }
 }
 
