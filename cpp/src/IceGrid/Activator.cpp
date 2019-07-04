@@ -671,6 +671,15 @@ Activator::activate(const string& name,
         getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
 #endif
     }
+    else
+    {
+       groups.resize(static_cast<size_t>(ngroups));
+    }
+
+    if(groups.size() > NGROUPS_MAX)
+    {
+        groups.resize(NGROUPS_MAX);
+    }
 
     int fds[2];
     if(pipe(fds) != 0)
@@ -741,9 +750,16 @@ Activator::activate(const string& name,
         if(getuid() == 0 && setgroups(groups.size(), &groups[0]) == -1)
         {
             ostringstream os;
-            os << pw->pw_name;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
-                                                             _traceLevels);
+            for(vector<gid_t>::const_iterator p = groups.begin(); p != groups.end(); ++p)
+            {
+                os << *p;
+                if(p + 1 != groups.end())
+                {
+                    os << ", ";
+                }
+            }
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups",
+                             os.str().c_str(), _traceLevels);
         }
 
         if(setuid(uid) == -1)

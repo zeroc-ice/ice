@@ -58,6 +58,13 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 ## C++ Changes
 
+- Fixed IceGrid node bug where the setting of supplementary groups would fail
+  if the user had more than NGROUPS_MAX groups.
+
+- Fixed IceGrid node bug where the setting of supplementary groups for a server
+  ran as a given user was incorrect when running the IceGrid node as root. The
+  server would be ran with the root/wheel supplementary group.
+
 - Fixed a debug assert in the Windows SChannel IceSSL implementation which would
   occur in rare circumstances where SChannel returned SEC_E_INCOMPLETE_MESSAGE
   with a cbBuffer value of 0. This occurred when running the JavaScript tests
