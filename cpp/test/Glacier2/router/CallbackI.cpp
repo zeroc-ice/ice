@@ -190,7 +190,8 @@ CallbackReceiverI::waitCallbackOK()
     Lock sync(*this);
     while(!_waitCallback)
     {
-        wait();
+        timedWait(IceUtil::Time::seconds(30));
+        test(_waitCallback);
     }
 
     _waitCallback = false;
