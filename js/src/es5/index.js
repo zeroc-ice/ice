@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-require("@babel/polyfill");
+require("core-js/stable");
+require("regenerator-runtime/runtime");
+
 module.exports.Ice = require("./Ice/Ice").Ice;
 module.exports.IceMX = require("./Ice/Ice").IceMX;
 module.exports.IceSSL = require("./Ice/Ice").IceSSL;
