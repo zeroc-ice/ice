@@ -60,10 +60,10 @@ dependencies {
       implementation "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
 
       if(hasJavaFx && GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
-           implementation "org.openjfx:javafx-base:11.0.2:$platform"
-           implementation "org.openjfx:javafx-swing:11.0.2:$platform"
-           implementation "org.openjfx:javafx-controls:11.0.2:$platform"
-           implementation "org.openjfx:javafx-graphics:11.0.2:$platform"
+           implementation "org.openjfx:javafx-base:${openjfxVersion}:${platform}"
+           implementation "org.openjfx:javafx-swing:${openjfxVersion}:${platform}"
+           implementation "org.openjfx:javafx-controls:${openjfxVersion}:${platform}"
+           implementation "org.openjfx:javafx-graphics:${openjfxVersion}:${platform}"
       }
 }
 
