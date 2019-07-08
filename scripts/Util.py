@@ -2982,7 +2982,7 @@ class Driver:
         initData.properties.setProperty("IceSSL.Password", "password")
         initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
         initData.properties.setProperty("IceSSL.KeychainPassword", "password")
-        initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        initData.properties.setProperty("IceSSL.VerifyPeer", "0")
 
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
@@ -3355,7 +3355,7 @@ class CSharpMapping(Mapping):
         })
         if current.config.xamarin:
             props["Ice.InitPlugins"] = 0
-            props["IceSSL.CAs"] = "cacert.der";
+            props["IceSSL.CAs"] = "cacert.der"
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
@@ -3806,7 +3806,8 @@ class SwiftMapping(Mapping):
         assert(current.testcase.getPath(current).startswith(testdir))
         package = current.testcase.getPath(current)[len(testdir) + 1:].replace(os.sep, ".")
 
-        cmd = "xcodebuild -project ice.xcodeproj -target 'TestDriver {0}' -configuration {1} -showBuildSettings".format(
+        cmd = "xcodebuild -project {0} -target 'TestDriver {1}' -configuration {2} -showBuildSettings".format(
+            self.getXcodeProject(current),
             "macOS",
             current.config.buildConfig)
 
@@ -3830,11 +3831,11 @@ class SwiftMapping(Mapping):
         return "{0}/com.zeroc.Swift-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        cmd = "xcodebuild -project ice.xcodeproj \
+        cmd = "xcodebuild -project {0} \
                           -target 'TestDriver iOS' \
-                          -configuration {0} \
+                          -configuration {1} \
                           -showBuildSettings \
-                          -sdk {1}".format(current.config.buildConfig, current.config.buildPlatform)
+                          -sdk {2}".format(self.getXcodeProject(current), current.config.buildConfig, current.config.buildPlatform)
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         return "{0}/TestDriver.app".format(targetBuildDir)
 
@@ -3846,6 +3847,9 @@ class SwiftMapping(Mapping):
 
     def getPluginEntryPoint(self, plugin, process, current):
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
+
+    def getXcodeProject(self, current):
+        return "{0}/ice.xcodeproj".format(current.testcase.getMapping().getPath())
 
 #
 # Instantiate platform global variable
