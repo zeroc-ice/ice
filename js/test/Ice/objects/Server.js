@@ -6,6 +6,7 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    require("Forward");
     const TestHelper = require("TestHelper").TestHelper;
     const InitialI = require("InitialI").InitialI;
 

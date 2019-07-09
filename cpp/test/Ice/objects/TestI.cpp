@@ -388,3 +388,32 @@ UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
     out.finished(outParams);
     return true;
 }
+
+Test::F1Ptr
+InitialI::opF1(ICE_IN(Test::F1Ptr) f11, Test::F1Ptr& f12, const Ice::Current&)
+{
+    f12 = ICE_MAKE_SHARED(F1, "F12");
+    return f11;
+}
+
+Test::F2PrxPtr
+InitialI::opF2(ICE_IN(Test::F2PrxPtr) f21, Test::F2PrxPtr& f22, const Ice::Current& current)
+{
+    f22 = ICE_UNCHECKED_CAST(F2Prx, current.adapter->getCommunicator()->stringToProxy("F22"));
+    return f21;
+}
+
+Test::F3Ptr
+InitialI::opF3(ICE_IN(Test::F3Ptr) f31, Test::F3Ptr& f32, const Ice::Current& current)
+{
+    f32 = ICE_MAKE_SHARED(F3);
+    f32->f1 = ICE_MAKE_SHARED(F1, "F12");
+    f32->f2 = ICE_UNCHECKED_CAST(F2Prx, current.adapter->getCommunicator()->stringToProxy("F22"));
+    return f31;
+}
+
+bool
+InitialI::hasF3(const Ice::Current&)
+{
+    return true;
+}

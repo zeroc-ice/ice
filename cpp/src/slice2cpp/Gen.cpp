@@ -978,11 +978,26 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             string md = *q++;
             static const string includePrefix = "cpp:include:";
+            static const string sourceIncludePrefix = "cpp:source-include:";
             if(md.find(includePrefix) == 0)
             {
                 if(md.size() > includePrefix.size())
                 {
                     H << nl << "#include <" << md.substr(includePrefix.size()) << ">";
+                }
+                else
+                {
+                    ostringstream ostr;
+                    ostr << "ignoring invalid global metadata `" << md << "'";
+                    dc->warning(InvalidMetaData, file, -1, ostr.str());
+                    globalMetaData.remove(md);
+                }
+            }
+            else if(md.find(sourceIncludePrefix) == 0)
+            {
+                if(md.size() > sourceIncludePrefix.size())
+                {
+                    C << nl << "#include <" << md.substr(sourceIncludePrefix.size()) << ">";
                 }
                 else
                 {
@@ -5371,12 +5386,17 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             if(s.find(prefix) == 0)
             {
                 static const string cppIncludePrefix = "cpp:include:";
+                static const string cppSourceIncludePrefix = "cpp:source-include";
                 static const string cppHeaderExtPrefix = "cpp:header-ext:";
                 static const string cppSourceExtPrefix = "cpp:source-ext:";
                 static const string cppDllExportPrefix = "cpp:dll-export:";
                 static const string cppDoxygenIncludePrefix = "cpp:doxygen:include:";
 
                 if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
+                {
+                    continue;
+                }
+                else if(s.find(cppSourceIncludePrefix) == 0 && s.size() > cppSourceIncludePrefix.size())
                 {
                     continue;
                 }

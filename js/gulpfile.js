@@ -370,7 +370,8 @@ gulp.task("test:common:babel",
 gulp.task("test:common:controllerworker",
           cb =>
           {
-              pump([gulp.src(["node_modules/@babel/polyfill/dist/polyfill.js",
+              pump([gulp.src(["node_modules/core-js-bundle/minified.js",
+                              "node_modules/regenerator-runtime/runtime.js",
                               "test/es5/Common/ControllerWorker.js"]),
                     concat("ControllerWorker.js"),
                     gulp.dest("test/es5/Common/")], cb);

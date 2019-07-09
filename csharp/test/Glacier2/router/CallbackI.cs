@@ -65,7 +65,8 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
         {
             while(!_callback)
             {
-                System.Threading.Monitor.Wait(this);
+                System.Threading.Monitor.Wait(this, 30000);
+                TestHelper.test(_callback);
             }
 
             _callback = false;

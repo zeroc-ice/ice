@@ -150,6 +150,16 @@ class L
 sequence<Value> ValueSeq;
 dictionary<string, Value> ValueMap;
 
+// Forward declarations
+class F1;
+interface F2;
+
+class F3
+{
+    F1 f1;
+    F2* f2;
+}
+
 interface Initial
 {
     void shutdown();
@@ -186,6 +196,11 @@ interface Initial
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
     Compact getCompact();
+
+    F1 opF1(F1 f11, out F1 f12);
+    F2* opF2(F2* f21, out F2* f22);
+    F3 opF3(F3 f31, out F3 f32);
+    bool hasF3();
 }
 
 class Empty

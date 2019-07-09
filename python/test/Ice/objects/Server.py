@@ -4,7 +4,7 @@
 #
 
 from TestHelper import TestHelper
-TestHelper.loadSlice("Test.ice ServerPrivate.ice")
+TestHelper.loadSlice("Test.ice Forward.ice ServerPrivate.ice")
 import TestI
 import Ice
 

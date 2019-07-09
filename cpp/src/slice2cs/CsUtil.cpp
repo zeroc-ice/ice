@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -458,7 +457,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     if(proxy)
     {
         ClassDefPtr def = proxy->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             return getUnqualified(proxy->_class(), package, "", "Prx");
         }
@@ -794,7 +793,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             string typeS = typeToString(type, package);
             if(marshal)

@@ -1224,7 +1224,7 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             _out << getAbsolute(prx->_class(), IdentToUpper, "T_") << "Prx";
         }

@@ -270,6 +270,27 @@ classdef AllTests
             assert(strcmp(m2.v(2).value.data, 'two'));
 
             fprintf('ok\n');
+
+            fprintf('testing forward declarations... ');
+
+            [f11, f12] = initial.opF1(F1('F11'));
+            assert(strcmp(f11.name, 'F11'));
+            assert(strcmp(f12.name, 'F12'));
+
+            [f21, f22] = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy('F21')));
+            assert(strcmp(f21.ice_getIdentity().name, 'F21'));
+            assert(strcmp(f22.ice_getIdentity().name, 'F22'));
+
+            if initial.hasF3()
+                [f31, f32] = initial.opF3(F3(f11, f21));
+                assert(strcmp(f31.f1.name, 'F11'));
+                assert(strcmp(f31.f2.ice_getIdentity().name, 'F21'));
+
+                assert(strcmp(f32.f1.name, 'F12'));
+                assert(strcmp(f32.f2.ice_getIdentity().name, 'F22'));
+            end
+            fprintf('ok\n');
+
             r = initial;
         end
     end

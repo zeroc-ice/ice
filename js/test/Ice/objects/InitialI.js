@@ -6,6 +6,7 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    require("Forward");
 
     class BI extends Test.B
     {
@@ -320,6 +321,28 @@
         opM(v1, current)
         {
             return [v1, v1];
+        }
+
+        opF1(f11, current)
+        {
+            return [f11, new Test.F1("F12")];
+        }
+
+        opF2(f21, current)
+        {
+            return [f21, current.adapter.getCommunicator().stringToProxy("F22")];
+        }
+
+        opF3(f31, current)
+        {
+            return [f31,
+                    new Test.F3(new Test.F1("F12"),
+                                current.adapter.getCommunicator().stringToProxy("F22"))];
+        }
+
+        hasF3(current)
+        {
+            return true;
         }
 
         shutdown(current)

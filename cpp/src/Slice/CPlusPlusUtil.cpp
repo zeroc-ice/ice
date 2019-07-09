@@ -752,13 +752,13 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
             // Non local classes without operations map to the base
             // proxy class shared_ptr<Ice::ObjectPrx>
             //
-            if(def && !def->isInterface() && def->allOperations().empty())
+            if(!def || def->isAbstract())
             {
-                return getUnqualified(cpp11BuiltinTable[Builtin::KindObjectProxy], scope);
+                return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">";
             }
             else
             {
-                return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">";
+                return getUnqualified(cpp11BuiltinTable[Builtin::KindObjectProxy], scope);
             }
         }
         else

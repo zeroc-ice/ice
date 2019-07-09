@@ -40,7 +40,8 @@ final class CallbackReceiverI extends _CallbackReceiverDisp
         {
             try
             {
-                wait();
+                wait(30000);
+                test.TestHelper.test(_callback);
             }
             catch(InterruptedException ex)
             {

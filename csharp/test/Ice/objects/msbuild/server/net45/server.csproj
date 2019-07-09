@@ -70,6 +70,9 @@
     <Compile Include="..\..\..\UnexpectedObjectExceptionTestI.cs">
       <Link>UnexpectedObjectExceptionTestI.cs</Link>
     </Compile>
+    <Compile Include="generated\Forward.cs">
+      <SliceCompileSource>..\..\..\Forward.ice</SliceCompileSource>
+    </Compile>
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +80,11 @@
     <None Include="server.exe.config" />
     <SliceCompile Include="..\..\..\Test.ice">
       <Link>Test.ice</Link>
+    </SliceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\Forward.ice">
+      <Link>Forward.ice</Link>
     </SliceCompile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

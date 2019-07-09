@@ -130,7 +130,7 @@ namespace Test
             return _communicator;
         }
 
-        protected static void test(bool b)
+        public static void test(bool b)
         {
             if (!b)
             {

@@ -384,5 +384,24 @@ def allTests(helper, communicator)
     test(m2.v[k2].data == "two")
     puts "ok"
 
+    print "testing forward declarations... "
+    STDOUT.flush
+    f11, f12 = initial.opF1(Test::F1.new("F11"))
+    test(f11.name == "F11")
+    test(f12.name == "F12")
+
+    f21, f22 = initial.opF2(Test::F2Prx::uncheckedCast(communicator.stringToProxy("F21")))
+    test(f21.ice_getIdentity().name == "F21")
+    test(f22.ice_getIdentity().name == "F22")
+
+    if initial.hasF3() then
+        f31, f32 = initial.opF3(Test::F3.new(f11, f21))
+        test(f31.f1.name == "F11")
+        test(f31.f2.ice_getIdentity().name == "F21")
+
+        test(f32.f1.name == "F12")
+        test(f32.f2.ice_getIdentity().name == "F22")
+    end
+    puts "ok"
     return initial
 end

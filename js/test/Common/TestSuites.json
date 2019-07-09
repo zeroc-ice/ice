@@ -74,7 +74,7 @@
     },
     "Ice/objects":
     {
-        "files": ["Test.js", "Client.js", "InitialI.js", "Server.js"],
+        "files": ["Test.js", "Forward.js", "Client.js", "InitialI.js", "Server.js"],
         "testcases":
         [
             {

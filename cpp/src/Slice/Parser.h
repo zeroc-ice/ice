@@ -1145,7 +1145,6 @@ private:
 
     Unit(bool, bool, bool, bool, const StringList&);
     static void eraseWhiteSpace(::std::string&);
-    bool checkUndefinedTypes();
 
     bool _ignRedefs;
     bool _all;

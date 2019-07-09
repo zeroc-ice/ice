@@ -4235,7 +4235,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
 #   endif
             CommunicatorPtr comm = initialize(initData);
-            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
+            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try
@@ -4285,7 +4285,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
 #   endif
             CommunicatorPtr comm = initialize(initData);
-            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
+            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try
