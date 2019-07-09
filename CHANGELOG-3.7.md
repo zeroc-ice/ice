@@ -48,6 +48,10 @@ particular aspect of Ice.
 
 These are the changes since Ice 3.7.2.
 
+## General Changes
+
+- Add back support for forward declared interfaces and classes.
+
 ## C++ Changes
 
 - Fixed IceGrid node bug where the setting of supplementary groups would fail
