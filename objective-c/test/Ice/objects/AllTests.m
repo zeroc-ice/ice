@@ -5,6 +5,7 @@
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <ObjectsTest.h>
+#import <ObjectsForward.h>
 
 #if defined(__clang__)
 // For 'Ice::Communicator::findObjectFactory()' deprecation
@@ -685,6 +686,21 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         test([((TestObjectsL*)[m2.v objectForKey:k1]).data isEqualToString:@"one"]);
         test([((TestObjectsL*)[m2.v objectForKey:k2]).data isEqualToString:@"two"]);
 
+        tprintf("ok\n");
+    }
+
+    {
+        tprintf("testing forward declarations... ");
+        TestObjectsF1* f12;
+        TestObjectsF1* f11 = [initial opF1:[[TestObjectsF1 alloc] init:@"F11"] f12:&f12];
+        test([f11.name isEqualToString:@"F11"]);
+        test([f12.name isEqualToString:@"F12"]);
+
+        TestObjectsF2Prx* f22;
+        TestObjectsF2Prx* f21 = [initial opF2:[TestObjectsF2Prx uncheckedCast:[communicator stringToProxy:@"F21"]]
+                                          f22: &f22];
+        test([[f21 ice_getIdentity].name isEqualToString:@"F21"]);
+        test([[f22 ice_getIdentity].name isEqualToString:@"F22"]);
         tprintf("ok\n");
     }
 

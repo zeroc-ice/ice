@@ -2180,7 +2180,7 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     if(proxy)
     {
         ClassDefPtr def = proxy->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             return "\"" + fixId(proxy->_class()->scoped() + "Prx") + "\"";
         }

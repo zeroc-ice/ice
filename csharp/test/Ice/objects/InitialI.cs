@@ -196,6 +196,34 @@ namespace Ice
                 return v1;
             }
 
+            public override Test.F1
+            opF1(Test.F1 f11, out Test.F1 f12, Ice.Current current)
+            {
+                f12 = new Test.F1("F12");
+                return f11;
+            }
+
+            public override Test.F2Prx
+            opF2(Test.F2Prx f21, out Test.F2Prx f22, Ice.Current current)
+            {
+                f22 = Test.F2PrxHelper.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22"));
+                return f21;
+            }
+
+            public override Test.F3
+            opF3(Test.F3 f31, out Test.F3 f32, Ice.Current current)
+            {
+                f32 = new Test.F3(new Test.F1("F12"),
+                    Test.F2PrxHelper.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")));
+                return f31;
+            }
+
+            public override bool
+            hasF3(Ice.Current current)
+            {
+                return true;
+            }
+
             private Ice.ObjectAdapter _adapter;
             private Test.B _b1;
             private Test.B _b2;

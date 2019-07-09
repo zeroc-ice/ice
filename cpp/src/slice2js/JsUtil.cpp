@@ -500,17 +500,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     {
         ostringstream os;
         ClassDefPtr def = proxy->_class()->definition();
-        if(!def->isInterface() && def->allOperations().empty())
-        {
-            if(getModuleMetadata(toplevel) != "ice")
-            {
-                os << "iceNS0.";
-            }
-            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
-                                 toplevel->scope(),
-                                 getModuleMetadata(toplevel));
-        }
-        else
+        if(!def || def->isAbstract())
         {
             string prefix;
             if(typescript)
@@ -527,6 +517,16 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
             {
                 os << fixId(proxy->_class()->scoped() + "Prx");
             }
+        }
+        else
+        {
+            if(getModuleMetadata(toplevel) != "ice")
+            {
+                os << "iceNS0.";
+            }
+            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
+                                 toplevel->scope(),
+                                 getModuleMetadata(toplevel));
         }
         return os.str();
     }
@@ -983,7 +983,7 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             return typeToString(type);
         }

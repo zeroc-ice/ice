@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Test.ice>
+#include <Forward.ice>
 
 module Test
 {

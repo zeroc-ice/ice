@@ -67,6 +67,9 @@
     <Compile Include="..\..\..\JI.cs">
       <Link>JI.cs</Link>
     </Compile>
+    <Compile Include="generated\Forward.cs">
+      <SliceCompileSource>..\..\..\Forward.ice</SliceCompileSource>
+    </Compile>
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +78,11 @@
       <Link>Test.ice</Link>
     </SliceCompile>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\Forward.ice">
+      <Link>Forward.ice</Link>
+    </SliceCompile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\..\msbuild\ice.test.props" />

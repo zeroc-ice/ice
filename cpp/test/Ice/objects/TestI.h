@@ -6,6 +6,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <Forward.h>
 
 class BI : public Test::B
 {
@@ -141,6 +142,11 @@ public:
     virtual void throwInnerSubEx(const Ice::Current&);
 
     virtual Test::MPtr opM(ICE_IN(Test::MPtr), Test::MPtr&, const Ice::Current&);
+
+    virtual Test::F1Ptr opF1(ICE_IN(Test::F1Ptr), Test::F1Ptr&, const Ice::Current&);
+    virtual Test::F2PrxPtr opF2(ICE_IN(Test::F2PrxPtr), Test::F2PrxPtr&, const Ice::Current&);
+    virtual Test::F3Ptr opF3(ICE_IN(Test::F3Ptr), Test::F3Ptr&, const Ice::Current&);
+    virtual bool hasF3(const Ice::Current&);
 
 private:
 

@@ -4,14 +4,19 @@
 
 #pragma once
 
-#include <Test.ice>
-#include <Forward.ice>
+["objc:prefix:TestObjects"]
 
 module Test
 {
 
-exception DerivedEx extends BaseEx
+class F1
 {
+    string name;
 }
 
+interface F2
+{
+    void op();
 }
+
+};

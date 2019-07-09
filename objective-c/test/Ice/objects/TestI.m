@@ -350,6 +350,23 @@
     *v2 = v1;
     return v1;
 }
+
+-(TestObjectsF1 *) opF1:(TestObjectsF1 *)f11 f12:(TestObjectsF1 **)f12 current:(ICECurrent *)__unused current
+{
+    *f12 = [[TestObjectsF1 alloc] init:@"F12"];
+    return f11;
+}
+
+-(TestObjectsF2Prx *) opF2:(TestObjectsF2Prx *)f21 f22:(TestObjectsF2Prx **)f22 current:(ICECurrent *)__unused current
+{
+    *f22 = [TestObjectsF2Prx uncheckedCast:[[current.adapter getCommunicator] stringToProxy:@"F22"]];
+    return f21;
+}
+
+-(BOOL) hasF3:(ICECurrent *)__unused current
+{
+    return NO;
+}
 @end
 
 @implementation UnexpectedObjectExceptionTestI
