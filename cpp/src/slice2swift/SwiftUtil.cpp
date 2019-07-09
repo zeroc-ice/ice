@@ -208,7 +208,7 @@ Slice::getTopLevelModule(const TypePtr& type)
     assert(ProxyPtr::dynamicCast(type) || ContainedPtr::dynamicCast(type));
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy->_class()->definition()) :
+    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
                                      ContainedPtr::dynamicCast(type));
 }
 
@@ -1157,7 +1157,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
     else if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
         }
@@ -1764,7 +1764,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             }
 
             ClassDefPtr def = prx->_class()->definition();
-            if(def->isInterface() || def->allOperations().size() > 0)
+            if(!def || def->isAbstract())
             {
                 args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
             }

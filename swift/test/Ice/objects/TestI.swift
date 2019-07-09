@@ -226,6 +226,24 @@ class InitialI: Initial {
     func opM(v1: M?, current _: Ice.Current) throws -> (returnValue: M?, v2: M?) {
         return (v1, v1)
     }
+
+    func opF1(f11: F1?, current _: Ice.Current) throws -> (returnValue: F1?, f12: F1?) {
+        return (f11, F1(name: "F12"))
+    }
+
+    func opF2(f21: F2Prx?, current: Current) throws -> (returnValue: F2Prx?, f22: F2Prx?) {
+        let prx = try current.adapter!.getCommunicator().stringToProxy("F22")!
+        return (f21, uncheckedCast(prx: prx, type: F2Prx.self))
+    }
+
+    func opF3(f31: F3?, current: Current) throws -> (returnValue: F3?, f32: F3?) {
+        let prx = try current.adapter!.getCommunicator().stringToProxy("F22")!
+        return (f31, F3(f1: F1(name: "F12"), f2: uncheckedCast(prx: prx, type: F2Prx.self)))
+    }
+
+    func hasF3(current: Current) throws -> Bool {
+        return true
+    }
 }
 
 class UnexpectedObjectExceptionTestI: Ice.Blobject {

@@ -244,5 +244,27 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     }
     output.writeLine("ok")
 
+    output.write("testing forward declarations... ")
+    do {
+        let (f11, f12) = try initial.opF1(F1(name: "F11"))
+        try test(f11!.name == "F11")
+        try test(f12!.name == "F12")
+
+        let (f21, f22) = try initial.opF2(uncheckedCast(prx: communicator.stringToProxy("F21")!,
+                                                        type: F2Prx.self))
+        try test(f21!.ice_getIdentity().name == "F21")
+        try test(f22!.ice_getIdentity().name == "F22")
+
+        if try initial.hasF3() {
+            let (f31, f32) = try initial.opF3(F3(f1: f11, f2: f21))
+            try test(f31!.f1!.name == "F11")
+            try test(f31!.f2!.ice_getIdentity().name == "F21")
+
+            try test(f32!.f1!.name == "F12")
+            try test(f32!.f2!.ice_getIdentity().name == "F22")
+        }
+    }
+    output.writeLine("ok")
+
     return initial
 }
