@@ -50,9 +50,15 @@ These are the changes since Ice 3.7.2.
 
 ## General Changes
 
-- Add back support for forward declared interfaces and classes.
+- Fixed Slice compilers to allow forward declared interfaces and classes that
+  are marshaled or unmarshaled in a Slice file without being fully defined in
+  that Slice file. This was allowed (but not documented) in Ice 3.6 and earlier
+  releases, and disallowed in Ice 3.7.0 - Ice 3.7.2.
 
 ## C++ Changes
+
+- Added new metadata directive `cpp:source-include`, to include a header file in
+  the generated source (.cpp) file.
 
 - Fixed IceGrid node bug where the setting of supplementary groups would fail
   if the user had more than NGROUPS_MAX groups.
@@ -60,6 +66,11 @@ These are the changes since Ice 3.7.2.
 - Fixed IceGrid node bug where the setting of supplementary groups for a server
   ran as a given user was incorrect when running the IceGrid node as root. The
   server would be ran with the root/wheel supplementary group.
+
+## C# Changes
+
+- Added back support for caching the output stream used to marshal the response
+  of a synchronous dispatch.
 
 ## Java Changes
 
@@ -69,11 +80,6 @@ These are the changes since Ice 3.7.2.
 - Add support to build Ice as modular JAR files, this is automatically done
   when building Ice for Java with JDK 9 or greater, the JARs are compatible
   with JDK 8.
-
-## C# Changes
-
-- Added back support for caching the output stream used to marshal the response
-  of a synchronous dispatch.
 
 # Changes in Ice 3.7.2
 
