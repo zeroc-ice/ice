@@ -1199,6 +1199,10 @@ public class AllTests
                     server.ice_ping();
                     //test(false);
                 }
+                catch(Ice.SecurityException)
+                {
+                    // Expected.
+                }
                 catch(Ice.ConnectionLostException)
                 {
                     // Expected.
@@ -1227,8 +1231,11 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
+                    if(ex.ToString().IndexOf("no protocols available") < 0) // Expected if TLS1.1 is disabled (RHEL8)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        test(false);
+                    }
                 }
                 fact.destroyServer(server);
                 comm.destroy();
@@ -2390,13 +2397,16 @@ public class AllTests
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-                //
-                // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-                // can cause SSL handshake errors when connecting to the remote zeroc server.
-                //
-                initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
+                if(IceInternal.AssemblyUtil.isWindows)
+                {
+                    //
+                    // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
+                    // can cause SSL handshake errors when connecting to the remote zeroc server.
+                    //
+                    initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
+                }
                 Ice.Communicator comm = Ice.Util.initialize(initData);
-                Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+                Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 while(true)
                 {
                     try
@@ -2437,13 +2447,16 @@ public class AllTests
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
-                //
-                // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-                // can cause SSL handshake errors when connecting to the remote zeroc server.
-                //
-                initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
+                if(IceInternal.AssemblyUtil.isWindows)
+                {
+                    //
+                    // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
+                    // can cause SSL handshake errors when connecting to the remote zeroc server.
+                    //
+                    initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
+                }
                 comm = Ice.Util.initialize(initData);
-                p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+                p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 while(true)
                 {
                     try

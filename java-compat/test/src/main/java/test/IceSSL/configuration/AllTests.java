@@ -1509,6 +1509,10 @@ public class AllTests
                 IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                 test(info.cipher.toLowerCase().contains("dss"));
             }
+            catch(Ice.ConnectionLostException ex)
+            {
+                // Expected on systems that disable DSA
+            }
             catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
@@ -2250,7 +2254,7 @@ public class AllTests
             initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
             initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             Ice.Communicator comm = Ice.Util.initialize(initData);
-            Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+            Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try
@@ -2297,7 +2301,7 @@ public class AllTests
             initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
             comm = Ice.Util.initialize(initData);
-            p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
+            p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try
