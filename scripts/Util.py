@@ -3786,6 +3786,23 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
 
     class Config(Mapping.Config):
 
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["browser=", "worker"])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("TypeScript mapping options:")
+            print("--browser=<name>      Run with the given browser.")
+            print("--worker              Run with Web workers enabled.")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+
+            if self.browser and self.protocol == "tcp":
+                self.protocol = "ws"
+
         def canRun(self, testId, current):
             return Mapping.Config.canRun(self, testId, current) and self.browser != "Ie" # IE doesn't support ES6
 

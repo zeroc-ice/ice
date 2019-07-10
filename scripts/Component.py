@@ -118,7 +118,7 @@ class Ice(Component):
                 #
                 if parent in ["Glacier2", "IceStorm", "IceGrid"]:
                     return False
-        elif isinstance(platform, Linux):
+        elif isinstance(platform, Windows):
             #
             # On Windows, if testing with a binary distribution, don't test Glacier2/IceBridge services
             # with the Debug configurations since we don't provide binaries for them.
@@ -142,7 +142,6 @@ class Ice(Component):
             #
             if current.config.ipv6 and testId in ["Ice/udp"]:
                 return False
-
 
         # IceSSL test doesn't work on macOS/.NET Core
         if isinstance(mapping, CSharpMapping) and isinstance(platform, Darwin) and parent in ["IceSSL"]:
