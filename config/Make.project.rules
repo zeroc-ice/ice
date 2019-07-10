@@ -43,11 +43,11 @@ component-configs       = $(call unique,$(foreach c,$(configs),\
 #
 # Some variables for utilities
 #
-INSTALL                 = install -p
-MV                      = mv -f
-RM                      = rm -f
-MKDIR                   = mkdir
-CHMOD                   = chmod
+INSTALL                 ?= install -p
+MV                      ?= mv -f
+RM                      ?= rm -f
+MKDIR                   ?= mkdir
+CHMOD                   ?= chmod
 
 Q                       := $(if $(V),,@)
 E                       := $(if $(V),@:,@echo)
@@ -1087,7 +1087,7 @@ platform-and-config-var = $(strip $(platform-var) $(config-var))
 
 #
 # Functions to transform a list of source filenames to generated source/header, object or dependency filenames.
-# 
+#
 generated-extensions := ice
 source-extensions    := ice y l cpp m mm
 

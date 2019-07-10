@@ -43,7 +43,7 @@
 #       endif
 #   endif
 
-#   if !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && !defined(ICE_STATIC_LIBS)
+#   if !defined(_AIX) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && !defined(ICE_STATIC_LIBS)
 #       include <execinfo.h>
 #       include <cxxabi.h>
 #       include <stdint.h>

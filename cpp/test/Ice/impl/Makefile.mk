@@ -36,4 +36,8 @@ endef
 
 $(test)_component_with_config_extensions = make-impl-with-config
 
+ifeq ($(xlc_compiler),yes)
+    $(test)_cppflags += -qsuppress="1540-0895"
+endif
+
 tests += $(test)

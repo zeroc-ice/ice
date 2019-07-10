@@ -85,7 +85,7 @@ MyObjectI::amdAddAsync(int x,
                        function<void(exception_ptr)>,
                        const Ice::Current&)
 {
-    thread t(
+    std::thread t(
         [x, y, response]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
@@ -101,7 +101,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
                                 function<void(exception_ptr)> error,
                                 const Ice::Current& current)
 {
-    thread t(
+    std::thread t(
         [x, y, response]()
         {
             try
@@ -137,7 +137,7 @@ MyObjectI::amdBadAddAsync(int,
                           function<void(exception_ptr)> error,
                           const Ice::Current&)
 {
-    thread t(
+    std::thread t(
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
@@ -160,7 +160,7 @@ MyObjectI::amdNotExistAddAsync(int,
                                function<void(exception_ptr)> error,
                                const Ice::Current&)
 {
-    thread t(
+    std::thread t(
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
@@ -183,7 +183,7 @@ MyObjectI::amdBadSystemAddAsync(int,
                                 function<void(exception_ptr)> error,
                                 const Ice::Current&)
 {
-    thread t(
+    std::thread t(
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));

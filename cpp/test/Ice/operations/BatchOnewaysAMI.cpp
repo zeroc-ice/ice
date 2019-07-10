@@ -8,7 +8,12 @@
 
 using namespace std;
 
+// Work-around for anonymous namspace bug in xlclang++
+#ifdef __ibmxl__
+namespace BatchOnewaysAMINamespace
+#else
 namespace
+#endif
 {
 
 class Callback : public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Shared
@@ -84,6 +89,10 @@ public:
     }
 };
 }
+
+#ifdef __ibmxl__
+using namespace BatchOnewaysAMINamespace;
+#endif
 
 void
 batchOnewaysAMI(const Test::MyClassPrxPtr& p)

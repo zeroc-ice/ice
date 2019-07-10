@@ -166,7 +166,7 @@ public:
     }
 
 #ifdef ICE_CPP11_MAPPING
-    void join(thread& t)
+    void join(std::thread& t)
 #else
     void join()
 #endif
@@ -735,11 +735,11 @@ allTests(Test::TestHelper* helper)
     }
 
 #ifdef ICE_CPP11_MAPPING
-    vector<pair<thread, TestCasePtr>> threads;
+    vector<pair<std::thread, TestCasePtr>> threads;
     for(auto p = tests.begin(); p != tests.end(); ++p)
     {
         TestCasePtr testCase = *p;
-        thread t([testCase]()
+        std::thread t([testCase]()
             {
                 testCase->run();
             });

@@ -187,8 +187,12 @@ main(int argc, char* argv[])
         //
         // Euro sign (U+20AC) is encoded with 1 UTF-16 code unit, and 3 UTF-8 code units
         // U+10437 is a Deseret character, encoded with 2 UTF-16 code units, and 4 UTF-8 code units
-        //
+        // xlC in 32-bit mode truncates U+10437 into a single UTF-16 character
+#if defined(__IBMCPP__) && !defined(__64BIT__)
+        wstring ws = L"\u20ac\u20ac\ud801\udc37";
+#else
         wstring ws = L"\u20ac\u20ac\U00010437";
+#endif
 
         if(sizeof(wchar_t) == 2)
         {

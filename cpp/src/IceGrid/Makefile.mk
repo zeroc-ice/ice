@@ -68,13 +68,16 @@ icegridnode_sources             := $(addprefix $(currentdir)/,$(local_node_srcs)
                                    $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice
 icegridnode_dependencies        := IceBox IceStormService IceStorm IceXML IceSSL IcePatch2 IceDB
 icegridnode_cppflags            := $(if $(lmdb_includedir),-I$(lmdb_includedir))
+icegridnode_system_libs         := $(expat_program_system_libs)
 
 icegridregistry_sources         := $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/IceLocatorDiscovery.ice
 icegridregistry_dependencies    := IceBox IceStormService IceStorm IceXML IceSSL IcePatch2 IceDB $(local_dependencies)
 icegridregistry_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
+icegridregistry_system_libs     := $(expat_program_system_libs)
 
 icegridadmin_dependencies       := IcePatch2 IceBox IceXML IceLocatorDiscovery
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
+icegridadmin_system_libs        := $(expat_program_system_libs)
 
 projects += $(project)

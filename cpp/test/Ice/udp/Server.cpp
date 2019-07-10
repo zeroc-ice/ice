@@ -56,10 +56,26 @@ Server::run(int argc, char** argv)
 #endif
     }
     communicator->getProperties()->setProperty("McastTestAdapter.Endpoints", endpoint.str());
-    Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
-    mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
-    mcastAdapter->activate();
 
+    try
+    {
+        Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
+        mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+        mcastAdapter->activate();
+    }
+    catch(const Ice::SocketException&)
+    {
+        // Multicast IPv6 not supported on the platform. This occurs for example
+        // on AIX PVP clould VMs.
+        if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        {
+            cout << "McastTestAdapter ready" << endl;
+        }
+        else
+        {
+            throw;
+        }
+    }
     serverReady();
 
     communicator->waitForShutdown();

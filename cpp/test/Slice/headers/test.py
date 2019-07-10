@@ -93,7 +93,7 @@ class SliceHeadersTestCase(ClientTestCase):
         os.system("mkdir -p tmp/Ice-x.y.z/slice/Ice")
         os.system("cd tmp && ln -s Ice-x.y.z Ice-x.y")
         f = open("tmp/Ice-x.y.z/slice/Ice/Identity.ice", "w")
-        f.write("// dumy file")
+        f.write("// dummy file")
 
         os.system("mkdir -p project1")
         f = open("project1/A.ice", "w")
@@ -108,23 +108,24 @@ class SliceHeadersTestCase(ClientTestCase):
 
         #
         # symlink directory with extra / at end
+        # (the symlink with / at the end fails on AIX)
         #
-        #
-        os.system("mkdir -p tmp/Ice-x.y.z/slice/Ice")
-        os.system("mkdir -p tmp/Ice")
-        os.system("cd tmp/Ice && ln -s ../Ice-x.y.z/slice/ .")
-        f = open("tmp/Ice-x.y.z/slice/Ice/Identity.ice", "w")
-        f.write("// dumy file")
-        f.close()
-        os.system("mkdir -p project1")
-        f = open("project1/A.ice", "w")
-        f.write("#include <Ice/Identity.ice>")
-        f.close()
-        os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir))
-        f = open("project1/A.h")
-        if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
-            raise RuntimeError("failed!")
-        self.clean()
+        if not sys.platform.startswith("aix"):
+            os.system("mkdir -p tmp/Ice-x.y.z/slice/Ice")
+            os.system("mkdir -p tmp/Ice")
+            os.system("cd tmp/Ice && ln -s ../Ice-x.y.z/slice/ .")
+            f = open("tmp/Ice-x.y.z/slice/Ice/Identity.ice", "w")
+            f.write("// dummy file")
+            f.close()
+            os.system("mkdir -p project1")
+            f = open("project1/A.ice", "w")
+            f.write("#include <Ice/Identity.ice>")
+            f.close()
+            os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir))
+            f = open("project1/A.h")
+            if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
+                raise RuntimeError("failed!")
+            self.clean()
 
         current.writeln("ok")
 
