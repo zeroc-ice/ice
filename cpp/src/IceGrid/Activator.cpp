@@ -686,15 +686,6 @@ Activator::activate(const string& name,
     {
         groups.resize(NGROUPS_MAX);
     }
-    else
-    {
-       groups.resize(static_cast<size_t>(ngroups));
-    }
-
-    if(groups.size() > NGROUPS_MAX)
-    {
-        groups.resize(NGROUPS_MAX);
-    }
 
     int fds[2];
     if(pipe(fds) != 0)
