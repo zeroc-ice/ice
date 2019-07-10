@@ -57,6 +57,9 @@ These are the changes since Ice 3.7.2.
 
 ## C++ Changes
 
+- Removed IceStorm restriction where retryCount could only be used with two-way
+  proxies. It's now possible to use it with one-way or batch proxies.
+
 - Added new metadata directive `cpp:source-include`, to include a header file in
   the generated source (.cpp) file.
 
@@ -89,8 +92,8 @@ These are the changes since Ice 3.7.1.
 
 - Add support for TLS 1.3 to IceSSL.
 
-- Add support for reading Ice properties from the HKCU Windows registry hive. Previously
-  you could only read properties from the HKLM Windows registry hive.
+- Add support for reading Ice properties from the HKCU Windows registry hive.
+  Previously you could only read properties from the HKLM Windows registry hive.
 
 ## C++ Changes
 
