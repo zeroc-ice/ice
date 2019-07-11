@@ -229,8 +229,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
-        Mapping.add(m, JavaScriptMapping(), component)
-        Mapping.add("typescript", TypeScriptMapping(), component, "js")
+        if platform.hasNodeJS():
+            Mapping.add(m, JavaScriptMapping(), component)
+            Mapping.add("typescript", TypeScriptMapping(), component, "js")
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping(), component)
     elif m == "csharp" or re.match("charp-.*", m):

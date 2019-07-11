@@ -219,6 +219,8 @@ class Platform(object):
         except:
             self.nugetPackageCache = None
 
+        self._hasNodeJS = None
+
     def init(self, component):
         self.parseBuildVariables(component, {
             "supported-platforms" : ("supportedPlatforms", lambda s : s.split(" ")),
@@ -227,6 +229,15 @@ class Platform(object):
 
     def hasDotNet(self):
         return self.nugetPackageCache != None
+
+    def hasNodeJS(self):
+        if self._hasNodeJS is None:
+            try:
+                run("node --version")
+                self._hasNodeJS = True
+            except:
+                self._hasNodeJS = False
+        return self._hasNodeJS
 
     def parseBuildVariables(self, component, variables):
         # Run make to get the values of the given variables
