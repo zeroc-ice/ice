@@ -660,6 +660,7 @@ Activator::activate(const string& name,
             }
         }
     }
+    free(grouplist);
 #else
     groups.resize(20);
     int ngroups = static_cast<int>(groups.size());
