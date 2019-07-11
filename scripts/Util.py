@@ -309,7 +309,7 @@ class AIX(Platform):
 
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
-        return os.path.join(installDir, "lib32") if current.config.buildPlatform == "ppc" else os.path.join(installDir, "lib")
+        return os.path.join(installDir, "lib32" if current.config.buildPlatform == "ppc" else "lib")
 
     def getDefaultBuildPlatform(self):
         return "ppc64"
