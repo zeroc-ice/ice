@@ -29,6 +29,24 @@ namespace Ice
             dispatch(Ice.Request request)
             {
                 Ice.Current current = request.getCurrent();
+
+                string context;
+                if(current.ctx.TryGetValue("raiseBeforeDispatch", out context))
+                {
+                    if(context.Equals("user"))
+                    {
+                        throw new Test.InvalidInputException();
+                    }
+                    else if(context.Equals("notExist"))
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    else if(context.Equals("system"))
+                    {
+                        throw new MySystemException();
+                    }
+                }
+
                 lastOperation_ = current.operation;
 
                 if(lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
@@ -60,6 +78,23 @@ namespace Ice
 
                 var task = servant_.ice_dispatch(request);
                 lastStatus_ = task != null;
+
+                if(current.ctx.TryGetValue("raiseAfterDispatch", out context))
+                {
+                    if(context.Equals("user"))
+                    {
+                        throw new Test.InvalidInputException();
+                    }
+                    else if(context.Equals("notExist"))
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    else if(context.Equals("system"))
+                    {
+                        throw new MySystemException();
+                    }
+                }
+
                 return task;
             }
 

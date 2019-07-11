@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Test;
 
 namespace Ice
@@ -89,6 +90,11 @@ namespace Ice
                 test(interceptor.getLastOperation().Equals("badSystemAdd"));
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
+
+                output.Write("testing exceptions raised by the interceptor... ");
+                output.Flush();
+                testInterceptorExceptions(prx);
+                output.WriteLine("ok");
             }
 
             private void runAmdTest(Test.MyObjectPrx prx, InterceptorI interceptor)
@@ -163,6 +169,11 @@ namespace Ice
                 test(interceptor.getLastOperation().Equals("amdBadSystemAdd"));
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
+
+                output.Write("testing exceptions raised by the interceptor... ");
+                output.Flush();
+                testInterceptorExceptions(prx);
+                output.WriteLine("ok");
             }
 
             public override void run(string[] args)
@@ -205,6 +216,51 @@ namespace Ice
             public static int Main(string[] args)
             {
                 return TestDriver.runTest<Client>(args);
+            }
+
+            private void testInterceptorExceptions(Test.MyObjectPrx prx)
+            {
+                var exceptions = new List<Tuple<string, string>>();
+                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "user"));
+                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "notExist"));
+                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "system"));
+                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "user"));
+                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "notExist"));
+                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "system"));
+                foreach(var e in exceptions)
+                {
+                    var ctx = new Dictionary<string, string>();
+                    ctx.Add(e.Item1, e.Item2);
+                    try
+                    {
+                        prx.ice_ping(ctx);
+                        test(false);
+                    }
+                    catch(Ice.UnknownUserException)
+                    {
+                        test(e.Item2.Equals("user"));
+                    }
+                    catch(Ice.ObjectNotExistException)
+                    {
+                        test(e.Item2.Equals("notExist"));
+                    }
+                    catch(Ice.UnknownException)
+                    {
+                        test(e.Item2.Equals("system")); // non-collocated
+                    }
+                    catch(MySystemException)
+                    {
+                        test(e.Item2.Equals("system")); // collocated
+                    }
+                    {
+                        Ice.ObjectPrx batch = prx.ice_batchOneway();
+                        batch.ice_ping(ctx);
+                        batch.ice_ping();
+                        batch.ice_flushBatchRequests();
+                    }
+                }
+                // Force the last batch request to be dispatched by the server thread using invocation timeouts
+                prx.ice_invocationTimeout(10000).ice_ping();
             }
         }
     }

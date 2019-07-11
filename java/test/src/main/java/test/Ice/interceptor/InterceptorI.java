@@ -9,6 +9,7 @@ import java.util.concurrent.CompletionStage;
 import com.zeroc.Ice.OutputStream;
 
 import test.Ice.interceptor.Test.RetryException;
+import test.Ice.interceptor.Test.InvalidInputException;
 
 class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
 {
@@ -30,6 +31,24 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
         throws com.zeroc.Ice.UserException
     {
         com.zeroc.Ice.Current current = request.getCurrent();
+
+        String context = current.ctx.get("raiseBeforeDispatch");
+        if(context != null)
+        {
+            if(context.equals("user"))
+            {
+                throw new InvalidInputException();
+            }
+            else if(context.equals("notExist"))
+            {
+                throw new com.zeroc.Ice.ObjectNotExistException();
+            }
+            else if(context.equals("system"))
+            {
+                throw new MySystemException();
+            }
+        }
+
         _lastOperation = current.operation;
 
         if(_lastOperation.equals("addWithRetry") || _lastOperation.equals("amdAddWithRetry"))
@@ -54,6 +73,23 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
 
         CompletionStage<OutputStream> f = _servant.ice_dispatch(request);
         _lastStatus = f != null;
+
+        context = current.ctx.get("raiseAfterDispatch");
+        if(context != null)
+        {
+            if(context.equals("user"))
+            {
+                throw new InvalidInputException();
+            }
+            else if(context.equals("notExist"))
+            {
+                throw new com.zeroc.Ice.ObjectNotExistException();
+            }
+            else if(context.equals("system"))
+            {
+                throw new MySystemException();
+            }
+        }
         return f;
     }
 

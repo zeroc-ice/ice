@@ -4,7 +4,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <AMDInterceptorI.h>
-#include <Test.h>
+#include <MyObjectI.h>
 #include <TestHelper.h>
 
 using namespace std;
@@ -56,6 +56,24 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 #endif
 
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
+
+    Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
+    if(p != current.ctx.end())
+    {
+        if(p->second == "user")
+        {
+            throw Test::InvalidInputException();
+        }
+        else if(p->second == "notExist")
+        {
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        }
+        else if(p->second == "system")
+        {
+            throw MySystemException(__FILE__, __LINE__);
+        }
+    }
+
     _lastOperation = current.operation;
 
     if(_lastOperation == "amdAddWithRetry")
@@ -105,6 +123,24 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 #else
     _lastStatus = _servant->ice_dispatch(request, _defaultCb);
 #endif
+
+    p = current.ctx.find("raiseAfterDispatch");
+    if(p != current.ctx.end())
+    {
+        if(p->second == "user")
+        {
+            throw Test::InvalidInputException();
+        }
+        else if(p->second == "notExist")
+        {
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        }
+        else if(p->second == "system")
+        {
+            throw MySystemException(__FILE__, __LINE__);
+        }
+    }
+
     return _lastStatus;
 }
 

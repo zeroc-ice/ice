@@ -5,6 +5,7 @@
 package test.Ice.interceptor;
 
 import test.Ice.interceptor.Test.RetryException;
+import test.Ice.interceptor.Test.InvalidInputException;
 
 //
 // A dispatch interceptor with special handling for AMD requests
@@ -23,6 +24,24 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         throws Ice.UserException
     {
         Ice.Current current = request.getCurrent();
+
+        String context = current.ctx.get("raiseBeforeDispatch");
+        if(context != null)
+        {
+            if(context.equals("user"))
+            {
+                throw new InvalidInputException();
+            }
+            else if(context.equals("notExist"))
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            else if(context.equals("system"))
+            {
+                throw new MySystemException();
+            }
+        }
+
         _lastOperation = current.operation;
 
         if(_lastOperation.equals("amdAddWithRetry"))
@@ -53,6 +72,24 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         }
 
         _lastStatus = _servant.ice_dispatch(request, this);
+
+        context = current.ctx.get("raiseAfterDispatch");
+        if(context != null)
+        {
+            if(context.equals("user"))
+            {
+                throw new InvalidInputException();
+            }
+            else if(context.equals("notExist"))
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            else if(context.equals("system"))
+            {
+                throw new MySystemException();
+            }
+        }
+
         return _lastStatus;
     }
 

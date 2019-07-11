@@ -89,6 +89,11 @@ public class Client extends test.TestHelper
         test(interceptor.getLastOperation().equals("badSystemAdd"));
         test(!interceptor.getLastStatus());
         out.println("ok");
+
+        out.print("testing exceptions raised by the interceptor... ");
+        out.flush();
+        testInterceptorExceptions(prx);
+        out.println("ok");
     }
 
     private void runAmdTest(MyObjectPrx prx, InterceptorI interceptor, PrintWriter out)
@@ -159,6 +164,11 @@ public class Client extends test.TestHelper
         test(interceptor.getLastOperation().equals("amdBadSystemAdd"));
         test(interceptor.getLastStatus());
         out.println("ok");
+
+        out.print("testing exceptions raised by the interceptor... ");
+        out.flush();
+        testInterceptorExceptions(prx);
+        out.println("ok");
     }
 
     public void run(String[] args)
@@ -196,5 +206,61 @@ public class Client extends test.TestHelper
             interceptor.clear();
             runAmdTest(prx, interceptor, out);
         }
+    }
+
+    private class ExceptionPoint
+    {
+        public ExceptionPoint(String point, String exception)
+        {
+            this.point = point;
+            this.exception = exception;
+        }
+        public String point;
+        public String exception;
+    };
+
+    private void testInterceptorExceptions(MyObjectPrx prx)
+    {
+        java.util.List<ExceptionPoint> exceptions = new java.util.ArrayList<>();
+        exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "user"));
+        exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "notExist"));
+        exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "system"));
+        exceptions.add(new ExceptionPoint("raiseAfterDispatch", "user"));
+        exceptions.add(new ExceptionPoint("raiseAfterDispatch", "notExist"));
+        exceptions.add(new ExceptionPoint("raiseAfterDispatch", "system"));
+        for(ExceptionPoint e : exceptions)
+        {
+            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            ctx.put(e.point, e.exception);
+            try
+            {
+                prx.ice_ping(ctx);
+                test(false);
+            }
+            catch(com.zeroc.Ice.UnknownUserException ex)
+            {
+                test(e.exception.equals("user"));
+            }
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
+            {
+                test(e.exception.equals("notExist"));
+            }
+            catch(com.zeroc.Ice.UnknownException ex)
+            {
+                test(e.exception.equals("system")); // non-collocated
+            }
+            catch(MySystemException ex)
+            {
+                test(e.exception.equals("system")); // collocated
+            }
+            {
+                com.zeroc.Ice.ObjectPrx batch = prx.ice_batchOneway();
+                batch.ice_ping(ctx);
+                batch.ice_ping();
+                batch.ice_flushBatchRequests();
+            }
+        }
+        // Force the last batch request to be dispatched by the server thread using invocation timeouts
+        prx.ice_invocationTimeout(10000).ice_ping();
     }
 }
