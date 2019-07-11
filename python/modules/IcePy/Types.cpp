@@ -520,10 +520,10 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         if((*p)->bytes.size() > 0)
         {
     #if PY_VERSION_HEX >= 0x03000000
-            bytes = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]),
+            bytes = PyBytes_FromStringAndSize((*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
                                               static_cast<Py_ssize_t>((*p)->bytes.size()));
     #else
-            bytes = PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]),
+            bytes = PyString_FromStringAndSize((*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
                                                static_cast<Py_ssize_t>((*p)->bytes.size()));
     #endif
         }

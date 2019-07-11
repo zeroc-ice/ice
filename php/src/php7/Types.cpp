@@ -1753,7 +1753,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         }
         ZEND_HASH_FOREACH_END();
 
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindShort:
@@ -1773,7 +1773,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         }
         ZEND_HASH_FOREACH_END();
 
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -1793,7 +1793,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         }
         ZEND_HASH_FOREACH_END();
 
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -1826,7 +1826,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         }
         ZEND_HASH_FOREACH_END();
 
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -1857,7 +1857,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         }
         ZEND_HASH_FOREACH_END();
 
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -1888,7 +1888,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
         }
         ZEND_HASH_FOREACH_END();
 
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindString:
