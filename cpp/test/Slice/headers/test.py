@@ -110,7 +110,7 @@ class SliceHeadersTestCase(ClientTestCase):
         # symlink directory with extra / at end
         # (the symlink with / at the end fails on AIX)
         #
-        if not sys.platform.startswith("aix"):
+        if not isinstance(platform, AIX):
             os.system("mkdir -p tmp/Ice-x.y.z/slice/Ice")
             os.system("mkdir -p tmp/Ice")
             os.system("cd tmp/Ice && ln -s ../Ice-x.y.z/slice/ .")
