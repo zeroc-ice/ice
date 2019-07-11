@@ -3,6 +3,7 @@
 //
 
 import IceImpl
+import PromiseKit
 
 /// Request is an opaque type that represents an incoming request.
 public typealias Request = Incoming
@@ -15,7 +16,7 @@ public protocol Disp {
     /// - parameter request: `Ice.Request` - The incoming request.
     ///
     /// - parameter current: `Ice.Current` - The Current object for the dispatch.
-    func dispatch(request: Request, current: Current) throws
+    func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>?
 }
 
 /// A SliceTraits struct describes a Slice interface, class or exception.
@@ -61,7 +62,7 @@ public protocol Object {
 }
 
 public extension Object {
-    func _iceD_ice_id(incoming inS: Incoming, current: Current) throws {
+    func _iceD_ice_id(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
         try inS.readEmptyParams()
 
         let returnValue = try ice_id(current: current)
@@ -69,9 +70,10 @@ public extension Object {
         inS.write { ostr in
             ostr.write(returnValue)
         }
+        return nil
     }
 
-    func _iceD_ice_ids(incoming inS: Incoming, current: Current) throws {
+    func _iceD_ice_ids(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
         try inS.readEmptyParams()
 
         let returnValue = try ice_ids(current: current)
@@ -79,9 +81,10 @@ public extension Object {
         inS.write { ostr in
             ostr.write(returnValue)
         }
+        return nil
     }
 
-    func _iceD_ice_isA(incoming inS: Incoming, current: Current) throws {
+    func _iceD_ice_isA(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
         let ident: String = try inS.read { istr in
             try istr.read()
         }
@@ -91,12 +94,14 @@ public extension Object {
         inS.write { ostr in
             ostr.write(returnValue)
         }
+        return nil
     }
 
-    func _iceD_ice_ping(incoming inS: Incoming, current: Current) throws {
+    func _iceD_ice_ping(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
         try inS.readEmptyParams()
         try ice_ping(current: current)
         inS.writeEmptyParams()
+        return nil
     }
 }
 
@@ -136,16 +141,16 @@ public struct ObjectDisp: Disp {
         self.servant = servant
     }
 
-    public func dispatch(request: Request, current: Current) throws {
+    public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
         switch current.operation {
         case "ice_id":
-            try servant._iceD_ice_id(incoming: request, current: current)
+            return try servant._iceD_ice_id(incoming: request, current: current)
         case "ice_ids":
-            try servant._iceD_ice_ids(incoming: request, current: current)
+            return try servant._iceD_ice_ids(incoming: request, current: current)
         case "ice_isA":
-            try servant._iceD_ice_isA(incoming: request, current: current)
+            return try servant._iceD_ice_isA(incoming: request, current: current)
         case "ice_ping":
-            try servant._iceD_ice_ping(incoming: request, current: current)
+            return try servant._iceD_ice_ping(incoming: request, current: current)
         default:
             throw OperationNotExistException(id: current.id, facet: current.facet, operation: current.operation)
         }

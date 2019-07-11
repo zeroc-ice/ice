@@ -4,12 +4,12 @@
 
 import Foundation
 import IceImpl
+import PromiseKit
 
 public final class Incoming {
     private let current: Current
     private var format: FormatType
     private let istr: InputStream
-    private var ostr: OutputStream
     private let responseCallback: ICEBlobjectResponse
     private let exceptionCallback: ICEBlobjectException
 
@@ -17,14 +17,16 @@ public final class Incoming {
     private var locator: ServantLocator?
     private var cookie: AnyObject?
 
+    private var ok: Bool // false if response contains a UserException
+
     init(istr: InputStream, response: @escaping ICEBlobjectResponse, exception: @escaping ICEBlobjectException,
          current: Current) {
         self.istr = istr
         format = .DefaultFormat
+        ok = true
         responseCallback = response
         exceptionCallback = exception
         self.current = current
-        ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
     }
 
     public func readEmptyParams() throws {
@@ -53,32 +55,36 @@ public final class Incoming {
     }
 
     public func write(_ cb: (OutputStream) -> Void) {
+        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         cb(ostr)
         ostr.endEncapsulation()
-        response()
+        response(ostr)
     }
 
-    public func writeParamEncaps(ok: Bool, outParams: Data) {
+    public func writeParamEncaps(ok: Bool, outParams: Data) -> OutputStream {
+        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
         if outParams.isEmpty {
             ostr.writeEmptyEncapsulation(current.encoding)
         } else {
             ostr.writeEncapsulation(outParams)
         }
+        self.ok = ok
 
-        responseCallback(ok, ostr.finished())
+        return ostr
     }
 
     public func writeEmptyParams() {
+        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
         ostr.writeEmptyEncapsulation(current.encoding)
-        response()
+        response(ostr)
     }
 
-    public func response() {
+    public func response(_ ostr: OutputStream) {
         guard locator == nil || servantLocatorFinished() else {
             return
         }
-        responseCallback(true, ostr.finished())
+        responseCallback(ok, ostr.finished())
     }
 
     public func exception(_ ex: Error) {
@@ -90,6 +96,22 @@ public final class Incoming {
 
     public func setFormat(_ format: FormatType) {
         self.format = format
+    }
+
+    public func setResultPromise<T>(_ p: Promise<T>,
+                                    _ cb: ((OutputStream, T) -> Void)? = nil) -> Promise<OutputStream> {
+        return p.map { t in
+            let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
+
+            if let cb = cb {
+                ostr.startEncapsulation(encoding: self.current.encoding, format: self.format)
+                cb(ostr, t)
+                ostr.endEncapsulation()
+            } else {
+                ostr.writeEmptyEncapsulation(self.current.encoding)
+            }
+            return ostr
+        }
     }
 
     func servantLocatorFinished() -> Bool {
@@ -145,7 +167,14 @@ public final class Incoming {
         // Dispatch in the incoming call
         //
         do {
-            try s.dispatch(request: self, current: current)
+            if let promise = try s.dispatch(request: self, current: current) {
+                // dispatched asyncroniasdfly
+                promise.done { ostr in
+                    self.response(ostr)
+                }.catch { error in
+                    self.exception(error)
+                }
+            }
         } catch {
             exception(error)
         }
@@ -156,11 +185,12 @@ public final class Incoming {
             exceptionCallback(convertException(exception))
             return
         }
-        ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
+        ok = false // response will contain a UserException
+        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         ostr.write(e)
         ostr.endEncapsulation()
-        responseCallback(false, ostr.finished())
+        responseCallback(ok, ostr.finished())
     }
 
     func convertException(_ exception: Error) -> ICERuntimeException {

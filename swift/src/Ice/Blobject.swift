@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import PromiseKit
 
 /// Base protocol for dynamic dispatch servants.
 public protocol Blobject {
@@ -32,9 +33,11 @@ public struct BlobjectDisp: Disp {
         self.servant = servant
     }
 
-    public func dispatch(request: Request, current: Current) throws {
+    public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
         let inEncaps = try request.readParamEncaps()
         let invokeResult = try servant.ice_invoke(inEncaps: inEncaps, current: current)
-        request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
+        let ostr = request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
+        request.response(ostr)
+        return nil
     }
 }
