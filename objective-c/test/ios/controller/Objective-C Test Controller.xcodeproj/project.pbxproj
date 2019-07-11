@@ -355,8 +355,8 @@
 		14CF14CC215A4A7800499968 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */; };
 		14FFBAA01E29361A00EA55AF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */; };
 		14FFBAA11E29362900EA55AF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */; };
-		820CD39D22D65C8E0056BEDA /* ObjectsForward.ice in Resources */ = {isa = PBXBuildFile; fileRef = 820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */; };
-		820CD39E22D65C8E0056BEDA /* ObjectsForward.ice in Resources */ = {isa = PBXBuildFile; fileRef = 820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */; };
+		820CD39F22D737950056BEDA /* ObjectsForward.ice in Sources */ = {isa = PBXBuildFile; fileRef = 820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */; };
+		820CD3A022D737A50056BEDA /* ObjectsForward.ice in Sources */ = {isa = PBXBuildFile; fileRef = 820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -1256,7 +1256,6 @@
 				148ABA1B1DFB12C800594F70 /* server.p12 in Resources */,
 				143A09AF1EB3895D00C8F91F /* cacert.pem in Resources */,
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
-				820CD39D22D65C8E0056BEDA /* ObjectsForward.ice in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1270,7 +1269,6 @@
 				14B7DF5F1E043085001D0109 /* LaunchScreen.storyboard in Resources */,
 				14B7DF641E043085001D0109 /* server.p12 in Resources */,
 				14B7DF681E043085001D0109 /* Assets.xcassets in Resources */,
-				820CD39E22D65C8E0056BEDA /* ObjectsForward.ice in Resources */,
 				14B7DF721E043085001D0109 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1282,6 +1280,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				820CD39F22D737950056BEDA /* ObjectsForward.ice in Sources */,
 				14A4CE0A215A4C31002AD8F7 /* ObjectsTest.ice in Sources */,
 				14CF14CB215A4A7800499968 /* ObjectsDerived.ice in Sources */,
 				14CF14CC215A4A7800499968 /* ObjectsDerivedEx.ice in Sources */,
@@ -1456,6 +1455,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				820CD3A022D737A50056BEDA /* ObjectsForward.ice in Sources */,
 				14A4CE0B215A4C3E002AD8F7 /* ObjectsTest.ice in Sources */,
 				14A4CE0C215A4C3E002AD8F7 /* ObjectsDerived.ice in Sources */,
 				14A4CE0D215A4C3E002AD8F7 /* ObjectsDerivedEx.ice in Sources */,
