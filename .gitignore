@@ -114,5 +114,5 @@ cpp/test/Slice/errorDetection/tmp
 
 # iOS builds
 
-**/objs-**/
-**/build-**/
+**/objs-*/
+**/build-*/
