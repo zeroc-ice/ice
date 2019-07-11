@@ -35,7 +35,7 @@ private:
 
     void runTest(const Test::MyObjectPrxPtr&, const InterceptorIPtr&);
     void runAmdTest(const Test::MyObjectPrxPtr&, const AMDInterceptorIPtr&);
-    void testInterceptorExceptions(const Test::MyObjectPrx&);
+    void testInterceptorExceptions(const Test::MyObjectPrxPtr&);
 };
 
 void
@@ -246,7 +246,7 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
 }
 
 void
-Client::testInterceptorExceptions(const Test::MyObjectPrx& prx)
+Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
 {
     vector<pair<string, string> > exceptions;
     exceptions.push_back(make_pair("raiseBeforeDispatch", "user"));
@@ -281,7 +281,7 @@ Client::testInterceptorExceptions(const Test::MyObjectPrx& prx)
             test(p->second == "system"); // collocated
         }
         {
-            Ice::ObjectPrx batch = prx->ice_batchOneway();
+            Ice::ObjectPrxPtr batch = prx->ice_batchOneway();
             batch->ice_ping(ctx);
             batch->ice_ping();
             batch->ice_flushBatchRequests();
