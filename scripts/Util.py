@@ -533,6 +533,7 @@ similar.
 class Mapping(object):
 
     mappings = OrderedDict()
+    disabled = OrderedDict()
 
     class Config(object):
 
@@ -792,17 +793,29 @@ class Mapping(object):
         return mappings
 
     @classmethod
-    def add(self, name, mapping, component, path=None):
+    def add(self, name, mapping, component, path=None, enable=True):
         name = name.replace("\\", "/")
-        self.mappings[name] = mapping.init(name, component, path)
+        m = mapping.init(name, component, path)
+        if enable:
+            self.mappings[name] = m
+        else:
+            self.disabled[name] = m
+
+    @classmethod
+    def disable(self, name):
+        m = self.mappings[name]
+        if m:
+            self.disabled[name] = m
+            del self.mappings[name]
 
     @classmethod
     def remove(self, name):
         del self.mappings[name]
 
     @classmethod
-    def getAll(self, driver=None):
-        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))]
+    def getAll(self, driver=None, includeDisabled=False):
+        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + \
+            ([m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else [])
 
     def __init__(self, path=None):
         self.name = None
@@ -3267,6 +3280,16 @@ class JavaMapping(Mapping):
 
 class JavaCompatMapping(JavaMapping):
 
+    class Config(JavaMapping.Config):
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("Java Compat Mapping options:")
+            print("--android                 Run the Android tests.")
+            print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
+            print("--avd=<name>              Start specific Android Virtual Device.")
+
     def getPluginEntryPoint(self, plugin, process, current):
         return {
             "IceSSL" : "IceSSL.PluginFactory",
@@ -3884,7 +3907,7 @@ def runTests(mappings=None, drivers=None):
     try:
         options = [Driver.getSupportedArgs(), Mapping.Config.getSupportedArgs()]
         options += [driver.getSupportedArgs() for driver in drivers]
-        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll()]
+        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll(includeDisabled=True)]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:
