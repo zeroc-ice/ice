@@ -33,20 +33,21 @@ class SliceErrorDetectionTestCase(ClientTestCase):
 
                 regex1 = re.compile("\.ice$", re.IGNORECASE)
                 lines1 = output.strip().splitlines()
-                lines2 = open(os.path.join(testdir, regex1.sub(".err", file)), "r").readlines()
-                if len(lines1) != len(lines2):
-                    raise RuntimeError("failed (lines1 = {0}, lines2 = {1})!".format(len(lines1), len(lines2)))
+                with open(os.path.join(testdir, regex1.sub(".err", file)), "r") as f:
+                    lines2 = f.readlines()
+                    if len(lines1) != len(lines2):
+                        raise RuntimeError("failed (lines1 = {0}, lines2 = {1})!".format(len(lines1), len(lines2)))
 
-                regex2 = re.compile("^.*(?=" + os.path.basename(file) + ")")
-                i = 0
-                while i < len(lines1):
-                    line1 = regex2.sub("", lines1[i]).strip()
-                    line2 = regex2.sub("", lines2[i]).strip()
-                    if line1 != line2:
-                        raise RuntimeError("failed! (line1 = \"{0}\", line2 = \"{1}\"".format(line1, line2))
-                    i = i + 1
-                else:
-                    current.writeln("ok")
+                    regex2 = re.compile("^.*(?=" + os.path.basename(file) + ")")
+                    i = 0
+                    while i < len(lines1):
+                        line1 = regex2.sub("", lines1[i]).strip()
+                        line2 = regex2.sub("", lines2[i]).strip()
+                        if line1 != line2:
+                            raise RuntimeError("failed! (line1 = \"{0}\", line2 = \"{1}\"".format(line1, line2))
+                        i = i + 1
+                    else:
+                        current.writeln("ok")
 
             for language in ["cpp", "cs", "html", "java", "js", "matlab", "objc", "php", "py", "rb"]:
                 compiler = SliceTranslator('slice2%s' % language)
