@@ -129,9 +129,9 @@ iconv_program_system_libs = -Wl,-blibpath:/usr/lib:$(libpath)
 endif
 
 ifeq ($(EXPAT_HOME),)
-# Add /opt/lib/freeware to libpath for libgcc_s
+# Add /opt/freeware/lib/pthread to libpath for libgcc_s
 ifneq ($(embedded_runpath_prefix),/opt/freeware)
-expat_program_system_libs = -Wl,-blibpath:/opt/freeware/lib:$(libpath)
+expat_program_system_libs = -Wl,-blibpath:/opt/freeware/lib/pthread:$(libpath)
 endif
 endif
 
