@@ -174,7 +174,7 @@ IcePy::getString(PyObject* p)
             char* s;
             Py_ssize_t sz;
             PyBytes_AsStringAndSize(bytes.get(), &s, &sz);
-            str.assign(s, sz);
+            str.assign(s, static_cast<size_t>(sz));
         }
 #else
         str.assign(PyString_AS_STRING(p), static_cast<size_t>(PyString_GET_SIZE(p)));

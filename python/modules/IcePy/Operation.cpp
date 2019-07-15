@@ -3189,7 +3189,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         }
         else
         {
-            op = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), out.size());
+            op = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), static_cast<Py_ssize_t>(out.size()));
         }
         if(!op.get())
         {
