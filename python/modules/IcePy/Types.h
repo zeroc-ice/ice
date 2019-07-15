@@ -359,7 +359,7 @@ private:
         void setItem(PyObject*, int, PyObject*) const;
 
         Type type;
-        PyObjectHandle factory;
+        PyObject* factory;
     };
     typedef IceUtil::Handle<SequenceMapping> SequenceMappingPtr;
 
