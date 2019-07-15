@@ -114,10 +114,11 @@ class IceGridNode(ProcessFromBinDir, Server):
 
 class IceGridRegistry(ProcessFromBinDir, Server):
 
-    def __init__(self, name, portnum=20, readyCount=5, *args, **kargs):
+    def __init__(self, name, portnum=20, ready="AdminSessionManager", *args, **kargs):
         Server.__init__(self, "icegridregistry", mapping=Mapping.getByName("cpp"), desc="IceGrid registry " + name,
-                        readyCount=readyCount, *args, **kargs)
+                        ready=ready, *args, **kargs)
         self.portnum = portnum
+        self.readyCount = -1
         self.name = name
 
     def setup(self, current):

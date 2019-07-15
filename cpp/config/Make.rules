@@ -98,6 +98,7 @@ endif
 # directory.
 #
 cpp11_cppflags          = -DICE_CPP11_MAPPING -std=c++11
+cpp11_ldflags           = $(cpp11_cppflags)
 cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)
 cpp11_targetdir         = $(if $(filter %/build,$5),cpp11)
 
