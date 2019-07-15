@@ -174,8 +174,8 @@
 //  exporting the whole class
 #   define ICE_MEMBER_IMPORT_EXPORT
 #elif (defined(__GNUC__) || defined(__clang__)) && !defined(__ibmxl__)
-#   define ICE_DECLSPEC_EXPORT __attribute__((visibility("default")))
-#   define ICE_DECLSPEC_IMPORT __attribute__((visibility("default")))
+#   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
+#   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 #elif defined(__SUNPRO_CC)
 #   define ICE_DECLSPEC_EXPORT __global
 #   define ICE_DECLSPEC_IMPORT /**/

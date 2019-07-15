@@ -165,7 +165,7 @@ allTests(Test::TestHelper* helper)
             if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
             {
                 cout << "(not supported) ";
-                ret = 5;
+                ret = true;
                 break;
             }
             throw;
