@@ -42,6 +42,8 @@ static ExceptionInfoMap _exceptionInfoMap;
 namespace
 {
 
+const char* emptySeq = "";
+
 //
 // This exception is raised if the factory specified in a sequence metadata
 // cannot be load or is not valid
@@ -281,9 +283,12 @@ bufferGetBuffer(BufferObject* self, Py_buffer* view, int flags)
         PyErr_SetString(PyExc_BufferError, "fill buffer info failed");
         return -1;
     }
-
     view->obj = reinterpret_cast<PyObject*>(self);
-    Py_INCREF(view->obj);
+    //
+    // Don't nee to increase the view->obj ref count here
+    // PyBuffer_FillInfo already increases it.
+    //
+    //Py_INCREF(view->obj);
     return 0;
 }
 
@@ -2276,10 +2281,10 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
                                               const char* buffer,
                                               Py_ssize_t size,
                                               BuiltinType type,
-                                              bool copy)
+                                              bool adopt)
 {
     PyObjectHandle memoryview;
-    if(copy)
+    if(adopt && size > 0)
     {
         PyObjectHandle bufferObject = createBuffer(new Buffer(buffer, size, type));
         if(!bufferObject.get())
@@ -2288,15 +2293,15 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
             throw AbortMarshaling();
         }
         memoryview = PyMemoryView_FromObject(bufferObject.get());
-        Py_XDECREF(bufferObject.get());
     }
     else
     {
+        char* buf = const_cast<char*>(size == 0 ? emptySeq : buffer);
 #if PY_VERSION_HEX >= 0x03030000
-        memoryview = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
+        memoryview = PyMemoryView_FromMemory(buf, size, PyBUF_READ);
 #else
         Py_buffer pybuffer;
-        if(PyBuffer_FillInfo(&pybuffer, 0, const_cast<char*>(buffer), size, 1, PyBUF_SIMPLE) != 0)
+        if(PyBuffer_FillInfo(&pybuffer, 0, buf, size, 1, PyBUF_SIMPLE) != 0)
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
@@ -2325,11 +2330,11 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
     PyTuple_SET_ITEM(args.get(), 0, incRef(memoryview.get()));
     PyTuple_SET_ITEM(args.get(), 1, incRef(builtinType.get()));
     //
-    // If we copy the data to a Buffer object we set the copy factory argument to false
+    // If the Buffer object adopts the data we set the copy factory argument to false
     // to avoid a second copy in the factory.
     //
-    PyTuple_SET_ITEM(args.get(), 2, copy ? incFalse() : incTrue());
-    PyObjectHandle result = PyObject_Call(sm->factory.get(), args.get(), 0);
+    PyTuple_SET_ITEM(args.get(), 2, adopt ? incFalse() : incTrue());
+    PyObjectHandle result = PyObject_Call(sm->factory, args.get(), 0);
 
     if(!result.get())
     {
@@ -2359,13 +2364,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<bool> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
-            result = createSequenceFromMemory(sm,
-                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
-                                              sz,
-                                              BuiltinTypeBool,
-                                              arr.get() != 0);
+            bool adopt = arr.get() != 0;
+            const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
+            result = createSequenceFromMemory(sm, data, sz, BuiltinTypeBool, adopt);
         }
         else
         {
@@ -2388,7 +2391,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         pair<const Ice::Byte*, const Ice::Byte*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
             result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte, false);
         }
@@ -2433,13 +2436,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Short> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
-            result = createSequenceFromMemory(sm,
-                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
-                                              sz * 2,
-                                              BuiltinTypeShort,
-                                              arr.get() != 0);
+            bool adopt = arr.get() != 0;
+            const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
+            result = createSequenceFromMemory(sm, data, sz * 2, BuiltinTypeShort, adopt);
         }
         else
         {
@@ -2469,13 +2470,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Int> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
-            result = createSequenceFromMemory(sm,
-                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
-                                              sz * 4,
-                                              BuiltinTypeInt,
-                                              arr.get() != 0);
+            bool adopt = arr.get() != 0;
+            const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
+            result = createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeInt, adopt);
         }
         else
         {
@@ -2504,13 +2503,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Long> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
-            result = createSequenceFromMemory(sm,
-                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
-                                              sz * 8,
-                                              BuiltinTypeLong,
-                                              arr.get() != 0);
+            bool adopt = arr.get() != 0;
+            const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
+            result = createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeLong, adopt);
         }
         else
         {
@@ -2540,13 +2537,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Float> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
-            result = createSequenceFromMemory(sm,
-                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
-                                              sz * 4,
-                                              BuiltinTypeFloat,
-                                              arr.get() != 0);
+            bool adopt = arr.get() != 0;
+            const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
+            result = createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeFloat, adopt);
         }
         else
         {
@@ -2576,13 +2571,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Double> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->factory.get())
+        if(sm->factory)
         {
-            result = createSequenceFromMemory(sm,
-                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
-                                              sz * 8,
-                                              BuiltinTypeDouble,
-                                              arr.get() != 0);
+            bool adopt = arr.get() != 0;
+            const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
+            result = createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeDouble, adopt);
         }
         else
         {
@@ -2678,11 +2671,13 @@ IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metaData, Ty
 }
 
 IcePy::SequenceInfo::SequenceMapping::SequenceMapping(Type t) :
-    type(t)
+    type(t),
+    factory(0)
 {
 }
 
-IcePy::SequenceInfo::SequenceMapping::SequenceMapping(const Ice::StringSeq& meta)
+IcePy::SequenceInfo::SequenceMapping::SequenceMapping(const Ice::StringSeq& meta) :
+    factory(0)
 {
     if(!getType(meta, type))
     {
@@ -2696,7 +2691,7 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
     if(type == SEQ_ARRAY)
     {
         factory = lookupType("Ice.createArray");
-        if(!factory.get())
+        if(!factory)
         {
             PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `Ice.createArray'"));
             throw InvalidSequenceFactoryException();
@@ -2705,7 +2700,7 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
     else if(type == SEQ_NUMPYARRAY)
     {
         factory = lookupType("Ice.createNumPyArray");
-        if(!factory.get())
+        if(!factory)
         {
             PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `Ice.createNumPyArray'"));
             throw InvalidSequenceFactoryException();
@@ -2720,12 +2715,12 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
             {
                 const string typestr = i->substr(prefix.size());
                 factory = lookupType(typestr);
-                if(!factory.get())
+                if(!factory)
                 {
                     PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `%s'"), typestr.c_str());
                     throw InvalidSequenceFactoryException();
                 }
-                if(!PyCallable_Check(factory.get()))
+                if(!PyCallable_Check(factory))
                 {
                     PyErr_Format(PyExc_RuntimeError, STRCAST("factory type `%s' is not callable"), typestr.c_str());
                     throw InvalidSequenceFactoryException();
@@ -2734,7 +2729,6 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
             }
         }
     }
-    Py_XINCREF(factory.get());
 }
 
 void
@@ -2769,7 +2763,7 @@ IcePy::SequenceInfo::SequenceMapping::createContainer(int sz) const
     {
         //
         // Must never be called for SEQ_MEMORYVIEW, as the container
-        // is created by the use factory function.
+        // is created by the user factory function.
         //
         assert(false);
         return 0;

@@ -146,6 +146,9 @@ class CustomI(Test.Custom):
     def opBogusArrayNoCallableFactory(self, current):
         return [True, False, True, False]
 
+    def opD(self, d, current):
+        return d
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
@@ -222,6 +225,9 @@ if hasNumPy:
 
         def opBogusNumpyArrayType(self, current):
             return [True, False, True, False]
+
+        def opD(self, d, current):
+            return d
 
         def shutdown(self, current=None):
             current.adapter.getCommunicator().shutdown()
