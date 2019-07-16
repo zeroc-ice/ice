@@ -3407,6 +3407,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             isProperty = true;
         }
+        isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
     }
     else if(ex)
     {
