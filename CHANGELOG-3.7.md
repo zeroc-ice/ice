@@ -22,7 +22,7 @@ particular aspect of Ice.
   * [MATLAB Changes](#matlab-changes)
   * [Objective-C Changes](#objective-c-changes)
   * [PHP Changes](#php-changes)
-  * [Python Changes](#python-changes)
+  * [Python Changes](#python-changes-1)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   * [General Changes](#general-changes-1)
   * [C++ Changes](#c-changes-4)
@@ -32,7 +32,7 @@ particular aspect of Ice.
   * [MATLAB Changes](#matlab-changes-1)
   * [Objective-C Changes](#objective-c-changes-1)
   * [PHP Changes](#php-changes-1)
-  * [Python Changes](#python-changes-1)
+  * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   * [General Changes](#general-changes-2)
@@ -42,7 +42,7 @@ particular aspect of Ice.
   * [JavaScript Changes](#javascript-changes-2)
   * [Objective-C Changes](#objective-c-changes-2)
   * [PHP Changes](#php-changes-2)
-  * [Python Changes](#python-changes-2)
+  * [Python Changes](#python-changes-3)
   * [Ruby Changes](#ruby-changes-1)
 
 # Changes in Ice 3.7.3
