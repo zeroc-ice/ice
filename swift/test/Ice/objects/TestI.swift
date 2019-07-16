@@ -241,7 +241,7 @@ class InitialI: Initial {
         return (f31, F3(f1: F1(name: "F12"), f2: uncheckedCast(prx: prx, type: F2Prx.self)))
     }
 
-    func hasF3(current: Current) throws -> Bool {
+    func hasF3(current _: Current) throws -> Bool {
         return true
     }
 }
