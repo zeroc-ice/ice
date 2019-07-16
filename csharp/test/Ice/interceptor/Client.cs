@@ -257,10 +257,13 @@ namespace Ice
                         batch.ice_ping(ctx);
                         batch.ice_ping();
                         batch.ice_flushBatchRequests();
+
+                        // Force the last batch request to be dispatched by the server thread using invocation timeouts
+                        // This is required to preven threading issue with the test interceptor implementation which
+                        // isn't thread safe
+                        prx.ice_invocationTimeout(10000).ice_ping();
                     }
                 }
-                // Force the last batch request to be dispatched by the server thread using invocation timeouts
-                prx.ice_invocationTimeout(10000).ice_ping();
             }
         }
     }
