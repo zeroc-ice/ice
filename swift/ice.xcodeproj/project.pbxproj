@@ -206,7 +206,6 @@
 		24ED0C4AA386AB5E508EB66C /* TestI.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8AE697E1A8F30BF04B4B35 /* TestI.swift */; };
 		24F3B4BAA437A836B7F43AF8 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDC6642C4A54E29575F523B1 /* PromiseKit.framework */; };
 		251DD6DBBC1B841DC49EAE6B /* SecureTransportUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 02F7536590005732110360AA /* SecureTransportUtil.cpp */; };
-		25254472304703EC6EF7C4C1 /* MyObjectI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3912837FD9F10C0887C567 /* MyObjectI.swift */; };
 		254FB10C74A097BED9FF4C5B /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31566B2AA8A7358ED8936583 /* Value.cpp */; };
 		25827587864D86D18E60B0DC /* Communicator.h in Headers */ = {isa = PBXBuildFile; fileRef = EFFD2BB76DB8A3B2956A3DBF /* Communicator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25AFF6379211A3F81C192A98 /* OutputUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5A0AA380370B7BEE99D544D /* OutputUtil.cpp */; };
@@ -627,7 +626,6 @@
 		6DD7AFDC167819BDA5E43489 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A9CCC7B1B77E435CC30CBE /* PromiseKit.framework */; };
 		6E16A2FF9E4ED9E1C66A8222 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7485FC84AEF10E4ADA106847 /* Server.swift */; };
 		6E3715E1C163A90D08E21D04 /* EndpointInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = B5763CB32D3DB3117313E79F /* EndpointInfo.ice */; };
-		6E39071B56421C07EB5B6A3F /* InterceptorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3104A7A2CBBA9CDE456899F4 /* InterceptorI.swift */; };
 		6E609AAAC0C4BA3BCE84C5B0 /* StringConverterPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AD7AF62765B1377375B6684 /* StringConverterPlugin.cpp */; };
 		6F2BB2D270943353228BCF99 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C77A0D27F4B44C132B7E8A4E /* Ice.framework */; };
 		6F667C7C567638E6940A0783 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A9CCC7B1B77E435CC30CBE /* PromiseKit.framework */; };
@@ -1037,7 +1035,6 @@
 		B35FF3FE9B7C614650EF15AB /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C77A0D27F4B44C132B7E8A4E /* Ice.framework */; };
 		B383457E715B65D6F7BE7CAA /* UnsupportedAdminFacet.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF0C61F7AF0898613AB0721 /* UnsupportedAdminFacet.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B38C4B1DABC9BBF58A5C7438 /* ObjectAdapter.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3E7FDA8F0CB5C1EB0C3D5 /* ObjectAdapter.ice */; };
-		B40162E3C282AA070FCEC017 /* InterceptorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3104A7A2CBBA9CDE456899F4 /* InterceptorI.swift */; };
 		B434B5C40FB38D78D6E9AEF0 /* ClientPrivate.ice in Sources */ = {isa = PBXBuildFile; fileRef = A05FE1F34D74CCAD74014665 /* ClientPrivate.ice */; };
 		B44B5E382D2364A32BFB9B45 /* OSLogLoggerI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81B2585EE0ABA0B467ECF42E /* OSLogLoggerI.cpp */; };
 		B45C51EE1FBDFA2CEA982688 /* IceImpl.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = F6766433ED05496741DDCD46 /* IceImpl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1297,7 +1294,6 @@
 		E0C02B7C8CEC28D8330CB22B /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = F7CA4DC76A321275DB872B07 /* Test.ice */; };
 		E0D8B7B5433AA500F9231F9F /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDC6642C4A54E29575F523B1 /* PromiseKit.framework */; };
 		E13FCB2142BB03892C64037F /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7A90AE4AD127AD82784282 /* Server.swift */; };
-		E14F0D8E1BEC56A4C93A0047 /* MyObjectI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3912837FD9F10C0887C567 /* MyObjectI.swift */; };
 		E187F875471023B39E56FB42 /* PermissionsVerifierF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 7594614D3054D4BB7F9573EE /* PermissionsVerifierF.ice */; };
 		E1A94031F68A7E2EE1A76115 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B6B6D8C11656C73612597C5 /* TestCommon.framework */; };
 		E1C6B92A3EB5F307D94FD8CD /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E81CFF14B5E531E2066AFC62 /* Ice.framework */; };
@@ -3547,7 +3543,6 @@
 		30A6347E091D471B6B6BFD91 /* ImplicitContext.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ImplicitContext.h; path = src/IceImpl/ImplicitContext.h; sourceTree = "<group>"; };
 		30A90B92414328EBA6DD2192 /* IceAmi.bundle */ = {isa = PBXFileReference; explicitFileType = "wrapper.plug-in"; includeInIndex = 0; path = IceAmi.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		30CDF652CC015BA8E82983CB /* UnsupportedAdminFacet.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = UnsupportedAdminFacet.mm; path = src/IceImpl/UnsupportedAdminFacet.mm; sourceTree = "<group>"; };
-		3104A7A2CBBA9CDE456899F4 /* InterceptorI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InterceptorI.swift; path = test/Ice/interceptor/InterceptorI.swift; sourceTree = "<group>"; };
 		31440BD25E7CA80C3F59FFDF /* TwowaysAMI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TwowaysAMI.swift; path = test/Ice/operations/TwowaysAMI.swift; sourceTree = "<group>"; };
 		31566B2AA8A7358ED8936583 /* Value.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../cpp/src/Ice/Value.cpp; sourceTree = "<group>"; };
 		31E8CC32973D18E5E3E9C098 /* TestI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestI.swift; path = test/Ice/hold/TestI.swift; sourceTree = "<group>"; };
@@ -3667,7 +3662,6 @@
 		6B2D1B59582A365F3B0864E2 /* Communicator.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Communicator.mm; path = src/IceImpl/Communicator.mm; sourceTree = "<group>"; };
 		6B714A608FFA9AC30822A850 /* OutputStream.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = OutputStream.h; path = src/IceImpl/OutputStream.h; sourceTree = "<group>"; };
 		6BC02CE87409E53C355CD94A /* Blobject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Blobject.swift; path = src/Ice/Blobject.swift; sourceTree = "<group>"; };
-		6C3912837FD9F10C0887C567 /* MyObjectI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MyObjectI.swift; path = test/Ice/interceptor/MyObjectI.swift; sourceTree = "<group>"; };
 		6C7528F815E6589DD7EFC485 /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/admin/Server.swift; sourceTree = "<group>"; };
 		6D4A11D7106862BA1C6C4F9A /* Router.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Router.ice; path = ../slice/Glacier2/Router.ice; sourceTree = "<group>"; };
 		6D942F5EDE944D2F40B569E8 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/acm/Client.swift; sourceTree = "<group>"; };
@@ -5294,8 +5288,6 @@
 			isa = PBXGroup;
 			children = (
 				4878A657E33EB77C56988C0B /* Client.swift */,
-				3104A7A2CBBA9CDE456899F4 /* InterceptorI.swift */,
-				6C3912837FD9F10C0887C567 /* MyObjectI.swift */,
 				CDFF3A9A224F2FD2663DF285 /* Test.ice */,
 			);
 			name = interceptor;
@@ -11076,8 +11068,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				903625163DB02A8A11EEF1C7 /* Client.swift in Sources */,
-				B40162E3C282AA070FCEC017 /* InterceptorI.swift in Sources */,
-				E14F0D8E1BEC56A4C93A0047 /* MyObjectI.swift in Sources */,
 				22010F2CA7C81271A361F372 /* Test.ice in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -12032,8 +12022,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				97D6BC5F04635CEABE73F22D /* Client.swift in Sources */,
-				6E39071B56421C07EB5B6A3F /* InterceptorI.swift in Sources */,
-				25254472304703EC6EF7C4C1 /* MyObjectI.swift in Sources */,
 				7AA92C10F910C353F0C542C9 /* Test.ice in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

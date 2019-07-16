@@ -6,6 +6,86 @@ import Ice
 import PromiseKit
 import TestCommon
 
+class InterceptorI: Disp {
+    public private(set) var servantDisp: Disp
+    public private(set) var lastOperation: String?
+    public private(set) var lastStatus: Bool = false
+
+    init(_ servantDisp: Disp) {
+        self.servantDisp = servantDisp
+    }
+
+    func dispatch(request: Request, current: Current) throws -> Promise<Ice.OutputStream>? {
+        
+        
+        if let context = current.ctx["raiseBeforeDispatch"] {
+            if context == "user" {
+                throw InvalidInputException()
+            } else if context == "notExist" {
+                throw ObjectNotExistException()
+            }
+        }
+        lastOperation = current.operation
+
+        // Did not implement add with retry as Swift does not support retrying
+        let p = try servantDisp.dispatch(request: request, current: current)
+        lastStatus = p != nil
+
+        if let context = current.ctx["raiseAfterDispatch"] {
+            print("context:   \(current.ctx)")
+            if context == "user" {
+                throw InvalidInputException()
+            } else if context == "notExist" {
+                throw ObjectNotExistException()
+            }
+        }
+        return p
+    }
+
+    public func clear() {
+        lastOperation = nil
+        lastStatus = false
+    }
+}
+
+class MyObjectI: MyObject {
+    func add(x: Int32, y: Int32, current _: Current) throws -> Int32 {
+        return x + y
+    }
+
+    func badAdd(x _: Int32, y _: Int32, current _: Current) throws -> Int32 {
+        throw InvalidInputException()
+    }
+
+    func notExistAdd(x _: Int32, y _: Int32, current _: Current) throws -> Int32 {
+        throw ObjectNotExistException()
+    }
+
+    func amdAddAsync(x: Int32, y: Int32, current _: Current) -> Promise<Int32> {
+        return Promise<Int32> { seal in
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                seal.fulfill(x + y)
+            }
+        }
+    }
+
+    func amdBadAddAsync(x _: Int32, y _: Int32, current _: Current) -> Promise<Int32> {
+        return Promise<Int32> { seal in
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                seal.reject(InvalidInputException())
+            }
+        }
+    }
+
+    func amdNotExistAddAsync(x _: Int32, y _: Int32, current _: Current) -> Promise<Int32> {
+        return Promise<Int32> { seal in
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                seal.reject(ObjectNotExistException())
+            }
+        }
+    }
+}
+
 public class Client: TestHelperI {
     private func runTest(prx: MyObjectPrx, interceptor: InterceptorI) throws {
         do {
@@ -47,6 +127,10 @@ public class Client: TestHelperI {
             try test(interceptor.lastOperation == "notExistAdd")
             try test(!interceptor.lastStatus)
             out.writeLine("ok")
+
+            out.write("testing exceptions raised by the interceptor... ")
+            try testInterceptorExceptions(prx)
+            out.writeLine("ok")
         }
     }
 
@@ -81,6 +165,10 @@ public class Client: TestHelperI {
             try test(interceptor.lastOperation == "amdNotExistAdd")
             try test(interceptor.lastStatus)
             out.writeLine("ok")
+
+            out.write("testing exceptions raised by the interceptor... ")
+            try testInterceptorExceptions(prx)
+            out.writeLine("ok")
         }
     }
 
@@ -113,5 +201,42 @@ public class Client: TestHelperI {
         out.writeLine("Now with AMD")
         interceptor.clear()
         try runAmdTest(prx: prx, interceptor: interceptor, out: out)
+    }
+
+    private class ExceptionPoint {
+        var point: String
+        var exception: String
+
+        public init(_ point: String, _ exception: String) {
+            self.point = point
+            self.exception = exception
+        }
+    }
+
+    private func testInterceptorExceptions(_ prx: MyObjectPrx) throws {
+        let exceptions: [ExceptionPoint] = [
+            ExceptionPoint("raiseBeforeDispatch", "user"),
+            ExceptionPoint("raiseBeforeDispatch", "notExist"),
+            ExceptionPoint("raiseAfterDispatch", "user"),
+            ExceptionPoint("raiseAfterDispatch", "notExist")
+        ]
+        for e in exceptions {
+            var ctx: Context = [:]
+            ctx[e.point] = e.exception
+            do {
+                print(e.exception)
+                try prx.ice_ping(context: ctx)
+                try test(false)
+            } catch is UnknownUserException {
+                try test(e.exception == "user")
+            } catch is ObjectNotExistException {
+                try test(e.exception == "notExist")
+            }
+//            let batch = prx.ice_batchOneway()
+//            try batch.ice_ping(context: ctx)
+//            try batch.ice_ping()
+//            try batch.ice_flushBatchRequests()
+        }
+//        try prx.ice_invocationTimeout(10000).ice_ping()
     }
 }

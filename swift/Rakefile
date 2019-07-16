@@ -52,9 +52,6 @@ $test_default_sources = {
 # Extra test sources if any
 #
 $test_extra_sources = {
-    "Ice/interceptor" => ["InterceptorI.swift",
-                          "MyObjectI.swift",
-                          "MySystemException.swift"],
     "Ice/objects" => ["Forward.ice"],
     "Ice/operations/Client" => ["BatchOneways.swift",
                                 "BatchOnewaysAMI.swift",
