@@ -521,28 +521,28 @@ class EnumBase(object):
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
-            return self._value < other._value;
+            return self._value < other._value
         elif other == None:
             return False
         return NotImplemented
 
     def __le__(self, other):
         if isinstance(other, self.__class__):
-            return self._value <= other._value;
-        elif other == None:
+            return self._value <= other._value
+        elif other is None:
             return False
         return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self._value == other._value;
+            return self._value == other._value
         elif other == None:
             return False
         return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, self.__class__):
-            return self._value != other._value;
+            return self._value != other._value
         elif other == None:
             return False
         return NotImplemented
@@ -556,7 +556,7 @@ class EnumBase(object):
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
-            return self._value >= other._value;
+            return self._value >= other._value
         elif other == None:
             return False
         return NotImplemented
@@ -827,7 +827,7 @@ define the enqueue method.'''
     def __init__(self):
         pass
 
-    def enqueue(request, queueCount, queueSize):
+    def enqueue(self, request, queueCount, queueSize):
         '''Invoked when a request is batched.'''
         pass
 
