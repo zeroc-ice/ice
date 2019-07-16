@@ -12,6 +12,7 @@ particular aspect of Ice.
   * [C++ Changes](#c-changes)
   * [C# Changes](#c-changes-1)
   * [Java Changes](#java-changes)
+  * [MATLAB Changes](#matlab-changes)
   * [Python Changes](#python-changes)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   * [General Changes](#general-changes)
@@ -19,7 +20,7 @@ particular aspect of Ice.
   * [C# Changes](#c-changes-3)
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
-  * [MATLAB Changes](#matlab-changes)
+  * [MATLAB Changes](#matlab-changes-1)
   * [Objective-C Changes](#objective-c-changes)
   * [PHP Changes](#php-changes)
   * [Python Changes](#python-changes-1)
@@ -29,7 +30,7 @@ particular aspect of Ice.
   * [C# Changes](#c-changes-5)
   * [Java Changes](#java-changes-1)
   * [JavaScript Changes](#javascript-changes-1)
-  * [MATLAB Changes](#matlab-changes-1)
+  * [MATLAB Changes](#matlab-changes-2)
   * [Objective-C Changes](#objective-c-changes-1)
   * [PHP Changes](#php-changes-1)
   * [Python Changes](#python-changes-2)
@@ -56,6 +57,9 @@ These are the changes since Ice 3.7.2.
   that Slice file. This was allowed (but not documented) in Ice 3.6 and earlier
   releases, and disallowed in Ice 3.7.0 - Ice 3.7.2.
 
+- Added `ice_isFixed` proxy method to test whether a proxy is a fixed proxy
+  or not.
+
 ## C++ Changes
 
 - Removed IceStorm restriction where retryCount could only be used with two-way
@@ -71,10 +75,26 @@ These are the changes since Ice 3.7.2.
   ran as a given user was incorrect when running the IceGrid node as root. The
   server would be ran with the root/wheel supplementary group.
 
+- Fixed a bug in IceGrid node that could result in an infinite loop when
+  the system call to `getpwuid_r` fails with `ERANGE`.
+
+- Fixed build failures on Linux ppc64el due to `__linux` macro not being defined
+  in C++11 mode, `__linux__` must be used.
+
+- Add support for Visual Studio 2019.
+
+- Fixed GCC 9 build failures.
+
 ## C# Changes
 
 - Added back support for caching the output stream used to marshal the response
   of a synchronous dispatch.
+
+- Fixed C# to not require unsafe code, `AllowUnsafeBlocks` is not longer set when
+  building Ice for C#.
+
+- Fixed loading of Bzip2 native libraries in Linux to fallback to libbz2.so.1
+  if libbz2.so.1.0 doesn't exists.
 
 ## Java Changes
 
@@ -84,6 +104,15 @@ These are the changes since Ice 3.7.2.
 - Add support to build Ice as modular JAR files, this is automatically done
   when building Ice for Java with JDK 9 or greater, the JARs are compatible
   with JDK 8.
+
+## MATLAB Changes
+
+- Added support for `Ice.ClassGraphDepthMax` property to prevent stack property
+  to prevent stack overflows in case a sender sends a very large graph. This was
+  already supported with other language mappings but it was missing in MATLAB.
+
+- Fixed a bug in `ice_isA` implementation that result in `ice_isA` throwing
+  `FacetNotExistException` when it should return null.
 
 ## Python Changes
 
