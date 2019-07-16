@@ -820,28 +820,6 @@ define the start and stop methods.'''
 to terminate.'''
         pass
 
-class BatchRequest(object):
-    '''Base class for batch request interceptor. A subclass must
-define the enqueue method.'''
-    def __init__(self, size, operation, proxy):
-        self._size = size
-        self._operation = operation
-        self._proxy = proxy
-
-    def getSize():
-        return self._size
-
-    def getOperation():
-        return self._operation
-
-    def getProxy():
-        return self._proxy
-
-    def enqueue():
-        '''Call enqueue from the batch request interceptor enqueue
-implementation to confirm the batching a this request.'''
-        pass
-
 class BatchRequestInterceptor(object):
     '''Base class for batch request interceptor. A subclass must
 define the enqueue method.'''
