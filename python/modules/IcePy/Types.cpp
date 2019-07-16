@@ -42,7 +42,7 @@ static ExceptionInfoMap _exceptionInfoMap;
 namespace
 {
 
-const char emptySeq[0] = {};
+const char* emptySeq = "";
 
 //
 // This exception is raised if the factory specified in a sequence metadata
@@ -283,9 +283,12 @@ bufferGetBuffer(BufferObject* self, Py_buffer* view, int flags)
         PyErr_SetString(PyExc_BufferError, "fill buffer info failed");
         return -1;
     }
-
     view->obj = reinterpret_cast<PyObject*>(self);
-    Py_INCREF(view->obj);
+    //
+    // Don't nee to increase the view->obj ref count here
+    // PyBuffer_FillInfo already increases it.
+    //
+    //Py_INCREF(view->obj);
     return 0;
 }
 
@@ -2281,7 +2284,7 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
                                               bool adopt)
 {
     PyObjectHandle memoryview;
-    if(adopt)
+    if(adopt && size > 0)
     {
         PyObjectHandle bufferObject = createBuffer(new Buffer(buffer, size, type));
         if(!bufferObject.get())
@@ -2290,15 +2293,15 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
             throw AbortMarshaling();
         }
         memoryview = PyMemoryView_FromObject(bufferObject.get());
-        Py_XDECREF(bufferObject.get());
     }
     else
     {
+        char* buf = const_cast<char*>(size == 0 ? emptySeq : buffer);
 #if PY_VERSION_HEX >= 0x03030000
-        memoryview = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
+        memoryview = PyMemoryView_FromMemory(buf, size, PyBUF_READ);
 #else
         Py_buffer pybuffer;
-        if(PyBuffer_FillInfo(&pybuffer, 0, const_cast<char*>(buffer), size, 1, PyBUF_SIMPLE) != 0)
+        if(PyBuffer_FillInfo(&pybuffer, 0, buf, size, 1, PyBUF_SIMPLE) != 0)
         {
             assert(PyErr_Occurred());
             throw AbortMarshaling();
@@ -2365,7 +2368,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         {
             bool adopt = arr.get() != 0;
             const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
-            result = createSequenceFromMemory(sm, data == 0 ? &emptySeq[0] : data, sz, BuiltinTypeBool, adopt);
+            result = createSequenceFromMemory(sm, data, sz, BuiltinTypeBool, adopt);
         }
         else
         {
@@ -2437,7 +2440,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         {
             bool adopt = arr.get() != 0;
             const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
-            result = createSequenceFromMemory(sm, data == 0 ? &emptySeq[0] : data, sz * 2, BuiltinTypeShort, adopt);
+            result = createSequenceFromMemory(sm, data, sz * 2, BuiltinTypeShort, adopt);
         }
         else
         {
@@ -2471,7 +2474,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         {
             bool adopt = arr.get() != 0;
             const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
-            result = createSequenceFromMemory(sm, data == 0 ? &emptySeq[0] : data, sz * 4, BuiltinTypeInt, adopt);
+            result = createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeInt, adopt);
         }
         else
         {
@@ -2504,7 +2507,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         {
             bool adopt = arr.get() != 0;
             const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
-            result = createSequenceFromMemory(sm, data = 0 ? &emptySeq[0] : data, sz * 8, BuiltinTypeLong, adopt);
+            result = createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeLong, adopt);
         }
         else
         {
@@ -2538,7 +2541,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         {
             bool adopt = arr.get() != 0;
             const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
-            result = createSequenceFromMemory(sm, data == 0 ? &emptySeq[0] : data, sz * 4, BuiltinTypeFloat, adopt);
+            result = createSequenceFromMemory(sm, data, sz * 4, BuiltinTypeFloat, adopt);
         }
         else
         {
@@ -2572,7 +2575,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         {
             bool adopt = arr.get() != 0;
             const char* data = reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first);
-            result = createSequenceFromMemory(sm, data == 0 ? &emptySeq[0] : data, sz * 8, BuiltinTypeDouble, adopt);
+            result = createSequenceFromMemory(sm, data, sz * 8, BuiltinTypeDouble, adopt);
         }
         else
         {
