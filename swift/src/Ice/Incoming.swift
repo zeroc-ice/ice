@@ -17,6 +17,7 @@ public final class Incoming {
     private var locator: ServantLocator?
     private var cookie: AnyObject?
 
+    private var ostr: OutputStream! // must be set before calling responseCallback
     private var ok: Bool // false if response contains a UserException
 
     init(istr: InputStream, response: @escaping ICEBlobjectResponse, exception: @escaping ICEBlobjectException,
@@ -54,12 +55,9 @@ public final class Incoming {
         return l
     }
 
-    public func write(_ cb: (OutputStream) -> Void) {
-        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
-        ostr.startEncapsulation(encoding: current.encoding, format: format)
-        cb(ostr)
-        ostr.endEncapsulation()
-        response(ostr)
+    public func startOver() {
+        istr.startOver()
+        ostr = nil
     }
 
     public func writeParamEncaps(ok: Bool, outParams: Data) -> OutputStream {
@@ -74,16 +72,11 @@ public final class Incoming {
         return ostr
     }
 
-    public func writeEmptyParams() {
-        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
-        ostr.writeEmptyEncapsulation(current.encoding)
-        response(ostr)
-    }
-
-    public func response(_ ostr: OutputStream) {
+    public func response() {
         guard locator == nil || servantLocatorFinished() else {
             return
         }
+        precondition(ostr != nil, "OutputStream was not set before calling response()")
         responseCallback(ok, ostr.finished())
     }
 
@@ -98,18 +91,43 @@ public final class Incoming {
         self.format = format
     }
 
+    @discardableResult
+    public func setResult(_ os: OutputStream) -> Promise<OutputStream>? {
+        ostr = os
+        return nil // Response is cached in the Incoming to not have to create unnecessary future
+    }
+
+    public func setResult() -> Promise<OutputStream>? {
+        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
+        ostr.writeEmptyEncapsulation(current.encoding)
+        self.ostr = ostr
+        return nil // Response is cached in the Incoming to not have to create unnecessary future
+    }
+
+    public func setResult(_ cb: @escaping (OutputStream) -> Void) -> Promise<OutputStream>? {
+        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
+        ostr.startEncapsulation(encoding: current.encoding, format: format)
+        cb(ostr)
+        ostr.endEncapsulation()
+        self.ostr = ostr
+        return nil // Response is cached in the Incoming to not have to create unnecessary future
+    }
+
+    public func setResultPromise(_ p: Promise<Void>) -> Promise<OutputStream> {
+        return p.map {
+            let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
+            ostr.writeEmptyEncapsulation(self.current.encoding)
+            return ostr
+        }
+    }
+
     public func setResultPromise<T>(_ p: Promise<T>,
-                                    _ cb: ((OutputStream, T) -> Void)? = nil) -> Promise<OutputStream> {
+                                    _ cb: @escaping (OutputStream, T) -> Void) -> Promise<OutputStream> {
         return p.map { t in
             let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
-
-            if let cb = cb {
-                ostr.startEncapsulation(encoding: self.current.encoding, format: self.format)
-                cb(ostr, t)
-                ostr.endEncapsulation()
-            } else {
-                ostr.writeEmptyEncapsulation(self.current.encoding)
-            }
+            ostr.startEncapsulation(encoding: self.current.encoding, format: self.format)
+            cb(ostr, t)
+            ostr.endEncapsulation()
             return ostr
         }
     }
@@ -170,10 +188,13 @@ public final class Incoming {
             if let promise = try s.dispatch(request: self, current: current) {
                 // dispatched asyncroniasdfly
                 promise.done { ostr in
-                    self.response(ostr)
+                    self.ostr = ostr
+                    self.response()
                 }.catch { error in
                     self.exception(error)
                 }
+            } else {
+                response()
             }
         } catch {
             exception(error)

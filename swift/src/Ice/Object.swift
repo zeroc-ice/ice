@@ -67,10 +67,9 @@ public extension Object {
 
         let returnValue = try ice_id(current: current)
 
-        inS.write { ostr in
+        return inS.setResult { ostr in
             ostr.write(returnValue)
         }
-        return nil
     }
 
     func _iceD_ice_ids(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
@@ -78,10 +77,9 @@ public extension Object {
 
         let returnValue = try ice_ids(current: current)
 
-        inS.write { ostr in
+        return inS.setResult { ostr in
             ostr.write(returnValue)
         }
-        return nil
     }
 
     func _iceD_ice_isA(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
@@ -91,17 +89,15 @@ public extension Object {
 
         let returnValue = try ice_isA(id: ident, current: current)
 
-        inS.write { ostr in
+        return inS.setResult { ostr in
             ostr.write(returnValue)
         }
-        return nil
     }
 
     func _iceD_ice_ping(incoming inS: Incoming, current: Current) throws -> Promise<OutputStream>? {
         try inS.readEmptyParams()
         try ice_ping(current: current)
-        inS.writeEmptyParams()
-        return nil
+        return inS.setResult()
     }
 }
 

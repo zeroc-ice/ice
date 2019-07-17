@@ -14,40 +14,49 @@ exception InvalidInputException
 
 interface MyObject
 {
-//
-// A simple addition
-//
+    //
+    // A simple addition
+    //
     int add(int x, int y);
 
-//
-// Raise user exception
-//
+    //
+    // Will throw RetryException until current.ctx["retry"] is "no"
+    //
+    int addWithRetry(int x, int y);
+
+    //
+    // Raise user exception
+    //
     int badAdd(int x, int y) throws InvalidInputException;
 
-//
-// Raise ONE
-//
+    //
+    // Raise ONE
+    //
     int notExistAdd(int x, int y);
 
-//
-// AMD version of the above:
-//
+    //
+    // AMD version of the above:
+    //
 
-//
-// Simple add
-//
+    //
+    // Simple add
+    //
     ["amd"] int amdAdd(int x, int y);
 
-//
-// Raise user exception
-//
+    //
+    // Will throw RetryException until current.ctx["retry"] is "no"
+    //
+    ["amd"] int amdAddWithRetry(int x, int y);
+
+    //
+    // Raise user exception
+    //
     ["amd"] int amdBadAdd(int x, int y) throws InvalidInputException;
 
-//
-// Raise ONE
-//
+    //
+    // Raise ONE
+    //
     ["amd"] int amdNotExistAdd(int x, int y);
 }
 
 }
-

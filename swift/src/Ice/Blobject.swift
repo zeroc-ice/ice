@@ -36,8 +36,6 @@ public struct BlobjectDisp: Disp {
     public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
         let inEncaps = try request.readParamEncaps()
         let invokeResult = try servant.ice_invoke(inEncaps: inEncaps, current: current)
-        let ostr = request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
-        request.response(ostr)
-        return nil
+        return request.setResult(request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams))
     }
 }

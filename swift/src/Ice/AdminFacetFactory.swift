@@ -56,10 +56,13 @@ class AdminFacetFacade: ICEBlobjectFacade {
         do {
             if let promise = try disp.dispatch(request: incoming, current: current) {
                 promise.done { ostr in
-                    incoming.response(ostr)
+                    incoming.setResult(ostr)
+                    incoming.response()
                 }.catch { error in
                     incoming.exception(error)
                 }
+            } else {
+                incoming.response()
             }
         } catch {
             incoming.exception(error)

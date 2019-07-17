@@ -2711,17 +2711,16 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     out << "current: current";
     out << epar;
 
-    out << sp;
-    if(allOutParams.empty())
+    out << sp << nl;
+    out << "return inS.setResult";
+    if (allOutParams.empty())
     {
-        out << nl << "inS.writeEmptyParams()";
+        out << "()";
     }
     else
     {
-        out << nl << "inS.write ";
         writeMarshalOutParams(out, op);
     }
-    out << nl << "return nil";
     out << eb;
 }
 
@@ -2757,8 +2756,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
         out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
     }
 
-    out << sp;
-    out << nl;
+    out << sp << nl;
     out << "return inS.setResultPromise(" << fixIdent(op->name() + (operationIsAmd(op) ? "Async" : "")) << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
@@ -2766,7 +2764,8 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     }
     out << "current: current" << epar;
     out << ")";
-    if (!allOutParams.empty()){
+    if (!allOutParams.empty())
+    {
         writeMarshalAsyncOutParams(out, op);
     }
     out << eb;

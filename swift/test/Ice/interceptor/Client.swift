@@ -6,6 +6,10 @@ import Ice
 import PromiseKit
 import TestCommon
 
+enum InterceptorError: Error {
+    case retry
+}
+
 class InterceptorI: Disp {
     public private(set) var servantDisp: Disp
     public private(set) var lastOperation: String?
@@ -16,8 +20,6 @@ class InterceptorI: Disp {
     }
 
     func dispatch(request: Request, current: Current) throws -> Promise<Ice.OutputStream>? {
-        
-        
         if let context = current.ctx["raiseBeforeDispatch"] {
             if context == "user" {
                 throw InvalidInputException()
@@ -27,12 +29,33 @@ class InterceptorI: Disp {
         }
         lastOperation = current.operation
 
+        if lastOperation == "addWithRetry" || lastOperation == "amdAddWithRetry" {
+            for _ in 0 ..< 10 {
+                do {
+                    if let p = try servantDisp.dispatch(request: request, current: current) {
+                        guard let error = p.error,
+                            let errorType = error as? InterceptorError,
+                            errorType == .retry
+                        else {
+                            fatalError("Expected an error")
+                        }
+                    } else {
+                        fatalError("Expected an error")
+                    }
+                } catch InterceptorError.retry {
+                    //
+                    // Expected, retry
+                    //
+                }
+            }
+            current.ctx["retry"] = "no"
+        }
+
         // Did not implement add with retry as Swift does not support retrying
         let p = try servantDisp.dispatch(request: request, current: current)
         lastStatus = p != nil
 
         if let context = current.ctx["raiseAfterDispatch"] {
-            print("context:   \(current.ctx)")
             if context == "user" {
                 throw InvalidInputException()
             } else if context == "notExist" {
@@ -53,6 +76,13 @@ class MyObjectI: MyObject {
         return x + y
     }
 
+    func addWithRetry(x: Int32, y: Int32, current: Current) throws -> Int32 {
+        guard let current = current.ctx["retry"], current == "no" else {
+            throw InterceptorError.retry
+        }
+        return x + y
+    }
+
     func badAdd(x _: Int32, y _: Int32, current _: Current) throws -> Int32 {
         throw InvalidInputException()
     }
@@ -62,6 +92,18 @@ class MyObjectI: MyObject {
     }
 
     func amdAddAsync(x: Int32, y: Int32, current _: Current) -> Promise<Int32> {
+        return Promise<Int32> { seal in
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                seal.fulfill(x + y)
+            }
+        }
+    }
+
+    func amdAddWithRetryAsync(x: Int32, y: Int32, current: Current) -> Promise<Int32> {
+        guard let current = current.ctx["retry"], current == "no" else {
+            return Promise(error: InterceptorError.retry)
+        }
+
         return Promise<Int32> { seal in
             DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.fulfill(x + y)
@@ -106,7 +148,11 @@ public class Client: TestHelperI {
             try test(interceptor.lastOperation == "add")
             try test(!interceptor.lastStatus)
             out.writeLine("ok")
-
+            out.write("testing retry... ")
+            try test(prx.addWithRetry(x: 33, y: 12) == 45)
+            try test(interceptor.lastOperation == "addWithRetry")
+            try test(!interceptor.lastStatus)
+            out.writeLine("ok")
             out.write("testing user exception... ")
             do {
                 _ = try prx.badAdd(x: 33, y: 12)
@@ -117,6 +163,7 @@ public class Client: TestHelperI {
             try test(interceptor.lastOperation == "badAdd")
             try test(!interceptor.lastStatus)
             out.writeLine("ok")
+
             out.write("testing ONE... ")
             do {
                 _ = try prx.notExistAdd(x: 33, y: 12)
@@ -143,6 +190,13 @@ public class Client: TestHelperI {
             try test(interceptor.lastOperation == "amdAdd")
             try test(interceptor.lastStatus)
             out.writeLine("ok")
+
+            out.write("testing retry... ")
+            try test(prx.amdAddWithRetry(x: 33, y: 12) == 45)
+            try test(interceptor.lastOperation == "amdAddWithRetry")
+            try test(interceptor.lastStatus)
+            out.writeLine("ok")
+
             out.write("testing user exception...")
             do {
                 _ = try prx.amdBadAdd(x: 33, y: 12)
@@ -203,28 +257,17 @@ public class Client: TestHelperI {
         try runAmdTest(prx: prx, interceptor: interceptor, out: out)
     }
 
-    private class ExceptionPoint {
-        var point: String
-        var exception: String
-
-        public init(_ point: String, _ exception: String) {
-            self.point = point
-            self.exception = exception
-        }
-    }
-
     private func testInterceptorExceptions(_ prx: MyObjectPrx) throws {
-        let exceptions: [ExceptionPoint] = [
-            ExceptionPoint("raiseBeforeDispatch", "user"),
-            ExceptionPoint("raiseBeforeDispatch", "notExist"),
-            ExceptionPoint("raiseAfterDispatch", "user"),
-            ExceptionPoint("raiseAfterDispatch", "notExist")
+        let exceptions: [(point: String, exception: String)] = [
+            ("raiseBeforeDispatch", "user"),
+            ("raiseBeforeDispatch", "notExist"),
+            ("raiseAfterDispatch", "user"),
+            ("raiseAfterDispatch", "notExist")
         ]
         for e in exceptions {
             var ctx: Context = [:]
             ctx[e.point] = e.exception
             do {
-                print(e.exception)
                 try prx.ice_ping(context: ctx)
                 try test(false)
             } catch is UnknownUserException {
@@ -232,11 +275,15 @@ public class Client: TestHelperI {
             } catch is ObjectNotExistException {
                 try test(e.exception == "notExist")
             }
-//            let batch = prx.ice_batchOneway()
-//            try batch.ice_ping(context: ctx)
-//            try batch.ice_ping()
-//            try batch.ice_flushBatchRequests()
+            let batch = prx.ice_batchOneway()
+            try batch.ice_ping(context: ctx)
+            try batch.ice_ping()
+            try batch.ice_flushBatchRequests()
+
+            // Force the last batch request to be dispatched by the server thread using invocation timeouts
+            // This is required to prevent threading issue with the test interceptor implementation which
+            // isn't thread safe
+            try prx.ice_invocationTimeout(10000).ice_ping()
         }
-//        try prx.ice_invocationTimeout(10000).ice_ping()
     }
 }

@@ -1596,6 +1596,8 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
 
     out << sb;
+    // Call startOver() so that dispatch interceptors can retry requests
+    out << nl << "request.startOver()";
     out << nl << "switch current.operation";
     out << sb;
     out.dec(); // to align case with switch
