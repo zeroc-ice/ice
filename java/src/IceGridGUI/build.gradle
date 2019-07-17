@@ -21,20 +21,23 @@ project.ext.javafxJar = ['jfxrt.jar',
                          'jre/lib/ext/jfxrt.jar',
                          'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
-project.ext.hasJavaFx = javafxJar != null
 
 if(JavaVersion.current() == JavaVersion.VERSION_1_8 ||
    JavaVersion.current() == JavaVersion.VERSION_1_7)
 {
-    if (project.ext.hasJavaFx) {
-        apply plugin: 'application'
-        apply from: 'javafx.gradle'
-    } else {
-        sourceSets {
-            main {
-                java {
-                    exclude '**/LiveDeployment/GraphView.java'
-                }
+    project.ext.hasJavaFx = javafxJar != null
+} else {
+    project.ext.hasJavaFx = false
+}
+
+if (project.ext.hasJavaFx) {
+    apply plugin: 'application'
+    apply from: 'javafx.gradle'
+} else {
+    sourceSets {
+        main {
+            java {
+                exclude '**/LiveDeployment/GraphView.java'
             }
         }
     }
