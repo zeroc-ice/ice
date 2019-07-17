@@ -162,7 +162,7 @@ task nugetInstall(type:Exec, dependsOn:nugetDirectory) {
 }
 
 task nugetInstallBerkeleyDb(type:Exec) {
-  commandLine 'cmd', '/c', nuget, 'install', 'berkeley.db.java7', '-OutputDirectory', "${iceCppDir}/third-party-packages/", '-ExcludeVersion'
+  commandLine 'cmd', '/c', nuget, 'install', 'berkeley.db.java7', '-Version', dbVersion, '-OutputDirectory', "${iceCppDir}/third-party-packages/", '-ExcludeVersion'
 }
 
 }
