@@ -186,7 +186,7 @@ DB_LDFLAGS		= /LIBPATH:"$(DB_HOME)\build\native\lib\$(PLATFORM)\$(CONFIGURATION)
 DB_LIBS			= libdb53$(LIBSUFFIX).lib
 DB_NUPKG		= $(DB_HOME)\berkeley.db.$(PLATFORMTOOLSET).nupkg
 
-EXPAT_VERSION		= 2.1.0.1
+EXPAT_VERSION		= 2.2.7
 EXPAT_HOME		= $(PKG_DIR)\expat.$(PLATFORMTOOLSET)
 EXPAT_CPPFLAGS		= /I"$(EXPAT_HOME)\build\native\include"
 EXPAT_LDFLAGS		= /LIBPATH:"$(EXPAT_HOME)\build\native\lib/$(PLATFORM)\$(CONFIGURATION)"
@@ -195,11 +195,11 @@ EXPAT_NUPKG		= $(EXPAT_HOME)\expat.$(PLATFORMTOOLSET).nupkg
 
 !endif
 
-NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget.exe
+NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget-5.0.2.exe
 
 "$(NUGET)":
 	@if not exist "$(LOCALAPPDATA)\ZeroC\nuget" $(MKDIR) "$(LOCALAPPDATA)\ZeroC\nuget"
-	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://dist.nuget.org/win-x86-commandline/v3.4.4/NuGet.exe', '$(NUGET)')"
+	powershell -Command "(New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/v5.0.2/nuget.exe', '$(NUGET)')"
 
 $(BZIP2_NUPKG): "$(NUGET)"
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
