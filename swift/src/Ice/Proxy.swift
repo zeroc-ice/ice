@@ -1157,7 +1157,7 @@ open class ObjectPrxI: ObjectPrx {
             throw TwowayOnlyException(operation: operation)
         }
 
-        let ostr = OutputStream(communicator: communicator, encoding: encoding)
+        let ostr = OutputStream(communicator: communicator)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
@@ -1208,7 +1208,7 @@ open class ObjectPrxI: ObjectPrx {
         if !isTwoway {
             throw TwowayOnlyException(operation: operation)
         }
-        let ostr = OutputStream(communicator: communicator, encoding: encoding)
+        let ostr = OutputStream(communicator: communicator)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
@@ -1259,7 +1259,7 @@ open class ObjectPrxI: ObjectPrx {
         if userException != nil, !isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
-        let ostr = OutputStream(communicator: communicator, encoding: encoding)
+        let ostr = OutputStream(communicator: communicator)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)
@@ -1340,7 +1340,7 @@ open class ObjectPrxI: ObjectPrx {
         if !isTwoway {
             return Promise(error: TwowayOnlyException(operation: operation))
         }
-        let ostr = OutputStream(communicator: communicator, encoding: encoding)
+        let ostr = OutputStream(communicator: communicator)
         if let write = write {
             ostr.startEncapsulation(encoding: encoding, format: format)
             write(ostr)

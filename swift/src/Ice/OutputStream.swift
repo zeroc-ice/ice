@@ -532,7 +532,7 @@ public extension OutputStream {
     }
 
     internal func writeOptionalImpl(tag: Int32, format: OptionalFormat) -> Bool {
-        guard encoding != Encoding_1_0 else {
+        guard currentEncoding != Encoding_1_0 else {
             return false
         }
 

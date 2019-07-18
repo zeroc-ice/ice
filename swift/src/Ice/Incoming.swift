@@ -98,14 +98,14 @@ public final class Incoming {
     }
 
     public func setResult() -> Promise<OutputStream>? {
-        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
+        let ostr = OutputStream(communicator: istr.communicator)
         ostr.writeEmptyEncapsulation(current.encoding)
         self.ostr = ostr
         return nil // Response is cached in the Incoming to not have to create unnecessary future
     }
 
     public func setResult(_ cb: (OutputStream) -> Void) -> Promise<OutputStream>? {
-        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
+        let ostr = OutputStream(communicator: istr.communicator)
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         cb(ostr)
         ostr.endEncapsulation()
@@ -116,7 +116,7 @@ public final class Incoming {
     public func setResultPromise(_ p: Promise<Void>) -> Promise<OutputStream> {
         // Use the thread which fulfilled the promise (on: nil)
         return p.map(on: nil) {
-            let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
+            let ostr = OutputStream(communicator: self.istr.communicator)
             ostr.writeEmptyEncapsulation(self.current.encoding)
             return ostr
         }
@@ -126,7 +126,7 @@ public final class Incoming {
                                     _ cb: @escaping (OutputStream, T) -> Void) -> Promise<OutputStream> {
         // Use the thread which fulfilled the promise (on: nil)
         return p.map(on: nil) { t in
-            let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
+            let ostr = OutputStream(communicator: self.istr.communicator)
             ostr.startEncapsulation(encoding: self.current.encoding, format: self.format)
             cb(ostr, t)
             ostr.endEncapsulation()
@@ -210,7 +210,7 @@ public final class Incoming {
             return
         }
         ok = false // response will contain a UserException
-        let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
+        let ostr = OutputStream(communicator: istr.communicator)
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         ostr.write(e)
         ostr.endEncapsulation()
