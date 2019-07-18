@@ -114,6 +114,18 @@ namespace Ice
                 test(prx.amdAddWithRetry(33, 12) == 45);
                 test(interceptor.getLastOperation().Equals("amdAddWithRetry"));
                 test(interceptor.getLastStatus());
+
+                {
+                    var ctx = new Dictionary<string, string>();
+                    ctx.Add("retry", "yes");
+                    for(int i = 0; i < 10; ++i)
+                    {
+                        test(prx.amdAdd(33, 12, ctx) == 45);
+                        test(interceptor.getLastOperation().Equals("amdAdd"));
+                        test(interceptor.getLastStatus());
+                    }
+                }
+
                 output.WriteLine("ok");
 
                 output.Write("testing user exception... ");

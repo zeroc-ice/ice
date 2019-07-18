@@ -111,6 +111,16 @@ public class Client extends test.TestHelper
         test(prx.amdAddWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAddWithRetry"));
         test(interceptor.getLastStatus());
+        {
+            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            ctx.put("retry", "yes");
+            for(int i = 0; i < 10; ++i)
+            {
+                test(prx.amdAdd(33, 12, ctx) == 45);
+                test(interceptor.getLastOperation().equals("amdAdd"));
+                test(interceptor.getLastStatus());
+            }
+        }
         out.println("ok");
         out.print("testing user exception... ");
         out.flush();

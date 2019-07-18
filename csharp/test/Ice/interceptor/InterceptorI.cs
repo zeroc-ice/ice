@@ -75,6 +75,15 @@ namespace Ice
 
                     current.ctx["retry"] = "no";
                 }
+                else if(current.ctx.TryGetValue("retry", out context) && context.Equals("yes"))
+                {
+                    //
+                    // Retry the dispatch to ensure that abandoning the result of the dispatch
+                    // works fine and is thread-safe
+                    //
+                    servant_.ice_dispatch(request);
+                    servant_.ice_dispatch(request);
+                }
 
                 var task = servant_.ice_dispatch(request);
                 lastStatus_ = task != null;

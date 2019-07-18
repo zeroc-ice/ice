@@ -70,6 +70,15 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
 
             current.ctx.put("retry", "no");
         }
+        else if(current.ctx.get("retry") != null && current.ctx.get("retry").equals("yes"))
+        {
+            //
+            // Retry the dispatch to ensure that abandoning the result of the dispatch
+            // works fine and is thread-safe
+            //
+            _servant.ice_dispatch(request);
+            _servant.ice_dispatch(request);
+        }
 
         CompletionStage<OutputStream> f = _servant.ice_dispatch(request);
         _lastStatus = f != null;
