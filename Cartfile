@@ -1,1 +1,1 @@
-github "mxcl/PromiseKit"
+github "mxcl/PromiseKit" ~> 6.10
