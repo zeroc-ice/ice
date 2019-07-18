@@ -103,6 +103,15 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 
         current.ctx["retry"] = "no";
     }
+    else if(current.ctx.find("retry") != current.ctx.end() && current.ctx["retry"] == "yes")
+    {
+        //
+        // Retry the dispatch to ensure that abandoning the result of the dispatch
+        // works fine and is thread-safe
+        //
+        _servant->ice_dispatch(request);
+        _servant->ice_dispatch(request);
+    }
 
 #ifdef ICE_CPP11_MAPPING
     _lastStatus = _servant->ice_dispatch(request, []() { return true; }, [this](exception_ptr ex) {

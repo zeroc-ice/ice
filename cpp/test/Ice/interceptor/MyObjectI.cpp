@@ -83,13 +83,22 @@ MyObjectI::amdAddAsync(int x,
                        int y,
                        function<void(int)> response,
                        function<void(exception_ptr)>,
-                       const Ice::Current&)
+                       const Ice::Current& current)
 {
+    Ice::Context::const_iterator p = current.ctx.find("retry");
+    bool retry = p != current.ctx.end();
     std::thread t(
-        [x, y, response]()
+        [x, y, response, retry]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
-            response(x + y);
+            try
+            {
+                response(x + y);
+            }
+            catch(const Ice::ResponseSentException&)
+            {
+                test(retry);
+            }
         });
     t.detach();
 }
@@ -200,31 +209,42 @@ MyObjectI::amdBadSystemAddAsync(int,
 }
 #else
 void
-MyObjectI::amdAdd_async(const Test::AMD_MyObject_amdAddPtr& cb, int x, int y, const Ice::Current&)
+MyObjectI::amdAdd_async(const Test::AMD_MyObject_amdAddPtr& cb, int x, int y, const Ice::Current& current)
 {
     class ThreadI : public Thread
     {
     public:
 
-        ThreadI(const Test::AMD_MyObject_amdAddPtr& cb, int x, int y) :
+        ThreadI(const Test::AMD_MyObject_amdAddPtr& cb, int x, int y, bool retry) :
             _cb(cb),
             _x(x),
-            _y(y)
+            _y(y),
+            _retry(retry)
         {
         }
 
         void run()
         {
             ThreadControl::sleep(Time::milliSeconds(10));
-            _cb->ice_response(_x + _y);
+            try
+            {
+                _cb->ice_response(_x + _y);
+            }
+            catch(const Ice::ResponseSentException&)
+            {
+                test(_retry);
+            }
         }
     private:
         Test::AMD_MyObject_amdAddPtr _cb;
         int _x;
         int _y;
+        bool _retry;
     };
 
-    ThreadPtr thread = new ThreadI(cb, x, y);
+    Ice::Context::const_iterator p = current.ctx.find("retry");
+    bool retry = p != current.ctx.end();
+    ThreadPtr thread = new ThreadI(cb, x, y, retry);
     thread->start().detach();
 }
 

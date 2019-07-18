@@ -189,6 +189,16 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
     test(prx->amdAddWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAddWithRetry");
     test(!interceptor->getLastStatus());
+    {
+        Ice::Context ctx;
+        ctx["retry"] = "yes";
+        for(int i = 0; i < 10; ++i)
+        {
+            test(prx->amdAdd(33, 12, ctx) == 45);
+            test(interceptor->getLastOperation() == "amdAdd");
+            test(!interceptor->getLastStatus());
+        }
+    }
     cout << "ok" << endl;
     cout << "testing user exception... " << flush;
     try

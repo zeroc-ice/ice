@@ -310,7 +310,7 @@ namespace Ice
             byte[] inEncaps = inS.readParamEncaps();
             byte[] outEncaps;
             bool ok = ice_invoke(inEncaps, out outEncaps, current);
-            inS.setResult(inS.writeParamEncaps(outEncaps, ok));
+            inS.setResult(inS.writeParamEncaps(inS.getAndClearCachedOutputStream(), outEncaps, ok));
             return null;
         }
     }
@@ -323,10 +323,12 @@ namespace Ice
         public override Task<Ice.OutputStream> iceDispatch(IceInternal.Incoming inS, Current current)
         {
             byte[] inEncaps = inS.readParamEncaps();
-            return ice_invokeAsync(inEncaps, current).ContinueWith((Task<Object_Ice_invokeResult> t) =>
+            var task = ice_invokeAsync(inEncaps, current);
+            var cached = inS.getAndClearCachedOutputStream();
+            return task.ContinueWith((Task<Object_Ice_invokeResult> t) =>
             {
                 var ret = t.GetAwaiter().GetResult();
-                return Task.FromResult(inS.writeParamEncaps(ret.outEncaps, ret.returnValue));
+                return Task.FromResult(inS.writeParamEncaps(cached, ret.outEncaps, ret.returnValue));
             }).Unwrap();
         }
     }
