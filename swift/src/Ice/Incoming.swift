@@ -114,7 +114,8 @@ public final class Incoming {
     }
 
     public func setResultPromise(_ p: Promise<Void>) -> Promise<OutputStream> {
-        return p.map {
+        // Use the thread which fulfilled the promise (on: nil)
+        return p.map(on: nil) {
             let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
             ostr.writeEmptyEncapsulation(self.current.encoding)
             return ostr
@@ -123,7 +124,8 @@ public final class Incoming {
 
     public func setResultPromise<T>(_ p: Promise<T>,
                                     _ cb: @escaping (OutputStream, T) -> Void) -> Promise<OutputStream> {
-        return p.map { t in
+        // Use the thread which fulfilled the promise (on: nil)
+        return p.map(on: nil) { t in
             let ostr = OutputStream(communicator: self.istr.communicator, encoding: self.current.encoding)
             ostr.startEncapsulation(encoding: self.current.encoding, format: self.format)
             cb(ostr, t)
@@ -185,12 +187,13 @@ public final class Incoming {
         // Dispatch in the incoming call
         //
         do {
+            // Request was dispatched asynchronously if promise is non-nil
             if let promise = try s.dispatch(request: self, current: current) {
-                // dispatched asynchronously
-                promise.done { ostr in
+                // Use the thread which fulfilled the promise (on: nil)
+                promise.done(on: nil) { ostr in
                     self.ostr = ostr
                     self.response()
-                }.catch { error in
+                }.catch(on: nil) { error in
                     self.exception(error)
                 }
             } else {

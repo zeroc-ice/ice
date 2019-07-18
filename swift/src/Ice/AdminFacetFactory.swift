@@ -54,11 +54,13 @@ class AdminFacetFacade: ICEBlobjectFacade {
     func dispatch(incoming: Incoming, current: Current) {
         // Dispatch directly to the servant. Do not call invoke on Incoming
         do {
+            // Request was dispatched asynchronously if promise is non-nil
             if let promise = try disp.dispatch(request: incoming, current: current) {
-                promise.done { ostr in
+                // Use the thread which fulfilled the promise (on: nil)
+                promise.done(on: nil) { ostr in
                     incoming.setResult(ostr)
                     incoming.response()
-                }.catch { error in
+                }.catch(on: nil) { error in
                     incoming.exception(error)
                 }
             } else {
