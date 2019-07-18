@@ -134,6 +134,7 @@ protected:
     bool usesMarshalHelper(const TypePtr&);
     void writeMarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeMarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
+    void writeMarshalAsyncOutParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalOutParams(::IceUtilInternal::Output&, const OperationPtr&);
     void writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr&);

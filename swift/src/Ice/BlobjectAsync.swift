@@ -32,15 +32,10 @@ public struct BlobjectAsyncDisp: Disp {
     public init(_ servant: BlobjectAsync) {
         self.servant = servant
     }
-
-    public func dispatch(request: Request, current: Current) throws {
+    public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
         let inEncaps = try request.readParamEncaps()
-        firstly {
-            self.servant.ice_invokeAsync(inEncaps: inEncaps, current: current)
-        }.done(on: nil) { invokeResult in
+        return servant.ice_invokeAsync(inEncaps: inEncaps, current: current).map(on: nil) { invokeResult in
             request.writeParamEncaps(ok: invokeResult.ok, outParams: invokeResult.outParams)
-        }.catch(on: nil) { err in
-            request.exception(err)
         }
     }
 }

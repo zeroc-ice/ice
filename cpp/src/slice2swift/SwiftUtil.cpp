@@ -2263,6 +2263,38 @@ SwiftGenerator::writeMarshalOutParams(::IceUtilInternal::Output& out, const Oper
 }
 
 void
+SwiftGenerator::writeMarshalAsyncOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
+{
+    ParamInfoList requiredOutParams, optionalOutParams;
+    getOutParams(op, requiredOutParams, optionalOutParams);
+
+    out << sb << " (ostr, retVals) in";
+    out << nl << "let " << operationReturnDeclaration(op) << " = retVals";
+    //
+    // Marshal parameters
+    // 1. required
+    // 2. optional (including optional return)
+    //
+
+    for(ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+    {
+        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
+    }
+
+    for(ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    {
+        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
+    }
+
+    if(op->returnsClasses(false))
+    {
+        out << nl << "ostr.writePendingValues()";
+    }
+
+    out << eb;
+}
+
+void
 SwiftGenerator::writeUnmarshalOutParams(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
     TypePtr returnType = op->returnType();
@@ -2645,7 +2677,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
 
-    out << " throws";
+    out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
 
     out << sb;
     if(allInParams.empty())
@@ -2660,7 +2692,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
 
     if(op->format() != DefaultFormat)
     {
-        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
+        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
     }
 
     out << sp;
@@ -2679,17 +2711,16 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     out << "current: current";
     out << epar;
 
-    out << sp;
-    if(allOutParams.empty())
+    out << sp << nl;
+    out << "return inS.setResult";
+    if (allOutParams.empty())
     {
-        out << nl << "inS.writeEmptyParams()";
+        out << "()";
     }
     else
     {
-        out << nl << "inS.write ";
         writeMarshalOutParams(out, op);
     }
-
     out << eb;
 }
 
@@ -2708,8 +2739,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
 
-    out << " throws";
-
+    out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
     out << sb;
     if(allInParams.empty())
     {
@@ -2723,44 +2753,21 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
 
     if(op->format() != DefaultFormat)
     {
-        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ");";
+        out << nl << "inS.setFormat(" << opFormatTypeToString(op) << ")";
     }
 
-    out << sp;
-    out << nl;
-    out << "firstly";
-    out << sb;
-    out << nl << fixIdent(op->name() + (operationIsAmd(op) ? "Async" : ""));
-
-    out << spar;
+    out << sp << nl;
+    out << "return inS.setResultPromise(" << fixIdent(op->name() + (operationIsAmd(op) ? "Async" : "")) << spar;
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
         out << (q->name + ": iceP_" + q->name);
     }
-    out << "current: current";
-    out << epar;
-    out << eb;
-
-    out << ".done(on: nil)";
-    out << sb;
-    if(allOutParams.empty())
+    out << "current: current" << epar;
+    out << ")";
+    if (!allOutParams.empty())
     {
-        out << nl << "inS.writeEmptyParams()";
+        writeMarshalAsyncOutParams(out, op);
     }
-    else
-    {
-        out << " " << operationReturnDeclaration(op) << " in";
-        out << nl << "inS.write ";
-        writeMarshalOutParams(out, op);
-    }
-    out << eb;
-
-    out << ".catch(on: nil)";
-    out << sb;
-    out << " err in";
-    out << nl << "inS.exception(err)";
-    out << eb;
-
     out << eb;
 }
 

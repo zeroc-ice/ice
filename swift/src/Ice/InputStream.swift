@@ -264,6 +264,12 @@ public class InputStream {
         }
     }
 
+    // Reset the InputStream to prepare for retry
+    internal func startOver() {
+        pos = 0
+        encaps = nil
+    }
+
     private func changePos(offset: Int) throws {
         precondition(pos + offset >= 0, "Negative position")
 

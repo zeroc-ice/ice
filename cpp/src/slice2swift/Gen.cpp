@@ -1593,9 +1593,11 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << ("request: " + getUnqualified("Ice.Request", swiftModule));
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
-    out << " throws";
+    out << " throws -> PromiseKit.Promise<" << getUnqualified("Ice.OutputStream", swiftModule) << ">?";
 
     out << sb;
+    // Call startOver() so that dispatch interceptors can retry requests
+    out << nl << "request.startOver()";
     out << nl << "switch current.operation";
     out << sb;
     out.dec(); // to align case with switch
@@ -1606,12 +1608,12 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         if(opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
         {
-            out << nl << "try (servant as? Object ?? " << disp << ".defaultObject)._iceD_"
+            out << nl << "return try (servant as? Object ?? " << disp << ".defaultObject)._iceD_"
                 << opName << "(incoming: request, current: current)";
         }
         else
         {
-            out << nl << "try servant._iceD_" << opName << "(incoming: request, current: current)";
+            out << nl << "return try servant._iceD_" << opName << "(incoming: request, current: current)";
         }
         out.dec();
     }
