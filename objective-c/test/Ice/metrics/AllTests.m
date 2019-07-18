@@ -917,7 +917,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     tprintf("testing invocation metrics... ");
 
     [props setObject:@"operation" forKey:@"IceMX.Metrics.View.Map.Invocation.GroupBy"];
-    [props setObject:@"localPort" forKey:@"IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"];
+    [props setObject:@"id" forKey:@"IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"];
     updateProps(clientProps, serverProps, update, props, @"Invocation");
     test([[[serverMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Invocation"] count] == 0);
 
@@ -1077,31 +1077,9 @@ metricsAllTests(id<ICECommunicator> communicator)
     checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::UnknownException", 3);
 
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"fail"];
-    test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && [im1.remotes count] == 6);
-
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).total == 1 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:0]).failures == 1);
-
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).total == 1 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:1]).failures == 1);
-
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).total == 1 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:2]).failures == 1);
-
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).total == 1 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:3]).failures == 1);
-
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).total == 1 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:4]).failures == 1);
-
-    test(((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).current == 0 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).total == 1 &&
-         ((ICEMXMetrics*)[im1.remotes objectAtIndex:5]).failures == 1);
+    test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && [im1.remotes count] == 1);
+    rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
+    test(rim1.current == 0 && rim1.total == 6 && rim1.failures == 6);
 
     checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::ConnectionLostException", 3);
 

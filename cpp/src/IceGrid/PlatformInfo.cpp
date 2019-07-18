@@ -192,7 +192,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _last15Total = 0;
 #elif defined(_AIX)
     struct nlist nl;
-    nl.n_name = "avenrun";
+    nl.n_name = const_cast<char*>("avenrun");
     nl.n_value = 0;
     if(knlist(&nl, 1, sizeof(nl)) == 0)
     {
@@ -510,7 +510,7 @@ PlatformInfo::getLoadInfo()
     {
         long long avenrun[3];
         struct nlist nl;
-        nl.n_name = "avenrun";
+        nl.n_name = const_cast<char*>("avenrun");
         nl.n_value = 0;
         if(knlist(&nl, 1, sizeof(nl)) == 0)
         {

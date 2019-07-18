@@ -31,6 +31,17 @@ module Test
 
         ["python:memoryview:Custom.myNumPyComplex128Seq"] sequence<byte> Complex128Seq;
 
+        class D
+        {
+            optional(1) BoolSeq1 boolSeq;
+            optional(2) ByteSeq1 byteSeq;
+            optional(3) ShortSeq1 shortSeq;
+            optional(4) IntSeq1 intSeq;
+            optional(5) LongSeq1 longSeq;
+            optional(6) FloatSeq1 floatSeq;
+            optional(7) DoubleSeq1 doubleSeq;
+        }
+
         interface Custom
         {
             BoolSeq1 opBoolSeq(BoolSeq1 v1, out BoolSeq2 v2);
@@ -51,6 +62,8 @@ module Test
             ["python:memoryview:Custom.myNumPyMatrix3x3"] DoubleSeq1 opDoubleMatrix();
 
             ["python:memoryview:Custom.myBogusNumpyArrayType"]BoolSeq1 opBogusNumpyArrayType();
+
+            D opD(D d);
 
             void shutdown();
         }

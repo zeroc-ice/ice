@@ -59,6 +59,8 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
     _current.con = connection;
 #endif
     _current.requestId = requestId;
+    _current.encoding.major = 0;
+    _current.encoding.minor = 0;
 }
 
 IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :

@@ -2,9 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os, threading, socket, select
+import sys
+import threading
+import socket
+import select
 
-class InvalidRequest(Exception): pass
+
+class InvalidRequest(Exception):
+    pass
+
 
 class BaseConnection(threading.Thread):
     def __init__(self, socket, remote):
@@ -28,6 +34,7 @@ class BaseConnection(threading.Thread):
             if self.socket:
                 self.socket.close()
                 self.socket = None
+
             if self.remoteSocket:
                 self.remoteSocket.close()
                 self.remoteSocket = None
@@ -43,30 +50,32 @@ class BaseConnection(threading.Thread):
                 self.socket.send(self.response(True))
             except:
                 self.socket.send(self.response(False))
+                self.remoteSocket.close()
                 return
 
             try:
                 while(not self.closed):
                     readables, writeables, exceptions = select.select([self.socket, self.remoteSocket], [], [])
                     for r in readables:
-                        w =  self.remoteSocket if r == self.socket else self.socket
+                        w = self.remoteSocket if r == self.socket else self.socket
                         data = r.recv(4096)
                         if(len(data) == 0):
                             self.closed = True
                             break
                         w.send(data)
-            except InvalidRequest as ex:
+            except InvalidRequest:
                 print("invalid request")
-            except Exception as ex:
-                #print(ex)
+            except Exception:
                 pass
+            finally:
+                if self.socket:
+                    self.socket.close()
+                if self.remoteSocket:
+                    self.remoteSocket.close()
 
-        except Exception as ex:
-            #print(ex)
+        except Exception:
             pass
 
-        finally:
-            self.close()
 
 class BaseProxy(threading.Thread):
     def __init__(self, port):
@@ -103,6 +112,8 @@ class BaseProxy(threading.Thread):
                 self.cond.notify()
             except Exception as ex:
                 self.failed = ex
+                self.socket.close()
+                self.socket = None
                 self.cond.notify()
                 return
 
@@ -117,6 +128,7 @@ class BaseProxy(threading.Thread):
             pass
         finally:
             self.socket.close()
+            self.socket = None
 
     def terminate(self):
         with self.cond:
@@ -130,15 +142,16 @@ class BaseProxy(threading.Thread):
                 except Exception as ex:
                     print(ex)
 
-        connectToSelf = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            connectToSelf = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             connectToSelf.connect(("127.0.0.1", self.port))
         except Exception as ex:
             print(ex)
         finally:
             connectToSelf.close()
-
+            connectToSelf = None
         self.join()
+
 
 class SocksConnection(BaseConnection):
 
@@ -146,7 +159,7 @@ class SocksConnection(BaseConnection):
         def decode(c):
             return ord(c) if sys.version_info[0] == 2 else c
 
-        data = s.recv(9) # Read the 9 bytes request
+        data = s.recv(9)  # Read the 9 bytes request
 
         if not data or len(data) == 0:
             raise InvalidRequest
@@ -171,12 +184,14 @@ class SocksConnection(BaseConnection):
         packet += encode(0)
         packet += encode(0)
         packet += encode(0)
-        return packet if sys.version_info[0] == 2 else bytes(packet,"ascii")
+        return packet if sys.version_info[0] == 2 else bytes(packet, "ascii")
+
 
 class SocksProxy(BaseProxy):
 
     def createConnection(self, socket, peer):
         return SocksConnection(socket, peer)
+
 
 class HttpConnection(BaseConnection):
 
@@ -205,10 +220,11 @@ class HttpConnection(BaseConnection):
 
     def response(self, success):
         if(success):
-            s = "HTTP/1.1 200 OK\r\nServer: CERN/3.0 libwww/2.17\r\n\r\n";
+            s = "HTTP/1.1 200 OK\r\nServer: CERN/3.0 libwww/2.17\r\n\r\n"
         else:
-            s = "HTTP/1.1 404\r\n\r\n";
-        return s if sys.version_info[0] == 2 else bytes(s,"ascii")
+            s = "HTTP/1.1 404\r\n\r\n"
+        return s if sys.version_info[0] == 2 else bytes(s, "ascii")
+
 
 class HttpProxy(BaseProxy):
 

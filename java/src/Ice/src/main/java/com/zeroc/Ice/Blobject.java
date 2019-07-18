@@ -39,6 +39,6 @@ public interface Blobject extends com.zeroc.Ice.Object
     {
         byte[] inEncaps = in.readParamEncaps();
         com.zeroc.Ice.Object.Ice_invokeResult r = ice_invoke(inEncaps, current);
-        return in.setResult(in.writeParamEncaps(r.outParams, r.returnValue));
+        return in.setResult(in.writeParamEncaps(in.getAndClearCachedOutputStream(), r.outParams, r.returnValue));
     }
 }

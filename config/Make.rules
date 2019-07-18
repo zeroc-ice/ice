@@ -26,7 +26,7 @@ embedded_runpath       ?= yes
 #
 # Define new_dtags as yes if you want the linker to enable the new style
 # dtags, this will cause the linker to add a runpath entry instead of
-# a rpath entry. This only aplly to gcc builds on Linux
+# a rpath entry. This only apply to gcc builds on Linux
 #
 new_dtags              ?= no
 
@@ -91,11 +91,15 @@ include $(top_srcdir)/config/Make.project.rules
 include $(top_srcdir)/config/Make.tests.rules
 
 dotnet := $(shell command -v dotnet 2> /dev/null)
+nodejs := $(shell command -v node 2> /dev/null)
 
 #
 # Languages, platforms and configurations to build
 #
-supported-languages     ?= cpp $(if $(filter %/dotnet,$(dotnet)),csharp) java java-compat python js ruby php $(if $(filter Darwin,$(os)),objective-c)
+supported-languages     ?= $(strip cpp java java-compat python ruby php \
+				   $(if $(filter %/node,$(nodejs)),js) \
+				   $(if $(filter %/dotnet,$(dotnet)),csharp) \
+				   $(if $(filter Darwin,$(os)),objective-c))
 supported-configs       ?= shared
 
 version                 = 3.7b1

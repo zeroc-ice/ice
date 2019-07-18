@@ -36,6 +36,22 @@ public abstract class DispatchInterceptor implements com.zeroc.Ice.Object
     public CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException
     {
-        return dispatch(in);
+        try
+        {
+            return dispatch(in);
+        }
+        catch(java.lang.Throwable ex)
+        {
+            //
+            // If the input parameters weren't read, make sure we skip them here. It's needed to read the
+            // encoding version used by the client to eventually marshal the user exception. It's also needed
+            // if we dispatch a batch oneway request to read the next batch request.
+            //
+            if(current.encoding == null || (current.encoding.major == 0 && current.encoding.minor == 0))
+            {
+                in.skipReadParams();
+            }
+            throw ex;
+        }
     }
 }

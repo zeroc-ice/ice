@@ -3386,6 +3386,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     bool isProperty = false;
     bool isValue = false;
     bool isProtected = false;
+    bool isPrivate = false;
     const bool isOptional = p->optional();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
@@ -3398,7 +3399,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(st)
     {
         isLocal = st->isLocal();
-        isValue = isValueType(StructPtr::dynamicCast(cont));
+        isValue = isValueType(st);
         if(!isValue)
         {
             baseTypes = DotNet::ICloneable;
@@ -3406,6 +3407,22 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if(cont->hasMetaData("cs:property"))
         {
             isProperty = true;
+        }
+        //
+        // C# structs are implicit sealed and cannot use `protected' modifier,
+        // we must use either public or private. For Slice structs using the
+        // class mapping we can still use protected modifier.
+        //
+        if(cont->hasMetaData("protected") || p->hasMetaData("protected"))
+        {
+            if(isValue)
+            {
+                isPrivate = true;
+            }
+            else
+            {
+                isProtected = true;
+            }
         }
     }
     else if(ex)
@@ -3433,6 +3450,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string type = typeToString(p->type(), ns, isOptional, isLocal, p->getMetaData());
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName;
+
     if(isProperty)
     {
         dataMemberName = "_" + p->name();
@@ -3446,17 +3464,22 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << nl << "private";
     }
-    else if(isProtected)
-    {
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl << "protected";
-    }
     else
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
-        _out << nl << "public";
+        if(isPrivate)
+        {
+            _out << nl << "private";
+        }
+        else if(isProtected)
+        {
+            _out << nl << "protected";
+        }
+        else
+        {
+            _out << nl << "public";
+        }
     }
 
     if(isOptional && isValue)
@@ -3472,7 +3495,19 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
-        _out << nl << (isProtected ? "protected" : "public");
+        if(isPrivate)
+        {
+            _out << nl << "private";
+        }
+        else if(isProtected)
+        {
+            _out << nl << "protected";
+        }
+        else
+        {
+            _out << nl << "public";
+        }
+
         if(!isValue)
         {
             _out << " virtual";

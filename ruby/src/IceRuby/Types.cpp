@@ -270,7 +270,8 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         //
         // bytes
         //
-        volatile VALUE bytes = callRuby(rb_str_new, reinterpret_cast<const char*>(&(*p)->bytes[0]),
+        volatile VALUE bytes = callRuby(rb_str_new,
+                                        (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
                                         static_cast<long>((*p)->bytes.size()));
         callRuby(rb_iv_set, slice, "@bytes", bytes);
 
@@ -1187,7 +1188,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap* object
 
     volatile VALUE arr = Qnil;
 
-    Ice::OutputStream::size_type sizePos;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(elementType->variableLength())
@@ -1431,7 +1432,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 }
                 seq[static_cast<size_t>(i)] = static_cast<Ice::Byte>(val);
             }
-            os->write(&seq[0], &seq[0] + seq.size());
+            os->write(seq);
         }
         break;
     }
@@ -1448,7 +1449,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             seq[static_cast<size_t>(i)] = static_cast<Ice::Short>(val);
         }
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -1464,7 +1465,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             seq[static_cast<size_t>(i)] = static_cast<Ice::Int>(val);
         }
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -1475,7 +1476,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[static_cast<size_t>(i)] = getLong(RARRAY_AREF(arr, i));
         }
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -1492,7 +1493,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             assert(TYPE(v) == T_FLOAT);
             seq[static_cast<size_t>(i)] = static_cast<Ice::Float>(RFLOAT_VALUE(v));
         }
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -1509,7 +1510,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             assert(TYPE(v) == T_FLOAT);
             seq[static_cast<size_t>(i)] = RFLOAT_VALUE(v);
         }
-        os->write(&seq[0], &seq[0] + seq.size());
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindString:
@@ -1520,11 +1521,18 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[static_cast<size_t>(i)] = getString(RARRAY_AREF(arr, i));
         }
+        if(seq.empty())
+        {
+            os->write(seq);
+        }
+        else
+        {
 #ifdef HAVE_RUBY_ENCODING_H
-        os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
+            os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
 #else
-        os->write(&seq[0], &seq[0] + seq.size(), true);
+            os->write(&seq[0], &seq[0] + seq.size(), true);
 #endif
+        }
         break;
     }
     }
@@ -2353,7 +2361,7 @@ IceRuby::ProxyInfo::optionalFormat() const
 void
 IceRuby::ProxyInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap*, bool optional)
 {
-    Ice::OutputStream::size_type sizePos;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         sizePos = os->startSize();

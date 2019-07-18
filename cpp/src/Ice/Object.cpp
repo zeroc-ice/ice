@@ -155,7 +155,14 @@ Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
     inS.readEmptyParams();
     vector<string> ret = ice_ids(current);
     OutputStream* ostr = inS.startWriteParams();
-    ostr->write(&ret[0], &ret[0] + ret.size(), false);
+    if(ret.empty())
+    {
+        ostr->write(ret);
+    }
+    else
+    {
+        ostr->write(&ret[0], &ret[0] + ret.size(), false);
+    }
     inS.endWriteParams();
     return true;
 }

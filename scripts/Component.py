@@ -120,7 +120,7 @@ class Ice(Component):
                 #
                 if parent in ["Glacier2", "IceStorm", "IceGrid"]:
                     return False
-        elif isinstance(platform, Linux):
+        elif isinstance(platform, Windows):
             #
             # On Windows, if testing with a binary distribution, don't test Glacier2/IceBridge services
             # with the Debug configurations since we don't provide binaries for them.
@@ -144,7 +144,6 @@ class Ice(Component):
             #
             if current.config.ipv6 and testId in ["Ice/udp"]:
                 return False
-
 
         # IceSSL test doesn't work on macOS/.NET Core
         if isinstance(mapping, CSharpMapping) and isinstance(platform, Darwin) and parent in ["IceSSL"]:
@@ -228,29 +227,25 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "python" or re.match("python-.*", m):
         Mapping.add(m, PythonMapping(), component)
     elif m == "ruby" or re.match("ruby-.*", m):
-        Mapping.add(m, RubyMapping(), component)
+        Mapping.add(m, RubyMapping(), component, enable=not isinstance(platform, Windows))
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
-        Mapping.add(m, JavaScriptMapping(), component)
-        Mapping.add("typescript", TypeScriptMapping(), component, "js")
+        Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
+        Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping(), component)
-    elif m == "csharp" or re.match("csharp-.*", m):
-        Mapping.add("csharp", CSharpMapping(), component)
     elif m == "swift" or re.match("swift-.*", m):
         Mapping.add("swift", SwiftMapping(), component)
+    elif m == "csharp" or re.match("charp-.*", m):
+        Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
-    Mapping.remove("ruby")
-    if platform.getCompiler() != "v140":
-        Mapping.remove("python")
     if platform.getCompiler() not in ["v140", "v141"]:
-        Mapping.remove("php")
-elif not platform.hasDotNet():
-    # Remove C# if Dot Net Core isn't supported
-    Mapping.remove("csharp")
+        Mapping.disable("python")
+    if platform.getCompiler() not in ["v140", "v141"]:
+        Mapping.disable("php")
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping

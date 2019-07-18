@@ -45,7 +45,9 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object
     {
         byte[] inEncaps = in.readParamEncaps();
         CompletableFuture<OutputStream> f = new CompletableFuture<>();
-        ice_invokeAsync(inEncaps, current).whenComplete((result, ex) ->
+        CompletionStage<Object.Ice_invokeResult> s = ice_invokeAsync(inEncaps, current);
+        final OutputStream cached = in.getAndClearCachedOutputStream(); // If an output stream is cached, re-use it
+        s.whenComplete((result, ex) ->
             {
                 if(ex != null)
                 {
@@ -53,7 +55,7 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object
                 }
                 else
                 {
-                    f.complete(in.writeParamEncaps(result.outParams, result.returnValue));
+                    f.complete(in.writeParamEncaps(cached, result.outParams, result.returnValue));
                 }
             });
         return f;

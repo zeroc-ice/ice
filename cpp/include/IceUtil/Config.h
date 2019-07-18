@@ -21,12 +21,14 @@
 #endif
 
 #if (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || \
-    (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN))
+    (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN)) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
 
 #   define ICE_LITTLE_ENDIAN
 
 #elif (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)) || \
-      (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN))
+      (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN)) || \
+      (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
 
 #   define ICE_BIG_ENDIAN
 
@@ -171,7 +173,7 @@
 //  With Visual Studio, we can import/export member functions without importing/
 //  exporting the whole class
 #   define ICE_MEMBER_IMPORT_EXPORT
-#elif defined(__GNUC__) || defined(__clang__)
+#elif (defined(__GNUC__) || defined(__clang__)) && !defined(__ibmxl__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 #elif defined(__SUNPRO_CC)

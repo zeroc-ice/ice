@@ -139,7 +139,8 @@ class ControllerDriver(Driver):
                     self.testcase = None
 
                 current = self.driver.getCurrent(mapping, testsuite, testcase, cross)
-                self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.addWithUUID(TestCaseI(self.driver, current)))
+                prx = c.adapter.addWithUUID(TestCaseI(self.driver, current))
+                self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.createDirectProxy(prx.ice_getIdentity()))
                 return self.testcase
 
             def getTestSuites(self, mapping, c):

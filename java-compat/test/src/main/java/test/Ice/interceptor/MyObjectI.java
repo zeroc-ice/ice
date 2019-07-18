@@ -65,6 +65,7 @@ class MyObjectI extends _MyObjectDisp
     public void
     amdAdd_async(final AMD_MyObject_amdAdd cb, final int x, final int y, Ice.Current current)
     {
+        final boolean retry = current.ctx.get("retry") != null && current.ctx.get("retry").equals("yes");
         Thread thread = new Thread()
             {
                 @Override
@@ -78,7 +79,17 @@ class MyObjectI extends _MyObjectDisp
                     catch(InterruptedException e)
                     {
                     }
-                    cb.ice_response(x + y);
+                    try
+                    {
+                        cb.ice_response(x + y);
+                    }
+                    catch(Ice.ResponseSentException ex)
+                    {
+                        if(!retry)
+                        {
+                            throw ex;
+                        }
+                    }
                 }
             };
 

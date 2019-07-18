@@ -229,7 +229,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         // Expect Success.
         //
-        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:500]];
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:1000]];
         TestTimeoutCallback* cb = [TestTimeoutCallback create];
         [to begin_sleep:100 response:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];

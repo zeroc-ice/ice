@@ -219,6 +219,8 @@ class Platform(object):
         except:
             self.nugetPackageCache = None
 
+        self._hasNodeJS = None
+
     def init(self, component):
         self.parseBuildVariables(component, {
             "supported-platforms" : ("supportedPlatforms", lambda s : s.split(" ")),
@@ -227,6 +229,15 @@ class Platform(object):
 
     def hasDotNet(self):
         return self.nugetPackageCache != None
+
+    def hasNodeJS(self):
+        if self._hasNodeJS is None:
+            try:
+                run("node --version")
+                self._hasNodeJS = True
+            except:
+                self._hasNodeJS = False
+        return self._hasNodeJS
 
     def parseBuildVariables(self, component, variables):
         # Run make to get the values of the given variables
@@ -306,6 +317,13 @@ class AIX(Platform):
 
     def hasOpenSSL(self):
         return True
+
+    def _getLibDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        return os.path.join(installDir, "lib32" if current.config.buildPlatform == "ppc" else "lib")
+
+    def getDefaultBuildPlatform(self):
+        return "ppc64"
 
 class Linux(Platform):
 
@@ -522,6 +540,7 @@ similar.
 class Mapping(object):
 
     mappings = OrderedDict()
+    disabled = OrderedDict()
 
     class Config(object):
 
@@ -781,17 +800,29 @@ class Mapping(object):
         return mappings
 
     @classmethod
-    def add(self, name, mapping, component, path=None):
+    def add(self, name, mapping, component, path=None, enable=True):
         name = name.replace("\\", "/")
-        self.mappings[name] = mapping.init(name, component, path)
+        m = mapping.init(name, component, path)
+        if enable:
+            self.mappings[name] = m
+        else:
+            self.disabled[name] = m
+
+    @classmethod
+    def disable(self, name):
+        m = self.mappings[name]
+        if m:
+            self.disabled[name] = m
+            del self.mappings[name]
 
     @classmethod
     def remove(self, name):
         del self.mappings[name]
 
     @classmethod
-    def getAll(self, driver=None):
-        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))]
+    def getAll(self, driver=None, includeDisabled=False):
+        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + \
+            ([m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else [])
 
     def __init__(self, path=None):
         self.name = None
@@ -1356,6 +1387,9 @@ class ProcessFromBinDir:
 
     def isFromBinDir(self):
         return True
+
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
 #
 # Executables for processes inheriting this marker class are only provided
@@ -3118,6 +3152,11 @@ class CppMapping(Mapping):
         if not isinstance(platform, Darwin):
             libPaths.append(self.component.getLibDir(process, self, current))
 
+        # On AIX we also need to add the lib directory for the TestCommon library
+        # when testing against a binary distribution
+        if isinstance(platform, AIX) and self.component.useBinDist(self, current):
+            libPaths.append(os.path.join(self.path, "lib32" if current.config.buildPlatform == "ppc" else "lib"))
+
         #
         # Add the test suite library directories to the platform library path environment variable.
         #
@@ -3258,6 +3297,16 @@ class JavaMapping(Mapping):
         return "com.zeroc.testcontroller/.ControllerActivity"
 
 class JavaCompatMapping(JavaMapping):
+
+    class Config(JavaMapping.Config):
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("Java Compat Mapping options:")
+            print("--android                 Run the Android tests.")
+            print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
+            print("--avd=<name>              Start specific Android Virtual Device.")
 
     def getPluginEntryPoint(self, plugin, process, current):
         return {
@@ -3789,6 +3838,23 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
 
     class Config(Mapping.Config):
 
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["browser=", "worker"])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("TypeScript mapping options:")
+            print("--browser=<name>      Run with the given browser.")
+            print("--worker              Run with Web workers enabled.")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+
+            if self.browser and self.protocol == "tcp":
+                self.protocol = "ws"
+
         def canRun(self, testId, current):
             return Mapping.Config.canRun(self, testId, current) and self.browser != "Ie" # IE doesn't support ES6
 
@@ -3915,7 +3981,7 @@ def runTests(mappings=None, drivers=None):
     try:
         options = [Driver.getSupportedArgs(), Mapping.Config.getSupportedArgs()]
         options += [driver.getSupportedArgs() for driver in drivers]
-        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll()]
+        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll(includeDisabled=True)]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:

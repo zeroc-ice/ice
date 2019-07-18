@@ -1385,6 +1385,10 @@ public class AllTests
             {
                 server.ice_ping();
             }
+            catch(com.zeroc.Ice.SecurityException ex)
+            {
+                // Expected on systems that disable DSA (EL8)
+            }
             catch(com.zeroc.Ice.LocalException ex)
             {
                 ex.printStackTrace();
@@ -1511,7 +1515,7 @@ public class AllTests
             }
             catch(com.zeroc.Ice.ConnectionLostException ex)
             {
-                // Expected on systems that disable DSA
+                // Expected on systems that disable DSA (EL8)
             }
             catch(com.zeroc.Ice.LocalException ex)
             {

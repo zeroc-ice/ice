@@ -1386,6 +1386,10 @@ public class AllTests
             {
                 server.ice_ping();
             }
+            catch(Ice.SecurityException ex)
+            {
+                // Expected on systems that disable DSA (EL8)
+            }
             catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
@@ -1511,7 +1515,7 @@ public class AllTests
             }
             catch(Ice.ConnectionLostException ex)
             {
-                // Expected on systems that disable DSA
+                // Expected on systems that disable DSA (EL8)
             }
             catch(Ice.LocalException ex)
             {

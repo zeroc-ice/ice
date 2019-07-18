@@ -55,7 +55,7 @@ Client::run(int argc, char** argv)
         narrowEncoding = "iso815";
         wideEncoding = "ucs4";
 
-#elif defined(_AIX)
+#elif defined(_AIX) && !defined(_LIBICONV_VERSION)
 
         // Always big-endian
         narrowEncoding = "ISO8859-15";

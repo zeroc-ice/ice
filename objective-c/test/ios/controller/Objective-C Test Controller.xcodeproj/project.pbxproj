@@ -355,6 +355,8 @@
 		14CF14CC215A4A7800499968 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */; };
 		14FFBAA01E29361A00EA55AF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */; };
 		14FFBAA11E29362900EA55AF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */; };
+		820CD39F22D737950056BEDA /* ObjectsForward.ice in Sources */ = {isa = PBXBuildFile; fileRef = 820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */; };
+		820CD3A022D737A50056BEDA /* ObjectsForward.ice in Sources */ = {isa = PBXBuildFile; fileRef = 820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -594,6 +596,7 @@
 		14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ObjectsDerivedEx.ice; path = ../../Ice/objects/ObjectsDerivedEx.ice; sourceTree = "<group>"; };
 		14CF14BE215A491100499968 /* ObjectsDerived.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ObjectsDerived.ice; path = ../../Ice/objects/ObjectsDerived.ice; sourceTree = "<group>"; };
 		14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
+		820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ObjectsForward.ice; path = ../../Ice/objects/ObjectsForward.ice; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1133,6 +1136,7 @@
 		14CF1432215A47DF00499968 /* objects */ = {
 			isa = PBXGroup;
 			children = (
+				820CD39C22D65C8E0056BEDA /* ObjectsForward.ice */,
 				14A4CE08215A4C06002AD8F7 /* ObjectsTest.ice */,
 				14CF14BE215A491100499968 /* ObjectsDerived.ice */,
 				14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */,
@@ -1227,6 +1231,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -1275,6 +1280,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				820CD39F22D737950056BEDA /* ObjectsForward.ice in Sources */,
 				14A4CE0A215A4C31002AD8F7 /* ObjectsTest.ice in Sources */,
 				14CF14CB215A4A7800499968 /* ObjectsDerived.ice in Sources */,
 				14CF14CC215A4A7800499968 /* ObjectsDerivedEx.ice in Sources */,
@@ -1449,6 +1455,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				820CD3A022D737A50056BEDA /* ObjectsForward.ice in Sources */,
 				14A4CE0B215A4C3E002AD8F7 /* ObjectsTest.ice in Sources */,
 				14A4CE0C215A4C3E002AD8F7 /* ObjectsDerived.ice in Sources */,
 				14A4CE0D215A4C3E002AD8F7 /* ObjectsDerivedEx.ice in Sources */,

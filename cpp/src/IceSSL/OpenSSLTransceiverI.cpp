@@ -553,6 +553,21 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
         int ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), packetSize);
         if(ret <= 0)
         {
+#if defined(_AIX)
+            //
+            // WORKAROUND: OpenSSL SSL_read on AIX sometime ends up reporting a error
+            // with SSL_get_error but there's no error in the error queue. This occurs
+            // when SSL_read needs more data. So we just return SocketOperationRead in
+            // this case.
+            //
+            if(SSL_get_error(_ssl, ret) == SSL_ERROR_SSL && ERR_peek_error() == 0)
+            {
+                if(SSL_want_read(_ssl))
+                {
+                    return IceInternal::SocketOperationRead;
+                }
+            }
+#endif
             switch(SSL_get_error(_ssl, ret))
             {
             case SSL_ERROR_NONE:

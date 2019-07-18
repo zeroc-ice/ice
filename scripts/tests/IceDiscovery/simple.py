@@ -34,7 +34,13 @@ def suppressWarning(x):
 # Filter-out the warning about invalid lookup proxy
 outfilters = [ lambda x: suppressWarning(x) ]
 
+options = None
+if isinstance(platform,AIX):
+    # AIX test VMs only have IPv6 enabled on the loopback interface
+    # where multicast doesn't work
+    options = { "ipv6" : [False] }
+
 TestSuite(__name__, [
    ClientServerTestCase(client=Client(args=[3], props=props, outfilters=outfilters),
                         servers=[Server(args=[i], readyCount=4, props=props) for i in range(0, 3)])
-], multihost=False)
+], multihost=False, options=options)

@@ -113,3 +113,8 @@ cpp/AppX
 cpp/test/Slice/errorDetection/tmp
 
 Carthage
+
+# iOS builds
+
+**/objs-*/
+**/build-*/
