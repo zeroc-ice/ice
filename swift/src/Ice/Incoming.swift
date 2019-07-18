@@ -94,7 +94,7 @@ public final class Incoming {
     @discardableResult
     public func setResult(_ os: OutputStream) -> Promise<OutputStream>? {
         ostr = os
-        return nil // Response is cached in the Incoming to not have to create unnecessary future
+        return nil // Response is cached in the Incoming to not have to create unnecessary promise
     }
 
     public func setResult() -> Promise<OutputStream>? {
@@ -104,7 +104,7 @@ public final class Incoming {
         return nil // Response is cached in the Incoming to not have to create unnecessary future
     }
 
-    public func setResult(_ cb: @escaping (OutputStream) -> Void) -> Promise<OutputStream>? {
+    public func setResult(_ cb: (OutputStream) -> Void) -> Promise<OutputStream>? {
         let ostr = OutputStream(communicator: istr.communicator, encoding: current.encoding)
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         cb(ostr)
@@ -186,7 +186,7 @@ public final class Incoming {
         //
         do {
             if let promise = try s.dispatch(request: self, current: current) {
-                // dispatched asyncroniasdfly
+                // dispatched asynchronously
                 promise.done { ostr in
                     self.ostr = ostr
                     self.response()

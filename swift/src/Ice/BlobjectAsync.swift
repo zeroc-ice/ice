@@ -32,7 +32,6 @@ public struct BlobjectAsyncDisp: Disp {
     public init(_ servant: BlobjectAsync) {
         self.servant = servant
     }
-
     public func dispatch(request: Request, current: Current) throws -> Promise<OutputStream>? {
         let inEncaps = try request.readParamEncaps()
         return servant.ice_invokeAsync(inEncaps: inEncaps, current: current).map(on: nil) { invokeResult in
