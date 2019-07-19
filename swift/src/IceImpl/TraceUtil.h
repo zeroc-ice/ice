@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICETraceUtil : NSObject
+ICEIMPL_API @interface ICETraceUtil : NSObject
 
 +(void) traceSlicing:(NSString*)kind
               typeId:(NSString*)typeId

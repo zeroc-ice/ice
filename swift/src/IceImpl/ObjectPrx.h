@@ -16,7 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICEObjectPrx : NSObject
+ICEIMPL_API @interface ICEObjectPrx : NSObject
 -(nonnull ICEObjectPrx*) initWithObjectPrx:(ICEObjectPrx*)prx;
 -(nonnull NSString*) ice_toString;
 -(nonnull ICECommunicator*) ice_getCommunicator;

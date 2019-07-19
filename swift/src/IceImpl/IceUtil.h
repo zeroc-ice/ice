@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 //
 // Utility methods
 //
-ICEOBJC_API @interface ICEUtil: NSObject
+ICEIMPL_API @interface ICEUtil: NSObject
 @property (class, nonatomic, readonly) Class<ICEExceptionFactory> exceptionFactory;
 @property (class, nonatomic, readonly) Class<ICEConnectionInfoFactory> connectionInfoFactory;
 @property (class, nonatomic, readonly) Class<ICEEndpointInfoFactory> endpointInfoFactory;

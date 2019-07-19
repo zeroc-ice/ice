@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @protocol ICELoggerProtocol
+ICEIMPL_API @protocol ICELoggerProtocol
 -(void) print:(NSString*)message NS_SWIFT_NAME(print(_:));
 -(void) trace:(NSString*)category message:(NSString*)message NS_SWIFT_NAME(trace(category:message:));
 -(void) warning:(NSString*)message NS_SWIFT_NAME(warning(_:));
@@ -15,7 +15,7 @@ ICEOBJC_API @protocol ICELoggerProtocol
 -(id) cloneWithPrefix:(NSString*)prefix NS_SWIFT_NAME(cloneWithPrefix(_:));
 @end
 
-ICEOBJC_API @interface ICELogger: ICELocalObject<ICELoggerProtocol>
+ICEIMPL_API @interface ICELogger: ICELocalObject<ICELoggerProtocol>
 -(void) print:(NSString*)message;
 -(void) trace:(NSString*)category message:(NSString*)message;
 -(void) warning:(NSString*)message;

@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICEPropertiesAdmin: ICELocalObject
+ICEIMPL_API @interface ICEPropertiesAdmin: ICELocalObject
 -(nullable NSString*) getProperty:(NSString*)key error:(NSError**)error;
 -(nullable NSDictionary<NSString*, NSString*>*) getPropertiesForPrefix:(NSString*)prefix error:(NSError**)error;
 -(BOOL) setProperties:(NSDictionary<NSString*, NSString*>*)newProperties error:(NSError**)error;

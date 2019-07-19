@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICEConnection : ICELocalObject
+ICEIMPL_API @interface ICEConnection : ICELocalObject
 -(void) close:(uint8_t)mode;
 -(nullable ICEObjectPrx*) createProxy:(NSString*)name category:(NSString*)category error:(NSError* _Nullable * _Nullable)error;
 -(BOOL) setAdapter:(ICEObjectAdapter* _Nullable)oa error:(NSError* _Nullable * _Nullable)error;
@@ -36,10 +36,10 @@ ICEOBJC_API @interface ICEConnection : ICELocalObject
 -(BOOL) throwException:(NSError* _Nullable * _Nullable)error;
 @end
 
-ICEOBJC_API @interface ICEConnectionInfo: NSObject
+ICEIMPL_API @interface ICEConnectionInfo: NSObject
 @end
 
-ICEOBJC_API @protocol ICEConnectionInfoFactory
+ICEIMPL_API @protocol ICEConnectionInfoFactory
 +(id) createIPConnectionInfo:(id)underlying
                     incoming:(BOOL)incoming
                  adapterName:(NSString*)adapterName

@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICELocalObject : NSObject
+ICEIMPL_API @interface ICELocalObject : NSObject
 //
 // We hold a weak referece to the (possile) Swift object which has a handle to
 // this ICELocalObject. That way we can recover the Swift object later.

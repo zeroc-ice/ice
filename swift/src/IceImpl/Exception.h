@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @protocol ICEExceptionFactory
+ICEIMPL_API @protocol ICEExceptionFactory
 +(NSError*) initializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) pluginInitializationException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) collocationOptimizationException:(NSString*)file line:(size_t)line;
@@ -90,7 +90,7 @@ ICEOBJC_API @protocol ICEExceptionFactory
 +(NSError*) runtimeError:(NSString*)message;
 @end
 
-ICEOBJC_API @interface ICERuntimeException : NSObject
+ICEIMPL_API @interface ICERuntimeException : NSObject
 @property NSString* file;
 @property int line;
 @end
@@ -98,33 +98,33 @@ ICEOBJC_API @interface ICERuntimeException : NSObject
 //
 // Request Failed exceptions
 //
-ICEOBJC_API @interface ICERequestFailedException : ICERuntimeException
+ICEIMPL_API @interface ICERequestFailedException : ICERuntimeException
 @property (nonatomic) NSString* name;
 @property (nonatomic) NSString* category;
 @property (nonatomic) NSString* facet;
 @property (nonatomic) NSString* operation;
 @end
 
-ICEOBJC_API @interface ICEObjectNotExistException : ICERequestFailedException
+ICEIMPL_API @interface ICEObjectNotExistException : ICERequestFailedException
 @end
 
-ICEOBJC_API @interface ICEFacetNotExistException : ICERequestFailedException
+ICEIMPL_API @interface ICEFacetNotExistException : ICERequestFailedException
 @end
 
-ICEOBJC_API @interface ICEOperationNotExistException : ICERequestFailedException
+ICEIMPL_API @interface ICEOperationNotExistException : ICERequestFailedException
 @end
 
 //
 // Unknown exceptions
 //
-ICEOBJC_API @interface ICEUnknownException : ICERuntimeException
+ICEIMPL_API @interface ICEUnknownException : ICERuntimeException
 @property (nonatomic) NSString* unknown;
 @end
 
-ICEOBJC_API @interface ICEUnknownLocalException : ICEUnknownException
+ICEIMPL_API @interface ICEUnknownLocalException : ICEUnknownException
 @end
 
-ICEOBJC_API @interface ICEUnknownUserException : ICEUnknownException
+ICEIMPL_API @interface ICEUnknownUserException : ICEUnknownException
 @end
 
 NS_ASSUME_NONNULL_END

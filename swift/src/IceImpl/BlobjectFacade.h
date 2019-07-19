@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^ICEBlobjectResponse) (bool, NSData*);
 typedef void (^ICEBlobjectException) (ICERuntimeException*);
 
-ICEOBJC_API @protocol ICEBlobjectFacade
+ICEIMPL_API @protocol ICEBlobjectFacade
 -(void) facadeInvoke:(ICEObjectAdapter*)adapter
             inEncaps:(NSData*)inEncaps
                  con:(ICEConnection* _Nullable)con

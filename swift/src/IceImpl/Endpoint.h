@@ -6,19 +6,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICEEndpoint: ICELocalObject
+ICEIMPL_API @interface ICEEndpoint: ICELocalObject
 -(NSString*) toString;
 -(id) getInfo;
 -(bool) isEqual:(ICEEndpoint* _Nullable)endpoint;
 @end
 
-ICEOBJC_API @interface ICEEndpointInfo: ICELocalObject
+ICEIMPL_API @interface ICEEndpointInfo: ICELocalObject
 -(int16_t) getType;
 -(BOOL) getDatagram;
 -(BOOL) getSecure;
 @end
 
-ICEOBJC_API @protocol ICEEndpointInfoFactory
+ICEIMPL_API @protocol ICEEndpointInfoFactory
 +(id) createTCPEndpointInfo:(ICEEndpointInfo*)handle
                  underlying:(id)underlying
                     timeout:(int32_t)timeout

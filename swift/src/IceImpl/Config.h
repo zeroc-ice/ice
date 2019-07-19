@@ -4,8 +4,8 @@
 
 #import <Foundation/Foundation.h>
 
-#ifndef ICEOBJC_API
-#   define ICEOBJC_API __attribute__((visibility ("default")))
+#ifndef ICEIMPL_API
+#   define ICEIMPL_API __attribute__((visibility ("default")))
 #endif
 
 #ifdef __cplusplus

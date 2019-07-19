@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-ICEOBJC_API @interface ICEImplicitContext: ICELocalObject
+ICEIMPL_API @interface ICEImplicitContext: ICELocalObject
 -(NSDictionary<NSString*, NSString*>*) getContext;
 -(void) setContext:(NSDictionary<NSString*, NSString*>*)context;
 -(bool) containsKey:(NSString*)string;
