@@ -80,7 +80,7 @@ IcePatch2: IcePatch2Lib
 
 IceStorm: IceBox IceStormLib IceGridLib Glacier2Lib Freeze
 
-IceGrid: IceGridLib IceStorm IcePatch2Lib Freeze IceSSL IceBox IceXML
+IceGrid: IceGridLib IceStorm IcePatch2Lib Freeze IceSSL IceBox IceXML IceLocatorDiscovery
 
 IceDiscovery IceLocatorDiscovery: Ice
 
