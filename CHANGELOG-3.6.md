@@ -58,6 +58,11 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 ## C++ Changes
 
+- Fixed bug where the `IceGrid.Registry.CryptPasswords` or
+  `IceGrid.Registry.AdminCryptPasswords` properties were ignored if the IceGrid
+  registry was collocated with the IceGrid node executable using the
+  `IceGrid.Node.CollocateRegistry` property.
+
 - Fixed IceGrid node bug where the setting of supplementary groups would fail
   if the user had more than NGROUPS_MAX groups.
 
