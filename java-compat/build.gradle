@@ -66,11 +66,3 @@ dist.dependsOn(project(":icediscovery-compat").assemble)
 dist.dependsOn(project(":icelocatordiscovery-compat").assemble)
 dist.dependsOn(project(":icepatch2-compat").assemble)
 dist.dependsOn(project(":icestorm-compat").assemble)
-
-//
-// Used to build the gradle wrapper to automatically download and install
-// the version of gradle needed to build Ice.
-//
-wrapper {
-    gradleVersion = "4.10.2"
-}
