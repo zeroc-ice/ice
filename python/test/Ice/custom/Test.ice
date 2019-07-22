@@ -104,7 +104,6 @@ module Test
         ["python:memoryview:Custom.myBogusArraySignatureFactory"]BoolSeq1 opBogusArraySignatureFactory();
         ["python:memoryview:Custom.myNoCallableFactory"]BoolSeq1 opBogusArrayNoCallableFactory();
 
-
         D opD(D d);
 
         void shutdown();
