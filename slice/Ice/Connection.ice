@@ -338,7 +338,7 @@ local interface Connection
      *
      * Set the active connection management parameters.
      *
-     * @param timeout The timeout value in seconds, must be >= 0
+     * @param timeout The timeout value in seconds, must be &gt;= 0.
      *
      * @param close The close condition
      *
