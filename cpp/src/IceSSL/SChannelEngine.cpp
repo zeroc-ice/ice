@@ -18,6 +18,17 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
 
+#include <wincrypt.h>
+
+//
+// SP_PROT_TLS1_3 is new in v10.0.15021 SDK
+//
+#ifndef SP_PROT_TLS1_3
+#    define SP_PROT_TLS1_3_SERVER 0x00001000
+#    define SP_PROT_TLS1_3_CLIENT 0x00002000
+#    define SP_PROT_TLS1_3 (SP_PROT_TLS1_3_SERVER | SP_PROT_TLS1_3_CLIENT)
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceUtil;
@@ -124,23 +135,23 @@ parseProtocols(const StringSeq& protocols)
 
         if(prot == "SSL3" || prot == "SSLV3")
         {
-            v |= SP_PROT_SSL3_SERVER;
-            v |= SP_PROT_SSL3_CLIENT;
+            v |= SP_PROT_SSL3;
         }
         else if(prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
         {
-            v |= SP_PROT_TLS1_SERVER;
-            v |= SP_PROT_TLS1_CLIENT;
+            v |= SP_PROT_TLS1;
         }
         else if(prot == "TLS1_1" || prot == "TLSV1_1")
         {
-            v |= SP_PROT_TLS1_1_SERVER;
-            v |= SP_PROT_TLS1_1_CLIENT;
+            v |= SP_PROT_TLS1_1;
         }
         else if(prot == "TLS1_2" || prot == "TLSV1_2")
         {
-            v |= SP_PROT_TLS1_2_SERVER;
-            v |= SP_PROT_TLS1_2_CLIENT;
+            v |= SP_PROT_TLS1_2;
+        }
+        else if (prot == "TLS1_3" || prot == "TLSV1_2")
+        {
+            v |= SP_PROT_TLS1_3;
         }
         else
         {

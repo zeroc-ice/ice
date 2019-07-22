@@ -67,7 +67,7 @@ if clean:
 # Create 2 CAs, the DSA ca is actually ca1 but with a different the DSA key generation algorithm.
 ca1 = IceCertUtils.CertificateFactory(home=homeca1, cn="ZeroC Test CA 1", ip="127.0.0.1", email="issuer@zeroc.com")
 ca2 = IceCertUtils.CertificateFactory(home=homeca2, cn="ZeroC Test CA 2", ip="127.0.0.1", email="issuer@zeroc.com")
-dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keysize=1024)
+dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keysize=2048)
 
 #
 # Export CA certificates
@@ -156,7 +156,7 @@ for (ca, alias, path, args) in savecerts:
 #
 # Create DH parameters to use with macOS Secure Transport.
 #
-if clean or not os.path.exists("dh_params512.der"):
-    ca1.run("openssl", "dhparam", 512, outform="DER", out="dh_params512.der")
-if clean or not os.path.exists("dh_params1024.der"):
-    ca1.run("openssl", "dhparam", 1024, outform="DER", out="dh_params1024.der")
+for size in [512, 1024]:
+    dhparams = "dh_params{0}.der".format(size)
+    if clean or not os.path.exists(dhparams):
+        ca1.run("openssl dhparam -outform=DER -out={0} {1}".format(dhparams, size))

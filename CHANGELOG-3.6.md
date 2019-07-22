@@ -55,6 +55,8 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 - Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
   was ignored.
+  
+- Add support for TLS 1.3 to IceSSL.
 
 ## C++ Changes
 

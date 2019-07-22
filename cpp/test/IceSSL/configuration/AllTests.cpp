@@ -572,8 +572,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             server->noCert();
             test(IceSSL::ConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo())->verified);
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1323,19 +1324,23 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        initData.properties->setProperty("IceSSL.Protocols", "tls1_1");
+        initData.properties->setProperty("IceSSL.Protocols", "tls1_2");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_rsa_ca1", "cacert1");
         d["IceSSL.VerifyPeer"] = "0";
-        d["IceSSL.Protocols"] = "tls1_2";
+        d["IceSSL.Protocols"] = "tls1_1";
         Test::ServerPrx server = fact->createServer(d);
         try
         {
             server->ice_ping();
             test(false);
+        }
+        catch(const Ice::SecurityException&)
+        {
+            // Expected on some platforms.
         }
         catch(const ProtocolException&)
         {
@@ -1345,8 +1350,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             // Expected on some platforms.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1368,18 +1374,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
         catch(const LocalException& ex)
         {
-            //
-            // OpenSSL < 1.0 doesn't support tls 1.1 so it will also fail, we ignore in this
-            // case.
-            //
-#if defined(ICE_USE_SCHANNEL) || (defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10000000L)
             cerr << ex << endl;
             test(false);
-#endif
         }
         fact->destroyServer(server);
         comm->destroy();
 
+        //
+        // Skip the test if OpenSSL was build without SSL3 support
+        //
+#if !defined(OPENSSL_NO_SSL3_METHOD)
         //
         // This should fail because the client only accept SSLv3 and the server
         // use the default protocol set that disables SSLv3
@@ -1416,7 +1420,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             fact->destroyServer(server);
             comm->destroy();
         }
-
+#endif
         //
         // SSLv3 is now disabled by default with some SSL implementations.
         //
@@ -1737,7 +1741,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     //
     // SChannel doesn't support PEM Password protected certificates certificates
     //
-#ifdef ICE_USE_SCHANNEL
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
     if(p12)
     {
 #endif
@@ -1806,7 +1810,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         comm->destroy();
     }
     cout << "ok" << endl;
-#ifdef ICE_USE_SCHANNEL
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
     }
 #endif
     cout << "testing ciphers... " << flush;
@@ -1820,6 +1824,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
 #  ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
+#       if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL
+        //
+        // With OpenSSL 1.1 disable tls1.3 so that client and server negotiate
+        // an anon cipher
+        //
+        initData.properties->setProperty("IceSSL.Protocols", "tls1_2,tls1_1");
+#       endif
 #  else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
 #  endif
@@ -1895,6 +1906,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         cerr << ex << endl;
         test(false);
     }
+
     fact->destroyServer(server);
     comm->destroy();
 
@@ -2061,14 +2073,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         // First try a client with a DSA certificate.
         //
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L
+        const string ciphers = "DHE:DSS:@SECLEVEL=0";
+#else
+        const string ciphers = "DHE:DSS";
+#endif
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12, "c_dsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.Ciphers", "DHE:DSS");
+        initData.properties->setProperty("IceSSL.Ciphers", ciphers);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, defaultDir, defaultHost, p12, "s_dsa_ca1", "cacert1");
-        d["IceSSL.Ciphers"] = "DHE:DSS";
+        d["IceSSL.Ciphers"] = ciphers;
         d["IceSSL.VerifyPeer"] = "1";
 
         Test::ServerPrx server = fact->createServer(d);
@@ -2076,8 +2093,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -2119,6 +2137,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //
         initData.properties = createClientProps(defaultProps, defaultDir, defaultHost, p12);
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL
+        //
+        // With OpenSSL 1.1 disable tls1.3 so that client and server negotiate
+        // an anon cipher
+        //
+        initData.properties->setProperty("IceSSL.Protocols", "tls1_2,tls1_1");
+#endif
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -2977,8 +3002,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-            "THUMBPRINT:'82 30 1E 35 9E 39 C1 D0 63 0D 67 3D 12 DD D4 96 90 1E EF 54'",
-            "SUBJECTKEYID:'FC 5D 4F AB F0 6C 03 11 B8 F3 68 CF 89 54 92 3F F9 79 2A 06'",
+            "THUMBPRINT:'98 BE 99 3C F5 1B F7 4D C2 E7 2A C5 CF 51 4C A6 96 56 C9 46'",
+            "SUBJECTKEYID:'17 4A 04 3B 65 58 52 53 F0 56 45 C1 AA F7 4A D3 4C BA 15 19'",
             0
         };
 
@@ -2987,8 +3012,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-            "THUMBPRINT:'C0 01 FF 9C C9 DA C8 0D 34 F6 2F DE 09 FB 28 0D 69 AB 78 BA'",
-            "SUBJECTKEYID:'47 84 AE F9 F2 85 3D 99 30 6A 03 38 41 1A B9 EB C3 9C B5 4D'",
+            "THUMBPRINT:'79 48 AC 56 1D 2B A9 38 D7 54 0D 1E E7 31 59 A4 C3 94 14 1A'",
+            "SUBJECTKEYID:'1D 0F 23 95 D8 CC 27 3F BA 68 4A 00 3F EE 56 A3 9F 16 7D BC'",
             0
         };
 
@@ -3110,7 +3135,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'FC 5D 4F AB F0 6C 03 11 B8 F3 68 CF 89 54 92 3F F9 79 2A 06'",
+            "SUBJECTKEYID:'17 4A 04 3B 65 58 52 53 F0 56 45 C1 AA F7 4A D3 4C BA 15 19'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -3120,7 +3145,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         {
             "SUBJECT:Server",
             "LABEL:'Server'",
-            "SUBJECTKEYID:'47 84 AE F9 F2 85 3D 99 30 6A 03 38 41 1A B9 EB C3 9C B5 4D'",
+            "SUBJECTKEYID:'1D 0F 23 95 D8 CC 27 3F BA 68 4A 00 3F EE 56 A3 9F 16 7D BC'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0

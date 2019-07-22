@@ -69,6 +69,10 @@ class SSLEngine
                 {
                     l.add("TLSv1.2");
                 }
+                else if(s.equals("TLS1_3") || s.equals("TLSV1_3"))
+                {
+                    l.add("TLSv1.3");
+                }
                 else
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();

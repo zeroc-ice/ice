@@ -127,7 +127,7 @@ CiphersHelper::initialize()
         _ciphers["RSA_EXPORT_WITH_RC4_40_MD5"] = SSL_RSA_EXPORT_WITH_RC4_40_MD5;
         _ciphers["RSA_WITH_RC4_128_MD5"] = SSL_RSA_WITH_RC4_128_MD5;
         _ciphers["RSA_WITH_RC4_128_SHA"] = SSL_RSA_WITH_RC4_128_SHA;
-        _ciphers["RSA_EXPORT_WITH_RC2_CBC_40_MD5"] =    SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5;
+        _ciphers["RSA_EXPORT_WITH_RC2_CBC_40_MD5"] = SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5;
         _ciphers["RSA_WITH_IDEA_CBC_SHA"] = SSL_RSA_WITH_IDEA_CBC_SHA;
         _ciphers["RSA_EXPORT_WITH_DES40_CBC_SHA"] = SSL_RSA_EXPORT_WITH_DES40_CBC_SHA;
         _ciphers["RSA_WITH_DES_CBC_SHA"] = SSL_RSA_WITH_DES_CBC_SHA;
@@ -339,6 +339,15 @@ CiphersHelper::initialize()
         _ciphers["RSA_WITH_DES_CBC_MD5"] = SSL_RSA_WITH_DES_CBC_MD5;
         _ciphers["RSA_WITH_3DES_EDE_CBC_MD5"] = SSL_RSA_WITH_3DES_EDE_CBC_MD5;
         _ciphers["NO_SUCH_CIPHERSUITE"] = SSL_NO_SUCH_CIPHERSUITE;
+
+        //
+        // TLS 1.3 standard cipher suites
+        //
+        _ciphers["TLS_AES_128_GCM_SHA256"] = TLS_AES_128_GCM_SHA256;
+        _ciphers["TLS_AES_256_GCM_SHA384"] = TLS_AES_256_GCM_SHA384;
+        _ciphers["TLS_CHACHA20_POLY1305_SHA256"] = TLS_CHACHA20_POLY1305_SHA256;
+        _ciphers["TLS_AES_128_CCM_SHA256"] = TLS_AES_128_CCM_SHA256;
+        _ciphers["TLS_AES_128_CCM_8_SHA256"] = TLS_AES_128_CCM_8_SHA256;
     }
 }
 
@@ -739,6 +748,21 @@ CiphersHelper::cipherName(SSLCipherSuite cipher)
             return "RSA_WITH_DES_CBC_MD5";
         case SSL_RSA_WITH_3DES_EDE_CBC_MD5:
             return "RSA_WITH_3DES_EDE_CBC_MD5";
+
+        //
+        //TLS 1.3 standard cipher suites
+        //
+        case TLS_AES_128_GCM_SHA256:
+            return "TLS_AES_128_GCM_SHA256";
+        case TLS_AES_256_GCM_SHA384:
+            return "TLS_AES_256_GCM_SHA384";
+        case TLS_CHACHA20_POLY1305_SHA256:
+            return "TLS_CHACHA20_POLY1305_SHA256";
+        case TLS_AES_128_CCM_SHA256:
+            return "TLS_AES_128_CCM_SHA256";
+        case TLS_AES_128_CCM_8_SHA256:
+            return "TLS_AES_128_CCM_8_SHA256";
+
         default:
             return "";
     }
@@ -769,6 +793,10 @@ parseProtocol(const string& p)
     else if(prot == "TLS1_2" || prot == "TLSV1_2")
     {
         return kTLSProtocol12;
+    }
+    else if(prot == "TLS1_3" || prot == "TLSV1_3")
+    {
+        return kTLSProtocol13;
     }
     else
     {
