@@ -335,5 +335,5 @@ The enclosing directory also needs to be accessible. For example:
 ```
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.3
 [3]: https://github.com/zeroc-ice/ice-builder-visualstudio

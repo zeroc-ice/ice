@@ -7,9 +7,9 @@
 
 #include "winver.h"
 
-#define ICE_VERSION 3,7,62,0
-#define ICE_STRING_VERSION "3.7b2\0"
-#define ICE_SO_VERSION "37b2\0"
+#define ICE_VERSION 3,7,3,0
+#define ICE_STRING_VERSION "3.7.3\0"
+#define ICE_SO_VERSION "37\0"
 #define ICE_COMPANY_NAME "ZeroC, Inc.\0"
 #define ICE_COPYRIGHT "\251 ZeroC, Inc.\0"
 #define ICE_PRODUCT_NAME "Ice\0"

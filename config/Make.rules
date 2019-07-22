@@ -102,9 +102,9 @@ supported-languages     ?= $(strip cpp java java-compat python ruby php \
                                    $(if $(filter Darwin,$(os)),objective-c))
 supported-configs       ?= shared
 
-version                 = 3.7b2
+version                 = 3.7.3
 mmversion               = 3.7
-soversion               = 37b2
+soversion               = 37
 
 #
 # The compatversion is the lowest patch release with the same API.

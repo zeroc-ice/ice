@@ -70,14 +70,14 @@ have not built Ice for C++ in this source distribution, you must set the
 example, on Linux:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.2 (For local build)
+export ICE_HOME=/opt/Ice-3.7.3 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.2 (MSI installation)
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.3 (MSI installation)
 ```
 
 On Windows if you are using Ice for C++ from a source distribution, you must set
@@ -123,15 +123,15 @@ gradlew install
 The installation installs the following JAR files to `<prefix>/lib`.
 
 ```
-glacier2-compat-3.7.2.jar
-ice-compat-3.7.2.jar
-icebox-compat-3.7.2.jar
-icebt-compat-3.7.2.jar
-icediscovery-compat-3.7.2.jar
-icegrid-compat-3.7.2.jar
-icelocatordiscovery-compat-3.7.2.jar
-icepatch2-compat-3.7.2.jar
-icestorm-compat-3.7.2.jar
+glacier2-compat-3.7.3.jar
+ice-compat-3.7.3.jar
+icebox-compat-3.7.3.jar
+icebt-compat-3.7.3.jar
+icediscovery-compat-3.7.3.jar
+icegrid-compat-3.7.3.jar
+icelocatordiscovery-compat-3.7.3.jar
+icepatch2-compat-3.7.3.jar
+icestorm-compat-3.7.3.jar
 ```
 
 POM files are also installed for ease of deployment to a Maven-based
@@ -145,14 +145,14 @@ then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Linux or macOS:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.2 (For local build)
+export ICE_HOME=/opt/Ice-3.7.3 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.2
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.3
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -259,6 +259,6 @@ To run the tests against a `controller` application started from Android
 Studio you should omit the `--controller-app` option from the commands above.
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.3
 [3]: https://gradle.org
 [4]: https://commons.apache.org/proper/commons-compress/

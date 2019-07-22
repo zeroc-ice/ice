@@ -107,5 +107,5 @@ Ice and a commercial Ice are the license terms.
 
 ## Documentation
 
-- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.7.2+Release+Notes)
+- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.7.3+Release+Notes)
 - [Ice Manual](https://doc.zeroc.com/display/Ice37/Home)

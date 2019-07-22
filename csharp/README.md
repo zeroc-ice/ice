@@ -274,6 +274,6 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.3
 [4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
 [5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming

@@ -16,6 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("Ice")]
 [assembly: AssemblyCopyright("© ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("3.7.2")]
+[assembly: AssemblyVersion("3.7.3")]
 
 [assembly: ComVisible(false)]
