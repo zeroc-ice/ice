@@ -62,6 +62,11 @@ These are the changes since Ice 3.7.2.
 
 ## C++ Changes
 
+- Fixed bug where the `IceGrid.Registry.CryptPasswords` or
+  `IceGrid.Registry.AdminCryptPasswords` properties were ignored if the IceGrid
+  registry was collocated with the IceGrid node executable using the
+  `IceGrid.Node.CollocateRegistry` property.
+
 - Removed IceStorm restriction where retryCount could only be used with two-way
   proxies. It's now possible to use it with one-way or batch proxies.
 
