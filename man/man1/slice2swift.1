@@ -1,28 +1,28 @@
-.TH slice2cpp 1
+.TH slice2cs 1
 
 .SH NAME
 
-slice2cpp - The Slice to C++ compiler.
+slice2cs - The Slice to C# compiler.
 
 .SH SYNOPSIS
 
-slice2cpp [options] [files]
+slice2swift [options] [files]
 
 .SH DESCRIPTION
 
-slice2cpp compiles Slice files to C++. The macro __SLICE2CPP__
+slice2swift compiles Slice files to Swift. The macro __SLICE2SWIFT__
 is defined during this compilation.
 
-Full documentation for slice2cpp is available online at:
+Full documentation for slice2swift is available online at:
 .br
-https://doc.zeroc.com/display/Ice37/slice2cpp+Command-Line+Options
+https://doc.zeroc.com/display/Ice37/slice2swift+Command-Line+Options
 
 .SH OPTIONS
 
 .TP
 .BR \-h ", " \-\-help\fR
 .br
-Displays help message.
+Displays a help message.
 
 .TP
 .BR \-v ", " \-\-version\fR
@@ -89,51 +89,9 @@ format depends on whether --depend or --depend-xml is also specified.
 Checks the provided command-line options for correctness, and does not
 generate any code.
 
-.TP
-.BR \-\-header-ext " " EXT\fR
-.br
-Changes the file extension for the generated header files from the default h
-to EXT.
-
-.TP
-.BR \-\-source-ext " " EXT\fR
-.br
-Changes the file extension for the generated source files from the default
-cpp to EXT.
-
-.TP
-.BR \-\-add-header " " HDR[,GUARD]
-.br
-This option adds an include directive for the specified header at the
-beginning of the generated source file (preceding any other include
-directives). If GUARD is specified, the include directive is protected by the
-specified guard.
-
-.TP
-.BR \-\-include-dir " " DIR\fR
-.br
-Modifies #include directives in source files to prepend the path name of each
-header file with the directory DIR.
-
-.TP
-.BR \-\-impl\-c++11\fR
-.br
-Generate sample implementation files for the C++11 mapping. This option will
-not overwrite an existing file.
-
-.TP
-.BR \-\-impl\-c++98\fR
-.br
-Generate sample implementation files for the C++98 mapping. This option will
-not overwrite an existing file.
-
-.TP
-.BR \-\-checksum\fR
-.br
-Generate checksums for Slice definitions.
-
 .SH SEE ALSO
 
+.BR slice2cpp (1),
 .BR slice2cs (1),
 .BR slice2java (1),
 .BR slice2js (1),
@@ -141,5 +99,5 @@ Generate checksums for Slice definitions.
 .BR slice2objc (1),
 .BR slice2php (1),
 .BR slice2py (1),
-.BR slice2rb (1),
-.BR slice2swift (1)
+.BR slice2rb (1)
+
