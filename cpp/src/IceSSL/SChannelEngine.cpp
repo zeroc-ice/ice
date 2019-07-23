@@ -18,6 +18,14 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
 
+using namespace std;
+using namespace Ice;
+using namespace IceUtil;
+using namespace IceUtilInternal;
+using namespace IceSSL;
+
+#ifdef ICE_USE_SCHANNEL
+
 #include <wincrypt.h>
 
 //
@@ -29,15 +37,19 @@
 #    define SP_PROT_TLS1_3 (SP_PROT_TLS1_3_SERVER | SP_PROT_TLS1_3_CLIENT)
 #endif
 
-using namespace std;
-using namespace Ice;
-using namespace IceUtil;
-using namespace IceUtilInternal;
-using namespace IceSSL;
-
-#ifdef ICE_USE_SCHANNEL
-
 Shared* IceSSL::upCast(IceSSL::SChannelEngine* p) { return p; }
+
+//
+// This macros are not defined with old SDKs, like the one used with Python2.7
+// wheel builds
+//
+#ifndef SP_PROT_TLS1_1
+#   define SP_PROT_TLS1_1 (SP_PROT_TLS1_1_SERVER | SP_PROT_TLS1_1_CLIENT)
+#endif
+
+#ifndef SP_PROT_TLS1_2
+#   define SP_PROT_TLS1_2 (SP_PROT_TLS1_2_SERVER | SP_PROT_TLS1_2_CLIENT)
+#endif
 
 namespace
 {
