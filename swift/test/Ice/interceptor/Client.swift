@@ -49,8 +49,10 @@ class InterceptorI: Disp {
                 }
             }
             current.ctx["retry"] = "no"
+        } else if current.ctx["retry"] != nil && current.ctx["retry"] == "yes" {
+            _ = try self.servantDisp.dispatch(request: request, current: current)
+            _ = try self.servantDisp.dispatch(request: request, current: current)
         }
-
         // Did not implement add with retry as Swift does not support retrying
         let p = try servantDisp.dispatch(request: request, current: current)
         lastStatus = p != nil
@@ -195,8 +197,14 @@ public class Client: TestHelperI {
             try test(prx.amdAddWithRetry(x: 33, y: 12) == 45)
             try test(interceptor.lastOperation == "amdAddWithRetry")
             try test(interceptor.lastStatus)
+            var ctx: [String:String] = [:]
+            ctx["retry"] = "yes"
+            for _ in 0 ..< 10 {
+                try test(prx.amdAdd(x: 33, y: 12) == 45)
+                try test(interceptor.lastOperation == "amdAdd")
+                try test(interceptor.lastStatus)
+            }
             out.writeLine("ok")
-
             out.write("testing user exception...")
             do {
                 _ = try prx.amdBadAdd(x: 33, y: 12)
