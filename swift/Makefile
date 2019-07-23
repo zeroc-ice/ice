@@ -7,15 +7,22 @@ top_srcdir := ..
 include $(top_srcdir)/config/Make.rules
 
 CONFIG ?= $(if $(filter $(OPTIMIZE),yes),Release,Debug)
+PROJECT ?= $(if $(filter $(ICE_BIN_DIST), swift all),ice-test.xcodeproj,ice.xcodeproj)
 
 # $(call make-xcodebuild-rule,$1=rule,$2=platform,$3=scheme,$4=target)
 define make-xcodebuild-rule
-$1::
-	xcodebuild -project ice.xcodeproj \
+$1:: $(PROJECT)
+	xcodebuild -project $(PROJECT) \
                    -scheme "$3 $(if $(filter $2,macosx),macOS,iOS)" \
                    -configuration $(CONFIG) \
                    -sdk $2 $4
 endef
+
+ice.xcodeproj: Rakefile
+	rake icesdistproj
+
+ice-test.xcodeproj: Rakefile
+	rake icebdistproj
 
 all:: tests
 
@@ -26,6 +33,9 @@ tests srcs:: carthage
 
 install::
 	@echo nothing to install
+
+project:
+	@echo Project is $(PROJECT)
 
 $(foreach p,$(platforms),$(eval $(call make-xcodebuild-rule,srcs,$p,Ice,build)))
 $(foreach p,$(platforms),$(eval $(call make-xcodebuild-rule,tests,$p,TestDriver,build)))

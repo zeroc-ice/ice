@@ -3895,7 +3895,9 @@ class SwiftMapping(Mapping):
                           -target 'TestDriver iOS' \
                           -configuration {1} \
                           -showBuildSettings \
-                          -sdk {2}".format(self.getXcodeProject(current), current.config.buildConfig, current.config.buildPlatform)
+                          -sdk {2}".format(self.getXcodeProject(current),
+                                           current.config.buildConfig,
+                                           current.config.buildPlatform)
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         return "{0}/TestDriver.app".format(targetBuildDir)
 
@@ -3909,7 +3911,8 @@ class SwiftMapping(Mapping):
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
 
     def getXcodeProject(self, current):
-        return "{0}/ice.xcodeproj".format(current.testcase.getMapping().getPath())
+        return "{0}/{1}".format(current.testcase.getMapping().getPath(),
+                                "ice-test.xcodeproj" if self.component.useBinDist(self, current) else "ice.xcodeproj")
 
 #
 # Instantiate platform global variable
