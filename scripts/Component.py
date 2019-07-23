@@ -234,9 +234,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
     elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping(), component)
+        Mapping.add(m, ObjCMapping(), component, enable=isinstance(platform, Darwin))
     elif m == "swift" or re.match("swift-.*", m):
-        Mapping.add("swift", SwiftMapping(), component)
+        Mapping.add("swift", SwiftMapping(), component, enable=isinstance(platform, Darwin))
     elif m == "csharp" or re.match("charp-.*", m):
         Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
 

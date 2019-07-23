@@ -3542,12 +3542,6 @@ class CppBasedMapping(Mapping):
 
 class ObjCMapping(CppBasedMapping):
 
-    def getTestSuites(self, ids=[]):
-        return Mapping.getTestSuites(self, ids) if isinstance(platform, Darwin) else []
-
-    def findTestSuite(self, testsuite):
-        return Mapping.findTestSuite(self, testsuite) if isinstance(platform, Darwin) else None
-
     class Config(CppBasedMapping.Config):
         mappingName = "objc"
         mappingDesc = "Objective-C"
