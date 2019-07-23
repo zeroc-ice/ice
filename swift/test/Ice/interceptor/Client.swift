@@ -95,7 +95,7 @@ class MyObjectI: MyObject {
 
     func amdAddAsync(x: Int32, y: Int32, current _: Current) -> Promise<Int32> {
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.fulfill(x + y)
             }
         }
@@ -107,7 +107,7 @@ class MyObjectI: MyObject {
         }
 
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.fulfill(x + y)
             }
         }
@@ -115,7 +115,7 @@ class MyObjectI: MyObject {
 
     func amdBadAddAsync(x _: Int32, y _: Int32, current _: Current) -> Promise<Int32> {
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.reject(InvalidInputException())
             }
         }
@@ -123,7 +123,7 @@ class MyObjectI: MyObject {
 
     func amdNotExistAddAsync(x _: Int32, y _: Int32, current _: Current) -> Promise<Int32> {
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.reject(ObjectNotExistException())
             }
         }
