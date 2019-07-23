@@ -2,40 +2,45 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import atexit
 import os
 import re
 import signal
 import string
 import subprocess
 import sys
-import sys
 import threading
 import time
 import traceback
 import types
 
-__all__ = ["Expect", "EOF", "TIMEOUT" ]
+__all__ = ["Expect", "EOF", "TIMEOUT"]
 
 win32 = (sys.platform == "win32")
 if win32:
     import ctypes
 
+
 class EOF:
     """Raised when EOF is read from a child.
     """
+
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return str(self.value)
+
 
 class TIMEOUT(Exception):
     """Raised when a read time exceeds the timeout.
     """
+
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return str(self.value)
+
 
 def getStringIO():
     if sys.version_info[0] == 2:
@@ -45,7 +50,8 @@ def getStringIO():
         import io
         return io.StringIO()
 
-def escape(s, escapeNewlines = True):
+
+def escape(s, escapeNewlines=True):
     if s == TIMEOUT:
         return "<TIMEOUT>"
     o = getStringIO()
@@ -76,18 +82,19 @@ def escape(s, escapeNewlines = True):
                 o.write('\\%03o' % ord(c))
     return o.getvalue()
 
+
 def taskkill(args):
     p = subprocess.Popen("taskkill {0}".format(args), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out = p.stdout.read().decode('UTF-8').strip()
-    #print(out)
     p.wait()
     p.stdout.close()
+
 
 def killProcess(p):
     if win32:
         taskkill("/F /T /PID {0}".format(p.pid))
     else:
         os.kill(p.pid, signal.SIGKILL)
+
 
 def terminateProcess(p, hasInterruptSupport=True):
     if win32:
@@ -98,17 +105,18 @@ def terminateProcess(p, hasInterruptSupport=True):
         #
         if hasInterruptSupport:
             try:
-                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid) # 1 is CTRL_BREAK_EVENT
+                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid)  # 1 is CTRL_BREAK_EVENT
             except NameError:
                 taskkill("/F /T /PID {0}".format(p.pid))
                 pass
-            except:
+            except Exception:
                 traceback.print_exc(file=sys.stdout)
                 taskkill("/F /T /PID {0}".format(p.pid))
         else:
             taskkill("/F /T /PID {0}".format(p.pid))
     else:
-        os.kill(p.pid, signal.SIGINT)
+        os.kill(p.pid, signal.SIGTERM)
+
 
 class reader(threading.Thread):
     def __init__(self, desc, p, logfile):
@@ -134,17 +142,18 @@ class reader(threading.Thread):
                 if not c:
                     self.cv.acquire()
                     self.trace(None)
-                    self._finish = True # We have finished processing output
+                    self._finish = True  # We have finished processing output
                     self.cv.notify()
                     self.cv.release()
                     break
-                if c == '\r': continue
+                if c == '\r':
+                    continue
 
                 self.cv.acquire()
                 try:
                     # Depending on Python version and platform, the value c could be a
                     # string or a bytes object.
-                    if type(c) != str:
+                    if not isinstance(c, str):
                         c = c.decode()
                     self.trace(c)
                     if self.watchDog is not None:
@@ -159,7 +168,7 @@ class reader(threading.Thread):
     def trace(self, c):
         if self._trace:
             if self._tracesuppress:
-                if not c is None:
+                if c is not None:
                     self._tbuf.write(c)
                 if c == '\n' or c is None:
                     content = self._tbuf.getvalue()
@@ -174,11 +183,11 @@ class reader(threading.Thread):
                         sys.stdout.write(content)
                     self._tbuf.truncate(0)
                     self._tbuf.seek(0)
-            elif not c is None:
+            elif c is not None:
                 sys.stdout.write(c)
                 sys.stdout.flush()
 
-    def enabletrace(self, suppress = None):
+    def enabletrace(self, suppress=None):
         self.cv.acquire()
         try:
             if not self._trace:
@@ -197,7 +206,7 @@ class reader(threading.Thread):
             self.cv.release()
         return buf
 
-    def match(self, pattern, timeout, matchall = False):
+    def match(self, pattern, timeout, matchall=False):
         # pattern is a list of string, regexp duples.
 
         if timeout is not None:
@@ -210,24 +219,24 @@ class reader(threading.Thread):
                 tdesc = "<infinite>"
             else:
                 tdesc = "%.2fs" % timeout
-            p = [ escape(s) for (s, r) in pattern ]
+            p = [escape(s) for (s, r) in pattern]
             pdesc = getStringIO()
             if len(p) == 1:
                 pdesc.write(escape(p[0]))
             else:
-                pdesc.write('[');
+                pdesc.write('[')
                 for pat in p:
                     if pat != p[0]:
-                        pdesc.write(',');
+                        pdesc.write(',')
                     pdesc.write(escape(pat))
-                pdesc.write(']');
+                pdesc.write(']')
             self.logfile.write('%s: expect: "%s" timeout: %s\n' % (self.desc, pdesc.getvalue(), tdesc))
             self.logfile.flush()
 
         maxend = None
         self.cv.acquire()
         try:
-            try: # This second try/except block is necessary because of python 2.3
+            try:  # This second try/except block is necessary because of python 2.3
                 while True:
                     buf = self.buf.getvalue()
 
@@ -254,9 +263,10 @@ class reader(threading.Thread):
                             # Trace the match
                             if self.logfile:
                                 if len(pattern) > 1:
-                                    self.logfile.write('%s: match found in %.2fs.\npattern: "%s"\nbuffer: "%s||%s||%s"\n'%
-                                                       (self.desc, time.time() - start, escape(s), escape(before),
-                                                        escape(matched), escape(after)))
+                                    self.logfile.write(
+                                        '%s: match found in %.2fs.\npattern: "%s"\nbuffer: "%s||%s||%s"\n' %
+                                        (self.desc, time.time() - start, escape(s), escape(before),
+                                         escape(matched), escape(after)))
                                 else:
                                     self.logfile.write('%s: match found in %.2fs.\nbuffer: "%s||%s||%s"\n' %
                                                        (self.desc, time.time() - start, escape(before), escape(matched),
@@ -287,8 +297,8 @@ class reader(threading.Thread):
 
                     # If no match and we have finished processing output raise a TIMEOUT
                     if self._finish:
-                      raise  TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
-                                           (escape(s), escape(buf, False)))
+                        raise TIMEOUT('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
+                                      (escape(s), escape(buf, False)))
 
                     if timeout is None:
                         self.cv.wait()
@@ -300,14 +310,15 @@ class reader(threading.Thread):
                                 self.logfile.write('%s: match failed.\npattern: "%s"\nbuffer: "%s"\n"' %
                                                    (self.desc, escape(s), escape(buf)))
                                 self.logfile.flush()
-                            raise TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
-                                           (escape(s), escape(buf, False)))
+                            raise TIMEOUT('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
+                                          (escape(s), escape(buf, False)))
             except TIMEOUT as e:
                 if (TIMEOUT, None) in pattern:
                     return buf, buf, TIMEOUT, None, pattern.index((TIMEOUT, None))
                 raise e
         finally:
             self.cv.release()
+
 
 def splitCommand(command_line):
     arg_list = []
@@ -359,27 +370,30 @@ def splitCommand(command_line):
 
     return arg_list
 
+
 processes = {}
+
 
 def cleanup():
     for key in processes.copy():
         try:
             killProcess(processes[key])
-        except:
+        except Exception:
             pass
     processes.clear()
+
 
 class Expect (object):
     def __init__(self, command, startReader=True, timeout=30, logfile=None, mapping=None, desc=None, cwd=None, env=None,
                  preexec_fn=None):
-        self.buf = "" # The part before the match
-        self.before = "" # The part before the match
-        self.after = "" # The part after the match
-        self.matchindex = 0 # the index of the matched pattern
-        self.match = None # The last match
-        self.mapping = mapping # The mapping of the test.
-        self.exitstatus = None # The exitstatus, either -signal or, if positive, the exit code.
-        self.killed = None # If killed, the signal that was sent.
+        self.buf = ""  # The part before the match
+        self.before = ""  # The part before the match
+        self.after = ""  # The part after the match
+        self.matchindex = 0  # the index of the matched pattern
+        self.match = None  # The last match
+        self.mapping = mapping  # The mapping of the test.
+        self.exitstatus = None  # The exitstatus, either -signal or, if positive, the exit code.
+        self.killed = None  # If killed, the signal that was sent.
         self.desc = desc
         self.logfile = logfile
         self.timeout = timeout
@@ -403,7 +417,7 @@ class Expect (object):
             CREATE_NEW_PROCESS_GROUP = 512
             self.p = subprocess.Popen(command, env=env, cwd=cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                      creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
+                                      creationflags=CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
         else:
             self.p = subprocess.Popen(splitCommand(command), env=env, cwd=cwd, shell=False, bufsize=0,
                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -425,12 +439,12 @@ class Expect (object):
     def __str__(self):
         return "{0} pid={1}".format(self.desc, "<none>" if self.p is None else self.p.pid)
 
-    def startReader(self, watchDog = None):
+    def startReader(self, watchDog=None):
         if watchDog is not None:
             self.r.setWatchDog(watchDog)
         self.r.start()
 
-    def expect(self, pattern, timeout = 60):
+    def expect(self, pattern, timeout=60):
         """pattern is either a string, or a list of string regexp patterns.
 
            timeout == None expect can block indefinitely.
@@ -440,13 +454,15 @@ class Expect (object):
         if timeout == -1:
             timeout = self.timeout
 
-        if type(pattern) != list:
-            pattern = [ pattern ]
+        if not isinstance(pattern, list):
+            pattern = [pattern]
+
         def compile(s):
-            if type(s) == str:
+            if isinstance(s, str):
                 return re.compile(s, re.S)
             return None
-        pattern = [ ( p, compile(p) ) for p in pattern ]
+
+        pattern = [(p, compile(p)) for p in pattern]
         try:
             self.buf, self.before, self.after, self.match, self.matchindex = self.r.match(pattern, timeout)
         except TIMEOUT as e:
@@ -458,7 +474,7 @@ class Expect (object):
             raise e
         return self.matchindex
 
-    def expectall(self, pattern, timeout = 60):
+    def expectall(self, pattern, timeout=60):
         """pattern is a list of string regexp patterns.
 
            timeout == None expect can block indefinitely.
@@ -468,9 +484,9 @@ class Expect (object):
         if timeout == -1:
             timeout = self.timeout
 
-        pattern = [ ( p, re.compile(p, re.S) ) for p in pattern ]
+        pattern = [(p, re.compile(p, re.S)) for p in pattern]
         try:
-            self.buf = self.r.match(pattern, timeout, matchall = True)
+            self.buf = self.r.match(pattern, timeout, matchall=True)
             self.before = ""
             self.after = ""
             self.matchindex = 0
@@ -495,7 +511,7 @@ class Expect (object):
         else:
             self.p.stdin.write(data.encode("utf-8"))
 
-    def wait(self, timeout = None):
+    def wait(self, timeout=None):
         """Wait for the application to terminate for up to timeout seconds, or
            raises a TIMEOUT exception. If timeout is None, the wait is
            indefinite.
@@ -513,7 +529,7 @@ class Expect (object):
             while time.time() < end and self.p and self.p.poll() is None:
                 time.sleep(0.1)
             if self.p and self.p.poll() is None:
-                raise TIMEOUT ('timed wait exceeded timeout')
+                raise TIMEOUT('timed wait exceeded timeout')
         elif win32:
             # We poll on Windows or otherwise KeyboardInterrupt isn't delivered
             while self.p.poll() is None:
@@ -571,7 +587,7 @@ class Expect (object):
                 raise ex
 
         try:
-            self.wait(timeout = 0.5)
+            self.wait(timeout=0.5)
             return
         except KeyboardInterrupt:
             kill()
@@ -584,13 +600,13 @@ class Expect (object):
         except KeyboardInterrupt:
             kill()
             raise
-        except:
+        except Exception:
             traceback.print_exc(file=sys.stdout)
 
         # If the break does not terminate the process within 5
         # seconds, then kill the process.
         try:
-            self.wait(timeout = 5)
+            self.wait(timeout=5)
             return
         except KeyboardInterrupt:
             kill()
@@ -600,39 +616,20 @@ class Expect (object):
 
     def kill(self, sig):
         """Send the signal to the process."""
-        self.killed = sig # Save the sent signal.
+        self.killed = sig  # Save the sent signal.
         if win32:
             terminateProcess(self.p, self.hasInterruptSupport())
         else:
             os.kill(self.p.pid, sig)
 
-    def trace(self, suppress = None):
+    def trace(self, suppress=None):
         self.r.enabletrace(suppress)
 
-    def waitSuccess(self, exitstatus = 0, timeout = None):
+    def waitSuccess(self, exitstatus=0, timeout=None):
         """Wait for the process to terminate for up to timeout seconds, and
            validate the exit status is as expected."""
-
-        def test(result, expected):
-            if not win32 and result == -2: # Interrupted by Ctrl-C, simulate KeyboardInterrupt
-                raise KeyboardInterrupt()
-            if expected != result:
-                raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (expected, result))
-
         self.wait(timeout)
-        if self.mapping in ["java", "java-compat"]:
-            if self.killed is not None:
-                if win32:
-                    test(self.exitstatus, -self.killed)
-                else:
-                    if self.killed == signal.SIGINT:
-                        test(130, self.exitstatus)
-                    else:
-                        test(self.exitstatus, exitstatus)
-            else:
-                test(self.exitstatus, exitstatus)
-        else:
-            test(self.exitstatus, exitstatus)
+        self.testExitStatus(exitstatus)
 
     def getOutput(self):
         return self.buf if self.p is None else self.r.getbuf()
@@ -642,3 +639,29 @@ class Expect (object):
         if win32 and (self.mapping == "java" or self.mapping == "java-compat"):
             return False
         return True
+
+    def testExitStatus(self, exitstatus):
+
+        def test(result, expected):
+            if not win32 and result == -2:  # Interrupted by Ctrl-C, simulate KeyboardInterrupt
+                raise KeyboardInterrupt()
+            if isinstance(expected, list):
+                if result not in expected:
+                    raise RuntimeError("unexpected exit status: expected either: {0}, got {1}".format(expected, result))
+            else:
+                if expected != result:
+                    raise RuntimeError("unexpected exit status: expected: {0}, got {1}\n".format(expected, result))
+
+        if self.killed is not None:
+            #
+            # If we explicitly signaled the process, the exitstatus might not be the expected status. Java
+            # returns 128 + signal for the exit status. Other language mapping executables either return
+            # -signal or 0 depending on the signal value (in general 0 SIGTERM and -2 for SIGINT). On Windows,
+            # we explicitly set the exitstatus to -signal when we explicitly kill the process.
+            #
+            if not win32 and self.mapping in ["java", "java-compat"]:
+                test(self.exitstatus, 128 + self.killed)
+            else:
+                test(self.exitstatus, [exitstatus, -self.killed])
+        else:
+            test(self.exitstatus, exitstatus)
