@@ -6,7 +6,7 @@ top_srcdir := ..
 
 include $(top_srcdir)/config/Make.rules
 
-CONFIG ?= $(if $(filter $(OPTIMIZE),yes),Release,Debug)
+CONFIG ?= $(if $(filter $(OPTIMIZE),no),Debug,Release)
 PROJECT ?= $(if $(filter $(ICE_BIN_DIST), swift all),ice-test.xcodeproj,ice.xcodeproj)
 
 # $(call make-xcodebuild-rule,$1=rule,$2=platform,$3=scheme,$4=target)
