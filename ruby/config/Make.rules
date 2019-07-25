@@ -193,7 +193,7 @@ else
     ICE_LIB_DIR	= -L$(ice_dir)/$(libsubdir)
     ICE_FLAGS	= -I$(ice_dir)/include
 endif
-ICE_LIBS = $(ICE_LIB_DIR) -lIceDiscovery -lIce -lIceSSL -lSlice -lIceUtil
+ICE_LIBS = $(ICE_LIB_DIR) -lIceLocatorDiscovery -lIceDiscovery -lIce -lIceSSL -lSlice -lIceUtil
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
