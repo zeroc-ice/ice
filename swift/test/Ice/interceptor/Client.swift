@@ -195,7 +195,7 @@ public class Client: TestHelperI {
             try test(prx.amdAddWithRetry(x: 33, y: 12) == 45)
             try test(interceptor.lastOperation == "amdAddWithRetry")
             try test(interceptor.lastStatus)
-            var ctx: [String: String] = ["retry":"yes"]
+            var ctx: [String: String] = ["retry": "yes"]
             for _ in 0 ..< 10 {
                 try test(prx.amdAdd(x: 33, y: 12) == 45)
                 try test(interceptor.lastOperation == "amdAdd")
@@ -270,7 +270,7 @@ public class Client: TestHelperI {
             ("raiseAfterDispatch", "notExist")
         ]
         for e in exceptions {
-            var ctx: Context = [e.point:e.exception]
+            var ctx: Context = [e.point: e.exception]
             do {
                 try prx.ice_ping(context: ctx)
                 try test(false)
