@@ -307,6 +307,12 @@ NodeSessionManager::activate()
 }
 
 bool
+NodeSessionManager::isWaitingForCreate()
+{
+    return _thread->isWaitingForCreate();
+}
+
+bool
 NodeSessionManager::waitForCreate()
 {
     assert(_thread);

@@ -60,6 +60,9 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 ## C++ Changes
 
+- Fixed IceGrid issue where gracefully interrupted IceGrid node wouldn't notify
+  observers of the deactivation of its servers.
+
 - Fixed bug where the `IceGrid.Registry.CryptPasswords` or
   `IceGrid.Registry.AdminCryptPasswords` properties were ignored if the IceGrid
   registry was collocated with the IceGrid node executable using the

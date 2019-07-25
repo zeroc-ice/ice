@@ -181,6 +181,13 @@ public:
         }
     }
 
+    bool
+    isWaitingForCreate()
+    {
+        Lock sync(*this);
+        return _state != Destroyed && _state != Connected;
+    }
+
     virtual bool
     waitForCreate()
     {
