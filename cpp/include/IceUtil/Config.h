@@ -173,7 +173,7 @@
 //  With Visual Studio, we can import/export member functions without importing/
 //  exporting the whole class
 #   define ICE_MEMBER_IMPORT_EXPORT
-#elif (defined(__GNUC__) || defined(__clang__)) && !defined(__ibmxl__)
+#elif (defined(__GNUC__) || defined(__clang__) || defined(__IBMCPP__)) && !defined(__ibmxl__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 #elif defined(__SUNPRO_CC)
@@ -190,6 +190,14 @@
 #else
 #   define ICE_CLASS(API) API
 #   define ICE_MEMBER(API) /**/
+#endif
+
+// With IBM xlC, the visibility attribute must be at the end of the
+// declaration of global variables.
+#if defined(__IBMCPP__) && !defined(ICE_STATIC_LIBS)
+#   define ICE_GLOBAL_VAR_SUFFIX __attribute__((visibility ("default")))
+#else
+#   define ICE_GLOBAL_VAR_SUFFIX /**/
 #endif
 
 //

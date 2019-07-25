@@ -347,16 +347,14 @@ public:
 
 }
 
-extern "C"
-{
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPlugin(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new Plugin(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginWithArgs(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq& args)
 {
     test(args.size() == 3);
@@ -366,46 +364,44 @@ createPluginWithArgs(const Ice::CommunicatorPtr& communicator, const string&, co
     return new Plugin(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginInitializeFail(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginInitializeFail(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginOne(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginOne(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginTwo(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginTwo(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginThree(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginThree(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginOneFail(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginOneFail(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginTwoFail(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginTwoFail(communicator);
 }
 
-ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPluginThreeFail(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new PluginThreeFail(communicator);
-}
-
 }

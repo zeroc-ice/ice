@@ -72,12 +72,12 @@ protected:
 class ICE_API NextLine
 {
 };
-extern ICE_API NextLine nl;
+extern ICE_API NextLine nl ICE_GLOBAL_VAR_SUFFIX;
 
 class ICE_API Separator
 {
 };
-extern ICE_API Separator sp;
+extern ICE_API Separator sp ICE_GLOBAL_VAR_SUFFIX;
 
 // ----------------------------------------------------------------------
 // Output
@@ -149,7 +149,7 @@ operator<<(Output& o, const Separator&)
 class ICE_API StartBlock
 {
 };
-extern ICE_API StartBlock sb;
+extern ICE_API StartBlock sb ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline Output&
@@ -162,7 +162,7 @@ operator<<(Output& o, const StartBlock&)
 class ICE_API EndBlock
 {
 };
-extern ICE_API EndBlock eb;
+extern ICE_API EndBlock eb ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline Output&
@@ -175,7 +175,7 @@ operator<<(Output& o, const EndBlock&)
 class ICE_API StartPar
 {
 };
-extern ICE_API StartPar spar;
+extern ICE_API StartPar spar ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline Output&
@@ -188,7 +188,7 @@ operator<<(Output& o, const StartPar&)
 class ICE_API EndPar
 {
 };
-extern ICE_API EndPar epar;
+extern ICE_API EndPar epar ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline Output&
@@ -201,7 +201,7 @@ operator<<(Output& o, const EndPar&)
 class ICE_API StartAbrk
 {
 };
-extern ICE_API StartAbrk sabrk;
+extern ICE_API StartAbrk sabrk ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline Output&
@@ -214,7 +214,7 @@ operator<<(Output& o, const StartAbrk&)
 class ICE_API EndAbrk
 {
 };
-extern ICE_API EndAbrk eabrk;
+extern ICE_API EndAbrk eabrk ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline Output&
@@ -292,7 +292,7 @@ operator<<(XMLOutput& o, const Separator&)
 class ICE_API EndElement
 {
 };
-extern ICE_API EndElement ee;
+extern ICE_API EndElement ee ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline XMLOutput&
@@ -353,12 +353,12 @@ operator<<(XMLOutput& o, const Attribute& e)
 class ICE_API StartEscapes
 {
 };
-extern ICE_API StartEscapes startEscapes;
+extern ICE_API StartEscapes startEscapes ICE_GLOBAL_VAR_SUFFIX;
 
 class ICE_API EndEscapes
 {
 };
-extern ICE_API EndEscapes endEscapes;
+extern ICE_API EndEscapes endEscapes ICE_GLOBAL_VAR_SUFFIX;
 
 template<>
 inline XMLOutput&

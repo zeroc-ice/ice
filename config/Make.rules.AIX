@@ -106,7 +106,7 @@ ppc_ldflags         = $(ppc_cppflags)
 ppc64_cppflags      = -q64
 ppc64_ldflags       = $(ppc64_cppflags)
 
-shared_cppflags     = $(if $(filter-out program,$($1_target)),-qpic,)
+shared_cppflags     = $(if $(filter-out program,$($1_target)),-qpic,) -qvisibility=hidden
 
 ifeq ($(COMPILER),xlC_r)
     # Used to suppress warnings in generated code
@@ -135,9 +135,8 @@ ifeq ($(iconv_home),)
 iconv_libpath = /usr/lib
 endif
 
-ifeq ($(expat_home),)
-# Add /opt/freeware/lib/pthread to libpath for libgcc_s
-expat_libpath = /opt/freeware/lib/pthread
-endif
+# Link with libexpat-static (from ZeroC's expat-static-devel RPM) since the IBM AIX
+# Toolbox libexpat.a shared object depends on the GCC runtime.
+expat_ldflags = -lexpat-static
 
 endif

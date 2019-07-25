@@ -664,7 +664,7 @@ public:
 //
 // See comments in OutgoingAsync.cpp
 //
-extern ICE_API CallbackBasePtr dummyCallback;
+extern ICE_API CallbackBasePtr dummyCallback ICE_GLOBAL_VAR_SUFFIX;
 
 //
 // Generic callback template that requires the caller to down-cast the
