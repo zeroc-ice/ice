@@ -211,6 +211,12 @@ int main(int argc, char* argv[])
 #   elif(_MSC_VER == 1900)
         filename += "-vc140";
 #   endif
+#elif defined(__apple_build_version__)
+#   if(__apple_build_version__ >= 10001145)
+        filename += "-xcode10";
+    #else
+        filename += "-xcode9";
+    #endif
 #endif
     }
     else
@@ -221,7 +227,7 @@ int main(int argc, char* argv[])
 #if defined(_WIN32)
     filename += ".Win32";
 #elif defined(__APPLE__)
-    filename += ".OSX";
+    filename += ".macOS";
 #else
     filename += ".Linux";
 #endif
