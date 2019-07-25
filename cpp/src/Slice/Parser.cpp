@@ -19,7 +19,6 @@
 using namespace std;
 using namespace Slice;
 
-
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r) :
     IceUtil::Exception(file, line),
     _reason(r)

@@ -6,4 +6,3 @@
 
 FOUNDATION_EXPORT double IceVersionNumber;
 FOUNDATION_EXPORT const unsigned char IceVersionString[];
-

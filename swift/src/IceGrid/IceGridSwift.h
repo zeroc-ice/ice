@@ -6,4 +6,3 @@
 
 FOUNDATION_EXPORT double Glacier2VersionNumber;
 FOUNDATION_EXPORT const unsigned char Glacier2VersionString[];
-

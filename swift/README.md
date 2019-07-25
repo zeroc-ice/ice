@@ -14,7 +14,7 @@ resulting build.
 ## Swift Build Requirements
 
 ### Operating Systems
-Ice for Swift builds and runs on macOS and is supported on the platforms listed 
+Ice for Swift builds and runs on macOS and is supported on the platforms listed
 on the [supported platforms][2] page.
 
 ### Slice to Swift Compiler
