@@ -49,7 +49,7 @@ class InterceptorI: Disp {
                 }
             }
             current.ctx["retry"] = "no"
-        } else if current.ctx["retry"] != nil, current.ctx["retry"] == "yes" {
+        } else if current.ctx["retry"] == "yes" {
             _ = try servantDisp.dispatch(request: request, current: current)
             _ = try servantDisp.dispatch(request: request, current: current)
         }
@@ -77,7 +77,7 @@ class MyObjectI: MyObject {
     }
 
     func addWithRetry(x: Int32, y: Int32, current: Current) throws -> Int32 {
-        guard let current = current.ctx["retry"], current == "no" else {
+        guard current.ctx["retry"] == "no" else {
             throw InterceptorError.retry
         }
         return x + y
@@ -100,7 +100,7 @@ class MyObjectI: MyObject {
     }
 
     func amdAddWithRetryAsync(x: Int32, y: Int32, current: Current) -> Promise<Int32> {
-        guard let current = current.ctx["retry"], current == "no" else {
+        guard current.ctx["retry"] == "no" else {
             return Promise(error: InterceptorError.retry)
         }
 
@@ -195,8 +195,7 @@ public class Client: TestHelperI {
             try test(prx.amdAddWithRetry(x: 33, y: 12) == 45)
             try test(interceptor.lastOperation == "amdAddWithRetry")
             try test(interceptor.lastStatus)
-            var ctx: [String: String] = [:]
-            ctx["retry"] = "yes"
+            var ctx: [String: String] = ["retry":"yes"]
             for _ in 0 ..< 10 {
                 try test(prx.amdAdd(x: 33, y: 12) == 45)
                 try test(interceptor.lastOperation == "amdAdd")
@@ -271,8 +270,7 @@ public class Client: TestHelperI {
             ("raiseAfterDispatch", "notExist")
         ]
         for e in exceptions {
-            var ctx: Context = [:]
-            ctx[e.point] = e.exception
+            var ctx: Context = [e.point:e.exception]
             do {
                 try prx.ice_ping(context: ctx)
                 try test(false)
