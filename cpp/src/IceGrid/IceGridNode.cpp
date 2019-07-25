@@ -167,7 +167,17 @@ NodeService::shutdown()
 {
     assert(_activator && _sessions.get());
     _activator->shutdown();
-    _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
+
+    //
+    // If the session manager waits for session creation with the master, we interrupt
+    // the session creation. This is necessary to unblock the main thread which might
+    // be waiting for waitForCreate to return.
+    //
+    if(_sessions->isWaitingForCreate())
+    {
+        _sessions->terminate();
+    }
+
     return true;
 }
 

@@ -53,6 +53,7 @@ public:
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
     void activate();
+    bool isWaitingForCreate();
     bool waitForCreate();
     void terminate();
     void destroy();
