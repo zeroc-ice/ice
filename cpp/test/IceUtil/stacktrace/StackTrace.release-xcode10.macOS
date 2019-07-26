@@ -1,4 +1,4 @@
-  0 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIceUtil.3.6.4.dylib
+  0 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIceUtil.3.6.5.dylib
   1 (anonymous namespace)::Thrower::fifth() in client
   2 (anonymous namespace)::Thrower::forth() in client
   3 (anonymous namespace)::Thrower::third() in client

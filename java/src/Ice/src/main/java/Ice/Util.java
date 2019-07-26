@@ -571,7 +571,7 @@ public final class Util
     public static String
     stringVersion()
     {
-        return "3.6.4"; // "A.B.C", with A=major, B=minor, C=patch
+        return "3.6.5"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
     /**
@@ -584,7 +584,7 @@ public final class Util
     public static int
     intVersion()
     {
-        return 30604; // AABBCC, with AA=major, BB=minor, CC=patch
+        return 30605; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
     /**

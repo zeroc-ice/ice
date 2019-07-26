@@ -62,17 +62,17 @@ The Ruby interpreter must be able to locate the Ice extension. One way to
 configure the interpreter is to define the `RUBYLIB` environment variable as
 follows:
 ```            
-set RUBYLIB=C:\Ice-3.6.4\ruby
+set RUBYLIB=C:\Ice-3.6.5\ruby
 ```
 
 This example assumes your Ice for Ruby installation is located in the
-`C:\Ice-3.6.4` directory.
+`C:\Ice-3.6.5` directory.
 
 In addition, you must set the `RUBY_DLL_PATH` environment variable to include
 the following directory:
 ```
-C:\Ice-3.6.4\bin       (32-bit)
-C:\Ice-3.6.4\bin\x64   (64-bit)
+C:\Ice-3.6.5\bin       (32-bit)
+C:\Ice-3.6.5\bin\x64   (64-bit)
 ```
 
 ## Running the Ruby Tests
@@ -99,5 +99,5 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.5
 [3]: http://www.msys2.org

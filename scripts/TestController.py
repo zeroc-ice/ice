@@ -45,7 +45,7 @@ if TestUtil.isDarwin():
     except getopt.GetoptError:
         pass
 
-iceVersion = "3.6.4"
+iceVersion = "3.6.5"
 jar = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
                    "java/test/controller/build/libs/testController-%(iceVersion)s.jar" % {"iceVersion": iceVersion})
 
