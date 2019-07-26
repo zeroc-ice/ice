@@ -27,7 +27,7 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler, or leave unset for auto-detection. The
-# only value currently supported to build IcePy is VC100.
+# Ice for Python supports VC100 with Python2.7 and v140 with Python3.5.
 #
 #CPP_COMPILER 		= VCxxx
 
@@ -68,10 +68,7 @@ PYLIBSUFFIX     = _$(LIBSUFFIX)
 RCFLAGS		= -D_DEBUG
 !endif
 
-#
-# Import libraries are located automatically
-#
-ICE_LIBS		=
+ICE_LIBS		= IceLocatorDiscovery$(LIBSUFFIX).lib IceDiscovery$(LIBSUFFIX).lib
 
 !if "$(ice_src_dist)" != ""
 ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"
