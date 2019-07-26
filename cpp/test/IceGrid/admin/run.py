@@ -245,7 +245,7 @@ print("ok")
 
 sys.stdout.write("stopping glacier2... ")
 sys.stdout.flush()
-routerProc.kill(signal.SIGINT)
+routerProc.kill(signal.SIGTERM)
 routerProc.waitTestSuccess()
 print("ok")
 
