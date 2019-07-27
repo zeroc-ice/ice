@@ -106,7 +106,8 @@ ppc_ldflags         = $(ppc_cppflags)
 ppc64_cppflags      = -q64
 ppc64_ldflags       = $(ppc64_cppflags)
 
-shared_cppflags     = $(if $(filter-out program,$($1_target)),-qpic,) -qvisibility=hidden
+shared_cppflags     = $(if $(filter-out program,$($1_target)),-qpic -qvisibility=hidden,)
+static_cppflags     = -qfuncsect
 
 ifeq ($(COMPILER),xlC_r)
     # Used to suppress warnings in generated code

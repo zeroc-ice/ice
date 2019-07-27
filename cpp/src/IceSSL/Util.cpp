@@ -118,7 +118,12 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     }
 
     is.seekg(0, is.end);
+#ifdef __IBMCPP__
+    // xlC bug. See src/Ice/LoggerI.cpp
+    buffer.resize(static_cast<size_t>(is.rdbuf()->pubseekoff(0, is.cur, is.in)));
+#else
     buffer.resize(static_cast<size_t>(is.tellg()));
+#endif
     is.seekg(0, is.beg);
 
     if(!buffer.empty())
