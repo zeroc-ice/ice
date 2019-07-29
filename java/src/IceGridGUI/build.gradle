@@ -103,6 +103,7 @@ if(icegridguiProguard.toBoolean()) {
         if(hasJavaFx) {
             project.ext.libJars << "${System.properties['java.home']}/${javafxJar}"
         }
+        project.ext.jarBuilder = "proguard-jar.gradle"
     }
     else{
         ['java.base.jmod',
@@ -118,8 +119,8 @@ if(icegridguiProguard.toBoolean()) {
          'java.logging.jmod'].each {
             project.ext.libJars << "${System.properties['java.home']}/jmods/${it}"
         }
+        project.ext.jarBuilder = "plain-jar.gradle"
     }
-    project.ext.jarBuilder = "proguard-jar.gradle"
 }
 apply from: jarBuilder
 
