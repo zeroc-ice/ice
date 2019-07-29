@@ -347,7 +347,6 @@ public:
 
 }
 
-
 extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPlugin(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
