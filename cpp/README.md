@@ -10,9 +10,11 @@ unnecessary.
 * [C++ Build Requirements](#c-build-requirements)
   * [Operating Systems and Compilers](#operating-systems-and-compilers)
   * [Third-Party Libraries](#third-party-libraries)
+    * [AIX](#aix)
     * [Linux](#linux)
     * [macOS](#macos)
     * [Windows](#windows)
+* [Building Ice for AIX](#building-ice-for-aix)
 * [Building Ice for Linux or macOS](#building-ice-for-linux-or-macos)
   * [Build configurations and platforms](#build-configurations-and-platforms)
   * [C++11 mapping](#c11-mapping)
@@ -22,8 +24,9 @@ unnecessary.
 * [Installing a C++ Source Build on Linux or macOS](#installing-a-c-source-build-on-linux-or-macos)
 * [Creating a NuGet Package on Windows](#creating-a-nuget-package-on-windows)
 * [Running the Test Suite](#running-the-test-suite)
-  * [Linux, macOS or Windows](#linux-macos-or-windows)
+  * [AIX](#aix)
   * [iOS](#ios)
+  * [Linux, macOS or Windows](#linux-macos-or-windows)
   * [Universal Windows](#universal-windows)
 
 ## C++ Build Requirements
@@ -43,13 +46,30 @@ installer.
 
 Ice has dependencies on a number of third-party libraries:
 
- - [bzip][3] 1.0
+ - [bzip2][3] 1.0
  - [expat][4] 2.1 or later
  - [LMDB][5] 0.9 (LMDB is not required with the C++11 mapping)
  - [mcpp][6] 2.7.2 with patches
- - [OpenSSL][7] 1.0.0 or later (only on Linux)
+ - [OpenSSL][7] 1.0.0 or later (on AIX and Linux)
 
 You do not need to build these packages from source.
+
+#### AIX
+OpenSSL (openssl.base) is provided by AIX.
+bzip2 and bzip2-devel are included in the [IBM AIX Toolbox for Linux Applications][8].
+
+ZeroC provide RPM packages for expat, LDMB and mcpp. You can install these packages
+as shown below:
+```
+wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
+sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
+cd /opt/freeware/etc/yum/repos.d
+sudo wget https://zeroc.com/download/Ice/3.7/aix7.2/zeroc-ice3.7.repo
+sudo yum install expat-devel lmdb-devel mcpp-devel
+```
+
+The expat-devel package contains the static library libexpat-static.a built with
+xlc_r, together with header files and other development files.
 
 #### Linux
 
@@ -87,9 +107,9 @@ In addition, on Ubuntu and Debian distributions where the Ice for Bluetooth
 plug-in is supported, you need to install the following packages in order to
 build the IceBT transport plug-in:
 
- - [pkg-config][8] 0.29 or later
- - [D-Bus][9] 1.10 or later
- - [BlueZ][10] 5.37 or later
+ - [pkg-config][9] 0.29 or later
+ - [D-Bus][10] 1.10 or later
+ - [BlueZ][11] 5.37 or later
 
 These packages are provided with the system and can be installed with:
 ```
@@ -117,11 +137,16 @@ The Ice build system for Windows downloads and installs the NuGet command-line
 executable and the required NuGet packages when you build Ice for C++. The
 third-party packages are installed in the `ice/cpp/msbuild/packages` folder.
 
-## Building Ice for Linux or macOS
+## Building Ice for AIX, Linux or macOS
 
 Review the top-level [config/Make.rules](../config/Make.rules) in your build
 tree and update the configuration if needed. The comments in the file provide
 more information.
+
+On AIX, add /opt/freeware/bin as the first element of your PATH:
+```
+export PATH=/opt/freeware/bin:$PATH
+```
 
 In a command window, change to the `cpp` subdirectory:
 ```
@@ -328,7 +353,7 @@ Then launch Visual Studio and open the [msbuild/ice.testuwp.sln](./msbuild/ice.t
 you must now use NuGet package manager to restore the NuGet packages, and the build will use
 Ice NuGet packages instead of your local source build.
 
-## Installing a C++ Source Build on Linux or macOS
+## Installing a C++ Source Build on AIX, Linux or macOS
 
 Simply run `make install`. This will install Ice in the directory specified by
 the `<prefix>` variable in `../config/Make.rules`.
@@ -339,7 +364,10 @@ After installation, make sure that the `<prefix>/bin` directory is in your
 If you choose to not embed a `runpath` into executables at build time (see your
 build settings in `../config/Make.rules`) or did not create a symbolic link from
 the `runpath` directory to the installation directory, you also need to add the
-library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH` (macOS).
+library directory to your `LD_LIBRARY_PATH` (AIX, Linux) or `DYLD_LIBRARY_PATH` (macOS).
+
+On an AIX system:
+<prefix>/lib
 
 On a Linux x86_64 system:
 ```
@@ -385,7 +413,7 @@ builds or `zeroc.ice.uwp.v141\zeroc.ice.uwp.v141.nupkg`,
 `zeroc.ice.uwp.v141.x86\zeroc.ice.uwp.v141.x86.nupkg` for Visual Studio 2017
 builds.
 
-## Cleaning the source build on macOS or Linux
+## Cleaning the source build on AIX, Linux or macOS
 
 Running `make clean` will remove the binaries created for the default
 configuration and platform.
@@ -409,7 +437,25 @@ require the Python module `passlib`, which you can install with the command:
 pip install passlib
 ```
 
-### Linux, macOS or Windows
+### iOS
+
+The test scripts require Ice for Python. You can build Ice for Python from
+the [python](../python) folder of this source distribution, or install the
+Python module `zeroc-ice`,  using the following command:
+```
+pip install zeroc-ice
+```
+
+In order to run the test suite on `iphoneos`, you need to build the
+C++98 Test Controller app or C++11 Test Controller app from Xcode:
+ - Build the test suite with `make` for the `xcodedsk` or `cpp11-xcodesdk`
+ configuration, and the `iphoneos` platform.
+ - Open the C++ Test Controller project located in the
+ `cpp/test/ios/controller` directory.
+ - Build the `C++98 Test Controller` or the `C++11 Test Controller` app (it must
+ match the configuration(s) selected when building the test suite).
+
+### AIX, Linux, macOS or Windows
 
 After a successful source build, you can run the tests as follows:
 ```
@@ -436,24 +482,6 @@ python allTests.py --config Cpp11-Release
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-### iOS
-
-The test scripts require Ice for Python. You can build Ice for Python from
-the [python](../python) folder of this source distribution, or install the
-Python module `zeroc-ice`,  using the following command:
-```
-pip install zeroc-ice
-```
-
-In order to run the test suite on `iphoneos`, you need to build the
-C++98 Test Controller app or C++11 Test Controller app from Xcode:
- - Build the test suite with `make` for the `xcodedsk` or `cpp11-xcodesdk`
- configuration, and the `iphoneos` platform.
- - Open the C++ Test Controller project located in the
- `cpp/test/ios/controller` directory.
- - Build the `C++98 Test Controller` or the `C++11 Test Controller` app (it must
- match the configuration(s) selected when building the test suite).
-
 #### iOS Simulator
  - C++98 controller
 ```
@@ -464,7 +492,7 @@ python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
 python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
 ```
 
-#### iOS
+#### iOS Device
  - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
  iOS device, from Xcode.
 
@@ -503,6 +531,7 @@ failure, the tests abort with `failed`.
 [5]: https://symas.com/lightning-memory-mapped-database/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://www.openssl.org/
-[8]: https://www.freedesktop.org/wiki/Software/pkg-config
-[9]: https://www.freedesktop.org/wiki/Software/dbus
-[10]: http://www.bluez.org
+[8]: https://www-01.ibm.com/support/docview.wss?uid=ibm10882892
+[9]: https://www.freedesktop.org/wiki/Software/pkg-config
+[10]: https://www.freedesktop.org/wiki/Software/dbus
+[11]: http://www.bluez.org

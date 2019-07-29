@@ -9,13 +9,14 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.7.3](#changes-in-ice-373)
+  * [General Changes](#general-changes)
   * [C++ Changes](#c-changes)
   * [C# Changes](#c-changes-1)
   * [Java Changes](#java-changes)
   * [MATLAB Changes](#matlab-changes)
   * [Python Changes](#python-changes)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
-  * [General Changes](#general-changes)
+  * [General Changes](#general-changes-1)
   * [C++ Changes](#c-changes-2)
   * [C# Changes](#c-changes-3)
   * [Java Changes](#java-changes)
@@ -25,7 +26,7 @@ particular aspect of Ice.
   * [PHP Changes](#php-changes)
   * [Python Changes](#python-changes-1)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
-  * [General Changes](#general-changes-1)
+  * [General Changes](#general-changes-2)
   * [C++ Changes](#c-changes-4)
   * [C# Changes](#c-changes-5)
   * [Java Changes](#java-changes-1)
@@ -36,7 +37,7 @@ particular aspect of Ice.
   * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
-  * [General Changes](#general-changes-2)
+  * [General Changes](#general-changes-3)
   * [C++ Changes](#c-changes-6)
   * [C# Changes](#c-changes-7)
   * [Java Changes](#java-changes-2)
@@ -92,6 +93,8 @@ These are the changes since Ice 3.7.2.
 - Add support for Visual Studio 2019.
 
 - Fixed GCC 9 build failures.
+
+- Add support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
 
 ## C# Changes
 
