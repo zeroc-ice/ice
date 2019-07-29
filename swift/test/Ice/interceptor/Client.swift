@@ -49,12 +49,12 @@ class InterceptorI: Disp {
                 }
             }
             current.ctx["retry"] = "no"
+        } else if current.ctx["retry"] == "yes" {
+            _ = try servantDisp.dispatch(request: request, current: current)
+            _ = try servantDisp.dispatch(request: request, current: current)
         }
-
-        // Did not implement add with retry as Swift does not support retrying
         let p = try servantDisp.dispatch(request: request, current: current)
         lastStatus = p != nil
-
         if let context = current.ctx["raiseAfterDispatch"] {
             if context == "user" {
                 throw InvalidInputException()
@@ -77,7 +77,7 @@ class MyObjectI: MyObject {
     }
 
     func addWithRetry(x: Int32, y: Int32, current: Current) throws -> Int32 {
-        guard let current = current.ctx["retry"], current == "no" else {
+        guard current.ctx["retry"] == "no" else {
             throw InterceptorError.retry
         }
         return x + y
@@ -93,19 +93,19 @@ class MyObjectI: MyObject {
 
     func amdAddAsync(x: Int32, y: Int32, current _: Current) -> Promise<Int32> {
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.fulfill(x + y)
             }
         }
     }
 
     func amdAddWithRetryAsync(x: Int32, y: Int32, current: Current) -> Promise<Int32> {
-        guard let current = current.ctx["retry"], current == "no" else {
+        guard current.ctx["retry"] == "no" else {
             return Promise(error: InterceptorError.retry)
         }
 
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.fulfill(x + y)
             }
         }
@@ -113,7 +113,7 @@ class MyObjectI: MyObject {
 
     func amdBadAddAsync(x _: Int32, y _: Int32, current _: Current) -> Promise<Int32> {
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.reject(InvalidInputException())
             }
         }
@@ -121,7 +121,7 @@ class MyObjectI: MyObject {
 
     func amdNotExistAddAsync(x _: Int32, y _: Int32, current _: Current) -> Promise<Int32> {
         return Promise<Int32> { seal in
-            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(1000)) {
                 seal.reject(ObjectNotExistException())
             }
         }
@@ -195,8 +195,13 @@ public class Client: TestHelperI {
             try test(prx.amdAddWithRetry(x: 33, y: 12) == 45)
             try test(interceptor.lastOperation == "amdAddWithRetry")
             try test(interceptor.lastStatus)
+            var ctx: [String: String] = ["retry": "yes"]
+            for _ in 0 ..< 10 {
+                try test(prx.amdAdd(x: 33, y: 12) == 45)
+                try test(interceptor.lastOperation == "amdAdd")
+                try test(interceptor.lastStatus)
+            }
             out.writeLine("ok")
-
             out.write("testing user exception...")
             do {
                 _ = try prx.amdBadAdd(x: 33, y: 12)
@@ -265,8 +270,7 @@ public class Client: TestHelperI {
             ("raiseAfterDispatch", "notExist")
         ]
         for e in exceptions {
-            var ctx: Context = [:]
-            ctx[e.point] = e.exception
+            var ctx: Context = [e.point: e.exception]
             do {
                 try prx.ice_ping(context: ctx)
                 try test(false)
