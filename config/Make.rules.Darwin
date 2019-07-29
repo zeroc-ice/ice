@@ -25,6 +25,12 @@ iphonesimulator_ldflags         = $(iphonesimulator_cppflags)
 iphonesimulator_configs         = %xcodesdk
 iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
 
+macosx_releaseversion 		= $(shell sw_vers -productVersion)
+
+ifneq ($(filter 10.14.%,$(macosx_releaseversion)),)
+macosx_releasename		= mojave
+endif
+
 # If building objects for a shared library, enable fPIC
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
