@@ -10,3 +10,4 @@ gulpfile.js
 index.html
 Makefile
 test
+*.tgz
