@@ -195,9 +195,9 @@ public class Client: TestHelperI {
             try test(prx.amdAddWithRetry(x: 33, y: 12) == 45)
             try test(interceptor.lastOperation == "amdAddWithRetry")
             try test(interceptor.lastStatus)
-            var ctx: [String: String] = ["retry": "yes"]
+            let ctx = ["retry": "yes"]
             for _ in 0 ..< 10 {
-                try test(prx.amdAdd(x: 33, y: 12) == 45)
+                try test(prx.amdAdd(x: 33, y: 12, context: ctx) == 45)
                 try test(interceptor.lastOperation == "amdAdd")
                 try test(interceptor.lastStatus)
             }
@@ -233,7 +233,6 @@ public class Client: TestHelperI {
 
     public override func run(args: [String]) throws {
         let properties = try createTestProperties(args)
-        properties.setProperty(key: "Ice.Package.Test", value: "test.Ice.interceptor")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         let communicator = try initialize(properties)
         defer {
@@ -270,7 +269,7 @@ public class Client: TestHelperI {
             ("raiseAfterDispatch", "notExist")
         ]
         for e in exceptions {
-            var ctx: Context = [e.point: e.exception]
+            let ctx: Context = [e.point: e.exception]
             do {
                 try prx.ice_ping(context: ctx)
                 try test(false)
