@@ -131,11 +131,6 @@ mkshlib         ?= $(platform_cxx) -qmkshrobj -o $(call tmpsofile,$1,$3,$5) $2 $
                    $(platform_ar) -X32_64 crs $1 $(call tmpsofile,$1,$3,$5) && \
                    rm $(call tmpsofile,$1,$3,$5)
 
-ifeq ($(iconv_home),)
-# Make sure we load /usr/lib/libiconv
-iconv_libpath = /usr/lib
-endif
-
 # Link with libexpat-static (from ZeroC's expat-static-devel RPM) since the IBM AIX
 # Toolbox libexpat.a shared object depends on the GCC runtime.
 expat_ldflags = -lexpat-static
