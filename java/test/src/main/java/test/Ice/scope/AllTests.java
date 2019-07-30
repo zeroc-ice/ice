@@ -56,6 +56,15 @@ public class AllTests
             test.Ice.scope.Test.I.OpCMapResult opCMapResult = i.opCMap(cmap1);
             test(opCMapResult.returnValue.get("a").s.equals(s1));
             test(opCMapResult.c2.get("a").s.equals(s1));
+
+            test.Ice.scope.Test.E1 e = i.opE1(test.Ice.scope.Test.E1.v1);
+            test(e == test.Ice.scope.Test.E1.v1);
+
+            test.Ice.scope.Test.S1 s = i.opS1(new test.Ice.scope.Test.S1("S1"));
+            test(s.s.equals("S1"));
+
+            test.Ice.scope.Test.C1 c = i.opC1(new test.Ice.scope.Test.C1("C1"));
+            test(c.s.equals("C1"));
         }
 
         {
@@ -93,6 +102,15 @@ public class AllTests
             test.Ice.scope.Test.I.OpCMapResult opCMapResult = i.opCMapAsync(cmap1).join();
             test(opCMapResult.returnValue.get("a").s.equals(s1));
             test(opCMapResult.c2.get("a").s.equals(s1));
+
+            test.Ice.scope.Test.E1 e = i.opE1Async(test.Ice.scope.Test.E1.v1).join();
+            test(e == test.Ice.scope.Test.E1.v1);
+
+            test.Ice.scope.Test.S1 s = i.opS1Async(new test.Ice.scope.Test.S1("S1")).join();
+            test(s.s.equals("S1"));
+
+            test.Ice.scope.Test.C1 c = i.opC1Async(new test.Ice.scope.Test.C1("C1")).join();
+            test(c.s.equals("C1"));
         }
 
         {

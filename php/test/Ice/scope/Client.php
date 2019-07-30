@@ -32,6 +32,16 @@ function allTests($helper)
         $smap3 = $i->opSMap($smap1, $smap2);
         test($smap2["a"] == $s1);
         test($smap3["a"] == $s1);
+
+        $v1 = $NS ? constant("Test\\E1::v1") : constant("Test_E1::v1");
+        $e = $i->opE1($v1);
+        test($e == $v1);
+
+        $s = $i->opS1($NS ? eval("return new Test\\S1(\"S1\");") : eval("return new Test_S1(\"S1\");"));
+        test($s->s == "S1");
+
+        $c = $i->opC1($NS ? eval("return new Test\\C1(\"C1\");") : eval("return new Test_C1(\"C1\");"));
+        test($c->s == "C1");
     }
 
     {
@@ -119,7 +129,7 @@ class Client extends TestHelper
     {
         try
         {
-            echo "test same Slice type name in different scopes... ";
+            echo "test using same type name in different Slice modules... ";
             flush();
             $communicator = $this->initialize($args);
             allTests($this);

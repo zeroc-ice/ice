@@ -1579,10 +1579,27 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
     {
         DataMemberPtr member = *q;
         TypePtr type = member->type();
-        string defaultValue = member->defaultValue();
+        const string defaultValue = member->defaultValue();
+
+        const string memberName = fixIdent(member->name());
+        string memberType = typeToString(type, p, member->getMetaData(), member->optional(), typeCtx);
+
+        //
+        // If the member type is equal to the member name, create a local type alias
+        // to avoid ambiguity.
+        //
+        string alias;
+        if(!protocol && memberName == memberType && (StructPtr::dynamicCast(type) ||
+                                                     SequencePtr::dynamicCast(type) ||
+                                                     DictionaryPtr::dynamicCast(type)))
+        {
+            ModulePtr m = getTopLevelModule(type);
+            alias =  m->name() + "_" + memberType;
+            out << nl << "typealias " << alias << " = " << memberType;
+        }
+
         writeMemberDoc(out, member);
-        out << nl << access << "var " << fixIdent(member->name()) << ": "
-            << typeToString(type, p, member->getMetaData(), member->optional(), typeCtx);
+        out << nl << access << "var " << memberName << ": " << memberType;
         if(protocol)
         {
             out << " { get set }";
@@ -1590,8 +1607,15 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         else
         {
             out << " = ";
-            writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
-                               member->optional());
+            if(alias.empty())
+            {
+                writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
+                                   member->optional());
+            }
+            else
+            {
+                out << alias << "()";
+            }
         }
     }
 }
@@ -1728,7 +1752,26 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     args += ", value: ";
                 }
-                args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
+                string memberType = getUnqualified(getAbsolute(type), swiftModule);
+                string memberName;
+                const string memberPrefix = "self.";
+                if(param.find(memberPrefix) == 0)
+                {
+                    memberName = param.substr(memberPrefix.size());
+                }
+
+                string alias;
+                //
+                // If the member type is equal to the member name, create a local type alias
+                // to avoid ambiguity.
+                //
+                if(memberType == memberName)
+                {
+                    ModulePtr m = getTopLevelModule(type);
+                    alias =  m->name() + "_" + memberType;
+                    out << nl << "typealias " << alias << " = " << memberType;
+                }
+                args += (alias.empty() ? memberType : alias) + ".self";
                 out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 " << "}";
             }
         }

@@ -62,6 +62,24 @@ public class Server extends test.TestHelper
             return result;
         }
 
+        public test.Ice.scope.Test.E1
+        opE1(test.Ice.scope.Test.E1 e1, com.zeroc.Ice.Current current)
+        {
+            return e1;
+        }
+
+        public test.Ice.scope.Test.S1
+        opS1(test.Ice.scope.Test.S1 s1, com.zeroc.Ice.Current current)
+        {
+            return s1;
+        }
+
+        public test.Ice.scope.Test.C1
+        opC1(test.Ice.scope.Test.C1 e1, com.zeroc.Ice.Current current)
+        {
+            return e1;
+        }
+
         public void shutdown(com.zeroc.Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();

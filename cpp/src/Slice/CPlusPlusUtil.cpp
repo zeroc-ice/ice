@@ -1619,8 +1619,12 @@ Slice::writeStreamHelpers(Output& out,
 }
 
 void
-Slice::writeIceTuple(::IceUtilInternal::Output& out, const string& scope, DataMemberList dataMembers, int typeCtx)
+Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int typeCtx)
 {
+    //
+    // Use an empty scope to get full qualified names from calls to typeToString.
+    //
+    const string scope = "";
     out << nl << "std::tuple<";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {

@@ -22,6 +22,46 @@ module Test
     dictionary<string, C> CMap;
     sequence<C> CSeq;
 
+    enum E1
+    {
+        v1,
+        v2,
+        v3
+    }
+
+    struct S1
+    {
+        string s;
+    }
+
+    sequence<S1> S1Seq;
+    dictionary<string, S1> S1Map;
+
+    class C1
+    {
+        string s;
+    }
+
+    struct S2
+    {
+        E1 E1;
+        S1 S1;
+        C1 C1;
+
+        S1Seq S1Seq;
+        S1Map S1Map;
+    }
+
+    class C2
+    {
+        E1 E1;
+        S1 S1;
+        C1 C1;
+
+        S1Seq S1Seq;
+        S1Map S1Map;
+    }
+
     interface I
     {
         S opS(S s1, out S s2);
@@ -31,6 +71,13 @@ module Test
         C opC(C c1, out C c2);
         CSeq opCSeq(CSeq s1, out CSeq s2);
         CMap opCMap(CMap c1, out CMap c2);
+
+        E1 opE1(E1 E1);
+        S1 opS1(S1 S1);
+        C1 opC1(C1 C1);
+
+        S1Seq opS1Seq(S1Seq S1Seq);
+        S1Map opS1Map(S1Map S1Map);
 
         void shutdown();
     }

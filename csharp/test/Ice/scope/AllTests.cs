@@ -57,6 +57,15 @@ namespace Ice
                     var cmap3 = i.opCMap(cmap1, out cmap2);
                     test(cmap2["a"].s.Equals(s1));
                     test(cmap3["a"].s.Equals(s1));
+
+                    var e = i.opE1(Test.E1.v1);
+                    test(e == Test.E1.v1);
+
+                    var s = i.opS1(new Test.S1("S1"));
+                    test(s.s == "S1");
+
+                    var c = i.opC1(new Test.C1("C1"));
+                    test(c.s == "C1");
                 }
 
                 {
@@ -96,6 +105,15 @@ namespace Ice
                             var opCMapResult = await i.opCMapAsync(cmap1);
                             test(opCMapResult.returnValue["a"].s.Equals(s1));
                             test(opCMapResult.c2["a"].s.Equals(s1));
+
+                            var e = await i.opE1Async(Test.E1.v1);
+                            test(e == Test.E1.v1);
+
+                            var s = await i.opS1Async(new Test.S1("S1"));
+                            test(s.s == "S1");
+
+                            var c = await i.opC1Async(new Test.C1("C1"));
+                            test(c.s == "C1");
                         }).Wait();
                 }
 

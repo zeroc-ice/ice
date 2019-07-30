@@ -30,6 +30,15 @@ class I1(Test.I):
     def opCMap(self, cmap1, current=None):
         return (cmap1, cmap1)
 
+    def opE1(self, e1, current=None):
+        return e1
+
+    def opS1(self, s1, current=None):
+        return s1
+
+    def opC1(self, c1, current=None):
+        return c1
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 

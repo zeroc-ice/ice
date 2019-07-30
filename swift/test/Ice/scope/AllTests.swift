@@ -10,7 +10,7 @@ func allTests(helper: TestHelper) throws {
         try helper.test(value, file: file, line: line)
     }
     let output = helper.getWriter()
-    output.write("test same Slice type name in different scopes... ")
+    output.write("test using same type name in different Slice modules... ")
     let communicator = helper.communicator()
 
     do {
@@ -46,6 +46,21 @@ func allTests(helper: TestHelper) throws {
         let (cmap3, cmap2) = try i.opCMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
+
+        let e = try i.opE1(.v1)
+        try test(e == .v1)
+
+        let s = try i.opS1(S1(s: "S1"))
+        try test(s.s == "S1")
+
+        let c = try i.opC1(C1(s: "C1"))!
+        try test(c.s == "C1")
+
+        let ss = try i.opS1Seq([S1(s: "S1")])
+        try test(ss[0].s == "S1")
+
+        let sm = try i.opS1Map(["s1": S1(s: "S1")])
+        try test(sm["s1"]!.s == "S1")
     }
 
     do {

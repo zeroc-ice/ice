@@ -18,7 +18,7 @@ namespace Ice
                 using(var communicator = initialize(initData))
                 {
                     var output = getWriter();
-                    output.Write("test same Slice type name in different scopes... ");
+                    output.Write("test using same type name in different Slice modules... ");
                     output.Flush();
                     AllTests.allTests(this);
                     output.WriteLine("ok");
