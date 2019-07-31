@@ -99,8 +99,7 @@ nodejs := $(shell command -v node 2> /dev/null)
 supported-languages     ?= $(strip cpp java java-compat python ruby php \
                                    $(if $(filter %/node,$(nodejs)),js) \
                                    $(if $(filter %/dotnet,$(dotnet)),csharp) \
-                                   $(if $(filter Darwin,$(os)),objective-c) \
-				   $(if $(filter mojave,$(macosx_releasename)),swift))
+                                   $(if $(filter Darwin,$(os)),objective-c swift))
 supported-configs       ?= shared
 
 version                 = 3.7.3
