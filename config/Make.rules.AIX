@@ -8,6 +8,8 @@ supported-platforms = ppc64 ppc
 supported-compilers = xlC_r xlclang++ g++
 COMPILER            ?= $(firstword $(supported-compilers))
 
+system-install-dir = /opt/freeware
+
 ifneq ($(filter $(COMPILER),$(supported-compilers)),$(COMPILER))
     $(error invalid compiler $(COMPILER); the supported compilers are: $(supported-compilers))
 endif
@@ -60,6 +62,11 @@ rpath-ldflag        :=
 make-lib-libpath = $(call unique,$(foreach d,$1 $(call get-all-deps,$1),$(foreach l,$($d_libs),$($l_libpath))) $2)
 shared_ldflags  = -Wl,-blibpath:$$(call join-with,:,$$(call make-lib-libpath,$4,$(subst :,$(space),$(libpath))))
 static_ldflags  = -Wl,-blibpath:$$(call join-with,:,$$(call make-lib-libpath,$4,$(subst :,$(space),$(libpath))))
+
+ifneq ($(filter all cpp,$(ICE_BIN_DIST)),)
+prefix          := /opt/freeware
+ldflags         += -L/opt/freeware/lib
+endif
 
 #
 # Compiler-specific section
@@ -115,6 +122,10 @@ ifeq ($(COMPILER),xlC_r)
 endif
 
 cppflags            = $(if $(filter yes,$(OPTIMIZE)),-O2 -qmaxmem=-1 -DNDEBUG,-g)
+
+ifneq ($(filter all cpp,$(ICE_BIN_DIST)),)
+cppflags            += -I/opt/freeware/include
+endif
 
 ifeq ($(COMPILER),xlC_r)
      cppflags        += -qrtti -qstaticinline -qhalt=i

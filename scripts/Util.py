@@ -325,6 +325,9 @@ class AIX(Platform):
     def getDefaultBuildPlatform(self):
         return "ppc64"
 
+    def getInstallDir(self):
+        return "/opt/freeware"
+
 class Linux(Platform):
 
     def __init__(self):
