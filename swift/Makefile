@@ -18,10 +18,10 @@ $1:: $(PROJECT)
                    -sdk $2 $4
 endef
 
-ice.xcodeproj: Rakefile
+ice.xcodeproj: Rakefile carthage
 	rake icesdistproj
 
-ice-test.xcodeproj: Rakefile
+ice-test.xcodeproj: Rakefile carthage
 	rake icebdistproj
 
 all:: tests
