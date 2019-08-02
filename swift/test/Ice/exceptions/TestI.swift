@@ -55,8 +55,8 @@ class ThrowerI: Thrower {
         throw C(aMem: a, bMem: b, cMem: c)
     }
 
-    func throwModA(a _: Int32, a2 _: Int32, current _: Current) throws {
-        throw ModA(aMem: 1, a2Mem: 1)
+    func throwModA(a: Int32, a2: Int32, current _: Current) throws {
+        throw ModA(aMem: a, a2Mem: a2)
     }
 
     func throwLocalException(current _: Ice.Current) throws {

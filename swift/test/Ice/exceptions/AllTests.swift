@@ -140,6 +140,18 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
     } catch {
         try test(false)
     }
+
+    do {
+        try thrower.throwModA(a: 1, a2: 2)
+        try test(false)
+    } catch let ex as ModA {
+        try test(ex.aMem == 1)
+        try test(ex.a2Mem == 2)
+    } catch is Ice.OperationNotExistException {
+        //
+        // This operation is not supported in Java.
+        //
+    }
     output.writeLine("ok")
 
     output.write("catching base types... ")
@@ -160,6 +172,18 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
         try test(ex.bMem == 2)
     } catch {
         try test(false)
+    }
+
+    do {
+        try thrower.throwModA(a: 1, a2: 2)
+        try test(false)
+    } catch let ex as ModA {
+        try test(ex.aMem == 1)
+        try test(ex.a2Mem == 2)
+    } catch is Ice.OperationNotExistException {
+        //
+        // This operation is not supported in Java.
+        //
     }
     output.writeLine("ok")
 
@@ -353,6 +377,30 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
             do {
                 if let exc = e as? A {
                     try test(exc.aMem == 1)
+                } else {
+                    try test(false)
+                }
+                seal.fulfill(())
+            } catch {
+                seal.reject(error)
+            }
+        }
+    }.wait()
+
+    try Promise<Void> { seal in
+        firstly {
+            thrower.throwModAAsync(a: 1, a2: 2)
+        }.map {
+            try test(false)
+        }.catch { e in
+            do {
+                if let ex = e as? ModA {
+                    try test(ex.aMem == 1)
+                    try test(ex.a2Mem == 2)
+                } else if e is Ice.OperationNotExistException {
+                    //
+                    // This operation is not supported in Java.
+                    //
                 } else {
                     try test(false)
                 }
