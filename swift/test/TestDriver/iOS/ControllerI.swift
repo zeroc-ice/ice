@@ -241,7 +241,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
         do {
             while !_ready, !_completed {
                 if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
-                    throw CommonProcessFailedException(reason: "Timeout waiting for the process to be ready")
+                    throw CommonProcessFailedException(reason: "timed out waiting for the process to be ready")
                 }
             }
 
@@ -261,7 +261,7 @@ class ControllerHelperI: ControllerHelper, TextWriter {
         do {
             while !_completed {
                 if _semaphore.wait(timeout: .now() + Double(timeout)) == .timedOut {
-                    throw CommonProcessFailedException(reason: "Timeout waiting for the process to succeed")
+                    throw CommonProcessFailedException(reason: "timed out waiting for the process to succeed")
                 }
             }
 
