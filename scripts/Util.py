@@ -1404,9 +1404,6 @@ class ProcessFromBinDir:
     def isFromBinDir(self):
         return True
 
-    def getExe(self, current):
-        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
-
 #
 # Executables for processes inheriting this marker class are only provided
 # as a Release executble on Windows
@@ -1415,7 +1412,6 @@ class ProcessIsReleaseOnly:
 
     def isReleaseOnly(self):
         return True
-
 
 class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
 

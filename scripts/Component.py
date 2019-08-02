@@ -128,6 +128,14 @@ class Ice(Component):
             if self.useBinDist(mapping, current):
                 if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
                     return False
+        elif isinstance(platform, AIX):
+            if current.config.buildPlatform == "ppc" and self.useBinDist(mapping, current):
+                #
+                # Don't test Glacier2/IceGrid services on ppc with bindist. We only ship
+                # ppc64 binaries for Glacier2 and IceGrid
+                #
+                if parent in ["Glacier2", "IceGrid"]:
+                    return False
 
         # No C++11 tests for IceStorm, IceGrid, etc
         if isinstance(mapping, CppMapping) and current.config.cpp11:

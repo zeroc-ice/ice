@@ -4,6 +4,7 @@
 
 import sys, os
 from Util import *
+from Component import component
 
 class IceBox(ProcessFromBinDir, Server):
 
@@ -79,7 +80,7 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
         elif isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Admin"
         elif isinstance(platform, AIX) and \
-             current.config.buildPlatform == "ppc":
+             current.config.buildPlatform == "ppc" and not component.useBinDist(mapping, current):
             return "iceboxadmin_32"
         else:
             return "iceboxadmin"

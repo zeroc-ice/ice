@@ -22,6 +22,9 @@ class IceStorm(ProcessFromBinDir, Server):
         self.desc = self.instanceName if self.nreplicas == 0 else "{0} replica #{1}".format(self.instanceName,
                                                                                             self.replica)
 
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
+
     def setup(self, current):
         # Create the database directory
         if self.createDb:
