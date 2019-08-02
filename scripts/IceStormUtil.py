@@ -152,6 +152,12 @@ class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Cl
         Client.__init__(self, exe="icestormadmin", mapping=Mapping.getByName("cpp"), *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
+    def getExe(self, current):
+        if current.config.buildPlatform == "ppc" and not component.useBinDist(self.mapping, current):
+            return self.exe + "_32"
+        else:
+            return self.exe
+
     getParentProps = Client.getProps # Used by IceStormProcess to get the client properties
 
 class Subscriber(IceStormProcess, Server):
