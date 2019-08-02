@@ -220,6 +220,7 @@ class Platform(object):
             self.nugetPackageCache = None
 
         self._hasNodeJS = None
+        self._hasSwift = None
 
     def init(self, component):
         self.parseBuildVariables(component, {
@@ -238,6 +239,18 @@ class Platform(object):
             except:
                 self._hasNodeJS = False
         return self._hasNodeJS
+
+    def hasSwift(self, version):
+        if self._hasSwift is None:
+            try:
+                m = re.search("Apple Swift version ([0-9]+\.[0-9]+\.[0-9]+)", run("swift --version"))
+                if m and m.group(1):
+                    self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
+                else:
+                    self.hasSwift = False
+            except:
+                self._hasSwift = False
+        return self._hasSwift
 
     def parseBuildVariables(self, component, variables):
         # Run make to get the values of the given variables
