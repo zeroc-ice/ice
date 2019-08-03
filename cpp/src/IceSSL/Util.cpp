@@ -20,6 +20,12 @@
 
 #include <fstream>
 
+#ifdef __IBMCPP__
+// Work-around for xlC visibility bug
+// See "ifstream::tellg visibility error" thread on IBM xlC forum
+extern template class std::fpos<char*>;
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -118,12 +124,7 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     }
 
     is.seekg(0, is.end);
-#ifdef __IBMCPP__
-    // xlC bug. See src/Ice/LoggerI.cpp
-    buffer.resize(static_cast<size_t>(is.rdbuf()->pubseekoff(0, is.cur, is.in)));
-#else
     buffer.resize(static_cast<size_t>(is.tellg()));
-#endif
     is.seekg(0, is.beg);
 
     if(!buffer.empty())

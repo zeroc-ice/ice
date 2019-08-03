@@ -11,6 +11,12 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/FileUtil.h>
 
+#ifdef __IBMCPP__
+// Work-around for xlC visibility bug
+// See "ifstream::tellg visibility error" thread on IBM xlC forum
+extern template class std::fpos<char*>;
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -152,14 +158,7 @@ Ice::LoggerI::write(const string& message, bool indent)
             // If file size + message size exceeds max size we archive the log file,
             // but we do not archive empty files or truncate messages.
             //
-#ifdef __IBMCPP__
-            // xlC bug: without this work-around, we get a link error when compiling with
-            // optimization and -qvisibility=hidden
-            assert(_out.good());
-            size_t sz = static_cast<size_t>(_out.rdbuf()->pubseekoff(0, _out.cur, _out.out));
-#else
             size_t sz = static_cast<size_t>(_out.tellp());
-#endif
             if(sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= IceUtil::Time::now())
             {
                 string basename = _file;
