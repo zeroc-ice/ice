@@ -131,10 +131,10 @@ class Ice(Component):
         elif isinstance(platform, AIX):
             if current.config.buildPlatform == "ppc" and self.useBinDist(mapping, current):
                 #
-                # Don't test Glacier2/IceGrid services on ppc with bindist. We only ship
-                # ppc64 binaries for Glacier2 and IceGrid
+                # Don't test Glacier2, IceBridge and IceGrid services on ppc with bindist. We only ship
+                # ppc64 binaries for these services
                 #
-                if parent in ["Glacier2", "IceGrid"]:
+                if parent in ["Glacier2", "IceBridge", "IceGrid"]:
                     return False
                 if testId == "IceStorm/repgrid":
                     return False
