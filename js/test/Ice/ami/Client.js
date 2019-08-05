@@ -315,32 +315,39 @@
                         var r2 = null;
                         var seq = Ice.Buffer.createNative(new Array(100000));
 
-                        while((r2 = p.opWithPayload(seq)).sentSynchronously());
+                        function loop1()
+                        {
+                            r2 = p.opWithPayload(seq);
+                            return r2.sentSynchronously() ? Ice.Promise.delay(0).then(loop1) : Ice.Promise.delay(0);
+                        }
 
-                        test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                             !r1.sentSynchronously() && !r1.isCompleted());
-
-                        test(!r2.sentSynchronously() && !r2.isCompleted());
-
-                        testController.resumeAdapter();
-
-                        test(r1.operation === "op");
-                        test(r2.operation === "opWithPayload");
-
-                        return r1.then(
+                        return loop1().then(
                             function()
                             {
-                                test(r1.isSent());
-                                test(r1.isCompleted());
-                                return r2;
-                            }
-                        ).then(
-                            function()
-                            {
-                                test(r2.isSent());
-                                test(r2.isCompleted());
-                            }
-                        );
+                                test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                                     !r1.sentSynchronously() && !r1.isCompleted());
+
+                                test(!r2.sentSynchronously() && !r2.isCompleted());
+
+                                testController.resumeAdapter();
+
+                                test(r1.operation === "op");
+                                test(r2.operation === "opWithPayload");
+
+                                return r1.then(
+                                    function()
+                                    {
+                                        test(r1.isSent());
+                                        test(r1.isCompleted());
+                                        return r2;
+                                    }
+                                ).then(
+                                    function()
+                                    {
+                                        test(r2.isSent());
+                                        test(r2.isCompleted());
+                                    });
+                            });
                     }
                 ).then(
                     function()
@@ -398,42 +405,51 @@
                     function()
                     {
                         var seq = Ice.Buffer.createNative(new Array(100024));
-                        while((r = p.opWithPayload(seq)).sentSynchronously());
 
-                        test(!r.isSent());
-
-                        var r1 = p.ice_ping();
-                        var r2 = p.ice_id();
-                        r1.cancel();
-                        r2.cancel();
-
-                        try
+                        function loop1()
                         {
-                            r1.throwLocalException();
-                            test(false);
-                        }
-                        catch(ex)
-                        {
-                            test(ex instanceof Ice.InvocationCanceledException);
-                        }
-                        try
-                        {
-                            r2.throwLocalException();
-                            test(false);
-                        }
-                        catch(ex)
-                        {
-                            test(ex instanceof Ice.InvocationCanceledException);
+                            r = p.opWithPayload(seq);
+                            return r.sentSynchronously() ? Ice.Promise.delay(0).then(loop1) : Ice.Promise.delay(0);
                         }
 
-                        return testController.resumeAdapter().then(
+                        return loop1().then(
                             function()
                             {
-                                return p.ice_ping().then(
+                                test(!r.isSent());
+
+                                var r1 = p.ice_ping();
+                                var r2 = p.ice_id();
+                                r1.cancel();
+                                r2.cancel();
+
+                                try
+                                {
+                                    r1.throwLocalException();
+                                    test(false);
+                                }
+                                catch(ex)
+                                {
+                                    test(ex instanceof Ice.InvocationCanceledException);
+                                }
+                                try
+                                {
+                                    r2.throwLocalException();
+                                    test(false);
+                                }
+                                catch(ex)
+                                {
+                                    test(ex instanceof Ice.InvocationCanceledException);
+                                }
+
+                                return testController.resumeAdapter().then(
                                     function()
                                     {
-                                        test(!r1.isSent() && r1.isCompleted());
-                                        test(!r2.isSent() && r2.isCompleted());
+                                        return p.ice_ping().then(
+                                            function()
+                                            {
+                                                test(!r1.isSent() && r1.isCompleted());
+                                                test(!r2.isSent() && r2.isCompleted());
+                                            });
                                     });
                             });
                     }

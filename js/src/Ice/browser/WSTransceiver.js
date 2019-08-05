@@ -32,6 +32,8 @@ var IceSSL = Ice.__M.module("IceSSL");
 var IsChrome = navigator.userAgent.indexOf("Edge/") === -1 &&
                navigator.userAgent.indexOf("Chrome/") !== -1;
 
+var IsSafari = (/^((?!chrome).)*safari/i).test(navigator.userAgent);
+
 var Debug = Ice.Debug;
 var ExUtil = Ice.ExUtil;
 var Network = Ice.Network;
@@ -218,6 +220,17 @@ var WSTransceiver = Ice.Class({
             var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
             this._fd.send(slice);
             byteBuffer.position = byteBuffer.position + packetSize;
+
+            //
+            // TODO: WORKAROUND for Safari issue. The websocket accepts all the
+            // data (bufferedAmount is always 0). We relinquish the control here
+            // to ensure timeouts work properly.
+            //
+            if(IsSafari && byteBuffer.remaining > 0)
+            {
+                Timer.setTimeout(cb, this.writeReadyTimeout());
+                return false;
+            }
         }
         return true;
     },
