@@ -409,7 +409,26 @@
                         function loop1()
                         {
                             r = p.opWithPayload(seq);
-                            return r.sentSynchronously() ? Ice.Promise.delay(0).then(loop1) : Ice.Promise.delay(0);
+                            return Ice.Promise.delay(0).then(
+                                function()
+                                {
+                                    if(r.isSent())
+                                    {
+                                        return loop1();
+                                    }
+                                }
+                            ).then(
+                                function()
+                                {
+                                    if(r.sentSynchronously())
+                                    {
+                                        return Ice.Promise.delay(0).then(loop1);
+                                    }
+                                    else
+                                    {
+                                        return Ice.Promise.delay(0);
+                                    }
+                                });
                         }
 
                         return loop1().then(
