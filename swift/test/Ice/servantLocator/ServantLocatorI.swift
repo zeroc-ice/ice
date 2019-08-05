@@ -101,8 +101,6 @@ class ServantLocatorI: Ice.ServantLocator {
             throw TestIntfUserException()
         } else if current.operation == "localException" {
             throw Ice.SocketException(error: 0)
-        } else if current.operation == "csException" {
-            throw Ice.RuntimeError("message")
         } else if current.operation == "unknownExceptionWithServantException" {
             throw Ice.UnknownException(unknown: "reason")
         } else if current.operation == "impossibleException" {
