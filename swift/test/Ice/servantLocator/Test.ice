@@ -25,8 +25,6 @@ interface TestIntf
     void unknownException();
     void localException();
     void userException();
-    void stdException();
-    void cppException();
 
     void unknownExceptionWithServantException();
 

@@ -30,10 +30,6 @@ class TestI: TestIntf {
         return Promise.value(())
     }
 
-    func csExceptionAsync(current _: Current) -> Promise<Void> {
-        return Promise.value(())
-    }
-
     func unknownExceptionWithServantExceptionAsync(current: Current) -> Promise<Void> {
         return Promise<Void> { seal in
             seal.reject(ObjectNotExistException(id: current.id, facet: current.facet, operation: current.operation))

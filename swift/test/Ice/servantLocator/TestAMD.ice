@@ -25,7 +25,6 @@ exception TestImpossibleException
     void unknownException();
     void localException();
     void userException();
-    void csException();
 
     void unknownExceptionWithServantException();
 

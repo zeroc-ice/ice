@@ -410,4 +410,30 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     func opWStringLiterals(current: Ice.Current) throws -> [String] {
         return try opStringLiterals(current: current)
     }
+
+    func opMStruct1(current: Current) throws -> Structure {
+        var s = Structure()
+        s.e = .enum1
+        return s
+    }
+
+    func opMStruct2(p1: Structure, current: Current) throws -> (returnValue: Structure, p2: Structure) {
+        return (p1, p1)
+    }
+
+    func opMSeq1(current: Current) throws -> StringS {
+        return []
+    }
+
+    func opMSeq2(p1: StringS, current: Current) throws -> (returnValue: StringS, p2: StringS) {
+        return (p1, p1)
+    }
+
+    func opMDict1(current: Current) throws -> StringStringD {
+        return [:]
+    }
+
+    func opMDict2(p1: StringStringD, current: Current) throws -> (returnValue: StringStringD, p2: StringStringD) {
+        return (p1, p1)
+    }
 }

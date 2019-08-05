@@ -19,10 +19,6 @@ class TestI: TestIntf {
 
     func userException(current _: Current) throws {}
 
-    func stdException(current _: Current) throws {}
-
-    func cppException(current _: Current) throws {}
-
     func unknownExceptionWithServantException(current: Current) throws {
         throw ObjectNotExistException(id: current.id,
                                       facet: current.facet,
