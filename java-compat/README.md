@@ -258,7 +258,7 @@ python allTests.py --android --device=<ip-address> --controller-app
 To run the tests against a `controller` application started from Android
 Studio you should omit the `--controller-app` option from the commands above.
 
-[1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.3
+[1]: https://zeroc.com/downloads/ice
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [3]: https://gradle.org
 [4]: https://commons.apache.org/proper/commons-compress/

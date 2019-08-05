@@ -3231,12 +3231,18 @@ public class Coordinator
             version = version.substring(0, pos);
         }
 
+        String[] tokens = version.split(".");
+        if(tokens.length > 2)
+        {
+            version = tokens[0] + "." + tokens[1];
+        }
+
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE))
         {
             try
             {
-                desktop.browse(new URI("https://doc.zeroc.com/display/Rel/Ice+" + version + "+IceGrid+Admin"));
+                desktop.browse(new URI("https://doc.zeroc.com/ice/" + version + "/ice-services/icegrid/icegrid-gui-tool"));
             }
             catch(Exception e)
             {

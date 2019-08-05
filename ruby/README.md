@@ -163,5 +163,5 @@ Replace `/opt/Ice` with your installation directory.
     SELINUX=disabled
     ```
 
-[1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.3
+[1]: https://zeroc.com/downloads/ice
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
