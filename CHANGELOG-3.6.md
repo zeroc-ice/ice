@@ -8,46 +8,50 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.5 (Pre-Release Snapshot)](#changes-in-ice-365-pre-release-snapshot)
+- [Changes in Ice 3.6.5](#changes-in-ice-365)
+  - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
-  - [Objective-C Changes](#objective-c-changes)
+  - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
-- [Changes in Ice 3.6.4](#changes-in-ice-364)
-  - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes-1)
-  - [Java Changes](#java-changes-1)
-  - [JavaScript Changes](#javascript-changes)
-  - [C# Changes](#csharp-changes)
-- [Changes in Ice 3.6.3](#changes-in-ice-363)
-  - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes-2)
-  - [Objective-C Changes](#objective-c-changes-1)
+  - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
-- [Changes in Ice 3.6.2](#changes-in-ice-362)
+- [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-3)
-  - [C# Changes](#c-changes-4)
-  - [Java Changes](#java-changes-2)
+  - [C++ Changes](#c-changes-2)
+  - [C# Changes](#c-changes-3)
+  - [Java Changes](#java-changes-1)
+  - [JavaScript Changes](#javascript-changes)
+- [Changes in Ice 3.6.3](#changes-in-ice-363)
+  - [General Changes](#general-changes-2)
+  - [C++ Changes](#c-changes-4)
+  - [Objective-C Changes](#objective-c-changes-1)
+  - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes-1)
+- [Changes in Ice 3.6.2](#changes-in-ice-362)
+  - [General Changes](#general-changes-3)
+  - [C++ Changes](#c-changes-5)
+  - [C# Changes](#c-changes-6)
+  - [Java Changes](#java-changes-2)
+  - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
-  - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-5)
-  - [JavaScript Changes](#javascript-changes)
-  - [PHP Changes](#php-changes-1)
-- [Changes in Ice 3.6.0](#changes-in-ice-360)
-  - [General Changes](#general-changes-3)
-  - [C++ Changes](#c-changes-6)
-  - [C# Changes](#c-changes-7)
-  - [Java Changes](#java-changes-3)
+  - [General Changes](#general-changes-4)
+  - [C++ Changes](#c-changes-7)
   - [JavaScript Changes](#javascript-changes-1)
-  - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-2)
-  - [Python Changes](#python-changes-2)
+- [Changes in Ice 3.6.0](#changes-in-ice-360)
+  - [General Changes](#general-changes-5)
+  - [C++ Changes](#c-changes-8)
+  - [C# Changes](#c-changes-9)
+  - [Java Changes](#java-changes-3)
+  - [JavaScript Changes](#javascript-changes-2)
+  - [Objective-C Changes](#objective-c-changes-2)
+  - [PHP Changes](#php-changes-3)
+  - [Python Changes](#python-changes-3)
   - [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.6.5 (Pre-Release Snapshot)
+# Changes in Ice 3.6.5
 
 These are the changes since Ice 3.6.4 included in this pre-release.
 
@@ -55,7 +59,7 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 - Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
   was ignored.
-  
+
 - Add support for TLS 1.3 to IceSSL.
 
 ## C++ Changes
@@ -83,11 +87,27 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 - Fixed a bug in syslog logger that causes the program name not being correctly
   displayed with log messages.
 
-## Objective-C Changes
+- Fixed a bug in the code that parses command line options that caused short command
+  line options to be incorrectly parsed when multiple short command line options are
+  specified together.
 
-- Fixed the generated code to specify the `__autoreleasing` qualifier on
-  parameters returned by reference. Xcode 9.0 now emits a warning if this
-  qualifier is omitted.
+- Allow users to configure the adapter created by `icegridadmin` when run in server mode.
+  Thanks to Michael Dorner for the pull request: https://github.com/zeroc-ice/ice/pull/58
+
+- Fixed a bug that could result in an infinite loop when `Ice.ChangeUser` is
+  set and the call to `getpwnam_r` fails with `ERANGE`.
+
+- Fixed a bug in IceGrid node that could result in an infinite loop when
+  the system call to `getpwuid_r` fails with `ERANGE`.
+
+- Fixed build failures on Linux ppc64el due to `__linux` macro not being defined
+  in C++11 mode, `__linux__` must be used.
+
+## C# Changes
+
+- Disabled Windows fast path loopback socket option. This option was
+  already disabled with the C++ mapping. It's causing hangs at the
+  TCP/IP level when connections are closed.
 
 ## Java Changes
 
@@ -97,11 +117,35 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 - Protocol compression can now use Bzip2 implementation from Apache Commons
   Compress if the Bizp2 implementation from Apache Ant isn't found.
 
-## C# Changes
+- Update Java build to support Java 11.
 
-- Disabled Windows fast path loopback socket option. This option was
-  already disabled with the C++ mapping. It's causing hangs at the
-  TCP/IP level when connections are closed.
+## JavaScript Changes
+
+- Add workaround for Safari issue, where `bufferedAmount` is always set to 0
+  causing timeouts to not work properly.
+
+## Objective-C Changes
+
+- Fixed the generated code to specify the `__autoreleasing` qualifier on
+  parameters returned by reference. Xcode 9.0 now emits a warning if this
+  qualifier is omitted.
+
+## PHP Changes
+
+- Add support for PHP 7.2
+
+- Fixed issue where parsing of 64-bits values would be incorrect on Windows.
+
+- Fixed a bug that caused the generated code to reference undefined variables
+  when included (using require or require_once) from a static method.
+
+## Python Changes
+
+- Fixed a bug that caused Python to crash on exit when the extension is
+  built with GCC 7.
+
+- Fixed a bug that results in `Connection::getAdapter` returning a bogus
+  python object.
 
 # Changes in Ice 3.6.4
 
@@ -150,6 +194,14 @@ These are the changes since Ice 3.6.3.
 - Fixed a bug which caused PTHREAD_PRIO_INHERIT to be ignored when building Ice
   with -DICE_PRIO_INHERIT.
 
+## CSharp Changes
+
+- Fixed a bug that affects the Stack sequence mapping. When using the Stack
+  mapping with a sequence<Object*>, items were unmarshaled in reverse order.
+
+- Fixed a bug where incorrect code could be generated for invalid metadata
+  directives.
+
 ## Java Changes
 
 - Fixed generated code bug which would cause a build failure if an interface
@@ -160,15 +212,6 @@ These are the changes since Ice 3.6.3.
 
 - Fixed a bug in the Ice.Long toNumber implementation: negative integers
   smaller than -(2^52 - 1) were not correctly handled.
-
-## CSharp Changes
-
-- Fixed a bug that affects the Stack sequence mapping. When using the Stack
-mapping with a sequence<Object*>, items were unmarshaled in reverse
-order.
-
-- Fixed a bug where incorrect code could be generated for invalid metadata
-directives.
 
 # Changes in Ice 3.6.3
 
