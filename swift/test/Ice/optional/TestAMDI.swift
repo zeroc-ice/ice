@@ -193,7 +193,7 @@ class InitialI: Initial {
     }
 
     func returnOptionalClassAsync(req _: Bool, current _: Current) -> Promise<OneOptional?> {
-        return Promise.value(OneOptional())
+        return Promise.value(OneOptional(a: 53))
     }
 
     func opGAsync(g: G?, current _: Current) -> Promise<G?> {

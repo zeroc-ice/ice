@@ -562,7 +562,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try initial2.sendOptionalClass(req: true, o: oo)
 
         oo = try initial.returnOptionalClass(true)
-        try test(oo != nil)
+        try test(oo != nil && oo!.a == 53)
         oo = try initial2.returnOptionalClass(true)
         try test(oo == nil)
 
