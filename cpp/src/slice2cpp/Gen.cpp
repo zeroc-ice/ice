@@ -6884,7 +6884,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
                                                TypeContextCpp11));
 
-        lambdaOutParams.push_back(typeToString(ret, retIsOpt, clScope, p->getMetaData(), _useWstring |
+        lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
                                                TypeContextInParam | TypeContextCpp11));
 
         outParamsHasOpt |= p->returnIsOptional();
@@ -6902,7 +6902,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
             //
             futureOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData,
                                                    _useWstring | TypeContextCpp11));
-            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), clScope, metaData,
+            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData,
                                                    _useWstring | TypeContextInParam | TypeContextCpp11));
 
             string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), clScope, metaData,
@@ -7067,29 +7067,14 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     H.useCurrentPosAsIndent();
     if(!inParamsDecl.empty())
     {
-        if(lambdaCustomOut)
+        for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
         {
-            for(vector<string>::const_iterator q = inParamsS.begin(); q != inParamsS.end(); ++q)
+            if(q != inParamsDecl.begin())
             {
-                if(q != inParamsS.begin())
-                {
-                    H << " ";
-                }
-
-                H << *q << ",";
+                H << " ";
             }
-        }
-        else
-        {
-            for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
-            {
-                if(q != inParamsDecl.begin())
-                {
-                    H << " ";
-                }
 
-                H << *q << ",";
-            }
+            H << *q << ",";
         }
         H << nl;
     }

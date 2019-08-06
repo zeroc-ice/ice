@@ -216,9 +216,6 @@ interface Server extends FileReader
      *
      * Start the server.
      *
-     * @return True if the server was successfully started, false
-     * otherwise.
-     *
      **/
     ["amd"] void start()
         throws ServerStartException;
