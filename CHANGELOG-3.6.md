@@ -84,8 +84,8 @@ These are the changes since Ice 3.6.4 included in this pre-release.
   with a cbBuffer value of 0. This occurred when running the JavaScript tests
   with Firefox and using a C++ debug build.
 
-- Fixed a bug in syslog logger that causes the program name not being correctly
-  displayed with log messages.
+- Fixed a bug in the syslog logger that caused the program name to noy be correctly
+  displayed in log messages.
 
 - Fixed a bug in the code that parses command line options that caused short command
   line options to be incorrectly parsed when multiple short command line options are
@@ -101,7 +101,7 @@ These are the changes since Ice 3.6.4 included in this pre-release.
   the system call to `getpwuid_r` fails with `ERANGE`.
 
 - Fixed build failures on Linux ppc64el due to `__linux` macro not being defined
-  in C++11 mode, `__linux__` must be used.
+  in C++11 mode. Switched to `__linux__`.
 
 ## C# Changes
 
@@ -111,7 +111,7 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 ## Java Changes
 
-- The IceGrid GUI no longer dispaly a modal dialog if the IceBox service
+- The IceGrid GUI no longer display a modal dialog if the IceBox service
   manager observer registration fails.
 
 - Protocol compression can now use Bzip2 implementation from Apache Commons
@@ -127,12 +127,12 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 ## Objective-C Changes
 
 - Fixed the generated code to specify the `__autoreleasing` qualifier on
-  parameters returned by reference. Xcode 9.0 now emits a warning if this
+  parameters returned by reference. Xcode 9.0 and greater emits a warning if this
   qualifier is omitted.
 
 ## PHP Changes
 
-- Add support for PHP 7.2
+- Add support for PHP 7.2.
 
 - Fixed issue where parsing of 64-bits values would be incorrect on Windows.
 
