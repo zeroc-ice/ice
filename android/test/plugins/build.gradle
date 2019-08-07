@@ -26,8 +26,8 @@ sourceSets {
 task dexClasses << {
     exec {
         commandLine "${dxCmd}", '--dex',
-                    "--output=${buildDir}/classes/main/IceTestPlugins.dex",
-                    "${buildDir}/classes/main"
+                    "--output=${buildDir}/classes/java/main/IceTestPlugins.dex",
+                    "${buildDir}/classes/java/main"
     }
 }
 

@@ -9,10 +9,11 @@
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:3.3.2'
     }
 }
 
@@ -32,12 +33,14 @@ subprojects {
         }
 
         if (!useLocalOnly) {
-            maven {
-                url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
+            if(this.devRepo) {
+                maven {
+                    url this.devRepo
+                }
             }
-            maven {
-                url 'https://repo.zeroc.com/nexus/content/repositories/releases'
-            }
+
+            google()
+            jcenter()
         }
     }
 }

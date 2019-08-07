@@ -13,7 +13,6 @@ apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
 android {
     compileSdkVersion ice_compileSdkVersion.toInteger()
-    buildToolsVersion ice_buildToolsVersion
 
     defaultConfig {
         applicationId "com.zeroc.test"
@@ -89,7 +88,7 @@ clean {
 }
 
 dependencies {
-    compile localDependency('ice')
-    compile project(':test')
-    compile project(':testPlugins')
+    implementation localDependency('ice')
+    implementation project(':test')
+    implementation project(':testPlugins')
 }

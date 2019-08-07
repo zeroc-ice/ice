@@ -67,8 +67,8 @@ tests.each {
             doLast {
                 exec {
                     commandLine "${dxCmd}", '--dex',
-                            "--output=${buildDir}/classes/main/${dexName}",
-                            "${buildDir}/classes/main"
+                            "--output=${buildDir}/classes/java/main/${dexName}",
+                            "${buildDir}/classes/java/main"
                 }
             }
         }
