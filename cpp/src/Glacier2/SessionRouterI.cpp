@@ -457,7 +457,7 @@ CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const strin
     ctx.erase("_con.localAddress");
     ctx.erase("_con.cipher");
     ctx.erase("_con.peerCert");
-    const_cast<Ice::Current*>(&_current)->ctx = ctx;
+    const_cast<Ice::Current&>(_current).ctx = ctx;
 
     if(_instance->properties()->getPropertyAsInt("Glacier2.AddConnectionContext") > 0)
     {
