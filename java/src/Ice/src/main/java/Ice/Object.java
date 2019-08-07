@@ -93,11 +93,11 @@ public interface Object
      * @param operation The name of the operation.
      * @return The least significant bit indicates whether the operation is a read
      * or write operation. If the bit is set, the operation is a write operation.
-     * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
+     * The expression <code>ice_operationAttributes("op") &amp; 0x1</code> is true if
      * the operation has a <code>["freeze:write"]</code> metadata directive.
      * <p>
      * The second and third least significant bit indicate the transactional mode
-     * of the operation. The expression <code>ice_operationAttributes("op") & 0x6 >> 1</code>
+     * of the operation. The expression <code>ice_operationAttributes("op") &amp; 0x6 &gt;&gt; 1</code>
      * indicates the transactional mode as follows:
      * <dl>
      *   <dt>0</dt>

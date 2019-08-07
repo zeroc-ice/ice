@@ -75,9 +75,6 @@ javadoc {
     failOnError = false
     options.header = project.displayName
     classpath =project.sourceSets.main.compileClasspath
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

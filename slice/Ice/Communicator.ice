@@ -484,7 +484,7 @@ local interface Communicator
      * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
      *
      * @see #getAdmin
-     * @see LocatorRegistry#setServerProcessProxy
+     * @see LocatorRegistry
      *
      **/
     Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);

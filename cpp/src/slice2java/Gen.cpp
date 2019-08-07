@@ -2471,13 +2471,15 @@ Slice::JavaVisitor::writeDocCommentAMI(Output& out, const OperationPtr& p, Param
         bool found = false;
         for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
         {
-            if(!found)
+            if(i->find(returnTag) != string::npos ||
+               i->find(throwsTag) != string::npos ||
+               i->find(seeTag) != string::npos)
             {
-                if(i->find(returnTag) != string::npos || i->find(throwsTag) != string::npos ||
-                   i->find(seeTag) != string::npos)
-                {
-                    found = true;
-                }
+                found = true;
+            }
+            else if(i->find("@") == 0)
+            {
+                found = false;
             }
 
             if(found)
