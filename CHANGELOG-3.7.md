@@ -65,6 +65,14 @@ These are the changes since Ice 3.7.2.
   the backward compatible invocation timeout -2. The invocation failed instead
   of being retried.
 
+- Add property `IceSSL.ServerNameIndication` to send the SNI extension in TLS
+  connections (defaults to 1). This is helpful, for example, if a web server in
+  front of Ice secure WebSocket (WSS) endpoints needs to decide the certificate
+  and backend based on requested hostname. This is supported by the OpenSSL,
+  macOS (SecureTransport) and Java backends; these backends did not send the
+  extension before. The C# and Windows (SChannel) backends always send the
+  extension. The Java-Compat mapping does not support it.
+
 ## C++ Changes
 
 - Fixed IceGrid issue which could cause hangs if an IceGrid node became
