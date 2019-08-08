@@ -1165,14 +1165,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
     if config.mono and config.lang == "csharp":
         output.write("mono --debug '%s.exe' " % exe)
     elif config.lang == "ruby" and config.type == "client":
-        #
-        # If running with a binary distribution ensure rubygems
-        # are enabled
-        #
-        if iceHome:
-            output.write("ruby -rubygems")
-        else:
-            output.write("ruby")
+        output.write("ruby")
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
