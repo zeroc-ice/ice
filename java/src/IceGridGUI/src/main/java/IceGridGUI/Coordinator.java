@@ -3361,7 +3361,7 @@ public class Coordinator
         {
             try
             {
-                desktop.browse(new URI("https://doc.zeroc.com/display/Rel/Ice+" + version + "+IceGrid+Admin"));
+                desktop.browse(new URI("https://doc.zeroc.com/ice/3.6/ice-services/icegrid/icegrid-admin-graphical-tool"));
             }
             catch(Exception e)
             {
