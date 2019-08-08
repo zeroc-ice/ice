@@ -20,6 +20,8 @@ public interface Store
      *
      * @param key The database key for the object to instantiate.
      *
+     * @return The newly instantiated object.
+     *
      **/
     Object load(Object key);
 }

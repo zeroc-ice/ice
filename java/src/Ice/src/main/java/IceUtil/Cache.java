@@ -22,6 +22,8 @@ public class Cache
 {
     /**
      * Initialize a cache using the specified backing store.
+     *
+     * @param store The backing store.
      **/
     public Cache(Store store)
     {
