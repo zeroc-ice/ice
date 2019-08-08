@@ -99,5 +99,5 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.5
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.5
 [3]: http://www.msys2.org

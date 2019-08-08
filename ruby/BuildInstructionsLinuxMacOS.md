@@ -150,4 +150,4 @@ command:
         SELINUX=disabled
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.5
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.5
