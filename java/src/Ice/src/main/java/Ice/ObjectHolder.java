@@ -24,6 +24,8 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
 
     /**
      * Instantiates the class with the passed Ice object.
+     *
+     * @param value The initial value for this holder.
      **/
     public
     ObjectHolder(Ice.Object value)

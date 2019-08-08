@@ -24,6 +24,8 @@ public final class LocalObjectHolder extends Holder<java.lang.Object>
 
     /**
      * Instantiates the class with the passed local object.
+     *
+     * @param value The initial value for this holder.
      **/
     public
     LocalObjectHolder(java.lang.Object value)

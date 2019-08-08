@@ -207,6 +207,7 @@ public class Util
      * Registers a handler for fatal errors encountered by the background save evictor.
      *
      * @param cb The error callback.
+     * @return The previous callback.
      */
     public static synchronized FatalErrorCallback
     registerFatalErrorCallback(FatalErrorCallback cb)

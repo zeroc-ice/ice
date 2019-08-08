@@ -21,6 +21,8 @@ public interface UserExceptionReaderFactory
      * Creates and throws a UserExceptionReader instance.
      *
      * @param typeId The Slice type ID of the user exception to be instantiated.
+     *
+     * @throws UserExceptionReader A user exception reader instance corresponding to the type ID.
      **/
     void createAndThrow(String typeId)
         throws UserExceptionReader;

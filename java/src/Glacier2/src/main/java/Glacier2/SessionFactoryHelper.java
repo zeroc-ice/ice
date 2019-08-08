@@ -23,7 +23,7 @@ public class SessionFactoryHelper
      * Creates a SessionFactory object.
      *
      * @param callback The callback object for notifications.
-     * @throws {@link Ice.InitializationException}
+     * @throws Ice.InitializationException If a failure occurred while initializing the communicator.
      */
     public
     SessionFactoryHelper(SessionCallback callback)
@@ -37,7 +37,7 @@ public class SessionFactoryHelper
      *
      * @param initData The initialization data to use when creating the communicator.
      * @param callback The callback object for notifications.
-     * @throws {@link Ice.InitializationException}
+     * @throws Ice.InitializationException If a failure occurred while initializing the communicator.
      */
     public
     SessionFactoryHelper(Ice.InitializationData initData, SessionCallback callback)
@@ -51,7 +51,7 @@ public class SessionFactoryHelper
      *
      * @param properties The properties to use when creating the communicator.
      * @param callback The callback object for notifications.
-     * @throws {@link Ice.InitializationException}
+     * @throws Ice.InitializationException If a failure occurred while initializing the communicator.
      */
     public
     SessionFactoryHelper(Ice.Properties properties, SessionCallback callback)

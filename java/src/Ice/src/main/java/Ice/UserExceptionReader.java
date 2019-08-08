@@ -19,6 +19,8 @@ public abstract class UserExceptionReader extends UserException
 {
     /**
      * Creates a reader for the given communicator.
+     *
+     * @param communicator The communicator instance used by the reader.
      **/
     protected UserExceptionReader(Communicator communicator)
     {

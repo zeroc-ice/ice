@@ -510,6 +510,8 @@ interface Admin
      * hold the exclusive lock or if another session is holding the
      * lock.
      *
+     * @throws DeploymentException Raised if application deployment failed.
+     *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
      *
@@ -579,6 +581,8 @@ interface Admin
     /**
      *
      * Get the default application descriptor.
+     *
+     * @return The default application descriptor.
      *
      * @throws DeploymentException Raised if the default application
      * descriptor can't be accessed or is invalid.
@@ -713,6 +717,8 @@ interface Admin
      * Check if the server is enabled or disabled.
      *
      * @param id The server id.
+     *
+     * @return True if the server is enabled.
      *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
@@ -853,8 +859,11 @@ interface Admin
      * Remove the adapter with the given id.
      *
      * @param id The adapter id.
+     *
      * @throws AdapterNotExistException Raised if the adapter doesn't
      * exist.
+     *
+     * @throws DeploymentException Raised if application deployment failed.
      *
      **/
     void removeAdapter(string id)
@@ -919,6 +928,8 @@ interface Admin
      *
      * @throws ObjectExistsException Raised if the object is already
      * registered.
+     *
+     * @throws DeploymentException Raised if application deployment failed.
      *
      **/
     void addObjectWithType(Object* obj, string type)

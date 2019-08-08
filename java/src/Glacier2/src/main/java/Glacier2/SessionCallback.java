@@ -24,8 +24,9 @@ public interface SessionCallback
 
     /**
      * Notifies the application that the Glacier2 session has been established.
-     *  
+     *
      * @param session The established session.
+     * @throws SessionNotExistException If the session no longer exists.
      */
     void connected(SessionHelper session)
         throws SessionNotExistException;
@@ -38,8 +39,8 @@ public interface SessionCallback
     void disconnected(SessionHelper session);
 
     /**
-     * Notifies the application that the Glacier2 session establishment failed. 
-     * 
+     * Notifies the application that the Glacier2 session establishment failed.
+     *
      * @param session The session reporting the connection
      * failure.
      * @param ex The exception.

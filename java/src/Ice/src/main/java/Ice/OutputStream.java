@@ -317,6 +317,8 @@ public interface OutputStream
      *
      * @param tag The numeric tag associated with the value.
      * @param format The optional format of the value.
+     *
+     * @return True if the current encoding supports optionals, false otherwise.
      **/
     boolean writeOptional(int tag, Ice.OptionalFormat format);
 

@@ -96,6 +96,8 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
     /**
      * Returns the least key strictly greater than the given key.
      *
+     * @param key The key.
+     *
      * @return The least key strictly greater than the given key,
      * or <code>null</code> if there is no such key.
      **/
@@ -103,6 +105,8 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
 
     /**
      * Returns the greatest key strictly less than the given key.
+     *
+     * @param key The key.
      *
      * @return The greatest key strictly less than the given key,
      * or <code>null</code> if there is no such key.

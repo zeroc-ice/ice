@@ -20,6 +20,9 @@ public interface Map<K, V> extends NavigableMap<K, V>
      * Alternative to <code>java.util.SortedMap.put</code>. This version
      * is more efficient because it does not decode and return the
      * old value.
+     *
+     * @param key The map key.
+     * @param value The map value.
      **/
     void fastPut(K key, V value);
 

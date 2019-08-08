@@ -19,6 +19,7 @@ public interface Object
      * of the state.
      *
      * @return The cloned object.
+     * @throws java.lang.CloneNotSupportedException If cloning is not supported by the implementation.
      **/
     Object clone() throws java.lang.CloneNotSupportedException;
 

@@ -26,6 +26,8 @@ public final class IntHolder extends Holder<Integer>
      * Instantiates the class with the passed value.
      *
      * The <code>int</code> value for this holder.
+     *
+     * @param value The <code>int</code> value for this holder.
      **/
     public
     IntHolder(int value)

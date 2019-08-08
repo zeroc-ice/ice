@@ -92,7 +92,7 @@ interface Locator
      *
      * @return The proxy, or null if the object is not active.
      *
-     * @throws ObjectNotFoundException Raised if the object cannot
+     * @throws Ice.ObjectNotFoundException Raised if the object cannot
      * be found.
      *
      **/
@@ -108,7 +108,7 @@ interface Locator
      *
      * @return The adapter proxy, or null if the adapter is not active.
      *
-     * @throws AdapterNotFoundException Raised if the adapter cannot be
+     * @throws Ice.AdapterNotFoundException Raised if the adapter cannot be
      * found.
      *
      **/

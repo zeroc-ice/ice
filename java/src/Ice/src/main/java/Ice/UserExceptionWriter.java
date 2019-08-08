@@ -19,6 +19,8 @@ public abstract class UserExceptionWriter extends UserException
 {
     /**
      * Creates a writer for the given communicator.
+     *
+     * @param communicator The communicator instance used by the writer.
      **/
     public UserExceptionWriter(Communicator communicator)
     {

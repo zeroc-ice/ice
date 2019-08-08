@@ -854,6 +854,7 @@ public interface ObjectPrx
      * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).
+     * @return The new proxy with the specified locator cache timeout.
      *
      * @see Locator
      **/
@@ -863,6 +864,7 @@ public interface ObjectPrx
      * Creates a new proxy that is identical to this proxy, except for the invocation timeout.
      *
      * @param newTimeout The new invocation timeout (in seconds).
+     * @return The new proxy with the specified invocation timeout.
      *
      **/
     ObjectPrx ice_invocationTimeout(int newTimeout);
@@ -1111,6 +1113,7 @@ public interface ObjectPrx
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
+     @param __cb The callback object to notify the application when the operation is complete.
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_getConnection(Callback __cb);
@@ -1138,6 +1141,7 @@ public interface ObjectPrx
      * Completes the asynchronous get connection.
      *
      * @param __result The asynchronous result.
+     * @return The connection object.
      **/
     Ice.Connection end_ice_getConnection(AsyncResult __result);
 
@@ -1169,6 +1173,7 @@ public interface ObjectPrx
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
+     * @param __cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_flushBatchRequests(Callback __cb);

@@ -75,8 +75,6 @@ interface Session extends Glacier2::Session
      *
      * @return The proxy of the allocated object.
      *
-     * @throws ObjectNotRegisteredException Raised if no objects with the given type can be allocated.
-     *
      * @throws AllocationException Raised if the object could not be allocated.
      *
      * @see #setAllocationTimeout

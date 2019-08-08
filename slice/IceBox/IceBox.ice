@@ -155,6 +155,8 @@ interface ServiceManager
      * Start an individual service.
      *
      * @param service The service name.
+     * @throws AlreadyStartedException If the service is already running.
+     * @throws NoSuchServiceException If no service could be found with the given name.
      *
      **/
     void startService(string service)
@@ -165,6 +167,8 @@ interface ServiceManager
      * Stop an individual service.
      *
      * @param service The service name.
+     * @throws AlreadyStoppedException If the service is already stopped.
+     * @throws NoSuchServiceException If no service could be found with the given name.
      *
      **/
     void stopService(string service)

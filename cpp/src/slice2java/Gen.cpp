@@ -1278,10 +1278,6 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
         string opName = op->name();
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/** @deprecated **/";
-        }
         out << nl << "public static Ice.DispatchStatus ___" << opName << '(' << name
             << " __obj, IceInternal.Incoming __inS, Ice.Current __current)";
         out << sb;
@@ -2372,6 +2368,30 @@ Slice::JavaVisitor::writeDocCommentAsync(Output& out, const OperationPtr& p, Par
     //
     writeDocCommentParam(out, p, paramType);
 
+    //
+    // Write the comments for the throws
+    //
+    if(paramType == InParam)
+    {
+        bool found = false;
+        for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        {
+            if(i->find("@throws") != string::npos)
+            {
+                found = true;
+            }
+            else if(i->find("@") == 0)
+            {
+                found = false;
+            }
+
+            if(found)
+            {
+                out << nl << " * " << *i;
+            }
+        }
+    }
+
     if(!extraParam.empty())
     {
         out << nl << " * " << extraParam;
@@ -2793,6 +2813,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
         {
             extraCurrent = "@param __current The Current object for the invocation.";
         }
+
         if(amd)
         {
             writeDocCommentAsync(out, *r, InParam, extraCurrent);
@@ -2801,6 +2822,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
         {
             writeDocComment(out, *r, deprecateReason, extraCurrent);
         }
+
         out << nl << retS << ' ' << (amd ? opname + "_async" : fixKwd(opname)) << spar << params;
         if(!noCurrent && !p->isLocal())
         {
@@ -3267,7 +3289,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << epar << ';';
 
                 out << sp;
-                writeDocCommentAMI(out, op, InParam);
+                writeDocCommentAMI(out, op, InParam, "@param __cb A generic callback.");
                 out << nl;
                 if(!p->isInterface())
                 {
@@ -3276,7 +3298,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << "Ice.Callback __cb" << epar << ';';
 
                 out << sp;
-                writeDocCommentAMI(out, op, InParam);
+                writeDocCommentAMI(out, op, InParam, "@param __cb A typed callback.");
                 out << nl;
                 if(!p->isInterface())
                 {
@@ -3287,7 +3309,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 
                 out << sp;
-                writeDocCommentAMI(out, op, InParam);
+                writeDocCommentAMI(out, op, InParam,
+                                   "@param __responseCb The response callback.",
+                                   "@param __exceptionCb The exception callback.",
+                                   "@param __sentCb The sent callback.");
                 out << nl;
                 if(!p->isInterface())
                 {

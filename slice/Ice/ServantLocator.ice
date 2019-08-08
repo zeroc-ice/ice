@@ -61,6 +61,9 @@ local interface ServantLocator
      * @return The located servant, or null if no suitable servant has
      * been found.
      *
+     * @throws UserException The implementation can raise a UserException
+     * and the run time will marshal it as the result of the invocation.
+     *
      * @see ObjectAdapter
      * @see Current
      * @see #finished
@@ -90,6 +93,9 @@ local interface ServantLocator
      * @param servant The servant that was returned by <tt>locate</tt>.
      *
      * @param cookie The cookie that was returned by <tt>locate</tt>.
+     *
+     * @throws UserException The implementation can raise a UserException
+     * and the run time will marshal it as the result of the invocation.
      *
      * @see ObjectAdapter
      * @see Current

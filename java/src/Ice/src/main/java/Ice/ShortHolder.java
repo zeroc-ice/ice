@@ -25,7 +25,7 @@ public final class ShortHolder extends Holder<Short>
     /**
      * Instantiates the class with the passed value.
      *
-     * The <code>short</code> value for this holder.
+     * @param value The <code>short</code> value for this holder.
      **/
     public
     ShortHolder(short value)

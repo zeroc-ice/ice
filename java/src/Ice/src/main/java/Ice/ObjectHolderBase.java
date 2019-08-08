@@ -24,6 +24,8 @@ public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObje
 
     /**
      * Instantiates the class with the passed Ice object.
+     *
+     * @param obj The initial value for this holder.
      **/
     public
     ObjectHolderBase(T obj)

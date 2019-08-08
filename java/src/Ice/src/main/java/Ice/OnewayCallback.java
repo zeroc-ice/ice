@@ -38,6 +38,8 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
 
     /**
      * Called when a queued invocation is sent successfully.
+     *
+     * @param sentSynchronously True if the request could be sent synchronously, false otherwise.
      **/
     public void sent(boolean sentSynchronously)
     {

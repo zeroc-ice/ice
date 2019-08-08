@@ -240,6 +240,8 @@ public interface InputStream
 
     /**
      * Extracts a user exception from the stream and throws it.
+     *
+     * @throws UserException The user exception that was unmarshaled.
      **/
     void throwException() throws UserException;
 
@@ -248,6 +250,7 @@ public interface InputStream
      * factory to instantiate a UserExceptionReader.
      *
      * @param factory A factory that creates UserExceptionReader instances.
+     * @throws UserException The user exception that was unmarshaled.
      **/
     void throwException(UserExceptionReaderFactory factory) throws UserException;
 
@@ -259,6 +262,8 @@ public interface InputStream
     /**
      * Marks the end of an Ice object.
      *
+     * @param preserve Pass true and the stream will preserve the unknown slices of the instance, or false
+     * to discard the unknown slices.
      * @return A SlicedData object containing the preserved slices for unknown types.
      **/
     SlicedData endObject(boolean preserve);
@@ -271,6 +276,8 @@ public interface InputStream
     /**
      * Marks the end of a user exception.
      *
+     * @param preserve Pass true and the stream will preserve the unknown slices of the exception, or false
+     * to discard the unknown slices.
      * @return A SlicedData object containing the preserved slices for unknown types.
      **/
     SlicedData endException(boolean preserve);

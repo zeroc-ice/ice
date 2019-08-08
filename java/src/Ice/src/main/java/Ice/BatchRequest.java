@@ -18,16 +18,22 @@ public interface BatchRequest
 
     /**
      * The marshalled size of the request.
+     *
+     * @return The marshaled size.
      **/
     int getSize();
 
     /**
-     * The name of the operation
+     * The name of the operation.
+     *
+     * @return The name of the operation.
      **/
     String getOperation();
 
     /**
      * The proxy used to invoke the batch request.
+     *
+     * @return The proxy used to invoke the batch request.
      **/
     Ice.ObjectPrx getProxy();
 };

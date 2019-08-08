@@ -89,6 +89,8 @@ public abstract class Application extends Ice.Application
      * @return The <code>runWithSession</code> method should return zero for successful
      * termination, and non-zero otherwise. <code>Application.main</code> returns the
      * value returned by <code>runWithSession</code>.
+     *
+     * @throws RestartSessionException If the session should be restarted.
      **/
     public abstract int
     runWithSession(String[] args)
@@ -185,6 +187,8 @@ public abstract class Application extends Ice.Application
     /**
      * Create a new Ice identity for callback objects with the given
      * identity name field.
+     *
+     * @param name The identity name.
      * @return The identity.
      * @throws SessionNotExistException No session exists.
      **/
