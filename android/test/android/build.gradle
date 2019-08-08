@@ -44,7 +44,7 @@ android {
 // the test app to extract the dex file from the jar file but I can't
 // figure out how to do that.
 task copyTask(type: Copy) {
-    from "${rootProject.projectDir}/test/plugins/build/classes/main/IceTestPlugins.dex"
+    from "${rootProject.projectDir}/test/plugins/build/classes/java/main/IceTestPlugins.dex"
     into "src/main/assets"
 }
 preBuild.dependsOn(copyTask)
@@ -65,7 +65,7 @@ tests.each {
     def testName = ":test_Ice_${name}"
     def dexName = "IceTest_${name}.dex"
     task "${taskName}"(type: Copy, dependsOn: "${testName}:dexClasses") {
-        from "${rootProject.projectDir}/test/src/test_Ice_${name}/build/classes/main/${dexName}"
+        from "${rootProject.projectDir}/test/src/test_Ice_${name}/build/classes/java/main/${dexName}"
         into "src/main/assets"
     }
     preBuild.dependsOn(tasks[taskName])
