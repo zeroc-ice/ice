@@ -36,14 +36,14 @@ Minified versions are available with the `.min.js` extension.
 
 ## Documentation
 
-See the [Ice Documentation](https://doc.zeroc.com/display/Ice36/JavaScript+Mapping).
+See the [Ice Documentation](https://doc.zeroc.com/ice/3.6/language-mappings/javascript-mapping).
 
 ## Slice2js Compiler
 
-To compile [Slice](https://doc.zeroc.com/display/Ice36/The+Slice+Language) files to JavaScript see the following:
-- [slice2js](https://github.com/zeroc-ice/npm-slice2js)
+To compile [Slice](https://doc.zeroc.com/ice/3.6/the-slice-language) files to JavaScript see the following:
+- [slice2js](https://github.com/zeroc-ice/npm-slice2js/tree/3.6)
 - [gulp-ice-builder](https://github.com/zeroc-ice/gulp-ice-builder)
 
 ## Demos
 
-A collection of demos for Ice for JavaScript (and other language mappings) can be found [here](https://github.com/zeroc-ice/ice-demos).
+A collection of demos for Ice for JavaScript (and other language mappings) can be found [here](https://github.com/zeroc-ice/ice-demos/tree/3.6).

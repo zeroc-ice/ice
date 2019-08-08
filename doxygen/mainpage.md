@@ -3,10 +3,9 @@ Overview
 
 This Slice API reference was generated from the Slice files in the
 [zeroc-ice/ice GitHub repository](https://github.com/zeroc-ice/ice/tree/3.6/slice)
-using ZeroC's [fork of Doxygen](https://github.com/zeroc-ice/doxygen) that includes
-Slice support. We provide a [tag file](../slice.tag) if you would like to include
-links to this documentation in your own Doxygen projects.
+using [Doxygen](http://www.doxygen.nl/). We provide a [tag file](../slice.tag) if
+you would like to include links to this documentation in your own Doxygen projects.
 
-The [language mapping chapters](https://doc.zeroc.com/display/Ice36/Language+Mappings)
-in the [Ice Manual](https://doc.zeroc.com/display/Ice36/Ice+Manual) describe how Slice
+The [language mapping chapters](https://doc.zeroc.com/ice/3.6/language-mappings)
+in the [Ice Manual](https://doc.zeroc.com/ice/3.6/introduction) describe how Slice
 APIs map to programming language APIs.

@@ -89,7 +89,7 @@ python allTests.py
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+Ruby+Distribution
+[1]: https://doc.zeroc.com/rel/ice-releases/ice-3-6/ice-3-6-5-release-notes/using-the-ruby-distribution-for-ice-3-6-5
 [2]: http://www.msys2.org
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://github.com/zeroc-ice/mcpp

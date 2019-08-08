@@ -62,5 +62,5 @@ After a successful build, you can run the tests as follows:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.5
+[1]: https://zeroc.com/downloads/ice/3.6
+[2]: https://doc.zeroc.com/rel/ice-releases/ice-3-6/ice-3-6-5-release-notes/supported-platforms-for-ice-3-6-5

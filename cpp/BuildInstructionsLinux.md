@@ -109,8 +109,8 @@ This command is equivalent to:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+Linux+Binary+Distributions
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.5
+[1]: https://doc.zeroc.com/rel/ice-releases/ice-3-6/ice-3-6-5-release-notes/using-the-linux-binary-distributions-for-ice-3-6-5
+[2]: https://doc.zeroc.com/rel/ice-releases/ice-3-6/ice-3-6-5-release-notes/supported-platforms-for-ice-3-6-5
 [3]: https://libexpat.github.io
 [4]: http://openssl.org
 [5]: https://github.com/zeroc-ice/bzip2

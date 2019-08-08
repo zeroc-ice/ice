@@ -108,11 +108,11 @@ controller. Use the following command to start the test controller:
 In the "Ice Test Suite" Windows Store application, select the Server language
 mapping and Protocol you want to use.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+Windows+Binary+Distribution
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.5
+[1]: https://doc.zeroc.com/rel/ice-releases/ice-3-6/ice-3-6-5-release-notes/using-the-windows-binary-distribution-for-ice-3-6-5
+[2]: https://doc.zeroc.com/rel/ice-releases/ice-3-6/ice-3-6-5-release-notes/supported-platforms-for-ice-3-6-5
 [3]: https://libexpat.github.io
 [4]: https://github.com/zeroc-ice/bzip2
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
-[7]: https://zeroc.com/downloads/ice
+[7]: https://zeroc.com/downloads/ice/3.6
 [8]: https://github.com/zeroc-ice/ice-builder-visualstudio

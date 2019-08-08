@@ -71,4 +71,4 @@ The Android Studio project contains a `testApp` application for the Ice test
 suite. To run the application, select it in the configuration pull down and run
 it.
 
-[1]: https://zeroc.com/downloads/ice
+[1]: https://zeroc.com/downloads/ice/3.6

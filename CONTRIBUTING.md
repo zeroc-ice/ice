@@ -29,7 +29,7 @@ We review carefully any contribution that we accept, and these reviews may take 
 
 We prefer small contributions as they are easier to review and integrate. If you want to contribute but don't know where to start, consider one of these areas:
 
- * New sample programs (in the [ice-demos](https://github.com/zeroc-ice/ice-demos) repository)
+ * New sample programs (in the [ice-demos](https://github.com/zeroc-ice/ice-demos/tree/3.6) repository)
 
  * Small bug fixes that affect only one or a few source files
 
