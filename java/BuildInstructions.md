@@ -1,3 +1,4 @@
+
 # Building Ice for Java
 
 This page describes how to build and install Ice for Java from source code. If
@@ -111,16 +112,18 @@ If neither of these files is present in the standard locations on your system,
 you must set `dbHome` in `gradle.properties`.
 
 The build system also requires the Slice translators from Ice for C++. If you
-have not built Ice for C++ in this source distribution, you must set the
-`ICE_HOME` environment variable with the path name of your Ice installation.
-For example, on Linux:
+have not built Ice for C++ in this source distribution, you must set `USE_BIN_DIST`
+enviroment variable to `yes` and the `ICE_HOME` environment variable with the path
+name of your Ice installation. For example, on Linux:
 ```
+export USE_BIN_DIST=yes
 export ICE_HOME=/opt/Ice-3.6.5 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 ```
+set USE_BIN_DIST=yes
 set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.5
 ```
 
