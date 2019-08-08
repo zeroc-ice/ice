@@ -140,7 +140,6 @@ ext {
     localDependency = this.&localDependency
 }
 
-def localappdata
 def nuget
 def dbVersion
 def dbPackage
@@ -151,7 +150,7 @@ dbVersion = "5.3.28.1"
 dbPackage = "${iceCppDir}/third-party-packages/berkeley.db.java7"
 
 task nugetDirectory() {
-    def nugetDir = new File("${localappdata}/ZeroC/nuget")
+    def nugetDir = new File("${System.env.LOCALAPPDATA}/ZeroC/nuget")
     if(!nugetDir.exists()) {
         nugetDir.mkdirs()
     }
