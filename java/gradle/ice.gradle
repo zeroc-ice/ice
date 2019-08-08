@@ -93,9 +93,7 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
     ext.binDir = prefix + "/bin"
 }
 
-// Check if we are building against source distribution
-def iceCppDir = slice.srcDist ? [slice.iceHome, "cpp"].join(File.separator) : slice.iceHome
-def iceSrcDist = false
+def iceCppDir = [slice.iceHome, "cpp"].join(File.separator)
 
 // Check is DESTDIR is set (non-Windows)
 if (isWindows) {
