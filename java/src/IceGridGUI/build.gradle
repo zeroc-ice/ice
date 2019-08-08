@@ -21,11 +21,11 @@ project.ext.javafxJar = ['jfxrt.jar',
                          'jre/lib/ext/jfxrt.jar',
                          'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
+project.ext.antJavafxJar = ['ant-javafx.jar', 'lib/ant-javafx.jar', '../lib/ant-javafx.jar'].find{
+    new File("${System.properties['java.home']}/${it}").exists() }
 
-if(JavaVersion.current() == JavaVersion.VERSION_1_8 ||
-   JavaVersion.current() == JavaVersion.VERSION_1_7)
-{
-    project.ext.hasJavaFx = javafxJar != null
+if(JavaVersion.current() == JavaVersion.VERSION_1_8 || JavaVersion.current() == JavaVersion.VERSION_1_7) {
+    project.ext.hasJavaFx = javafxJar && antJavafxJar
 } else {
     project.ext.hasJavaFx = false
 }
