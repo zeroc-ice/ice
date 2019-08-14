@@ -72,6 +72,10 @@ $test_extra_sources = {
     "Slice/escape" => ["Clash.ice", "Key.ice"]
 }
 
+$test_extra_frameworks = {
+    "Ice/services" => ["Glacier2.framework", "IceStorm.framework", "IceGrid.framework"]
+}
+
 $test_resources = {
     "IceSSL/configuration" => ["../../../../cpp/test/IceSSL/certs"]
 }
@@ -294,6 +298,14 @@ def create_platform_targets(project, platform, bindist)
         icestorm_target = project.new_target(:framework, "IceStorm", platform)
         icegrid_target = project.new_target(:framework, "IceGrid", platform)
 
+        framework_targets = {
+            "IceImpl.framework" => iceimpl_target,
+            "Ice.framework" => ice_target,
+            "Glacier2.framework" => glacier2_target,
+            "IceStorm.framework" => icestorm_target,
+            "IceGrid.framework" => icegrid_target
+        }
+
         [glacier2_target, icestorm_target, icegrid_target].each do | t |
             target = t
             framework = target.name
@@ -383,11 +395,10 @@ def create_platform_targets(project, platform, bindist)
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
 
     target_set_framework_build_settings(target)
-    if bindist
-        target_add_carthage_framework(target, platform, "IceImpl.framework", true)
-        target_add_carthage_framework(target, platform, "Ice.framework", true)
-    else
-        [iceimpl_target, ice_target].each do |t|
+    framework_targets.each do |name, t|
+        if bindist
+            target_add_carthage_framework(target, platform, name, true)
+        else
             file = copy_phase.add_file_reference(t.product_reference)
             file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
             target.frameworks_build_phases.add_file_reference(t.product_reference)
@@ -413,6 +424,20 @@ def create_platform_targets(project, platform, bindist)
             target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
         end
         target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
+
+        extra_frameworks = $test_extra_frameworks[test] || []
+        extra_frameworks.each do |f|
+            if bindist
+                target_add_carthage_framework(target, platform, f)
+            else
+                if framework_targets.include? f
+                    target_framework = framework_targets[f]
+                    target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
+                else
+                    target_add_carthage_framework(target, platform, f)
+                end
+            end
+        end
 
         target_set_framework_build_settings(target)
         target.build_configurations.each { |config|
@@ -462,6 +487,20 @@ def create_platform_targets(project, platform, bindist)
                 target_add_carthage_framework(target, platform, "Ice.framework")
             else
                 target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
+            end
+
+            extra_frameworks = $test_extra_frameworks[test] || []
+            extra_frameworks.each do |f|
+                if bindist
+                    target_add_carthage_framework(target, platform, f)
+                else
+                    if framework_targets.include? f
+                        target_framework = framework_targets[f]
+                        target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
+                    else
+                        target_add_carthage_framework(target, platform, f)
+                    end
+                end
             end
             target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
 
