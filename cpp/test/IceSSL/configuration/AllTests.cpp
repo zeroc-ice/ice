@@ -695,6 +695,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     bool elCapitanUpdate2OrLower = false;
+    bool isCatalinaOrGreater = false;
 #ifdef __APPLE__
     bool isElCapitanOrGreater = false;
     vector<char> s(256);
@@ -711,6 +712,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         isElCapitanOrGreater = majorVersion >= 15;
         elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
+        isCatalinaOrGreater = majorVersion >= 19;
     }
 #endif
     string factoryRef = "factory:" + helper->getTestEndpoint("tcp");
@@ -1294,10 +1296,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                cerr << ex << endl;
-                test(false);
+                //
+                // macOS catalina does not check the certificate common name
+                //
+                test(isCatalinaOrGreater);
             }
 
             fact->destroyServer(server);
@@ -1426,10 +1430,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                cerr << ex << endl;
-                test(false);
+                //
+                // macOS catalina does not check the certificate common name
+                //
+                test(isCatalinaOrGreater);
             }
 #else
             try
