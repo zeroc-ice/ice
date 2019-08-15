@@ -243,7 +243,7 @@ class Platform(object):
     def hasSwift(self, version):
         if self._hasSwift is None:
             try:
-                m = re.search("Apple Swift version ([0-9]+\.[0-9]+\.[0-9]+)", run("swift --version"))
+                m = re.search("Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
                 if m and m.group(1):
                     self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
                 else:
