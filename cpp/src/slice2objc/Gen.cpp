@@ -2096,7 +2096,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
             }
             else
             {
-                 _M << nl << "h_ = ((h_ << 5) + h_) ^ " << name << ";";
+                 _M << nl << "h_ = ((h_ << 5) + h_) ^ (uint)" << name << ";";
             }
         }
         else
