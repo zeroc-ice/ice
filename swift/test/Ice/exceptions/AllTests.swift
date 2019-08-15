@@ -751,8 +751,8 @@ func allTests(_ helper: TestHelper) throws -> ThrowerPrx {
                 }
             }
         }.wait()
+        output.writeLine("ok")
     }
-    output.writeLine("ok")
 
     output.write("catching object not exist exception with new AMI mapping... ")
     try Promise<Void> { seal in
