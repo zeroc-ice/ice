@@ -90,6 +90,9 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
     defaultProperties.setProperty(key: "IceSSL.DefaultDir", value: defaultDir)
     defaultProperties.setProperty(key: "Ice.Default.Host", value: defaultHost)
 
+    let os = ProcessInfo().operatingSystemVersion
+    let isCatalinaOrGreater = (os.majorVersion, os.minorVersion) >= (10, 15)
+
     output.write("testing manual initialization... ")
     do {
         let properties = createClientProps(defaultProperties)
@@ -315,7 +318,14 @@ public func allTests(_ helper: TestHelper, _ defaultDir: String) throws -> SSLSe
             d = createServerProps(defaultProperties: props, cert: "s_rsa_ca1_cn3", ca: "cacert1")
             d["IceSSL.CheckCertName"] = "1"
             server = try fact.createServer(d)!
-            try server.ice_ping()
+            do {
+                try server.ice_ping()
+            } catch is Ice.SecurityException {
+                //
+                // macOS catalina does not check the certificate common name
+                //
+                try test(isCatalinaOrGreater)
+            }
             try fact.destroyServer(server)
             comm.destroy()
 
