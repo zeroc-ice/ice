@@ -384,30 +384,16 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // We may want to notify external scripts that the services
-            // have started. This is done by defining the property:
+            // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
             //
-            // PrintServicesReady=bundleName
-            //
-            // Where bundleName is whatever you choose to call this set of
-            // services. It will be echoed back as "bundleName ready".
-            //
-            // This must be done after start() has been invoked on the
-            // services.
-            //
-            string bundleName = properties.getProperty("IceBox.PrintServicesReady");
-            if(bundleName.Length > 0)
-            {
-                Console.Out.WriteLine(bundleName + " ready");
-            }
-
-            //
-            // Register "this" as a facet to the Admin object and create Admin object
-            //
+            _communicator.addAdminFacet(this, "IceBox.ServiceManager");
             try
             {
-                _communicator.addAdminFacet(this, "IceBox.ServiceManager");
                 _communicator.getAdmin();
+                if(adapter != null)
+                {
+                    adapter.activate();
+                }
             }
             catch(Ice.ObjectAdapterDeactivatedException)
             {
@@ -417,20 +403,20 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // Start request dispatching after we've started the services.
+            // We may want to notify external scripts that the services
+            // have started and that IceBox is "ready".
+            // This is done by defining the property IceBox.PrintServicesReady=bundleName
             //
-            if(adapter != null)
+            // bundleName is whatever you choose to call this set of
+            // services. It will be echoed back as "bundleName ready".
+            //
+            // This must be done after start() has been invoked on the
+            // services.
+            //
+            string bundleName = properties.getProperty("IceBox.PrintServicesReady");
+            if(bundleName.Length > 0)
             {
-                try
-                {
-                    adapter.activate();
-                }
-                catch(Ice.ObjectAdapterDeactivatedException)
-                {
-                    //
-                    // Expected if the communicator has been shutdown.
-                    //
-                }
+                Console.Out.WriteLine(bundleName + " ready");
             }
 
             _communicator.waitForShutdown();
