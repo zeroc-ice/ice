@@ -190,7 +190,7 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()->definition()) :
+    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
                                      ContainedPtr::dynamicCast(type));
 }
 
@@ -198,7 +198,7 @@ string
 Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
 {
     //
-    // Check if the file contains the python:pkgdir global metadata.
+    // Check if the file contains the js:module global metadata.
     //
     DefinitionContextPtr dc = p->definitionContext();
     assert(dc);
@@ -267,7 +267,7 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
     else if(ProxyPtr::dynamicCast(type))
     {
         ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-        return importPrefix(ContainedPtr::dynamicCast(proxy->_class()->definition()), toplevel, imports);
+        return importPrefix(ContainedPtr::dynamicCast(proxy->_class()), toplevel, imports);
     }
     else if(ContainedPtr::dynamicCast(type))
     {
@@ -505,7 +505,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
             string prefix;
             if(typescript)
             {
-                prefix = importPrefix(ContainedPtr::dynamicCast(def), toplevel, imports);
+                prefix = importPrefix(ContainedPtr::dynamicCast(proxy->_class()), toplevel, imports);
                 os << prefix;
             }
 
