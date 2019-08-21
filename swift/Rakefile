@@ -395,10 +395,14 @@ def create_platform_targets(project, platform, bindist)
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
 
     target_set_framework_build_settings(target)
-    framework_targets.each do |name, t|
-        if bindist
-            target_add_carthage_framework(target, platform, name, true)
-        else
+    if bindist then
+        target_add_carthage_framework(target, platform, "IceImpl.framework", true)
+        target_add_carthage_framework(target, platform, "Ice.framework", true)
+        target_add_carthage_framework(target, platform, "Glacier2.framework", true)
+        target_add_carthage_framework(target, platform, "IceStorm.framework", true)
+        target_add_carthage_framework(target, platform, "IceGrid.framework", true)
+    else
+        framework_targets.each do |name, t|
             file = copy_phase.add_file_reference(t.product_reference)
             file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
             target.frameworks_build_phases.add_file_reference(t.product_reference)
