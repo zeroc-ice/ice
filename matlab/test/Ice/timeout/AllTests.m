@@ -28,7 +28,7 @@ classdef AllTests
                 helper.communicator().stringToProxy(['controller:', helper.getTestEndpoint(1)]));
             assert(~isempty(controller));
             try
-                allTestsWithController(helper);
+                allTestsWithController(helper, controller);
             catch ex
                 % Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
                 % the test from hanging on exit in case a connection which disables timeouts is still opened.
