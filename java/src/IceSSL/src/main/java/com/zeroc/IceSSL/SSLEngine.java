@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.security.cert.*;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLParameters;
 import com.zeroc.Ice.PluginInitializationException;
 
@@ -86,6 +88,12 @@ class SSLEngine
         // certificate against its hostname.
         //
         _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+
+        //
+        // ServerNameIndication determines whether the SNI extension applies to client connections,
+        // indicating the hostname to the server (must be DNS hostname, not an IP address).
+        //
+        _serverNameIndication = properties.getPropertyAsIntWithDefault(prefix + "ServerNameIndication", 1) > 0;
 
         //
         // VerifyDepthMax establishes the maximum length of a peer's certificate
@@ -877,6 +885,28 @@ class SSLEngine
             }
         }
 
+        // Server name indication
+        if (!incoming && _serverNameIndication)
+        {
+            SNIHostName serverName = null;
+            try
+            {
+                serverName = new SNIHostName(host);
+            }
+            catch(IllegalArgumentException ex)
+            {
+                // Invalid SNI hostname, ignore because it might be an IP
+            }
+            if (serverName != null)
+            {
+                SSLParameters sslParams = engine.getSSLParameters();
+                List<SNIServerName> serverNames = new ArrayList<>();
+                serverNames.add(serverName);
+                sslParams.setServerNames(serverNames);
+                engine.setSSLParameters(sslParams);
+            }
+        }
+
         try
         {
             engine.beginHandshake();
@@ -1191,6 +1221,7 @@ class SSLEngine
     private boolean _noCiphers;
     private String[] _protocols;
     private boolean _checkCertName;
+    private boolean _serverNameIndication;
     private int _verifyDepthMax;
     private int _verifyPeer;
     private CertificateVerifier _verifier;
