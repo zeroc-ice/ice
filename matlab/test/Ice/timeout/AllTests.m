@@ -22,6 +22,8 @@ classdef AllTests
             r = prx.ice_getConnection(); % Establish connection
         end
         function allTests(helper)
+            import Test.*;
+
             controller = ControllerPrx.checkedCast(...
                 helper.communicator().stringToProxy(['controller:', helper.getTestEndpoint(1)]));
             assert(~isempty(controller));
