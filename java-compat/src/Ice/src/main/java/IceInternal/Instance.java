@@ -951,6 +951,11 @@ public final class Instance implements Ice.ClassResolver
                 else
                 {
                     _initData.logger = Ice.Util.getProcessLogger();
+                    if(_initData.logger instanceof Ice.LoggerI)
+                    {
+                        _initData.logger =
+                            new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"), "");
+                    }
                 }
             }
 
