@@ -22,6 +22,19 @@ classdef AllTests
             r = prx.ice_getConnection(); % Establish connection
         end
         function allTests(helper)
+            controller = ControllerPrx.checkedCast(...
+                helper.communicator().stringToProxy(['controller:', helper.getTestEndpoint(1)]));
+            assert(~isempty(controller));
+            try
+                allTestsWithController(helper);
+            catch ex
+                % Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+                % the test from hanging on exit in case a connection which disables timeouts is still opened.
+                controller.resumeAdapter();
+                rethrow(ex);
+            end
+        end
+        function allTestsWithController(helper, controller)
             import Test.*;
 
             communicator = helper.communicator();
@@ -32,10 +45,6 @@ classdef AllTests
 
             timeout = TimeoutPrx.checkedCast(obj);
             assert(~isempty(timeout));
-
-            controller = ControllerPrx.checkedCast(...
-                communicator.stringToProxy(['controller:', helper.getTestEndpoint(1)]));
-            assert(~isempty(controller));
 
             fprintf('testing connect timeout... ');
 

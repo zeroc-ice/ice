@@ -37,6 +37,24 @@ function connect($prx)
 
 function allTests($helper)
 {
+    $controller = $helper->communicator()->stringToProxy(sprintf("controller:%s", $helper->getTestEndpoint(1)));
+    $controller = $controller->ice_checkedCast("::Test::Controller");
+    test($controller);
+    try
+    {
+        allTestsWithController($helper, $controller);
+    }
+    catch(Exception $ex)
+    {
+        // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
+        // from hanging on exit in case a connection which disables timeouts is still opened.
+        $controller->resumeAdapter();
+        throw $ex;
+    }
+}
+
+function allTestsWithController($helper, $controller)
+{
     global $NS;
     $ConnectTimeoutException = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
     $TimeoutException = $NS ? "Ice\\TimeoutException" : "Ice_TimeoutException";
@@ -52,10 +70,6 @@ function allTests($helper)
 
     $timeout = $timeout->ice_checkedCast("::Test::Timeout");
     test($timeout);
-
-    $controller = $communicator->stringToProxy(sprintf("controller:%s", $helper->getTestEndpoint(1)));
-    $controller = $controller->ice_checkedCast("::Test::Controller");
-    test($controller);
 
     echo("testing connect timeout... ");
     flush();

@@ -19,6 +19,20 @@ func connect(_ prx: Ice.ObjectPrx) throws -> Ice.Connection {
 }
 
 public func allTests(helper: TestHelper) throws {
+    let controller = try checkedCast(
+        prx: helper.communicator().stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
+        type: ControllerPrx.self)!
+    do {
+        try allTestsWithController(helper:helper, controller:controller)
+    } catch {
+        // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+        // the test from hanging on exit in case a connection which disables timeouts is still opened.
+        try controller.resumeAdapter()
+        throw error
+    }
+}
+
+public func allTestsWithController(helper: TestHelper, controller: ControllerPrx) throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -28,9 +42,6 @@ public func allTests(helper: TestHelper) throws {
     let obj = try communicator.stringToProxy(sref)!
 
     let timeout = try checkedCast(prx: obj, type: TimeoutPrx.self)!
-
-    let controller = try checkedCast(prx: communicator.stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
-                                     type: ControllerPrx.self)!
 
     let output = helper.getWriter()
     output.write("testing connect timeout... ")

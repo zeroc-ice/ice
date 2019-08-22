@@ -17,16 +17,26 @@ def connect(prx)
 end
 
 def allTests(helper, communicator)
+    controller = Test::ControllerPrx::checkedCast(
+        communicator.stringToProxy("controller:#{helper.getTestEndpoint(num:1)}"))
+    test(controller)
+    begin
+        allTestsWithController(helper, communicator, controller)
+    rescue
+        # Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+        # the test from hanging on exit in case a connection which disables timeouts is still opened.
+        controller.holdAdapter()
+        raise
+    end
+end
+
+def allTestsWithController(helper, communicator, controller)
     sref = "timeout:#{helper.getTestEndpoint()}"
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     timeout = Test::TimeoutPrx::checkedCast(obj)
     test(timeout)
-
-    controller = Test::ControllerPrx::checkedCast(
-        communicator.stringToProxy("controller:#{helper.getTestEndpoint(num:1)}"))
-    test(controller)
 
     print "testing connect timeout... "
     STDOUT.flush

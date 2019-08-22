@@ -12,6 +12,24 @@ export class Client extends TestHelper
 {
     async allTests()
     {
+        const controller = Test.ControllerPrx.uncheckedCast(
+            this.communicator().stringToProxy("controller:" + this.getTestEndpoint(1)));
+        test(controller !== null);
+        try
+        {
+            await this.allTestsWithController(controller);
+        }
+        catch(ex)
+        {
+            // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
+            // from hanging on exit in case a connection which disables timeouts is still opened.
+            controller.resumeAdapter();
+            throw ex;
+        }
+    }
+
+    async allTestsWithController(controller:Test.ControllerPrx)
+    {
         async function connect(prx:Test.TimeoutPrx)
         {
             let nRetry = 10;

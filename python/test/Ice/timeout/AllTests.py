@@ -55,6 +55,19 @@ def connect(prx):
     return prx.ice_getConnection(); # Establish connection
 
 def allTests(helper, communicator):
+    controller = Test.ControllerPrx.checkedCast(
+        communicator.stringToProxy("controller:{0}".format(helper.getTestEndpoint(num=1))))
+    test(controller != None)
+
+    try:
+        allTestsWithController(helper, communicator, controller)
+    except Exception:
+        # Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+        # the test from hanging on exit in case a connection which disables timeouts is still opened.
+        controller.resumeAdapter()
+        raise
+
+def allTestsWithController(helper, communicator, controller):
 
     sref = "timeout:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
@@ -62,10 +75,6 @@ def allTests(helper, communicator):
 
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout != None)
-
-    controller = Test.ControllerPrx.checkedCast(
-        communicator.stringToProxy("controller:{0}".format(helper.getTestEndpoint(num=1))))
-    test(controller != None)
 
     sys.stdout.write("testing connect timeout... ")
     sys.stdout.flush()

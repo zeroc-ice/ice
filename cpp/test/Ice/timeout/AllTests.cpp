@@ -106,19 +106,16 @@ connect(const Ice::ObjectPrxPtr& prx)
 }
 
 void
-allTests(Test::TestHelper* helper)
+allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& controller)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string sref = "timeout:" + helper->getTestEndpoint();
+
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
     TimeoutPrxPtr timeout = ICE_CHECKED_CAST(TimeoutPrx, obj);
     test(timeout);
-
-    ControllerPrxPtr controller =
-        ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:" + helper->getTestEndpoint(1)));
-    test(controller);
 
     cout << "testing connect timeout... " << flush;
     {
@@ -566,4 +563,25 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     controller->shutdown();
+}
+
+void
+allTests(Test::TestHelper* helper)
+{
+    ControllerPrxPtr controller =
+        ICE_CHECKED_CAST(ControllerPrx,
+                         helper->communicator()->stringToProxy("controller:" + helper->getTestEndpoint(1)));
+    test(controller);
+
+    try
+    {
+        allTestsWithController(helper, controller);
+    }
+    catch(const Ice::Exception&)
+    {
+        // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
+        // from hanging on exit in case a connection which disables timeouts is still opened.
+        controller->resumeAdapter();
+        throw;
+    }
 }

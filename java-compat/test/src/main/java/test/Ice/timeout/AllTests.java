@@ -151,6 +151,26 @@ public class AllTests
     public static void
     allTests(test.TestHelper helper)
     {
+        ControllerPrx controller = ControllerPrxHelper.checkedCast(
+           helper.communicator().stringToProxy("controller:" + helper.getTestEndpoint(1)));
+        test(controller != null);
+
+        try
+        {
+            allTestsWithController(helper, controller);
+        }
+        catch(Exception ex)
+        {
+            // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
+            // from hanging on exit in case a connection which disables timeouts is still opened.
+            controller.resumeAdapter();
+            throw ex;
+        }
+    }
+
+    public static void
+    allTestsWithController(test.TestHelper helper, ControllerPrx controller)
+    {
         Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
 
@@ -167,10 +187,6 @@ public class AllTests
 
         TimeoutPrx timeout = TimeoutPrxHelper.checkedCast(obj);
         test(timeout != null);
-
-        ControllerPrx controller = ControllerPrxHelper.checkedCast(
-           communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
-        test(controller != null);
 
         out.print("testing connect timeout... ");
         out.flush();
