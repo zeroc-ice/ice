@@ -68,10 +68,6 @@ export class Client extends TestHelper
         const timeout = await Test.TimeoutPrx.checkedCast(obj);
         test(timeout !== null);
 
-        const controller = Test.ControllerPrx.uncheckedCast(
-            communicator.stringToProxy("controller:" + this.getTestEndpoint(1)));
-        test(controller !== null);
-
         out.write("testing connect timeout... ");
         {
             const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
