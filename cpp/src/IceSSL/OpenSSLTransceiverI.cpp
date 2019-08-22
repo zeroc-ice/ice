@@ -443,6 +443,21 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
 
         if(ret <= 0)
         {
+#if defined(_AIX)
+            //
+            // WORKAROUND: OpenSSL SSL_write on AIX sometime ends up reporting a error
+            // with SSL_get_error but there's no error in the error queue. This occurs
+            // when SSL_write can't write more data. So we just return SocketOperationWrite
+            // in this case.
+            //
+            if(SSL_get_error(_ssl, ret) == SSL_ERROR_SSL && ERR_peek_error() == 0)
+            {
+                if(SSL_want_write(_ssl))
+                {
+                    return IceInternal::SocketOperationWrite;
+                }
+            }
+#endif
             switch(SSL_get_error(_ssl, ret))
             {
             case SSL_ERROR_NONE:
