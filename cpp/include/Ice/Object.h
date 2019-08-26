@@ -79,7 +79,8 @@ public:
      * Obtains the Current object associated with the request.
      * @return The Current object.
      */
-    virtual const Current& getCurrent() = 0;
+    virtual const Current& getCurrent() const = 0;
+    virtual Current& getCurrent() = 0;
 };
 
 #ifdef ICE_CPP11_MAPPING

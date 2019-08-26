@@ -789,6 +789,12 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
 }
 
 const Current&
+IceInternal::IncomingRequest::getCurrent() const
+{
+    return _in.getCurrent();
+}
+
+Current&
 IceInternal::IncomingRequest::getCurrent()
 {
     return _in.getCurrent();

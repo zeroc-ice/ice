@@ -55,7 +55,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     };
 #endif
 
-    Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
+    Ice::Current& current = request.getCurrent();
 
     Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
     if(p != current.ctx.end())

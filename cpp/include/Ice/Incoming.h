@@ -152,7 +152,12 @@ public:
 
     Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
 
-    const Ice::Current& getCurrent()
+    Ice::Current& getCurrent()
+    {
+        return _current;
+    }
+
+    const Ice::Current& getCurrent() const
     {
         return _current;
     }

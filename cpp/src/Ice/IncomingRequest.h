@@ -23,7 +23,8 @@ public:
     {
     }
 
-    virtual const Ice::Current& getCurrent();
+    virtual const Ice::Current& getCurrent() const;
+    virtual Ice::Current& getCurrent();
 
     Incoming& _in;
 };
