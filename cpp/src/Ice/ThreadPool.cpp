@@ -678,6 +678,9 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             }
             catch(const ThreadPoolDestroyedException&)
             {
+                Lock sync(*this);
+                --_inUse;
+                thread->setState(ICE_ENUM(ThreadState, ThreadStateIdle));
                 return;
             }
             catch(const exception& ex)

@@ -397,6 +397,11 @@ public final class ThreadPool
                 }
                 catch(DestroyedException ex)
                 {
+                    synchronized(this)
+                    {
+                        --_inUse;
+                        thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                    }
                     return;
                 }
                 catch(java.lang.Exception ex)

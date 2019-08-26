@@ -413,6 +413,11 @@ public final class ThreadPool implements java.util.concurrent.Executor
                 }
                 catch(DestroyedException ex)
                 {
+                    synchronized(this)
+                    {
+                        --_inUse;
+                        thread.setState(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                    }
                     return;
                 }
                 catch(java.lang.Exception ex)
