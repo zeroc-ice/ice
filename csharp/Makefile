@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-DOTNETARGS = $(if $(filter $(OPTIMIZE),no),/p:Configuration=Debug)
+DOTNETARGS = /nr:false $(if $(filter $(OPTIMIZE),no),/p:Configuration=Debug)
 
 all:
 	dotnet msbuild msbuild/ice.proj $(DOTNETARGS) /m
