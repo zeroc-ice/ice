@@ -2,7 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-DOTNETARGS = /nr:false /m
+#
+# We use /p:UseSharedCompilation=false /nr:false to ensure msbuild doesn't leave processes behind
+# after the build (this causes make to hang).
+#
+DOTNETARGS = /p:UseSharedCompilation=false /nr:false /m
 DOTNETBUILDARGS = $(if $(filter $(OPTIMIZE),no),/p:Configuration=Debug)
 
 all:
