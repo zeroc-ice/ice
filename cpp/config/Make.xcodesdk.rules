@@ -6,7 +6,7 @@ include $(top_srcdir)/config/Make.xcodesdk.rules
 
 supported-configs       += xcodesdk cpp11-xcodesdk
 
-is-iostest-program      = $(and $(filter-out macosx,$2),$(filter program,$($1_target)))
+is-iostest-program 	= $(and $(filter-out macosx,$2),$(filter test/%,$1))
 
 #
 # Xcode configuration to build Xcode sdks for Ice.
@@ -29,18 +29,23 @@ xcodesdk_excludes       = $(addprefix test/Ice/,background \
 # Rule to build an iOS bundle for testing (this is used for packaging client/server programs)
 #
 define make-iostest-program
-$2/$1.bundle/$1.dylib: $5 $(foreach d,$6,$($d_targets))
-	$(E) "Linking [$8-$9] $$@"
+$2/$1.bundle/Info.plist:
 	$(Q)if [ ! -f $2/$1.bundle/Info.plist ] ; \
 	then \
 	    $(MKDIR) -p $2/$1.bundle ; \
 	    sed "s/NAME/$1/" test/ios/bundles/BundleInfo.plist > $2/$1.bundle/Info.plist ; \
 	fi
+
+$2/$1.bundle/$1.dylib: $5 $2/$1.bundle/Info.plist $(foreach d,$6,$($d_targets))
+	$(E) "Linking [$8-$9] $$@"
 	$(Q)$(RM) $2/$1.bundle/$1.dylib
 	$(Q)$(or $($8_cxx),$(platform_cxx)) -bundle $(LDFLAGS) -o $2/$1.bundle/$1.dylib $5 $(strip $7)
 endef
 
-get-iostest-program-targets = $2/$1.bundle/$1.dylib
+get-iostest-program-targets = $2/$1.bundle/$1.dylib $2/$1.bundle/Info.plist
+
+make-iostest-library = $(make-static-library)
+get-iostest-library-targets = $(get-static-library-targets)
 
 ifneq ($(findstring xcodesdk,$(configs)),)
 $(eval $(call make-xcodesdk,bin/slice2cpp))

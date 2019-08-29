@@ -23,7 +23,7 @@ public func allTests(helper: TestHelper) throws {
         prx: helper.communicator().stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
         type: ControllerPrx.self)!
     do {
-        try allTestsWithController(helper:helper, controller:controller)
+        try allTestsWithController(helper: helper, controller: controller)
     } catch {
         // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
         // the test from hanging on exit in case a connection which disables timeouts is still opened.
