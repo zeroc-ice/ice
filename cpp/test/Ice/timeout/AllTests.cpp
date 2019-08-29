@@ -522,28 +522,9 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
 
         // Keep the server thread pool busy.
 #ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleepAsync(300);
+        timeout->ice_invocationTimeout(-1)->sleepAsync(500);
 #else
-        timeout->ice_invocationTimeout(-1)->begin_sleep(300);
-#endif
-        try
-        {
-            batchTimeout->ice_flushBatchRequests();
-            test(false);
-        }
-        catch(const Ice::InvocationTimeoutException&)
-        {
-        }
-
-        batchTimeout->ice_ping();
-        batchTimeout->ice_ping();
-        batchTimeout->ice_ping();
-
-        // Keep the server thread pool busy.
-#ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleepAsync(300);
-#else
-        timeout->ice_invocationTimeout(-1)->begin_sleep(300);
+        timeout->ice_invocationTimeout(-1)->begin_sleep(500);
 #endif
         try
         {

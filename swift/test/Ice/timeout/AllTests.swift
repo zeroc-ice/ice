@@ -358,17 +358,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         try batchTimeout.ice_ping()
         try batchTimeout.ice_ping()
 
-        _ = proxy.ice_invocationTimeout(-1).sleepAsync(300) // Keep the server thread pool busy.
-        do {
-            try batchTimeout.ice_flushBatchRequests()
-            try test(false)
-        } catch is Ice.InvocationTimeoutException {}
-
-        try batchTimeout.ice_ping()
-        try batchTimeout.ice_ping()
-        try batchTimeout.ice_ping()
-
-        _ = proxy.ice_invocationTimeout(-1).sleepAsync(300) // Keep the server thread pool busy.
+        _ = proxy.ice_invocationTimeout(-1).sleepAsync(500) // Keep the server thread pool busy.
         do {
             try batchTimeout.ice_flushBatchRequestsAsync().wait()
             try test(false)

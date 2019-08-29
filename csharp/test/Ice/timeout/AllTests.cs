@@ -481,21 +481,7 @@ namespace Ice
                     batchTimeout.ice_ping();
                     batchTimeout.ice_ping();
 
-                   ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
-                    try
-                    {
-                        batchTimeout.ice_flushBatchRequests();
-                        test(false);
-                    }
-                    catch(Ice.InvocationTimeoutException)
-                    {
-                    }
-
-                    batchTimeout.ice_ping();
-                    batchTimeout.ice_ping();
-                    batchTimeout.ice_ping();
-
-                   ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
+                    ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(500); // Keep the server thread pool busy.
                     try
                     {
                         batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());

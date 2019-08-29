@@ -577,21 +577,7 @@ public class AllTests
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
 
-            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
-            try
-            {
-                batchTimeout.ice_flushBatchRequests();
-                test(false);
-            }
-            catch(Ice.InvocationTimeoutException ex)
-            {
-            }
-
-            batchTimeout.ice_ping();
-            batchTimeout.ice_ping();
-            batchTimeout.ice_ping();
-
-            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
+            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(500); // Keep the server thread pool busy.
             try
             {
                 batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());

@@ -510,22 +510,7 @@ public class AllTests
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
             batchTimeout.ice_ping();
-
-            proxy.ice_invocationTimeout(-1).sleepAsync(300); // Keep the server thread pool busy.
-            try
-            {
-                batchTimeout.ice_flushBatchRequests();
-                test(false);
-            }
-            catch(com.zeroc.Ice.InvocationTimeoutException ex)
-            {
-            }
-
-            batchTimeout.ice_ping();
-            batchTimeout.ice_ping();
-            batchTimeout.ice_ping();
-
-            proxy.ice_invocationTimeout(-1).sleepAsync(300); // Keep the server thread pool busy.
+            proxy.ice_invocationTimeout(-1).sleepAsync(500); // Keep the server thread pool busy.
             try
             {
                 batchTimeout.ice_flushBatchRequestsAsync().join();
