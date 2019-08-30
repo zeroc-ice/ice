@@ -387,19 +387,10 @@ class ServiceManagerI : ServiceManagerDisp_
             // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
             //
             _communicator.addAdminFacet(this, "IceBox.ServiceManager");
-            try
+            _communicator.getAdmin();
+            if(adapter != null)
             {
-                _communicator.getAdmin();
-                if(adapter != null)
-                {
-                    adapter.activate();
-                }
-            }
-            catch(Ice.ObjectAdapterDeactivatedException)
-            {
-                //
-                // Expected if the communicator has been shutdown.
-                //
+                adapter.activate();
             }
 
             //
@@ -425,6 +416,14 @@ class ServiceManagerI : ServiceManagerDisp_
         {
             _logger.error(ex.ToString());
             return 1;
+        }
+        catch(Ice.CommunicatorDestroyedException)
+        {
+            // Expected if the communicator is shutdown
+        }
+        catch(Ice.ObjectAdapterDeactivatedException)
+        {
+            // Expected if the communicator is shutdown
         }
         catch(Exception ex)
         {
