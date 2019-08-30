@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -50,11 +50,14 @@
 			compilerSpec = com.apple.compilers.proxy.script;
 			filePatterns = "*.ice";
 			fileType = pattern.proxy;
+			inputFiles = (
+			);
 			isEditable = 1;
 			outputFiles = (
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).cpp",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
+			runOncePerArchitecture = 0;
 			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper --cpp\n";
 		};
 		14E3982D1E01B14B00A89291 /* PBXBuildRule */ = {
@@ -69,6 +72,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).cpp",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
+			runOncePerArchitecture = 0;
 			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper --cpp\n";
 		};
 /* End PBXBuildRule section */
@@ -627,7 +631,10 @@
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Classes/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
@@ -657,7 +664,10 @@
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Classes/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
@@ -784,7 +794,10 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
@@ -808,7 +821,10 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
