@@ -2,6 +2,10 @@
 
 require 'xcodeproj'
 
+$projectVersion = "3.7.3"
+$macOSDeploymentTarget = "10.14"
+$iOSDeploymentTarget = "11.3"
+
 $tests = [
     "Ice/acm",
     "Ice/adapterDeactivation",
@@ -193,6 +197,7 @@ def create_platform_targets(project, platform, bindist)
                 end
             }
             target_set_common_build_settings(target, "#{component}++11#{platform_name}")
+            target_set_deployment_target(target, platform)
 
             source_dirs = cpp_source_dirs[component] || [component]
             source_dirs.each do |d|
@@ -266,6 +271,7 @@ def create_platform_targets(project, platform, bindist)
         target.frameworks_build_phases.add_file_reference(iceimpl_target.product_reference, true)
 
         target_set_common_build_settings(target, "Ice", plist: "src/Ice/Info.plist", swift: true)
+        target_set_deployment_target(target, platform)
 
         target.build_configurations.each { |config|
             config.build_settings["DEFINES_MODULE"] = "YES"
@@ -314,6 +320,7 @@ def create_platform_targets(project, platform, bindist)
             target.frameworks_build_phases.clear()
 
             target_set_common_build_settings(target, framework, plist: "src/#{framework}/Info.plist", swift: true)
+            target_set_deployment_target(target, platform)
 
             target.build_configurations.each { |config|
                 config.build_settings["DEFINES_MODULE"] = "YES"
@@ -686,13 +693,23 @@ def target_add_headers(target, group, basedir, patterns, excludes: [], attribute
     end
 end
 
+def target_set_deployment_target(target, platform)
+    target.build_configurations.each { |config|
+        if platform == :osx
+            config.build_settings["MACOSX_DEPLOYMENT_TARGET"] = $macOSDeploymentTarget
+        else
+            config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = $iOSDeploymentTarget
+        end
+    }
+end
+
 def target_set_common_build_settings(target, product, plist: nil, swift: false, identifier: nil)
     target.build_configurations.each { |config|
         config.build_settings["GCC_SYMBOLS_PRIVATE_EXTERN"] = "YES"
         config.build_settings["ENABLE_TESTABILITY"] = "NO"
         config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
-        config.build_settings["CURRENT_PROJECT_VERSION"] = "3.7.3"
-        config.build_settings["DYLIB_CURRENT_VERSION"] = "3.7.3"
+        config.build_settings["CURRENT_PROJECT_VERSION"] = $projectVersion
+        config.build_settings["DYLIB_CURRENT_VERSION"] = $projectVersion
         config.build_settings["DYLIB_COMPATIBILITY_VERSION"] = "0"
 
         if plist then
