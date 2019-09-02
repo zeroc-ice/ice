@@ -400,6 +400,10 @@ namespace IceSSL
                     //
                     // Client authentication.
                     //
+                    // SNI support: SslStream always sends the TLS extension (not configurable). See
+                    // https://github.com/dotnet/corefx/issues/17427 for older versions which don't
+                    // have it yet. Therefore, the IceSSL.ServerNameIndication property is not used here.
+                    //
                     _writeResult = _sslStream.BeginAuthenticateAsClient(_host,
                                                                         _instance.certs(),
                                                                         _instance.protocols(),
