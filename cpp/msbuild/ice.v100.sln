@@ -106,6 +106,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2", "..\src\IcePatc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2matlab", "..\src\slice2matlab\msbuild\slice2matlab.vcxproj", "{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2swift", "..\src\slice2swift\msbuild\slice2swift.vcxproj", "{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -298,6 +300,14 @@ Global
 		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|Win32.Build.0 = Release|Win32
 		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|x64.ActiveCfg = Release|x64
 		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|x64.Build.0 = Release|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|Win32.Build.0 = Debug|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|x64.ActiveCfg = Debug|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|x64.Build.0 = Debug|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|Win32.ActiveCfg = Release|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|Win32.Build.0 = Release|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|x64.ActiveCfg = Release|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

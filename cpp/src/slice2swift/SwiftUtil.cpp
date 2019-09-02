@@ -10,6 +10,8 @@
 
 #include <SwiftUtil.h>
 
+#include <functional>
+
 using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
