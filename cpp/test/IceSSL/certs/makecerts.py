@@ -124,7 +124,7 @@ certs = [
 #
 for (ca, alias, args) in certs:
     if not ca.get(alias):
-        ca.create(alias, **args)
+        ca.create(alias, extendedKeyUsages="clientAuth" if alias.startswith("c_") else "serverAuth", **args)
 
 savecerts = [
     (ca1, "s_rsa_ca1",     None,              {}),
@@ -171,7 +171,7 @@ for (ca, alias, path, args) in savecerts:
 for size in [512, 1024]:
     dhparams = "dh_params{0}.der".format(size)
     if clean or not os.path.exists(dhparams):
-        ca1.run("openssl dhparam -outform=DER -out={0} {1}".format(dhparams, size))
+        ca1.run("openssl dhparam -outform DER -out {0} {1}".format(dhparams, size))
 
 #
 # Create certificate with custom extensions
