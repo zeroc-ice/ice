@@ -1441,22 +1441,31 @@ void
 Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, StringList& remarksLines)
 {
     string s = p->comment();
-    string summary;
+
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+
     unsigned int i;
+
     for(i = 0; i < s.size(); ++i)
     {
         if(s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
         {
-            summary += '.';
             ++i;
             break;
         }
-        else
+        else if(s[i] == '@' && (s.substr(i, paramTag.size()) == paramTag ||
+                                s.substr(i, throwsTag.size()) == throwsTag ||
+                                s.substr(i, exceptionTag.size()) == exceptionTag ||
+                                s.substr(i, returnTag.size()) == returnTag))
         {
-            summary += s[i];
+            break;
         }
     }
-    summaryLines = splitIntoLines(summary);
+
+    summaryLines = splitIntoLines(trim(s.substr(0, i)));
     if(!summaryLines.empty())
     {
         remarksLines = splitIntoLines(trim(s.substr(i)));
