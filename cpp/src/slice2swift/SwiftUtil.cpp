@@ -1575,7 +1575,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
                              int typeCtx)
 {
     string swiftModule = getSwiftModule(getTopLevelModule(p));
-    bool protocol = (typeCtx & TypeContextProtocol);
+    bool protocol = (typeCtx & TypeContextProtocol) != 0;
     string access = protocol ? "" : "public ";
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {

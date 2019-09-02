@@ -10,6 +10,8 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 
+#include <iterator>
+
 #include "Gen.h"
 
 using namespace std;
