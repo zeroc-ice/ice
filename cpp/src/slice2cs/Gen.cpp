@@ -3905,7 +3905,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string context = getEscapedParamName(p, "context");
         _out << sp;
         writeDocComment(p, deprecateReason,
-            "<param name=\"" + context + " \">The Context map to send with the invocation.</param>");
+            "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
         if(!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
