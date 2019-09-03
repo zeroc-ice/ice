@@ -246,6 +246,11 @@ class InitialI: Initial {
     }
 }
 
+class F2I: F2 {
+    func op(current _: Current) throws {
+    }
+}
+
 class UnexpectedObjectExceptionTestI: Ice.Blobject {
     func ice_invoke(inEncaps _: Data, current: Ice.Current) throws -> (ok: Bool, outParams: Data) {
         let communicator = current.adapter!.getCommunicator()

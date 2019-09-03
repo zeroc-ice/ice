@@ -17,6 +17,13 @@ class UnexpectedObjectExceptionTestI extends Test.UnexpectedObjectExceptionTest
     }
 }
 
+class F2I extends Test.F2
+{
+    op(current:Ice.Current):void
+    {
+    }
+}
+
 export class Server extends TestHelper
 {
     async run(args:string[])
@@ -32,6 +39,7 @@ export class Server extends TestHelper
             echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new InitialI(communicator), Ice.stringToIdentity("initial"));
+            adapter.add(new F2I(), Ice.stringToIdentity("F21"));
             adapter.add(new UnexpectedObjectExceptionTestI(), Ice.stringToIdentity("uoet"));
             await echo.setConnection();
             echo.ice_getCachedConnection().setAdapter(adapter);

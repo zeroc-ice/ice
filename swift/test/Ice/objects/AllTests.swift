@@ -250,9 +250,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(f11!.name == "F11")
         try test(f12!.name == "F12")
 
-        let (f21, f22) = try initial.opF2(uncheckedCast(prx: communicator.stringToProxy("F21")!,
+        ref = "F21:\(helper.getTestEndpoint(num: 0))"
+        let (f21, f22) = try initial.opF2(uncheckedCast(prx: communicator.stringToProxy(ref)!,
                                                         type: F2Prx.self))
         try test(f21!.ice_getIdentity().name == "F21")
+        try f21!.op()
         try test(f22!.ice_getIdentity().name == "F22")
 
         if try initial.hasF3() {

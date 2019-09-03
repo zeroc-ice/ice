@@ -277,8 +277,10 @@ classdef AllTests
             assert(strcmp(f11.name, 'F11'));
             assert(strcmp(f12.name, 'F12'));
 
-            [f21, f22] = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy('F21')));
+            ref = ['F21:', helper.getTestEndpoint()];
+            [f21, f22] = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy(ref)));
             assert(strcmp(f21.ice_getIdentity().name, 'F21'));
+            f21.op();
             assert(strcmp(f22.ice_getIdentity().name, 'F22'));
 
             if initial.hasF3()

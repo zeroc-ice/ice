@@ -422,8 +422,11 @@ public class AllTests
             test(f12.value.name.equals("F12"));
 
             F2PrxHolder f22 = new F2PrxHolder();
-            F2Prx f21 = initial.opF2(F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21")), f22);
+            F2Prx f21 =
+                initial.opF2(F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
+                             f22);
             test(f21.ice_getIdentity().name.equals("F21"));
+            f21.op();
             test(f22.value.ice_getIdentity().name.equals("F22"));
 
             if(initial.hasF3())

@@ -175,4 +175,13 @@ public:
     virtual void throwDerived(const Ice::Current&);
 };
 
+class F2I : public Test::F2
+{
+public:
+
+    virtual void op(const Ice::Current&)
+    {
+    }
+};
+
 #endif

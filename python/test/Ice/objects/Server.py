@@ -32,6 +32,7 @@ class Server(TestHelper):
             adapter = communicator.createObjectAdapter("TestAdapter")
             initial = TestI.InitialI(adapter)
             adapter.add(initial, Ice.stringToIdentity("initial"))
+            adapter.add(TestI.F2I(), Ice.stringToIdentity("F21"))
             uoet = TestI.UnexpectedObjectExceptionTestI()
             adapter.add(uoet, Ice.stringToIdentity("uoet"))
             adapter.activate()

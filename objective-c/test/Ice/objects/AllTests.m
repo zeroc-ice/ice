@@ -697,9 +697,11 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         test([f12.name isEqualToString:@"F12"]);
 
         TestObjectsF2Prx* f22;
-        TestObjectsF2Prx* f21 = [initial opF2:[TestObjectsF2Prx uncheckedCast:[communicator stringToProxy:@"F21"]]
+        ref = @"F21:default -p 12010";
+        TestObjectsF2Prx* f21 = [initial opF2:[TestObjectsF2Prx uncheckedCast:[communicator stringToProxy:ref]]
                                           f22: &f22];
         test([[f21 ice_getIdentity].name isEqualToString:@"F21"]);
+        [f21 op];
         test([[f22 ice_getIdentity].name isEqualToString:@"F22"]);
         tprintf("ok\n");
     }

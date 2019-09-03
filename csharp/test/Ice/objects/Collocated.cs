@@ -22,6 +22,8 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     var initial = new InitialI(adapter);
                     adapter.add(initial, Ice.Util.stringToIdentity("initial"));
+                    var f2 = new F2I();
+                    adapter.add(f2, Ice.Util.stringToIdentity("F21"));
                     var uet = new UnexpectedObjectExceptionTestI();
                     adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
                     Test.AllTests.allTests(this);

@@ -22,6 +22,7 @@
     <Compile Include="../../../II.cs" />
     <Compile Include="../../../InitialI.cs" />
     <Compile Include="../../../JI.cs" />
+    <Compile Include="../../../F2I.cs" />
     <Compile Include="../../../UnexpectedObjectExceptionTestI.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>

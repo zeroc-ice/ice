@@ -515,8 +515,11 @@ namespace Ice
                         test(f12.name.Equals("F12"));
 
                         F2Prx f22;
-                        F2Prx f21 = initial.opF2(F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21")), out f22);
+                        F2Prx f21 = initial.opF2(
+                            F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
+                            out f22);
                         test(f21.ice_getIdentity().name.Equals("F21"));
+                        f21.op();
                         test(f22.ice_getIdentity().name.Equals("F22"));
 
                         if(initial.hasF3())

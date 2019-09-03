@@ -315,6 +315,33 @@ export class InitialI extends Test.Initial
         throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
     }
 
+    opM(v1:Test.M, current:Ice.Current):[Test.M, Test.M]
+    {
+        return [v1, v1];
+    }
+
+    opF1(f11:Test.F1, current:Ice.Current):[Test.F1, Test.F1]
+    {
+        return [f11, new Test.F1("F12")];
+    }
+
+    opF2(f21:Test.F2Prx, current:Ice.Current):[Test.F2Prx, Test.F2Prx]
+    {
+        return [f21, Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22"))];
+    }
+
+    opF3(f31:Test.F3, current:Ice.Current):[Test.F3, Test.F3]
+    {
+        return [f31,
+                new Test.F3(new Test.F1("F12"),
+                            Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")))];
+    }
+
+    hasF3(current:Ice.Current):boolean
+    {
+        return true;
+    }
+
     shutdown(current:Ice.Current):void
     {
         current.adapter.getCommunicator().shutdown();

@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated", "js:es6-module"]] // For classes with operations
+[["suppress-warning:deprecated", // For classes with operations
+  "js:es6-module"]]
 
 module Test
 {
@@ -184,6 +185,29 @@ class L
 sequence<Value> ValueSeq;
 dictionary<string, Value> ValueMap;
 
+struct StructKey
+{
+    int i;
+    string s;
+}
+
+dictionary<StructKey, L> LMap;
+
+class M
+{
+    LMap v;
+}
+
+// Forward declarations
+class F1;
+interface F2;
+
+class F3
+{
+    F1 f1;
+    F2* f2;
+}
+
 interface Initial
 {
     void shutdown();
@@ -227,6 +251,13 @@ interface Initial
 
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
+
+    M opM(M v1, out M v2);
+
+    F1 opF1(F1 f11, out F1 f12);
+    F2* opF2(F2* f21, out F2* f22);
+    F3 opF3(F3 f31, out F3 f32);
+    bool hasF3();
 }
 
 class Empty

@@ -77,6 +77,12 @@
 @implementation TestObjectsJI
 @end
 
+@implementation TestObjectsF2I
+-(void) op:(ICECurrent*)__unused current
+{
+}
+@end
+
 @implementation TestObjectsInitialI
 
 -(id) init

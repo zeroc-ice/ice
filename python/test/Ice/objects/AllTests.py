@@ -341,8 +341,10 @@ def allTests(helper, communicator):
     test(f11.name == "F11")
     test(f12.name == "F12")
 
-    f21, f22 = initial.opF2(Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21")))
+    ref = "F21:{0}".format(helper.getTestEndpoint())
+    f21, f22 = initial.opF2(Test.F2Prx.uncheckedCast(communicator.stringToProxy(ref)))
     test(f21.ice_getIdentity().name == "F21")
+    f21.op()
     test(f22.ice_getIdentity().name == "F22")
 
     if initial.hasF3():

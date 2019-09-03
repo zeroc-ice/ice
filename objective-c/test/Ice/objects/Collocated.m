@@ -96,6 +96,9 @@ run(id<ICECommunicator> communicator)
     ICEObject* testObj = ICE_AUTORELEASE([[TestObjectsTestIntfI alloc] init]);
     [adapter add:testObj identity:[ICEUtil stringToIdentity:@"test"]];
 
+    ICEObject* f2Obj = ICE_AUTORELEASE([[TestObjectsF2I alloc] init]);
+    [adapter add:f2Obj identity:[ICEUtil stringToIdentity:@"F21"]];
+
     ICEObject* uoet = ICE_AUTORELEASE([[UnexpectedObjectExceptionTestI alloc] init]);
     [adapter add:uoet identity:[ICEUtil stringToIdentity:@"uoet"]];
 

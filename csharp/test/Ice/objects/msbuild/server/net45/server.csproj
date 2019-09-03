@@ -49,6 +49,9 @@
     <Compile Include="..\..\..\EI.cs">
       <Link>EI.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\F2I.cs">
+      <Link>F2I.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\FI.cs">
       <Link>FI.cs</Link>
     </Compile>

@@ -24,6 +24,7 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
+        try adapter.add(servant: F2Disp(F2I()), id: Ice.stringToIdentity("F21"))
         try adapter.add(servant: BlobjectDisp(UnexpectedObjectExceptionTestI()),
                         id: Ice.stringToIdentity("uoet"))
         try adapter.activate()

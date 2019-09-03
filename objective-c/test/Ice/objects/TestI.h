@@ -35,6 +35,12 @@
 @interface TestObjectsHI : TestObjectsH<TestObjectsH>
 @end
 
+@interface TestObjectsF2I : TestObjectsF2<TestObjectsF2>
+{
+}
+-(void) op:(ICECurrent*)current;
+@end
+
 @interface TestObjectsInitialI : TestObjectsInitial<TestObjectsInitial>
 {
     TestObjectsB* _b1;

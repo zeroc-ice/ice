@@ -197,10 +197,11 @@ class InitialI(Test.Initial):
         return (f11, Test.F1("F12"))
 
     def opF2(self, f21, current=None):
-        return (f21, current.adapter.getCommunicator().stringToProxy("F22"))
+        return (f21, Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")))
 
     def opF3(self, f31, current):
-        return (f31, Test.F3(Test.F1("F12"), current.adapter.getCommunicator().stringToProxy("F22")))
+        return (f31, Test.F3(Test.F1("F12"),
+                             Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22"))))
 
     def hasF3(self, current):
         return True
@@ -209,3 +210,7 @@ class InitialI(Test.Initial):
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
         return Test.AlsoEmpty()
+
+class F2I(Test.F2):
+    def op(self, current=None):
+        pass

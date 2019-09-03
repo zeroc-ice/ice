@@ -1234,7 +1234,7 @@ CodeVisitor::getType(const TypePtr& p)
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def && (def->isInterface() || def->allOperations().size() > 0))
+        if(!def || def->isAbstract())
         {
             return getTypeVar(prx->_class(), "Prx");
         }

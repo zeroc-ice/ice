@@ -471,8 +471,10 @@
                 test(f11.name == "F11");
                 test(f12.name == "F12");
 
-                const [f21, f22] = await initial.opF2(Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21")));
+                const [f21, f22] = await initial.opF2(
+                    Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + this.getTestEndpoint())));
                 test(f21.ice_getIdentity().name == "F21");
+                await f21.op();
                 test(f22.ice_getIdentity().name == "F22");
 
                 const hasF3 = await initial.hasF3();

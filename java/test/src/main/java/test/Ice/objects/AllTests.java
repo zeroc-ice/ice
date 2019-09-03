@@ -416,8 +416,10 @@ public class AllTests
             test(opF1Result.returnValue.name.equals("F11"));
             test(opF1Result.f12.name.equals("F12"));
 
-            Initial.OpF2Result opF2Result = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy("F21")));
+            Initial.OpF2Result opF2Result =
+                initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())));
             test(opF2Result.returnValue.ice_getIdentity().name.equals("F21"));
+            opF2Result.returnValue.op();
             test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
 
             if(initial.hasF3())

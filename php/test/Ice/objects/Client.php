@@ -577,8 +577,10 @@ function allTests($helper)
     test($f12->name == "F12");
 
     $f22 = null;
-    $f21 = $initial->opF2($communicator->stringToProxy("F21")->ice_uncheckedCast("::Test::F2"), $f22);
+    $ref = sprintf("F21:%s", $helper->getTestEndpoint());
+    $f21 = $initial->opF2($communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::F2"), $f22);
     test($f21->ice_getIdentity()->name == "F21");
+    $f21->op();
     test($f22->ice_getIdentity()->name == "F22");
 
     if($initial->hasF3())

@@ -585,8 +585,10 @@ allTests(Test::TestHelper* helper)
         test(f12->name == "F12");
 
         F2PrxPtr f22;
-        F2PrxPtr f21 = initial->opF2(ICE_UNCHECKED_CAST(F2Prx, communicator->stringToProxy("F21")), f22);
+        F2PrxPtr f21 = initial->opF2(ICE_UNCHECKED_CAST(F2Prx,
+            communicator->stringToProxy("F21:" + helper->getTestEndpoint())), f22);
         test(f21->ice_getIdentity().name == "F21");
+        f21->op();
         test(f22->ice_getIdentity().name == "F22");
 
         if(initial->hasF3())
