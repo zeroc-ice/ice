@@ -872,6 +872,10 @@ class SSLEngine
             }
         }
 
+        // SNI support: Java prior to version 8 do not have this feature in the SSLParameters
+        // class (https://docs.oracle.com/javase/7/docs/api/javax/net/ssl/SSLParameters.html).
+        // Therefore, Ice java-compat does not support SNI.
+
         try
         {
             engine.beginHandshake();
