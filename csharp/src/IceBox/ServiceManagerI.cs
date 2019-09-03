@@ -423,7 +423,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
         catch(Ice.ObjectAdapterDeactivatedException)
         {
-            // Expected if the communicator is shutdown
+            // Expected if the mmunicator is shutdown
         }
         catch(Exception ex)
         {

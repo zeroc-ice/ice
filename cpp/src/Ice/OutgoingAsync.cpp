@@ -364,9 +364,9 @@ OutgoingAsyncBase::cancel(const Ice::LocalException& ex)
     CancellationHandlerPtr handler;
     {
         Lock sync(_m);
-        ICE_SET_EXCEPTION_FROM_CLONE(_cancellationException, ex.ice_clone());
         if(!_cancellationHandler)
         {
+            ICE_SET_EXCEPTION_FROM_CLONE(_cancellationException, ex.ice_clone());
             return;
         }
         handler = _cancellationHandler;

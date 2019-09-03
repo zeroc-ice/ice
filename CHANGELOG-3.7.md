@@ -61,6 +61,10 @@ These are the changes since Ice 3.7.2.
 - Added `ice_isFixed` proxy method to test whether a proxy is a fixed proxy
   or not.
 
+- Fixed a retry bug occurring with invocations made on proxies configured with
+  the backward compatible invocation timeout -2. The invocation failed instead
+  of being retried.
+
 ## C++ Changes
 
 - Fixed IceGrid issue where gracefully interrupted IceGrid node wouldn't notify

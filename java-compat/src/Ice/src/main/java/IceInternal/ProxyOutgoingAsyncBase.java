@@ -45,6 +45,13 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
             _childObserver = null;
         }
 
+        _cachedConnection = null;
+        if(_proxy._getReference().getInvocationTimeout() == -2 && _future != null)
+        {
+            _future.cancel(false);
+            _future = null;
+        }
+
         //
         // NOTE: at this point, synchronization isn't needed, no other threads should be
         // calling on the callback.

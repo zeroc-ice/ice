@@ -61,6 +61,22 @@ public final class RetryI implements Retry
     }
 
     @Override
+    public void sleep(int delay, com.zeroc.Ice.Current c)
+    {
+        while(true)
+        {
+            try
+            {
+                Thread.sleep(delay);
+                break;
+            }
+            catch(InterruptedException ex)
+            {
+            }
+        }
+    }
+
+    @Override
     public void shutdown(com.zeroc.Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

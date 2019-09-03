@@ -17,6 +17,7 @@ public:
     virtual int opIdempotent(int, const Ice::Current&);
     virtual void opNotIdempotent(const Ice::Current&);
     virtual void opSystemException(const Ice::Current&);
+    virtual void sleep(int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

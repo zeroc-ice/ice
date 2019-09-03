@@ -16,6 +16,8 @@ interface Retry
     void opNotIdempotent();
     void opSystemException();
 
+    idempotent void sleep(int delay);
+
     idempotent void shutdown();
 }
 

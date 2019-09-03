@@ -101,10 +101,13 @@ class AsyncResult extends AsyncResultBase
 
     cancelWithException(ex)
     {
-        this._cancellationException = ex;
         if(this._cancellationHandler)
         {
             this._cancellationHandler.asyncRequestCanceled(this, ex);
+        }
+        else
+        {
+            this._cancellationException = ex;
         }
     }
 

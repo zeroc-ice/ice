@@ -121,6 +121,14 @@ public func allTests(helper: TestHelper) throws -> RetryPrx {
     } catch is Ice.InvocationTimeoutException {
         _ = try retry2.opIdempotent(-1) // Reset the counter
     }
+
+    let retryWithTimeout = retry1.ice_invocationTimeout(-2).ice_timeout(200)
+    do {
+        try retryWithTimeout.sleep(300)
+        try test(false)
+    } catch is Ice.ConnectionTimeoutException {
+    }
+
     output.writeLine("ok")
     return retry1
 }

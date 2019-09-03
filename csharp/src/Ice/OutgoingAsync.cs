@@ -344,9 +344,9 @@ namespace IceInternal
             {
                 lock(this)
                 {
-                    _cancellationException = ex;
                     if(_cancellationHandler == null)
                     {
+                        _cancellationException = ex;
                         return;
                     }
                     handler = _cancellationHandler;

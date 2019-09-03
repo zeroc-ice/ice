@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 
 class RetryI: Retry {
@@ -37,6 +38,10 @@ class RetryI: Retry {
 
     func opSystemException(current _: Ice.Current) throws {
         throw Ice.RuntimeError("")
+    }
+
+    func sleep(delay: Int32, current _:Ice.Current) throws {
+        Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
     }
 
     func shutdown(current: Ice.Current) {
