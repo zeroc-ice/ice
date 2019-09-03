@@ -105,6 +105,10 @@ UWP::TransceiverI::getNativeInfo()
 IceInternal::SocketOperation
 UWP::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
+    // SNI support (TODO): not tested for UWP. The assumption is that `UpgradeToSslAsync`
+    // (https://docs.microsoft.com/en-us/uwp/api/windows.networking.sockets.streamsocket.upgradetosslasync)
+    // might always send the extension.
+
     if(!_connected)
     {
         IceInternal::SocketOperation status = _delegate->initialize(readBuffer, writeBuffer);
