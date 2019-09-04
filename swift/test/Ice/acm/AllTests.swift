@@ -249,8 +249,8 @@ class TestCase {
             }
         }
 
-        if _semaphore.wait(timeout: .now() + Double(2)) == .timedOut {
-            precondition(false) // Waited for more than 2s for close, something's wrong.
+        if _semaphore.wait(timeout: .now() + Double(30)) == .timedOut {
+            precondition(false) // Waited for more than 30s for close, something's wrong.
         }
         precondition(_closed)
     }
@@ -356,8 +356,6 @@ class CloseOnIdleTest: TestCase {
     }
 
     override func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
-        Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
-
         waitForClosed()
         try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)
@@ -401,8 +399,6 @@ class CloseOnIdleAndInvocationTest: TestCase {
         }
 
         try adapter.activate()
-        Thread.sleep(forTimeInterval: 1)
-
         waitForClosed()
     }
 }
@@ -415,7 +411,6 @@ class ForcefulCloseOnIdleAndInvocationTest: TestCase {
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
         try adapter.hold()
-        Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
         waitForClosed()
         try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)

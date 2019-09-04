@@ -246,10 +246,10 @@ public:
         IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
         while(!_closed)
         {
-            timedWait(IceUtil::Time::seconds(2));
-            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(1))
+            timedWait(IceUtil::Time::seconds(30));
+            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(30))
             {
-                test(false); // Waited for more than 2s for close, something's wrong.
+                test(false); // Waited for more than 30s for close, something's wrong.
             }
         }
     }
@@ -408,8 +408,6 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
-
         waitForClosed();
 
         Lock sync(*this);
@@ -462,7 +460,6 @@ public:
         }
 
         adapter->activate();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1000));
 
         waitForClosed();
     }
@@ -481,7 +478,6 @@ public:
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr&)
     {
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
         waitForClosed();
 

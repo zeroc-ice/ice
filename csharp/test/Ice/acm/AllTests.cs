@@ -244,10 +244,10 @@ namespace Ice
                     long now = IceInternal.Time.currentMonotonicTimeMillis();
                     while(!_closed)
                     {
-                        Monitor.Wait(this, 2000);
-                        if(IceInternal.Time.currentMonotonicTimeMillis() - now > 2000)
+                        Monitor.Wait(this, 30000);
+                        if(IceInternal.Time.currentMonotonicTimeMillis() - now > 30000)
                         {
-                            System.Diagnostics.Debug.Assert(false); // Waited for more than 2s for close, something's wrong.
+                            System.Diagnostics.Debug.Assert(false); // Waited for more than 30s for close, something's wrong.
                             throw new System.Exception();
                         }
                     }
@@ -405,8 +405,6 @@ namespace Ice
 
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
                 {
-                    Thread.Sleep(3000); // Idle for 3 seconds
-
                     waitForClosed();
                     lock(this)
                     {
@@ -460,8 +458,6 @@ namespace Ice
                     }
 
                     adapter.activate();
-                    Thread.Sleep(1000);
-
                     waitForClosed();
                 }
             }
@@ -477,8 +473,6 @@ namespace Ice
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
                 {
                     adapter.hold();
-                    Thread.Sleep(3000); // Idle for 3 seconds
-
                     waitForClosed();
                     lock(this)
                     {

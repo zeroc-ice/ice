@@ -128,8 +128,8 @@ class TestCase(threading.Thread):
         with self.m:
             while not self._closed:
                 now = time.time()
-                self.m.wait(2.0) # Wait 2s
-                if time.time() - now > 2:
+                self.m.wait(30.0) # Wait 30s
+                if time.time() - now > 30.0:
                     test(False)
 
     def runTestCase(self, adapter, proxy):
@@ -218,8 +218,6 @@ def allTests(helper, communicator):
             self.setClientACM(1, 1, 0) # Only close on idle.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(3) # Idle for 3 seconds
-
             self.waitForClosed()
 
             with self.m:
@@ -256,8 +254,6 @@ def allTests(helper, communicator):
                 test(not self._closed) # Not closed yet because of graceful close.
 
             adapter.activate()
-            time.sleep(1)
-
             self.waitForClosed()
 
     class ForcefulCloseOnIdleAndInvocationTest(TestCase):
@@ -267,8 +263,6 @@ def allTests(helper, communicator):
 
         def runTestCase(self, adapter, proxy):
             adapter.hold()
-            time.sleep(3) # Idle for 3 seconds
-
             self.waitForClosed()
 
             with self.m:

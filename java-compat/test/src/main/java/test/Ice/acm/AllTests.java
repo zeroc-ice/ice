@@ -250,10 +250,10 @@ public class AllTests
                 long now = IceInternal.Time.currentMonotonicTimeMillis();
                 try
                 {
-                    wait(2000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > 2000)
+                    wait(30000);
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > 30000)
                     {
-                        test(false); // Waited for more than 2s for close, something's wrong.
+                        test(false); // Waited for more than 30s for close, something's wrong.
                     }
                 }
                 catch(java.lang.InterruptedException ex)
@@ -405,14 +405,6 @@ public class AllTests
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            try
-            {
-                Thread.sleep(3000); // Idle for 3 seconds
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
-
             waitForClosed();
 
             synchronized(this)
@@ -479,14 +471,6 @@ public class AllTests
             }
 
             adapter.activate();
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
-
             waitForClosed();
         }
     }
@@ -502,13 +486,6 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             adapter.hold();
-            try
-            {
-                Thread.sleep(3000); // Idle for 3 seconds
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
             waitForClosed();
             synchronized(this)
             {
