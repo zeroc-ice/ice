@@ -262,7 +262,7 @@ namespace Ice
                             (Test.RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(200);
                         try
                         {
-                            retryWithTimeout.sleep(300);
+                            retryWithTimeout.sleep(400);
                             test(false);
                         }
                         catch(Ice.ConnectionTimeoutException)

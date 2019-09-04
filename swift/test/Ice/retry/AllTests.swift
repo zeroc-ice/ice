@@ -124,7 +124,7 @@ public func allTests(helper: TestHelper) throws -> RetryPrx {
 
     let retryWithTimeout = retry1.ice_invocationTimeout(-2).ice_timeout(200)
     do {
-        try retryWithTimeout.sleep(300)
+        try retryWithTimeout.sleep(400)
         try test(false)
     } catch is Ice.ConnectionTimeoutException {
     }
