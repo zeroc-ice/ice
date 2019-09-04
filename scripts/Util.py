@@ -3872,8 +3872,16 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
 class SwiftMapping(Mapping):
 
     class Config(CppBasedClientMapping.Config):
+
         mappingName = "swift"
         mappingDesc = "Swift"
+
+        def __init__(self, options=[]):
+            CppBasedClientMapping.Config.__init__(self, options)
+            if self.buildConfig == platform.getDefaultBuildConfig():
+                # Check the OPTIMIZE environment variable to figure out if it's Debug/Release build
+                self.buildConfig = "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+
 
     def getCommandLine(self, current, process, exe, args):
         testdir = self.component.getTestDir(self)
