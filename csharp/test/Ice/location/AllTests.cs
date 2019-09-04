@@ -593,25 +593,27 @@ namespace Ice
                 output.Write("testing indirect proxies to collocated objects... ");
                 output.Flush();
 
-                //
-                // Set up test for calling a collocated object through an
-                // indirect, adapterless reference.
-                //
-                Ice.Properties properties = communicator.getProperties();
-                properties.setProperty("Ice.PrintAdapterReady", "0");
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *");
-                adapter.setLocator(locator);
+                communicator.getProperties().setProperty("Hello.AdapterId", Guid.NewGuid().ToString());
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
 
                 Ice.Identity id = new Ice.Identity();
                 id.name = Guid.NewGuid().ToString();
-                registry.addObject(adapter.add(new HelloI(), id));
+                adapter.add(new HelloI(), id);
                 adapter.activate();
 
+                // Ensure that calls on the well-known proxy is collocated.
                 var helloPrx = Test.HelloPrxHelper.checkedCast(
                     communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
                 test(helloPrx.ice_getConnection() == null);
 
-                adapter.deactivate();
+                // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createIndirectProxy(id));
+                test(helloPrx.ice_getConnection() == null);
+
+                // Ensure that calls on the direct proxy is collocated
+                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createDirectProxy(id));
+                test(helloPrx.ice_getConnection() == null);
+
                 output.WriteLine("ok");
 
                 output.Write("shutdown server manager... ");

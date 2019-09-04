@@ -480,25 +480,32 @@ func allTests(_ helper: TestHelper) throws {
     // Set up test for calling a collocated object through an
     // indirect, adapterless reference.
     //
-    let properties = communicator.getProperties()
-    properties.setProperty(key: "Ice.PrintAdapterReady", value: "0")
-    let adapter = try communicator.createObjectAdapterWithEndpoints(name: "Hello", endpoints: "tcp -h *")
-    try adapter.setLocator(locator)
+    communicator.getProperties().setProperty(key: "Hello.AdapterId", value: UUID().uuidString)
+    let adapter = try communicator.createObjectAdapterWithEndpoints(name: "Hello", endpoints: "default")
 
     var ident = Ice.Identity()
     ident.name = UUID().uuidString
-    try registry.addObject(adapter.add(servant: HelloDisp(HelloI()), id: ident))
-    try adapter.activate()
+    try adapter.add(servant: HelloDisp(HelloI()), id: ident)
 
-    /* let helloPrx */ _ = try checkedCast(
-        prx: communicator.stringToProxy("\"\(communicator.identityToString(ident))\"")!,
-        type: HelloPrx.self
-    )!
+    do {
+        /* let helloPrx */ _ = try checkedCast(
+            prx: communicator.stringToProxy("\"\(communicator.identityToString(ident))\"")!,
+            type: HelloPrx.self
+        )!
+        try test(false)
+        //try test(helloPrx.ice_getConnection() == nil)
+    } catch is Ice.NotRegisteredException {
+        // Calls on the well-known proxy are not collocated because of issue #507
+    }
 
-    // TODO: in Swift the call doesn't use collocation optimization because
-    // ServantManager::hasServant only checks C++ ASM for the given identity
-    // try test(helloPrx.ice_getConnection() == nil)
-    adapter.deactivate()
+    // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+    var helloPrx = try checkedCast(prx: adapter.createIndirectProxy(ident), type: HelloPrx.self)!
+    try test(helloPrx.ice_getConnection() == nil)
+
+    // Ensure that calls on the direct proxy is collocated
+    helloPrx = try checkedCast(prx: adapter.createDirectProxy(ident), type: HelloPrx.self)!
+    try test(helloPrx.ice_getConnection() == nil)
+
     output.writeLine("ok")
 
     output.write("shutdown server manager... ")

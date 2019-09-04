@@ -645,27 +645,27 @@ public class AllTests
         out.println("ok");
 
         out.print("testing indirect proxies to collocated objects... ");
-        //
-        // Set up test for calling a collocated object through an
-        // indirect, adapterless reference.
-        //
-        com.zeroc.Ice.Properties properties = communicator.getProperties();
-        properties.setProperty("Ice.PrintAdapterReady", "0");
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *");
-        adapter.setLocator(locator);
+
+        communicator.getProperties().setProperty("Hello.AdapterId", java.util.UUID.randomUUID().toString());
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
 
         com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
         id.name = java.util.UUID.randomUUID().toString();
-        registry.addObject(adapter.add(new HelloI(), id));
-        adapter.activate();
+        adapter.add(new HelloI(), id);
 
-        // Note the quotes are necessary here due to ":" in the
-        // java generated UUID.
+        // Ensure that calls on the well-known proxy is collocated.
         HelloPrx helloPrx = HelloPrx.checkedCast(
             communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
-        adapter.deactivate();
+        // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+        helloPrx = HelloPrx.checkedCast(adapter.createIndirectProxy(id));
+        test(helloPrx.ice_getConnection() == null);
+
+        // Ensure that calls on the direct proxy is collocated
+        helloPrx = HelloPrx.checkedCast(adapter.createDirectProxy(id));
+        test(helloPrx.ice_getConnection() == null);
+
         out.println("ok");
 
         out.print("shutdown server manager... ");
