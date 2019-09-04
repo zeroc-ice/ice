@@ -8,7 +8,7 @@ import TestCommon
 
 class Client: TestHelperI {
     override func run(args: [String]) throws {
-        let properties = try Ice.createProperties(args)
+        let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
         let communicator = try initialize(properties)

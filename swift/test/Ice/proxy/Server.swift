@@ -9,7 +9,7 @@ class Server: TestHelperI {
     public override func run(args: [String]) throws {
         let writer = getWriter()
 
-        let properties = try Ice.createProperties(args)
+        let properties = try createTestProperties(args)
         //
         // We don't want connection warnings because of the timeout test.
         //

@@ -1964,7 +1964,8 @@ class TestSuite(object):
     def isMainThreadOnly(self, driver):
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin]:
+        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin,
+                  SwiftMapping]:
             if isinstance(self.mapping, m):
                 config = driver.configs[self.mapping]
                 if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
