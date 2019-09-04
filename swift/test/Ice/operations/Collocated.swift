@@ -37,7 +37,7 @@ class Collocated: TestHelperI {
         try adapter.add(servant: MBDisp(BI()), id: Ice.stringToIdentity("b"))
         try adapter.add(servant: MyDerivedClassDisp(MyDerivedClassI(self)),
                         id: Ice.stringToIdentity("test"))
-        try adapter.activate()
+        //try adapter.activate() // Don't activate OA to ensure collocation is used.
         _ = try allTests(helper: self)
     }
 }

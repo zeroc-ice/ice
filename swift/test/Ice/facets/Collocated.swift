@@ -26,7 +26,7 @@ class Collocated: TestHelperI {
         let h = HI(communicator: communicator)
         try adapter.addFacet(servant: HDisp(h), id: Ice.stringToIdentity("d"), facet: "facetGH")
 
-        try adapter.activate()
+        //try adapter.activate() // Don't activate OA to ensure collocation is used.
 
         _ = try allTests(self)
     }

@@ -45,10 +45,10 @@ class Collocated: TestHelperI {
                         id: Ice.stringToIdentity("test"))
         try adapter.add(servant: OuterInnerTestIntfDisp(TestII()),
                         id: Ice.stringToIdentity("test2"))
-        try adapter.activate()
+        //try adapter.activate() // Don't activate OA to ensure collocation is used.
         try adapter2.add(servant: TestIntfControllerDisp(TestControllerI(adapter: adapter)),
                          id: Ice.stringToIdentity("testController"))
-        try adapter2.activate()
+        //try adapter2.activate() // Don't activate OA to ensure collocation is used.
         try allTests(self, collocated: true)
     }
 }

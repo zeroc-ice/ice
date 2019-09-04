@@ -24,7 +24,7 @@ class Collocated: TestHelperI {
         try adapter.addServantLocator(locator: ServantLocatorI("", self), category: "")
         try adapter.add(servant: TestIntfDisp(TestI()), id: Ice.stringToIdentity("asm"))
         try adapter.add(servant: TestActivationDisp(TestActivationI(self)), id: Ice.stringToIdentity("test/activation"))
-        try adapter.activate()
+        //try adapter.activate() // Don't activate OA to ensure collocation is used.
         _ = try allTests(self)
     }
 }

@@ -32,7 +32,7 @@ class Collocated: TestHelperI {
         let obj = ThrowerI()
         try adapter.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
 
-        try adapter.activate()
+        //try adapter.activate() // Don't activate OA to ensure collocation is used.
 
         _ = try allTests(self)
     }

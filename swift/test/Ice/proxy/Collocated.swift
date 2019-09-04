@@ -23,7 +23,7 @@ class Collocated: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(servant: MyDerivedClassDisp(MyDerivedClassI()),
                         id: Ice.stringToIdentity("test"))
-        // try adapter.activate() // Don't activate OA to ensure collocation is used
+        //try adapter.activate() // Don't activate OA to ensure collocation is used.
         _ = try allTests(self)
     }
 }
