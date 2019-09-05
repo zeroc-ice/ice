@@ -50,7 +50,6 @@ class BaseConnection(threading.Thread):
                 self.socket.send(self.response(True))
             except:
                 self.socket.send(self.response(False))
-                self.remoteSocket.close()
                 return
 
             try:
@@ -67,14 +66,13 @@ class BaseConnection(threading.Thread):
                 print("invalid request")
             except Exception:
                 pass
-            finally:
-                if self.socket:
-                    self.socket.close()
-                if self.remoteSocket:
-                    self.remoteSocket.close()
-
         except Exception:
             pass
+        finally:
+            if self.socket:
+                self.socket.close()
+            if self.remoteSocket:
+                self.remoteSocket.close()
 
 
 class BaseProxy(threading.Thread):
