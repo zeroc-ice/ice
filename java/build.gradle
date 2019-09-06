@@ -53,52 +53,56 @@ subprojects {
     }
 }
 
-def exportedProjects = [
-    ":glacier2",
-    ":ice",
-    ":icebox",
-    ":icebt",
-    ":icegrid",
-    ":icepatch2",
-    ":icessl",
-    ":icestorm"
+if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
+    def exportedProjects = [
+        ":glacier2",
+        ":ice",
+        ":icebox",
+        ":icebt",
+        ":icegrid",
+        ":icepatch2",
+        ":icessl",
+        ":icestorm"
     ]
 
-task alljavadoc(type: Javadoc) {
+    task alljavadoc(type: Javadoc) {
 
-    // We rely on Java9+ javadoc features
-    enabled = JavaVersion.current() > JavaVersion.VERSION_1_8
-    exclude "**/module-info.java"
-    source exportedProjects.collect { project(it).javadoc.source }
-    classpath = files(exportedProjects.collect { project(it).javadoc.classpath })
-    destinationDir = file("${buildDir}/docs/javadoc")
+        // We rely on Java9+ javadoc features
+        enabled = JavaVersion.current() > JavaVersion.VERSION_1_8
+        exclude "**/module-info.java"
+        source exportedProjects.collect { project(it).javadoc.source }
+        classpath = files(exportedProjects.collect { project(it).javadoc.classpath })
+        destinationDir = file("${buildDir}/docs/javadoc")
 
-    if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
-        // TODO: --no-module-directories is an undocumented option required for the
-        // generated search to work properly. Without this option, search returns
-        // .../undefined/... URLs.
-        options.addBooleanOption('-no-module-directories', true)
+        if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
+            // TODO: --no-module-directories is an undocumented option required for the
+            // generated search to work properly. Without this option, search returns
+            // .../undefined/... URLs.
+            options.addBooleanOption('-no-module-directories', true)
+        }
+        options.addBooleanOption('html5', true)
+        options.header = 'Ice for Java'
+        options.docTitle = "Ice ${iceVersion} API Reference"
     }
-    options.addBooleanOption('html5', true)
-    options.header = 'Ice for Java'
-    options.docTitle = "Ice ${iceVersion} API Reference"
-}
 
-alljavadoc.dependsOn = exportedProjects.collect { project(it).javadoc.dependsOn }
+    alljavadoc.dependsOn = exportedProjects.collect { project(it).javadoc.dependsOn }
+}
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-task dist()
-dist.dependsOn(project(":ice").assemble)
-dist.dependsOn(project(":icessl").assemble)
-dist.dependsOn(project(":glacier2").assemble)
-dist.dependsOn(project(":icegrid").assemble)
-dist.dependsOn(project(":icebox").assemble)
-dist.dependsOn(project(":icebt").assemble)
-dist.dependsOn(project(":icediscovery").assemble)
-dist.dependsOn(project(":icelocatordiscovery").assemble)
-dist.dependsOn(project(":icepatch2").assemble)
-dist.dependsOn(project(":icestorm").assemble)
-dist.dependsOn(project(":IceGridGUI").assemble)
+if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
+    task dist()
+    dist.dependsOn(project(":ice").assemble)
+    dist.dependsOn(project(":icessl").assemble)
+    dist.dependsOn(project(":glacier2").assemble)
+    dist.dependsOn(project(":icegrid").assemble)
+    dist.dependsOn(project(":icebox").assemble)
+    dist.dependsOn(project(":icebt").assemble)
+    dist.dependsOn(project(":icediscovery").assemble)
+    dist.dependsOn(project(":icelocatordiscovery").assemble)
+    dist.dependsOn(project(":icepatch2").assemble)
+    dist.dependsOn(project(":icestorm").assemble)
+    dist.dependsOn(project(":IceGridGUI").assemble)
+}
