@@ -27,7 +27,7 @@ func createClientProps(_ defaultProperties: Ice.Properties) -> Ice.Properties {
     // properties.setProperty("IceSSL.Trace.Security", "1")
 
     keychainN += 1
-    properties.setProperty(key: "IceSSL.Keychain", value: "client\(keychainN).keychain")
+    properties.setProperty(key: "IceSSL.Keychain", value: "../certs//keychain/client\(keychainN).keychain")
     properties.setProperty(key: "IceSSL.KeychainPassword", value: "password")
 
     return properties
@@ -44,7 +44,7 @@ func createServerProps(_ defaultProperties: Ice.Properties) -> [String: String] 
     // result["IceSSL.Trace.Security"] = "1";
 
     keychainN += 1
-    result["IceSSL.Keychain"] = "client\(keychainN).keychain"
+    result["IceSSL.Keychain"] = "../certs/keychain/server\(keychainN).keychain"
     result["IceSSL.KeychainPassword"] = "password"
     return result
 }
