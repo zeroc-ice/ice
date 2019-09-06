@@ -65,6 +65,14 @@ These are the changes since Ice 3.7.2.
   the backward compatible invocation timeout -2. The invocation failed instead
   of being retried.
 
+- Add support to enable SNI (Server Name Indication) extension in TLS outgoing
+  connections for SSL engines that make this optional, the SNI TLS extension
+  can be enabled by setting `IceSSL.CheckCertName` to a value greater than 1.
+
+  This is supported by the OpenSSL, SecureTransport and Java; these engines did
+  not send the extension before. The C# and SChannel engines always send the
+  extension. The Java-Compat mapping does not support it.
+
 ## C++ Changes
 
 - Fixed IceGrid issue which could cause hangs if an IceGrid node became
