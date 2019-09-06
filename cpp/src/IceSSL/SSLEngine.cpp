@@ -110,10 +110,10 @@ IceSSL::SSLEngine::initialize()
     _checkCertName = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 0;
 
     //
-    // ServerNameIndication determines whether the SNI extension applies to client connections,
+    // CheckCertName > 1 enables SNI, the SNI extension applies to client connections,
     // indicating the hostname to the server (must be DNS hostname, not an IP address).
     //
-    _serverNameIndication = properties->getPropertyAsIntWithDefault(propPrefix + "ServerNameIndication", 1) > 0;
+    _serverNameIndication = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 1;
 
     //
     // VerifyDepthMax establishes the maximum length of a peer's certificate

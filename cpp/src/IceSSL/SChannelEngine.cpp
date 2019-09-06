@@ -1145,8 +1145,6 @@ SChannel::SSLEngine::getCipherName(ALG_ID cipher) const
 CredHandle
 SChannel::SSLEngine::newCredentialsHandle(bool incoming)
 {
-    // SNI support: SChannel will send the TLS extension even if SCH_CRED_SNI_CREDENTIAL (undocumented!)
-    // is not specified. Therefore, the IceSSL.ServerNameIndication property is not used here.
     SCHANNEL_CRED cred;
     memset(&cred, 0, sizeof(cred));
     cred.dwVersion = SCHANNEL_CRED_VERSION;

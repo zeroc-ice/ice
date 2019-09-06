@@ -188,14 +188,14 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             SSL_set_verify(_ssl, sslVerifyMode, IceSSL_opensslVerifyCallback);
         }
 
-        // Server name indication
-        if (!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
+        //
+        // Enable SNI
+        //
+        if(!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
         {
-            if (!SSL_set_tlsext_host_name(_ssl, _host.c_str()))
+            if(!SSL_set_tlsext_host_name(_ssl, _host.c_str()))
             {
-                ostringstream ostr;
-                ostr << "IceSSL: failed to set SNI host " << _host << " with SSL_set_tlsext_host_name";
-                throw SecurityException(__FILE__, __LINE__, ostr.str());
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SNI host failed `" + _host + "'");
             }
         }
     }

@@ -243,13 +243,15 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
                                     sslErrorToString(err));
         }
 
-        if (!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
+        //
+        // Enable SNI
+        //
+        if(!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
         {
-            if ((err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
+            if((err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
             {
-                ostringstream ostr;
-                ostr << "IceSSL: failed to set SNI host " << _host << " with SSLSetPeerDomainName\n" << sslErrorToString(err);
-                throw SecurityException(__FILE__, __LINE__, ostr.str());
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SNI host failed `" + _host + "'\n" +
+                                        sslErrorToString(err));
             }
         }
     }

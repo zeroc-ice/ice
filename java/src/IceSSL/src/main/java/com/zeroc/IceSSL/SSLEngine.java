@@ -90,10 +90,10 @@ class SSLEngine
         _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
         //
-        // ServerNameIndication determines whether the SNI extension applies to client connections,
+        // CheckCertName > 1 enables SNI, the SNI extension applies to client connections,
         // indicating the hostname to the server (must be DNS hostname, not an IP address).
         //
-        _serverNameIndication = properties.getPropertyAsIntWithDefault(prefix + "ServerNameIndication", 1) > 0;
+        _serverNameIndication = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 1;
 
         //
         // VerifyDepthMax establishes the maximum length of a peer's certificate
@@ -886,24 +886,21 @@ class SSLEngine
         }
 
         // Server name indication
-        if (!incoming && _serverNameIndication)
+        if(!incoming && _serverNameIndication)
         {
             SNIHostName serverName = null;
             try
             {
                 serverName = new SNIHostName(host);
-            }
-            catch(IllegalArgumentException ex)
-            {
-                // Invalid SNI hostname, ignore because it might be an IP
-            }
-            if (serverName != null)
-            {
                 SSLParameters sslParams = engine.getSSLParameters();
                 List<SNIServerName> serverNames = new ArrayList<>();
                 serverNames.add(serverName);
                 sslParams.setServerNames(serverNames);
                 engine.setSSLParameters(sslParams);
+            }
+            catch(IllegalArgumentException ex)
+            {
+                // Invalid SNI hostname, ignore because it might be an IP
             }
         }
 
