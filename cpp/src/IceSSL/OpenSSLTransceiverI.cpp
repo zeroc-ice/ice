@@ -176,11 +176,19 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 X509_VERIFY_PARAM* param = SSL_get0_param(_ssl);
                 if(IceInternal::isIpAddress(_host))
                 {
-                    X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str());
+                    if(!X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str()))
+                    {
+                        throw SecurityException(__FILE__, __LINE__, "IceSSL: error setting the expected IP address `"
+                                                + _host + "'");
+                    }
                 }
                 else
                 {
-                    X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0);
+                    if(!X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0))
+                    {
+                        throw SecurityException(__FILE__, __LINE__, "IceSSL: error setting the expected host name `"
+                                                + _host + "'");
+                    }
                 }
             }
 #endif
