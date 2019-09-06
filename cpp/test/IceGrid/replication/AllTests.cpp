@@ -1365,8 +1365,94 @@ allTests(Test::TestHelper* helper)
         comm->stringToProxy("test -e 1.0")->ice_locator(slave3Locator)->ice_locatorCacheTimeout(0)->ice_ping();
         masterAdmin->stopServer("Server");
 
+        masterAdmin->removeApplication("TestApp");
     }
     cout << "ok" << endl;
+
+#if !defined(_WIN32) // This test relies on SIGSTOP/SITCONT
+    cout << "testing unreachable nodes... " << flush;
+    {
+        ApplicationDescriptor app;
+        app.name = "TestApp";
+        app.description = "added application";
+
+        app.replicaGroups.resize(1);
+        app.replicaGroups[0].id = "TestReplicaGroup";
+        app.replicaGroups[0].loadBalancing = new IceGrid::RandomLoadBalancingPolicy("2");
+
+        ObjectDescriptor object;
+        object.id = Ice::stringToIdentity("test");
+        object.type = "::Test::TestIntf";
+        app.replicaGroups[0].objects.push_back(object);
+
+        ServerDescriptorPtr server = new ServerDescriptor();
+        server->id = "Server1";
+        server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
+        server->pwd = ".";
+        server->applicationDistrib = false;
+        server->allocatable = false;
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
+        server->activation = "on-demand";
+        AdapterDescriptor adapter;
+        adapter.name = "TestAdapter";
+        adapter.id = "TestAdapter.${server}";
+        adapter.replicaGroupId = "TestReplicaGroup";
+        adapter.serverLifetime = true;
+        adapter.registerProcess = false;
+        PropertyDescriptor property;
+        property.name = "TestAdapter.Endpoints";
+        property.value = "default";
+        server->propertySet.properties.push_back(property);
+        property.name = "Identity";
+        property.value = "test";
+        server->propertySet.properties.push_back(property);
+
+        server->adapters.push_back(adapter);
+        app.nodes["Node1"].servers.push_back(server);
+
+        ServerDescriptorPtr server2 = ServerDescriptorPtr::dynamicCast(server->ice_clone());
+        server2->id = "Server2";
+        app.nodes["Node2"].servers.push_back(server2);
+
+        try
+        {
+            masterAdmin->addApplication(app);
+        }
+        catch(const DeploymentException& ex)
+        {
+            cerr << ex.reason << endl;
+        }
+
+        comm->stringToProxy("test -e 1.0@TestReplicaGroup")->ice_locator(
+             masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+
+        QueryPrx query = QueryPrx::uncheckedCast(
+             comm->stringToProxy("RepTestIceGrid/Query")->ice_locator(masterLocator));
+        test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
+        masterAdmin->getAdapterInfo("TestReplicaGroup");
+
+        admin->sendSignal("Node2", "SIGSTOP");
+
+        test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
+        try
+        {
+            masterAdmin->ice_invocationTimeout(1000)->getAdapterInfo("TestReplicaGroup");
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+        }
+
+        admin->sendSignal("Node2", "SIGCONT");
+
+        test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
+        masterAdmin->ice_invocationTimeout(1000)->getAdapterInfo("TestReplicaGroup");
+
+        masterAdmin->removeApplication("TestApp");
+
+    }
+    cout << "ok" << endl;
+#endif
 
     slave1Admin->shutdownNode("Node1");
     removeServer(admin, "Node1");

@@ -1262,13 +1262,18 @@ Database::getAdapterInfo(const string& id)
     // server, if that's the case we get the adapter proxy from the
     // server.
     //
+    GetAdapterInfoResultPtr result;
     try
     {
         Lock sync(*this); // Make sure this isn't call during an update.
-        return _adapterCache.get(id)->getAdapterInfo();
+        result = _adapterCache.get(id)->getAdapterInfoAsync();
     }
     catch(const AdapterNotExistException&)
     {
+    }
+    if(result)
+    {
+        return result->get(); // Don't hold the database lock while waiting for the endpoints
     }
 
     //
@@ -1314,7 +1319,7 @@ Database::getFilteredAdapterInfo(const string& id, const Ice::ConnectionPtr& con
             Lock sync(*this); // Make sure this isn't call during an update.
 
             AdapterEntryPtr entry = _adapterCache.get(id);
-            infos = entry->getAdapterInfo();
+            infos = entry->getAdapterInfoNoEndpoints();
             replicaGroup = ReplicaGroupEntryPtr::dynamicCast(entry);
         }
         if(replicaGroup)

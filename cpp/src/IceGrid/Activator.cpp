@@ -156,6 +156,14 @@ signalToString(int signal)
         {
             return ICE_STRING(SIGALRM);
         }
+        case SIGCONT:
+        {
+            return ICE_STRING(SIGCONT);
+        }
+        case SIGSTOP:
+        {
+            return ICE_STRING(SIGSTOP);
+        }
 #endif
         case SIGKILL:
         {
@@ -229,6 +237,14 @@ stringToSignal(const string& str)
     else if(str == ICE_STRING(SIGALRM))
     {
         return SIGALRM;
+    }
+    else if(str == ICE_STRING(SIGCONT))
+    {
+        return SIGCONT;
+    }
+    else if(str == ICE_STRING(SIGSTOP))
+    {
+        return SIGSTOP;
     }
     else
 #endif

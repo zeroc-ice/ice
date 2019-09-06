@@ -67,6 +67,10 @@ These are the changes since Ice 3.7.2.
 
 ## C++ Changes
 
+- Fixed IceGrid issue which could cause hangs if an IceGrid node became
+  unreachable and a client either tried to get adapter endpoints with
+  `IceGrid::Admin::getAdapterInfo` or called `IceGrid::Query::findAllReplicas`.
+
 - Fixed IceGrid issue where gracefully interrupted IceGrid node wouldn't notify
   observers of the deactivation of its servers.
 

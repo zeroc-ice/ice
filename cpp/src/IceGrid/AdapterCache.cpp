@@ -170,6 +170,47 @@ typedef IceUtil::Handle<ReplicaGroupSyncCallback> ReplicaGroupSyncCallbackPtr;
 
 }
 
+void
+GetAdapterInfoResult::add(const ServerAdapterEntryPtr& adapter)
+{
+    AdapterInfo info;
+    info.id = adapter->getId();
+    info.replicaGroupId = adapter->getReplicaGroupId();
+    _adapters.push_back(info);
+    try
+    {
+        _results.push_back(adapter->getProxy("", true)->begin_getDirectProxy());
+    }
+    catch(const SynchronizationException&)
+    {
+        _results.push_back(0);
+    }
+    catch(const Ice::Exception&)
+    {
+        _results.push_back(0);
+    }
+}
+
+AdapterInfoSeq
+GetAdapterInfoResult::get()
+{
+    vector<AdapterInfo>::iterator q = _adapters.begin();
+    for(vector<Ice::AsyncResultPtr>::const_iterator p = _results.begin(); p != _results.end(); ++p, ++q)
+    {
+        try
+        {
+            if(*p)
+            {
+                q->proxy = AdapterPrx::uncheckedCast((*p)->getProxy())->end_getDirectProxy(*p);
+            }
+        }
+        catch(const Ice::Exception&)
+        {
+        }
+    }
+    return _adapters;
+}
+
 AdapterCache::AdapterCache(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
 {
 }
@@ -405,24 +446,22 @@ ServerAdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 }
 
 AdapterInfoSeq
-ServerAdapterEntry::getAdapterInfo() const
+ServerAdapterEntry::getAdapterInfoNoEndpoints() const
 {
     AdapterInfo info;
     info.id = _id;
     info.replicaGroupId = _replicaGroupId;
-    try
-    {
-        info.proxy = _server->getAdapter(_id, true)->getDirectProxy();
-    }
-    catch(const SynchronizationException&)
-    {
-    }
-    catch(const Ice::Exception&)
-    {
-    }
     AdapterInfoSeq infos;
     infos.push_back(info);
     return infos;
+}
+
+GetAdapterInfoResultPtr
+ServerAdapterEntry::getAdapterInfoAsync() const
+{
+    GetAdapterInfoResultPtr result = new GetAdapterInfoResult();
+    result->add(const_cast<ServerAdapterEntry*>(this));
+    return result;
 }
 
 AdapterPrx
@@ -763,7 +802,7 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 }
 
 AdapterInfoSeq
-ReplicaGroupEntry::getAdapterInfo() const
+ReplicaGroupEntry::getAdapterInfoNoEndpoints() const
 {
     //
     // This method is called with the database locked so we're sure
@@ -778,11 +817,27 @@ ReplicaGroupEntry::getAdapterInfo() const
     AdapterInfoSeq infos;
     for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
-        AdapterInfoSeq infs = (*p)->getAdapterInfo();
+        AdapterInfoSeq infs = (*p)->getAdapterInfoNoEndpoints();
         assert(infs.size() == 1);
         infos.push_back(infs[0]);
     }
     return infos;
+}
+
+GetAdapterInfoResultPtr
+ReplicaGroupEntry::getAdapterInfoAsync() const
+{
+    GetAdapterInfoResultPtr result = new GetAdapterInfoResult();
+    vector<ServerAdapterEntryPtr> replicas;
+    {
+        Lock sync(*this);
+        replicas = _replicas;
+    }
+    for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+    {
+        result->add(*p);
+    }
+    return result;
 }
 
 bool
