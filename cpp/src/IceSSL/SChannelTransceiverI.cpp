@@ -746,6 +746,18 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" + secStatusToString(err));
     }
 
+    try
+    {
+        _engine->verifyPeerCertName(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()));
+    }
+    catch(const Ice::SecurityException&)
+    {
+        _verified = false;
+        if(_engine->getVerifyPeer() > 0)
+        {
+            throw;
+        }
+    }
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
     _state = StateHandshakeComplete;
 
