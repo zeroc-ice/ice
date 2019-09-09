@@ -251,7 +251,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
 public extension Communicator {
     func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                 sentOn: DispatchQueue? = nil,
                                  sentFlags: DispatchWorkItemFlags? = nil,
                                  sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! CommunicatorI

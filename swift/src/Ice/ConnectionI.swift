@@ -7,7 +7,7 @@ import PromiseKit
 
 public extension Connection {
     func flushBatchRequestsAsync(_ compress: CompressBatch,
-                                 sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                 sentOn: DispatchQueue? = nil,
                                  sentFlags: DispatchWorkItemFlags? = nil,
                                  sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI
@@ -24,7 +24,7 @@ public extension Connection {
         }
     }
 
-    func heartbeatAsync(sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+    func heartbeatAsync(sentOn: DispatchQueue? = nil,
                         sentFlags: DispatchWorkItemFlags? = nil,
                         sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let impl = self as! ConnectionI

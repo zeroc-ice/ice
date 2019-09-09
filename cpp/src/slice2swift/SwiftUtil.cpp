@@ -2640,7 +2640,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
         }
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
-    out << "sentOn: Dispatch.DispatchQueue? = PromiseKit.conf.Q.return";
+    out << "sentOn: Dispatch.DispatchQueue? = nil";
     out << "sentFlags: Dispatch.DispatchWorkItemFlags? = nil";
     out << "sent: ((Swift.Bool) -> Swift.Void)? = nil";
 

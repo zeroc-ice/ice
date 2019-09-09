@@ -407,7 +407,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///   dispatch sent callback, the default is to use no queue.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -417,7 +417,7 @@ public extension ObjectPrx {
     /// - returns: `PromiseKit.Promise<Void>` - A promise object that will be resolved with
     ///   the return values of invocation.
     func ice_pingAsync(context: Context? = nil,
-                       sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                       sentOn: DispatchQueue? = nil,
                        sentFlags: DispatchWorkItemFlags? = nil,
                        sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         return _impl._invokeAsync(operation: "ice_ping",
@@ -453,7 +453,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///   dispatch sent callback, the default is to use no queue.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -463,7 +463,7 @@ public extension ObjectPrx {
     /// - returns: `PromiseKit.Promise<Bool>` - A promise object that will be resolved with
     ///   the return values of invocation.
     func ice_isAAsync(id: String, context: Context? = nil,
-                      sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                      sentOn: DispatchQueue? = nil,
                       sentFlags: DispatchWorkItemFlags? = nil,
                       sent: ((Bool) -> Void)? = nil) -> Promise<Bool> {
         return _impl._invokeAsync(operation: "ice_isA",
@@ -495,7 +495,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///   dispatch sent callback, the default is to use no queue.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -505,7 +505,7 @@ public extension ObjectPrx {
     /// - returns: `PromiseKit.Promise<String>` A promise object that will be resolved with
     ///   the return values of invocation.
     func ice_idAsync(context: Context? = nil,
-                     sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                     sentOn: DispatchQueue? = nil,
                      sentFlags: DispatchWorkItemFlags? = nil,
                      sent: ((Bool) -> Void)? = nil) -> Promise<String> {
         return _impl._invokeAsync(operation: "ice_id",
@@ -535,7 +535,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///   dispatch sent callback, the default is to use no queue.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -545,7 +545,7 @@ public extension ObjectPrx {
     /// - returns: `PromiseKit.Promise<Ice.StringSeq>` - A promise object that will be resolved with
     ///   the return values of invocation.
     func ice_idsAsync(context: Context? = nil,
-                      sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                      sentOn: DispatchQueue? = nil,
                       sentFlags: DispatchWorkItemFlags? = nil,
                       sent: ((Bool) -> Void)? = nil) -> Promise<StringSeq> {
         return _impl._invokeAsync(operation: "ice_ids",
@@ -605,7 +605,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///   dispatch sent callback, the default is to use no queue.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback.
@@ -715,7 +715,7 @@ public extension ObjectPrx {
     /// Asynchronously flushes any pending batched requests for this proxy.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.
+    ///   dispatch sent callback, the default is to use no queue.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` Optional dispatch flags used to
     ///   dispatch sent callback.
@@ -724,7 +724,7 @@ public extension ObjectPrx {
     ///
     /// - returns: `PromiseKit.Promise<Void> - A promise object that will be resolved when
     ///   the flush is complete.
-    func ice_flushBatchRequestsAsync(sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+    func ice_flushBatchRequestsAsync(sentOn: DispatchQueue? = nil,
                                      sentFlags: DispatchWorkItemFlags? = nil.self,
                                      sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         let sentCB = createSentCallback(sentOn: sentOn, sentFlags: sentFlags, sent: sent)
@@ -1253,7 +1253,7 @@ open class ObjectPrxI: ObjectPrx {
                              write: ((OutputStream) -> Void)? = nil,
                              userException: ((UserException) throws -> Void)? = nil,
                              context: Context? = nil,
-                             sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                             sentOn: DispatchQueue? = nil,
                              sentFlags: DispatchWorkItemFlags? = nil,
                              sent: ((Bool) -> Void)? = nil) -> Promise<Void> {
         if userException != nil, !isTwoway {
@@ -1334,7 +1334,7 @@ open class ObjectPrxI: ObjectPrx {
                                 read: @escaping (InputStream) throws -> T,
                                 userException: ((UserException) throws -> Void)? = nil,
                                 context: Context? = nil,
-                                sentOn: DispatchQueue? = PromiseKit.conf.Q.return,
+                                sentOn: DispatchQueue? = nil,
                                 sentFlags: DispatchWorkItemFlags? = nil,
                                 sent: ((Bool) -> Void)? = nil) -> Promise<T> {
         if !isTwoway {
