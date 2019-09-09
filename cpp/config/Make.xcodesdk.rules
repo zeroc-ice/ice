@@ -6,7 +6,7 @@ include $(top_srcdir)/config/Make.xcodesdk.rules
 
 supported-configs       += xcodesdk cpp11-xcodesdk
 
-is-iostest-program 	= $(and $(filter-out macosx,$2),$(filter test/%,$1))
+is-iostest-program      = $(and $(filter-out macosx,$2),$(filter test/%,$1))
 
 #
 # Xcode configuration to build Xcode sdks for Ice.

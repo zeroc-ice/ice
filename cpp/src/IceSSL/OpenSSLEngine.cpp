@@ -931,7 +931,7 @@ OpenSSL::SSLEngine::destroy()
     if(_ctx)
     {
         SSL_CTX_free(_ctx);
-	_ctx = 0;
+        _ctx = 0;
     }
 }
 
