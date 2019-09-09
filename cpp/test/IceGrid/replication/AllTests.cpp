@@ -1425,11 +1425,15 @@ allTests(Test::TestHelper* helper)
 
         comm->stringToProxy("test -e 1.0@TestReplicaGroup")->ice_locator(
              masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+        comm->stringToProxy("test -e 1.0@TestAdapter.Server1")->ice_locator(
+             masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+        comm->stringToProxy("test -e 1.0@TestAdapter.Server2")->ice_locator(
+             masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
 
         QueryPrx query = QueryPrx::uncheckedCast(
              comm->stringToProxy("RepTestIceGrid/Query")->ice_locator(masterLocator));
         test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
-        masterAdmin->getAdapterInfo("TestReplicaGroup");
+        test(masterAdmin->getAdapterInfo("TestReplicaGroup").size() == 2);
 
         admin->sendSignal("Node2", "SIGSTOP");
 
@@ -1437,16 +1441,16 @@ allTests(Test::TestHelper* helper)
         try
         {
             masterAdmin->ice_invocationTimeout(1000)->getAdapterInfo("TestReplicaGroup");
+            admin->sendSignal("Node2", "SIGCONT");
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
         {
+            admin->sendSignal("Node2", "SIGCONT");
         }
 
-        admin->sendSignal("Node2", "SIGCONT");
-
         test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
-        masterAdmin->ice_invocationTimeout(1000)->getAdapterInfo("TestReplicaGroup");
+        test(masterAdmin->ice_invocationTimeout(1000)->getAdapterInfo("TestReplicaGroup").size() == 2);
 
         masterAdmin->removeApplication("TestApp");
 
