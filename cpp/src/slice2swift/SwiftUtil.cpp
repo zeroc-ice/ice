@@ -701,10 +701,10 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         {
             out << nl << "///";
             out << nl << "/// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to";
-            out << nl << "///   dispatch sent callback, the default is to use `PromiseKit.conf.Q.return` queue.";
+            out << nl << "///   dispatch the sent callback.";
             out << nl << "///";
             out << nl << "/// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags?` - Optional dispatch flags used";
-            out << nl << "///   to dispatch sent callback";
+            out << nl << "///   to dispatch the sent callback";
             out << nl << "///";
             out << nl << "/// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.";
         }

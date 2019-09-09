@@ -407,7 +407,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use no queue.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -415,7 +415,7 @@ public extension ObjectPrx {
     /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<Void>` - A promise object that will be resolved with
-    ///   the return values of invocation.
+    ///   the result of the invocation.
     func ice_pingAsync(context: Context? = nil,
                        sentOn: DispatchQueue? = nil,
                        sentFlags: DispatchWorkItemFlags? = nil,
@@ -453,7 +453,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use no queue.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -461,7 +461,7 @@ public extension ObjectPrx {
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<Bool>` - A promise object that will be resolved with
-    ///   the return values of invocation.
+    ///   the result of the invocation.
     func ice_isAAsync(id: String, context: Context? = nil,
                       sentOn: DispatchQueue? = nil,
                       sentFlags: DispatchWorkItemFlags? = nil,
@@ -495,7 +495,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use no queue.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -503,7 +503,7 @@ public extension ObjectPrx {
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<String>` A promise object that will be resolved with
-    ///   the return values of invocation.
+    ///   the result of the invocation.
     func ice_idAsync(context: Context? = nil,
                      sentOn: DispatchQueue? = nil,
                      sentFlags: DispatchWorkItemFlags? = nil,
@@ -535,7 +535,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use no queue.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
     ///   dispatch sent callback
@@ -543,7 +543,7 @@ public extension ObjectPrx {
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<Ice.StringSeq>` - A promise object that will be resolved with
-    ///   the return values of invocation.
+    ///   the result of the invocation.
     func ice_idsAsync(context: Context? = nil,
                       sentOn: DispatchQueue? = nil,
                       sentFlags: DispatchWorkItemFlags? = nil,
@@ -605,15 +605,15 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use no queue.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` - Optional dispatch flags used to
-    ///   dispatch sent callback.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<(ok: Bool, outEncaps: Data)>` - A promise object that will be
-    ////  resolved with the return values of the invocation.
+    ////  resolved with the result of the invocation.
     func ice_invokeAsync(operation: String,
                          mode: OperationMode,
                          inEncaps: Data,
@@ -691,7 +691,7 @@ public extension ObjectPrx {
     /// it first attempts to create a connection.
     ///
     /// - returns: `PromiseKit.Promise<Ice.Connection?>` - A promise object that will be resolved with
-    ///   the return values of invocation.
+    ///   the result of the invocation.
     ///
     /// - throws: `Ice.CollocationOptimizationException` - If the proxy uses collocation optimization and denotes a
     ///   collocated object.
@@ -715,10 +715,10 @@ public extension ObjectPrx {
     /// Asynchronously flushes any pending batched requests for this proxy.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue` - Optional dispatch queue used to
-    ///   dispatch sent callback, the default is to use no queue.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sentFlags: `Dispatch.DispatchWorkItemFlags` Optional dispatch flags used to
-    ///   dispatch sent callback.
+    ///   dispatch the sent callback.
     ///
     /// - parameter sent: `((Bool) -> Void)` - Optional sent callback.
     ///
