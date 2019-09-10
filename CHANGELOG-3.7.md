@@ -73,6 +73,10 @@ These are the changes since Ice 3.7.2.
   not send the extension before. The C# and SChannel engines always send the
   extension. The Java-Compat mapping does not support it.
 
+- Fixed a bug in the conversion of proxy endpoints to string, the colon character
+  was not properly escaped in `--sourceAddress` or `-interface` endpoint
+  options.
+
 ## C++ Changes
 
 - Fixed IceGrid issue which could cause hangs if an IceGrid node became
@@ -158,6 +162,12 @@ These are the changes since Ice 3.7.2.
 
 - Fix a bug where using an empty sequence with a type that use the Python buffer
   protocol can result in an assert if running with a python debug build.
+
+## JavaScript Changes
+
+- Fix a bug in the IP endpoint initialization,  the default value for the port should
+  was `null` instead of `0`, this cause problems with endpoint string conversion, 
+  where the output included `-p null` instead of the expected `-p 0`.
 
 # Changes in Ice 3.7.2
 
