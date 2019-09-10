@@ -112,7 +112,7 @@ These are the changes since Ice 3.7.2.
 
 - Add support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
 
-- Fixed a bug in IceSSL that result in `IceSSL::ConnectionInfo` not having
+- Fixed a bug in IceSSL that could result in `IceSSL::ConnectionInfo` not having
   the `verified` data member set to false when the certficiate hostname verification
   failed. This affects IceSSL using OpenSSL < 1.0.2 and SChannel.
 
