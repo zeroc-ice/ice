@@ -58,16 +58,6 @@ namespace IceSSL
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            List<string> certs = new List<string>();
-            if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
-            {
-                _certs = new X509Certificate2[_chain.ChainElements.Count];
-                for(int i = 0; i < _chain.ChainElements.Count; ++i)
-                {
-                    _certs[i] = _chain.ChainElements[i].Certificate;
-                }
-            }
-
             _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
 
             if(_instance.securityTraceLevel() >= 1)
@@ -368,26 +358,6 @@ namespace IceSSL
             _sslStream = null;
 
             _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
-
-            _chain = new X509Chain(_instance.engine().useMachineContext());
-
-            if(_instance.checkCRL() == 0)
-            {
-                _chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-            }
-
-            X509Certificate2Collection caCerts = _instance.engine().caCerts();
-            if(caCerts != null)
-            {
-                //
-                // We need to set this flag to be able to use a certificate authority from the extra store.
-                //
-                _chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-                foreach(X509Certificate2 cert in caCerts)
-                {
-                    _chain.ChainPolicy.ExtraStore.Add(cert);
-                }
-            }
         }
 
         private bool startAuthenticate(IceInternal.AsyncCallback callback, object state)
@@ -526,30 +496,57 @@ namespace IceSSL
         private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
                                         SslPolicyErrors policyErrors)
         {
-            string message = "";
-            int errors = (int)policyErrors;
-            if(certificate != null)
+            X509Chain chain = new X509Chain(_instance.engine().useMachineContext());
+            try
             {
-                _chain.Build(new X509Certificate2(certificate));
-                if(_chain.ChainStatus != null && _chain.ChainStatus.Length > 0)
+                if(_instance.checkCRL() == 0)
                 {
-                    errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                    chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                 }
-                else if(_instance.engine().caCerts() != null)
+
+                X509Certificate2Collection caCerts = _instance.engine().caCerts();
+                if(caCerts != null)
                 {
-                    X509ChainElement e = _chain.ChainElements[_chain.ChainElements.Count - 1];
-                    if(!_chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
+                    //
+                    // We need to set this flag to be able to use a certificate authority from the extra store.
+                    //
+                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+                    foreach(X509Certificate2 cert in caCerts)
                     {
-                        if(_verifyPeer > 0)
+                        chain.ChainPolicy.ExtraStore.Add(cert);
+                    }
+                }
+
+                string message = "";
+                int errors = (int)policyErrors;
+                if(certificate != null)
+                {
+                    chain.Build(new X509Certificate2(certificate));
+                    if(chain.ChainStatus != null && chain.ChainStatus.Length > 0)
+                    {
+                        errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                    }
+                    else if(_instance.engine().caCerts() != null)
+                    {
+                        X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                        if(!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                         {
-                            message = message + "\npuntrusted root certificate";
+                            if(_verifyPeer > 0)
+                            {
+                                message = message + "\npuntrusted root certificate";
+                            }
+                            else
+                            {
+                                message = message + "\nuntrusted root certificate (ignored)";
+                                _verified = false;
+                            }
+                            errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                         }
                         else
                         {
-                            message = message + "\nuntrusted root certificate (ignored)";
-                            _verified = false;
+                            _verified = true;
+                            return true;
                         }
-                        errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
                     else
                     {
@@ -557,175 +554,191 @@ namespace IceSSL
                         return true;
                     }
                 }
-                else
+
+                if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
                 {
-                    _verified = true;
-                    return true;
+                    //
+                    // The RemoteCertificateNotAvailable case does not appear to be possible
+                    // for an outgoing connection. Since .NET requires an authenticated
+                    // connection, the remote peer closes the socket if it does not have a
+                    // certificate to provide.
+                    //
+
+                    if(_incoming)
+                    {
+                        if(_verifyPeer > 1)
+                        {
+                            if(_instance.securityTraceLevel() >= 1)
+                            {
+                                _instance.logger().trace(_instance.securityTraceCategory(),
+                                                         "SSL certificate validation failed - client certificate not provided");
+                            }
+                            return false;
+                        }
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
+                        message = message + "\nremote certificate not provided (ignored)";
+                    }
                 }
-            }
 
-            if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
-            {
-                //
-                // The RemoteCertificateNotAvailable case does not appear to be possible
-                // for an outgoing connection. Since .NET requires an authenticated
-                // connection, the remote peer closes the socket if it does not have a
-                // certificate to provide.
-                //
-
-                if(_incoming)
+                bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
+                if(certificateNameMismatch)
                 {
-                    if(_verifyPeer > 1)
+                    if(_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
                     {
                         if(_instance.securityTraceLevel() >= 1)
                         {
-                            _instance.logger().trace(_instance.securityTraceCategory(),
-                                          "SSL certificate validation failed - client certificate not provided");
+                            string msg = "SSL certificate validation failed - Hostname mismatch";
+                            if(_verifyPeer == 0)
+                            {
+                                msg += " (ignored)";
+                            }
+                            _instance.logger().trace(_instance.securityTraceCategory(), msg);
                         }
-                        return false;
-                    }
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                    message = message + "\nremote certificate not provided (ignored)";
-                }
-            }
 
-            bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
-            if(certificateNameMismatch)
-            {
-                if(_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
-                {
-                    if(_instance.securityTraceLevel() >= 1)
-                    {
-                        string msg = "SSL certificate validation failed - Hostname mismatch";
-                        if(_verifyPeer == 0)
+                        if(_verifyPeer > 0)
                         {
-                            msg += " (ignored)";
+                            return false;
                         }
-                        _instance.logger().trace(_instance.securityTraceCategory(), msg);
-                    }
-
-                    if(_verifyPeer > 0)
-                    {
-                        return false;
+                        else
+                        {
+                            errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                        }
                     }
                     else
                     {
                         errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                        certificateNameMismatch = false;
                     }
                 }
-                else
-                {
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                    certificateNameMismatch = false;
-                }
-            }
 
-            if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
-                _chain.ChainStatus != null && _chain.ChainStatus.Length > 0)
-            {
-                int errorCount = 0;
-                foreach(X509ChainStatus status in _chain.ChainStatus)
+                if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
+                   chain.ChainStatus != null && chain.ChainStatus.Length > 0)
                 {
-                    if(status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.engine().caCerts() != null)
+                    int errorCount = 0;
+                    foreach(X509ChainStatus status in chain.ChainStatus)
                     {
-                        //
-                        // Untrusted root is OK when using our custom chain engine if
-                        // the CA certificate is present in the chain policy extra store.
-                        //
-                        X509ChainElement e = _chain.ChainElements[_chain.ChainElements.Count - 1];
-                        if(!_chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
+                        if(status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.engine().caCerts() != null)
                         {
-                            if(_verifyPeer > 0)
+                            //
+                            // Untrusted root is OK when using our custom chain engine if
+                            // the CA certificate is present in the chain policy extra store.
+                            //
+                            X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                            if(!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                             {
-                                message = message + "\npuntrusted root certificate";
+                                if(_verifyPeer > 0)
+                                {
+                                    message = message + "\npuntrusted root certificate";
+                                    ++errorCount;
+                                }
+                                else
+                                {
+                                    message = message + "\nuntrusted root certificate (ignored)";
+                                }
+                            }
+                            else
+                            {
+                                _verified = !certificateNameMismatch;
+                            }
+                        }
+                        else if(status.Status == X509ChainStatusFlags.Revoked)
+                        {
+                            if(_instance.checkCRL() > 0)
+                            {
+                                message = message + "\ncertificate revoked";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\nuntrusted root certificate (ignored)";
+                                message = message + "\ncertificate revoked (ignored)";
                             }
                         }
-                        else
+                        else if(status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
                         {
-                            _verified = !certificateNameMismatch;
+                            //
+                            // If a certificate's revocation status cannot be determined, the strictest
+                            // policy is to reject the connection.
+                            //
+                            if(_instance.checkCRL() > 1)
+                            {
+                                message = message + "\ncertificate revocation status unknown";
+                                ++errorCount;
+                            }
+                            else
+                            {
+                                message = message + "\ncertificate revocation status unknown (ignored)";
+                            }
                         }
-                    }
-                    else if(status.Status == X509ChainStatusFlags.Revoked)
-                    {
-                        if(_instance.checkCRL() > 0)
+                        else if(status.Status == X509ChainStatusFlags.PartialChain)
                         {
-                            message = message + "\ncertificate revoked";
+                            if(_verifyPeer > 0)
+                            {
+                                message = message + "\npartial certificate chain";
+                                ++errorCount;
+                            }
+                            else
+                            {
+                                message = message + "\npartial certificate chain (ignored)";
+                            }
+                        }
+                        else if(status.Status != X509ChainStatusFlags.NoError)
+                        {
+                            message = message + "\ncertificate chain error: " + status.Status.ToString();
                             ++errorCount;
                         }
-                        else
-                        {
-                            message = message + "\ncertificate revoked (ignored)";
-                        }
                     }
-                    else if(status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
+
+                    if(errorCount == 0)
                     {
-                        //
-                        // If a certificate's revocation status cannot be determined, the strictest
-                        // policy is to reject the connection.
-                        //
-                        if(_instance.checkCRL() > 1)
-                        {
-                            message = message + "\ncertificate revocation status unknown";
-                            ++errorCount;
-                        }
-                        else
-                        {
-                            message = message + "\ncertificate revocation status unknown (ignored)";
-                        }
-                    }
-                    else if(status.Status == X509ChainStatusFlags.PartialChain)
-                    {
-                        if(_verifyPeer > 0)
-                        {
-                            message = message + "\npartial certificate chain";
-                            ++errorCount;
-                        }
-                        else
-                        {
-                            message = message + "\npartial certificate chain (ignored)";
-                        }
-                    }
-                    else if(status.Status != X509ChainStatusFlags.NoError)
-                    {
-                        message = message + "\ncertificate chain error: " + status.Status.ToString();
-                        ++errorCount;
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
                 }
 
-                if(errorCount == 0)
+                if(errors > 0)
                 {
-                    errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                    if(_instance.securityTraceLevel() >= 1)
+                    {
+                        if(message.Length > 0)
+                        {
+                            _instance.logger().trace(_instance.securityTraceCategory(),
+                                                     "SSL certificate validation failed:" + message);
+                        }
+                        else
+                        {
+                            _instance.logger().trace(_instance.securityTraceCategory(),
+                                                     "SSL certificate validation failed");
+                        }
+                    }
+                    return false;
                 }
+                else if(message.Length > 0 && _instance.securityTraceLevel() >= 1)
+                {
+                    _instance.logger().trace(_instance.securityTraceCategory(),
+                                             "SSL certificate validation status:" + message);
+                }
+                return true;
             }
+            finally
+            {
+                if(chain.ChainElements != null && chain.ChainElements.Count > 0)
+                {
+                    _certs = new X509Certificate2[chain.ChainElements.Count];
+                    for(int i = 0; i < chain.ChainElements.Count; ++i)
+                    {
+                        _certs[i] = chain.ChainElements[i].Certificate;
+                    }
+                }
 
-            if(errors > 0)
-            {
-                if(_instance.securityTraceLevel() >= 1)
+#if NETSTANDARD2_0
+                try
                 {
-                    if(message.Length > 0)
-                    {
-                        _instance.logger().trace(_instance.securityTraceCategory(),
-                                                 "SSL certificate validation failed:" + message);
-                    }
-                    else
-                    {
-                        _instance.logger().trace(_instance.securityTraceCategory(),
-                                                 "SSL certificate validation failed");
-                    }
+                    chain.Dispose();
                 }
-                return false;
+                catch(Exception)
+                {
+                }
+#endif
             }
-            else if(message.Length > 0 && _instance.securityTraceLevel() >= 1)
-            {
-                _instance.logger().trace(_instance.securityTraceCategory(),
-                                         "SSL certificate validation status:" + message);
-            }
-            return true;
         }
 
         internal void readCompleted(IAsyncResult result)
@@ -767,7 +780,6 @@ namespace IceSSL
         private IAsyncResult _readResult;
         private IceInternal.AsyncCallback _readCallback;
         private IceInternal.AsyncCallback _writeCallback;
-        private X509Chain _chain;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
         private string _cipher;
