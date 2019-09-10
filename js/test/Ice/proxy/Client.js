@@ -108,6 +108,9 @@
             test(b1.ice_getIdentity().name === "test" && b1.ice_getIdentity().category === "category" &&
                  b1.ice_getAdapterId().length === 0);
 
+            b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
+            test(b1.equals(communicator.stringToProxy(b1.toString())));
+
             b1 = communicator.stringToProxy("");
             test(b1 === null);
             b1 = communicator.stringToProxy("\"\"");

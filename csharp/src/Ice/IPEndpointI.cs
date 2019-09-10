@@ -224,7 +224,18 @@ namespace IceInternal
 
             if(sourceAddr_ != null)
             {
-                s += " --sourceAddress " + Network.endpointAddressToString(sourceAddr_);
+                string sourceAddr = Network.endpointAddressToString(sourceAddr_);
+                bool addQuote = sourceAddr.IndexOf(':') != -1;
+                s += " --sourceAddress ";
+                if(addQuote)
+                {
+                    s += "\"";
+                }
+                s += sourceAddr;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
             }
 
             return s;

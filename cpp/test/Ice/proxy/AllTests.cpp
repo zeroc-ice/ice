@@ -236,6 +236,12 @@ allTests(Test::TestHelper* helper)
     b1 = communicator->stringToProxy("test -p 6.5 -e 1.0");
     test(b1->ice_toString() == "test -t -p 6.5 -e 1.0");
 
+    b1 = communicator->stringToProxy("test:tcp --sourceAddress \"::1\"");
+    test(Ice::targetEqualTo(b1, communicator->stringToProxy(b1->ice_toString())));
+
+    b1 = communicator->stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+    test(Ice::targetEqualTo(b1, communicator->stringToProxy(b1->ice_toString())));
+
     try
     {
         communicator->stringToProxy("test:tcp@adapterId");

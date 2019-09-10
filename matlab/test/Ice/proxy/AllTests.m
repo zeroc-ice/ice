@@ -210,6 +210,10 @@ classdef AllTests
             catch ex
                 assert(isa(ex, 'Ice.EndpointParseException'));
             end
+
+            b1 = communicator.stringToProxy('test:tcp --sourceAddress "::1"');
+            assert(b1 == communicator.stringToProxy(b1.ice_toString()));
+
             fprintf('ok\n');
 
             fprintf('testing propertyToProxy... ');

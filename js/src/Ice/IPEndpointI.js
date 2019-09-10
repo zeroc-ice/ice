@@ -24,7 +24,7 @@ class IPEndpointI extends Ice.EndpointI
         super();
         this._instance = instance;
         this._host = ho === undefined ? null : ho;
-        this._port = po === undefined ? null : po;
+        this._port = po === undefined ? 0 : po;
         this._sourceAddr = sa === undefined ? null : sa;
         this._connectionId = conId === undefined ? "" : conId;
     }
@@ -132,7 +132,17 @@ class IPEndpointI extends Ice.EndpointI
 
         if(this._sourceAddr !== null && this._sourceAddr.length > 0)
         {
-            s += " --sourceAddr " + this._sourceAddr;
+            s += " --sourceAddress ";
+            const addQuote = this._sourceAddr.indexOf(':') != -1;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += this._sourceAddr;
+            if(addQuote)
+            {
+                s += "\"";
+            }
         }
         return s;
     }

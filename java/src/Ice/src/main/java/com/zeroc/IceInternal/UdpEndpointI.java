@@ -223,7 +223,17 @@ final class UdpEndpointI extends IPEndpointI
 
         if(_mcastInterface.length() != 0)
         {
-            s += " --interface " + _mcastInterface;
+            s += " --interface ";
+            boolean addQuote = _mcastInterface.indexOf(':') != -1;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += _mcastInterface;
+            if(addQuote)
+            {
+                s += "\"";
+            }
         }
 
         if(_mcastTtl != -1)

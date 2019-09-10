@@ -70,6 +70,12 @@ def allTests(helper, communicator)
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" && \
          b1.ice_getAdapterId().empty?)
 
+    b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"")
+    test(b1 == communicator.stringToProxy(b1.ice_toString()))
+
+    b1 = communicator.stringToProxy("test:udp --sourceAddress \"::1\" --interface \":0:0:0:0:0:0:0:1\"")
+    test(b1 == communicator.stringToProxy(b1.ice_toString()))
+
     b1 = communicator.stringToProxy("test@adapter")
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.empty? && \
          b1.ice_getAdapterId() == "adapter")
