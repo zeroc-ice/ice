@@ -214,7 +214,17 @@ IceInternal::UdpEndpointI::options() const
 
     if(_mcastInterface.length() > 0)
     {
-        s << " --interface " << _mcastInterface;
+        s << " --interface ";
+        bool addQuote = _mcastInterface.find(':') != string::npos;
+        if(addQuote)
+        {
+            s << "\"";
+        }
+        s << _mcastInterface;
+        if(addQuote)
+        {
+            s << "\"";
+        }
     }
 
     if(_mcastTtl != -1)

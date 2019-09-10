@@ -255,7 +255,18 @@ IceInternal::IPEndpointI::options() const
 
     if(isAddressValid(_sourceAddr))
     {
-        s << " --sourceAddress " << inetAddrToString(_sourceAddr);
+        const string sourceAddr = inetAddrToString(_sourceAddr);
+        bool addQuote = sourceAddr.find(':') != string::npos;
+        s << " --sourceAddress ";
+        if(addQuote)
+        {
+            s << "\"";
+        }
+        s << sourceAddr;
+        if(addQuote)
+        {
+            s << "\"";
+        }
     }
 
     return s.str();

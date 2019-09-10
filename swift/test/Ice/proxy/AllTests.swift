@@ -96,6 +96,12 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
         b1.ice_getIdentity().category == "category" &&
         b1.ice_getAdapterId().isEmpty)
 
+    b1 = try communicator.stringToProxy("test:tcp --sourceAddress \"::1\"")!
+    try test(b1 == communicator.stringToProxy(b1.ice_toString())!)
+
+    b1 = try communicator.stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:0:1%lo\"")!
+    try test(b1 == communicator.stringToProxy(b1.ice_toString())!)
+
     try test(communicator.stringToProxy("") == nil)
     try test(communicator.stringToProxy("\"\"") == nil)
 

@@ -91,6 +91,12 @@ namespace Ice
                 test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
                      b1.ice_getAdapterId().Length == 0);
 
+                b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
+                test(b1.Equals(communicator.stringToProxy(b1.ToString())));
+
+                b1 = communicator.stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+                test(b1.Equals(communicator.stringToProxy(b1.ToString())));
+
                 b1 = communicator.stringToProxy("");
                 test(b1 == null);
                 b1 = communicator.stringToProxy("\"\"");

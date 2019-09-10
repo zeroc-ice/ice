@@ -198,7 +198,17 @@ namespace IceInternal
 
             if(_mcastInterface.Length != 0)
             {
-                s += " --interface " + _mcastInterface;
+                bool addQuote = _mcastInterface.IndexOf(':') != -1;
+                s += " --interface ";
+                if(addQuote)
+                {
+                    s += "\"";
+                }
+                s += _mcastInterface;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
             }
 
             if(_mcastTtl != -1)
