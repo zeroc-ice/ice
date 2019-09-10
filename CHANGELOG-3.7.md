@@ -114,7 +114,7 @@ These are the changes since Ice 3.7.2.
 
 - Fixed a bug in IceSSL that could result in `IceSSL::ConnectionInfo` not having
   the `verified` data member set to false when the certficiate hostname verification
-  failed. This affects IceSSL using OpenSSL < 1.0.2 and SChannel.
+  failed. This affected IceSSL based on OpenSSL < 1.0.2 and SChannel.
 
 ## C# Changes
 
