@@ -746,9 +746,10 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" + secStatusToString(err));
     }
 
+    ConnectionInfoPtr info = ICE_DYNAMIC_CAST(ConnectionInfo, getInfo());
     try
     {
-        _engine->verifyPeerCertName(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()));
+        _engine->verifyPeerCertName(_host, info);
     }
     catch(const Ice::SecurityException&)
     {
@@ -758,7 +759,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
             throw;
         }
     }
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, info, toString());
     _state = StateHandshakeComplete;
 
     if(_instance->engine()->securityTraceLevel() >= 1)
@@ -766,12 +767,11 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         string sslCipherName;
         string sslKeyExchangeAlgorithm;
         string sslProtocolName;
-        SecPkgContext_ConnectionInfo info;
-        if(QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &info) == SEC_E_OK)
+        if(QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
         {
-            sslCipherName = _engine->getCipherName(info.aiCipher);
-            sslKeyExchangeAlgorithm = _engine->getCipherName(info.aiExch);
-            sslProtocolName = protocolName(info.dwProtocol);
+            sslCipherName = _engine->getCipherName(connInfo.aiCipher);
+            sslKeyExchangeAlgorithm = _engine->getCipherName(connInfo.aiExch);
+            sslProtocolName = protocolName(connInfo.dwProtocol);
         }
 
         Trace out(_instance->logger(), _instance->traceCategory());

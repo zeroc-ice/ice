@@ -935,13 +935,6 @@ OpenSSL::SSLEngine::destroy()
     }
 }
 
-void
-OpenSSL::SSLEngine::verifyPeer(const string& address, const IceSSL::ConnectionInfoPtr& info, const string& desc)
-{
-    // keep for binary compatibility.
-    IceSSL::SSLEngine::verifyPeer(address, info, desc);
-}
-
 IceInternal::TransceiverPtr
 OpenSSL::SSLEngine::createTransceiver(const InstancePtr& instance,
                                       const IceInternal::TransceiverPtr& delegate,

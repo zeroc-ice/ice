@@ -116,6 +116,9 @@ These are the changes since Ice 3.7.2.
   the `verified` data member set to false when the certficiate hostname verification
   failed. This affected IceSSL based on OpenSSL < 1.0.2 and SChannel.
 
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer` is
+  set to 0. This affected IceSSL based on OpenSSL >= 1.0.2.
+
 ## C# Changes
 
 - Added back support for caching the output stream used to marshal the response

@@ -348,7 +348,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         //
         _engine->verifyPeerCertName(address, info);
     }
-    catch(cosnt SecurityException&)
+    catch(const SecurityException&)
     {
         _verified = false;
         if(_engine->getVerifyPeer() > 0)

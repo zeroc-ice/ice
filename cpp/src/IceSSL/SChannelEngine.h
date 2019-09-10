@@ -91,8 +91,6 @@ public:
     //
     virtual void destroy();
 
-    virtual void verifyPeer(const std::string&, const ConnectionInfoPtr&, const std::string&);
-
     std::string getCipherName(ALG_ID) const;
 
     CredHandle newCredentialsHandle(bool);
