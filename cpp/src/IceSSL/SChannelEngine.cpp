@@ -1273,13 +1273,6 @@ SChannel::SSLEngine::destroy()
     }
 }
 
-void
-SChannel::SSLEngine::verifyPeer(const string& address, const IceSSL::ConnectionInfoPtr& info, const string& desc)
-{
-    verifyPeerCertName(address, info);
-    IceSSL::SSLEngine::verifyPeer(address, info, desc);
-}
-
 IceInternal::TransceiverPtr
 SChannel::SSLEngine::createTransceiver(const InstancePtr& instance,
                                        const IceInternal::TransceiverPtr& delegate,

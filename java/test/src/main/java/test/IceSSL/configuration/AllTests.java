@@ -684,6 +684,9 @@ public class AllTests
                     try
                     {
                         server.ice_ping();
+                        com.zeroc.IceSSL.ConnectionInfo info =
+                            (com.zeroc.IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.verified);
                     }
                     catch(com.zeroc.Ice.LocalException ex)
                     {

@@ -935,19 +935,6 @@ OpenSSL::SSLEngine::destroy()
     }
 }
 
-void
-OpenSSL::SSLEngine::verifyPeer(const string& address, const IceSSL::ConnectionInfoPtr& info, const string& desc)
-{
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10002000L
-    //
-    // Peer hostname verification is new in OpenSSL 1.0.2 for older versions
-    //  we use IceSSL build in hostname verification.
-    //
-    verifyPeerCertName(address, info);
-#endif
-    IceSSL::SSLEngine::verifyPeer(address, info, desc);
-}
-
 IceInternal::TransceiverPtr
 OpenSSL::SSLEngine::createTransceiver(const InstancePtr& instance,
                                       const IceInternal::TransceiverPtr& delegate,

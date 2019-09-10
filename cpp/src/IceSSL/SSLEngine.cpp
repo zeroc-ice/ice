@@ -207,19 +207,19 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
         if(!certNameOK)
         {
             ostringstream ostr;
-            ostr << "IceSSL: certificate validation failure: "
-                 << (isIpAddress ? "IP address mismatch" : "Hostname mismatch");
+            ostr << "IceSSL: ";
+            if(_verifyPeer > 0)
+            {
+                ostr << "ignoring ";
+            }
+            ostr << "certificate verification failure " << (isIpAddress ? "IP address mismatch" : "Hostname mismatch");
             string msg = ostr.str();
             if(_securityTraceLevel >= 1)
             {
                 Trace out(_logger, _securityTraceCategory);
                 out << msg;
             }
-
-            if(_verifyPeer > 0)
-            {
-                throw SecurityException(__FILE__, __LINE__, msg);
-            }
+            throw SecurityException(__FILE__, __LINE__, msg);
         }
     }
 }

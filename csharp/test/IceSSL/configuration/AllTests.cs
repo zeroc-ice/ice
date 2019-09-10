@@ -783,6 +783,35 @@ public class AllTests
 
                     //
                     // Target host does not match the certificate DNS altName, connection should succeed
+                    // because IceSSL.VerifyPeer is set to 0.
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                            test(!info.verified);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+
+                    //
+                    // Target host does not match the certificate DNS altName, connection should succeed
                     // because IceSSL.CheckCertName is set to 0.
                     //
                     {

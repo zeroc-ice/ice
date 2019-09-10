@@ -171,7 +171,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             // Hostname verification was included in OpenSSL 1.0.2
             //
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10002000L
-            if(_engine->getCheckCertName() && !_host.empty() && (sslVerifyMode & SSL_VERIFY_PEER))
+            if(_engine->getCheckCertName() && !_host.empty())
             {
                 X509_VERIFY_PARAM* param = SSL_get0_param(_ssl);
                 if(IceInternal::isIpAddress(_host))
@@ -339,6 +339,24 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     _cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10002000L
+    try
+    {
+        //
+        // Peer hostname verification is new in OpenSSL 1.0.2 for older versions
+        // We use IceSSL built-in hostname verification.
+        //
+        _engine->verifyPeerCertName(address, info);
+    }
+    catch(const SecurityException&)
+    {
+        _verified = false;
+        if(_engine->getVerifyPeer() > 0)
+        {
+            throw;
+        }
+    }
+#endif
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
 
     if(_engine->securityTraceLevel() >= 1)

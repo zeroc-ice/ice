@@ -112,6 +112,13 @@ These are the changes since Ice 3.7.2.
 
 - Add support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
 
+- Fixed a bug in IceSSL that could result in `IceSSL::ConnectionInfo` not having
+  the `verified` data member set to false when the certficiate hostname verification
+  failed. This affected IceSSL based on OpenSSL < 1.0.2 and SChannel.
+
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer` is
+  set to 0. This affected IceSSL based on OpenSSL >= 1.0.2.
+
 ## C# Changes
 
 - Added back support for caching the output stream used to marshal the response
@@ -122,6 +129,9 @@ These are the changes since Ice 3.7.2.
 
 - Fixed loading of Bzip2 native libraries in Linux to fallback to libbz2.so.1
   if libbz2.so.1.0 doesn't exists.
+
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer` is
+  set to 0.
 
 ## Java Changes
 

@@ -1467,6 +1467,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             try
             {
                 server->ice_ping();
+                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getCachedConnection()->getInfo());
+                test(!info->verified);
             }
             catch(const Ice::LocalException& ex)
             {

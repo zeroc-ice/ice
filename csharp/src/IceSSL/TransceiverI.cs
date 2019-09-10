@@ -589,20 +589,34 @@ namespace IceSSL
                 }
             }
 
-            if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
+            bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
+            if(certificateNameMismatch)
             {
                 if(_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
                 {
                     if(_instance.securityTraceLevel() >= 1)
                     {
-                        _instance.logger().trace(_instance.securityTraceCategory(),
-                                      "SSL certificate validation failed - Hostname mismatch");
+                        string msg = "SSL certificate validation failed - Hostname mismatch";
+                        if(_verifyPeer == 0)
+                        {
+                            msg += " (ignored)";
+                        }
+                        _instance.logger().trace(_instance.securityTraceCategory(), msg);
                     }
-                    return false;
+
+                    if(_verifyPeer > 0)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                    }
                 }
                 else
                 {
                     errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                    certificateNameMismatch = false;
                 }
             }
 
@@ -633,7 +647,7 @@ namespace IceSSL
                         }
                         else
                         {
-                            _verified = true;
+                            _verified = !certificateNameMismatch;
                         }
                     }
                     else if(status.Status == X509ChainStatusFlags.Revoked)

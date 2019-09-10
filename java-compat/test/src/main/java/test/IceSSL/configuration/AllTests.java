@@ -686,6 +686,8 @@ public class AllTests
                     try
                     {
                         server.ice_ping();
+                        IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.verified);
                     }
                     catch(Ice.LocalException ex)
                     {
