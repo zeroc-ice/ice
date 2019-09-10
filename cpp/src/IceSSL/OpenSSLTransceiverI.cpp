@@ -344,7 +344,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     {
         //
         // Peer hostname verification is new in OpenSSL 1.0.2 for older versions
-        // we use IceSSL build in hostname verification.
+        // We use IceSSL built-in hostname verification.
         //
         _engine->verifyPeerCertName(address, info);
     }
