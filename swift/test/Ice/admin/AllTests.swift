@@ -8,7 +8,6 @@ import TestCommon
 
 class RemoteLoggerI: Ice.RemoteLogger {
     var _helper: TestHelper
-    var _receivedCalls: Int32 = 0
     var _prefix: String = ""
     var _initMessages: [Ice.LogMessage] = []
     var _logMessages: [Ice.LogMessage] = []
@@ -23,17 +22,15 @@ class RemoteLoggerI: Ice.RemoteLogger {
         withLock(&_lock) {
             _prefix = prefix
             _initMessages += logMessages
-            _receivedCalls += 1
-            _semaphore.signal()
         }
+        _semaphore.signal()
     }
 
     func log(message: Ice.LogMessage, current _: Ice.Current) throws {
         withLock(&_lock) {
             _logMessages.append(message)
-            _receivedCalls += 1
-            _semaphore.signal()
         }
+        _semaphore.signal()
     }
 
     func checkNextInit(prefix: String, type: Ice.LogMessageType, message: String, category: String) throws {
@@ -58,8 +55,7 @@ class RemoteLoggerI: Ice.RemoteLogger {
     }
 
     func wait(calls: Int32) throws {
-        _receivedCalls -= calls
-        while _receivedCalls < 0 {
+        for _ in 0..<calls {
             _semaphore.wait()
         }
     }
