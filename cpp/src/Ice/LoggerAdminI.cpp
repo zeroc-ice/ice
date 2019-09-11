@@ -355,14 +355,8 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
     // In C++, LoggerAdminI does not keep a "logger" data member to avoid a hard-to-break circular
     // reference, so we retrieve the logger from Current
     //
-
     LoggerAdminLoggerIPtr logger = ICE_DYNAMIC_CAST(LoggerAdminLoggerI, current.adapter->getCommunicator()->getLogger());
-    if(!logger)
-    {
-        // Our logger is not installed - must be a bug
-        assert(0);
-        return;
-    }
+    assert(logger);
 
     RemoteLoggerPrxPtr remoteLogger = prx->ice_twoway();
 
