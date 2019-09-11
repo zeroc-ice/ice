@@ -401,6 +401,9 @@ def create_platform_targets(project, platform, bindist)
     copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
 
+    copy_symbols = target.new_copy_files_build_phase("Copy Symbols")
+    copy_symbols.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:products_directory]
+
     target_set_framework_build_settings(target)
     if bindist then
         target_add_carthage_framework(target, platform, "IceImpl.framework", true)
@@ -745,8 +748,13 @@ def target_add_carthage_framework(target, platform, framework, copy=false)
     group_add_files(group, "../Carthage/Build/#{carthage_prefix}", [framework]).each do |ref|
         target.frameworks_build_phases.add_file_reference(ref, true)
         if copy then
-            file = target.copy_files_build_phases[0].add_file_reference(ref)
-            file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+            copy_phase = target.shell_script_build_phases.select { |script| script.name == "Copy Frameworks" }.first
+            unless copy_phase then
+                copy_phase = target.new_shell_script_build_phase("Copy Frameworks")
+                copy_phase.shell_script = "/usr/local/bin/carthage copy-frameworks"
+            end
+            copy_phase.input_paths << "$(SRCROOT)/../Carthage/Build/#{carthage_prefix}/#{framework}"
+            copy_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/#{framework}"
         end
     end
 end
