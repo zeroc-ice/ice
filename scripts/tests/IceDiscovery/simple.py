@@ -13,7 +13,13 @@ props = lambda process, current: {
     "IceDiscovery.DomainId": domainId,
     "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
     "IceDiscovery.Port": current.driver.getTestPort(10),
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process)
+    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
+    "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client" # This is used for the trace file
+}
+
+traceProps = {
+    "Ice.Trace.Locator" : 2,
+    "Ice.Trace.Protocol" : 1
 }
 
 #
@@ -42,5 +48,6 @@ if isinstance(platform,AIX):
 
 TestSuite(__name__, [
    ClientServerTestCase(client=Client(args=[3], props=props, outfilters=outfilters),
-                        servers=[Server(args=[i], readyCount=4, props=props) for i in range(0, 3)])
+                        servers=[Server(args=[i], readyCount=4, props=props) for i in range(0, 3)],
+                        traceProps=traceProps)
 ], multihost=False, options=options)
