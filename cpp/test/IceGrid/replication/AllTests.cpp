@@ -1436,6 +1436,17 @@ allTests(Test::TestHelper* helper)
         test(masterAdmin->getAdapterInfo("TestReplicaGroup").size() == 2);
 
         admin->sendSignal("Node2", "SIGSTOP");
+        try
+        {
+            // Wait for Node2 to be stopped by getting the TestAdapter.Server2 enpdoints
+            while(true)
+            {
+                masterAdmin->ice_invocationTimeout(100)->getAdapterInfo("TestAdapter.Server2");
+            }
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+        }
 
         test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
         try
