@@ -153,9 +153,10 @@ extension = ice.so
 
 You can verify that PHP is loading the Ice extension by running the command
 shown below:
+
 ```
 php -m
-````
+```
 
 Look for `ice` among the installed modules. Note that your library search path
 (`LD_LIBRARY_PATH` on Linux or `DYLD_LIBRARY_PATH` on macOS) must include the

@@ -23,7 +23,7 @@ operating systems and Ruby versions listed for our [supported platforms][2].
 
 ### Ruby Versions
 
-Ice for Ruby supports Ruby versions 1.8.1 or later. You can use a source or
+Ice for Ruby supports Ruby versions 2.0 or later. You can use a source or
 binary installation of Ruby.
 
 If you use an RPM installation, the following packages are required:
@@ -42,7 +42,7 @@ If you installed Ruby in a non-standard location, set the `RUBY_HOME`
 environment variable to the installation directory. For example:
 ```
 export RUBY_HOME=/opt/ruby
-````
+```
 
 The build of Ice for Ruby requires that you first build Ice for C++ in the
 `cpp` subdirectory.
@@ -150,18 +150,18 @@ There are two ways to solve this problem:
 - Change the default security context for the Ice extension using the following
 command:
 
-    ```
-    chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
-    ```
+```
+chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
+```
 
 Replace `/opt/Ice` with your installation directory.
 
 - Disable SELinux completely by adding the following line to your
 `/etc/sysconfig/selinux` file:
 
-    ```
-    SELINUX=disabled
-    ```
+```
+SELINUX=disabled
+```
 
 [1]: https://zeroc.com/downloads/ice
 [2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3

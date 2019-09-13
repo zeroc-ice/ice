@@ -104,7 +104,7 @@ To clean the build for all the supported configurations and platforms, run
 
 Running `make distclean` will also clean the build for all the configurations
 and platforms. In addition, it will also remove the generated files created by
-the Slice translators.
+the Slice compilers.
 
 ## Running the Test Suite
 

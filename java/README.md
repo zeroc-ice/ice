@@ -97,7 +97,7 @@ GUI tool.
 The Maven package id for the ProGuard package is as follows:
 
 ```
-groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.0'
+groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.1.1'
 ```
 
 ### Java Application Bundler
@@ -108,7 +108,7 @@ bundle for the IceGrid GUI tool.
 The Maven package id for the application bundler package is as follows:
 
 ```
-groupId=com.panayotis, version=1.0.2, artifactId=appbundler
+groupId=com.panayotis, version=1.1.0, artifactId=appbundler
 ```
 
 ## Building Ice for Java
@@ -219,25 +219,12 @@ the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 3.2.1
-- Android SDK 24
-- Android Build Tools 27.0.1
+- Android Studio 3.5
+- Android SDK 29
 
 Using Ice's Java mapping with Java 8 requires at minimum API level 24:
 
 - Android 7 (API24)
-
-If you want to target a later version of the Android API level for the test
-suite, edit `test/android/controller/gradle.properties` and change the
-following variables:
-
-```
-ice_compileSdkVersion
-ice_minSdkVersion
-ice_targetSdkVersion
-```
-
-*NOTE: Do not use Android Studio to modify the project's settings.*
 
 ### Building the Android Test Controller
 

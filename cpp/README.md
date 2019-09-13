@@ -262,6 +262,7 @@ environment variables:
 Open the Visual Studio solution that corresponds to the Visual Studio version you
 are using.
 
+ - For Visual Studio 2019 use [msbuild/ice.v142.sln](./msbuild/ice.v142.sln)
  - For Visual Studio 2017 use [msbuild/ice.v141.sln](./msbuild/ice.v141.sln)
  - For Visual Studio 2015 use [msbuild/ice.v140.sln](./msbuild/ice.v140.sln)
  - For Visual Studio 2013 use [msbuild/ice.v120.sln](./msbuild/ice.v120.sln)
@@ -275,24 +276,24 @@ Using the configuration manager choose the platform and configuration you want t
 The solution provide a project for each Ice component and each component can be built
 separatelly. When you build a component its dependencies are built automatically.
 
-For Visual Studio 2017 and Visual Studio 2015, the solutions organize the projects in two
-solution folders, C++11 and C++98, which correspond to the C++11 and C++98 mappings. If you
-want to build all the C++11 mapping components, build the C++11 solution folder;
-likewise if you want to build all the C++98 mapping components, build the C++98
-solution folder.
+For Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015, the solutions organize
+the projects in two solution folders, C++11 and C++98, which correspond to the C++11 and
+C++98 mappings. If you want to build all the C++11 mapping components, build the C++11
+solution folder; likewise if you want to build all the C++98 mapping components, build
+the C++98 solution folder.
 
 For Visual Studio 2013 and Visual Studio 2010. there is no separate solution folder because
 only the C++98 mapping is supported with these compilers.
 
 The test suite is built using separate Visual Studio solutions:
 
- - Ice Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.test.sln](./msbuild/ice.test.sln)
+ - Ice Test Suite for Visual Studio 2019, Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.test.sln](./msbuild/ice.test.sln)
  - Ice Test Suite for Visual Studio 2010 [msbuild/ice.test.v100.sln](./msbuild/ice.test.v100.sln)
- - Ice OpenSSL Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
+ - Ice OpenSSL Test Suite for Visual Studio 2019, Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
 The solution provides a separate project for each test component, the `Cpp11-Release` and `Cpp11-Debug` build
 configurations are setup to use the C++11 mapping in release and debug mode respectively, and are only supported
-with Visual Studio 2017 and Visual Studio 2015. The `Release` and `Debug` build configurations are setup to
+with Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015. The `Release` and `Debug` build configurations are setup to
 use the C++98 mapping in release and debug mode respectively.
 
 The building of the test uses by default the local source build, and you must have built the Ice
@@ -396,8 +397,8 @@ msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 ```
 
 This creates `zeroc.ice.v100\zeroc.ice.v100.nupkg`,
-`zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg` or
-`zeroc.ice.v141\zeroc.ice.v141.nupkg`
+`zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg`,
+`zeroc.ice.v141\zeroc.ice.v141.nupkg` or `zeroc.ice.v142\zeroc.ice.v142.nupkg`
 depending on the compiler you are using.
 
 To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
@@ -427,7 +428,7 @@ To clean the build for all the supported configurations and platforms, run
 
 Running `make distclean` will also clean the build for all the configurations
 and platforms. In addition, it will also remove the generated files created by
-the Slice translators.
+the Slice compilers.
 
 ## Running the Test Suite
 

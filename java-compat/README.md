@@ -175,9 +175,8 @@ for the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 3.2.1
-- Android SDK 21
-- Android Build Tools 27.0.1
+- Android Studio 3.5
+- Android SDK 29
 
 Ice requires at minimum API level 21:
 
@@ -186,12 +185,6 @@ Ice requires at minimum API level 21:
 If you want to target a later version of the Android API level for the test
 suite, edit `test/android/controller/gradle.properties` and change the
 following variables:
-
-```
-ice_compileSdkVersion
-ice_minSdkVersion
-ice_targetSdkVersion
-```
 
 *NOTE: Do not use Android Studio to modify the project's settings.*
 

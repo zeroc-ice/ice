@@ -62,8 +62,9 @@ subdirectory, including compressed and minified versions.
 For older browsers that do not support all of the required ECMAScript 6
 features used by Ice for JavaScript, we provide pre-compiled versions of
 the libraries using the [Babel][2] JavaScript compiler. These libraries
-depend on the babel polyfill run time and are available in the `lib/es5`
-subdirectory with the same names as the main libraries.
+depend on the `core-js`[3] and `regenerator-runtime`[4] packages
+and  are available in the `lib/es5` subdirectory with the same names as
+the main libraries.
 
 ## Running the JavaScript Tests
 
@@ -200,3 +201,5 @@ library files located in the `lib` directory to your web server.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://babeljs.io
+[3]: https://www.npmjs.com/package/core-js
+[4]: https://www.npmjs.com/package/regenerator-runtime

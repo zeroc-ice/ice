@@ -27,7 +27,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
- - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
+ - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017 or Visual Studio 2019
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -74,17 +74,17 @@ implement .NET Standard 2.0.
 You can add Strong Naming signatures to the Ice assemblies by setting the following
 environment variables before building these assemblies:
 
- - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
- - KEYFILE Identity full key pair used to sign the assembly
+ - `PUBLIC_KEYFILE` Identity public key used to delay sign the assembly
+ - `KEYFILE` Identity full key pair used to sign the assembly
 
-If only PUBLIC_KEYFILE is set, the assemblies are delay-signed during the build
+If only `PUBLIC_KEYFILE` is set, the assemblies are delay-signed during the build
 and you must re-sign the assemblies later with the full identity key pair.
 
-If only KEYFILE is set, the assemblies are fully signed during the build using
+If only `KEYFILE` is set, the assemblies are fully signed during the build using
 KEYFILE.
 
-If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
-the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
+If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed during
+the build using `PUBLIC_KEYFILE` and re-signed after the build using `KEYFILE`.
 This can be used for generating [Enhanced Strong Naming][5] signatures.
 
 *Strong Name Signatures can be generated only from Windows builds.*
@@ -93,8 +93,8 @@ This can be used for generating [Enhanced Strong Naming][5] signatures.
 
 You can sign the Ice binaries with Authenticode by setting the following
 environment variables before building these assemblies:
- - SIGN_CERTIFICATE to your Authenticode certificate
- - SIGN_PASSWORD to the certificate password
+ - `SIGN_CERTIFICATE` to your Authenticode certificate
+ - `SIGN_PASSWORD` to the certificate password
 
 *Authenticode can be generated only from Windows builds.*
 
@@ -201,14 +201,14 @@ application.
 
 #### Windows Build Requirements
 
-* Visual Studio 2017 with following workloads:
+* Visual Studio 2017 or Visual Studio 2019 with following workloads:
   * Universal Windows Platform development
   * Mobile development with .NET
   * .NET Core cross-platform development
 
 #### Building the Android test controller
 
-Open a Visual Studio 2017 command prompt:
+Open a Visual Studio 2017 or Visual Studio 2019 command prompt:
 
 ```
 MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
