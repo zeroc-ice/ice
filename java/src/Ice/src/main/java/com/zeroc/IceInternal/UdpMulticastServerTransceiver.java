@@ -27,7 +27,14 @@ final class UdpMulticastServerTransceiver implements Transceiver
     @Override
     public void setReadyCallback(ReadyCallback callback)
     {
+        assert(_readyCallback == null && callback != null);
         _readyCallback = callback;
+
+        //
+        // Start the thread only once the ready callback is set or otherwise the thread
+        // might start receiving datagrams but wouldn't be able to notify the thread pool.
+        //
+        _thread.start();
     }
 
     @Override
@@ -255,7 +262,6 @@ final class UdpMulticastServerTransceiver implements Transceiver
                     runReadThread();
                 }
             };
-            _thread.start();
         }
         catch(Exception ex)
         {
