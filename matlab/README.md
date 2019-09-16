@@ -135,4 +135,4 @@ This script automatically starts a Python server for each MATLAB client.
 MATLAB clients are executed using a minimized MATLAB interpreter
 and the test output is copied to the Command Prompt window.
 
-[1]: https://zeroc.com/downloads/ice#matlab
+[1]: https://zeroc.com/downloads/ice

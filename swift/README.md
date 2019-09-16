@@ -69,5 +69,5 @@ python allTests.py --config Debug --platform iphonesimulator
 ```
 depending on your target.
 
-[1]: https://zeroc.com/downloads//ice#swift
+[1]: https://zeroc.com/downloads/ice
 [2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
