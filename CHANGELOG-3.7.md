@@ -166,7 +166,7 @@ These are the changes since Ice 3.7.2.
 ## JavaScript Changes
 
 - Fix a bug in the IP endpoint initialization,  the default value for the port should
-  was `null` instead of `0`, this cause problems with endpoint string conversion, 
+  was `null` instead of `0`, this cause problems with endpoint string conversion,
   where the output included `-p null` instead of the expected `-p 0`.
 
 # Changes in Ice 3.7.2
