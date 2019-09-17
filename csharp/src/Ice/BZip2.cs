@@ -116,12 +116,6 @@ namespace IceInternal
             //
             _bzlibInstalled = false;
             _bzlibName = "";
-
-            //
-            // We are setting the library name here because, under Mono, we don't know the exact library name.
-            // In addition, the FileName member of the BadImageFormatException is the empty string, even though
-            // it should provide the name of the library.
-            //
             try
             {
                 if(AssemblyUtil.isWindows)
