@@ -13,14 +13,15 @@ particular aspect of Ice.
   * [C++ Changes](#c-changes)
   * [C# Changes](#c-changes-1)
   * [Java Changes](#java-changes)
+  * [JavaScript Changes](#javascript-changes)
   * [MATLAB Changes](#matlab-changes)
   * [Python Changes](#python-changes)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   * [General Changes](#general-changes-1)
   * [C++ Changes](#c-changes-2)
   * [C# Changes](#c-changes-3)
-  * [Java Changes](#java-changes)
-  * [JavaScript Changes](#javascript-changes)
+  * [Java Changes](#java-changes-1)
+  * [JavaScript Changes](#javascript-changes-1)
   * [MATLAB Changes](#matlab-changes-1)
   * [Objective-C Changes](#objective-c-changes)
   * [PHP Changes](#php-changes)
@@ -29,8 +30,8 @@ particular aspect of Ice.
   * [General Changes](#general-changes-2)
   * [C++ Changes](#c-changes-4)
   * [C# Changes](#c-changes-5)
-  * [Java Changes](#java-changes-1)
-  * [JavaScript Changes](#javascript-changes-1)
+  * [Java Changes](#java-changes-2)
+  * [JavaScript Changes](#javascript-changes-2)
   * [MATLAB Changes](#matlab-changes-2)
   * [Objective-C Changes](#objective-c-changes-1)
   * [PHP Changes](#php-changes-1)
@@ -40,8 +41,8 @@ particular aspect of Ice.
   * [General Changes](#general-changes-3)
   * [C++ Changes](#c-changes-6)
   * [C# Changes](#c-changes-7)
-  * [Java Changes](#java-changes-2)
-  * [JavaScript Changes](#javascript-changes-2)
+  * [Java Changes](#java-changes-3)
+  * [JavaScript Changes](#javascript-changes-3)
   * [Objective-C Changes](#objective-c-changes-2)
   * [PHP Changes](#php-changes-2)
   * [Python Changes](#python-changes-3)
@@ -65,19 +66,17 @@ These are the changes since Ice 3.7.2.
   the backward compatible invocation timeout -2. The invocation failed instead
   of being retried.
 
-- Add support to enable SNI (Server Name Indication) extension in TLS outgoing
-  connections for SSL engines that make this optional, the SNI TLS extension
-  can be enabled by setting `IceSSL.CheckCertName` to a value greater than 1.
+- Add support to enable SNI (Server Name Indication) in outgoing SSL/TLS
+  connections. The SNI TLS extension is enabled by setting
+  `IceSSL.CheckCertName` to a value greater than 1.
 
-  This is supported by the OpenSSL, SecureTransport and Java; these engines did
-  not send the extension before. The C# and SChannel engines always send the
-  extension. The Java-Compat mapping does not support it.
+  This property applies to OpenSSL, SecureTransport and Java; these
+  implementations did not send the SNI extension before. The C# and SChannel
+  implementations always send the SNI extension. The Java-Compat mapping does
+  not support SNI.
 
-- Fixed a bug in the conversion of proxy endpoints to string, the colon character
-  was not properly escaped in `--sourceAddress` or `-interface` endpoint
-  options.
-
-## C++ Changes
+- Fixed a bug in the conversion of endpoints to string: the colon character
+  was not escaped in the `--sourceAddress` and `--interface` endpoint options.
 
 - Fixed IceGrid issue which could cause hangs if an IceGrid node became
   unreachable and a client either tried to get adapter endpoints with
@@ -91,12 +90,6 @@ These are the changes since Ice 3.7.2.
   registry was collocated with the IceGrid node executable using the
   `IceGrid.Node.CollocateRegistry` property.
 
-- Removed IceStorm restriction where retryCount could only be used with two-way
-  proxies. It's now possible to use it with one-way or batch proxies.
-
-- Added new metadata directive `cpp:source-include`, to include a header file in
-  the generated source (.cpp) file.
-
 - Fixed IceGrid node bug where the setting of supplementary groups would fail
   if the user had more than NGROUPS_MAX groups.
 
@@ -107,8 +100,16 @@ These are the changes since Ice 3.7.2.
 - Fixed a bug in IceGrid node that could result in an infinite loop when
   the system call to `getpwuid_r` fails with `ERANGE`.
 
+- Removed IceStorm restriction where `retryCount` could only be used with
+  two-way proxies. It's now possible to use it with one-way or batch proxies.
+
+## C++ Changes
+
+- Added new metadata directive `cpp:source-include`, to include a header file in
+  the generated source (.cpp) file.
+
 - Fixed build failures on Linux ppc64el due to `__linux` macro not being defined
-  in C++11 mode, `__linux__` must be used.
+  in C++11 mode. Switched to `__linux__` macro.
 
 - Add support for Visual Studio 2019.
 
@@ -117,57 +118,57 @@ These are the changes since Ice 3.7.2.
 - Add support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
 
 - Fixed a bug in IceSSL that could result in `IceSSL::ConnectionInfo` not having
-  the `verified` data member set to false when the certficiate hostname verification
-  failed. This affected IceSSL based on OpenSSL < 1.0.2 and SChannel.
+  the `verified` data member set to `false` when the certificate hostname
+  verification failed. This affected IceSSL based on OpenSSL < 1.0.2 and
+  SChannel.
 
-- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer` is
-  set to 0. This affected IceSSL based on OpenSSL >= 1.0.2.
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer`
+  is set to 0. This affected IceSSL based on OpenSSL >= 1.0.2.
 
 ## C# Changes
 
 - Added back support for caching the output stream used to marshal the response
   of a synchronous dispatch.
 
-- Fixed C# to not require unsafe code, `AllowUnsafeBlocks` is not longer set when
-  building Ice for C#.
+- Fixed C# to not require unsafe code. `AllowUnsafeBlocks` is not longer set
+  when building Ice for C#.
 
-- Fixed loading of Bzip2 native libraries in Linux to fallback to libbz2.so.1
+- Fixed loading of Bzip2 native libraries on Linux to fallback to libbz2.so.1
   if libbz2.so.1.0 doesn't exists.
 
-- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer` is
-  set to 0.
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer`
+  is set to 0.
 
 ## Java Changes
 
 - Added back support for caching the output stream used to marshal the response
   of a synchronous dispatch.
 
-- Add support to build Ice as modular JAR files, this is automatically done
-  when building Ice for Java with JDK 9 or greater, the JARs are compatible
-  with JDK 8.
+- Add support to build Ice as modular JAR files. This is automatically done
+  when building Ice for Java with JDK 9 or greater. The resulting JARs are
+  compatible with JDK 8.
+
+## JavaScript Changes
+
+- Fix a bug in the IP endpoint initialization. The default value for the port
+  was `null` instead of `0`.
 
 ## MATLAB Changes
 
-- Added support for `Ice.ClassGraphDepthMax` property to prevent stack property
-  to prevent stack overflows in case a sender sends a very large graph. This was
-  already supported with other language mappings but it was missing in MATLAB.
+- Added support for the `Ice.ClassGraphDepthMax` property to prevent a stack
+  overflow in case a sender sends a very large graph. This was already
+  supported with other language mappings but it was missing in MATLAB.
 
-- Fixed a bug in `ice_isA` implementation that result in `ice_isA` throwing
+- Fixed a bug in the `ice_isA` implementation that result in `ice_isA` throwing
   `FacetNotExistException` when it should return null.
 
 ## Python Changes
 
 - Fix a bug where using an optional data member with the `python:numpy.ndarray`
-  sequence mapping can result in segmentation fault of the python interpreter.
+  sequence mapping could result in segmentation fault of the python interpreter.
 
 - Fix a bug where using an empty sequence with a type that use the Python buffer
-  protocol can result in an assert if running with a python debug build.
-
-## JavaScript Changes
-
-- Fix a bug in the IP endpoint initialization,  the default value for the port should
-  was `null` instead of `0`, this cause problems with endpoint string conversion,
-  where the output included `-p null` instead of the expected `-p 0`.
+  protocol could result in an assert if running with a python debug build.
 
 # Changes in Ice 3.7.2
 
