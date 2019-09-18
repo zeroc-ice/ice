@@ -3260,7 +3260,7 @@ public class Coordinator
     {
         String text = "IceGrid GUI version "
             + com.zeroc.Ice.Util.stringVersion() + "\n"
-            + "Copyright \u00A9 2005-present ZeroC, Inc. All rights reserved.\n";
+            + "Copyright \u00A9 ZeroC, Inc. All rights reserved.\n";
 
         JOptionPane.showMessageDialog(
             _mainFrame,
