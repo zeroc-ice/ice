@@ -81,6 +81,9 @@ module `zeroc-ice`, using the following command:
 pip install zeroc-ice
 ```
 
+The test suites require that the Ice for C++ tests be built in the `cpp`
+subdirectory of this source distribution.
+
 You can start the NodeJS tests with:
 ```
 python allTests.py
