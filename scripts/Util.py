@@ -2460,7 +2460,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-12-0" # Default value
 
     def __str__(self):
-        return "iOS Simulator"
+        return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
 
     def getControllerIdentity(self, current):
         return current.testcase.getMapping().getIOSControllerIdentity(current)
