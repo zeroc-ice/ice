@@ -1,6 +1,7 @@
 <Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
+        <IcePdbRootDir Condition="'$(IceSrcRootDir)' == ''">$(IceSrcRootDir)</IcePdbRootDir>
     </PropertyGroup>
 
     <!-- For CSharp we use Slice compiler from x64 Release builds -->
@@ -16,8 +17,9 @@
                            Condition="'$(BuildNetStandardTargets)' == 'true'"/>
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
-                             $(IceSrcRootDir)lib\**\*.pdb;
                              $(IceSrcRootDir)lib\**\*.xml"/>
+
+        <Assemblies Include="$(IcePdbRootDir)\lib\**\*.pdb"/>
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
