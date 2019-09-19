@@ -128,6 +128,10 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
  ```
    python3 allTests.py --config=xcodesdk --platform=iphoneos
  ```
+ or
+ ```
+   python3 allTests.py --config=arc-xcodesdk --platform=iphoneos
+ ```
  All the test clients and servers run on the iOS device, not on your Mac
  computer.
 
