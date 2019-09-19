@@ -14,19 +14,13 @@
 
         <!-- With .Net Core we have to pack the dependencies next iceboxnet.dll  -->
         <IceBoxNetStandard Include="$(IceSrcRootDir)bin\netcoreapp2.1\publish\*"
-                           Condition="'$(BuildNetStandardTargets)' == 'true'"
-                           Exclude="$(IceSrcRootDir)bin\netcoreapp2.1\publish\*.pdb"/>
-
-        <IceBoxNetStandard Include="$(IcePdbRootDir)lib\netstandard2.0\Ice.pdb;
-                                    $(IcePdbRootDir)lib\netstandard2.0\IceSSL.pdb;
-                                    $(IcePdbRootDir)lib\netstandard2.0\IceBox.pdb;
-                                    $(IcePdbRootDir)bin\netcoreapp2.1\publish\iceboxnet.pdb"
                            Condition="'$(BuildNetStandardTargets)' == 'true'" />
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
-                             $(IceSrcRootDir)lib\**\*.xml"/>
+                             $(IceSrcRootDir)lib\**\*.xml;
+                             $(IceSrcRootDir)lib\netstandard2.0\*.pdb"/>
 
-        <Assemblies Include="$(IcePdbRootDir)\lib\**\*.pdb"/>
+        <Assemblies Include="$(IcePdbRootDir)\lib\net45\*.pdb" />
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
