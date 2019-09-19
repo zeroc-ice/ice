@@ -66,67 +66,25 @@
                 </CppDistSolution>
             </ItemGroup>
 
-            <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+            <ItemGroup>
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=7.1</Properties>
+                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
                 </DistSolution>
 
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=7.1</Properties>
+                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
                 </DistSolution>
 
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=7.1</Properties>
+                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
                 </DistSolution>
 
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=7.1</Properties>
+                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
                 </DistSolution>
 
-                <NugetPackage Include="zeroc.ice.php7.1">
-                    <Properties>PackageName=zeroc.ice.php7.1;PhpVersion=7.1</Properties>
-                </NugetPackage>
-            </ItemGroup>
-
-            <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v141'">
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=7.2</Properties>
-                </DistSolution>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=7.2</Properties>
-                </DistSolution>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=7.2</Properties>
-                </DistSolution>
-
-                <NugetPackage Include="zeroc.ice.php7.2">
-                    <Properties>PackageName=zeroc.ice.php7.2;PhpVersion=7.2</Properties>
-                </NugetPackage>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=7.2</Properties>
-                </DistSolution>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=7.3</Properties>
-                </DistSolution>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=7.3</Properties>
-                </DistSolution>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=7.3</Properties>
-                </DistSolution>
-
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=7.3</Properties>
-                </DistSolution>
-
-                <NugetPackage Include="zeroc.ice.php7.3">
-                    <Properties>PackageName=zeroc.ice.php7.3;PhpVersion=7.3</Properties>
+                <NugetPackage Include="zeroc.ice.php">
+                    <Properties>PackageName=zeroc.ice.php$(BuildWithPhpVersion);PhpVersion=$(BuildWithPhpVersion)</Properties>
                 </NugetPackage>
             </ItemGroup>
         </When>
