@@ -9,12 +9,19 @@
         <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\$(CppPlatform)\$(Configuration)\slice2cs.exe;
                                  $(IceSrcRootDir)..\cpp\bin\$(CppPlatform)\$(Configuration)\slice2html.exe" />
 
-        <!-- With .Net Core we have to pack the dependencies next iceboxnet.dll  -->
-        <IceBoxNet45 Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe;
-                              $(IceSrcRootDir)bin\net45\iceboxnet.pdb"/>
+       <IceBoxNet45 Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe"/>
+       <IceBoxNet45 Include="$(IcePdbRootDir)bin\net45\iceboxnet.pdb"/>
 
+        <!-- With .Net Core we have to pack the dependencies next iceboxnet.dll  -->
         <IceBoxNetStandard Include="$(IceSrcRootDir)bin\netcoreapp2.1\publish\*"
-                           Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+                           Condition="'$(BuildNetStandardTargets)' == 'true'"
+                           Exclude="$(IceSrcRootDir)bin\netcoreapp2.1\publish\*.pdb"/>
+
+        <IceBoxNetStandard Include="$(IcePdbRootDir)lib\netstandard2.0\Ice.pdb;
+                                    $(IcePdbRootDir)lib\netstandard2.0\IceSSL.pdb;
+                                    $(IcePdbRootDir)lib\netstandard2.0\IceBox.pdb;
+                                    $(IcePdbRootDir)bin\netcoreapp2.1\publish\iceboxnet.pdb"
+                           Condition="'$(BuildNetStandardTargets)' == 'true'" />
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
                              $(IceSrcRootDir)lib\**\*.xml"/>
