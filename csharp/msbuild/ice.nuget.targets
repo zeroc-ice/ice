@@ -17,10 +17,10 @@
                            Condition="'$(BuildNetStandardTargets)' == 'true'" />
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
-                             $(IceSrcRootDir)lib\**\*.xml;
-                             $(IceSrcRootDir)lib\netstandard2.0\*.pdb"/>
+                             $(IceSrcRootDir)lib\**\*.xml"/>
 
-        <Assemblies Include="$(IcePdbRootDir)\lib\net45\*.pdb" />
+        <Net45Pdbs Include="$(IcePdbRootDir)\lib\net45\*.pdb" />
+        <NetStandardPdbs Include="$(IceSrcRootDir)lib\netstandard2.0\*.pdb" />
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
@@ -30,6 +30,9 @@
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
         <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib\%(Assemblies.RecursiveDir)"/>
+        <Copy SourceFiles="@(Net45Pdbs)" DestinationFolder="$(PackageDirectory)\lib\net45"/>
+        <Copy SourceFiles="@(NetStandardPdbs)" DestinationFolder="$(PackageDirectory)\lib\netstandard2.0"
+              Condition="'$(BuildNetStandardTargets)' == 'true'"/>
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
         <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
         <Copy SourceFiles="@(IceBoxNet45)" DestinationFolder="$(PackageDirectory)\tools\net45"/>

@@ -19,6 +19,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45;$(DefineConstants)</DefineConstants>
+    <!-- Source Link Settings -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <SourceLinkUrl>https://github.com/zeroc-ice/ice.git</SourceLinkUrl>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->
