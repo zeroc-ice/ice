@@ -6,7 +6,6 @@ package IceBT;
 
 import java.lang.Thread;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
 import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

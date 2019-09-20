@@ -95,7 +95,7 @@ class EndpointHostResolver
                     }
 
                     java.util.List<java.net.InetSocketAddress> addresses =
-                        Network.getAddresses(host, port, _protocol, selType, _preferIPv6, true);
+                        Network.getAddresses(host, port, protocol, selType, _preferIPv6, true);
 
                     if(obsv != null)
                     {

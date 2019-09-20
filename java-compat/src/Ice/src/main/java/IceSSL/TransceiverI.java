@@ -390,6 +390,11 @@ final class TransceiverI implements IceInternal.Transceiver
                     {
                         break;
                     }
+                    default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
+                    {
+                        assert(false);
+                        break;
+                    }
                     }
                     break;
                 }
@@ -412,6 +417,11 @@ final class TransceiverI implements IceInternal.Transceiver
                     // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
                     //
                     status = result.getHandshakeStatus();
+                    break;
+                }
+                default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
+                {
+                    assert(false);
                     break;
                 }
                 }

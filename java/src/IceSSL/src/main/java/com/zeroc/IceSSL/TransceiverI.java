@@ -394,6 +394,11 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                     {
                         break;
                     }
+                    default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
+                    {
+                        assert(false);
+                        break;
+                    }
                     }
                     break;
                 }

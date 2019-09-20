@@ -619,14 +619,13 @@ public final class Util
      * @param <T> The result type.
      * @return The InvocationFuture object.
      **/
-    @SuppressWarnings("unchecked")
     static public <T> InvocationFuture<T> getInvocationFuture(java.util.concurrent.CompletableFuture<T> f)
     {
         if(!(f instanceof InvocationFuture))
         {
             throw new IllegalArgumentException("future did not originate from an asynchronous proxy invocation");
         }
-        return (InvocationFuture)f;
+        return (InvocationFuture<T>)f;
     }
 
     /**
@@ -643,7 +642,6 @@ public final class Util
         }
 
         StringBuilder buf = new StringBuilder(id.length());
-        String pkg = null;
         for(int i = 0; i < _iceTypeIdPrefixes.length; ++i)
         {
             if(id.startsWith(_iceTypeIdPrefixes[i]))

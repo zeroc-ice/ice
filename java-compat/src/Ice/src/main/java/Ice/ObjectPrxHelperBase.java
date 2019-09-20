@@ -7,9 +7,6 @@ package Ice;
 import java.util.LinkedList;
 import java.util.List;
 
-import Ice.Instrumentation.InvocationObserver;
-import IceInternal.RetryException;
-
 /**
  * Base class for all proxies.
  **/

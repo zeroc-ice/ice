@@ -385,7 +385,6 @@ final class UdpMulticastServerTransceiver implements Transceiver
             while(true)
             {
                 MulticastSocket socket;
-                int size;
                 Buffer buf = null;
 
                 synchronized(this)

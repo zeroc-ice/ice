@@ -7,9 +7,6 @@ package com.zeroc.IceBT;
 import com.zeroc.IceInternal.Connector;
 import com.zeroc.IceInternal.HashUtil;
 import com.zeroc.IceInternal.Transceiver;
-import com.zeroc.Ice.SocketException;
-
-import java.util.UUID;
 
 final class ConnectorI implements Connector
 {

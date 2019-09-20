@@ -76,8 +76,6 @@ public final class ThreadPool
         }
     }
 
-    private static ThreadPoolWorkItem _interruptWorkItem = new InterruptWorkItem();
-
     //
     // Exception raised by the thread pool work queue when the thread pool
     // is destroyed.

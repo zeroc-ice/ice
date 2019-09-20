@@ -4,8 +4,6 @@
 
 package IceBT;
 
-import java.util.UUID;
-
 final class ConnectorI implements IceInternal.Connector
 {
     @Override
