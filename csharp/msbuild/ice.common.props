@@ -22,7 +22,7 @@
     <!-- Source Link Settings -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <SourceLinkUrl>https://github.com/zeroc-ice/ice.git</SourceLinkUrl>
+    <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->
