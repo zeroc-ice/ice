@@ -19,7 +19,7 @@ class Client: TestHelperI {
             }
             try allTests(self)
 
-            let num = restArgs.count == 1 ? Int(restArgs[0]) : 1
+            let num = restArgs.count == 4 ? Int(restArgs[3]) : 1
             for i in 0 ..< (num ?? 1) {
                 let prx = try communicator.stringToProxy("control:\(getTestEndpoint(num: Int32(i), prot: "tcp"))")!
                 try uncheckedCast(prx: prx, type: TestIntfPrx.self).shutdown()

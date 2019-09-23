@@ -44,7 +44,6 @@ do {
     }
 
     let testHelper = helperClass.init()
-    args.removeFirst(3)
     try testHelper.run(args: args)
 
 } catch {
