@@ -290,10 +290,10 @@ public class AllTests
                 // The timeout might occur on connection establishment or because of the sleep. What's
                 // important here is to make sure there are 4 retries and that no calls succeed to
                 // ensure retries with the old connection timeout semantics work.
-                RetryPrx retryWithTimeout = (RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(200);
+                RetryPrx retryWithTimeout = (RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(100);
                 try
                 {
-                    retryWithTimeout.sleep(400);
+                    retryWithTimeout.sleep(500);
                     test(false);
                 }
                 catch(Ice.ConnectionTimeoutException ex)
