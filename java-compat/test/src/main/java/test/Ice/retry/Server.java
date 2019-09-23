@@ -11,6 +11,7 @@ public class Server extends test.TestHelper
         Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.retry");
         properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("Ice.Warn.Connections", "0");
         try(Ice.Communicator communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

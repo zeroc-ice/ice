@@ -11,6 +11,7 @@ class Server: TestHelperI {
 
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
+        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
         let communicator = try initialize(properties)
         defer {
