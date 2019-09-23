@@ -6,7 +6,7 @@ import Ice
 import PromiseKit
 import TestCommon
 
-public func allTests(helper: TestHelper) throws -> RetryPrx {
+public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: String) throws -> RetryPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -14,23 +14,9 @@ public func allTests(helper: TestHelper) throws -> RetryPrx {
     let output = helper.getWriter()
     let communicator = helper.communicator()
 
-    //
-    // Configure a second communicator for the invocation timeout
-    // + retry test, we need to configure a large retry interval
-    // to avoid time-sensitive failures.
-    //
-    let properties = communicator.getProperties().clone()
-    properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10000")
-    let communicator2 = try helper.initialize(properties)
-    defer {
-        communicator2.destroy()
-    }
-
-    let rf = "retry:\(helper.getTestEndpoint(num: 0))"
-
     output.write("testing stringToProxy... ")
-    let base1 = try communicator.stringToProxy(rf)!
-    let base2 = try communicator.stringToProxy(rf)!
+    let base1 = try communicator.stringToProxy(ref)!
+    let base2 = try communicator.stringToProxy(ref)!
     output.writeLine("ok")
 
     output.write("testing checked cast... ")
@@ -122,13 +108,17 @@ public func allTests(helper: TestHelper) throws -> RetryPrx {
         _ = try retry2.opIdempotent(-1) // Reset the counter
     }
 
-    let retryWithTimeout = retry1.ice_invocationTimeout(-2).ice_timeout(200)
-    do {
-        try retryWithTimeout.sleep(400)
-        try test(false)
-    } catch is Ice.ConnectionTimeoutException {
+    if try retry1.ice_getConnection() != nil {
+        // The timeout might occur on connection establishment or because of the sleep. What's
+        // important here is to make sure there are 4 retries and that no calls succeed to
+        // ensure retries with the old connection timeout semantics work.
+        let retryWithTimeout = retry1.ice_invocationTimeout(-2).ice_timeout(100)
+        do {
+            try retryWithTimeout.sleep(500)
+            try test(false)
+        } catch is Ice.ConnectionTimeoutException {
+        }
     }
-
     output.writeLine("ok")
     return retry1
 }

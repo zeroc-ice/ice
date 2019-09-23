@@ -8,7 +8,7 @@ import TestCommon
 class Client: TestHelperI {
     public override func run(args: [String]) throws {
         do {
-            let properties = try createTestProperties(args)
+            var properties = try createTestProperties(args)
             properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
 
             //
@@ -19,7 +19,22 @@ class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            let r = try allTests(helper: self)
+
+            //
+            // Configure a second communicator for the invocation timeout
+            // + retry test, we need to configure a large retry interval
+            // to avoid time-sensitive failures.
+            //
+            properties = communicator.getProperties().clone()
+            properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10000")
+            let communicator2 = try self.initialize(properties)
+            defer {
+                communicator2.destroy()
+            }
+
+            let r = try allTests(helper: self,
+                                 communicator2: communicator2,
+                                 ref: "retry:\(self.getTestEndpoint(num: 0))")
             try r.shutdown()
         }
     }

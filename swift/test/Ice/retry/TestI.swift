@@ -23,6 +23,10 @@ class RetryI: Retry {
     }
 
     func opIdempotent(c: Int32, current _: Ice.Current) throws -> Int32 {
+        if c < 0 {
+            _counter = 0
+            return 0
+        }
         if c > _counter {
             _counter += 1
             throw Ice.ConnectionLostException(error: 1)

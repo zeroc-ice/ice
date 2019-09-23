@@ -12,7 +12,7 @@ traceProps = {
 
 testcases = [ClientServerTestCase(traceProps=traceProps)]
 
-if Mapping.getByPath(__name__).hasSource("Ice/metrics", "collocated"):
+if Mapping.getByPath(__name__).hasSource("Ice/retry", "collocated"):
     testcases += [ CollocatedTestCase(traceProps=traceProps) ]
 
 TestSuite(__name__, testcases)
