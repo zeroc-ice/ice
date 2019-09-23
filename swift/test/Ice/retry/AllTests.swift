@@ -112,11 +112,11 @@ public func allTests(helper: TestHelper, communicator2: Ice.Communicator, ref: S
         // The timeout might occur on connection establishment or because of the sleep. What's
         // important here is to make sure there are 4 retries and that no calls succeed to
         // ensure retries with the old connection timeout semantics work.
-        let retryWithTimeout = retry1.ice_invocationTimeout(-2).ice_timeout(100)
+        let retryWithTimeout = retry1.ice_invocationTimeout(-2).ice_timeout(200)
         do {
             try retryWithTimeout.sleep(500)
             try test(false)
-        } catch is Ice.ConnectionTimeoutException {
+        } catch is Ice.TimeoutException {
         }
     }
     output.writeLine("ok")

@@ -339,13 +339,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
             // The timeout might occur on connection establishment or because of the sleep. What's
             // important here is to make sure there are 4 retries and that no calls succeed to
             // ensure retries with the old connection timeout semantics work.
-            RetryPrxPtr retryWithTimeout = retry1->ice_invocationTimeout(-2)->ice_timeout(100);
+            RetryPrxPtr retryWithTimeout = retry1->ice_invocationTimeout(-2)->ice_timeout(200);
             try
             {
                 retryWithTimeout->sleep(500);
                 test(false);
             }
-            catch(const Ice::ConnectionTimeoutException&)
+            catch(const Ice::TimeoutException&)
             {
             }
             testRetryCount(4);
