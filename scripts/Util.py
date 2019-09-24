@@ -278,9 +278,9 @@ class Platform(object):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             if component.useBinDist(mapping, current):
-                return os.path.join(installDir, "tools", "netcoreapp2.1")
+                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
             else:
-                return os.path.join(installDir, "bin", "netcoreapp2.1")
+                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):

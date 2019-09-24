@@ -102,6 +102,7 @@ SliceCompile.command.*.log
 *.nupkg
 
 **/netstandard2.0/netstandard2.0/*
+**/netstandard2.0/netcoreapp3.0/*
 
 AppPackages
 BundleArtifacts
