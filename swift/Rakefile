@@ -222,6 +222,7 @@ def create_platform_targets(project, platform, bindist)
                            attributes: ["Public"])
 
         target_set_common_build_settings(target, "IceImpl", plist: "src/IceImpl/Info.plist")
+        target_set_deployment_target(target, platform)
 
         #
         # IceImpl depends on Ice for C++ frameworks
@@ -373,6 +374,7 @@ def create_platform_targets(project, platform, bindist)
     target_set_common_build_settings(target, "TestCommon",
                                      plist: "test/TestCommon/Info.plist",
                                      swift: true)
+    target_set_deployment_target(target, platform)
 
     target = project.new_target(:application, "TestDriver", platform)
     target.name = "#{target.name} #{platform_name}"
@@ -380,6 +382,7 @@ def create_platform_targets(project, platform, bindist)
                                      plist: "test/TestDriver/#{platform_name}/Info.plist",
                                      swift: true,
                                      identifier: "com.zeroc.Swift-Test-Controller")
+    target_set_deployment_target(target, platform)
     target_add_slice2swift_build_rule(project, target)
     target_add_swiftlint_build_phase(target, "test/TestDriver")
 
@@ -454,6 +457,7 @@ def create_platform_targets(project, platform, bindist)
         end
 
         target_set_framework_build_settings(target)
+        target_set_deployment_target(target, platform)
         target.build_configurations.each { |config|
             config.build_settings["ENABLE_BITCODE"] = "NO"
         }
@@ -519,6 +523,7 @@ def create_platform_targets(project, platform, bindist)
             target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
 
             target_set_framework_build_settings(target)
+            target_set_deployment_target(target, platform)
             target.build_configurations.each { |config|
                 config.build_settings["ENABLE_BITCODE"] = "NO"
             }
