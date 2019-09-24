@@ -74,10 +74,13 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
         classpath = files(exportedProjects.collect { project(it).javadoc.classpath })
         destinationDir = file("${buildDir}/docs/javadoc")
 
-        if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
-            // TODO: --no-module-directories is an undocumented option required for the
-            // generated search to work properly. Without this option, search returns
-            // .../undefined/... URLs.
+        if(GradleVersion.current() >= GradleVersion.version('4.7') &&
+           JavaVersion.current() > JavaVersion.VERSION_1_10 && JavaVersion.current() <= JavaVersion.VERSION_11) {
+            // --no-module-directories is an undocumented option required for the generated search to work properly.
+            // Without this option, search returns ../undefined/... URLs.
+            //
+            // This option was removed on JDK 13 https://bugs.openjdk.java.net/browse/JDK-8215582
+            //
             options.addBooleanOption('-no-module-directories', true)
         }
         options.addBooleanOption('html5', true)
