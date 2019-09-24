@@ -116,7 +116,7 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
         var to = timeout.ice_invocationTimeout(100)
         try test(connection === to.ice_getConnection())
         do {
-            try to.sleep(500)
+            try to.sleep(1000)
             try test(false)
         } catch is Ice.InvocationTimeoutException {}
         try obj.ice_ping()

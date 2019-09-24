@@ -127,7 +127,7 @@ classdef AllTests
             to = timeout.ice_invocationTimeout(100);
             assert(connection == to.ice_getConnection());
             try
-                to.sleep(750);
+                to.sleep(1000);
                 assert(false);
             catch ex
                 assert(isa(ex, 'Ice.InvocationTimeoutException'));
@@ -150,7 +150,7 @@ classdef AllTests
             % Expect InvocationTimeoutException.
             %
             to = timeout.ice_invocationTimeout(100);
-            f = to.sleepAsync(750);
+            f = to.sleepAsync(1000);
             try
                 f.fetchOutputs();
             catch ex

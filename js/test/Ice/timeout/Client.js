@@ -149,7 +149,7 @@
 
                 try
                 {
-                    await to.sleep(500);
+                    await to.sleep(1000);
                     test(false);
                 }
                 catch(ex)
@@ -166,7 +166,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.InvocationTimeoutException, ex);
+                    test(false);
                 }
             }
             out.writeLine("ok");

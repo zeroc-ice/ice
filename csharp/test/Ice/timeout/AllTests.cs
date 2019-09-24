@@ -180,7 +180,7 @@ namespace Ice
                     test(connection == to.ice_getConnection());
                     try
                     {
-                        to.sleep(500);
+                        to.sleep(1000);
                         test(false);
                     }
                     catch(Ice.InvocationTimeoutException)
@@ -205,7 +205,7 @@ namespace Ice
                     //
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
                     Callback cb = new Callback();
-                    to.begin_sleep(500).whenCompleted(
+                    to.begin_sleep(1000).whenCompleted(
                        () =>
                         {
                             test(false);

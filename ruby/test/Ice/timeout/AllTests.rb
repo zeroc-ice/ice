@@ -102,7 +102,7 @@ def allTestsWithController(helper, communicator, controller)
     to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100))
     test(connection == to.ice_getConnection())
     begin
-        to.sleep(500)
+        to.sleep(1000)
         test(false)
     rescue Ice::InvocationTimeoutException
         # Expected
