@@ -226,10 +226,10 @@
     <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
-        <!-- Build iceboxnet with netcoreapp3.0 target framework (default) -->
+        <!-- Build iceboxnet with netcoreapp2.1 target framework (default) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Publish"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp2.1;BaseIntermediateOutputPath=obj\netcoreapp2.1\"
+                 Targets="Restore;Publish"
                  Condition="'$(BuildNetStandardTargets)' == 'true'"/>
 
         <!-- Build iceboxnet with netcoreapp3.0 target framework -->

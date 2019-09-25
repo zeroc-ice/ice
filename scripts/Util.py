@@ -3362,8 +3362,8 @@ class CSharpMapping(Mapping):
 
             if self.dotnetcore:
                 self.libTargetFramework = "netstandard2.0"
-                self.binTargetFramework = "netcoreapp2.1" if self.framework == "" else self.framework
-                self.testTargetFramework = "netcoreapp2.1" if self.framework == "" else self.framework
+                self.binTargetFramework = "netcoreapp3.0" if self.framework == "" else self.framework
+                self.testTargetFramework = "netcoreapp3.0" if self.framework == "" else self.framework
             else:
                 self.libTargetFramework = "net45" if self.framework == "" else "netstandard2.0"
                 self.binTargetFramework = "net45" if self.framework == "" else self.framework

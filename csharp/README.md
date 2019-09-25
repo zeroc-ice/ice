@@ -59,11 +59,11 @@ The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp2.1`. You can change the target framework
-by setting the `AppTargetFrameworks` property to a different Target Framework Monikers (TFMs)
+The iceboxnet and test applications target `netcoreapp3.0`. You can change the target framework
+by setting the `AppTargetFramework` property to a different Target Framework Monikers (TFMs)
 value, for example:
 ```
-msbuild msbuild\ice.proj /p:"AppTargetFrameworks=net462"
+msbuild msbuild\ice.proj /p:"AppTargetFramework=net462"
 ```
 
 This builds the test programs for `net462`. The target frameworks you specify must
