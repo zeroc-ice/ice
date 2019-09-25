@@ -37,11 +37,11 @@ Ice runs on a wide range of platforms:
 - iOS
 - Linux
 - Linux on embedded devices
-- Node.js
 - macOS
+- Node.js
+- Unix systems such as AIX
 - Web Browser
 - Windows
-- Universal Windows
 
 ## Features
 
