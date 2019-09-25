@@ -48,6 +48,12 @@ namespace Ice
                     return null;
                 }
 
+                if(current.id.name.Equals("invalidReturnValue") || current.id.name.Equals("invalidReturnType"))
+                {
+                    cookie = null;
+                    return null;
+                }
+
                 test(current.id.name.Equals("locate") || current.id.name.Equals("finished"));
                 if(current.id.name.Equals("locate"))
                 {

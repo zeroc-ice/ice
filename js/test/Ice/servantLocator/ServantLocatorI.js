@@ -41,6 +41,11 @@
                 return null;
             }
 
+            if(current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType")
+            {
+                return null;
+            }
+
             test(current.id.name == "locate" || current.id.name == "finished");
             if(current.id.name == "locate")
             {

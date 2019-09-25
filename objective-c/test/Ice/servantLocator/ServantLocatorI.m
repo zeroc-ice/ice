@@ -36,6 +36,11 @@
         return 0;
     }
 
+    if([current.id_.name isEqual:@"invalidReturnValue"] || [current.id_.name isEqual:@"invalidReturnType"])
+    {
+        return 0;
+    }
+
     test([current.id_.name isEqual:@"locate"] || [current.id_.name isEqual:@"finished"]);
     if([current.id_.name isEqual:@"locate"])
     {

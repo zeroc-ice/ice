@@ -43,6 +43,11 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
         return 0;
     }
 
+    if(current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType")
+    {
+        return 0;
+    }
+
     test(current.id.name == "locate" || current.id.name == "finished");
     if(current.id.name == "locate")
     {

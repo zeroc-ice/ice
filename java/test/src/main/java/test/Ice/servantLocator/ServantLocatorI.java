@@ -57,6 +57,11 @@ public final class ServantLocatorI implements ServantLocator
             return new ServantLocator.LocateResult();
         }
 
+        if(current.id.name.equals("invalidReturnValue") || current.id.name.equals("invalidReturnType"))
+        {
+            return new ServantLocator.LocateResult();
+        }
+
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
         if(current.id.name.equals("locate"))
         {

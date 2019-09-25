@@ -217,4 +217,16 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
+    sys.stdout.write("testing invalid locate return values ... ")
+    sys.stdout.flush()
+    try:
+        communicator.stringToProxy("invalidReturnValue:{0}".format(helper.getTestEndpoint())).ice_ping()
+    except Ice.ObjectNotExistException:
+        pass
+    try:
+        communicator.stringToProxy("invalidReturnType:{0}".format(helper.getTestEndpoint())).ice_ping()
+    except Ice.ObjectNotExistException:
+        pass
+    print ("ok")
+
     return obj

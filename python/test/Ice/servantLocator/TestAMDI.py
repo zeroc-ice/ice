@@ -101,6 +101,12 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == "unknown":
             return None
 
+        if current.id.name == "invalidReturnValue":
+            return (45, 12)
+
+        if current.id.name == "invalidReturnType":
+            return "invalid"
+
         test(current.id.name == "locate" or current.id.name == "finished")
         if current.id.name == "locate":
             self.exception(current)

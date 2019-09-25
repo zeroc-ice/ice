@@ -101,3 +101,9 @@ class ThrowerI(Test.Thrower):
         # Only relevant for AMD.
         #
         raise Test.A()
+
+    def throwMarshalException(self, current):
+        if "return" in current.ctx:
+            return ("", 0)
+        if "param" in current.ctx:
+            return (0, "")
