@@ -43,10 +43,9 @@ class ServantLocatorI: Ice.ServantLocator {
             return (nil, nil)
         }
 
-        if(curr.id.name == "invalidReturnValue" || curr.id.name == "invalidReturnType") {
+        if curr.id.name == "invalidReturnValue" || curr.id.name == "invalidReturnType" {
             return (nil, nil)
         }
-
 
         try _helper.test(curr.id.name == "locate" || curr.id.name == "finished")
 
