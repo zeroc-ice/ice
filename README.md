@@ -91,7 +91,7 @@ with very few exceptions.
 As copyright owner, ZeroC can license Ice under different license terms, and
 offers the following licenses for Ice:
 - GPL v2, a popular open-source license with strong
-[copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the default
+[copyleft](https://en.wikipedia.org/wiki/Copyleft) conditions (the default
 license)
 - Commercial or closed-source licenses
 
