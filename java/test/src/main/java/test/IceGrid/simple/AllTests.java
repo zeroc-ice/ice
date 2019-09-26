@@ -173,6 +173,26 @@ public class AllTests
 
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "com.zeroc.IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                             "udp -h " + multicast + " --interface unknown");
+            comm = com.zeroc.Ice.Util.initialize(initData);
+            test(comm.getDefaultLocator() != null);
+            try
+            {
+                comm.stringToProxy("test @ TestAdapter").ice_ping();
+                test(false);
+            }
+            catch(com.zeroc.Ice.NoEndpointException ex)
+            {
+            }
+            comm.destroy();
+
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "com.zeroc.IceLocatorDiscovery.PluginFactory");
             {

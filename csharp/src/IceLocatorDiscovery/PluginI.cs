@@ -139,14 +139,27 @@ namespace IceLocatorDiscovery
         {
             _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+            if(_timeout < 0)
+            {
+                _timeout = 300;
+            }
             _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+            if(_retryCount < 0)
+            {
+                _retryCount = 0;
+            }
             _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
+            if(_retryDelay < 0)
+            {
+                _retryDelay = 0;
+            }
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
             _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
             _voidLocator = voidLocator;
+            _pending = false;
             _pendingRetryCount = 0;
             _failureCount = 0;
             _warnOnce = true;
@@ -233,7 +246,7 @@ namespace IceLocatorDiscovery
             {
                 lock(this)
                 {
-                    while(!_locators.ContainsKey(instanceName) && _pendingRetryCount > 0)
+                    while(!_locators.ContainsKey(instanceName) && _pending)
                     {
                         Monitor.Wait(this, waitTime);
                     }
@@ -290,10 +303,11 @@ namespace IceLocatorDiscovery
                     return;
                 }
 
-                if(_pendingRetryCount > 0) // No need to retry, we found a locator
+                if(_pending) // No need to continue, we found a locator
                 {
                     _timer.cancel(this);
                     _pendingRetryCount = 0;
+                    _pending = false;
                 }
 
                 if(_traceLevel > 0)
@@ -396,8 +410,9 @@ namespace IceLocatorDiscovery
                         _pendingRequests.Add(request);
                     }
 
-                    if(_pendingRetryCount == 0) // No request in progress
+                    if(!_pending) // No request in progress
                     {
+                        _pending = true;
                         _pendingRetryCount = _retryCount;
                         _failureCount = 0;
                         try
@@ -448,6 +463,7 @@ namespace IceLocatorDiscovery
                             }
                             _pendingRequests.Clear();
                             _pendingRetryCount = 0;
+                            _pending = false;
                         }
                     }
                 }
@@ -458,14 +474,14 @@ namespace IceLocatorDiscovery
         {
             lock(this)
             {
-                if(++_failureCount == _lookups.Count && _pendingRetryCount > 0)
+                if(++_failureCount == _lookups.Count && _pending)
                 {
                     //
                     // All the lookup calls failed, cancel the timer and propagate the error to the requests.
                     //
                     _timer.cancel(this);
-
                     _pendingRetryCount = 0;
+                    _pending = false;
 
                     if(_warnOnce)
                     {
@@ -510,8 +526,15 @@ namespace IceLocatorDiscovery
         {
             lock(this)
             {
-                if(--_pendingRetryCount > 0)
+                if(!_pending)
                 {
+                    Debug.Assert(_pendingRequests.Count == 0);
+                    return; // Request failed
+                }
+
+                if(_pendingRetryCount > 0)
+                {
+                    --_pendingRetryCount;
                     try
                     {
                         if(_traceLevel > 1)
@@ -547,6 +570,9 @@ namespace IceLocatorDiscovery
                     }
                     _pendingRetryCount = 0;
                 }
+
+                Debug.Assert(_pendingRetryCount == 0);
+                _pending = false;
 
                 if(_traceLevel > 0)
                 {
@@ -589,6 +615,7 @@ namespace IceLocatorDiscovery
         private Ice.LocatorPrx _voidLocator;
         private Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
 
+        private bool _pending;
         private int _pendingRetryCount;
         private int _failureCount;
         private bool _warnOnce = true;

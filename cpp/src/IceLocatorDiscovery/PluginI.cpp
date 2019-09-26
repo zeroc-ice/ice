@@ -106,9 +106,9 @@ private:
 
     LookupPrxPtr _lookup;
     vector<pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
-    const IceUtil::Time _timeout;
-    const int _retryCount;
-    const IceUtil::Time _retryDelay;
+    IceUtil::Time _timeout;
+    int _retryCount;
+    IceUtil::Time _retryDelay;
     const IceUtil::TimerPtr _timer;
     const int _traceLevel;
 
@@ -119,6 +119,7 @@ private:
     Ice::LocatorPrxPtr _voidLocator;
 
     IceUtil::Time _nextRetry;
+    bool _pending;
     int _pendingRetryCount;
     size_t _failureCount;
     bool _warnOnce;
@@ -574,10 +575,24 @@ LocatorI::LocatorI(const string& name,
     _warned(false),
     _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
     _voidLocator(voidLocator),
+    _pending(false),
     _pendingRetryCount(0),
     _failureCount(0),
     _warnOnce(true)
 {
+    if(_timeout < IceUtil::Time::milliSeconds(0))
+    {
+        _timeout = IceUtil::Time::milliSeconds(300);
+    }
+    if(_retryCount < 0)
+    {
+        _retryCount = 0;
+    }
+    if(_retryDelay < IceUtil::Time::milliSeconds(0))
+    {
+        _retryDelay = IceUtil::Time::milliSeconds(0);
+    }
+
     //
     // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
     // datagram on each endpoint.
@@ -669,7 +684,7 @@ LocatorI::getLocators(const string& instanceName, const IceUtil::Time& waitTime)
     else
     {
         Lock sync(*this);
-        while(_locators.find(instanceName) == _locators.end() && _pendingRetryCount > 0)
+        while(_locators.find(instanceName) == _locators.end() && _pending)
         {
             timedWait(waitTime);
         }
@@ -725,10 +740,11 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
         return;
     }
 
-    if(_pendingRetryCount > 0) // No need to retry, we found a locator.
+    if(_pending) // No need to continue, we found a locator.
     {
         _timer->cancel(ICE_SHARED_FROM_THIS);
         _pendingRetryCount = 0;
+        _pending = false;
     }
 
     if(_traceLevel > 0)
@@ -821,8 +837,9 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
             _pendingRequests.push_back(request);
         }
 
-        if(_pendingRetryCount == 0) // No request in progress
+        if(!_pending) // No request in progress
         {
+            _pending = true;
             _failureCount = 0;
             _pendingRetryCount = _retryCount;
             try
@@ -877,6 +894,7 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
                     (*p)->invoke(_voidLocator);
                 }
                 _pendingRequests.clear();
+                _pending = false;
                 _pendingRetryCount = 0;
             }
         }
@@ -887,13 +905,14 @@ void
 LocatorI::exception(const Ice::LocalException& ex)
 {
     Lock sync(*this);
-    if(++_failureCount == _lookups.size() && _pendingRetryCount > 0)
+    if(++_failureCount == _lookups.size() && _pending)
     {
         //
         // All the lookup calls failed, cancel the timer and propagate the error to the requests.
         //
         _timer->cancel(ICE_SHARED_FROM_THIS);
         _pendingRetryCount = 0;
+        _pending = false;
 
         if(_warnOnce)
         {
@@ -932,8 +951,15 @@ void
 LocatorI::runTimerTask()
 {
     Lock sync(*this);
-    if(--_pendingRetryCount > 0)
+    if(!_pending)
     {
+        assert(_pendingRequests.empty());
+        return; // The request failed
+    }
+
+    if(_pendingRetryCount > 0)
+    {
+        --_pendingRetryCount;
         try
         {
             if(_traceLevel > 1)
@@ -975,6 +1001,9 @@ LocatorI::runTimerTask()
         }
         _pendingRetryCount = 0;
     }
+
+    assert(_pendingRetryCount == 0);
+    _pending = false;
 
     if(_traceLevel > 0)
     {
