@@ -27,7 +27,8 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
- - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017 or Visual Studio 2019
+ - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
+ - the [.NET Core 3.0 SDK][5], if you use Visual Studio 2019
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -59,9 +60,10 @@ The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp3.0`. You can change the target framework
-by setting the `AppTargetFramework` property to a different Target Framework Monikers (TFMs)
-value, for example:
+The iceboxnet and test applications target `netcoreapp3.0` when using Visual Studio 2019 and
+`netcoreapp2.1` when using Visual Studio 2017. You can change the target framework by setting
+the `AppTargetFramework` property to a different Target Framework Monikers value, for example:
+
 ```
 msbuild msbuild\ice.proj /p:"AppTargetFramework=net462"
 ```
@@ -85,7 +87,7 @@ KEYFILE.
 
 If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed during
 the build using `PUBLIC_KEYFILE` and re-signed after the build using `KEYFILE`.
-This can be used for generating [Enhanced Strong Naming][5] signatures.
+This can be used for generating [Enhanced Strong Naming][6] signatures.
 
 *Strong Name Signatures can be generated only from Windows builds.*
 
@@ -111,11 +113,12 @@ This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.1 SDK][4] to build Ice for .NET from source.
+You need the [.NET Core 2.1 SDK][4] or [.NET Core 3.0 SDK][5] to build
+Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
-Open a command prompt and change to the `csharp` subdirectory:
+Open a command prompt and change to the `csharp` directory:
 ```
 cd csharp
 ```
@@ -131,6 +134,15 @@ Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 dotnet msbuild msbuild/ice.proj /t:BuildDist
+```
+
+The iceboxnet and test applications target `netcoreapp3.0` when using .NET Core 3.0 SDK
+and `netcoreapp2.1` when using .NET Core 2.1 S SDK. You can change the target framework
+by setting the `AppTargetFramework` property to a different Target Framework Monikers
+value, for example:
+
+```
+msbuild msbuild\ice.proj /p:"AppTargetFramework=netcoreapp2.2"
 ```
 
 ## Running the Tests
@@ -172,6 +184,8 @@ python allTests.py --dotnetcore --framework=netcoreapp3.0
 
 ## NuGet Package
 
+### Creating NuGet Packages on Windows
+
 To create a NuGet package, open a Visual Studio command prompt and run the
 following command:
 ```
@@ -180,11 +194,28 @@ msbuild msbuild\ice.proj /t:NuGetPack
 
 This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
-> Note: The new NuGet package always includes assemblies for the .NET Framework 4.5.
-> If you build with Visual Studio 2017, the NuGet package also includes assemblies
-> for .NET Standard 2.0.
+> Note: The NuGet package always includes assemblies for the .NET Framework 4.5.
+>
+> If you build with Visual Studio 2017 or Visual Studio 2019, the NuGet package also
+> includes assemblies for .NET Standard 2.0.
+>
+> If you build with Visual Studio 2019 the NuGet package include iceboxnet executables
+> targeting .NET Framework 4.5, .NET Core 3.0 and .NET Core 2.1.
+>
+> If you build with Visual Studio 2017 the NuGet package include iceboxnet executables
+> targeting .NET Framework 4.5 and .NET Core 2.1.
+>
 
-*Temporary limitation: you currently cannot create NuGet packages on Linux and macOS.*
+### Creating NuGet Packages on Linux or macOS
+
+To create a NuGet package, open a command prompt and run the
+following command:
+
+```
+dotnet msbuild msbuild\ice.proj /t:NuGetPack
+```
+
+This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
 ## Building Ice for Xamarin Test Suite
 
@@ -216,7 +247,7 @@ MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
 
 #### Building the UWP test controller
 
-Open a Visual Studio 2017 command prompt:
+Open a Visual Studio 2019 or Visual Studio 2017 command prompt:
 
 ```
 MSBuild msbuild\ice.proj /t:UWPXamarinBuild
@@ -276,4 +307,5 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
-[5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[5]: https://dotnet.microsoft.com/download/dotnet-core/3.0
+[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
