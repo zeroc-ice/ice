@@ -213,9 +213,10 @@ class Platform(object):
 
     def __init__(self):
         try:
-            run("dotnet --version")
+            version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("info : global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
+            self.defaultNetCoreFramework = "netcoreapp{}.{}".format(version[0], version[1])
         except:
             self.nugetPackageCache = None
 
@@ -3362,8 +3363,8 @@ class CSharpMapping(Mapping):
 
             if self.dotnetcore:
                 self.libTargetFramework = "netstandard2.0"
-                self.binTargetFramework = "netcoreapp3.0" if self.framework == "" else self.framework
-                self.testTargetFramework = "netcoreapp3.0" if self.framework == "" else self.framework
+                self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
+                self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             else:
                 self.libTargetFramework = "net45" if self.framework == "" else "netstandard2.0"
                 self.binTargetFramework = "net45" if self.framework == "" else self.framework
