@@ -38,9 +38,9 @@
             <PackagePath>lib\netstandard2.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\netcoreapp2.0\publish\*">
+        <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
             <Pack>true</Pack>
-            <PackagePath>tools\netcoreapp2.0</PackagePath>
+            <PackagePath>tools\$(AppTargetFramework)</PackagePath>
         </Content>
 
         <Content Include="..\..\slice\**\*.ice"
