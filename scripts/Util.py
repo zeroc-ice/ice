@@ -3479,10 +3479,18 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        if current.config.dotnetcore:
-            return "dotnet " + os.path.join(path, exe) + ".dll " + args
-        else:
-            return os.path.join(path, exe) + ".exe " + args
+        useDotnetExe = current.config.dotnetcore and (current.config.framework in ["netcoreapp2.1", "netcoreapp2.2"] or
+                                                      process.isFromBinDir())
+        command = ""
+        if useDotnetExe:
+            command += "dotnet "
+        command += os.path.join(path, exe)
+        if useDotnetExe:
+            command += ".dll "
+        elif isinstance(platform, Windows):
+            command += ".exe"
+        command += " {}".format(args)
+        return command
 
     def getSDKPackage(self):
         return "system-images;android-27;google_apis;x86"
