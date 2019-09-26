@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.0</AppTargetFramework>
-    </PropertyGroup>
+    <Choose>
+        <When Condition="'$(VisualStudioVersion)' == '15.0'">
+            <PropertyGroup>
+                <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp2.1</AppTargetFramework>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">netcoreapp3.0</AppTargetFramework>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
 </Project>
