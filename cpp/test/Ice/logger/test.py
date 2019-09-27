@@ -123,6 +123,10 @@ class IceLoggerTestCase(ClientTestCase):
         for f in glob.glob("client5-*.log"):
             os.remove(f)
         if os.path.exists("log"):
+            if isinstance(platform, Windows):
+                os.system("echo Y|cacls log /P \"%USERNAME%\":F 1> nul")
+            else:
+                os.system("chmod +w log")
             for f in glob.glob("log/client5-*.log"):
                 os.remove(f)
             os.rmdir("log")
