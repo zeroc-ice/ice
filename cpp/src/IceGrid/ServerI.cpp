@@ -3005,7 +3005,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         }
         else if(_state == ServerI::Inactive)
         {
-            if(_node->getTraceLevels()->server != 2 && !(previous == ServerI::Loading || previous == ServerI::Patching))
+            if(_node->getTraceLevels()->server > 2 || (previous != ServerI::Loading && previous != ServerI::Patching))
             {
                 out << "changed server `" << _id << "' state to `Inactive'";
             }
@@ -3046,7 +3046,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             }
             else if(_state == ServerI::Patching)
             {
-                out << "changed server `" << _id << "' state to `Loading'";
+                out << "changed server `" << _id << "' state to `Patching'";
             }
         }
         if(!reason.empty())

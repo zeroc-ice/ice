@@ -82,7 +82,7 @@ reportChildError(int err, int fd, const char* cannot, const char* name, const Tr
     os << cannot << " `" << name << "'";
     if(err)
     {
-        os << ": " << IceUtilInternal::errorToString(err) << endl;
+        os << ": " << IceUtilInternal::errorToString(err);
     }
     const string msg = os.str();
     ssize_t sz = write(fd, msg.c_str(), msg.size());
@@ -601,7 +601,12 @@ Activator::activate(const string& name,
 
     if(!b)
     {
-        throw runtime_error(IceUtilInternal::lastErrorToString());
+        string message = IceUtilInternal::lastErrorToString();
+
+        Ice::Warning out(_traceLevels->logger);
+        out << "server activation failed for `" << name << "':\n" << message;
+
+        throw runtime_error(message);
     }
 
     //
@@ -619,7 +624,14 @@ Activator::activate(const string& name,
     if(!RegisterWaitForSingleObject(&pp->waithnd, pp->hnd, activatorWaitCallback, pp, INFINITE,
                                     WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
     {
-        throw IceUtilInternal::lastErrorToString();
+        TerminateProcess(pp->hnd, 0);
+
+        string message = IceUtilInternal::lastErrorToString();
+
+        Ice::Warning out(_traceLevels->logger);
+        out << "server activation failed for `" << name << "':\ncouldn't register wait callback\n" << message;
+
+        throw runtime_error(message);
     }
 
     //
@@ -878,6 +890,9 @@ Activator::activate(const string& name,
         //
         if(!message.empty())
         {
+            Ice::Warning out(_traceLevels->logger);
+            out << "server activation failed for `" << name << "':\n" << message;
+
             close(fds[0]);
             close(errorFds[0]);
             waitPid(pid);
