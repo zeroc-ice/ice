@@ -2218,20 +2218,29 @@ class RemoteProcessController(ProcessController):
 
         # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
         proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
-        try:
-            proxy.ice_ping()
-            with self.cond:
-                self.processControllerProxies[ident] = proxy
-                return self.processControllerProxies[ident]
-        except Exception:
-            pass
 
-        # Wait 60 seconds for a process controller to be registered with the ProcessControllerRegistry
-        with self.cond:
-            if not ident in self.processControllerProxies:
-                self.cond.wait(60)
-            if ident in self.processControllerProxies:
-                return self.processControllerProxies[ident]
+        #
+        # First try to discover the process controller with IceDiscovery, if this doesn't
+        # work we'll wait for 10s for the process controller to register with the registry.
+        # If the wait times out, we retry again.
+        #
+        nRetry = 0
+        while nRetry < 10:
+            nRetry += 1
+
+            try:
+                proxy.ice_ping()
+                with self.cond:
+                    self.processControllerProxies[ident] = proxy
+                    return self.processControllerProxies[ident]
+            except Exception:
+                pass
+
+            with self.cond:
+                if not ident in self.processControllerProxies:
+                    self.cond.wait(10)
+                if ident in self.processControllerProxies:
+                    return self.processControllerProxies[ident]
 
         raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
