@@ -27,12 +27,12 @@
     <Choose>
         <When Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(OS)' != 'Windows_NT'">
             <PropertyGroup>
-                <BuildNetStandardTargets>true</BuildNetStandardTargets>
+                <NetStandardTargets>true</NetStandardTargets>
             </PropertyGroup>
         </When>
         <Otherwise>
             <PropertyGroup>
-                <BuildNetStandardTargets>false</BuildNetStandardTargets>
+                <NetStandardTargets>false</NetStandardTargets>
             </PropertyGroup>
         </Otherwise>
     </Choose>
@@ -90,14 +90,14 @@
     </ItemGroup>
 
     <!-- NET 4.5 Targets -->
-    <Target Name="NuGetRestoreNet45Dist"
+    <Target Name="Net45NuGetRestoreDist"
             DependsOnTargets="GetNuget"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
         <Exec Command="$(NuGetExe) restore @(Net45DistSolution)"/>
     </Target>
 
-    <Target Name="BuildNet45Dist"
-            DependsOnTargets="SliceCompilers;NuGetRestoreNet45"
+    <Target Name="Net45BuildDist"
+            DependsOnTargets="SliceCompilers;Net45NuGetRestore"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
 
         <MSBuild Projects="@(Net45DistSolution)"
@@ -106,7 +106,7 @@
 
     </Target>
 
-    <Target Name="CleanNet45Dist"
+    <Target Name="Net45CleanDist"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
 
         <MSBuild Projects="@(Net45DistSolution)"
@@ -116,16 +116,16 @@
 
     </Target>
 
-    <Target Name="NuGetRestoreNet45"
-            DependsOnTargets="GetNuget;NuGetRestoreNet45Dist"
+    <Target Name="Net45NuGetRestore"
+            DependsOnTargets="GetNuget;Net45NuGetRestoreDist"
             Condition="'$(OS)' == 'Windows_NT'">
         <!-- The builder package should be already restored by dist build and we do not want to restore
              the zeroc.ice.net packages if we are not building with the binary dist -->
         <Exec Command="$(NuGetExe) restore @(Net45TestSolution)" Condition="'$(ICE_BIN_DIST)' == 'all'" />
     </Target>
 
-    <Target Name="BuildNet45"
-            DependsOnTargets="BuildNet45Dist;NuGetRestoreNet45"
+    <Target Name="Net45Build"
+            DependsOnTargets="Net45BuildDist;Net45NuGetRestore"
             Condition="'$(OS)' == 'Windows_NT'">
 
         <MSBuild Projects="@(Net45TestSolution)"
@@ -134,8 +134,8 @@
 
     </Target>
 
-    <Target Name="CleanNet45"
-            DependsOnTargets="CleanNet45Dist"
+    <Target Name="Net45Clean"
+            DependsOnTargets="Net45CleanDist"
             Condition="'$(OS)' == 'Windows_NT'">
 
         <MSBuild Projects="@(Net45TestSolution)"
@@ -146,17 +146,17 @@
     </Target>
 
     <!-- NET Standard Targets -->
-    <Target Name="NuGetRestoreNetStandardDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
+    <Target Name="NetStandardNuGetRestoreDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(NetStandardTargets)' == 'true'">
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="BuildNetStandardDist"
-            DependsOnTargets="SliceCompilers;NuGetRestoreNetStandardDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
+    <Target Name="NetStandardBuildDist"
+            DependsOnTargets="SliceCompilers;NetStandardNuGetRestoreDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(NetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
@@ -164,8 +164,8 @@
 
     </Target>
 
-    <Target Name="CleanNetStandardDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
+    <Target Name="NetStandardCleanDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(NetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
@@ -174,18 +174,18 @@
 
     </Target>
 
-    <Target Name="NuGetRestoreNetStandard"
-            DependsOnTargets="NuGetRestoreNetStandardDist"
-            Condition="'$(BuildNetStandardTargets)' == 'true'">
+    <Target Name="NetStandardNuGetRestore"
+            DependsOnTargets="NetStandardNuGetRestoreDist"
+            Condition="'$(NetStandardTargets)' == 'true'">
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="BuildNetStandard"
-            DependsOnTargets="BuildNetStandardDist;NuGetRestoreNetStandard"
-            Condition="'$(BuildNetStandardTargets)' == 'true'">
+    <Target Name="NetStandardBuild"
+            DependsOnTargets="NetStandardBuildDist;NetStandardNuGetRestore"
+            Condition="'$(NetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -193,9 +193,9 @@
 
     </Target>
 
-    <Target Name="CleanNetStandard"
-            DependsOnTargets="CleanNetStandardDist"
-            Condition="'$(BuildNetStandardTargets)' == 'true'">
+    <Target Name="NetStandardClean"
+            DependsOnTargets="NetStandardCleanDist"
+            Condition="'$(NetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -206,19 +206,19 @@
 
     <!-- Meta targets -->
 
-    <Target Name="BuildDist" DependsOnTargets="BuildNetStandardDist;BuildNet45Dist">
+    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist">
     </Target>
 
-    <Target Name="CleanDist" DependsOnTargets="CleanNetStandardDist;CleanNet45Dist">
+    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist">
     </Target>
 
-    <Target Name="NuGetRestore" DependsOnTargets="NuGetRestoreNetStandard;NuGetRestoreNet45">
+    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore">
     </Target>
 
-    <Target Name="Build" DependsOnTargets="BuildNetStandard;BuildNet45">
+    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build">
     </Target>
 
-    <Target Name="Clean" DependsOnTargets="CleanNetStandard;CleanNet45">
+    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean">
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
@@ -230,16 +230,16 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp2.1;BaseIntermediateOutputPath=obj\netcoreapp2.1\"
                  Targets="Restore;Publish"
-                 Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+                 Condition="'$(NetStandardTargets)' == 'true'"/>
 
         <!-- Build iceboxnet with netcoreapp3.0 target framework -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp3.0;BaseIntermediateOutputPath=obj\netcoreapp3.0\"
                  Targets="Restore;Publish"
-                 Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+                 Condition="'$(NetStandardTargets)' == 'true' and '$(MSBuildToolsVersion)' == '16'"/>
 
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.net;BuildNetStandardTargets=$(BuildNetStandardTargets);
+                 Properties="PackageDirectory=zeroc.ice.net;NetStandardTargets=$(NetStandardTargets);
                              CppPlatform=$(CppPlatform);Configuration=$(Configuration)"/>
 
         <Copy SourceFiles="zeroc.ice.net.nuspec"
@@ -277,12 +277,12 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.1"
-              Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+              Condition="'$(NetStandardTargets)' == 'true'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp3.0"
-              Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+              Condition="'$(NetStandardTargets)' == 'true' and '$(MSBuildToolsVersion)' == '16'"/>
 
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
@@ -307,14 +307,14 @@
     </Target>
 
     <!-- UWP Xamarin Builds -->
-    <Target Name="UWPXamarinBuild" DependsOnTargets="BuildNetStandardDist" Condition="'$(OS)' == 'Windows_NT'">
+    <Target Name="UWPXamarinBuild" DependsOnTargets="NetStandardBuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.UWP\controller.UWP.csproj"
                  Properties="Configuration=$(Configuration);Platform=$(UWPPlatform)"/>
     </Target>
 
     <!-- Android Xamarin Builds -->
-    <Target Name="AndroidXamarinBuildOnWindows" DependsOnTargets="BuildNetStandardDist" Condition="'$(OS)' == 'Windows_NT'">
+    <Target Name="AndroidXamarinBuildOnWindows" DependsOnTargets="NetStandardBuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.Android\controller.Android.csproj"
                  Properties="Configuration=$(Configuration);Platform=AnyCPU"

@@ -56,8 +56,8 @@ You can skip the build of the test suite with the `BuildDist` target:
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist` targets
-allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
+The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist`
+targets allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
 The iceboxnet and test applications target `netcoreapp3.0` when using Visual Studio 2019 and
