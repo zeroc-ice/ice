@@ -68,12 +68,13 @@ These are the changes since Ice 3.7.2.
 
 - Add support to enable SNI (Server Name Indication) in outgoing SSL/TLS
   connections. The SNI TLS extension is enabled by setting
-  `IceSSL.CheckCertName` to a value greater than 1.
+  `IceSSL.CheckCertName` to `2`.
 
-  This property applies to OpenSSL, SecureTransport and Java; these
-  implementations did not send the SNI extension before. The C# and SChannel
-  implementations always send the SNI extension. The Java-Compat mapping does
-  not support SNI.
+  This new value for `IceSSL.CheckCertName` is useful with OpenSSL,
+  SecureTransport and Java; these implementations did not send the SNI extension
+  before. The C# and SChannel implementations always send the SNI extension. The
+  Java-Compat mapping does not support SNI. Thanks to @AndiDog for the pull
+  request: https://github.com/zeroc-ice/ice/pull/482
 
 - Fixed a bug in the conversion of endpoints to string: the colon character
   was not escaped in the `--sourceAddress` and `--interface` endpoint options.
