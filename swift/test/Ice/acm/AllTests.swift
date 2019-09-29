@@ -381,7 +381,7 @@ class CloseOnInvocationTest: TestCase {
 class CloseOnIdleAndInvocationTest: TestCase {
     init(com: RemoteCommunicatorPrx, helper: TestHelper) {
         super.init(name: "close on idle and invocation", com: com, helper: helper)
-        setClientACM(timeout: 1, close: 3, heartbeat: 0) // Only close on idle and invocation
+        setClientACM(timeout: 3, close: 3, heartbeat: 0) // Only close on idle and invocation
     }
 
     override func runTestCase(adapter: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
@@ -391,7 +391,7 @@ class CloseOnIdleAndInvocationTest: TestCase {
         // the close is graceful or forceful.
         //
         try adapter.hold()
-        Thread.sleep(forTimeInterval: 3) // Idle for 3 seconds
+        Thread.sleep(forTimeInterval: 5) // Idle for 5 seconds
 
         try withLock(&_lock) {
             try _helper.test(self._heartbeat == 0)

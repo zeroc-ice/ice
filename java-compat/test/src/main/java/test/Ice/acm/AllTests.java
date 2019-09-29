@@ -445,7 +445,7 @@ public class AllTests
         public CloseOnIdleAndInvocationTest(test.TestHelper helper, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
             super(helper, "close on idle and invocation", com, out);
-            setClientACM(1, 3, 0); // Only close on idle and invocation
+            setClientACM(3, 3, 0); // Only close on idle and invocation
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -458,7 +458,7 @@ public class AllTests
             adapter.hold();
             try
             {
-                Thread.sleep(3000); // Idle for 3 seconds
+                Thread.sleep(5000); // Idle for 5 seconds
             }
             catch(java.lang.InterruptedException ex)
             {

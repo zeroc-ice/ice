@@ -438,7 +438,7 @@ namespace Ice
                 public CloseOnIdleAndInvocationTest(Test.RemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                     base("close on idle and invocation", com, helper)
                 {
-                    setClientACM(1, 3, 0); // Only close on idle and invocation
+                    setClientACM(3, 3, 0); // Only close on idle and invocation
                 }
 
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
@@ -449,7 +449,7 @@ namespace Ice
                     // the close is graceful or forceful.
                     //
                     adapter.hold();
-                    Thread.Sleep(3000); // Idle for 3 seconds
+                    Thread.Sleep(5000); // Idle for 5 seconds
 
                     lock(this)
                     {

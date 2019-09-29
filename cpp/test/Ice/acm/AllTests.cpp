@@ -440,7 +440,7 @@ public:
 
     CloseOnIdleAndInvocationTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on idle and invocation", com)
     {
-        setClientACM(1, 3, 0); // Only close on idle and invocation
+        setClientACM(3, 3, 0); // Only close on idle and invocation
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr&)
@@ -451,7 +451,7 @@ public:
         // the close is graceful or forceful.
         //
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(5000)); // Idle for 5 seconds
 
         {
             Lock sync(*this);

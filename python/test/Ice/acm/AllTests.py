@@ -238,7 +238,7 @@ def allTests(helper, communicator):
     class CloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on idle and invocation", com)
-            self.setClientACM(1, 3, 0) # Only close on idle and invocation.
+            self.setClientACM(3, 3, 0) # Only close on idle and invocation.
 
         def runTestCase(self, adapter, proxy):
             #
@@ -247,7 +247,7 @@ def allTests(helper, communicator):
             # the close is graceful or forceful.
             #
             adapter.hold()
-            time.sleep(3) # Idle for 3 seconds
+            time.sleep(5) # Idle for 5 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
