@@ -75,29 +75,8 @@ class RemoteObjectAdapterI: RemoteObjectAdapter {
 }
 
 class TestI: TestIntf {
-    class HearbeatCallbackI {
-        let _semaphore: DispatchSemaphore
-        var _count: Int32
-
-        public init() {
-            _count = 0
-            _semaphore = DispatchSemaphore(value: 0)
-        }
-
-        func hearbeat(conn _: Ice.Connection?) {
-            _count += 1
-            _semaphore.signal()
-        }
-
-        func waitForCount(count: Int32) {
-            while _count < count {
-                _semaphore.wait()
-            }
-        }
-    }
-
     let _semaphore: DispatchSemaphore
-    var _hearbeatCallback: HearbeatCallbackI!
+    var _hearbeatCallback: DispatchSemaphore!
 
     public init() {
         _semaphore = DispatchSemaphore(value: 0)
@@ -117,13 +96,15 @@ class TestI: TestIntf {
     }
 
     func startHeartbeatCount(current: Current) {
-        _hearbeatCallback = HearbeatCallbackI()
-        current.con?.setHeartbeatCallback { conn in
-            self._hearbeatCallback.hearbeat(conn: conn)
+        _hearbeatCallback = DispatchSemaphore(value: 0)
+        current.con?.setHeartbeatCallback { _ in
+            self._hearbeatCallback.signal()
         }
     }
 
     func waitForHeartbeatCount(count: Int32, current _: Current) {
-        _hearbeatCallback.waitForCount(count: count)
+        for _ in 0..<count {
+            self._hearbeatCallback.wait()
+        }
     }
 }
