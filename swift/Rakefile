@@ -162,6 +162,10 @@ def create_platform_targets(project, platform, bindist)
             "IceSSL" => ["OpenSSL*", "SChannel*", "UWP*"]
         }
 
+        if platform == :ios then
+            excludes["Ice"] << "Tcp*"
+        end
+
         cpp_targets = []
         ice_cpp_target = nil
 

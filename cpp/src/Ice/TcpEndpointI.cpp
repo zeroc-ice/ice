@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+
 #include <Ice/TcpEndpointI.h>
 #include <Ice/Network.h>
 #include <Ice/TcpAcceptor.h>
@@ -378,3 +382,4 @@ IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) cons
 {
     return new TcpEndpointFactory(instance);
 }
+#endif
