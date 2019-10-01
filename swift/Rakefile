@@ -188,7 +188,6 @@ def create_platform_targets(project, platform, bindist)
                 if config.name == "Release" then
                     config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] << "NDEBUG"
                 end
-                config.build_settings["CLANG_ENABLE_OBJC_ARC"] = "NO"
 
                 if component == "Ice" then
                     ice_cpp_target = target

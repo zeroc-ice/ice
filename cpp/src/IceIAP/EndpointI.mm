@@ -270,7 +270,9 @@ IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
             }
             c.push_back(new iAPConnector(_instance, _timeout, _connectionId, protocol, accessory));
         }
+#if defined(__clang__) && !__has_feature(objc_arc)
         [protocol release];
+#endif
         if(c.empty())
         {
             throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
