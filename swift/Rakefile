@@ -483,7 +483,8 @@ def create_platform_targets(project, platform, bindist)
             target.add_resources(group_add_files(group, "test/#{test}", $test_resources[test]))
         end
 
-        target_set_common_build_settings(target, target_name("#{test}"), swift: true)
+        target_set_common_build_settings(target, target_name("#{test}"), plist: "test/TestCommon/Info.plist",
+                                         swift: true)
         test_driver_target.add_dependency(target)
 
         #
@@ -540,7 +541,8 @@ def create_platform_targets(project, platform, bindist)
 
             target_add_files(target, group, "test/#{test}", test_variant_sources(test, "ServerAMD"),
                              ["Test.ice", "Client*.ice"])
-            target_set_common_build_settings(target, target_name("#{test}AMD"), swift: true)
+            target_set_common_build_settings(target, target_name("#{test}AMD"), plist: "test/TestCommon/Info.plist",
+                                             swift: true)
             test_driver_target.add_dependency(target)
 
             #
