@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "Transceiver.h"
 #include "EndpointI.h"
 
@@ -456,3 +460,5 @@ IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, in
     ex.error = static_cast<int>([err code]);
     throw ex;
 }
+
+#endif

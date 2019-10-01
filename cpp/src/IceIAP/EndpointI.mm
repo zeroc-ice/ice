@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "EndpointI.h"
 #include "Connector.h"
 
@@ -705,3 +709,5 @@ IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new iAPEndpointFactory(instance);
 }
+
+#endif

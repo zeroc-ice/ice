@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "Transceiver.h"
 #include "EndpointI.h"
 #include "Connector.h"
@@ -151,3 +155,5 @@ IceObjC::iAPConnector::~iAPConnector()
     [_accessory release];
 #endif
 }
+
+#endif
