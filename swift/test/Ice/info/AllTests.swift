@@ -42,7 +42,7 @@ func allTests(_ helper: TestHelper) throws {
                 "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
                 "opaque -e 1.8 -t 100 -v ABCD")!
 
-        var endps = p1.ice_getEndpoints()
+        let endps = p1.ice_getEndpoints()
 
         let info = endps[0].getInfo()!
         let tcpEndpoint = getTCPEndpointInfo(info)!

@@ -65,7 +65,7 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple endpoints... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "Adapter11", endpoints: "default")!,
+        let adapters = [try com.createObjectAdapter(name: "Adapter11", endpoints: "default")!,
                         try com.createObjectAdapter(name: "Adapter12", endpoints: "default")!,
                         try com.createObjectAdapter(name: "Adapter13", endpoints: "default")!]
 
@@ -155,7 +155,7 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple random endpoints... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "AdapterRandom11", endpoints: "default")!,
+        let adapters = [try com.createObjectAdapter(name: "AdapterRandom11", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterRandom12", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterRandom13", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterRandom14", endpoints: "default")!,
@@ -210,7 +210,7 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple endpoints and AMI... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "AdapterAMI11", endpoints: "default")!,
+        let adapters = [try com.createObjectAdapter(name: "AdapterAMI11", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterAMI12", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterAMI13", endpoints: "default")!]
 
@@ -371,7 +371,7 @@ func allTests(_ helper: TestHelper) throws {
             // expected
         }
 
-        var endpoints = obj.ice_getEndpoints()
+        let endpoints = obj.ice_getEndpoints()
 
         adapters.removeAll()
 
@@ -438,7 +438,7 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing per request binding with multiple endpoints... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "Adapter51", endpoints: "default")!,
+        let adapters = [try com.createObjectAdapter(name: "Adapter51", endpoints: "default")!,
                         try com.createObjectAdapter(name: "Adapter52", endpoints: "default")!,
                         try com.createObjectAdapter(name: "Adapter53", endpoints: "default")!]
 
@@ -471,7 +471,7 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing per request binding with multiple endpoints and AMI... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "AdapterAMI51", endpoints: "default")!,
+        let adapters = [try com.createObjectAdapter(name: "AdapterAMI51", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterAMI52", endpoints: "default")!,
                         try com.createObjectAdapter(name: "AdapterAMI53", endpoints: "default")!]
 
@@ -679,7 +679,7 @@ func allTests(_ helper: TestHelper) throws {
     if communicator.getProperties().getProperty("Ice.Plugin.IceSSL") != "" {
         output.write("testing unsecure vs. secure endpoints... ")
         do {
-            var adapters = [try com.createObjectAdapter(name: "Adapter81", endpoints: "ssl")!,
+            let adapters = [try com.createObjectAdapter(name: "Adapter81", endpoints: "ssl")!,
                             try com.createObjectAdapter(name: "Adapter82", endpoints: "tcp")!]
 
             let obj = try createTestIntfPrx(adapters)

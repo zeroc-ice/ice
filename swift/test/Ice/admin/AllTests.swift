@@ -82,7 +82,7 @@ func testFacets(com: Ice.Communicator, builtInFacets: Bool, helper: TestHelper) 
     try helper.test((com.findAdminFacet("Facet3") as! TestFacetDisp).servant as? TestFacetI === f3)
     try helper.test(com.findAdminFacet("Bogus") == nil)
 
-    var facetMap = com.findAllAdminFacets()
+    let facetMap = com.findAllAdminFacets()
     if builtInFacets {
         try helper.test(facetMap.count == 7)
         try helper.test(facetMap["Properties"] != nil)

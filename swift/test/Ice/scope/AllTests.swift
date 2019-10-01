@@ -38,7 +38,7 @@ func allTests(helper: TestHelper) throws {
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        var (cseq3, cseq2) = try i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try i.opCSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
@@ -88,7 +88,7 @@ func allTests(helper: TestHelper) throws {
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        var (cseq3, cseq2) = try i.opCSeqAsync(cseq1).wait()
+        let (cseq3, cseq2) = try i.opCSeqAsync(cseq1).wait()
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
