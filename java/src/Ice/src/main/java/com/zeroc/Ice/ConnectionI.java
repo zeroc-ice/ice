@@ -1007,6 +1007,15 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                             _observer.receivedBytes(Protocol.headerSize);
                         }
 
+                        //
+                        // Connection is validated on first message. This is only used by
+                        // setState() to check wether or not we can print a connection
+                        // warning (a client might close the connection forcefully if the
+                        // connection isn't validated, we don't want to print a warning
+                        // in this case).
+                        //
+                        _validated = true;
+
                         int pos = _readStream.pos();
                         if(pos < Protocol.headerSize)
                         {
@@ -1045,6 +1054,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                         {
                             throw new IllegalMessageSizeException();
                         }
+
                         if(size > _messageSizeMax)
                         {
                             com.zeroc.IceInternal.Ex.throwMemoryLimitException(size, _messageSizeMax);
@@ -2195,6 +2205,8 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                     observerFinishRead(_readStream.getBuffer());
                 }
 
+                _validated = true;
+
                 assert (_readStream.pos() == Protocol.headerSize);
                 _readStream.pos(0);
                 byte[] m = _readStream.readBlob(4);
@@ -2225,8 +2237,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                     throw new IllegalMessageSizeException();
                 }
                 TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
-
-                _validated = true;
             }
         }
 
@@ -2520,14 +2530,6 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         _readHeader = true;
 
         assert (info.stream.pos() == info.stream.size());
-
-        //
-        // Connection is validated on first message. This is only used by
-        // setState() to check wether or not we can print a connection
-        // warning (a client might close the connection forcefully if the
-        // connection isn't validated).
-        //
-        _validated = true;
 
         try
         {

@@ -748,6 +748,15 @@ class ConnectionI
                     Debug.assert(this._readStream.buffer.remaining === 0);
                     this._readHeader = false;
 
+                    //
+                    // Connection is validated on first message. This is only used by
+                    // setState() to check wether or not we can print a connection
+                    // warning (a client might close the connection forcefully if the
+                    // connection isn't validated, we don't want to print a warning
+                    // in this case).
+                    //
+                    this._validated = true;
+
                     const pos = this._readStream.pos;
                     if(pos < Protocol.headerSize)
                     {
@@ -781,6 +790,7 @@ class ConnectionI
                     {
                         throw new Ice.IllegalMessageSizeException();
                     }
+
                     if(size > this._messageSizeMax)
                     {
                         ExUtil.throwMemoryLimitException(size, this._messageSizeMax);
@@ -1550,6 +1560,8 @@ class ConnectionI
                     return false;
                 }
 
+                this._validated = true;
+
                 Debug.assert(this._readStream.pos === Protocol.headerSize);
                 this._readStream.pos = 0;
                 const m = this._readStream.readBlob(4);
@@ -1576,7 +1588,6 @@ class ConnectionI
                     throw new Ice.IllegalMessageSizeException();
                 }
                 TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
-                this._validated = true;
             }
         }
 
@@ -1755,14 +1766,6 @@ class ConnectionI
         this._readStream.resize(Protocol.headerSize);
         this._readStream.pos = 0;
         this._readHeader = true;
-
-        //
-        // Connection is validated on first message. This is only used by
-        // setState() to check wether or not we can print a connection
-        // warning (a client might close the connection forcefully if the
-        // connection isn't validated).
-        //
-        this._validated = true;
 
         Debug.assert(info.stream.pos === info.stream.size);
 

@@ -1650,6 +1650,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         _observer->receivedBytes(static_cast<int>(headerSize));
                     }
 
+                    //
+                    // Connection is validated on first message. This is only used by
+                    // setState() to check wether or not we can print a connection
+                    // warning (a client might close the connection forcefully if the
+                    // connection isn't validated, we don't want to print a warning
+                    // in this case).
+                    //
+                    _validated = true;
+
                     ptrdiff_t pos = _readStream.i - _readStream.b.begin();
                     if(pos < headerSize)
                     {
@@ -1683,6 +1692,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     {
                         throw IllegalMessageSizeException(__FILE__, __LINE__);
                     }
+
                     if(size > static_cast<Int>(_messageSizeMax))
                     {
                         Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
@@ -2737,6 +2747,8 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 _observer.finishRead(_readStream);
             }
 
+            _validated = true;
+
             assert(_readStream.i == _readStream.b.end());
             _readStream.i = _readStream.b.begin();
             Byte m[4];
@@ -2769,8 +2781,6 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw IllegalMessageSizeException(__FILE__, __LINE__);
             }
             traceRecv(_readStream, _logger, _traceLevels);
-
-            _validated = true;
         }
     }
 
@@ -3242,14 +3252,6 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
     _readHeader = true;
 
     assert(stream.i == stream.b.end());
-
-    //
-    // Connection is validated on first message. This is only used by
-    // setState() to check wether or not we can print a connection
-    // warning (a client might close the connection forcefully if the
-    // connection isn't validated).
-    //
-    _validated = true;
 
     try
     {
