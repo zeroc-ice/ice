@@ -118,6 +118,8 @@ ifneq ($(filter all cpp obj%c,$(ICE_BIN_DIST)),)
 # NOTE: on macOS, if ICE_HOME isn't set we build against /usr/local/opt/ice because the
 # XCode SDK is not accessible through /usr/local
 $(eval $(call create-project-dependencies,ice,$(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local/opt/ice)),cpp))
+else ifneq ($(filter compilers,$(ICE_BIN_DIST)),)
+ice_compilers_dir       = $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local/opt/ice),$(system-install-dir))
 endif
 
 ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)

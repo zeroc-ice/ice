@@ -864,10 +864,12 @@ $1_install_platforms    := $(call component-platforms,$1,$(notdir $1))
 #
 $(notdir $1)_targetext  := $$(or $$($(notdir $1)_targetext),$(patsubst slice2%,%,$(or $2,$(notdir $1))))
 
-ifeq ($$(ice_bindir[$(build-platform)]),)
-$(notdir $1)_path       = $$($(notdir $1)[$(build-platform)-static]_targetdir)/$(notdir $1)
-else
+ifneq ($$(ice_compilers_dir),)
+$(notdir $1)_path       = $$(ice_compilers_dir)/bin/$(notdir $1)
+else ifneq ($$(ice_bindir[$(build-platform)]),)
 $(notdir $1)_path       = $$(ice_bindir[$(build-platform)])/$(notdir $1)
+else
+$(notdir $1)_path       = $$($(notdir $1)[$(build-platform)-static]_targetdir)/$(notdir $1)
 endif
 
 projects        += $(project)
