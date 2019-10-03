@@ -11,10 +11,6 @@
 
 #include <Ice/UniqueRef.h>
 
-#ifdef _MSC_VER
-#   pragma warning(disable:4189) // 'elCapitanUpdate2OrLower': local variable is initialized but not referenced
-#endif
-
 #if defined(__APPLE__)
 #   include <sys/sysctl.h>
 #   if TARGET_OS_IPHONE != 0
@@ -694,11 +690,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    bool elCapitanUpdate2OrLower = false;
     bool isCatalinaOrGreater = false;
     bool isIOS13OrGreater = false;
 #ifdef __APPLE__
-    bool isElCapitanOrGreater = false;
     vector<char> s(256);
     size_t size = s.size();
     int ret = sysctlbyname("kern.osrelease", &s[0], &size, ICE_NULLPTR, 0);
@@ -706,14 +700,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         // version format is x.y.z
         size_t first = string(&s[0]).find_first_of(".");
-
         int majorVersion = atoi(string(&s[0]).substr(0, first).c_str());
 #   if TARGET_OS_IPHONE == 0
-        size_t last = string(&s[0]).find_last_of(".");
-        int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
-
-        isElCapitanOrGreater = majorVersion >= 15;
-        elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
         isCatalinaOrGreater = majorVersion >= 19;
 #   else
         isIOS13OrGreater = majorVersion >= 18;
@@ -2338,11 +2326,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const LocalException&)
             {
-                // macOS 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
-                if(!elCapitanUpdate2OrLower)
-                {
-                    test(false);
-                }
+                test(false);
             }
             fact->destroyServer(server);
             comm->destroy();
@@ -2695,10 +2679,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
 
-    //
-    // El Capitan SSLHandshake segfaults with this test, Apple bug #22148512
-    // This is fixed in 10.11.3
-    if(!elCapitanUpdate2OrLower)
     {
         //
         // This should fail because we disabled all anonymous ciphers and the server doesn't
@@ -2760,36 +2740,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             cerr << ex << endl;
             test(false);
         }
-    }
-    {
-        //
-        // Test IceSSL.DHParams
-        //
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, p12);
-        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
-        CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-        test(fact);
-        Test::Properties d = createServerProps(defaultProps, p12);
-        d["IceSSL.Ciphers"] = "(DH_anon*)";
-        d["IceSSL.DHParams"] = "dh_params512.der";
-        d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrxPtr server = fact->createServer(d);
-        try
-        {
-            server->checkCipher("DH_anon");
-        }
-        catch(const LocalException& ex)
-        {
-            if(!isElCapitanOrGreater) // DH params too weak for El Capitan
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-        }
-        fact->destroyServer(server);
-        comm->destroy();
     }
 
     {
