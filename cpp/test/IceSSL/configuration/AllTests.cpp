@@ -706,14 +706,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         // version format is x.y.z
         size_t first = string(&s[0]).find_first_of(".");
-        size_t last = string(&s[0]).find_last_of(".");
 
         int majorVersion = atoi(string(&s[0]).substr(0, first).c_str());
+#   if TARGET_OS_IPHONE == 0
+        size_t last = string(&s[0]).find_last_of(".");
         int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
 
         isElCapitanOrGreater = majorVersion >= 15;
         elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
-#   if TARGET_OS_IPHONE == 0
         isCatalinaOrGreater = majorVersion >= 19;
 #   else
         isIOS13OrGreater = majorVersion >= 18;
