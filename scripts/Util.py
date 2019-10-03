@@ -1284,6 +1284,12 @@ class Process(Runnable):
                             print("process {0} is hanging on shutdown - {1}".format(process, time.strftime("%x %X")))
                             if current.driver.isInterrupted():
                                 raise
+                        except RuntimeError as ex:
+                            output = self.getOutput(current)
+                            if output:
+                                raise RuntimeError(str(ex) + output)
+                            else:
+                                raise ex
             finally:
                 if not process.isTerminated():
                     process.terminate()

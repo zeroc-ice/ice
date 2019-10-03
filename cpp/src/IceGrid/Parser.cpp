@@ -2767,7 +2767,6 @@ Parser::patchFailed(const Ice::StringSeq& reasons)
 void
 Parser::error(const char* s)
 {
-
     consoleErr << "error: " << s << endl;
     _errors++;
 }
