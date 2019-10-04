@@ -189,8 +189,8 @@ class TestCase {
     }
 
     func start() {
+        _group.enter()
         _queue.async {
-            self._group.enter()
             self.run()
             self._group.leave()
         }
