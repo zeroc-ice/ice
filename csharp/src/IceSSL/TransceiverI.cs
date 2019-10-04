@@ -47,10 +47,24 @@ namespace IceSSL
 
             if(_sslStream == null)
             {
-                _sslStream = new SslStream(new NetworkStream(_delegate.fd(), false),
-                                           false,
-                                           new RemoteCertificateValidationCallback(validationCallback),
-                                           new LocalCertificateSelectionCallback(selectCertificate));
+                try
+                {
+                    _sslStream = new SslStream(new NetworkStream(_delegate.fd(), false),
+                                               false,
+                                               new RemoteCertificateValidationCallback(validationCallback),
+                                               new LocalCertificateSelectionCallback(selectCertificate));
+                }
+                catch(IOException ex)
+                {
+                    if(IceInternal.Network.connectionLost(ex))
+                    {
+                        throw new Ice.ConnectionLostException(ex);
+                    }
+                    else
+                    {
+                        throw new Ice.SocketException(ex);
+                    }
+                }
                 return IceInternal.SocketOperation.Connect;
             }
 
