@@ -1073,7 +1073,9 @@ public class AllTests : Test.AllTests
             im1 = (IceMX.InvocationMetrics)map["fail"];
             test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 1);
             rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-            test(rim1.current == 0 && rim1.total == 6 && rim1.failures == 6);
+            test(rim1.current == 0);
+            test(rim1.total == 6);
+            test(rim1.failures == 6);
             checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 3, output);
         }
 

@@ -1096,7 +1096,9 @@ public class AllTests
             im1 = (InvocationMetrics)map.get("fail");
             test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.length == 1);
             rim1 = (ChildInvocationMetrics)im1.remotes[0];
-            test(rim1.current == 0 && rim1.total == 6 && rim1.failures == 6);
+            test(rim1.current == 0);
+            test(rim1.total == 6);
+            test(rim1.failures == 6);
             checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 3, out);
         }
 
