@@ -8,15 +8,18 @@ linux_id                        := $(word 1,$(or $(filter $(known_distributions)
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(OECORE_SDK_VERSION),)
-
-build-platform                 = $(TARGET_OS)-$(TARGET_ARCH)
-supported-platforms            = $(build-platform)
 linux_id                       = yocto
+endif
+
+ifneq ($filter yocto poky,$(linux_id),)
+
+build-platform                 = default
+supported-platforms            = $(build-platform)
 
 $(build-platform)_cc           = $(CC)
 $(build-platform)_cxx          = $(CXX)
 $(build-platform)_libtool      = $(AR)
-$(build-platform)_targetdir    =
+$(build-platform)_targetdir    = $(if $(filter %/build,$5),/$(build-platform))
 $(build-platform)_installdir   =
 $(build-platform)_objdir       =
 
