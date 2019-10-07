@@ -2123,6 +2123,7 @@ class RemoteProcessController(ProcessController):
             self.proxy = proxy
             self.terminated = False
             self.stdout = False
+            self.output = ""
 
         def __str__(self):
             return "{0} proxy={1}".format(self.exe, self.proxy)
@@ -2664,7 +2665,7 @@ class BrowserProcessController(RemoteProcessController):
         self.url = None
         self.driver = None
         try:
-            cmd = "node -e \"require('./bin/HttpServer')()\"";
+            cmd = "node -e \"require('./bin/HttpServer')()\""
             cwd = current.testcase.getMapping().getPath()
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
@@ -2721,7 +2722,13 @@ class BrowserProcessController(RemoteProcessController):
         # another testcase, the controller page will connect to the process controller registry
         # to register itself with this script.
         #
-        testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
+        testsuite = ""
+        if current.config.es5:
+            testsuite += "es5/"
+        elif isinstance(current.testcase.getMapping(), TypeScriptMapping):
+            testsuite += "typescript/"
+        testsuite += str(current.testsuite)
+
         if current.config.protocol == "wss":
             protocol = "https"
             port = "9090"
@@ -3890,7 +3897,8 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
                 self.protocol = "ws"
 
         def canRun(self, testId, current):
-            return Mapping.Config.canRun(self, testId, current) and self.browser != "Ie" # IE doesn't support ES6
+            # TODO: test TypeScript with browser, the test are currently only compiled for CommonJS (NodeJS)
+            return Mapping.Config.canRun(self, testId, current) and not self.browser
 
     def _getDefaultSource(self, processType):
         return { "client" : "Client.ts", "serveramd" : "ServerAMD.ts", "server" : "Server.ts" }[processType]
