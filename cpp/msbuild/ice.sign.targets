@@ -7,7 +7,7 @@
     <SignTarget>$(OutDir)$(TargetName)$(TargetExt)</SignTarget>
   </PropertyGroup>
 
-  <Target Name="SignPackage" AfterTargets="Build"
+  <Target Name="SignPackage"
           Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
     <Message Text="Signing $(SignTarget)" />
 
@@ -24,4 +24,11 @@
   <Target Name="SignPackageClean" AfterTargets="Clean">
      <Delete Files="$(IntDir)sign.log" />
   </Target>
+
+  <PropertyGroup>
+      <BuildDependsOn>
+          $(BuildDependsOn);
+          SignPackage
+      </BuildDependsOn>
+  </PropertyGroup>
 </Project>
