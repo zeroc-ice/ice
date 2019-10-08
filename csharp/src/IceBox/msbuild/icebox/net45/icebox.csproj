@@ -56,11 +56,18 @@
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\msbuild\ice.common.targets"/>
   <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and
        assembly paths -->
-  <Target Name="PostBuild" AfterTargets="Build">
+  <Target Name="IceBoxConfig">
     <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\..\..\..\..\lib\net45\Ice.dll" Condition="'$(KEYFILE)' != ''">
       <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
     </GetPublicKeyToken>
     <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\..\..\..\..\msbuild\iceboxnet.exe.config.release" OutputFile="$(MSBuildThisFileDirectory)..\..\..\..\..\bin\net45\iceboxnet.exe.config" Tokens="@PublicKeyToken@;@AssemblyDir@" Replacements="$(PublicKeyToken);..\..\..\lib\net45" Condition="'$(KEYFILE)' != ''"/>
     <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\..\..\..\msbuild\iceboxnet.exe.config.dev" DestinationFiles="$(MSBuildThisFileDirectory)..\..\..\..\..\bin\net45\iceboxnet.exe.config" Condition="'$(KEYFILE)' == ''"/>
   </Target>
+
+  <PropertyGroup>
+      <BuildDependsOn>
+          $(BuildDependsOn);
+          IceBoxConfig
+      </BuildDependsOn>
+  </PropertyGroup>
 </Project>
