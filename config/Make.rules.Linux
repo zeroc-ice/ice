@@ -11,7 +11,7 @@ ifneq ($(OECORE_SDK_VERSION),)
 linux_id                       = yocto
 endif
 
-ifneq ($filter yocto poky,$(linux_id),)
+ifneq ($(filter yocto poky,$(linux_id)),)
 
 build-platform                 = default
 supported-platforms            = $(build-platform)

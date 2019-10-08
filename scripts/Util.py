@@ -347,6 +347,9 @@ class Linux(Platform):
     def __init__(self):
         Platform.__init__(self)
         self.multiArch = {}
+        self.linuxId = None
+        self.buildPlatform = None
+        self.foreignPlatforms = []
 
     def init(self, component):
         Platform.init(self, component)
