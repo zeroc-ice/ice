@@ -585,7 +585,7 @@ public extension ObjectPrx {
             var ok: Bool = false
             try _impl.handle.invoke(operation, mode: mode.rawValue, inParams: inEncaps, context: context) {
                 ok = $0
-                data = Data($1) // make a copy
+                data = Data(bytes: $1, count: $2) // make a copy
             }
             return (ok, data!)
         } else {
@@ -627,12 +627,12 @@ public extension ObjectPrx {
                                          mode: mode.rawValue,
                                          inParams: inEncaps,
                                          context: context,
-                                         response: { ok, encaps in
+                                         response: { ok, bytes, count in
                                              do {
                                                  let istr =
                                                      InputStream(communicator: self._impl.communicator,
                                                                  encoding: self._impl.encoding,
-                                                                 bytes: Data(encaps)) // make a copy
+                                                                 bytes: Data(bytes: bytes, count: count)) // make a copy
                                                  seal.fulfill((ok, try istr.readEncapsulation().bytes))
                                              } catch {
                                                  seal.reject(error)
@@ -652,7 +652,7 @@ public extension ObjectPrx {
                                          mode: mode.rawValue,
                                          inParams: inEncaps,
                                          context: context,
-                                         response: { _, _ in
+                                         response: { _, _, _ in
                                              fatalError("Unexpected response")
                                          },
                                          exception: { error in
@@ -1169,11 +1169,12 @@ open class ObjectPrxI: ObjectPrx {
             try autoreleasepool {
                 try handle.invoke(operation, mode: mode.rawValue,
                                   inParams: ostr.finished(), context: context,
-                                  response: { ok, encaps in
+                                  response: { ok, bytes, count in
                                       do {
                                           let istr = InputStream(communicator: self.communicator,
                                                                  encoding: self.encoding,
-                                                                 bytes: encaps)
+                                                                 bytes: Data(bytesNoCopy: bytes, count: count,
+                                                                             deallocator: .none))
                                           if ok == false {
                                               try ObjectPrxI.throwUserException(istr: istr,
                                                                                 userException: userException)
@@ -1221,11 +1222,12 @@ open class ObjectPrxI: ObjectPrx {
                               mode: mode.rawValue,
                               inParams: ostr.finished(),
                               context: context,
-                              response: { ok, encaps in
+                              response: { ok, bytes, count in
                                   do {
                                       let istr = InputStream(communicator: self.communicator,
                                                              encoding: self.encoding,
-                                                             bytes: encaps)
+                                                             bytes: Data(bytesNoCopy: bytes, count: count,
+                                                                         deallocator: .none))
                                       if ok == false {
                                           try ObjectPrxI.throwUserException(istr: istr,
                                                                             userException: userException)
@@ -1271,11 +1273,12 @@ open class ObjectPrxI: ObjectPrx {
                                    mode: mode.rawValue,
                                    inParams: ostr.finished(),
                                    context: context,
-                                   response: { ok, encaps in
+                                   response: { ok, bytes, count in
                                        do {
                                            let istr = InputStream(communicator: self.communicator,
                                                                   encoding: self.encoding,
-                                                                  bytes: encaps)
+                                                                  bytes: Data(bytesNoCopy: bytes, count: count,
+                                                                              deallocator: .none))
                                            if ok == false {
                                                try ObjectPrxI.throwUserException(istr: istr,
                                                                                  userException: userException)
@@ -1310,7 +1313,7 @@ open class ObjectPrxI: ObjectPrx {
                                        mode: mode.rawValue,
                                        inParams: ostr.finished(),
                                        context: context,
-                                       response: { _, _ in
+                                       response: { _, _, _ in
                                            fatalError("Unexpected response")
                                        },
                                        exception: { error in
@@ -1351,11 +1354,12 @@ open class ObjectPrxI: ObjectPrx {
                                mode: mode.rawValue,
                                inParams: ostr.finished(),
                                context: context,
-                               response: { ok, encaps in
+                               response: { ok, bytes, count in
                                    do {
                                        let istr = InputStream(communicator: self.communicator,
                                                               encoding: self.encoding,
-                                                              bytes: encaps)
+                                                              bytes: Data(bytesNoCopy: bytes, count: count,
+                                                                          deallocator: .none))
                                        if ok == false {
                                            try ObjectPrxI.throwUserException(istr: istr,
                                                                              userException: userException)

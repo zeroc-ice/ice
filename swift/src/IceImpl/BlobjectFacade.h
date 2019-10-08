@@ -15,7 +15,8 @@ typedef void (^ICEBlobjectException) (ICERuntimeException*);
 
 ICEIMPL_API @protocol ICEBlobjectFacade
 -(void) facadeInvoke:(ICEObjectAdapter*)adapter
-            inEncaps:(NSData*)inEncaps
+       inEncapsBytes:(void*)inEncapsBytes
+       inEncapsCount:(long)inEncapsCount
                  con:(ICEConnection* _Nullable)con
                 name:(NSString*)name
             category:(NSString*)category

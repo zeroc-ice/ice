@@ -589,18 +589,14 @@
     Ice::OutputStream out(communicator, encoding);
     out.write(_prx);
     std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
-    NSData* bytes = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(p.first)
-                                                 length:p.second - p.first
-                                           freeWhenDone:NO];
-
-    [os copy:bytes];
+    [os copy:const_cast<Ice::Byte*>(p.first) count:static_cast<long>(p.second - p.first)];
 }
 
 -(BOOL) invoke:(NSString* _Nonnull)op
           mode:(uint8_t)mode
       inParams:(NSData*)inParams
        context:(NSDictionary* _Nullable)context
-      response:(void (^_Nullable)(bool, NSData*))response
+      response:(void (^_Nullable)(bool, void*, long))response
          error:(NSError**)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
@@ -626,10 +622,7 @@
                               {
                                   if(response)
                                   {
-                                      NSData* encaps = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(outParams.first)
-                                                                                    length:outParams.second - outParams.first
-                                                                              freeWhenDone:NO];
-                                      response(ok, encaps);
+                                      response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
                                   }
                                   p.set_value();
                               },
@@ -684,7 +677,7 @@
                mode:(uint8_t)mode
            inParams:(NSData*)inParams
             context:(NSDictionary* _Nullable)context
-           response:(void (^)(bool, NSData*))response
+           response:(void (^)(bool, void*, long))response
           exception:(void (^)(NSError*))exception
                sent:(void (^_Nullable)(bool))sent
 {
@@ -703,10 +696,7 @@
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                                             [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                                             {
-                                                NSData* encaps = [[NSData alloc] initWithBytesNoCopy:const_cast<Ice::Byte*>(outParams.first)
-                                                                                              length:outParams.second - outParams.first
-                                                                                        freeWhenDone:NO];
-                                                response(ok, encaps);
+                                                response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
                                             },
                                             [exception](std::exception_ptr e)
                                             {

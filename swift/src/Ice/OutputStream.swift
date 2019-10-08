@@ -569,8 +569,8 @@ public extension OutputStream {
 }
 
 extension OutputStream: ICEOutputStreamHelper {
-    public func copy(_ bytes: Data) {
-        data.append(bytes)
+    public func copy(_ bytes: UnsafeMutableRawPointer, count: Int) {
+        data.append(Data(bytesNoCopy: bytes, count: count, deallocator: .none))
     }
 }
 

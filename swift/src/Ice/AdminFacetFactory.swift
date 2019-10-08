@@ -13,9 +13,19 @@ class AdminFacetFacade: ICEBlobjectFacade {
         self.disp = disp
     }
 
-    func facadeInvoke(_ adapter: ICEObjectAdapter, inEncaps: Data, con: ICEConnection?,
-                      name: String, category: String, facet: String, operation: String, mode: UInt8,
-                      context: [String: String], requestId: Int32, encodingMajor: UInt8, encodingMinor: UInt8,
+    func facadeInvoke(_ adapter: ICEObjectAdapter,
+                      inEncapsBytes: UnsafeMutableRawPointer,
+                      inEncapsCount: Int,
+                      con: ICEConnection?,
+                      name: String,
+                      category: String,
+                      facet: String,
+                      operation: String,
+                      mode: UInt8,
+                      context: [String: String],
+                      requestId: Int32,
+                      encodingMajor: UInt8,
+                      encodingMinor: UInt8,
                       response: @escaping ICEBlobjectResponse,
                       exception: @escaping ICEBlobjectException) {
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
@@ -43,7 +53,8 @@ class AdminFacetFacade: ICEBlobjectFacade {
         let incoming = Incoming(istr: InputStream(communicator: communicator,
                                                   encoding: EncodingVersion(major: encodingMajor,
                                                                             minor: encodingMinor),
-                                                  bytes: inEncaps),
+                                                  bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount,
+                                                              deallocator: .none)),
                                 response: response,
                                 exception: exception,
                                 current: current)
