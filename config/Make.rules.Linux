@@ -18,6 +18,7 @@ supported-platforms            = $(build-platform)
 
 $(build-platform)_cc           = $(CC)
 $(build-platform)_cxx          = $(CXX)
+$(build-platform)_cppflags     = -Wno-psabi
 $(build-platform)_libtool      = $(AR)
 $(build-platform)_targetdir    = $(if $(filter %/build,$5),/$(build-platform))
 $(build-platform)_installdir   =
