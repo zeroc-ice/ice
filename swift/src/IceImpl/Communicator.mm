@@ -51,22 +51,18 @@
 {
     try
     {
-        ICEObjectPrx* prx = [[ICEObjectPrx alloc] initWithCppObjectPrx:self.communicator->stringToProxy(fromNSString(str))];
+        auto prx = self.communicator->stringToProxy(fromNSString(str));
         if(prx)
         {
-            return prx;
+            return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
         }
-        else
-        {
-            return [NSNull null];
-        }
+        return [NSNull null];
     }
     catch(const std::exception& e)
     {
         *error = convertException(e);
+        return nil;
     }
-
-    return nil;
 }
 
 -(nullable id) propertyToProxy:(NSString*)property error:(NSError* _Nullable * _Nullable)error
