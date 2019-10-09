@@ -91,7 +91,10 @@
                                                {
                                                    if(sent)
                                                    {
-                                                       sent(sentSynchronously);
+                                                       @autoreleasepool
+                                                       {
+                                                           sent(sentSynchronously);
+                                                       }
                                                    }
                                                });
     }
@@ -118,7 +121,10 @@
             {
                 ICEConnection* conn = [ICEConnection getHandle:connection];
                 assert(conn);
-                callback(conn);
+                @autoreleasepool
+                {
+                    callback(conn);
+                }
             });
         }
         return YES;
@@ -142,7 +148,10 @@
         {
             ICEConnection* conn = [ICEConnection getHandle:connection];
             assert(conn);
-            callback(conn);
+            @autoreleasepool
+            {
+                callback(conn);
+            }
         });
     }
 }
@@ -174,7 +183,10 @@
                                     {
                                         if(sent)
                                         {
-                                            sent(sentSynchronously);
+                                            @autoreleasepool
+                                            {
+                                                sent(sentSynchronously);
+                                            }
                                         }
                                     });
     }

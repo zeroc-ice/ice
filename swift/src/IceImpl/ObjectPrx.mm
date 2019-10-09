@@ -506,7 +506,10 @@
                                            {
                                                if(sent)
                                                {
-                                                   sent(sentSynchronously);
+                                                   @autoreleasepool
+                                                   {
+                                                       sent(sentSynchronously);
+                                                   }
                                                }
                                            });
     }
@@ -696,17 +699,26 @@
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                                             [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                                             {
-                                                response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
+                                                @autoreleasepool
+                                                {
+                                                    response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
+                                                }
                                             },
                                             [exception](std::exception_ptr e)
                                             {
-                                                exception(convertException(e));
+                                                @autoreleasepool
+                                                {
+                                                    exception(convertException(e));
+                                                }
                                             },
                                             [sent](bool sentSynchronously)
                                             {
                                                 if(sent)
                                                 {
-                                                    sent(sentSynchronously);
+                                                    @autoreleasepool
+                                                    {
+                                                        sent(sentSynchronously);
+                                                    }
                                                 }
                                             },
                               context ? ctx : Ice::noExplicitContext);

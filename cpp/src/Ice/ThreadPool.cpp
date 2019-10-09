@@ -269,7 +269,8 @@ IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
 #ifdef ICE_SWIFT
-    _dispatchQueue(dispatch_queue_create(prefixToDispatchQueueLabel(prefix).c_str(), DISPATCH_QUEUE_CONCURRENT)),
+    _dispatchQueue(dispatch_queue_create(prefixToDispatchQueueLabel(prefix).c_str(),
+                                         DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
 #else
     _dispatcher(_instance->initializationData().dispatcher),
 #endif

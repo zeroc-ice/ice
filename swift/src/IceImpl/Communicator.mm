@@ -221,7 +221,10 @@
                                                {
                                                    if(sent)
                                                    {
-                                                       sent(sentSynchronously);
+                                                       @autoreleasepool
+                                                       {
+                                                           sent(sentSynchronously);
+                                                       }
                                                    }
                                                });
     }
