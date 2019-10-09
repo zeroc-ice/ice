@@ -209,8 +209,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEBlobjectF
                       requestId: Int32,
                       encodingMajor: UInt8,
                       encodingMinor: UInt8,
-                      response: @escaping (Bool, Data) -> Void,
-                      exception: @escaping (ICERuntimeException) -> Void) {
+                      response: @escaping ICEBlobjectResponse,
+                      exception: @escaping ICEBlobjectException) {
         precondition(handle == adapter)
 
         let connection = con?.getSwiftObject(ConnectionI.self) { ConnectionI(handle: con!) } ?? nil

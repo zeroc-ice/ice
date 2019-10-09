@@ -77,7 +77,9 @@ public final class Incoming {
             return
         }
         precondition(ostr != nil, "OutputStream was not set before calling response()")
-        responseCallback(ok, ostr.finished())
+        ostr.finished().withUnsafeBytes {
+            responseCallback(ok, $0.baseAddress!, $0.count)
+        }
     }
 
     public func exception(_ ex: Error) {
@@ -214,7 +216,9 @@ public final class Incoming {
         ostr.startEncapsulation(encoding: current.encoding, format: format)
         ostr.write(e)
         ostr.endEncapsulation()
-        responseCallback(ok, ostr.finished())
+        ostr.finished().withUnsafeBytes {
+            responseCallback(ok, $0.baseAddress!, $0.count)
+        }
     }
 
     func convertException(_ exception: Error) -> ICERuntimeException {
