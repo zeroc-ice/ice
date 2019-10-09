@@ -36,6 +36,24 @@ private func breakCycles(_ value: Value) {
     if let p = value as? CompactPDerived {
         p.pb = nil
     }
+    if let p = value as? PCDerived {
+        let a = p.pbs
+        p.pbs = []
+        for e in a {
+            if let elt = e {
+                breakCycles(elt)
+            }
+        }
+    }
+    if let p = value as? CompactPCDerived {
+        let a = p.pbs
+        p.pbs = []
+        for e in a {
+            if let elt = e {
+                breakCycles(elt)
+            }
+        }
+    }
     if var curr = value as? PNode {
         while curr.next != nil, value !== curr.next {
             curr = curr.next!
@@ -292,6 +310,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             }.done { o in
                 if let unknown = o as? Ice.UnknownSlicedValue {
                     try test(unknown.ice_id() == "::Test::SUnknown")
+                    unknown.ice_getSlicedData()!.clear()
                 } else {
                     try test(false)
                 }
@@ -1371,6 +1390,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(e.pb != nil)
         try test(e.pb!.sb == "sb")
         try test(e.pb!.pb === e.pb)
+        breakCycles(e.pb!)
     }
     output.writeLine("ok")
 
@@ -1414,6 +1434,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(e.pd1!.pb === e.pd1)
         try test(e.pd1!.sd1 == "sd2")
         try test(e.pd1!.pd1 === e.pd1)
+        breakCycles(e.pb!)
+        breakCycles(e.pd1!)
     }
     output.writeLine("ok")
 
@@ -1437,6 +1459,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(e.pd1!.sd1 == "sd2")
                     try test(e.pd1!.pd1 === e.pd1)
                     breakCycles(e.pb!)
+                    breakCycles(e.pd1!)
                 } else {
                     try test(false)
                 }
@@ -1542,6 +1565,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     do {
         let f = try testPrx.useForward()
         try test(f != nil)
+        breakCycles(f!)
     }
     output.writeLine("ok")
 
@@ -1551,6 +1575,7 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             testPrx.useForwardAsync()
         }.done { f in
             try test(f != nil)
+            breakCycles(f!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -1804,17 +1829,16 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
                 try test(!(r is PCDerived))
                 try test(r.pi == 3)
-                breakCycles(r)
             } else {
                 if let p2 = r as? PCDerived {
                     try test(p2.pi == 3)
                     try test(p2.pbs[0] === p2)
-                    breakCycles(r)
-                    breakCycles(p2)
                 } else {
                     try test(false)
                 }
             }
+            breakCycles(r)
+            breakCycles(pcd)
             seal.fulfill(())
         }.catch { e in
             if e is Ice.OperationNotExistException {
@@ -1841,17 +1865,16 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
                 try test(!(r is CompactPCDerived))
                 try test(r.pi == 3)
-                breakCycles(r)
             } else {
                 if let p2 = r as? CompactPCDerived {
                     try test(p2.pi == 3)
                     try test(p2.pbs[0] === p2)
-                    breakCycles(r)
-                    breakCycles(p2)
                 } else {
                     try test(false)
                 }
             }
+            breakCycles(r)
+            breakCycles(pcd)
             seal.fulfill(())
         }.catch { e in
             if e is Ice.OperationNotExistException {
@@ -1891,8 +1914,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(!(r is PCDerived3))
                 try test(r is Preserved)
                 try test(r.pi == 3)
-                breakCycles(r)
-                breakCycles(pcd)
             } else {
                 if let p3 = r as? PCDerived3 {
                     try test(p3.pi == 3)
@@ -1902,8 +1923,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                             try test(p2.pbs.count == 1)
                             try test(p2.pbs[0] == nil)
                             try test(p2.pcd2 == i)
-                            breakCycles(r)
-                            breakCycles(pcd)
                         } else {
                             try test(false)
                         }
@@ -1914,6 +1933,8 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                     try test(false)
                 }
             }
+            breakCycles(r)
+            breakCycles(pcd)
             seal.fulfill(())
         }.catch { e in
             if e is Ice.OperationNotExistException {
