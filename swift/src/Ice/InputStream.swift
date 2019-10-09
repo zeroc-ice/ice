@@ -37,12 +37,12 @@ public class InputStream {
     public required init(communicator: Communicator,
                          encoding: EncodingVersion,
                          bytes: Data) {
+        data = bytes
+        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
         self.communicator = communicator
         self.encoding = encoding
-        data = bytes
-        traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
-        classResolverPrefix = (communicator as! CommunicatorI).initData.classResolverPrefix
+        traceSlicing = (communicator as! CommunicatorI).traceSlicing
     }
 
     /// Reads an encapsulation from the stream.

@@ -10,6 +10,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
     let classGraphDepthMax: Int32
+    let traceSlicing: Bool
 
     init(handle: ICECommunicator, initData: InitializationData) {
         defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
@@ -20,6 +21,8 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         } else {
             classGraphDepthMax = num
         }
+        traceSlicing = initData.properties!.getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
+
         super.init(handle: handle)
     }
 
