@@ -99,7 +99,7 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
           mode:(uint8_t)mode
       inParams:(NSData*)inParams
        context:(NSDictionary* _Nullable)context
-      response:(void (^_Nullable)(bool, void*, long))response
+      response:(void (^)(bool, void*, long))response
          error:(NSError* _Nullable * _Nullable)error;
 
 // Sync invocation on oneway proxy

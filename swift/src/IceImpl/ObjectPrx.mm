@@ -599,7 +599,7 @@
           mode:(uint8_t)mode
       inParams:(NSData*)inParams
        context:(NSDictionary* _Nullable)context
-      response:(void (^_Nullable)(bool, void*, long))response
+      response:(void (^)(bool, void*, long))response
          error:(NSError**)error
 {
     std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
@@ -623,10 +623,7 @@
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                               [response, &p](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                               {
-                                  if(response)
-                                  {
-                                      response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
-                                  }
+                                  response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
                                   p.set_value();
                               },
                               [&p](std::exception_ptr e)
