@@ -7,6 +7,37 @@ import Ice
 import PromiseKit
 import TestCommon
 
+func breakRetainCycleB(_ b: B?) {
+    if let b1 = b {
+        if let b2 = b1.theA as? B {
+            b2.theA = nil
+            b2.theB?.theA = nil
+            b2.theB?.theB = nil
+            b2.theB?.theC = nil
+            b2.theB = nil
+            b2.theC = nil
+            // b2 = nil
+        }
+        b1.theA = nil
+        b1.theB = nil
+        b1.theC = nil
+    }
+}
+
+func breakRetainCycleC(_ c: C?) {
+    if let c1 = c {
+        breakRetainCycleB(c1.theB)
+        c1.theB = nil
+    }
+}
+
+func breakRetainCycleD(_ d: D?) {
+    if let d1 = d {
+        breakRetainCycleB(d1.theA as? B)
+        breakRetainCycleB(d1.theB)
+    }
+}
+
 func allTests(_ helper: TestHelper) throws -> InitialPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
@@ -33,7 +64,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     output.writeLine("ok")
 
     output.write("getting C... ")
-    _ = try initial.getC()!
+    let c = try initial.getC()!
     output.writeLine("ok")
 
     output.write("getting D... ")
@@ -42,17 +73,17 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.write("checking consistency... ")
     try test(b1 !== b2)
-    //test(b1 != c);
-    //test(b1 != d);
-    //test(b2 != c);
-    //test(b2 != d);
-    //test(c != d);
+    //test(b1 != c)
+    //test(b1 != d)
+    //test(b2 != c)
+    //test(b2 != d)
+    //test(c != d)
     try test(b1.theB === b1)
     try test(b1.theC == nil)
     try test(b1.theA is B)
     try test((b1.theA as! B).theA === b1.theA)
     try test((b1.theA as! B).theB === b1)
-    //test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
+    //test(((B)b1.theA).theC is C) // Redundant -- theC is always of type C
     try test((b1.theA as! B).theC!.theB === b1.theA)
     try test(b1.preMarshalInvoked)
     try test(b1.postUnmarshalInvoked)
@@ -65,6 +96,12 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     // sufficient.
     try test(b2.theA === b2)
     try test(d.theC === nil)
+
+    breakRetainCycleB(b1)
+    breakRetainCycleB(b2)
+    breakRetainCycleC(c)
+    breakRetainCycleD(d)
+
     output.writeLine("ok")
 
     output.write("getting B1, B2, C, and D all at once... ")
@@ -95,6 +132,12 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(dout!.theB!.postUnmarshalInvoked)
     try test(dout!.theB!.theC!.preMarshalInvoked)
     try test(dout!.theB!.theC!.postUnmarshalInvoked)
+
+    breakRetainCycleB(b1out)
+    breakRetainCycleB(b2out)
+    breakRetainCycleC(cout)
+    breakRetainCycleD(dout)
+
     output.writeLine("ok")
 
     output.write("getting I, J and H... ")
@@ -208,8 +251,10 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     output.write("testing marshaled results...")
     b1 = try initial.getMB()!
     try test(b1.theB === b1)
+    breakRetainCycleB(b1)
     b1 = try initial.getAMDMBAsync().wait()!
     try test(b1.theB === b1)
+    breakRetainCycleB(b1)
     output.writeLine("ok")
 
     output.write("testing UnexpectedObjectException...")

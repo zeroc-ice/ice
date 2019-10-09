@@ -1064,7 +1064,7 @@ private class InstanceData {
     lazy var indirectionMap = [ValueHolder: Int32]()
 
     let previous: InstanceData?
-    var next: InstanceData?
+    weak var next: InstanceData?
 
     init(previous: InstanceData?) {
         self.previous = previous

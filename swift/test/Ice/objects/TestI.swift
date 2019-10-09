@@ -198,6 +198,19 @@ class InitialI: Initial {
     }
 
     func shutdown(current _: Ice.Current) throws {
+        _b1.theA = nil // Break cyclic reference.
+        _b1.theB = nil // Break cyclic reference.
+
+        _b2.theA = nil // Break cyclic reference.
+        _b2.theB = nil // Break cyclic reference.
+        _b2.theC = nil // Break cyclic reference.
+
+        _c.theB = nil // Break cyclic reference.
+
+        _d.theA = nil // Break cyclic reference.
+        _d.theB = nil // Break cyclic reference.
+        _d.theC = nil // Break cyclic reference.
+
         _adapter.getCommunicator().shutdown()
     }
 
@@ -247,8 +260,7 @@ class InitialI: Initial {
 }
 
 class F2I: F2 {
-    func op(current _: Current) throws {
-    }
+    func op(current _: Current) throws {}
 }
 
 class UnexpectedObjectExceptionTestI: Ice.Blobject {

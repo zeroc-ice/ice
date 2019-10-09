@@ -1363,7 +1363,7 @@ private class EncapsDecoder11: EncapsDecoder {
         lazy var indirectPatchList = [IndirectPatchEntry]()
 
         let previous: InstanceData?
-        var next: InstanceData?
+        weak var next: InstanceData?
 
         init(previous: InstanceData?) {
             self.previous = previous
