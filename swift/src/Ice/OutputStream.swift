@@ -569,7 +569,7 @@ public extension OutputStream {
 }
 
 extension OutputStream: ICEOutputStreamHelper {
-    public func copy(_ bytes: UnsafeMutableRawPointer, count: Int) {
+    public func copy(_ bytes: UnsafeRawPointer, count: Int) {
         data.append(bytes.assumingMemoryBound(to: UInt8.self), count: count)
     }
 }

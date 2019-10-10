@@ -592,7 +592,7 @@
     Ice::OutputStream out(communicator, encoding);
     out.write(_prx);
     std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
-    [os copy:const_cast<Ice::Byte*>(p.first) count:static_cast<long>(p.second - p.first)];
+    [os copy:p.first count:static_cast<long>(p.second - p.first)];
 }
 
 -(BOOL) invoke:(NSString* _Nonnull)op
