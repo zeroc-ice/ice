@@ -206,8 +206,7 @@ local interface Communicator
      * @return The property set.
      *
      **/
-    ["cpp:const", "swift:noexcept", "swift:nonnull"] PropertyDict proxyToProperty(["swift:nonnull"] Object* proxy,
-                                                                                  string property);
+    ["cpp:const", "swift:noexcept"] PropertyDict proxyToProperty(["swift:nonnull"] Object* proxy, string property);
 
 #ifndef __SLICE2SWIFT__
     /**

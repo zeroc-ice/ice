@@ -106,7 +106,7 @@ protected:
     std::string modeToString(Operation::Mode);
     std::string getOptionalFormat(const TypePtr&);
 
-    bool isNullableType(const TypePtr&);
+    static bool isNullableType(const TypePtr&);
     bool isProxyType(const TypePtr&);
     bool isClassType(const TypePtr&);
 
@@ -152,6 +152,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -161,7 +162,10 @@ private:
 
     private:
 
-        void validate(const ContainedPtr&);
+        StringList validate(const SyntaxTreeBasePtr&, const StringList&,
+                            const std::string&, const std::string&,
+                            bool local = false,
+                            bool operationParameter = false);
 
         typedef std::map<std::string, std::string> ModuleMap;
         typedef std::map<std::string, ModuleMap> ModulePrefix;

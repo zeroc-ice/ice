@@ -1895,18 +1895,17 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(UnitPtr::dynamicCast(p->container()))
     {
+        // top-level module
         const UnitPtr ut = p->unit();
         const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
         assert(dc);
 
-        // top-level module
-        ModulePtr m = ModulePtr::dynamicCast(p);
         const string modulePrefix = "swift:module:";
 
         string swiftModule;
         string swiftPrefix;
 
-        if(m->findMetaData(modulePrefix, swiftModule))
+        if(p->findMetaData(modulePrefix, swiftModule))
         {
             swiftModule = swiftModule.substr(modulePrefix.size());
 
@@ -1919,10 +1918,10 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
         }
         else
         {
-            swiftModule = m->name();
+            swiftModule = p->name();
         }
 
-        const string filename = m->definitionContext()->filename();
+        const string filename = p->definitionContext()->filename();
         ModuleMap::const_iterator current = _modules.find(filename);
 
         if(current == _modules.end())
@@ -1932,7 +1931,7 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
         else if(current->second != swiftModule)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module `" << m->scoped() << "' should be map to Swift module `"
+            os << "invalid module mapping:\n Slice module `" << p->scoped() << "' should be map to Swift module `"
                << current->second << "'" << endl;
             dc->error(p->file(), p->line(), os.str());
         }
@@ -1954,7 +1953,7 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
             else if(current->second != swiftPrefix)
             {
                 ostringstream os;
-                os << "invalid module prefix:\n Slice module `" << m->scoped() << "' is already using";
+                os << "invalid module prefix:\n Slice module `" << p->scoped() << "' is already using";
                 if(current->second.empty())
                 {
                     os << " no prefix " << endl;
@@ -1967,6 +1966,7 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
             }
         }
     }
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     return true;
 }
 
@@ -2819,49 +2819,195 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
 bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    DataMemberList members = p->dataMembers();
+    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    {
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+    }
     return true;
+}
+
+void
+SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    StringList metaData = p->getMetaData();
+
+    const UnitPtr ut = p->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
+    assert(dc);
+
+    if(!cl->isLocal())
+    {
+        for(StringList::iterator q = metaData.begin(); q != metaData.end();)
+        {
+            string s = *q++;
+            if(s.find("swift:attribute:") == 0 ||
+               s.find("swift:type:") == 0 ||
+               s == "swift:noexcept" ||
+               s == "swift:nonnull")
+            {
+                dc->warning(InvalidMetaData, p->file(), p->line(),
+                            "ignoring metadata `" + s + "' for non local operation");
+                metaData.remove(s);
+            }
+        }
+    }
+    p->setMetaData(validate(p, metaData, p->file(), p->line(), cl->isLocal()));
+    ParamDeclList params = p->parameters();
+    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    {
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), cl->isLocal(), true));
+    }
 }
 
 bool
 SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    DataMemberList members = p->dataMembers();
+    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    {
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+    }
     return true;
 }
 
 bool
 SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    DataMemberList members = p->dataMembers();
+    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    {
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+    }
     return true;
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
-    validate(p);
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
-void
-SwiftGenerator::MetaDataVisitor::validate(const ContainedPtr&)
+StringList
+SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData,
+                                          const string& file, const string& line,
+                                          bool local,
+                                          bool operationParameter)
 {
+    StringList newMetaData = metaData;
+    const string prefix = "swift:";
+    const UnitPtr ut = cont->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
+    assert(dc);
+    for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
+    {
+        string s = *p++;
+        if(s.find(prefix) == string::npos)
+        {
+            continue;
+        }
+
+        if(ModulePtr::dynamicCast(cont) && s.find("swift:module:") == 0)
+        {
+            continue;
+        }
+
+        if(local)
+        {
+            OperationPtr op = OperationPtr::dynamicCast(cont);
+            if(op)
+            {
+                if(s == "swift:noexcept")
+                {
+                    continue;
+                }
+
+                if(s == "swift:nonnull")
+                {
+                    TypePtr returnType = op->returnType();
+                    if(!returnType)
+                    {
+                        dc->warning(InvalidMetaData, file, line,
+                                    "ignoring invalid metadata `" + s + "' for operation with void return type");
+                        newMetaData.remove(s);
+                    }
+                    else if(!isNullableType(returnType))
+                    {
+                        dc->warning(InvalidMetaData, file, line,
+                                    "ignoring invalid metadata `" + s + "' for operation with non nullable return type");
+                        newMetaData.remove(s);
+                    }
+                    continue;
+                }
+            }
+
+            if(operationParameter && s == "swift:nonnull")
+            {
+                if(!isNullableType(TypePtr::dynamicCast(cont)))
+                {
+                     dc->warning(InvalidMetaData, file, line,
+                                 "ignoring invalid metadata `swift:nonnull' for non nullable type");
+                     newMetaData.remove(s);
+                }
+                continue;
+            }
+
+            if(s.find("swift:type:") == 0)
+            {
+                continue;
+            }
+
+            SequencePtr seq =  SequencePtr::dynamicCast(cont);
+            if(seq && s == "swift:nonnull")
+            {
+                if(!isNullableType(seq->type()))
+                {
+                    dc->warning(InvalidMetaData, file, line,
+                                "ignoring invalid metadata `" + s + "' for sequence of non nullable type");
+                    newMetaData.remove(s);
+                }
+                continue;
+            }
+        }
+
+        if(ClassDefPtr::dynamicCast(cont) && s.find("swift:inherits:") == 0)
+        {
+            continue;
+        }
+
+        if((ClassDefPtr::dynamicCast(cont) ||
+            EnumPtr::dynamicCast(cont) ||
+            ExceptionPtr::dynamicCast(cont) ||
+            OperationPtr::dynamicCast(cont)) && s.find("swift:attribute:") == 0)
+        {
+            continue;
+        }
+
+        dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
+        newMetaData.remove(s);
+        continue;
+    }
+    return newMetaData;
 }
