@@ -2895,6 +2895,54 @@ SwiftGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 void
 SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    const string prefix = "swift:";
+    const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
+    assert(dc);
+
+    StringList newMetaData = p->keyMetaData();
+    for(StringList::const_iterator q = newMetaData.begin(); q != newMetaData.end();)
+    {
+        string s = *q++;
+        if(s.find(prefix) != 0)
+        {
+            continue;
+        }
+
+        if(p->isLocal() && s.find("swift:type:" == 0))
+        {
+            continue;
+        }
+
+        dc->error(p->file(), p->line(), "invalid metadata `" + s + "' for dictionary key type");
+    }
+
+    newMetaData = p->valueMetaData();
+    TypePtr t = p->valueType();
+    for(StringList::const_iterator q = newMetaData.begin(); q != newMetaData.end();)
+    {
+        string s = *q++;
+        if(s.find(prefix) != 0)
+        {
+            continue;
+        }
+
+        if(p->isLocal() && s.find("swift:type:" == 0))
+        {
+            continue;
+        }
+
+        if(p->isLocal() && s == "swift:nonnull")
+        {
+            if(!isNullableType(t))
+            {
+                dc->error(p->file(), p->line(), "error invalid metadata `" + s + "' for non nullable value type");
+            }
+            continue;
+        }
+
+        dc->error(p->file(), p->line(), "error invalid metadata `" + s + "' for dictionary value type");
+    }
+
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
 }
 
@@ -2924,7 +2972,7 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
     for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
     {
         string s = *p++;
-        if(s.find(prefix) == string::npos)
+        if(s.find(prefix) != 0)
         {
             continue;
         }
