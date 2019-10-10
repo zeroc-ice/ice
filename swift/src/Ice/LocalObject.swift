@@ -34,13 +34,10 @@ extension ICELocalObject {
     }
 
     //
-    // as returns the Swift object holding a handle to this ICELocalObject
+    // getCachedSwiftObject returns the Swift object holding a handle to this ICELocalObject
     //
     func getCachedSwiftObject<Handle, LocalObjectClass>(_: LocalObjectClass.Type) -> LocalObjectClass
         where Handle: ICELocalObject, LocalObjectClass: LocalObject<Handle> {
-        objc_sync_enter(LocalObject.self)
-        defer { objc_sync_exit(LocalObject.self) }
-
         guard let swiftClass = swiftRef else {
             preconditionFailure("swiftRef is nil")
         }
