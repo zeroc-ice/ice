@@ -457,11 +457,17 @@
             [response]
             (std::shared_ptr<Ice::Connection> cppConnection)
             {
-                response([ICEConnection getHandle:cppConnection]);
+                @autoreleasepool
+                {
+                    response([ICEConnection getHandle:cppConnection]);
+                }
             },
             [exception](std::exception_ptr e)
             {
-                exception(convertException(e));
+                @autoreleasepool
+                {
+                    exception(convertException(e));
+                }
             });
     }
     catch(const std::exception& ex)
@@ -500,16 +506,16 @@
     {
         _prx->ice_flushBatchRequestsAsync([exception](std::exception_ptr e)
                                            {
-                                               exception(convertException(e));
+                                               @autoreleasepool
+                                               {
+                                                    exception(convertException(e));
+                                               }
                                            },
                                            [sent](bool sentSynchronously)
                                            {
                                                if(sent)
                                                {
-                                                   @autoreleasepool
-                                                   {
-                                                       sent(sentSynchronously);
-                                                   }
+                                                    sent(sentSynchronously);
                                                }
                                            });
     }
@@ -723,10 +729,7 @@
                                             {
                                                 if(sent)
                                                 {
-                                                    @autoreleasepool
-                                                    {
-                                                        sent(sentSynchronously);
-                                                    }
+                                                    sent(sentSynchronously);
                                                 }
                                             },
                               context ? ctx : Ice::noExplicitContext);

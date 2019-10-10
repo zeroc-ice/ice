@@ -31,12 +31,18 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
 func createSentCallback(sentOn: DispatchQueue?,
                         sentFlags: DispatchWorkItemFlags?,
                         sent: ((Bool) -> Void)?) -> ((Bool) -> Void)? {
-    guard let s = sent, let q = sentOn else {
-        //
-        // This is either a nil sent callback or a sent callback that is dispatch
-        // directly without a queue
-        //
+    guard let s = sent else {
+        // If sent is nil, we keep it as-is
         return sent
+    }
+
+    guard let q = sentOn else {
+        // If sentOn is nil, we just wrap sent in an autorelease pool
+        return { sentSynchronously in
+            autoreleasepool {
+                s(sentSynchronously)
+            }
+        }
     }
 
     //

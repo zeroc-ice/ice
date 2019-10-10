@@ -215,16 +215,16 @@
         self.communicator->flushBatchRequestsAsync(Ice::CompressBatch(compress),
                                                [exception](std::exception_ptr e)
                                                {
-                                                   exception(convertException(e));
+                                                   @autoreleasepool
+                                                   {
+                                                       exception(convertException(e));
+                                                   }
                                                },
                                                [sent](bool sentSynchronously)
                                                {
                                                    if(sent)
                                                    {
-                                                       @autoreleasepool
-                                                       {
-                                                           sent(sentSynchronously);
-                                                       }
+                                                       sent(sentSynchronously);
                                                    }
                                                });
     }
