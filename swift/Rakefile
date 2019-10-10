@@ -86,34 +86,19 @@ $test_resources = {
 
 desc "Generate Xcode projects required to build Ice for Swift"
 task :icesdistproj do
-    project = Xcodeproj::Project.new("ice.xcodeproj")
-
-    [:osx, :ios].each do |platform|
-        create_platform_targets(project, platform, false)
-    end
-
-    attributes = project.root_object.attributes
-    attributes["TargetAttributes"] ||= {}
-    project.targets.each do |target|
-        attributes["TargetAttributes"][target.uuid] ||= {}
-        attributes["TargetAttributes"][target.uuid]["ProvisioningStyle"] = "Automatic"
-    end
-    project.root_object.development_region = "en"
-    project.root_object.known_regions = ["Base", "en"]
-
-    #
-    # Sort the project and save it
-    #
-    project.sort({:groups_position => :above})
-    project.save()
+    create_project("ice.xcodeproj", false)
 end
 
 desc "Generate Xcode projects required to build Ice for Swift test with Carthage binary dist"
 task :icebdistproj do
-    project = Xcodeproj::Project.new("ice-test.xcodeproj")
+    create_project("ice-test.xcodeproj", true)
+end
+
+def create_project(name, bindist)
+    project = Xcodeproj::Project.new(name)
 
     [:osx, :ios].each do |platform|
-        create_platform_targets(project, platform, true)
+        create_platform_targets(project, platform, bindist)
     end
 
     attributes = project.root_object.attributes
@@ -199,8 +184,7 @@ def create_platform_targets(project, platform, bindist)
                     target.add_dependency(ice_cpp_target)
                 end
             }
-            target_set_common_build_settings(target, "#{component}++11#{platform_name}")
-            target_set_deployment_target(target, platform)
+            target_set_common_build_settings(target, "#{component}++11#{platform_name}", platform)
 
             source_dirs = cpp_source_dirs[component] || [component]
             source_dirs.each do |d|
@@ -224,8 +208,10 @@ def create_platform_targets(project, platform, bindist)
                            excludes: ["Convert.h", "LoggerWrapperI.h"],
                            attributes: ["Public"])
 
-        target_set_common_build_settings(target, "IceImpl", plist: "src/IceImpl/Info.plist")
-        target_set_deployment_target(target, platform)
+        target_add_headers(target, group, "src/IceImpl", ["Convert.h", "LoggerWrapperI.h"],
+                           attributes: ["Private"])
+
+        target_set_common_build_settings(target, "IceImpl", platform, plist: "src/IceImpl/Info.plist")
 
         #
         # IceImpl depends on Ice for C++ frameworks
@@ -274,8 +260,7 @@ def create_platform_targets(project, platform, bindist)
         target.frameworks_build_phases.clear()
         target.frameworks_build_phases.add_file_reference(iceimpl_target.product_reference, true)
 
-        target_set_common_build_settings(target, "Ice", plist: "src/Ice/Info.plist", swift: true)
-        target_set_deployment_target(target, platform)
+        target_set_common_build_settings(target, "Ice", platform, plist: "src/Ice/Info.plist", swift: true)
 
         target.build_configurations.each { |config|
             config.build_settings["DEFINES_MODULE"] = "YES"
@@ -323,8 +308,8 @@ def create_platform_targets(project, platform, bindist)
 
             target.frameworks_build_phases.clear()
 
-            target_set_common_build_settings(target, framework, plist: "src/#{framework}/Info.plist", swift: true)
-            target_set_deployment_target(target, platform)
+            target_set_common_build_settings(target, framework, platform, plist: "src/#{framework}/Info.plist",
+                                             swift: true)
 
             target.build_configurations.each { |config|
                 config.build_settings["DEFINES_MODULE"] = "YES"
@@ -374,18 +359,19 @@ def create_platform_targets(project, platform, bindist)
     group = project_group(project, "test/TestCommon")
     group_add_files(group, "test/TestCommon", ["*.plist"])
     target_add_files(target, group, "test/TestCommon", ["*.ice", "*.swift"])
-    target_set_common_build_settings(target, "TestCommon",
+    target_set_common_build_settings(target, "TestCommon", platform,
                                      plist: "test/TestCommon/Info.plist",
                                      swift: true)
-    target_set_deployment_target(target, platform)
 
+    #
+    # TestDriver app
+    #
     target = project.new_target(:application, "TestDriver", platform)
     target.name = "#{target.name} #{platform_name}"
-    target_set_common_build_settings(target, "TestDriver",
+    target_set_common_build_settings(target, "TestDriver", platform,
                                      plist: "test/TestDriver/#{platform_name}/Info.plist",
                                      swift: true,
                                      identifier: "com.zeroc.Swift-Test-Controller")
-    target_set_deployment_target(target, platform)
     target_add_slice2swift_build_rule(project, target)
     target_add_swiftlint_build_phase(target, "test/TestDriver")
 
@@ -460,7 +446,6 @@ def create_platform_targets(project, platform, bindist)
         end
 
         target_set_framework_build_settings(target)
-        target_set_deployment_target(target, platform)
         target.build_configurations.each { |config|
             config.build_settings["ENABLE_BITCODE"] = "NO"
         }
@@ -486,7 +471,8 @@ def create_platform_targets(project, platform, bindist)
             target.add_resources(group_add_files(group, "test/#{test}", $test_resources[test]))
         end
 
-        target_set_common_build_settings(target, target_name("#{test}"), plist: "test/TestCommon/Info.plist",
+        target_set_common_build_settings(target, target_name("#{test}"), platform,
+                                         plist: "test/TestCommon/Info.plist",
                                          swift: true)
         test_driver_target.add_dependency(target)
 
@@ -527,7 +513,6 @@ def create_platform_targets(project, platform, bindist)
             target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
 
             target_set_framework_build_settings(target)
-            target_set_deployment_target(target, platform)
             target.build_configurations.each { |config|
                 config.build_settings["ENABLE_BITCODE"] = "NO"
             }
@@ -544,7 +529,8 @@ def create_platform_targets(project, platform, bindist)
 
             target_add_files(target, group, "test/#{test}", test_variant_sources(test, "ServerAMD"),
                              ["Test.ice", "Client*.ice"])
-            target_set_common_build_settings(target, target_name("#{test}AMD"), plist: "test/TestCommon/Info.plist",
+            target_set_common_build_settings(target, target_name("#{test}AMD"), platform,
+                                             plist: "test/TestCommon/Info.plist",
                                              swift: true)
             test_driver_target.add_dependency(target)
 
@@ -698,25 +684,13 @@ end
 
 def target_add_headers(target, group, basedir, patterns, excludes: [], attributes: ["Public"])
     files = group_add_files(group, basedir, patterns, excludes)
-    if attributes.include? "Public" then
-        files.each do |file|
-            header = target.headers_build_phase.add_file_reference(file)
-            header.settings = { "ATTRIBUTES" => attributes }
-        end
+    files.each do |file|
+        header = target.headers_build_phase.add_file_reference(file)
+        header.settings = { "ATTRIBUTES" => attributes }
     end
 end
 
-def target_set_deployment_target(target, platform)
-    target.build_configurations.each { |config|
-        if platform == :osx
-            config.build_settings["MACOSX_DEPLOYMENT_TARGET"] = $macOSDeploymentTarget
-        else
-            config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = $iOSDeploymentTarget
-        end
-    }
-end
-
-def target_set_common_build_settings(target, product, plist: nil, swift: false, identifier: nil)
+def target_set_common_build_settings(target, product, platform, plist: nil, swift: false, identifier: nil)
     target.build_configurations.each { |config|
         config.build_settings["GCC_SYMBOLS_PRIVATE_EXTERN"] = "YES"
         config.build_settings["ENABLE_TESTABILITY"] = "NO"
@@ -742,6 +716,12 @@ def target_set_common_build_settings(target, product, plist: nil, swift: false, 
             (target.name.include? "macOS") ? "macosx" : "iphoneos iphonesimulator"
 
         config.build_settings["CODE_SIGN_IDENTITY"] = "-"
+
+        if platform == :osx
+            config.build_settings["MACOSX_DEPLOYMENT_TARGET"] = $macOSDeploymentTarget
+        else
+            config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = $iOSDeploymentTarget
+        end
     }
 end
 
