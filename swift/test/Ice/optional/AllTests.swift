@@ -168,7 +168,7 @@ class FactoryI {
         case C.ice_staticId():
             return CValueReader()
         case "::Test::D":
-            return DValueReader(helper: _helper)
+            return DValueReader(helper: _helper!)
         case "::Test::F":
             return FValueReader()
         default:
@@ -180,8 +180,12 @@ class FactoryI {
         _enabled = enabled
     }
 
+    func destroy() {
+        _helper = nil
+    }
+
     var _enabled: Bool
-    let _helper: TestHelper
+    var _helper: TestHelper?
 }
 
 func allTests(_ helper: TestHelper) throws -> InitialPrx {
@@ -3311,6 +3315,8 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.o2!.a == 53)
     }
     output.writeLine("ok")
+
+    factory.destroy() // Break cycle with helper
 
     return initial
 }
