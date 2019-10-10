@@ -591,7 +591,7 @@
     Ice::EncodingVersion encoding { encodingMajor, encodingMinor };
     Ice::OutputStream out(communicator, encoding);
     out.write(_prx);
-    std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
+    auto p = out.finished();
     [os copy:p.first count:static_cast<long>(p.second - p.first)];
 }
 
@@ -623,7 +623,13 @@
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                               [response, &p](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                               {
-                                  response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
+                                  // We need an autorelease pool as the unmarshaling (in the response) can
+                                  // create autorelease objects, typically when unmarshaling proxies
+                                  @autoreleasepool
+                                  {
+                                      response(ok, const_cast<Ice::Byte*>(outParams.first),
+                                               static_cast<long>(outParams.second - outParams.first));
+                                  }
                                   p.set_value();
                               },
                               [&p](std::exception_ptr e)
@@ -696,9 +702,14 @@
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
                                             [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
                                             {
+                                                // We need an autorelease pool in case the unmarshaling creates auto
+                                                // release objects, and in case the application attaches a handler to
+                                                // the promise that runs on nil (= the Ice thread/dispatch queue that
+                                                // executes response)
                                                 @autoreleasepool
                                                 {
-                                                    response(ok, const_cast<Ice::Byte*>(outParams.first), static_cast<long>(outParams.second - outParams.first));
+                                                    response(ok, const_cast<Ice::Byte*>(outParams.first),
+                                                             static_cast<long>(outParams.second - outParams.first));
                                                 }
                                             },
                                             [exception](std::exception_ptr e)
