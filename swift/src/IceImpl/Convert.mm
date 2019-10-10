@@ -8,7 +8,7 @@
 #import "Convert.h"
 
 NSError*
-convertException(const std::exception_ptr& excPtr)
+convertException(std::exception_ptr excPtr)
 {
     try
     {

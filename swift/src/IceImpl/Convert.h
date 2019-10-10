@@ -16,7 +16,7 @@ namespace IceSSL
     class Certificate;
 }
 
-NSError* convertException(const std::exception_ptr&);
+NSError* convertException(std::exception_ptr);
 NSError* convertException(const std::exception&);
 std::exception_ptr convertException(ICERuntimeException*);
 
