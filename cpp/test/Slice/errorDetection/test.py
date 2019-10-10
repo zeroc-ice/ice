@@ -49,7 +49,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                     else:
                         current.writeln("ok")
 
-            for language in ["cpp", "cs", "html", "java", "js", "matlab", "objc", "php", "py", "rb"]:
+            for language in ["cpp", "cs", "html", "java", "js", "matlab", "objc", "php", "py", "rb", "swift"]:
                 compiler = SliceTranslator('slice2%s' % language)
                 if not os.path.isfile(compiler.getCommandLine(current)):
                     continue
