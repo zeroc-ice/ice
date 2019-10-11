@@ -2908,7 +2908,7 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
             continue;
         }
 
-        if(p->isLocal() && s.find("swift:type:" == 0))
+        if(p->isLocal() && s.find("swift:type:") == 0)
         {
             continue;
         }
@@ -2926,7 +2926,7 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
             continue;
         }
 
-        if(p->isLocal() && s.find("swift:type:" == 0))
+        if(p->isLocal() && s.find("swift:type:") == 0)
         {
             continue;
         }
