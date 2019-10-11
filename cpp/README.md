@@ -259,8 +259,8 @@ environment variables:
 
 ### Build Using Visual Studio
 
-Open the Visual Studio solution that corresponds to the Visual Studio version you
-are using.
+Open the Visual Studio solution that corresponds to the Visual Studio version
+you are using.
 
  - For Visual Studio 2019 use [msbuild/ice.v142.sln](./msbuild/ice.v142.sln)
  - For Visual Studio 2017 use [msbuild/ice.v141.sln](./msbuild/ice.v141.sln)
@@ -268,22 +268,24 @@ are using.
  - For Visual Studio 2013 use [msbuild/ice.v120.sln](./msbuild/ice.v120.sln)
  - For Visual Studio 2010 use [msbuild/ice.v100.sln](./msbuild/ice.v100.sln)
 
-Restore the solution NuGet packages using the NuGet package manager, if the automatic
-download of packages during build is not enabled.
+Restore the solution NuGet packages using the NuGet package manager, if the
+automatic download of packages during build is not enabled.
 
-Using the configuration manager choose the platform and configuration you want to build.
+Using the configuration manager choose the platform and configuration you want
+to build.
 
-The solution provide a project for each Ice component and each component can be built
-separatelly. When you build a component its dependencies are built automatically.
+The solution provide a project for each Ice component and each component can be
+built separatelly. When you build a component its dependencies are built
+automatically.
 
-For Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015, the solutions organize
-the projects in two solution folders, C++11 and C++98, which correspond to the C++11 and
-C++98 mappings. If you want to build all the C++11 mapping components, build the C++11
-solution folder; likewise if you want to build all the C++98 mapping components, build
-the C++98 solution folder.
+For Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015, the solutions
+organize the projects in two solution folders, C++11 and C++98, which correspond
+to the C++11 and C++98 mappings. If you want to build all the C++11 mapping
+components, build the C++11 solution folder; likewise if you want to build all
+the C++98 mapping components, build the C++98 solution folder.
 
-For Visual Studio 2013 and Visual Studio 2010. there is no separate solution folder because
-only the C++98 mapping is supported with these compilers.
+For Visual Studio 2013 and Visual Studio 2010. there is no separate solution
+folder because only the C++98 mapping is supported with these compilers.
 
 The test suite is built using separate Visual Studio solutions:
 
@@ -291,30 +293,34 @@ The test suite is built using separate Visual Studio solutions:
  - Ice Test Suite for Visual Studio 2010 [msbuild/ice.test.v100.sln](./msbuild/ice.test.v100.sln)
  - Ice OpenSSL Test Suite for Visual Studio 2019, Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
-The solution provides a separate project for each test component, the `Cpp11-Release` and `Cpp11-Debug` build
-configurations are setup to use the C++11 mapping in release and debug mode respectively, and are only supported
-with Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015. The `Release` and `Debug` build configurations are setup to
-use the C++98 mapping in release and debug mode respectively.
+The solution provides a separate project for each test component, the
+`Cpp11-Release` and `Cpp11-Debug` build configurations are setup to use the
+C++11 mapping in release and debug mode respectively, and are only supported
+with Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015. The
+`Release` and `Debug` build configurations are setup to use the C++98 mapping in
+release and debug mode respectively.
 
-The building of the test uses by default the local source build, and you must have built the Ice
-source with the same platform and configuration than you are attemping to build the tests.
+The building of the test uses by default the local source build, and you must
+have built the Ice source with the same platform and configuration than you are
+attemping to build the tests.
 
-For example to build the `Cpp11-Release/x64` tests you must have built first the C++11 mapping
-using `Release/x64`.
+For example to build the `Cpp11-Release/x64` tests you must have built first the
+C++11 mapping using `Release/x64`.
 
-It is also possible to build the tests using a C++ binary distribution, to do that you must
-set the `ICE_BIN_DIST` environment variable to `all` before starting Visual Studio.
+It is also possible to build the tests using a C++ binary distribution, to do
+that you must set the `ICE_BIN_DIST` environment variable to `all` before
+starting Visual Studio.
 
-Then launch Visual Studio and open the desired test solution, you must now use NuGet package
-manager to restore the NuGet packages, and the build will use Ice NuGet packages instead of
-your local source build.
+Then launch Visual Studio and open the desired test solution, you must now use
+NuGet package manager to restore the NuGet packages, and the build will use Ice
+NuGet packages instead of your local source build.
 
 ## Building Ice for Universal Windows (UWP)
 
 ### Build Using MSBuild
 
-The steps are the same as for Building Ice for Windows above, except you must also
-use a `UWP` target.
+The steps are the same as for Building Ice for Windows above, except you must
+also use a `UWP` target.
 
 To build Ice for UWP:
 ```
@@ -333,26 +339,33 @@ msbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
 
 ### Build Using Visual Studio
 
-Before building Ice for UWP using Visual Studio you must build the slice2cpp compiler
-from the C++98 mapping, refer to [Building Ice for Windows](#building-ice-for-windows).
+Before building Ice for UWP using Visual Studio you must build the slice2cpp
+compiler from the C++98 mapping, refer to [Building Ice for
+Windows](#building-ice-for-windows).
 
-Using either Visual Studio 2017 or Visual Studio 2015, open the [msbuild/ice.uwp.sln](./msbuild/ice.uwp.sln)
+Using either Visual Studio 2017 or Visual Studio 2015, open the
+[msbuild/ice.uwp.sln](./msbuild/ice.uwp.sln)
 
-Choose the platform and configuration you want to build using the configuration manager.
+Choose the platform and configuration you want to build using the configuration
+manager.
 
-The solution provides a project for each Ice component and each component can be built
-separately. When you build a component, its dependencies are built automatically.
+The solution provides a project for each Ice component and each component can be
+built separately. When you build a component, its dependencies are built
+automatically.
 
-The test suite is built using a separate Visual Studio solution [msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln).
-This solution includes a project for each test and a project for the UWP test controller
-required to run the test suite.
+The test suite is built using a separate Visual Studio solution
+[msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln). This solution includes a
+project for each test and a project for the UWP test controller required to run
+the test suite.
 
-It is also possible to build the tests using a C++ binary distribution, to do that you must
-set `ICE_BIN_DIST` environment variable to `all` before starting Visual Studio.
+It is also possible to build the tests using a C++ binary distribution, to do
+that you must set `ICE_BIN_DIST` environment variable to `all` before starting
+Visual Studio.
 
-Then launch Visual Studio and open the [msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln) solution,
-you must now use NuGet package manager to restore the NuGet packages, and the build will use
-Ice NuGet packages instead of your local source build.
+Then launch Visual Studio and open the
+[msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln) solution, you must now use
+NuGet package manager to restore the NuGet packages, and the build will use Ice
+NuGet packages instead of your local source build.
 
 ## Installing a C++ Source Build on AIX, Linux or macOS
 
@@ -365,7 +378,8 @@ After installation, make sure that the `<prefix>/bin` directory is in your
 If you choose to not embed a `runpath` into executables at build time (see your
 build settings in `../config/Make.rules`) or did not create a symbolic link from
 the `runpath` directory to the installation directory, you also need to add the
-library directory to your `LD_LIBRARY_PATH` (AIX, Linux) or `DYLD_LIBRARY_PATH` (macOS).
+library directory to your `LD_LIBRARY_PATH` (AIX, Linux) or `DYLD_LIBRARY_PATH`
+(macOS).
 
 On an AIX system:
 <prefix>/lib
@@ -506,7 +520,8 @@ python allTests.py --config=xcodesdk --platform=iphoneos
 python allTests.py --config=cpp11-xcodesdk --platform=iphoneos
 ```
 
-All the test clients and servers run on the iOS device, not on your Mac computer.
+All the test clients and servers run on the iOS device, not on your Mac
+computer.
 
 ### Universal Windows
 

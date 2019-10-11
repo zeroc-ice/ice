@@ -38,12 +38,6 @@ ruby-libs (RHEL)
 The instructions for compiling the Ice extension assume that you have already
 installed Ruby.
 
-If you installed Ruby in a non-standard location, set the `RUBY_HOME`
-environment variable to the installation directory. For example:
-```
-export RUBY_HOME=/opt/ruby
-```
-
 The build of Ice for Ruby requires that you first build Ice for C++ in the
 `cpp` subdirectory.
 
@@ -68,7 +62,8 @@ This process uses the `prefix` variable in `../config/Make.rules` as the
 installation's root directory. The subdirectory `<prefix>/ruby` is created as a
 copy of the local `ruby` directory and contains the Ice for Ruby extension
 library as well as Ruby source code. Using this installation method requires
-that you modify your environment as described in *Using Ice for Ruby* below.
+that you modify your environment as described in *Configuring your Environment
+for Ruby* below.
 
 Another option is to copy the contents of the local `ruby` directory to your
 Ruby installation's `site_ruby` directory. For example, if you installed Ruby

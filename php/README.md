@@ -94,10 +94,10 @@ extension with namespaces disabled by setting the MSBuild property
 msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 ```
 
-The PHP extension is build by default using PHP 7.1, the extension can be build with
-PHP 7.1, 7.2 or 7.3 by setting MSBuildProperty `BuildWithPhpVersion` to the desired
-version for example you can use the following command to build the extension with PHP
-7.2:
+The PHP extension is build by default using PHP 7.1, the extension can be build
+with PHP 7.1, 7.2 or 7.3 by setting MSBuildProperty `BuildWithPhpVersion` to the
+desired version for example you can use the following command to build the
+extension with PHP 7.2:
 
 ```
 msbuild msbuild\ice.proj /p:BuildWithPhpVersion=7.2
@@ -253,16 +253,15 @@ The Ice extension makes no assumptions about the location of these files, so you
 can install them anywhere you like. For example, you can simply include them in
 the same directory as your application scripts. Alternatively, if you prefer to
 install them in a common directory, you may need to modify PHP's `include_path`
-directive so that the PHP interpreter is able to locate these files. For example,
-you could append to `php.ini`:
+directive so that the PHP interpreter is able to locate these files. For
+example, you could append to `php.ini`:
 ```
 include_path=${include_path}";C\ice\php\lib"
 ```
 
 Another option is to modify the include path from within your script prior to
-including any Ice run-time file. Here is an example that assumes Ice is installed
-in
-`/opt`:
+including any Ice run-time file. Here is an example that assumes Ice is
+installed in `/opt`:
 ```
 // PHP
 ini_set('include_path',

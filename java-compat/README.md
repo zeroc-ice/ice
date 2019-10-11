@@ -39,9 +39,10 @@ Make sure that the `javac` and `java` commands are present in your PATH.
 ### Gradle
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
-in the distribution. You cannot build the Ice for Java source distribution without
-an Internet connection. Gradle will download all required packages automatically
-from Maven Central repository located at http://central.maven.org/maven2/
+in the distribution. You cannot build the Ice for Java source distribution
+without an Internet connection. Gradle will download all required packages
+automatically from Maven Central repository located at
+http://central.maven.org/maven2/
 
 ### Bzip2 Compression
 
@@ -92,8 +93,8 @@ set CPP_CONFIGURATION=Debug
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
-Before building Ice for Java, review the settings in the file `gradle.properties`
-and edit as necessary.
+Before building Ice for Java, review the settings in the file
+`gradle.properties` and edit as necessary.
 
 To build Ice, all services, and tests, run
 

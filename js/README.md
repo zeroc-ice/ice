@@ -42,8 +42,8 @@ npm run build
 ```
 
 On Windows, you need to set the platform and configuration in order to locate
-`slice2js`. For example, if you have built C++ with the x64 Release configuration,
-you can use the following command to build JavaScript:
+`slice2js`. For example, if you have built C++ with the x64 Release
+configuration, you can use the following command to build JavaScript:
 ```
 npm run build -- --cppPlatform x64 --cppConfiguration Release
 ```
@@ -143,11 +143,11 @@ depending on the browser you're using:
 
 - Internet Explorer and Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
-   the computer account. Then select Console Root > Certificates (Local Computer)
-   \> Trusted Root Certificate Authorities. In the Action menu, choose All Tasks
-   and Import. Navigate to the `cacert.der` file and import it into the Trusted
-   Root Certificate Authorities. Reload the test page to continue. You should
-   uninstall this certificate after running the tests.
+   the computer account. Then select Console Root > Certificates (Local
+   Computer) > Trusted Root Certificate Authorities. In the Action menu, choose
+   All Tasks and Import. Navigate to the `cacert.der` file and import it into
+   the Trusted Root Certificate Authorities. Reload the test page to continue.
+   You should uninstall this certificate after running the tests.
 
 #### Windows 8
 
@@ -202,7 +202,7 @@ npm install ice-3.7.3.tgz
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.
 
-[1]: https://zeroc.com/distributions/ice
+[1]: https://zeroc.com/downloads/ice
 [2]: https://babeljs.io
 [3]: https://www.npmjs.com/package/core-js
 [4]: https://www.npmjs.com/package/regenerator-runtime

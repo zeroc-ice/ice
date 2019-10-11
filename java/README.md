@@ -140,8 +140,8 @@ set CPP_CONFIGURATION=Debug
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
-Before building Ice for Java, review the settings in the file `gradle.properties`
-and edit as necessary.
+Before building Ice for Java, review the settings in the file
+`gradle.properties` and edit as necessary.
 
 To build Ice, all services, and tests, run
 ```
@@ -304,7 +304,7 @@ On macOS, the build also creates an application bundle named IceGrid GUI. You
 can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
 Finder.
 
-[1]: https://zeroc.com/distributions/ice
+[1]: https://zeroc.com/downloads/ice
 [2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [3]: https://gradle.org
 [4]: http://proguard.sourceforge.net

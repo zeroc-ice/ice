@@ -2,8 +2,8 @@
 
 This document describes how to build and install Ice for MATLAB from source.
 
-ZeroC provides Ice for MATLAB [toolboxes][1] for all recent versions of MATLAB on Windows,
-so building Ice for MATLAB from source is usually unnecessary.
+ZeroC provides Ice for MATLAB [toolboxes][1] for all recent versions of MATLAB
+on Windows, so building Ice for MATLAB from source is usually unnecessary.
 
 * [Prerequisites](#prerequisites)
 * [Build Instructions](#build-instructions)
@@ -48,9 +48,10 @@ Upon completion, a build in release mode generates the following components:
  - MATLAB code for core Slice files, located in `matlab\lib\generated`
  - MATLAB code for test Slice files, located in `matlab\test\**\generated`
 
-The MATLAB extension depends on Ice for C++ components from the cpp subdirectory,
-and those are built if required. It is also possible to build the MATLAB extension
-using Ice C++ NuGet packages by setting the ICE_BIN_DIST msbuild property to cpp:
+The MATLAB extension depends on Ice for C++ components from the `cpp`
+subdirectory, and those are built if required. It is also possible to build the
+MATLAB extension using Ice C++ NuGet packages by setting the `ICE_BIN_DIST`
+msbuild property to `cpp`:
 
 ```
 msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
