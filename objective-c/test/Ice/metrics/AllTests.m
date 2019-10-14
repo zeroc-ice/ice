@@ -1079,9 +1079,18 @@ metricsAllTests(id<ICECommunicator> communicator)
     im1 = (ICEMXInvocationMetrics*)[map objectForKey:@"fail"];
     test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && [im1.remotes count] == 1);
     rim1 = (ICEMXRemoteMetrics*)[im1.remotes objectAtIndex:0];
-    test(rim1.current == 0);
-    test(rim1.total == 6);
-    test(rim1.failures == 6);
+    if(rim1.current != 0 || rim1.total != 6 || rim1.failures != 6)
+    {
+        tprintf("rim1->current = %d\n", rim1.current);
+        tprintf("rim1->total = %d\n", rim1.total);
+        tprintf("rim1->failures = %d\n", rim1.failures);
+        ICEMXMetricsFailures* f = [clientMetrics getMetricsFailures:@"View" map:@"Invocation" id:im1.id_];
+        for(NSString* key in f.failures)
+        {
+            tprintf("%@ = %@", key, [f.failures objectForKey:key]);
+        }
+    }
+    test(rim1.current == 0 && rim1.total == 6 && rim1.failures == 6);
 
     checkFailure(clientMetrics, @"Invocation", im1.id_, @"::Ice::ConnectionLostException", 3);
 
