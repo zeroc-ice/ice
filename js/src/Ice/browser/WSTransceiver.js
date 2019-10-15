@@ -276,7 +276,7 @@ class WSTransceiver
             }
         }
 
-        moreData.value = this._readBuffers.byteLength > 0;
+        moreData.value = this._readBuffers.length > 0;
 
         return byteBuffer.remaining === 0;
     }
