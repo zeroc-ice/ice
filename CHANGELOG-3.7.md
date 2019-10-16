@@ -1,4 +1,4 @@
-The entries below contain brief descriptions of the changes in a release, in no
+The entries below contain brief descriptions of the changes in each release, in no
 particular order. Some of the entries reflect significant new additions, while
 others represent minor corrections. Although this list is not a comprehensive
 report of every change we made in a release, it does provide details on the
@@ -66,7 +66,7 @@ These are the changes since Ice 3.7.2.
   the backward compatible invocation timeout -2. The invocation failed instead
   of being retried.
 
-- Add support to enable SNI (Server Name Indication) in outgoing SSL/TLS
+- Added support to enable SNI (Server Name Indication) in outgoing SSL/TLS
   connections. The SNI TLS extension is enabled by setting
   `IceSSL.CheckCertName` to `2`.
 
@@ -76,14 +76,14 @@ These are the changes since Ice 3.7.2.
   Java-Compat mapping does not support SNI. Thanks to @AndiDog for the pull
   request: https://github.com/zeroc-ice/ice/pull/482
 
-- Fixed a bug in the conversion of endpoints to string: the colon character
+- Fixed a bug in the conversion of endpoints to strings: the colon character
   was not escaped in the `--sourceAddress` and `--interface` endpoint options.
 
 - Fixed IceGrid issue which could cause hangs if an IceGrid node became
   unreachable and a client either tried to get adapter endpoints with
   `IceGrid::Admin::getAdapterInfo` or called `IceGrid::Query::findAllReplicas`.
 
-- Fixed IceGrid issue where gracefully interrupted IceGrid node wouldn't notify
+- Fixed IceGrid issue where gracefully interrupted IceGrid nodes wouldn't notify
   observers of the deactivation of its servers.
 
 - Fixed bug where the `IceGrid.Registry.CryptPasswords` or
@@ -112,11 +112,11 @@ These are the changes since Ice 3.7.2.
 - Fixed build failures on Linux ppc64el due to `__linux` macro not being defined
   in C++11 mode. Switched to `__linux__` macro.
 
-- Add support for Visual Studio 2019.
+- Added support for Visual Studio 2019.
 
 - Fixed GCC 9 build failures.
 
-- Add support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
+- Added support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
 
 - Fixed a bug in IceSSL that could result in `IceSSL::ConnectionInfo` not having
   the `verified` data member set to `false` when the certificate hostname
@@ -145,13 +145,13 @@ These are the changes since Ice 3.7.2.
 - Added back support for caching the output stream used to marshal the response
   of a synchronous dispatch.
 
-- Add support to build Ice as modular JAR files. This is automatically done
+- Added support to build Ice as modular JAR files. This is automatically done
   when building Ice for Java with JDK 9 or greater. The resulting JARs are
   compatible with JDK 8.
 
 ## JavaScript Changes
 
-- Fix a bug in the IP endpoint initialization. The default value for the port
+- Fixed a bug in the IP endpoint initialization. The default value for the port
   was `null` instead of `0`.
 
 ## MATLAB Changes
@@ -160,15 +160,15 @@ These are the changes since Ice 3.7.2.
   overflow in case a sender sends a very large graph. This was already
   supported with other language mappings but it was missing in MATLAB.
 
-- Fixed a bug in the `ice_isA` implementation that result in `ice_isA` throwing
+- Fixed a bug in the `ice_isA` implementation that resulted in `ice_isA` throwing
   `FacetNotExistException` when it should return null.
 
 ## Python Changes
 
-- Fix a bug where using an optional data member with the `python:numpy.ndarray`
-  sequence mapping could result in segmentation fault of the python interpreter.
+- Fixed a bug where using an optional data member with the `python:numpy.ndarray`
+  sequence mapping could result in a segmentation fault of the python interpreter.
 
-- Fix a bug where using an empty sequence with a type that use the Python buffer
+- Fixed a bug where using an empty sequence with a type that uses the Python buffer
   protocol could result in an assert if running with a python debug build.
 
 # Changes in Ice 3.7.2
