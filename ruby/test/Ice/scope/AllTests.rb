@@ -4,7 +4,7 @@
 
 def allTests(helper, communicator)
 
-    print "test same Slice type name in different scopes... "
+    print "test using same type name in different Slice modules... "
     STDOUT.flush
 
     i1 = Test::IPrx::checkedCast(communicator.stringToProxy("i1:#{helper.getTestEndpoint()}"))
@@ -40,6 +40,15 @@ def allTests(helper, communicator)
     cmap2, cmap3 = i1.opCMap(cmap1)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
+
+    e = i1.opE1(Test::E1::V1)
+    test(e == Test::E1::V1)
+
+    s = i1.opS1(Test::S1.new("S1"))
+    test(s.s == "S1")
+
+    c = i1.opC1(Test::C1.new("C1"))
+    test(c.s == "C1")
 
     i2 = Test::Inner::Inner2::IPrx::checkedCast(communicator.stringToProxy("i2:#{helper.getTestEndpoint()}"))
 

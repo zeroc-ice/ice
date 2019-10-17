@@ -166,7 +166,7 @@ public:
     }
 
 #ifdef ICE_CPP11_MAPPING
-    void join(thread& t)
+    void join(std::thread& t)
 #else
     void join()
 #endif
@@ -246,10 +246,10 @@ public:
         IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
         while(!_closed)
         {
-            timedWait(IceUtil::Time::seconds(2));
-            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(1))
+            timedWait(IceUtil::Time::seconds(30));
+            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(30))
             {
-                test(false); // Waited for more than 2s for close, something's wrong.
+                test(false); // Waited for more than 30s for close, something's wrong.
             }
         }
     }
@@ -408,8 +408,6 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
-
         waitForClosed();
 
         Lock sync(*this);
@@ -442,7 +440,7 @@ public:
 
     CloseOnIdleAndInvocationTest(const RemoteCommunicatorPrxPtr& com) : TestCase("close on idle and invocation", com)
     {
-        setClientACM(1, 3, 0); // Only close on idle and invocation
+        setClientACM(3, 3, 0); // Only close on idle and invocation
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr&)
@@ -453,7 +451,7 @@ public:
         // the close is graceful or forceful.
         //
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(5000)); // Idle for 5 seconds
 
         {
             Lock sync(*this);
@@ -462,7 +460,6 @@ public:
         }
 
         adapter->activate();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1000));
 
         waitForClosed();
     }
@@ -481,7 +478,6 @@ public:
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr&)
     {
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
         waitForClosed();
 
@@ -735,11 +731,11 @@ allTests(Test::TestHelper* helper)
     }
 
 #ifdef ICE_CPP11_MAPPING
-    vector<pair<thread, TestCasePtr>> threads;
+    vector<pair<std::thread, TestCasePtr>> threads;
     for(auto p = tests.begin(); p != tests.end(); ++p)
     {
         TestCasePtr testCase = *p;
-        thread t([testCase]()
+        std::thread t([testCase]()
             {
                 testCase->run();
             });

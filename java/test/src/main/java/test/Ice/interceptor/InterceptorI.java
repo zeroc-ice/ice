@@ -9,6 +9,7 @@ import java.util.concurrent.CompletionStage;
 import com.zeroc.Ice.OutputStream;
 
 import test.Ice.interceptor.Test.RetryException;
+import test.Ice.interceptor.Test.InvalidInputException;
 
 class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
 {
@@ -30,6 +31,24 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
         throws com.zeroc.Ice.UserException
     {
         com.zeroc.Ice.Current current = request.getCurrent();
+
+        String context = current.ctx.get("raiseBeforeDispatch");
+        if(context != null)
+        {
+            if(context.equals("user"))
+            {
+                throw new InvalidInputException();
+            }
+            else if(context.equals("notExist"))
+            {
+                throw new com.zeroc.Ice.ObjectNotExistException();
+            }
+            else if(context.equals("system"))
+            {
+                throw new MySystemException();
+            }
+        }
+
         _lastOperation = current.operation;
 
         if(_lastOperation.equals("addWithRetry") || _lastOperation.equals("amdAddWithRetry"))
@@ -51,9 +70,35 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
 
             current.ctx.put("retry", "no");
         }
+        else if(current.ctx.get("retry") != null && current.ctx.get("retry").equals("yes"))
+        {
+            //
+            // Retry the dispatch to ensure that abandoning the result of the dispatch
+            // works fine and is thread-safe
+            //
+            _servant.ice_dispatch(request);
+            _servant.ice_dispatch(request);
+        }
 
         CompletionStage<OutputStream> f = _servant.ice_dispatch(request);
         _lastStatus = f != null;
+
+        context = current.ctx.get("raiseAfterDispatch");
+        if(context != null)
+        {
+            if(context.equals("user"))
+            {
+                throw new InvalidInputException();
+            }
+            else if(context.equals("notExist"))
+            {
+                throw new com.zeroc.Ice.ObjectNotExistException();
+            }
+            else if(context.equals("system"))
+            {
+                throw new MySystemException();
+            }
+        }
         return f;
     }
 

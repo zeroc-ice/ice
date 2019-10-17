@@ -119,11 +119,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
     }
     cout << "ok" << endl;
 
@@ -241,7 +239,7 @@ allTests(Test::TestHelper* helper)
 #else
             if(count < 20 && count % 4 == 0)
             {
-                com->deactivateObjectAdapter(adapters[count / 4 - 1]);
+                com->deactivateObjectAdapter(adapters[static_cast<size_t>(count / 4 - 1)]);
                 --adapterCount;
             }
 #endif
@@ -490,11 +488,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -564,11 +560,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
     }
     cout << "ok" << endl;
 
@@ -692,11 +686,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -779,11 +771,10 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
+
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -881,11 +872,9 @@ allTests(Test::TestHelper* helper)
             catch(const Ice::ConnectFailedException&)
             {
             }
-#ifdef _WIN32
             catch(const Ice::ConnectTimeoutException&)
             {
             }
-#endif
 
             deactivate(com, adapters);
         }

@@ -96,6 +96,11 @@ public class Client extends test.TestHelper
         test(interceptor.getLastOperation().equals("amdAdd"));
         test(!interceptor.getLastStatus());
         out.println("ok");
+
+        out.print("testing exceptions raised by the interceptor... ");
+        out.flush();
+        testInterceptorExceptions(prx);
+        out.println("ok");
     }
 
     private void
@@ -114,6 +119,16 @@ public class Client extends test.TestHelper
         test(prx.amdAddWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAddWithRetry"));
         test(!interceptor.getLastStatus());
+        {
+            java.util.Map<String, String> ctx = new java.util.HashMap<>();
+            ctx.put("retry", "yes");
+            for(int i = 0; i < 10; ++i)
+            {
+                test(prx.amdAdd(33, 12, ctx) == 45);
+                test(interceptor.getLastOperation().equals("amdAdd"));
+                test(!interceptor.getLastStatus());
+            }
+        }
         out.println("ok");
         out.print("testing user exception... ");
         out.flush();
@@ -169,6 +184,11 @@ public class Client extends test.TestHelper
         test(!interceptor.getLastStatus());
         test(interceptor.getException() instanceof MySystemException);
         out.println("ok");
+
+        out.print("testing exceptions raised by the interceptor... ");
+        out.flush();
+        testInterceptorExceptions(prx);
+        out.println("ok");
     }
 
     public void run(String[] args)
@@ -208,6 +228,65 @@ public class Client extends test.TestHelper
             amdInterceptor.clear();
             prxForAMD = MyObjectPrxHelper.uncheckedCast(prxForAMD.ice_collocationOptimized(false));
             runAmdTest(prxForAMD, amdInterceptor, out);
+        }
+    }
+
+    private class ExceptionPoint
+    {
+        public ExceptionPoint(String point, String exception)
+        {
+            this.point = point;
+            this.exception = exception;
+        }
+        public String point;
+        public String exception;
+    };
+
+    private void testInterceptorExceptions(MyObjectPrx prx)
+    {
+        java.util.List<ExceptionPoint> exceptions = new java.util.ArrayList<ExceptionPoint>();
+        exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "user"));
+        exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "notExist"));
+        exceptions.add(new ExceptionPoint("raiseBeforeDispatch", "system"));
+        exceptions.add(new ExceptionPoint("raiseAfterDispatch", "user"));
+        exceptions.add(new ExceptionPoint("raiseAfterDispatch", "notExist"));
+        exceptions.add(new ExceptionPoint("raiseAfterDispatch", "system"));
+        for(ExceptionPoint e : exceptions)
+        {
+            java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
+            ctx.put(e.point, e.exception);
+            try
+            {
+                prx.ice_ping(ctx);
+                test(false);
+            }
+            catch(Ice.UnknownUserException ex)
+            {
+                test(e.exception.equals("user"));
+            }
+            catch(Ice.ObjectNotExistException ex)
+            {
+                test(e.exception.equals("notExist"));
+            }
+            catch(Ice.UnknownException ex)
+            {
+                test(e.exception.equals("system")); // non-collocated
+            }
+            catch(MySystemException ex)
+            {
+                test(e.exception.equals("system")); // collocated
+            }
+            {
+                Ice.ObjectPrx batch = prx.ice_batchOneway();
+                batch.ice_ping(ctx);
+                batch.ice_ping();
+                batch.ice_flushBatchRequests();
+
+                // Force the last batch request to be dispatched by the server thread using invocation timeouts
+                // This is required to preven threading issue with the test interceptor implementation which
+                // isn't thread safe
+                prx.ice_invocationTimeout(10000).ice_ping();
+            }
         }
     }
 }

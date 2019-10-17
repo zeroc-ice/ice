@@ -51,6 +51,10 @@
 #include <stdio.h>
 #include <list>
 
+#ifdef __APPLE__
+#   include <Ice/OSLogLoggerI.h>
+#endif
+
 #ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
 #   include <Ice/SystemdJournalI.h>
@@ -1033,7 +1037,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                         throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
-                    if(initgroups(pw->pw_name, pw->pw_gid) == -1)
+                    if(initgroups(pw->pw_name, static_cast<int>(pw->pw_gid)) == -1)
                     {
                         throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
@@ -1096,19 +1100,35 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                                                    _initData.properties->getProperty("Ice.ProgramName"),
                                                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
-#   ifdef ICE_USE_SYSTEMD
-            else if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
+            else
+#endif
+
+#ifdef ICE_SWIFT
+            if(!_initData.logger && _initData.properties->getPropertyAsInt("Ice.UseOSLog") > 0)
+            {
+                _initData.logger = ICE_MAKE_SHARED(OSLogLoggerI,
+                                                   _initData.properties->getProperty("Ice.ProgramName"));
+            }
+            else
+#endif
+
+#ifdef ICE_USE_SYSTEMD
+            if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
             {
                 _initData.logger = ICE_MAKE_SHARED(SystemdJournalI,
                                                    _initData.properties->getProperty("Ice.ProgramName"));
             }
-#   endif
             else
 #endif
             if(!logfile.empty())
             {
-                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), logfile, true,
-                                                            _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0));
+                Int sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
+                if(sz < 0)
+                {
+                    sz = 0;
+                }
+                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"),
+                                                   logfile, true, static_cast<size_t>(sz));
             }
             else
             {
@@ -1165,7 +1185,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
             if(num < 1)
             {
-                const_cast<size_t&>(_batchAutoFlushSize) = num;
+                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
             }
             else if(static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {

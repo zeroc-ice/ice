@@ -143,4 +143,4 @@ python allTests.py
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://zeroc.com/distributions/ice
+[1]: https://zeroc.com/downloads/ice

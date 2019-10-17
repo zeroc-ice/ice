@@ -100,8 +100,9 @@ public class AllTests : Test.AllTests
                 test(o.ice_id().Equals("::Test::SBase"));
                 sb = (SBase) o;
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
             test(sb != null);
@@ -125,6 +126,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -148,8 +150,9 @@ public class AllTests : Test.AllTests
                 sb = testPrx.SBaseAsSBase();
                 test(sb.sb.Equals("SBase.sb"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -167,6 +170,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -189,8 +193,9 @@ public class AllTests : Test.AllTests
                 test(sb.sb.Equals("SBSKnownDerived.sb"));
                 sbskd = (SBSKnownDerived) sb;
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
             test(sbskd != null);
@@ -213,6 +218,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -235,8 +241,9 @@ public class AllTests : Test.AllTests
                 sbskd = testPrx.SBSKnownDerivedAsSBSKnownDerived();
                 test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -254,6 +261,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -273,8 +281,9 @@ public class AllTests : Test.AllTests
                 sb = testPrx.SBSUnknownDerivedAsSBase();
                 test(sb.sb.Equals("SBSUnknownDerived.sb"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -285,8 +294,9 @@ public class AllTests : Test.AllTests
                 SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompact();
                 test(sb.sb.Equals("SBSUnknownDerived.sb"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -305,8 +315,9 @@ public class AllTests : Test.AllTests
             {
                 // Expected.
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -324,6 +335,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -347,6 +359,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
                 cb.check();
@@ -404,8 +417,9 @@ public class AllTests : Test.AllTests
             {
                 test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -416,10 +430,10 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                Callback cb = new Callback();
                 if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
                 {
                     {
+                        Callback cb = new Callback();
                         testPrx.begin_SUnknownAsObject().whenCompleted(
                             (Ice.Value o) =>
                             {
@@ -430,6 +444,7 @@ public class AllTests : Test.AllTests
                                 test(ex.GetType().FullName.Equals("Ice.NoValueFactoryException"));
                                 cb.called();
                             });
+                        cb.check();
                     }
 
                     try
@@ -451,6 +466,7 @@ public class AllTests : Test.AllTests
                 else
                 {
                     {
+                        Callback cb = new Callback();
                         testPrx.begin_SUnknownAsObject().whenCompleted(
                             (Ice.Value o) =>
                             {
@@ -460,8 +476,10 @@ public class AllTests : Test.AllTests
                             },
                             (Ice.Exception ex) =>
                             {
+                                output.WriteLine(ex.ToString());
                                 test(false);
                             });
+                        cb.check();
                     }
 
                     try
@@ -470,15 +488,16 @@ public class AllTests : Test.AllTests
                         test(o is Ice.UnknownSlicedValue);
                         test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                     }
-                    catch(AggregateException)
+                    catch(AggregateException ex)
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     }
                 }
-                cb.check();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -495,8 +514,9 @@ public class AllTests : Test.AllTests
                 test(b.sb.Equals("B1.sb"));
                 test(b.pb == b);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -517,6 +537,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -546,8 +567,9 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("B2.sb"));
                 test(b2.pb == b1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -573,6 +595,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -616,8 +639,9 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.ice_id().Equals("::Test::B"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -651,6 +675,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -696,8 +721,9 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == d1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -725,6 +751,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -769,8 +796,9 @@ public class AllTests : Test.AllTests
                 test(d1.sd1.Equals("D1.sd1"));
                 test(d1.pd1 == b2);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -802,6 +830,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -850,8 +879,9 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -881,6 +911,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -929,8 +960,9 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -960,6 +992,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -995,8 +1028,9 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest1(out p1, out p2);
                 test(ret == p1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1014,6 +1048,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1034,8 +1069,9 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest2(out p1, out p2);
                 test(ret == p1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1053,6 +1089,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1109,8 +1146,9 @@ public class AllTests : Test.AllTests
                 test(b2 != d1);
                 test(b2 != d3);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1140,6 +1178,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1265,8 +1304,9 @@ public class AllTests : Test.AllTests
                 test(b2 != d1);
                 test(b2 != d3);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1296,6 +1336,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1401,8 +1442,9 @@ public class AllTests : Test.AllTests
                 test(ret.pb == null);
                 test(ret.ice_id().Equals("::Test::D1"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1433,6 +1475,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1478,8 +1521,9 @@ public class AllTests : Test.AllTests
                 test(ret.pb == null);
                 test(ret.ice_id().Equals("::Test::B"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1505,6 +1549,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1553,8 +1598,9 @@ public class AllTests : Test.AllTests
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1587,6 +1633,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1649,8 +1696,9 @@ public class AllTests : Test.AllTests
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1686,6 +1734,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -1806,8 +1855,9 @@ public class AllTests : Test.AllTests
                 test(ss2d2.ice_id().Equals("::Test::D1"));
                 test(ss2d4.ice_id().Equals("::Test::B"));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -1873,6 +1923,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
                 cb.check();
@@ -2033,8 +2084,9 @@ public class AllTests : Test.AllTests
                     test(d1.pd1 == d1);
                 }
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -2067,6 +2119,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -2163,8 +2216,9 @@ public class AllTests : Test.AllTests
                 test(e.pb.sb.Equals("sb"));
                 test(e.pb.pb == e.pb);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -2191,6 +2245,7 @@ public class AllTests : Test.AllTests
                     }
                     catch(Exception)
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     }
                     cb.called();
@@ -2212,8 +2267,9 @@ public class AllTests : Test.AllTests
                     test(e.pb.sb.Equals("sb"));
                     test(e.pb.pb == e.pb);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 }
             }
@@ -2242,8 +2298,9 @@ public class AllTests : Test.AllTests
                 test(e.pd1.sd1.Equals("sd2"));
                 test(e.pd1.pd1 == e.pd1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -2276,6 +2333,7 @@ public class AllTests : Test.AllTests
                     }
                     catch(Exception)
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     }
                     cb.called();
@@ -2304,8 +2362,9 @@ public class AllTests : Test.AllTests
                     test(e.pd1.sd1.Equals("sd2"));
                     test(e.pd1.pd1 == e.pd1);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 }
             }
@@ -2334,8 +2393,9 @@ public class AllTests : Test.AllTests
                 test(e.pd1.sd1.Equals("sd2"));
                 test(e.pd1.pd1 == e.pd1);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -2368,6 +2428,7 @@ public class AllTests : Test.AllTests
                     }
                     catch(Exception)
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     }
                     cb.called();
@@ -2396,8 +2457,9 @@ public class AllTests : Test.AllTests
                     test(e.pd1.sd1.Equals("sd2"));
                     test(e.pd1.pd1 == e.pd1);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 }
             }
@@ -2420,8 +2482,9 @@ public class AllTests : Test.AllTests
                 test(e.pb.sb.Equals("sb d2"));
                 test(e.pb.pb == e.pb);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -2448,6 +2511,7 @@ public class AllTests : Test.AllTests
                     }
                     catch(Exception)
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     }
                     cb.called();
@@ -2470,8 +2534,9 @@ public class AllTests : Test.AllTests
                     test(e.pb.sb.Equals("sb d2"));
                     test(e.pb.pb == e.pb);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 }
             }
@@ -2487,8 +2552,9 @@ public class AllTests : Test.AllTests
                 testPrx.useForward(out f);
                 test(f != null);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -2506,6 +2572,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -2721,6 +2788,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -2759,6 +2827,7 @@ public class AllTests : Test.AllTests
                 },
                 (Ice.Exception ex) =>
                 {
+                    output.WriteLine(ex.ToString());
                     test(false);
                 });
             cb.check();
@@ -2798,6 +2867,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
             }
@@ -2813,6 +2883,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
             }
@@ -2864,6 +2935,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
             }
@@ -2879,6 +2951,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
             }
@@ -2944,6 +3017,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
             }
@@ -2968,6 +3042,7 @@ public class AllTests : Test.AllTests
                     },
                     (Ice.Exception ex) =>
                     {
+                        output.WriteLine(ex.ToString());
                         test(false);
                     });
             }
@@ -3129,8 +3204,9 @@ public class AllTests : Test.AllTests
 
                 PreservedI.counter = 0;
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                output.WriteLine(ex.ToString());
                 test(false);
             }
         }

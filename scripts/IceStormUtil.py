@@ -22,6 +22,9 @@ class IceStorm(ProcessFromBinDir, Server):
         self.desc = self.instanceName if self.nreplicas == 0 else "{0} replica #{1}".format(self.instanceName,
                                                                                             self.replica)
 
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
+
     def setup(self, current):
         # Create the database directory
         if self.createDb:
@@ -148,6 +151,12 @@ class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Cl
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Client.__init__(self, exe="icestormadmin", mapping=Mapping.getByName("cpp"), *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
+
+    def getExe(self, current):
+        if current.config.buildPlatform == "ppc" and not component.useBinDist(self.mapping, current):
+            return self.exe + "_32"
+        else:
+            return self.exe
 
     getParentProps = Client.getProps # Used by IceStormProcess to get the client properties
 

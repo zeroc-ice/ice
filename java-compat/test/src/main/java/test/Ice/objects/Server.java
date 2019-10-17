@@ -47,6 +47,7 @@ public class Server extends test.TestHelper
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Ice.Object object = new InitialI(adapter);
             adapter.add(object, Ice.Util.stringToIdentity("initial"));
+            adapter.add(new F2I(), Ice.Util.stringToIdentity("F21"));
             object = new UnexpectedObjectExceptionTestI();
             adapter.add(object, Ice.Util.stringToIdentity("uoet"));
             adapter.activate();

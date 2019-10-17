@@ -197,6 +197,9 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
+                // The continuation might be (rarely) executed on the current thread if the setup of the
+                // continuation occurs after the invocation timeout.
+                var thread = Thread.CurrentThread;
                 Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(20));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
@@ -209,7 +212,7 @@ public class AllTests : Test.AllTests
                         catch(System.AggregateException ex)
                         {
                             test(ex.InnerException is Ice.InvocationTimeoutException);
-                            test(Dispatcher.isDispatcherThread());
+                            test(Dispatcher.isDispatcherThread() || thread == Thread.CurrentThread);
                         }
                     }, TaskContinuationOptions.ExecuteSynchronously).Wait();
             }

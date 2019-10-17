@@ -39,9 +39,10 @@ Make sure that the `javac` and `java` commands are present in your PATH.
 ### Gradle
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
-in the distribution. You cannot build the Ice for Java source distribution without
-an Internet connection. Gradle will download all required packages automatically
-from Maven Central repository located at http://central.maven.org/maven2/
+in the distribution. You cannot build the Ice for Java source distribution
+without an Internet connection. Gradle will download all required packages
+automatically from Maven Central repository located at
+http://central.maven.org/maven2/
 
 ### Bzip2 Compression
 
@@ -70,14 +71,14 @@ have not built Ice for C++ in this source distribution, you must set the
 example, on Linux:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.2 (For local build)
+export ICE_HOME=/opt/Ice-3.7.3 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.2 (MSI installation)
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.3 (MSI installation)
 ```
 
 On Windows if you are using Ice for C++ from a source distribution, you must set
@@ -92,8 +93,8 @@ set CPP_CONFIGURATION=Debug
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
-Before building Ice for Java, review the settings in the file `gradle.properties`
-and edit as necessary.
+Before building Ice for Java, review the settings in the file
+`gradle.properties` and edit as necessary.
 
 To build Ice, all services, and tests, run
 
@@ -123,15 +124,15 @@ gradlew install
 The installation installs the following JAR files to `<prefix>/lib`.
 
 ```
-glacier2-compat-3.7.2.jar
-ice-compat-3.7.2.jar
-icebox-compat-3.7.2.jar
-icebt-compat-3.7.2.jar
-icediscovery-compat-3.7.2.jar
-icegrid-compat-3.7.2.jar
-icelocatordiscovery-compat-3.7.2.jar
-icepatch2-compat-3.7.2.jar
-icestorm-compat-3.7.2.jar
+glacier2-compat-3.7.3.jar
+ice-compat-3.7.3.jar
+icebox-compat-3.7.3.jar
+icebt-compat-3.7.3.jar
+icediscovery-compat-3.7.3.jar
+icegrid-compat-3.7.3.jar
+icelocatordiscovery-compat-3.7.3.jar
+icepatch2-compat-3.7.3.jar
+icestorm-compat-3.7.3.jar
 ```
 
 POM files are also installed for ease of deployment to a Maven-based
@@ -145,14 +146,14 @@ then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Linux or macOS:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.2 (For local build)
+export ICE_HOME=/opt/Ice-3.7.3 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.2
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.3
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -175,9 +176,8 @@ for the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 3.2.1
-- Android SDK 21
-- Android Build Tools 27.0.1
+- Android Studio 3.5
+- Android SDK 29
 
 Ice requires at minimum API level 21:
 
@@ -186,12 +186,6 @@ Ice requires at minimum API level 21:
 If you want to target a later version of the Android API level for the test
 suite, edit `test/android/controller/gradle.properties` and change the
 following variables:
-
-```
-ice_compileSdkVersion
-ice_minSdkVersion
-ice_targetSdkVersion
-```
 
 *NOTE: Do not use Android Studio to modify the project's settings.*
 
@@ -258,7 +252,7 @@ python allTests.py --android --device=<ip-address> --controller-app
 To run the tests against a `controller` application started from Android
 Studio you should omit the `--controller-app` option from the commands above.
 
-[1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[1]: https://zeroc.com/downloads/ice
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [3]: https://gradle.org
 [4]: https://commons.apache.org/proper/commons-compress/

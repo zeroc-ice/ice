@@ -22,22 +22,18 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     IceInternal::SocketOperation status = IceInternal::SocketOperationNone;
 #ifndef ICE_USE_IOCP
     status = _configuration->initializeSocketOperation();
-    if(status == IceInternal::SocketOperationConnect)
-    {
-        return status;
-    }
-    else if(status == IceInternal::SocketOperationWrite)
+    if(status == IceInternal::SocketOperationConnect || status == IceInternal::SocketOperationWrite)
     {
         if(!_initialized)
         {
-            status = _transceiver->initialize(readBuffer, writeBuffer);
-            if(status != IceInternal::SocketOperationNone)
+            IceInternal::SocketOperation s = _transceiver->initialize(readBuffer, writeBuffer);
+            if(s != IceInternal::SocketOperationNone)
             {
-                return status;
+                return s;
             }
             _initialized = true;
         }
-        return IceInternal::SocketOperationWrite;
+        return status;
     }
     else if(status == IceInternal::SocketOperationRead)
     {
@@ -107,8 +103,8 @@ Transceiver::read(IceInternal::Buffer& buf)
                 }
             }
             assert(_readBuffer.i > _readBufferPos);
-            size_t requested = buf.b.end() - buf.i;
-            size_t available = _readBuffer.i - _readBufferPos;
+            size_t requested = static_cast<size_t>(buf.b.end() - buf.i);
+            size_t available = static_cast<size_t>(_readBuffer.i - _readBufferPos);
             assert(available > 0);
             if(available >= requested)
             {

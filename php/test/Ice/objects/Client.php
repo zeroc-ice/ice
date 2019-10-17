@@ -5,6 +5,7 @@
 
 $NS = function_exists("Ice\\initialize");
 require_once('Test.php');
+require_once('Forward.php');
 
 if($NS)
 {
@@ -24,6 +25,8 @@ if($NS)
         interface Ice_ObjectFactory extends Ice\ObjectFactory {}
         interface Ice_ValueFactory extends Ice\ValueFactory {}
         class Test_L extends Test\L {}
+        class Test_F1 extends Test\F1 {}
+        class Test_F3 extends Test\F3 {}
 EOT;
     eval($code);
 }
@@ -565,6 +568,31 @@ function allTests($helper)
     echo "testing getting ObjectFactory as ValueFactory... ";
     flush();
     test($communicator->getValueFactoryManager()->find("TestOF") != null);
+    echo "ok\n";
+
+    echo "testing forward declarations... ";
+    $f12 = null;
+    $f11 = $initial->opF1(new Test_F1("F11"), $f12);
+    test($f11->name == "F11");
+    test($f12->name == "F12");
+
+    $f22 = null;
+    $ref = sprintf("F21:%s", $helper->getTestEndpoint());
+    $f21 = $initial->opF2($communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::F2"), $f22);
+    test($f21->ice_getIdentity()->name == "F21");
+    $f21->op();
+    test($f22->ice_getIdentity()->name == "F22");
+
+    if($initial->hasF3())
+    {
+        $f32 = null;
+        $f31 = $initial->opF3(new Test_F3($f11, $f22), $f32);
+        test($f31->f1->name == "F11");
+        test($f31->f2->ice_getIdentity()->name = "F21");
+
+        test($f32->f1->name == "F12");
+        test($f32->f2->ice_getIdentity()->name = "F22");
+    }
     echo "ok\n";
 
     return $initial;

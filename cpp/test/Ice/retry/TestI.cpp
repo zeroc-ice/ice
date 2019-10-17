@@ -58,6 +58,12 @@ RetryI::opSystemException(const Ice::Current&)
 }
 
 void
+RetryI::sleep(int delay, const Ice::Current&)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+}
+
+void
 RetryI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

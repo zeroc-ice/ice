@@ -208,6 +208,10 @@ class M
     LMap v;
 }
 
+// Forward declarations
+class F1;
+interface F2;
+
 class Initial
 {
     void shutdown();
@@ -264,6 +268,11 @@ class Initial
     BaseDict getBaseDict(BaseDict d);
     BasePrxDict getBasePrxDict(BasePrxDict d);
     M opM(M v1, out M v2);
+
+    F1 opF1(F1 f11, out F1 f12);
+    F2* opF2(F2* f21, out F2* f22);
+
+    bool hasF3();
 }
 
 interface TestIntf

@@ -20,6 +20,7 @@ Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Dispatch", "0");
+    properties->setProperty("Ice.Warn.Connections", "0");
     properties->setProperty("Ice.PrintStackTraces", "0");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 

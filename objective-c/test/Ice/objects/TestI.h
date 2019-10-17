@@ -3,6 +3,7 @@
 //
 
 #import <ObjectsTest.h>
+#import <ObjectsForward.h>
 
 @interface TestObjectsBI : TestObjectsB<TestObjectsB>
 {
@@ -32,6 +33,12 @@
 @end
 
 @interface TestObjectsHI : TestObjectsH<TestObjectsH>
+@end
+
+@interface TestObjectsF2I : TestObjectsF2<TestObjectsF2>
+{
+}
+-(void) op:(ICECurrent*)current;
 @end
 
 @interface TestObjectsInitialI : TestObjectsInitial<TestObjectsInitial>
@@ -66,7 +73,10 @@
 -(TestObjectsObjectPrxDict *) getObjectPrxDict:(TestObjectsMutableObjectPrxDict *)d current:(ICECurrent *)current;
 -(TestObjectsBaseDict *) getBaseDict:(TestObjectsMutableBaseDict *)d current:(ICECurrent *)current;
 -(TestObjectsBasePrxDict *) getBasePrxDict:(TestObjectsMutableBasePrxDict *)d current:(ICECurrent *)current;
- -(TestObjectsM *) opM:(TestObjectsM *)v1 v2:(TestObjectsM **)v2 current:(ICECurrent *)current;
+-(TestObjectsM *) opM:(TestObjectsM *)v1 v2:(TestObjectsM **)v2 current:(ICECurrent *)current;
+-(TestObjectsF1 *) opF1:(TestObjectsF1 *)f11 f12:(TestObjectsF1 **)f12 current:(ICECurrent *)current;
+-(TestObjectsF2Prx *) opF2:(TestObjectsF2Prx *)f21 f22:(TestObjectsF2Prx **)f22 current:(ICECurrent *)current;
+-(BOOL) hasF3:(ICECurrent *)current;
 @end
 
 @interface UnexpectedObjectExceptionTestI : ICEBlobject<ICEBlobject>

@@ -914,7 +914,7 @@ public class AllTests : Test.AllTests
         // Tests for twoway
         //
         props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
-        props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+        props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "id";
         props["IceMX.Metrics.View.Map.Invocation.Map.Collocated.GroupBy"] = "id";
         updateProps(clientProps, serverProps, update, props, "Invocation");
         test(serverMetrics.getMetricsView("View", out timestamp)["Invocation"].Length == 0);
@@ -1071,19 +1071,11 @@ public class AllTests : Test.AllTests
         if(!collocated)
         {
             im1 = (IceMX.InvocationMetrics)map["fail"];
-            if(!(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 6))
-            {
-                System.Console.Error.WriteLine("current: " + im1.current + " total: " + im1.total +
-                                               " failures: " + im1.failures + " retry: " + im1.retry +
-                                               " remotes: " + im1.remotes.Length);
-                test(false);
-            }
-            test(im1.remotes[0].current == 0 && im1.remotes[0].total == 1 && im1.remotes[0].failures == 1);
-            test(im1.remotes[1].current == 0 && im1.remotes[1].total == 1 && im1.remotes[1].failures == 1);
-            test(im1.remotes[2].current == 0 && im1.remotes[2].total == 1 && im1.remotes[2].failures == 1);
-            test(im1.remotes[3].current == 0 && im1.remotes[3].total == 1 && im1.remotes[3].failures == 1);
-            test(im1.remotes[4].current == 0 && im1.remotes[4].total == 1 && im1.remotes[4].failures == 1);
-            test(im1.remotes[5].current == 0 && im1.remotes[5].total == 1 && im1.remotes[5].failures == 1);
+            test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 1);
+            rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
+            test(rim1.current == 0);
+            test(rim1.total == 6);
+            test(rim1.failures == 6);
             checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 3, output);
         }
 

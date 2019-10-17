@@ -28,6 +28,9 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
+class ServerAdapterEntry;
+typedef IceUtil::Handle<ServerAdapterEntry> ServerAdapterEntryPtr;
+
 struct LocatorAdapterInfo
 {
     std::string id;
@@ -36,6 +39,20 @@ struct LocatorAdapterInfo
     int deactivationTimeout;
 };
 typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
+
+class GetAdapterInfoResult : public IceUtil::Shared
+{
+public:
+
+    void add(const ServerAdapterEntryPtr&);
+    AdapterInfoSeq get();
+
+private:
+
+    AdapterInfoSeq _adapters;
+    std::vector<Ice::AsyncResultPtr> _results;
+};
+typedef IceUtil::Handle<GetAdapterInfoResult> GetAdapterInfoResultPtr;
 
 class AdapterEntry : public virtual IceUtil::Shared
 {
@@ -48,7 +65,8 @@ public:
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&,
                                        const std::set<std::string>&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
-    virtual AdapterInfoSeq getAdapterInfo() const = 0;
+    virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const = 0;
+    virtual GetAdapterInfoResultPtr getAdapterInfoAsync() const = 0;
     virtual AdapterPrx getProxy(const std::string&, bool) const = 0;
 
     virtual bool canRemove();
@@ -77,7 +95,8 @@ public:
                                        const std::set<std::string>&);
 
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
-    virtual AdapterInfoSeq getAdapterInfo() const;
+    virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const;
+    virtual GetAdapterInfoResultPtr getAdapterInfoAsync() const;
     virtual AdapterPrx getProxy(const std::string&, bool) const;
 
     void getLocatorAdapterInfo(LocatorAdapterInfoSeq&) const;
@@ -107,7 +126,8 @@ public:
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&,
                                        const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
-    virtual AdapterInfoSeq getAdapterInfo() const;
+    virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const;
+    virtual GetAdapterInfoResultPtr getAdapterInfoAsync() const;
     virtual AdapterPrx getProxy(const std::string&, bool) const { return 0; }
 
     void addReplica(const std::string&, const ServerAdapterEntryPtr&);

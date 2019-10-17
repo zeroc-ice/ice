@@ -4,14 +4,6 @@
 
 package com.zeroc.IceInternal;
 
-import com.zeroc.Ice.FormatType;
-import com.zeroc.Ice.InputStream;
-import com.zeroc.Ice.OperationInterruptedException;
-import com.zeroc.Ice.OutputStream;
-import com.zeroc.Ice.UserException;
-import com.zeroc.Ice.UnknownException;
-import com.zeroc.Ice.UnknownUserException;
-
 public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object.Ice_invokeResult>
 {
     public ProxyIceInvoke(com.zeroc.Ice.ObjectPrx prx, String operation, com.zeroc.Ice.OperationMode mode,

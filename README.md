@@ -26,6 +26,7 @@ Ice supports the following programming languages:
 - PHP
 - Python
 - Ruby
+- Swift
 - TypeScript
 
 ## Platforms
@@ -36,11 +37,11 @@ Ice runs on a wide range of platforms:
 - iOS
 - Linux
 - Linux on embedded devices
-- Node.js
 - macOS
+- Node.js
+- Unix systems such as AIX
 - Web Browser
 - Windows
-- Universal Windows
 
 ## Features
 
@@ -90,7 +91,7 @@ with very few exceptions.
 As copyright owner, ZeroC can license Ice under different license terms, and
 offers the following licenses for Ice:
 - GPL v2, a popular open-source license with strong
-[copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the default
+[copyleft](https://en.wikipedia.org/wiki/Copyleft) conditions (the default
 license)
 - Commercial or closed-source licenses
 
@@ -107,5 +108,5 @@ Ice and a commercial Ice are the license terms.
 
 ## Documentation
 
-- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.7.2+Release+Notes)
-- [Ice Manual](https://doc.zeroc.com/display/Ice37/Home)
+- [Ice Release Notes](https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-3-release-notes)
+- [Ice Manual](https://doc.zeroc.com/ice/3.7/)

@@ -1,4 +1,4 @@
-The entries below contain brief descriptions of the changes in a release, in no
+The entries below contain brief descriptions of the changes in each release, in no
 particular order. Some of the entries reflect significant new additions, while
 others represent minor corrections. Although this list is not a comprehensive
 report of every change we made in a release, it does provide details on the
@@ -8,37 +8,168 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7.2](#changes-in-ice-372)
+- [Changes in Ice 3.7.3](#changes-in-ice-373)
   * [General Changes](#general-changes)
   * [C++ Changes](#c-changes)
   * [C# Changes](#c-changes-1)
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
   * [MATLAB Changes](#matlab-changes)
-  * [Objective-C Changes](#objective-c-changes)
-  * [PHP Changes](#php-changes)
   * [Python Changes](#python-changes)
-- [Changes in Ice 3.7.1](#changes-in-ice-371)
+- [Changes in Ice 3.7.2](#changes-in-ice-372)
   * [General Changes](#general-changes-1)
   * [C++ Changes](#c-changes-2)
   * [C# Changes](#c-changes-3)
   * [Java Changes](#java-changes-1)
   * [JavaScript Changes](#javascript-changes-1)
   * [MATLAB Changes](#matlab-changes-1)
-  * [Objective-C Changes](#objective-c-changes-1)
-  * [PHP Changes](#php-changes-1)
+  * [Objective-C Changes](#objective-c-changes)
+  * [PHP Changes](#php-changes)
   * [Python Changes](#python-changes-1)
-  * [Ruby Changes](#ruby-changes)
-- [Changes in Ice 3.7.0](#changes-in-ice-370)
+- [Changes in Ice 3.7.1](#changes-in-ice-371)
   * [General Changes](#general-changes-2)
   * [C++ Changes](#c-changes-4)
   * [C# Changes](#c-changes-5)
   * [Java Changes](#java-changes-2)
   * [JavaScript Changes](#javascript-changes-2)
+  * [MATLAB Changes](#matlab-changes-2)
+  * [Objective-C Changes](#objective-c-changes-1)
+  * [PHP Changes](#php-changes-1)
+  * [Python Changes](#python-changes-2)
+  * [Ruby Changes](#ruby-changes)
+- [Changes in Ice 3.7.0](#changes-in-ice-370)
+  * [General Changes](#general-changes-3)
+  * [C++ Changes](#c-changes-6)
+  * [C# Changes](#c-changes-7)
+  * [Java Changes](#java-changes-3)
+  * [JavaScript Changes](#javascript-changes-3)
   * [Objective-C Changes](#objective-c-changes-2)
   * [PHP Changes](#php-changes-2)
-  * [Python Changes](#python-changes-2)
+  * [Python Changes](#python-changes-3)
   * [Ruby Changes](#ruby-changes-1)
+
+# Changes in Ice 3.7.3
+
+These are the changes since Ice 3.7.2.
+
+## General Changes
+
+- Fixed Slice compilers to allow forward declared interfaces and classes that
+  are marshaled or unmarshaled in a Slice file without being fully defined in
+  that Slice file. This was allowed (but not documented) in Ice 3.6 and earlier
+  releases, and disallowed in Ice 3.7.0 - Ice 3.7.2.
+
+- Added `ice_isFixed` proxy method to test whether a proxy is a fixed proxy
+  or not.
+
+- Fixed a retry bug occurring with invocations made on proxies configured with
+  the backward compatible invocation timeout -2. The invocation failed instead
+  of being retried.
+
+- Added support to enable SNI (Server Name Indication) in outgoing SSL/TLS
+  connections. The SNI TLS extension is enabled by setting
+  `IceSSL.CheckCertName` to `2`.
+
+  This new value for `IceSSL.CheckCertName` is useful with OpenSSL,
+  SecureTransport and Java; these implementations did not send the SNI extension
+  before. The C# and SChannel implementations always send the SNI extension. The
+  Java-Compat mapping does not support SNI. Thanks to @AndiDog for the pull
+  request: https://github.com/zeroc-ice/ice/pull/482
+
+- Fixed a bug in the conversion of endpoints to strings: the colon character
+  was not escaped in the `--sourceAddress` and `--interface` endpoint options.
+
+- Fixed IceGrid issue which could cause hangs if an IceGrid node became
+  unreachable and a client either tried to get adapter endpoints with
+  `IceGrid::Admin::getAdapterInfo` or called `IceGrid::Query::findAllReplicas`.
+
+- Fixed IceGrid issue where gracefully interrupted IceGrid nodes wouldn't notify
+  observers of the deactivation of its servers.
+
+- Fixed bug where the `IceGrid.Registry.CryptPasswords` or
+  `IceGrid.Registry.AdminCryptPasswords` properties were ignored if the IceGrid
+  registry was collocated with the IceGrid node executable using the
+  `IceGrid.Node.CollocateRegistry` property.
+
+- Fixed IceGrid node bug where the setting of supplementary groups would fail
+  if the user had more than NGROUPS_MAX groups.
+
+- Fixed IceGrid node bug where the setting of supplementary groups for a server
+  ran as a given user was incorrect when running the IceGrid node as root. The
+  server would be ran with the root/wheel supplementary group.
+
+- Fixed a bug in IceGrid node that could result in an infinite loop when
+  the system call to `getpwuid_r` fails with `ERANGE`.
+
+- Removed IceStorm restriction where `retryCount` could only be used with
+  two-way proxies. It's now possible to use it with one-way or batch proxies.
+
+## C++ Changes
+
+- Added new metadata directive `cpp:source-include`, to include a header file in
+  the generated source (.cpp) file.
+
+- Fixed build failures on Linux ppc64el due to `__linux` macro not being defined
+  in C++11 mode. Switched to `__linux__` macro.
+
+- Added support for Visual Studio 2019.
+
+- Fixed GCC 9 build failures.
+
+- Added support for AIX 7.2 with the IBM XL C/C++ 16.1 compiler (C++98 only).
+
+- Fixed a bug in IceSSL that could result in `IceSSL::ConnectionInfo` not having
+  the `verified` data member set to `false` when the certificate hostname
+  verification failed. This affected IceSSL based on OpenSSL < 1.0.2 and
+  SChannel.
+
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer`
+  is set to 0. This affected IceSSL based on OpenSSL >= 1.0.2.
+
+## C# Changes
+
+- Added back support for caching the output stream used to marshal the response
+  of a synchronous dispatch.
+
+- Fixed C# to not require unsafe code. `AllowUnsafeBlocks` is not longer set
+  when building Ice for C#.
+
+- Fixed loading of Bzip2 native libraries on Linux to fallback to libbz2.so.1
+  if libbz2.so.1.0 doesn't exists.
+
+- Fixed IceSSL to ignore hostname verification errors when `IceSSL.VerifyPeer`
+  is set to 0.
+
+## Java Changes
+
+- Added back support for caching the output stream used to marshal the response
+  of a synchronous dispatch.
+
+- Added support to build Ice as modular JAR files. This is automatically done
+  when building Ice for Java with JDK 9 or greater. The resulting JARs are
+  compatible with JDK 8.
+
+## JavaScript Changes
+
+- Fixed a bug in the IP endpoint initialization. The default value for the port
+  was `null` instead of `0`.
+
+## MATLAB Changes
+
+- Added support for the `Ice.ClassGraphDepthMax` property to prevent a stack
+  overflow in case a sender sends a very large graph. This was already
+  supported with other language mappings but it was missing in MATLAB.
+
+- Fixed a bug in the `ice_isA` implementation that resulted in `ice_isA` throwing
+  `FacetNotExistException` when it should return null.
+
+## Python Changes
+
+- Fixed a bug where using an optional data member with the `python:numpy.ndarray`
+  sequence mapping could result in a segmentation fault of the python interpreter.
+
+- Fixed a bug where using an empty sequence with a type that uses the Python buffer
+  protocol could result in an assert if running with a python debug build.
 
 # Changes in Ice 3.7.2
 
@@ -48,10 +179,14 @@ These are the changes since Ice 3.7.1.
 
 - Add support for TLS 1.3 to IceSSL.
 
-- Add support for reading Ice properties from the HKCU Windows registry hive. Previously
-  you could only read properties from the HKLM Windows registry hive.
+- Add support for reading Ice properties from the HKCU Windows registry hive.
+  Previously you could only read properties from the HKLM Windows registry hive.
 
 ## C++ Changes
+
+- Fixed bug where Ice thread pools would print an invalid and harmless "low on
+  threads" warning message when the thread pool was destroyed and if the number
+  of threads in  the thread pool was superior or equal to the SizeWarn property.
 
 - Fixed a bug where the callback set with the `IceUtil::CtrlCHandler` was not
   cleared on destruction of the `CtrlCHandler` object. Variables captured by the
@@ -124,6 +259,10 @@ These are the changes since Ice 3.7.1.
   metadata directive.
 
 ## Java Changes
+
+- Fixed bug where Ice thread pools would print an invalid and harmless "low on
+  threads" warning message when the thread pool was destroyed and if the number
+  of threads in  the thread pool was superior or equal to the SizeWarn property.
 
 - Fixed Android IceSSL issue that caused SSL connections to hang
   with Android >= 8.0.

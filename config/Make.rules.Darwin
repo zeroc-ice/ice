@@ -12,15 +12,15 @@ macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
 iphoneos_ar                     = libtool
 iphoneos_cc                     = xcrun -sdk iphoneos clang
 iphoneos_cxx                    = xcrun -sdk iphoneos clang++
-iphoneos_cppflags               = -miphoneos-version-min=7.1 -arch armv7 -arch arm64 -fembed-bitcode
-iphoneos_ldflags                = -miphoneos-version-min=7.1 -arch armv7 -arch arm64
+iphoneos_cppflags               = -miphoneos-version-min=8.0 -arch armv7 -arch arm64 -fembed-bitcode
+iphoneos_ldflags                = -miphoneos-version-min=8.0 -arch armv7 -arch arm64
 iphoneos_configs                = %xcodesdk
 iphoneos_targetdir              = $(if $(filter %/build,$5),/iphoneos)
 
 iphonesimulator_ar              = libtool
 iphonesimulator_cc              = xcrun -sdk iphonesimulator clang
 iphonesimulator_cxx             = xcrun -sdk iphonesimulator clang++
-iphonesimulator_cppflags        = -mios-simulator-version-min=7.1 -arch i386 -arch x86_64
+iphonesimulator_cppflags        = -mios-simulator-version-min=8.0 -arch i386 -arch x86_64
 iphonesimulator_ldflags         = $(iphonesimulator_cppflags)
 iphonesimulator_configs         = %xcodesdk
 iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
@@ -28,8 +28,8 @@ iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
 # If building objects for a shared library, enable fPIC
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
-cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls \
-                  -Wdeprecated -Wstrict-prototypes -Werror -pthread \
+cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
+                  -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 
 ifeq ($(MAXWARN),yes)

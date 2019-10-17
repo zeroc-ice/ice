@@ -458,12 +458,21 @@ IceBox::ServiceManagerI::start()
         }
 
         //
+        // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+        //
+        _communicator->addAdminFacet(ICE_SHARED_FROM_THIS, "IceBox.ServiceManager");
+        _communicator->getAdmin();
+        if(adapter)
+        {
+            adapter->activate();
+        }
+
+        //
         // We may want to notify external scripts that the services
-        // have started. This is done by defining the property:
+        // have started and that IceBox is "ready".
+        // This is done by defining the property IceBox.PrintServicesReady=bundleName
         //
-        // IceBox.PrintServicesReady=bundleName
-        //
-        // Where bundleName is whatever you choose to call this set of
+        // bundleName is whatever you choose to call this set of
         // services. It will be echoed back as "bundleName ready".
         //
         // This must be done after start() has been invoked on the
@@ -473,36 +482,6 @@ IceBox::ServiceManagerI::start()
         if(!bundleName.empty())
         {
             consoleOut << bundleName << " ready" << endl;
-        }
-
-        //
-        // Register "this" as a facet to the Admin object, and then create
-        // Admin object
-        //
-        try
-        {
-            _communicator->addAdminFacet(ICE_SHARED_FROM_THIS, "IceBox.ServiceManager");
-            _communicator->getAdmin();
-        }
-        catch(const ObjectAdapterDeactivatedException&)
-        {
-            //
-            // Expected if the communicator has been shutdown.
-            //
-        }
-
-        if(adapter)
-        {
-            try
-            {
-                adapter->activate();
-            }
-            catch(const ObjectAdapterDeactivatedException&)
-            {
-                //
-                // Expected if the communicator has been shutdown.
-                //
-            }
         }
     }
     catch(const FailureException& ex)

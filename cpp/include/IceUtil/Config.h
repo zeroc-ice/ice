@@ -21,12 +21,14 @@
 #endif
 
 #if (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || \
-    (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN))
+    (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN)) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
 
 #   define ICE_LITTLE_ENDIAN
 
 #elif (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)) || \
-      (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN))
+      (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN)) || \
+      (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
 
 #   define ICE_BIG_ENDIAN
 
@@ -171,7 +173,7 @@
 //  With Visual Studio, we can import/export member functions without importing/
 //  exporting the whole class
 #   define ICE_MEMBER_IMPORT_EXPORT
-#elif defined(__GNUC__) || defined(__clang__)
+#elif (defined(__GNUC__) || defined(__clang__) || defined(__IBMCPP__)) && !defined(__ibmxl__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 #elif defined(__SUNPRO_CC)
@@ -188,6 +190,14 @@
 #else
 #   define ICE_CLASS(API) API
 #   define ICE_MEMBER(API) /**/
+#endif
+
+// With IBM xlC, the visibility attribute must be at the end of the
+// declaration of global variables.
+#if defined(__IBMCPP__) && !defined(ICE_STATIC_LIBS)
+#   define ICE_GLOBAL_VAR_SUFFIX __attribute__((visibility ("default")))
+#else
+#   define ICE_GLOBAL_VAR_SUFFIX /**/
 #endif
 
 //
@@ -273,8 +283,8 @@
 //
 // The Ice version.
 //
-#define ICE_STRING_VERSION "3.7.2" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 30702      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_STRING_VERSION "3.7.3" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 30703      // AABBCC, with AA=major, BB=minor, CC=patch
 #define ICE_SO_VERSION "37"      // "ABC", with A=major, B=minor, C=patch
 
 #if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)

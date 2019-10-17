@@ -82,7 +82,7 @@ reportChildError(int err, int fd, const char* cannot, const char* name, const Tr
     os << cannot << " `" << name << "'";
     if(err)
     {
-        os << ": " << IceUtilInternal::errorToString(err) << endl;
+        os << ": " << IceUtilInternal::errorToString(err);
     }
     const string msg = os.str();
     ssize_t sz = write(fd, msg.c_str(), msg.size());
@@ -155,6 +155,14 @@ signalToString(int signal)
         case SIGALRM:
         {
             return ICE_STRING(SIGALRM);
+        }
+        case SIGCONT:
+        {
+            return ICE_STRING(SIGCONT);
+        }
+        case SIGSTOP:
+        {
+            return ICE_STRING(SIGSTOP);
         }
 #endif
         case SIGKILL:
@@ -229,6 +237,14 @@ stringToSignal(const string& str)
     else if(str == ICE_STRING(SIGALRM))
     {
         return SIGALRM;
+    }
+    else if(str == ICE_STRING(SIGCONT))
+    {
+        return SIGCONT;
+    }
+    else if(str == ICE_STRING(SIGSTOP))
+    {
+        return SIGSTOP;
     }
     else
 #endif
@@ -585,7 +601,12 @@ Activator::activate(const string& name,
 
     if(!b)
     {
-        throw runtime_error(IceUtilInternal::lastErrorToString());
+        string message = IceUtilInternal::lastErrorToString();
+
+        Ice::Warning out(_traceLevels->logger);
+        out << "server activation failed for `" << name << "':\n" << message;
+
+        throw runtime_error(message);
     }
 
     //
@@ -603,7 +624,14 @@ Activator::activate(const string& name,
     if(!RegisterWaitForSingleObject(&pp->waithnd, pp->hnd, activatorWaitCallback, pp, INFINITE,
                                     WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
     {
-        throw IceUtilInternal::lastErrorToString();
+        TerminateProcess(pp->hnd, 0);
+
+        string message = IceUtilInternal::lastErrorToString();
+
+        Ice::Warning out(_traceLevels->logger);
+        out << "server activation failed for `" << name << "':\ncouldn't register wait callback\n" << message;
+
+        throw runtime_error(message);
     }
 
     //
@@ -621,11 +649,14 @@ Activator::activate(const string& name,
     struct passwd pwbuf;
     vector<char> buffer(4096); // 4KB initial buffer size
     struct passwd *pw;
-    int err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw);
-    while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
+
+    int err;
+    while((err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw)) == ERANGE &&
+          buffer.size() < 1024 * 1024) // Limit buffer to 1M
     {
         buffer.resize(buffer.size() * 2);
     }
+
     if(err != 0)
     {
         throw SyscallException(__FILE__, __LINE__, err);
@@ -638,20 +669,51 @@ Activator::activate(const string& name,
     }
 
     vector<gid_t> groups;
+#ifdef _AIX
+    char* grouplist = getgrset(pw->pw_name);
+    if(grouplist == 0)
+    {
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+    }
+    vector<string> grps;
+    if(IceUtilInternal::splitString(grouplist, ",", grps))
+    {
+        for(vector<string>::const_iterator p = grps.begin(); p != grps.end(); ++p)
+        {
+            gid_t group;
+            istringstream is(*p);
+            if(is >> group)
+            {
+                groups.push_back(group);
+            }
+        }
+    }
+    free(grouplist);
+#else
     groups.resize(20);
     int ngroups = static_cast<int>(groups.size());
-#if defined(__APPLE__)
-    if(getgrouplist(pw->pw_name, gid, reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
-#else
+#   if defined(__APPLE__)
+    if(getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
+#   else
     if(getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
-#endif
+#   endif
     {
-        groups.resize(ngroups);
-#if defined(__APPLE__)
-        getgrouplist(pw->pw_name, gid, reinterpret_cast<int*>(&groups[0]), &ngroups);
-#else
+        groups.resize(static_cast<size_t>(ngroups));
+#   if defined(__APPLE__)
+        getgrouplist(pw->pw_name, static_cast<int>(gid), reinterpret_cast<int*>(&groups[0]), &ngroups);
+#   else
         getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
+#   endif
+    }
+    else
+    {
+       groups.resize(static_cast<size_t>(ngroups));
+    }
 #endif
+
+    if(groups.size() > NGROUPS_MAX)
+    {
+        groups.resize(NGROUPS_MAX);
     }
 
     int fds[2];
@@ -713,12 +775,19 @@ Activator::activate(const string& name,
         //
         // Don't initialize supplementary groups if we are not running as root.
         //
-        if(getuid() == 0 && setgroups(groups.size(), &groups[0]) == -1)
+        if(getuid() == 0 && setgroups(static_cast<int>(groups.size()), &groups[0]) == -1)
         {
             ostringstream os;
-            os << pw->pw_name;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
-                                                             _traceLevels);
+            for(vector<gid_t>::const_iterator p = groups.begin(); p != groups.end(); ++p)
+            {
+                os << *p;
+                if(p + 1 != groups.end())
+                {
+                    os << ", ";
+                }
+            }
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups",
+                             os.str().c_str(), _traceLevels);
         }
 
         if(setuid(uid) == -1)
@@ -740,6 +809,11 @@ Activator::activate(const string& name,
         // of the newly created pipe.
         //
         int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
+        if(maxFd <= 0)
+        {
+            maxFd = INT_MAX;
+        }
+
         for(int fd = 3; fd < maxFd; ++fd)
         {
             if(fd != fds[1] && fd != errorFds[1])
@@ -808,7 +882,7 @@ Activator::activate(const string& name,
         string message;
         while((rs = read(errorFds[0], &s, 16)) > 0)
         {
-            message.append(s, rs);
+            message.append(s, static_cast<size_t>(rs));
         }
 
         //
@@ -816,6 +890,9 @@ Activator::activate(const string& name,
         //
         if(!message.empty())
         {
+            Ice::Warning out(_traceLevels->logger);
+            out << "server activation failed for `" << name << "':\n" << message;
+
             close(fds[0]);
             close(errorFds[0]);
             waitPid(pid);
@@ -1300,7 +1377,7 @@ Activator::terminationListener()
                 //
                 while((rs = read(fd, &s, 16)) > 0)
                 {
-                    message.append(s, rs);
+                    message.append(s, static_cast<size_t>(rs));
                 }
 
                 //

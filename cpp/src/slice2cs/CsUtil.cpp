@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -27,7 +26,7 @@ namespace
 {
 
 string
-lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
+lookupKwd(const string& name, unsigned int baseTypes, bool mangleCasts = false)
 {
     //
     // Keyword list. *Must* be kept in alphabetical order.
@@ -210,7 +209,7 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package,
 // if so, prefix it with ice_; otherwise, return the name unchanged.
 //
 string
-Slice::CsGenerator::fixId(const string& name, int baseTypes, bool mangleCasts)
+Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangleCasts)
 {
     if(name.empty())
     {
@@ -239,7 +238,7 @@ Slice::CsGenerator::fixId(const string& name, int baseTypes, bool mangleCasts)
 }
 
 string
-Slice::CsGenerator::fixId(const ContainedPtr& cont, int baseTypes, bool mangleCasts)
+Slice::CsGenerator::fixId(const ContainedPtr& cont, unsigned int baseTypes, bool mangleCasts)
 {
     ContainerPtr container = cont->container();
     ContainedPtr contained = ContainedPtr::dynamicCast(container);
@@ -458,7 +457,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     if(proxy)
     {
         ClassDefPtr def = proxy->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             return getUnqualified(proxy->_class(), package, "", "Prx");
         }
@@ -794,7 +793,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             string typeS = typeToString(type, package);
             if(marshal)

@@ -57,6 +57,17 @@ module Test
         ["python:seq:default"] StringTuple s4;
     }
 
+    class D
+    {
+        optional(1) BoolSeq1 boolSeq;
+        optional(2) ByteSeq1 byteSeq;
+        optional(3) ShortSeq1 shortSeq;
+        optional(4) IntSeq1 intSeq;
+        optional(5) LongSeq1 longSeq;
+        optional(6) FloatSeq1 floatSeq;
+        optional(7) DoubleSeq1 doubleSeq;
+    }
+
     interface Custom
     {
         ByteString opByteString1(ByteString b1, out ByteString b2);
@@ -92,6 +103,8 @@ module Test
         ["python:memoryview:Custom.myBogusArrayNoneFactory"]BoolSeq1 opBogusArrayNoneFactory();
         ["python:memoryview:Custom.myBogusArraySignatureFactory"]BoolSeq1 opBogusArraySignatureFactory();
         ["python:memoryview:Custom.myNoCallableFactory"]BoolSeq1 opBogusArrayNoCallableFactory();
+
+        D opD(D d);
 
         void shutdown();
     }

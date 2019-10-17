@@ -228,26 +228,24 @@ def allTests(helper, communicator):
         pass
     print("ok")
 
-    #
-    # Set up test for calling a collocated object through an indirect, adapterless reference.
-    #
     sys.stdout.write("testing indirect references to collocated objects... ")
     sys.stdout.flush()
-    properties = communicator.getProperties()
-    properties.setProperty("Ice.PrintAdapterReady", "0")
-    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *")
-    adapter.setLocator(locator)
-    assert(adapter.getLocator() == locator)
+    communicator.getProperties().setProperty("Hello.AdapterId", Ice.generateUUID())
+    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default")
 
     id = Ice.Identity()
     id.name = Ice.generateUUID()
-    registry.addObject(adapter.add(HelloI(), id))
-    adapter.activate()
+    adapter.add(HelloI(), id)
 
     helloPrx = Test.HelloPrx.checkedCast(communicator.stringToProxy(Ice.identityToString(id)))
     test(not helloPrx.ice_getConnection())
 
-    adapter.deactivate()
+    helloPrx = Test.HelloPrx.checkedCast(adapter.createIndirectProxy(id))
+    test(not helloPrx.ice_getConnection())
+
+    helloPrx = Test.HelloPrx.checkedCast(adapter.createDirectProxy(id))
+    test(not helloPrx.ice_getConnection())
+
     print("ok")
 
     sys.stdout.write("shutdown server manager... ")

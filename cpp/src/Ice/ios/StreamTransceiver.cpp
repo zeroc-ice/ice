@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "StreamTransceiver.h"
 #include "StreamEndpointI.h"
 
@@ -316,7 +320,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
         checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
     }
 
-    size_t packetSize = buf.b.end() - buf.i;
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(!CFWriteStreamCanAcceptBytes(_writeStream.get()))
@@ -325,7 +329,8 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
         }
 
         assert(_fd != INVALID_SOCKET);
-        CFIndex ret = CFWriteStreamWrite(_writeStream.get(), reinterpret_cast<const UInt8*>(&*buf.i), packetSize);
+        CFIndex ret = CFWriteStreamWrite(_writeStream.get(), reinterpret_cast<const UInt8*>(&*buf.i),
+                                         static_cast<CFIndex>(packetSize));
 
         if(ret == SOCKET_ERROR)
         {
@@ -341,7 +346,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 
         if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
     return SocketOperationNone;
@@ -356,7 +361,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
         checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
     }
 
-    size_t packetSize = buf.b.end() - buf.i;
+    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
     while(buf.i != buf.b.end())
     {
         if(!CFReadStreamHasBytesAvailable(_readStream.get()))
@@ -365,7 +370,8 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
         }
 
         assert(_fd != INVALID_SOCKET);
-        CFIndex ret = CFReadStreamRead(_readStream.get(), reinterpret_cast<UInt8*>(&*buf.i), packetSize);
+        CFIndex ret = CFReadStreamRead(_readStream.get(), reinterpret_cast<UInt8*>(&*buf.i),
+                                       static_cast<CFIndex>(packetSize));
 
         if(ret == 0)
         {
@@ -386,7 +392,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 
@@ -507,7 +513,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
     CFStringRef domain = CFErrorGetDomain(err.get());
     if(CFStringCompare(domain, kCFErrorDomainPOSIX, 0) == kCFCompareEqualTo)
     {
-        errno = CFErrorGetCode(err.get());
+        errno = static_cast<int>(CFErrorGetCode(err.get()));
         if(interrupted() || noBuffers())
         {
             return;
@@ -530,7 +536,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
         }
     }
 
-    int error = CFErrorGetCode(err.get());
+    CFIndex error = CFErrorGetCode(err.get());
     if(error == kCFHostErrorHostNotFound || error == kCFHostErrorUnknown)
     {
         int rs = 0;
@@ -545,5 +551,6 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
         }
         throw DNSException(file, line, rs, _host);
     }
-    throw CFNetworkException(file, line, CFErrorGetCode(err.get()), fromCFString(domain));
+    throw CFNetworkException(file, line, static_cast<int>(CFErrorGetCode(err.get())), fromCFString(domain));
 }
+#endif

@@ -25,6 +25,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                    adapter.add(new BI(), Ice.Util.stringToIdentity("b"));
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
                     if(prx.ice_getConnection() != null)

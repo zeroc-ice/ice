@@ -76,8 +76,6 @@ public final class ThreadPool
         }
     }
 
-    private static ThreadPoolWorkItem _interruptWorkItem = new InterruptWorkItem();
-
     //
     // Exception raised by the thread pool work queue when the thread pool
     // is destroyed.
@@ -397,6 +395,11 @@ public final class ThreadPool
                 }
                 catch(DestroyedException ex)
                 {
+                    synchronized(this)
+                    {
+                        --_inUse;
+                        thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                    }
                     return;
                 }
                 catch(java.lang.Exception ex)

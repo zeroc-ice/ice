@@ -66,6 +66,23 @@ public final class RetryI extends _RetryDisp
 
     @Override
     public void
+    sleep(int delay, Ice.Current c)
+    {
+        while(true)
+        {
+            try
+            {
+                Thread.sleep(delay);
+                break;
+            }
+            catch(InterruptedException ex)
+            {
+            }
+        }
+    }
+
+    @Override
+    public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

@@ -256,36 +256,53 @@ public class AllTests
             out.println("ok");
         }
 
-        out.print("testing invocation timeout and retries... ");
-        out.flush();
-
-        retry2 = RetryPrxHelper.checkedCast(communicator2.stringToProxy(retry1.toString()));
-        try
         {
-            // No more than 2 retries before timeout kicks-in
-            ((RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
-            test(false);
+            out.print("testing timeouts and retries... ");
+            out.flush();
+            retry2 = RetryPrxHelper.checkedCast(communicator2.stringToProxy(retry1.toString()));
+            try
+            {
+                // No more than 2 retries before timeout kicks-in
+                ((RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException ex)
+            {
+                instrumentation.testRetryCount(2);
+                retry2.opIdempotent(-1); // Reset the counter
+                instrumentation.testRetryCount(-1);
+            }
+            try
+            {
+                // No more than 2 retries before timeout kicks-in
+                RetryPrx prx = (RetryPrx)retry2.ice_invocationTimeout(500);
+                prx.end_opIdempotent(prx.begin_opIdempotent(4));
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException ex)
+            {
+                instrumentation.testRetryCount(2);
+                retry2.opIdempotent(-1); // Reset the counter
+                instrumentation.testRetryCount(-1);
+            }
+            if(retry1.ice_getConnection() != null)
+            {
+                // The timeout might occur on connection establishment or because of the sleep. What's
+                // important here is to make sure there are 4 retries and that no calls succeed to
+                // ensure retries with the old connection timeout semantics work.
+                RetryPrx retryWithTimeout = (RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(200);
+                try
+                {
+                    retryWithTimeout.sleep(500);
+                    test(false);
+                }
+                catch(Ice.TimeoutException ex)
+                {
+                }
+                instrumentation.testRetryCount(4);
+            }
+            out.println("ok");
         }
-        catch(Ice.InvocationTimeoutException ex)
-        {
-            instrumentation.testRetryCount(2);
-            retry2.opIdempotent(-1); // Reset the counter
-            instrumentation.testRetryCount(-1);
-        }
-        try
-        {
-            // No more than 2 retries before timeout kicks-in
-            RetryPrx prx = (RetryPrx)retry2.ice_invocationTimeout(500);
-            prx.end_opIdempotent(prx.begin_opIdempotent(4));
-            test(false);
-        }
-        catch(Ice.InvocationTimeoutException ex)
-        {
-            instrumentation.testRetryCount(2);
-            retry2.opIdempotent(-1); // Reset the counter
-            instrumentation.testRetryCount(-1);
-        }
-        out.println("ok");
 
         return retry1;
     }

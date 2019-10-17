@@ -762,7 +762,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
 }
 
 VALUE
-IceRuby::createArrayHelper(long sz)
+IceRuby::createArray(long sz)
 {
     volatile VALUE arr = callRuby(rb_ary_new2, sz);
     if(sz > 0)

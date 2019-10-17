@@ -20,6 +20,13 @@ class ObjectClientServerTestCase(ClientServerTestCase):
             # test on arm64 devices with a debug Ice libraries which require lots of stack space.
             #
             props["Ice.ThreadPool.Server.StackSize"] = 768 * 1024
+        elif current.config.buildPlatform == "ppc":
+            #
+            # The AIX ppc default stack size is too small
+            #
+            props["Ice.ThreadPool.Server.StackSize"] = 256 * 1024
+        elif current.config.buildPlatform == "ppc64":
+            props["Ice.ThreadPool.Server.StackSize"] = 768 * 1024
         return props
 
 testcases = [

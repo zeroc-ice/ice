@@ -53,6 +53,10 @@
 #if defined(__clang__)
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wunused-parameter"
+//
+// BUGFIX: Workaround clang conversion warnings in ruby headers
+//
+#   pragma clang diagnostic ignored "-Wconversion"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wunused-parameter"

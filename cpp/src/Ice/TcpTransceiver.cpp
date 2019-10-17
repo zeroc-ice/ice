@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+
 #include <Ice/TcpTransceiver.h>
 #include <Ice/Connection.h>
 #include <Ice/ProtocolInstance.h>
@@ -128,3 +132,4 @@ IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance,
 IceInternal::TcpTransceiver::~TcpTransceiver()
 {
 }
+#endif

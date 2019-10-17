@@ -18,7 +18,9 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     communicator->getProperties()->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
     void allTests(Test::TestHelper*);
     allTests(this);

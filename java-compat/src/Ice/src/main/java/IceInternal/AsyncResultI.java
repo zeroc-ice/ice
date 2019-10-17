@@ -399,9 +399,9 @@ public class AsyncResultI implements AsyncResult
         CancellationHandler handler;
         synchronized(this)
         {
-            _cancellationException = ex;
             if(_cancellationHandler == null)
             {
+                _cancellationException = ex;
                 return;
             }
             handler = _cancellationHandler;

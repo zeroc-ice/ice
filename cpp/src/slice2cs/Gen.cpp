@@ -1204,7 +1204,7 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, int baseTypes,
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
                                               bool propertyMapping)
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -1441,22 +1441,31 @@ void
 Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, StringList& remarksLines)
 {
     string s = p->comment();
-    string summary;
+
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+
     unsigned int i;
+
     for(i = 0; i < s.size(); ++i)
     {
         if(s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
         {
-            summary += '.';
             ++i;
             break;
         }
-        else
+        else if(s[i] == '@' && (s.substr(i, paramTag.size()) == paramTag ||
+                                s.substr(i, throwsTag.size()) == throwsTag ||
+                                s.substr(i, exceptionTag.size()) == exceptionTag ||
+                                s.substr(i, returnTag.size()) == returnTag))
         {
-            summary += s[i];
+            break;
         }
     }
-    summaryLines = splitIntoLines(summary);
+
+    summaryLines = splitIntoLines(trim(s.substr(0, i)));
     if(!summaryLines.empty())
     {
         remarksLines = splitIntoLines(trim(s.substr(i)));
@@ -3381,11 +3390,12 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    int baseTypes = 0;
+    unsigned int baseTypes = 0;
     bool isClass = false;
     bool isProperty = false;
     bool isValue = false;
     bool isProtected = false;
+    bool isPrivate = false;
     const bool isOptional = p->optional();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
@@ -3398,7 +3408,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(st)
     {
         isLocal = st->isLocal();
-        isValue = isValueType(StructPtr::dynamicCast(cont));
+        isValue = isValueType(st);
         if(!isValue)
         {
             baseTypes = DotNet::ICloneable;
@@ -3406,6 +3416,22 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if(cont->hasMetaData("cs:property"))
         {
             isProperty = true;
+        }
+        //
+        // C# structs are implicit sealed and cannot use `protected' modifier,
+        // we must use either public or private. For Slice structs using the
+        // class mapping we can still use protected modifier.
+        //
+        if(cont->hasMetaData("protected") || p->hasMetaData("protected"))
+        {
+            if(isValue)
+            {
+                isPrivate = true;
+            }
+            else
+            {
+                isProtected = true;
+            }
         }
     }
     else if(ex)
@@ -3433,6 +3459,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string type = typeToString(p->type(), ns, isOptional, isLocal, p->getMetaData());
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName;
+
     if(isProperty)
     {
         dataMemberName = "_" + p->name();
@@ -3446,17 +3473,22 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << nl << "private";
     }
-    else if(isProtected)
-    {
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl << "protected";
-    }
     else
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
-        _out << nl << "public";
+        if(isPrivate)
+        {
+            _out << nl << "private";
+        }
+        else if(isProtected)
+        {
+            _out << nl << "protected";
+        }
+        else
+        {
+            _out << nl << "public";
+        }
     }
 
     if(isOptional && isValue)
@@ -3472,7 +3504,19 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
-        _out << nl << (isProtected ? "protected" : "public");
+        if(isPrivate)
+        {
+            _out << nl << "private";
+        }
+        else if(isProtected)
+        {
+            _out << nl << "protected";
+        }
+        else
+        {
+            _out << nl << "public";
+        }
+
         if(!isValue)
         {
             _out << " virtual";
@@ -3492,7 +3536,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers, int baseTypes)
+Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers, unsigned int baseTypes)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -3506,7 +3550,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, int baseTypes)
+Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, unsigned int baseTypes)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -3870,7 +3914,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string context = getEscapedParamName(p, "context");
         _out << sp;
         writeDocComment(p, deprecateReason,
-            "<param name=\"" + context + " \">The Context map to send with the invocation.</param>");
+            "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
         if(!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";

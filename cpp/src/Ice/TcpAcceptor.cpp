@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+
 #include <Ice/TcpAcceptor.h>
 #include <Ice/TcpTransceiver.h>
 #include <Ice/TcpEndpointI.h>
@@ -347,3 +351,5 @@ IceInternal::TcpAcceptor::~TcpAcceptor()
     assert(_acceptFd == INVALID_SOCKET);
 #endif
 }
+
+#endif

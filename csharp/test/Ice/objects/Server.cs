@@ -45,6 +45,8 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.Object @object = new InitialI(adapter);
                     adapter.add(@object, Ice.Util.stringToIdentity("initial"));
+                    @object = new F2I();
+                    adapter.add(@object, Ice.Util.stringToIdentity("F21"));
                     @object = new UnexpectedObjectExceptionTestI();
                     adapter.add(@object, Ice.Util.stringToIdentity("uoet"));
                     adapter.activate();

@@ -1371,9 +1371,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     {
         ostringstream ostr;
         ostr << "operation `" << fixIdent(name) << "' should return a tuple of length " << numResults;
-        string str = ostr.str();
-        PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-        throw Ice::MarshalException(__FILE__, __LINE__);
+        throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 
     //
@@ -1407,12 +1405,18 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
         if((!info->optional || arg != Unset) && !info->type->validate(arg))
         {
-            // TODO: Provide the parameter name instead?
-            ostringstream ostr;
-            ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName << "'";
-            string str = ostr.str();
-            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-            throw Ice::MarshalException(__FILE__, __LINE__);
+            try
+            {
+                PyException().raise();
+            }
+            catch(const Ice::UnknownException& ex)
+            {
+                // TODO: Provide the parameter name instead?
+                ostringstream ostr;
+                ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName;
+                ostr << "':\n" << ex.unknown;
+                throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
+            }
         }
     }
     if(returnType)
@@ -1420,11 +1424,16 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
         PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
         if((!returnType->optional || res != Unset) && !returnType->type->validate(res))
         {
-            ostringstream ostr;
-            ostr << "invalid return value for operation `" << dispatchName << "'";
-            string str = ostr.str();
-            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-            throw Ice::MarshalException(__FILE__, __LINE__);
+            try
+            {
+                PyException().raise();
+            }
+            catch(const Ice::UnknownException& ex)
+            {
+                ostringstream ostr;
+                ostr << "invalid return value for operation `" << dispatchName << "':\n" << ex.unknown;
+                throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
+            }
         }
     }
 
@@ -3189,7 +3198,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         }
         else
         {
-            op = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), out.size());
+            op = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&out[0]), static_cast<Py_ssize_t>(out.size()));
         }
         if(!op.get())
         {
@@ -3199,7 +3208,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         //
         // Create the output buffer and copy in the outParams.
         //
-        PyObjectHandle op = PyBuffer_New(out.size());
+        PyObjectHandle op = PyBuffer_New(static_cast<Py_ssize_t>(out.size()));
         if(!op.get())
         {
             throwPythonException();
@@ -3212,7 +3221,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             {
                 throwPythonException();
             }
-            memcpy(buf, &out[0], ssz);
+            memcpy(buf, &out[0], static_cast<size_t>(ssz));
         }
 #endif
 
@@ -3481,7 +3490,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
             return 0;
         }
         assert(sz == results.second - results.first);
-        memcpy(buf, results.first, sz);
+        memcpy(buf, results.first, static_cast<size_t>(sz));
 #endif
 
         PyTuple_SET_ITEM(args.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -3563,7 +3572,7 @@ IcePy::AsyncBlobjectInvocation::response(bool ok, const pair<const Ice::Byte*, c
             return;
         }
         assert(sz == results.second - results.first);
-        memcpy(buf, results.first, sz);
+        memcpy(buf, results.first, static_cast<size_t>(sz));
 #endif
 
         PyTuple_SET_ITEM(args.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -3750,7 +3759,7 @@ IcePy::NewAsyncBlobjectInvocation::handleResponse(PyObject* future, bool ok,
         return;
     }
     assert(sz == results.second - results.first);
-    memcpy(buf, results.first, sz);
+    memcpy(buf, results.first, static_cast<size_t>(sz));
 #endif
 
     PyTuple_SET_ITEM(args.get(), 1, op.release()); // PyTuple_SET_ITEM steals a reference.
@@ -3777,7 +3786,6 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
         ostr << "servant for identity " << communicator->identityToString(current.id)
              << " does not define operation `" << dispatchName << "'";
         string str = ostr.str();
-        PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
         Ice::UnknownException ex(__FILE__, __LINE__);
         ex.unknown = str;
         throw ex;
@@ -3793,7 +3801,6 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
         ostr << "_iceDispatch method not found for identity " << communicator->identityToString(current.id)
              << " and operation `" << dispatchName << "'";
         string str = ostr.str();
-        PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
         Ice::UnknownException ex(__FILE__, __LINE__);
         ex.unknown = str;
         throw ex;
@@ -4082,7 +4089,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
         throwPythonException();
     }
     assert(sz == inBytes.second - inBytes.first);
-    memcpy(buf, inBytes.first, sz);
+    memcpy(buf, inBytes.first, static_cast<size_t>(sz));
 #endif
 
     PyTuple_SET_ITEM(args.get(), start, ip.release()); // PyTuple_SET_ITEM steals a reference.
@@ -4108,9 +4115,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
         //
         if(!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != 2)
         {
-            string str = "operation `ice_invoke' should return a tuple of length 2";
-            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-            throw Ice::MarshalException(__FILE__, __LINE__);
+            throw Ice::MarshalException(__FILE__, __LINE__, "operation `ice_invoke' should return a tuple of length 2");
         }
 
         PyObject* arg = PyTuple_GET_ITEM(result, 0);
@@ -4121,11 +4126,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
 #if PY_VERSION_HEX >= 0x03000000
         if(!PyBytes_Check(arg))
         {
-            ostringstream ostr;
-            ostr << "invalid return value for operation `ice_invoke'";
-            string str = ostr.str();
-            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-            throw Ice::MarshalException(__FILE__, __LINE__);
+            throw Ice::MarshalException(__FILE__, __LINE__, "invalid return value for operation `ice_invoke'");
         }
 
         Py_ssize_t sz = PyBytes_GET_SIZE(arg);
@@ -4139,11 +4140,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
 #else
         if(!PyBuffer_Check(arg))
         {
-            ostringstream ostr;
-            ostr << "invalid return value for operation `ice_invoke'";
-            string str = ostr.str();
-            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-            throw Ice::MarshalException(__FILE__, __LINE__);
+            throw Ice::MarshalException(__FILE__, __LINE__, "invalid return value for operation `ice_invoke'");
         }
 
         char* charBuf = 0;

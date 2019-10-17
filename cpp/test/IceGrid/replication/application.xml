@@ -57,6 +57,7 @@
         <property name="Ice.Admin.Enabled" value="0"/>
 
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
+        <property name="Ice.StdErr" value="${server.data}/stderr.txt"/>
       </server>
     </server-template>
 

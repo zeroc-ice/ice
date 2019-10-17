@@ -9,6 +9,9 @@ class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def __init__(self, *args, **kargs):
         Server.__init__(self, "icebridge", mapping=Mapping.getByName("cpp"), desc="IceBridge", *args, **kargs)
 
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
+
     def getProps(self, current):
         props = Server.getProps(self, current);
         props.update({

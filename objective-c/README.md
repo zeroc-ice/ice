@@ -104,7 +104,7 @@ To clean the build for all the supported configurations and platforms, run
 
 Running `make distclean` will also clean the build for all the configurations
 and platforms. In addition, it will also remove the generated files created by
-the Slice translators.
+the Slice compilers.
 
 ## Running the Test Suite
 
@@ -128,9 +128,13 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
  ```
    python3 allTests.py --config=xcodesdk --platform=iphoneos
  ```
+ or
+ ```
+   python3 allTests.py --config=arc-xcodesdk --platform=iphoneos
+ ```
  All the test clients and servers run on the iOS device, not on your Mac
  computer.
 
-[1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.2
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[1]: https://doc.zeroc.com/ice/3.7/release-notes/using-the-macos-binary-distribution
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [3]: https://en.wikipedia.org/wiki/Automatic_Reference_Counting

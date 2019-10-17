@@ -287,6 +287,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2objc", "..\src\slice2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2rb", "..\src\slice2rb\msbuild\slice2rb.vcxproj", "{A79E9EB0-878C-4EDB-9804-2D262D6008DB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2swift", "..\src\slice2swift\msbuild\slice2swift.vcxproj", "{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -695,6 +697,14 @@ Global
 		{A79E9EB0-878C-4EDB-9804-2D262D6008DB}.Release|Win32.Build.0 = Release|Win32
 		{A79E9EB0-878C-4EDB-9804-2D262D6008DB}.Release|x64.ActiveCfg = Release|x64
 		{A79E9EB0-878C-4EDB-9804-2D262D6008DB}.Release|x64.Build.0 = Release|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|Win32.Build.0 = Debug|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|x64.ActiveCfg = Debug|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Debug|x64.Build.0 = Debug|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|Win32.ActiveCfg = Release|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|Win32.Build.0 = Release|Win32
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|x64.ActiveCfg = Release|x64
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -750,5 +760,6 @@ Global
 		{D0DC2305-37FE-4D03-BE05-AC8912678DC8} = {F48CC091-6F26-4EC8-A2FB-485975E7C908}
 		{D64AAD99-11C7-4C69-BD27-9FA9C71A36AC} = {2DC2B270-B7AE-48CF-8FB0-41A55A9747E9}
 		{A79E9EB0-878C-4EDB-9804-2D262D6008DB} = {2DC2B270-B7AE-48CF-8FB0-41A55A9747E9}
+		{8D237BBB-506A-4CC1-8C81-BDC2787DA88B} = {2DC2B270-B7AE-48CF-8FB0-41A55A9747E9}
 	EndGlobalSection
 EndGlobal

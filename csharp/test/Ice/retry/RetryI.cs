@@ -6,6 +6,8 @@ namespace Ice
 {
     namespace retry
     {
+        using System.Threading;
+
         public sealed class RetryI : Test.RetryDisp_
         {
             public RetryI()
@@ -47,6 +49,11 @@ namespace Ice
             public override void opSystemException(Ice.Current c)
             {
                 throw new SystemFailure();
+            }
+
+            public override void sleep(int delay, Ice.Current c)
+            {
+                Thread.Sleep(delay);
             }
 
             public override void shutdown(Ice.Current current)

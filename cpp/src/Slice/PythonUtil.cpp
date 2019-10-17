@@ -1827,7 +1827,7 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def && (def->isInterface() || def->allOperations().size() > 0))
+        if(!def || def->isAbstract())
         {
             _out << "_M_" << getAbsolute(prx->_class(), "_t_", "Prx");
         }
@@ -2486,10 +2486,10 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     string name;
     bool inParam = false, inException = false, inReturn = false;
-    vector<string>::size_type i = 0;
-    while(i < lines.size())
+    vector<string>::iterator i = lines.begin();
+    while(i != lines.end())
     {
-        string l = lines[i];
+        string l = *i;
         string::size_type paramTag = l.find("@param");
         string::size_type throwTag = l.find("@throw");
         string::size_type returnTag = l.find("@return");
@@ -2533,7 +2533,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     }
                 }
             }
-            lines.erase(lines.begin() + i);
+            i = lines.erase(i);
             continue;
         }
         else if(throwTag != string::npos)
@@ -2575,7 +2575,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     }
                 }
             }
-            lines.erase(lines.begin() + i);
+            i = lines.erase(i);
             continue;
         }
         else if(returnTag != string::npos)
@@ -2592,7 +2592,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 inParam = false;
                 c.returns = l.substr(pos);
             }
-            lines.erase(lines.begin() + i);
+            i = lines.erase(i);
             continue;
         }
         else
@@ -2612,7 +2612,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                         c.params[name] += " ";
                     }
                     c.params[name] += l.substr(pos);
-                    lines.erase(lines.begin() + i);
+                    i = lines.erase(i);
                     continue;
                 }
                 else if(inException)
@@ -2623,7 +2623,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                         c.exceptions[name] += " ";
                     }
                     c.exceptions[name] += l.substr(pos);
-                    lines.erase(lines.begin() + i);
+                    i = lines.erase(i);
                     continue;
                 }
                 else if(inReturn)
@@ -2633,7 +2633,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                         c.returns += " ";
                     }
                     c.returns += l.substr(pos);
-                    lines.erase(lines.begin() + i);
+                    i = lines.erase(i);
                     continue;
                 }
             }

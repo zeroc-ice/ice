@@ -43,7 +43,7 @@
 #       endif
 #   endif
 
-#   if !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && !defined(ICE_STATIC_LIBS)
+#   if !defined(_AIX) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && !defined(ICE_STATIC_LIBS)
 #       include <execinfo.h>
 #       include <cxxabi.h>
 #       include <stdint.h>
@@ -350,8 +350,8 @@ getStackFrames()
 #elif defined(ICE_BACKTRACE)
 
     stackFrames.resize(100);
-    size_t stackDepth = backtrace(&stackFrames.front(), stackFrames.size());
-    stackFrames.resize(stackDepth);
+    int stackDepth = backtrace(&stackFrames.front(), static_cast<int>(stackFrames.size()));
+    stackFrames.resize(static_cast<size_t>(stackDepth));
     if(!stackFrames.empty())
     {
         stackFrames.erase(stackFrames.begin()); // drop the first frame
@@ -468,7 +468,7 @@ getStackTrace(const vector<void*>& stackFrames)
     // Initialize backtraceStrings immediately
     if(p != stackFrames.end())
     {
-        backtraceStrings = backtrace_symbols(&*p, stackFrames.size());
+        backtraceStrings = backtrace_symbols(&*p, static_cast<int>(stackFrames.size()));
     }
 #   endif
 

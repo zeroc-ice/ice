@@ -20,7 +20,7 @@ enum BaseType
 
 extern const char * manglePrefix;
 
-std::string mangleName(const std::string&, int baseTypes = 0);
+std::string mangleName(const std::string&, unsigned int baseTypes = 0);
 
 }
 

@@ -112,7 +112,9 @@ local interface ServantLocator
      * @see #locate
      *
      **/
-    ["java:UserException"] void finished(Current curr, Object servant, LocalObject cookie);
+    ["java:UserException"] void finished(Current curr,
+                                         ["swift:nonnull"] Object servant,
+                                         LocalObject cookie);
 
     /**
      *
@@ -127,7 +129,7 @@ local interface ServantLocator
      * @see Communicator#destroy
      *
      **/
-    void deactivate(string category);
+    ["swift:noexcept"] void deactivate(string category);
 }
 
 }

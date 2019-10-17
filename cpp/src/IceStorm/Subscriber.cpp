@@ -196,12 +196,16 @@ SubscriberBatch::SubscriberBatch(
     _obj(obj),
     _interval(instance->flushInterval())
 {
-    assert(retryCount == 0);
 }
 
 void
 SubscriberBatch::flush()
 {
+    if(_state != SubscriberStateOnline || _events.empty())
+    {
+        return;
+    }
+
     if(_outstanding == 0)
     {
         ++_outstanding;
@@ -309,7 +313,6 @@ SubscriberOneway::SubscriberOneway(
     Subscriber(instance, rec, proxy, retryCount, 5),
     _obj(obj)
 {
-    assert(retryCount == 0);
 }
 
 void
@@ -605,18 +608,10 @@ Subscriber::create(
             }
             else if(newObj->ice_isOneway() || newObj->ice_isDatagram())
             {
-                if(retryCount > 0)
-                {
-                    throw BadQoS("non-zero retryCount QoS requires a twoway proxy");
-                }
                 subscriber = new SubscriberOneway(instance, rec, proxy, retryCount, newObj);
             }
             else if(newObj->ice_isBatchOneway() || newObj->ice_isBatchDatagram())
             {
-                if(retryCount > 0)
-                {
-                    throw BadQoS("non-zero retryCount QoS requires a twoway proxy");
-                }
                 subscriber = new SubscriberBatch(instance, rec, proxy, retryCount, newObj);
             }
             else //if(newObj->ice_isTwoway())

@@ -24,6 +24,21 @@ classdef AllTests
         function allTests(helper)
             import Test.*;
 
+            controller = ControllerPrx.checkedCast(...
+                helper.communicator().stringToProxy(['controller:', helper.getTestEndpoint(1)]));
+            assert(~isempty(controller));
+            try
+                AllTests.allTestsWithController(helper, controller);
+            catch ex
+                % Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+                % the test from hanging on exit in case a connection which disables timeouts is still opened.
+                controller.resumeAdapter();
+                rethrow(ex);
+            end
+        end
+        function allTestsWithController(helper, controller)
+            import Test.*;
+
             communicator = helper.communicator();
 
             sref = ['timeout:', helper.getTestEndpoint()];
@@ -32,10 +47,6 @@ classdef AllTests
 
             timeout = TimeoutPrx.checkedCast(obj);
             assert(~isempty(timeout));
-
-            controller = ControllerPrx.checkedCast(...
-                communicator.stringToProxy(['controller:', helper.getTestEndpoint(1)]));
-            assert(~isempty(controller));
 
             fprintf('testing connect timeout... ');
 
@@ -116,7 +127,7 @@ classdef AllTests
             to = timeout.ice_invocationTimeout(100);
             assert(connection == to.ice_getConnection());
             try
-                to.sleep(750);
+                to.sleep(1000);
                 assert(false);
             catch ex
                 assert(isa(ex, 'Ice.InvocationTimeoutException'));
@@ -139,7 +150,7 @@ classdef AllTests
             % Expect InvocationTimeoutException.
             %
             to = timeout.ice_invocationTimeout(100);
-            f = to.sleepAsync(750);
+            f = to.sleepAsync(1000);
             try
                 f.fetchOutputs();
             catch ex

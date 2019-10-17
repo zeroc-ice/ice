@@ -1679,7 +1679,6 @@ public class InputStream
     }
 
     final static java.nio.charset.Charset _utf8 = java.nio.charset.Charset.forName("UTF8");
-    private java.nio.charset.CharsetEncoder _charEncoder = null;
 
     /**
      * Extracts a string from the stream.

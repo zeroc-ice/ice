@@ -407,12 +407,21 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
 
             //
+            // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+            //
+            _communicator.addAdminFacet(this, "IceBox.ServiceManager");
+            _communicator.getAdmin();
+            if(adapter != null)
+            {
+                adapter.activate();
+            }
+
+            //
             // We may want to notify external scripts that the services
-            // have started. This is done by defining the property:
+            // have started and that IceBox is "ready".
+            // This is done by defining the property IceBox.PrintServicesReady=bundleName
             //
-            // IceBox.PrintServicesReady=bundleName
-            //
-            // Where bundleName is whatever you choose to call this set of
+            // bundleName is whatever you choose to call this set of
             // services. It will be echoed back as "bundleName ready".
             //
             // This must be done after start() has been invoked on the
@@ -422,39 +431,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             if(bundleName.length() > 0)
             {
                 System.out.println(bundleName + " ready");
-            }
-
-            //
-            // Register "this" as a facet to the Admin object and
-            // create Admin object
-            //
-            try
-            {
-                _communicator.addAdminFacet(this, "IceBox.ServiceManager");
-                _communicator.getAdmin();
-            }
-            catch(Ice.ObjectAdapterDeactivatedException ex)
-            {
-                //
-                // Expected if the communicator has been shutdown.
-                //
-            }
-
-            //
-            // Start request dispatching after we've started the services.
-            //
-            if(adapter != null)
-            {
-                try
-                {
-                    adapter.activate();
-                }
-                catch(Ice.ObjectAdapterDeactivatedException ex)
-                {
-                    //
-                    // Expected if the communicator has been shutdown.
-                    //
-                }
             }
 
             _communicator.waitForShutdown();
@@ -468,6 +444,14 @@ public class ServiceManagerI extends _ServiceManagerDisp
             pw.flush();
             _logger.error(sw.toString());
             return 1;
+        }
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
+            // Expected if the communicator is shutdown by the shutdown hook
+        }
+        catch(Ice.ObjectAdapterDeactivatedException ex)
+        {
+            // Expected if the communicator is shutdown by the shutdown hook
         }
         catch(Throwable ex)
         {

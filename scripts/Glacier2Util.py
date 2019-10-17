@@ -13,6 +13,9 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
         self.portnum = portnum
         self.passwords = passwords
 
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
+
     def setup(self, current):
         if self.passwords:
             path = os.path.join(current.testsuite.getPath(), "passwords")

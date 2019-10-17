@@ -23,14 +23,24 @@ ifeq ($(os),Linux)
    cppflags   := $(filter-out -Wredundant-decls,$(cppflags))
 endif
 
-python_cppflags         := $(shell $(python-config) --cflags)
-python_ldflags          := $(shell $(python-config) --ldflags)
+python_cppflags         := $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --cflags))
+python_ldflags          := $(or $(PYTHON_LDLFLAGS),$(shell $(python-config) --ldflags))
+
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
 python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
 
 ifneq ($(filter debian ubuntu,$(linux_id)),)
 allow-undefined-symbols := yes
 python_ldflags          := $(filter-out -lpython% -ldl -lutil,$(python_ldflags))
+endif
+
+ifeq ($(os),AIX)
+# We use an attribute (not an export file) to export the entry point
+link-with-python-exp   := -Wl,-bE:Modules/python.exp
+python_ldflags         := $(filter-out $(link-with-python-exp),$(python_ldflags))
+
+# $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
+mkshlib                = $(or $($7_cxx),$(CXX)) -shared -o $1 $2 $6
 endif
 
 ifneq ($(OPTIMIZE),yes)
@@ -45,7 +55,7 @@ python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$
 #
 # Python installation directory
 #
-install_pythondir       = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)
+install_pythondir       = $(or $(PYTHON_INSTALLDIR),$(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python))
 
 #
 # Rules to build a python module. We just compute the name of the python module

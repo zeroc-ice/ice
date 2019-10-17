@@ -64,6 +64,27 @@ namespace Ice
 
             public static void allTests(global::Test.TestHelper helper)
             {
+                Test.ControllerPrx controller =
+                    Test.ControllerPrxHelper.checkedCast(
+                        helper.communicator().stringToProxy("controller:" + helper.getTestEndpoint(1)));
+                test(controller != null);
+
+                try
+                {
+                    allTestsWithController(helper, controller);
+                }
+                catch(Exception)
+                {
+                    // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+                    // the test from hanging on exit in case a connection which disables timeouts is still opened.
+                    controller.resumeAdapter();
+                    throw;
+                }
+
+            }
+
+            public static void allTestsWithController(global::Test.TestHelper helper, Test.ControllerPrx controller)
+            {
                 var communicator = helper.communicator();
                 string sref = "timeout:" + helper.getTestEndpoint(0);
                 var obj = communicator.stringToProxy(sref);
@@ -71,10 +92,6 @@ namespace Ice
 
                 Test.TimeoutPrx timeout = Test.TimeoutPrxHelper.checkedCast(obj);
                 test(timeout != null);
-
-                Test.ControllerPrx controller =
-                    Test.ControllerPrxHelper.checkedCast(communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
-                test(controller != null);
 
                 var output = helper.getWriter();
                 output.Write("testing connect timeout... ");
@@ -163,7 +180,7 @@ namespace Ice
                     test(connection == to.ice_getConnection());
                     try
                     {
-                        to.sleep(500);
+                        to.sleep(1000);
                         test(false);
                     }
                     catch(Ice.InvocationTimeoutException)
@@ -188,7 +205,7 @@ namespace Ice
                     //
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
                     Callback cb = new Callback();
-                    to.begin_sleep(500).whenCompleted(
+                    to.begin_sleep(1000).whenCompleted(
                        () =>
                         {
                             test(false);
@@ -464,21 +481,7 @@ namespace Ice
                     batchTimeout.ice_ping();
                     batchTimeout.ice_ping();
 
-                   ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
-                    try
-                    {
-                        batchTimeout.ice_flushBatchRequests();
-                        test(false);
-                    }
-                    catch(Ice.InvocationTimeoutException)
-                    {
-                    }
-
-                    batchTimeout.ice_ping();
-                    batchTimeout.ice_ping();
-                    batchTimeout.ice_ping();
-
-                   ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(300); // Keep the server thread pool busy.
+                    ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(500); // Keep the server thread pool busy.
                     try
                     {
                         batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());

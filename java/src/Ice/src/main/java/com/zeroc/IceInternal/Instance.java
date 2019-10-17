@@ -971,6 +971,11 @@ public final class Instance implements java.util.function.Function<String, Class
                 else
                 {
                     _initData.logger = com.zeroc.Ice.Util.getProcessLogger();
+                    if(_initData.logger instanceof com.zeroc.Ice.LoggerI)
+                    {
+                        _initData.logger =
+                            new com.zeroc.Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"), "");
+                    }
                 }
             }
 

@@ -2,29 +2,31 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-// Main source
-include ':ice'
-project(':ice').projectDir = new File('src/Ice')
-include ':icessl'
-project(':icessl').projectDir = new File('src/IceSSL')
-include ':icediscovery'
-project(':icediscovery').projectDir = new File('src/IceDiscovery')
-include ':icelocatordiscovery'
-project(':icelocatordiscovery').projectDir = new File('src/IceLocatorDiscovery')
-include ':icebt'
-project(':icebt').projectDir = new File('src/IceBT')
-include ':icebox'
-project(':icebox').projectDir = new File('src/IceBox')
-include ':glacier2'
-project(':glacier2').projectDir = new File('src/Glacier2')
-include ':icepatch2'
-project(':icepatch2').projectDir = new File('src/IcePatch2')
-include ':icestorm'
-project(':icestorm').projectDir = new File('src/IceStorm')
-include ':icegrid'
-project(':icegrid').projectDir = new File('src/IceGrid')
-include ':IceGridGUI'
-project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
+if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
+    // Main source
+    include ':ice'
+    project(':ice').projectDir = new File('src/Ice')
+    include ':icessl'
+    project(':icessl').projectDir = new File('src/IceSSL')
+    include ':icediscovery'
+    project(':icediscovery').projectDir = new File('src/IceDiscovery')
+    include ':icelocatordiscovery'
+    project(':icelocatordiscovery').projectDir = new File('src/IceLocatorDiscovery')
+    include ':icebt'
+    project(':icebt').projectDir = new File('src/IceBT')
+    include ':icebox'
+    project(':icebox').projectDir = new File('src/IceBox')
+    include ':glacier2'
+    project(':glacier2').projectDir = new File('src/Glacier2')
+    include ':icepatch2'
+    project(':icepatch2').projectDir = new File('src/IcePatch2')
+    include ':icestorm'
+    project(':icestorm').projectDir = new File('src/IceStorm')
+    include ':icegrid'
+    project(':icegrid').projectDir = new File('src/IceGrid')
+    include ':IceGridGUI'
+    project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
+}
 
 // Tests
 include ':test'

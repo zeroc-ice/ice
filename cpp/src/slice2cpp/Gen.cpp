@@ -978,11 +978,26 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             string md = *q++;
             static const string includePrefix = "cpp:include:";
+            static const string sourceIncludePrefix = "cpp:source-include:";
             if(md.find(includePrefix) == 0)
             {
                 if(md.size() > includePrefix.size())
                 {
                     H << nl << "#include <" << md.substr(includePrefix.size()) << ">";
+                }
+                else
+                {
+                    ostringstream ostr;
+                    ostr << "ignoring invalid global metadata `" << md << "'";
+                    dc->warning(InvalidMetaData, file, -1, ostr.str());
+                    globalMetaData.remove(md);
+                }
+            }
+            else if(md.find(sourceIncludePrefix) == 0)
+            {
+                if(md.size() > sourceIncludePrefix.size())
+                {
+                    C << nl << "#include <" << md.substr(sourceIncludePrefix.size()) << ">";
                 }
                 else
                 {
@@ -1865,20 +1880,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     ContainerPtr container = p->container();
     string name = fixKwd(p->name());
 
-    string scope = "";
-    StructPtr st = StructPtr::dynamicCast(container);
-    if(st)
-    {
-        scope = fixKwd(st->scope());
-    }
-
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(container);
-    if(ex)
-    {
-        scope = fixKwd(ex->scope());
-    }
-
     writeDocSummary(H, p);
+    //
+    // Use an empty scope to get full qualified names from calls to typeToString.
+    //
+    const string scope = "";
     H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), _useWstring) << ' ' << name << ';';
 }
 
@@ -3895,7 +3901,11 @@ Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     int typeContext = cl->isLocal() ? TypeContextLocal | _useWstring : _useWstring;
     writeDocSummary(H, p);
-    H << nl << typeToString(p->type(), p->optional(), fixKwd(cl->scope()), p->getMetaData(), typeContext) << ' '
+    //
+    // Use an empty scope to get full qualified names from calls to typeToString.
+    //
+    const string scope = "";
+    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), typeContext) << ' '
       << name << ';';
 }
 
@@ -4086,7 +4096,10 @@ void
 Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
-    string scope = fixKwd(p->scope());
+    //
+    // Use an empty scope to get full qualified names from calls to typeToString.
+    //
+    const string scope = "";
 
     if(!allDataMembers.empty())
     {
@@ -5371,12 +5384,17 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             if(s.find(prefix) == 0)
             {
                 static const string cppIncludePrefix = "cpp:include:";
+                static const string cppSourceIncludePrefix = "cpp:source-include";
                 static const string cppHeaderExtPrefix = "cpp:header-ext:";
                 static const string cppSourceExtPrefix = "cpp:source-ext:";
                 static const string cppDllExportPrefix = "cpp:dll-export:";
                 static const string cppDoxygenIncludePrefix = "cpp:doxygen:include:";
 
                 if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
+                {
+                    continue;
+                }
+                else if(s.find(cppSourceIncludePrefix) == 0 && s.size() > cppSourceIncludePrefix.size())
                 {
                     continue;
                 }
@@ -5684,6 +5702,13 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 {
                     continue;
                 }
+            }
+
+            if(BuiltinPtr::dynamicCast(cont) &&
+               BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindLocalObject &&
+               ss.find("type:") == 0)
+            {
+                continue;
             }
 
             dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
@@ -6420,7 +6445,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains a tuple containing all of the exception's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, scope, p->allDataMembers(), _useWstring);
+    writeIceTuple(H, p->allDataMembers(), _useWstring);
 
     H << sp;
     H << nl << "/**";
@@ -6577,10 +6602,10 @@ Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
     H << nl << "/**";
-    H << nl << " * Obtains a tuple containing all of the exception's data members.";
+    H << nl << " * Obtains a tuple containing all of the struct's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, fixKwd(p->scope()), p->dataMembers(), _useWstring);
+    writeIceTuple(H, p->dataMembers(), _useWstring);
     H << eb << ';';
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -6588,7 +6613,10 @@ Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    string scope = fixKwd(ContainedPtr::dynamicCast(p->container())->scope());
+    //
+    // Use an empty scope to get full qualified names from calls to typeToString.
+    //
+    const string scope = "";
     string name = fixKwd(p->name());
     writeDocSummary(H, p);
     H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), _useWstring | TypeContextCpp11)
@@ -6740,12 +6768,17 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(H, p);
     H << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
-    if(bases.empty() || (base && base->allOperations().empty()))
+    if(bases.empty() || (bases.size() == 1 && base && base->allOperations().empty()))
     {
         H << getUnqualified("::Ice::ObjectPrx", scope);
     }
     else
     {
+        if(base && base->allOperations().empty())
+        {
+            bases.pop_front();
+        }
+
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
@@ -6845,10 +6878,13 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
     if(ret)
     {
-        futureOutParams.push_back(typeToString(ret, retIsOpt, clScope, p->getMetaData(), _useWstring |
+        //
+        // Use empty scope to get full qualified names in types used with future declarations.
+        //
+        futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
                                                TypeContextCpp11));
 
-        lambdaOutParams.push_back(typeToString(ret, retIsOpt, clScope, p->getMetaData(), _useWstring |
+        lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
                                                TypeContextInParam | TypeContextCpp11));
 
         outParamsHasOpt |= p->returnIsOptional();
@@ -6861,9 +6897,12 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
         if((*q)->isOutParam())
         {
-            futureOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), clScope, metaData,
+            //
+            // Use empty scope to get full qualified names in types used with future declarations.
+            //
+            futureOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData,
                                                    _useWstring | TypeContextCpp11));
-            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), clScope, metaData,
+            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData,
                                                    _useWstring | TypeContextInParam | TypeContextCpp11));
 
             string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), clScope, metaData,
@@ -6948,7 +6987,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         H << "auto _result = ";
     }
 
-    H << "_makePromiseOutgoing<" << getUnqualified(futureT, cl->scoped()) << ">";
+    H << "_makePromiseOutgoing<" << futureT << ">";
 
     H << spar << "true, this" << "&" + cl->name() + "Prx::_iceI_" + name;
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
@@ -7028,29 +7067,14 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     H.useCurrentPosAsIndent();
     if(!inParamsDecl.empty())
     {
-        if(lambdaCustomOut)
+        for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
         {
-            for(vector<string>::const_iterator q = inParamsS.begin(); q != inParamsS.end(); ++q)
+            if(q != inParamsDecl.begin())
             {
-                if(q != inParamsS.begin())
-                {
-                    H << " ";
-                }
-
-                H << *q << ",";
+                H << " ";
             }
-        }
-        else
-        {
-            for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
-            {
-                if(q != inParamsDecl.begin())
-                {
-                    H << " ";
-                }
 
-                H << *q << ",";
-            }
+            H << *q << ",";
         }
         H << nl;
     }
@@ -7359,7 +7383,10 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     int typeContext = _useWstring | TypeContextCpp11;
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string scope = fixKwd(cl->scope());
+    //
+    // Use empty scope to get full qualified names in types used with future declarations.
+    //
+    string scope = "";
     if(cl->isLocal())
     {
         typeContext |= TypeContextLocal;
@@ -7870,12 +7897,17 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(H, p);
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
-    if(bases.empty() || (base && base->allOperations().empty()))
+    if(bases.empty() || (base && bases.size() == 1 && base->allOperations().empty()))
     {
         H << "public virtual " << getUnqualified("::Ice::Object", scope);
     }
     else
     {
+        if(base && base->allOperations().empty())
+        {
+            bases.pop_front();
+        }
+
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
@@ -8475,7 +8507,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Obtains a tuple containing all of the value's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, fixKwd(p->scope()), p->allDataMembers(), _useWstring);
+    writeIceTuple(H, p->allDataMembers(), _useWstring);
 
     H << sp;
     H << nl << "/**";
@@ -8714,7 +8746,10 @@ void
 Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
-    string scope = fixKwd(p->scope());
+    //
+    // Use empty scope to get full qualified names in types used with future declarations.
+    //
+    string scope = "";
     if(!allDataMembers.empty())
     {
         vector<string> allParamDecls;

@@ -30,6 +30,7 @@ public class Collocated extends test.TestHelper
             java.io.PrintWriter out = getWriter();
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             com.zeroc.Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
+            adapter.add(new BI(), Util.stringToIdentity("b"));
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             if(prx.ice_getConnection() != null)

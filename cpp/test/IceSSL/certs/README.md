@@ -3,7 +3,7 @@ test/IceSSL/configuration. The 'makecerts.py' script generates
 certificates in the current directory using the CA databases stored
 under the db directory.
 
-You can use iceca from the zeroc-ice-certutils PyPi package to view
+You can use iceca from the zeroc-icecertutils PyPi package to view
 the content of the CA databases, for example:
 
     ICE_CA_HOME=db/ca1 iceca --capass=password list

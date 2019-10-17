@@ -610,13 +610,35 @@ public class Client extends test.TestHelper
                     };
                 out = new OutputStream(communicator);
                 MyClassSSHelper.write(out, arrS);
+                out.writePendingValues();
                 data = out.finished();
                 in = new InputStream(communicator, data);
                 MyClass[][] arr2S = MyClassSSHelper.read(in);
+                in.readPendingValues();
                 test(arr2S.length == arrS.length);
                 test(arr2S[0].length == arrS[0].length);
                 test(arr2S[1].length == arrS[1].length);
                 test(arr2S[2].length == arrS[2].length);
+
+                for(int j = 0; j < arr2S.length; ++j)
+                {
+                    for(int k = 0; k < arr2S[j].length; ++k)
+                    {
+                        test(arr2S[j][k].c == arr2S[j][k]);
+                        test(arr2S[j][k].o == arr2S[j][k]);
+                        test(arr2S[j][k].s.e == MyEnum.enum2);
+                        test(java.util.Arrays.equals(arr2S[j][k].seq1, arr[k].seq1));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq2, arr[k].seq2));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq3, arr[k].seq3));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq4, arr[k].seq4));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq5, arr[k].seq5));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq6, arr[k].seq6));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq7, arr[k].seq7));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq8, arr[k].seq8));
+                        test(java.util.Arrays.equals(arr2S[j][k].seq9, arr[k].seq9));
+                        test(arr2S[j][k].d.get("hi") == arr2S[j][k]);
+                    }
+                }
             }
 
             {

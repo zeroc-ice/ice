@@ -190,7 +190,7 @@ public:
             {
                 ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
-                [_array replaceObjectAtIndex:_index withObject:o];
+                [_array replaceObjectAtIndex:static_cast<NSUInteger>(_index) withObject:o];
             }
         }
         @catch(id ex)
@@ -481,7 +481,7 @@ private:
         std::pair<const bool*, const bool*> seq;
         IceUtil::ScopedArray<bool> result;
         is_->read(seq, result);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first) * sizeof(BOOL)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first) * sizeof(BOOL)];
     }
     catch(const std::exception& ex)
     {
@@ -520,7 +520,7 @@ private:
     {
         std::pair<const Ice::Byte*, const Ice::Byte*> seq;
         is_->read(seq);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first)];
     }
     catch(const std::exception& ex)
     {
@@ -537,7 +537,7 @@ private:
         std::pair<const Ice::Byte*, const Ice::Byte*> seq;
         is_->read(seq);
         return [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(seq.first)
-                       length:(seq.second - seq.first) freeWhenDone:NO];
+                       length:static_cast<NSUInteger>(seq.second - seq.first) freeWhenDone:NO];
     }
     catch(const std::exception& ex)
     {
@@ -577,7 +577,7 @@ private:
         std::pair<const Ice::Short*, const Ice::Short*> seq;
         IceUtil::ScopedArray<Ice::Short> result;
         is_->read(seq, result);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first) * sizeof(ICEShort)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first) * sizeof(ICEShort)];
     }
     catch(const std::exception& ex)
     {
@@ -617,7 +617,7 @@ private:
         std::pair<const Ice::Int*, const Ice::Int*> seq;
         IceUtil::ScopedArray<Ice::Int> result;
         is_->read(seq, result);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first) * sizeof(ICEInt)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first) * sizeof(ICEInt)];
     }
     catch(const std::exception& ex)
     {
@@ -657,7 +657,7 @@ private:
         std::pair<const Ice::Long*, const Ice::Long*> seq;
         IceUtil::ScopedArray<Ice::Long> result;
         is_->read(seq, result);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first) * sizeof(ICELong)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first) * sizeof(ICELong)];
     }
     catch(const std::exception& ex)
     {
@@ -697,7 +697,7 @@ private:
         std::pair<const Ice::Float*, const Ice::Float*> seq;
         IceUtil::ScopedArray<Ice::Float> result;
         is_->read(seq, result);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first) * sizeof(ICEFloat)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first) * sizeof(ICEFloat)];
     }
     catch(const std::exception& ex)
     {
@@ -737,7 +737,7 @@ private:
         std::pair<const Ice::Double*, const Ice::Double*> seq;
         IceUtil::ScopedArray<Ice::Double> result;
         is_->read(seq, result);
-        return [[NSMutableData alloc] initWithBytes:seq.first length:(seq.second - seq.first) * sizeof(ICEDouble)];
+        return [[NSMutableData alloc] initWithBytes:seq.first length:static_cast<NSUInteger>(seq.second - seq.first) * sizeof(ICEDouble)];
     }
     catch(const std::exception& ex)
     {
@@ -850,7 +850,7 @@ private:
     try
     {
         int count = is_->readSize();
-        if((ret = [[NSMutableData alloc] initWithLength:(count * ENUM_SIZE)]) == 0)
+        if((ret = [[NSMutableData alloc] initWithLength:static_cast<NSUInteger>(count) * ENUM_SIZE]) == 0)
         {
             return ret;
         }
@@ -984,7 +984,7 @@ private:
 -(NSMutableArray*) newValueSeq:(Class)type
 {
     ICEInt sz = [self readAndCheckSeqSize:1];
-    NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:sz];
+    NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:static_cast<NSUInteger>(sz)];
     if(sz > 0)
     {
         NSException* nsex = nil;
@@ -1025,7 +1025,7 @@ private:
 -(NSMutableDictionary*) newValueDict:(Class)keyHelper expectedType:(Class)type
 {
     ICEInt sz = [self readAndCheckSeqSize:[keyHelper minWireSize] + 1];
-    NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:sz];
+    NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:static_cast<NSUInteger>(sz)];
     if(sz > 0)
     {
         if(!objectReaders_)
@@ -1076,7 +1076,7 @@ private:
 -(NSMutableArray*) newSequence:(Class)helper
 {
     ICEInt sz = [self readAndCheckSeqSize:[helper minWireSize]];
-    NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:sz];
+    NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:static_cast<NSUInteger>(sz)];
     id obj = nil;
     @try
     {
@@ -1111,7 +1111,7 @@ private:
 -(NSMutableDictionary*) newDictionary:(ICEKeyValueTypeHelper)helper
 {
     ICEInt sz = [self readAndCheckSeqSize:[helper.key minWireSize] + [helper.value minWireSize]];
-    NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:sz];
+    NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:static_cast<NSUInteger>(sz)];
     id key = nil;
     id value = nil;
     @try
@@ -1420,7 +1420,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        is_->skip(sz);
+        is_->skip(static_cast<Ice::InputStream::size_type>(sz));
     }
     catch(const std::exception& ex)
     {
@@ -1804,7 +1804,7 @@ private:
         return;
     }
 
-    [self writeSize:[arr count]];
+    [self writeSize:static_cast<Ice::Int>([arr count])];
     for(id i in arr)
     {
         [helper write:(i == [NSNull null] ? nil : i) stream:self];
@@ -1819,7 +1819,7 @@ private:
         return;
     }
 
-    [self writeSize:[dictionary count]];
+    [self writeSize:static_cast<Ice::Int>([dictionary count])];
     NSEnumerator* e = [dictionary keyEnumerator];
     id key;
     while((key = [e nextObject]))
@@ -1903,7 +1903,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        int count = v == nil ? 0 : [v length] / ENUM_SIZE;
+        int count = v == nil ? 0 : static_cast<int>([v length] / ENUM_SIZE);
         [self writeSize:count];
         if(count == 0)
         {
@@ -1992,7 +1992,7 @@ private:
         return;
     }
 
-    [self writeSize:[arr count]];
+    [self writeSize:static_cast<Ice::Int>([arr count])];
     for(id i in arr)
     {
         [self writeValue:(i == [NSNull null] ? nil : i)];
@@ -2007,7 +2007,7 @@ private:
         return;
     }
 
-    [self writeSize:[dictionary count]];
+    [self writeSize:static_cast<Ice::Int>([dictionary count])];
     NSEnumerator* e = [dictionary keyEnumerator];
     id key;
     while((key = [e nextObject]))
@@ -2240,7 +2240,7 @@ private:
     try
     {
         std::pair<const Ice::Byte*, const Ice::Byte*> b = os_->finished();
-        return [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(b.first) length:(b.second - b.first) freeWhenDone:NO];
+        return [NSData dataWithBytesNoCopy:const_cast<Ice::Byte*>(b.first) length:static_cast<NSUInteger>(b.second - b.first) freeWhenDone:NO];
     }
     catch(const std::exception& ex)
     {
@@ -2504,7 +2504,7 @@ private:
 @implementation ICELongHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
-    return [[NSNumber alloc] initWithLong:[stream readLong]];
+    return [[NSNumber alloc] initWithLongLong:[stream readLong]];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
@@ -2518,7 +2518,7 @@ private:
 {
     if([stream readOptional:tag format:ICEOptionalFormatF8])
     {
-        return [[NSNumber alloc] initWithLong:[stream readLong]];
+        return [[NSNumber alloc] initWithLongLong:[stream readLong]];
     }
     return ICENone;
 }
@@ -2917,7 +2917,7 @@ private:
 }
 +(ICEInt) count:(id)obj
 {
-    return [obj count];
+    return static_cast<ICEInt>([obj count]);
 }
 @end
 
@@ -2954,7 +2954,7 @@ private:
 }
 +(ICEInt) count:(id)obj
 {
-    return [obj length] / [[self getElementHelper] minWireSize];
+    return static_cast<ICEInt>([obj length]) / [[self getElementHelper] minWireSize];
 }
 +(Class) getElementHelper
 {
@@ -3104,7 +3104,7 @@ private:
 @implementation ICEEnumSequenceHelper
 +(ICEInt) count:(id)obj
 {
-    return [obj length] / ENUM_SIZE;
+    return static_cast<ICEInt>([obj length] / ENUM_SIZE);
 }
 +(Class) getElementHelper
 {
@@ -3206,7 +3206,7 @@ private:
 }
 +(ICEInt) count:(id)obj
 {
-    return [obj count];
+    return static_cast<ICEInt>([obj count]);
 }
 @end
 

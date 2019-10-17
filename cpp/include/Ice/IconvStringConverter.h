@@ -267,7 +267,7 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart,
 #else
     char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
 #endif
-    size_t inbytesleft = (sourceEnd - sourceStart) * sizeof(charT);
+    size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart) * sizeof(charT);
     char* outbuf  = 0;
 
     size_t count = 0;
@@ -311,7 +311,8 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 #else
     char* inbuf = reinterpret_cast<char*>(const_cast<Ice::Byte*>(sourceStart));
 #endif
-    size_t inbytesleft = sourceEnd - sourceStart;
+    assert(sourceEnd > sourceStart);
+    size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);
 
     char* outbuf = 0;
     size_t outbytesleft = 0;
@@ -325,7 +326,7 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
         size_t bytesused = 0;
         if(outbuf != 0)
         {
-            bytesused = outbuf - reinterpret_cast<const char*>(target.data());
+            bytesused = static_cast<size_t>(outbuf - reinterpret_cast<const char*>(target.data()));
         }
 
         const size_t increment = std::max<size_t>(inbytesleft, 4);

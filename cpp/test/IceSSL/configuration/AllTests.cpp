@@ -11,10 +11,6 @@
 
 #include <Ice/UniqueRef.h>
 
-#ifdef _MSC_VER
-#   pragma warning(disable:4189) // 'elCapitanUpdate2OrLower': local variable is initialized but not referenced
-#endif
-
 #if defined(__APPLE__)
 #   include <sys/sysctl.h>
 #   if TARGET_OS_IPHONE != 0
@@ -91,10 +87,10 @@ readFile(const string& file, vector<char>& buffer)
     }
 
     is.seekg(0, is.end);
-    buffer.resize(static_cast<int>(is.tellg()));
+    buffer.resize(static_cast<size_t>(is.tellg()));
     is.seekg(0, is.beg);
 
-    is.read(&buffer[0], buffer.size());
+    is.read(&buffer[0], static_cast<streamsize>(buffer.size()));
 
     if(!is.good())
     {
@@ -694,9 +690,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    bool elCapitanUpdate2OrLower = false;
+    bool isCatalinaOrGreater = false;
+    bool isIOS13OrGreater = false;
 #ifdef __APPLE__
-    bool isElCapitanOrGreater = false;
     vector<char> s(256);
     size_t size = s.size();
     int ret = sysctlbyname("kern.osrelease", &s[0], &size, ICE_NULLPTR, 0);
@@ -704,13 +700,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         // version format is x.y.z
         size_t first = string(&s[0]).find_first_of(".");
-        size_t last = string(&s[0]).find_last_of(".");
-
         int majorVersion = atoi(string(&s[0]).substr(0, first).c_str());
-        int minorVersion = atoi(string(&s[0]).substr(first + 1, last - first - 1).c_str());
-
-        isElCapitanOrGreater = majorVersion >= 15;
-        elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
+#   if TARGET_OS_IPHONE == 0
+        isCatalinaOrGreater = majorVersion >= 19;
+#   else
+        isIOS13OrGreater = majorVersion >= 18;
+#   endif
     }
 #endif
     string factoryRef = "factory:" + helper->getTestEndpoint("tcp");
@@ -1294,10 +1289,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                cerr << ex << endl;
-                test(false);
+                //
+                // macOS catalina does not check the certificate common name
+                //
+                test(isCatalinaOrGreater || isIOS13OrGreater);
             }
 
             fact->destroyServer(server);
@@ -1426,10 +1423,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                cerr << ex << endl;
-                test(false);
+                //
+                // macOS catalina does not check the certificate common name
+                //
+                test(isCatalinaOrGreater || isIOS13OrGreater);
             }
 #else
             try
@@ -1461,6 +1460,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             try
             {
                 server->ice_ping();
+                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getCachedConnection()->getInfo());
+                test(!info->verified);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1513,16 +1514,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
-            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
+            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
+            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
             0
         };
 
         const char* subjects[] =
         {
-            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
-            "FC:5D:4F:AB:F0:6C:03:11:B8:F3:68:CF:89:54:92:3F:F9:79:2A:06",
-            "47:84:AE:F9:F2:85:3D:99:30:6A:03:38:41:1A:B9:EB:C3:9C:B5:4D",
+            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
+            "8A:8A:BD:67:CA:23:2B:5C:07:84:B6:BB:B2:40:5B:C0:29:46:FC:00",
+            "6B:85:D1:63:35:D4:EC:67:3F:FE:BB:7B:93:B1:72:F3:ED:14:5C:ED",
             0
         };
 
@@ -1854,7 +1855,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "0A:0C:05:5A:65:72:6F:43:31:0C:30:0A:06:03:55:04:0B:0C:03:49:63:65:"
             "31:0B:30:09:06:03:55:04:03:0C:02:43:41:31:1D:30:1B:06:09:2A:86:48:"
             "86:F7:0D:01:09:01:16:0E:69:6E:66:6F:40:7A:65:72:6F:63:2E:63:6F:6D:"
-            "82:09:00:CE:F0:96:A8:8D:19:5B:FF";
+            "82:09:00:EA:2A:B7:FB:3B:A3:DF:5A";
 
         const string subjectAltName =
             "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
@@ -2325,11 +2326,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const LocalException&)
             {
-                // macOS 10.11 versions prior to 10.11.2 will throw an exception as SSLv3 is totally disabled.
-                if(!elCapitanUpdate2OrLower)
-                {
-                    test(false);
-                }
+                test(false);
             }
             fact->destroyServer(server);
             comm->destroy();
@@ -2512,7 +2509,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     //
     // SChannel doesn't support PEM Password protected certificates certificates
     //
-#ifdef ICE_USE_SCHANNEL
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
     if(p12)
     {
 #endif
@@ -2594,7 +2591,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
     cout << "ok" << endl;
-#ifdef ICE_USE_SCHANNEL
+
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
     }
 #endif
 
@@ -2681,10 +2679,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
 
-    //
-    // El Capitan SSLHandshake segfaults with this test, Apple bug #22148512
-    // This is fixed in 10.11.3
-    if(!elCapitanUpdate2OrLower)
     {
         //
         // This should fail because we disabled all anonymous ciphers and the server doesn't
@@ -2746,36 +2740,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             cerr << ex << endl;
             test(false);
         }
-    }
-    {
-        //
-        // Test IceSSL.DHParams
-        //
-        InitializationData initData;
-        initData.properties = createClientProps(defaultProps, p12);
-        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
-        CommunicatorPtr comm = initialize(initData);
-        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-        test(fact);
-        Test::Properties d = createServerProps(defaultProps, p12);
-        d["IceSSL.Ciphers"] = "(DH_anon*)";
-        d["IceSSL.DHParams"] = "dh_params512.der";
-        d["IceSSL.VerifyPeer"] = "0";
-        Test::ServerPrxPtr server = fact->createServer(d);
-        try
-        {
-            server->checkCipher("DH_anon");
-        }
-        catch(const LocalException& ex)
-        {
-            if(!isElCapitanOrGreater) // DH params too weak for El Capitan
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-        }
-        fact->destroyServer(server);
-        comm->destroy();
     }
 
     {
@@ -2887,14 +2851,15 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         // First try a client with a DSA certificate.
         //
+        const string ciphers = openSSLVersion >= 0x10100000L ? "DHE:DSS:@SECLEVEL=0" : "DHE:DSS";
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_dsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.Ciphers", "DHE:DSS");
+        initData.properties->setProperty("IceSSL.Ciphers", ciphers);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, p12, "s_dsa_ca1", "cacert1");
-        d["IceSSL.Ciphers"] = "DHE:DSS";
+        d["IceSSL.Ciphers"] = ciphers;
         d["IceSSL.VerifyPeer"] = "1";
 
         Test::ServerPrxPtr server = fact->createServer(d);
@@ -3850,8 +3815,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-            "THUMBPRINT:'82 30 1E 35 9E 39 C1 D0 63 0D 67 3D 12 DD D4 96 90 1E EF 54'",
-            "SUBJECTKEYID:'FC 5D 4F AB F0 6C 03 11 B8 F3 68 CF 89 54 92 3F F9 79 2A 06'",
+            "THUMBPRINT:'F8 0E FB 30 3D B1 D8 11 E3 61 3B 17 AC 1B F5 6E 0B 98 55 90'",
+            "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'",
             0
         };
 
@@ -3860,8 +3825,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-            "THUMBPRINT:'C0 01 FF 9C C9 DA C8 0D 34 F6 2F DE 09 FB 28 0D 69 AB 78 BA'",
-            "SUBJECTKEYID:'47 84 AE F9 F2 85 3D 99 30 6A 03 38 41 1A B9 EB C3 9C B5 4D'",
+            "THUMBPRINT:'4C 7B CC 45 FD CC FA 95 74 D5 F1 8F 5B CE D5 B9 64 30 31 9B'",
+            "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'",
             0
         };
 
@@ -4096,7 +4061,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
 //            "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'FC 5D 4F AB F0 6C 03 11 B8 F3 68 CF 89 54 92 3F F9 79 2A 06'",
+            "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -4109,7 +4074,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECT:Server",
 #endif
             "LABEL:'Server'",
-            "SUBJECTKEYID:'47 84 AE F9 F2 85 3D 99 30 6A 03 38 41 1A B9 EB C3 9C B5 4D'",
+            "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0
@@ -4233,7 +4198,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
 #   endif
             CommunicatorPtr comm = initialize(initData);
-            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
+            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try
@@ -4283,7 +4248,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
 #   endif
             CommunicatorPtr comm = initialize(initData);
-            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
+            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try

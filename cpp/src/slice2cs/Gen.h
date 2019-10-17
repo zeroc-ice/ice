@@ -51,7 +51,7 @@ protected:
     // Generate assignment statements for those data members that have default values.
     //
     bool requiresDataMemberInitializers(const DataMemberList&);
-    void writeDataMemberInitializers(const DataMemberList&, const std::string&, int = 0, bool = false);
+    void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int = 0, bool = false);
 
     std::string toCsIdent(const std::string&);
     std::string editMarkup(const std::string&);
@@ -158,8 +158,8 @@ private:
 
     private:
 
-        void writeMemberHashCode(const DataMemberList&, int);
-        void writeMemberEquals(const DataMemberList&, int);
+        void writeMemberHashCode(const DataMemberList&, unsigned int);
+        void writeMemberEquals(const DataMemberList&, unsigned int);
     };
 
     class AsyncDelegateVisitor : public CsVisitor

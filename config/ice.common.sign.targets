@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <TimeStampServer>http://timestamp.digicert.com</TimeStampServer>
+        <SignCommandSHA1>/f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer)</SignCommandSHA1>
+        <SignCommandSHA256>/f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
+    </PropertyGroup>
+
+  <!-- Authenticode sign task that retries on failures -->
+  <UsingTask TaskName="SignTask"
+             TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+      <ParameterGroup>
+          <WorkingDirectory ParameterType="System.String" Required="true"/>
+          <AdditionalOptions ParameterType="System.String" Required="true"/>
+          <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="True"/>
+      </ParameterGroup>
+      <Task>
+          <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)/SignTask.cs" />
+      </Task>
+  </UsingTask>
+
+</Project>

@@ -156,7 +156,8 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.ConnectFailedException);
+                    test(ex instanceof Ice.ConnectFailedException ||
+                         ex instanceof Ice.ConnectTimeoutException);
                 }
             }
             out.writeLine("ok");

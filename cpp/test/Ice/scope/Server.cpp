@@ -27,6 +27,10 @@ public:
     virtual Test::CSeq opCSeq(ICE_IN(Test::CSeq), Test::CSeq&, const Ice::Current&);
     virtual Test::CMap opCMap(ICE_IN(Test::CMap), Test::CMap&, const Ice::Current&);
 
+    virtual Test::E1 opE1(Test::E1, const Ice::Current&);
+    virtual Test::S1 opS1(ICE_IN(Test::S1), const Ice::Current&);
+    virtual Test::C1Ptr opC1(ICE_IN(Test::C1Ptr), const Ice::Current&);
+
     virtual void shutdown(const Ice::Current&);
 };
 
@@ -146,6 +150,24 @@ Test::CMap
 I1::opCMap(ICE_IN(Test::CMap) c1, Test::CMap& c2, const Ice::Current&)
 {
     c2 = c1;
+    return c1;
+}
+
+Test::E1
+I1::opE1(Test::E1 e1, const Ice::Current&)
+{
+    return e1;
+}
+
+Test::S1
+I1::opS1(ICE_IN(Test::S1) s1, const Ice::Current&)
+{
+    return s1;
+}
+
+Test::C1Ptr
+I1::opC1(ICE_IN(Test::C1Ptr) c1, const Ice::Current&)
+{
     return c1;
 }
 

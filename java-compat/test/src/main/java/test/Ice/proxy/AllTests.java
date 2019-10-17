@@ -105,6 +105,12 @@ public class AllTests
         test(b1.ice_getIdentity().name.equals("test") && b1.ice_getIdentity().category.equals("category") &&
              b1.ice_getAdapterId().length() == 0);
 
+        b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
+        test(b1.equals(communicator.stringToProxy(b1.toString())));
+
+        b1 = communicator.stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+        test(b1.equals(communicator.stringToProxy(b1.toString())));
+
         b1 = communicator.stringToProxy("");
         test(b1 == null);
         b1 = communicator.stringToProxy("\"\"");
@@ -808,6 +814,7 @@ public class AllTests
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
+        test(MyDerivedClassPrxHelper.checkedCast(cl, "facet") == null);
         out.println("ok");
 
         out.print("testing checked cast with context... ");
@@ -901,7 +908,9 @@ public class AllTests
                 Ice.Connection connection = cl.ice_getConnection();
                 if(connection != null)
                 {
+                    test(!cl.ice_isFixed());
                     MyClassPrx prx = (MyClassPrx)cl.ice_fixed(connection); // Test proxy return type.
+                    test(prx.ice_isFixed());
                     prx.ice_ping();
                     test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                     test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));

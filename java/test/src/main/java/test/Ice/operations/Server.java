@@ -21,6 +21,7 @@ public class Server extends test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+            adapter.add(new BI(), com.zeroc.Ice.Util.stringToIdentity("b"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

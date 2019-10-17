@@ -55,6 +55,24 @@ public class Server extends test.TestHelper
             return c1;
         }
 
+        public test.Ice.scope.Test.E1
+        opE1(test.Ice.scope.Test.E1 e1, Ice.Current current)
+        {
+            return e1;
+        }
+
+        public test.Ice.scope.Test.S1
+        opS1(test.Ice.scope.Test.S1 s1, Ice.Current current)
+        {
+            return s1;
+        }
+
+        public test.Ice.scope.Test.C1
+        opC1(test.Ice.scope.Test.C1 c1, Ice.Current current)
+        {
+            return c1;
+        }
+
         public void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();

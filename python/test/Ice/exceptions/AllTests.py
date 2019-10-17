@@ -813,6 +813,25 @@ def allTests(helper, communicator):
 
     print("ok")
 
+    sys.stdout.write("catching unknown non-Ice exception with futures... ")
+    sys.stdout.flush()
+    try:
+        try:
+            thrower.throwMarshalException(context={"response":""})
+        except Ice.UnknownLocalException as ex:
+            test("::Ice::MarshalException" in str(ex))
+        try:
+            thrower.throwMarshalException(context={"param":""})
+        except Ice.UnknownLocalException as ex:
+            test("::Ice::MarshalException" in str(ex))
+        try:
+            thrower.throwMarshalException()
+        except Ice.UnknownLocalException as ex:
+            test("::Ice::MarshalException" in str(ex))
+    except Ice.OperationNotExistException:
+        pass
+    print("ok")
+
     sys.stdout.write("catching exact types with AMI mapping... ")
     sys.stdout.flush()
 

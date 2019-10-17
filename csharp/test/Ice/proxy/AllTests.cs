@@ -91,6 +91,12 @@ namespace Ice
                 test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
                      b1.ice_getAdapterId().Length == 0);
 
+                b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
+                test(b1.Equals(communicator.stringToProxy(b1.ToString())));
+
+                b1 = communicator.stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+                test(b1.Equals(communicator.stringToProxy(b1.ToString())));
+
                 b1 = communicator.stringToProxy("");
                 test(b1 == null);
                 b1 = communicator.stringToProxy("\"\"");
@@ -400,14 +406,7 @@ namespace Ice
                 prop.setProperty(property, "locator:default -p 10000");
                 b1 = communicator.propertyToProxy(propertyPrefix);
                 test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name.Equals("locator"));
-                try
-                {
-                    prop.setProperty(property, "");
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+                prop.setProperty(property, "");
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 test(b1.ice_getLocatorCacheTimeout() == -1);
                 prop.setProperty(property, "1");
@@ -793,6 +792,7 @@ namespace Ice
                 test(cl.Equals(baseProxy));
                 test(derived.Equals(baseProxy));
                 test(cl.Equals(derived));
+                test(Test.MyDerivedClassPrxHelper.checkedCast(cl, "facet") == null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast with context... ");
@@ -815,7 +815,9 @@ namespace Ice
                     Ice.Connection connection = cl.ice_getConnection();
                     if(connection != null)
                     {
+                        test(!cl.ice_isFixed());
                         Test.MyClassPrx prx =(Test.MyClassPrx)cl.ice_fixed(connection);
+                        test(prx.ice_isFixed());
                         prx.ice_ping();
                         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));

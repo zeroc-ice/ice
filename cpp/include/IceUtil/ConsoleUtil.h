@@ -77,13 +77,13 @@ operator<<(ConsoleErr& err, const T& val)
 ICE_API ConsoleErr& endl(ConsoleErr&);
 ICE_API ConsoleErr& flush(ConsoleErr&);
 
-extern ICE_API ConsoleOut consoleOut;
-extern ICE_API ConsoleErr consoleErr;
+extern ICE_API ConsoleOut consoleOut ICE_GLOBAL_VAR_SUFFIX;
+extern ICE_API ConsoleErr consoleErr ICE_GLOBAL_VAR_SUFFIX;
 
 #else
 
-extern ICE_API std::ostream& consoleOut;
-extern ICE_API std::ostream& consoleErr;
+extern ICE_API std::ostream& consoleOut ICE_GLOBAL_VAR_SUFFIX;
+extern ICE_API std::ostream& consoleErr ICE_GLOBAL_VAR_SUFFIX;
 
 #endif
 

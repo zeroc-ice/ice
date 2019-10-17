@@ -155,7 +155,14 @@ Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
     inS.readEmptyParams();
     vector<string> ret = ice_ids(current);
     OutputStream* ostr = inS.startWriteParams();
-    ostr->write(&ret[0], &ret[0] + ret.size(), false);
+    if(ret.empty())
+    {
+        ostr->write(ret);
+    }
+    else
+    {
+        ostr->write(&ret[0], &ret[0] + ret.size(), false);
+    }
     inS.endWriteParams();
     return true;
 }
@@ -319,16 +326,11 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
+        assert(expected != ICE_ENUM(OperationMode, Nonmutating)); // We never expect Nonmutating
         if(expected == ICE_ENUM(OperationMode, Idempotent) && received == ICE_ENUM(OperationMode, Nonmutating))
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
-            //
-
-            //
-            // Note that expected == Nonmutating and received == Idempotent is not ok:
-            // the server may still use the deprecated nonmutating keyword to detect updates
-            // and the client should not break this (deprecated) feature.
             //
         }
         else

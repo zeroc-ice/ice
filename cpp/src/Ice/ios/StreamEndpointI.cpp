@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "StreamEndpointI.h"
 #include "StreamAcceptor.h"
 #include "StreamConnector.h"
@@ -38,6 +42,7 @@ createIceTCP(const CommunicatorPtr& com, const string&, const StringSeq&)
 
 }
 
+#if TARGET_IPHONE_SIMULATOR == 0
 namespace
 {
 
@@ -48,10 +53,13 @@ toCFString(const string& s)
 }
 
 }
+#endif
 
 IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const string& protocol, bool secure) :
     ProtocolInstance(com, type, protocol, secure),
+#ifndef ICE_SWIFT
     _voip(com->getProperties()->getPropertyAsIntWithDefault("Ice.Voip", 0) > 0),
+#endif
     _communicator(com),
     _proxySettings(0)
 {
@@ -65,7 +73,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     {
 #if TARGET_IPHONE_SIMULATOR != 0
         throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "SOCKS proxy not supported");
-#endif
+#else
         _proxySettings.reset(CFDictionaryCreateMutable(0, 3, &kCFTypeDictionaryKeyCallBacks,
                                                        &kCFTypeDictionaryValueCallBacks));
 
@@ -78,6 +86,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
         CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSProxyPort, port.get());
 
         CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSVersion, kCFStreamSocketSOCKSVersion4);
+#endif
     }
 }
 
@@ -91,16 +100,18 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
                                 bool server,
                                 const string& /*host*/) const
 {
+#ifndef ICE_SWIFT
     if(_voip)
     {
-#if TARGET_IPHONE_SIMULATOR == 0
+#   if TARGET_IPHONE_SIMULATOR == 0
         if(!CFReadStreamSetProperty(readStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP) ||
            !CFWriteStreamSetProperty(writeStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP))
         {
             throw Ice::SyscallException(__FILE__, __LINE__);
         }
-#endif
+#   endif
     }
+#endif
 
     if(!server && _proxySettings)
     {
@@ -479,3 +490,4 @@ IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new StreamEndpointFactory(_instance->clone(instance));
 }
+#endif

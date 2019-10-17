@@ -42,7 +42,7 @@ public:
             //
             // Return unused bytes
             //
-            _stream.resize(firstUnused - _stream.b.begin());
+            _stream.resize(static_cast<size_t>(firstUnused - _stream.b.begin()));
         }
 
         //
@@ -255,8 +255,8 @@ Ice::OutputStream::write(const Byte* begin, const Byte* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz);
-        memcpy(&b[pos], begin, sz);
+        resize(pos + static_cast<size_t>(sz));
+        memcpy(&b[pos], begin, static_cast<size_t>(sz));
     }
 }
 
@@ -268,7 +268,7 @@ Ice::OutputStream::write(const vector<bool>& v)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz);
+        resize(pos + static_cast<size_t>(sz));
         copy(v.begin(), v.end(), b.begin() + pos);
     }
 }
@@ -281,9 +281,9 @@ struct WriteBoolHelper
 {
     static void write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, Int sz)
     {
-        for(int idx = 0; idx < sz; ++idx)
+        for(size_t idx = 0; idx < static_cast<size_t>(sz); ++idx)
         {
-           b[pos + idx] = static_cast<Byte>(*(begin + idx));
+            b[pos + idx] = static_cast<Byte>(*(begin + idx));
         }
     }
 };
@@ -293,7 +293,7 @@ struct WriteBoolHelper<1>
 {
     static void write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, Int sz)
     {
-        memcpy(&b[pos], begin, sz);
+        memcpy(&b[pos], begin, static_cast<size_t>(sz));
     }
 };
 
@@ -307,7 +307,7 @@ Ice::OutputStream::write(const bool* begin, const bool* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz);
+        resize(pos + static_cast<size_t>(sz));
         WriteBoolHelper<sizeof(bool)>::write(begin, pos, b, sz);
     }
 }
@@ -337,7 +337,7 @@ Ice::OutputStream::write(const Short* begin, const Short* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz * sizeof(Short));
+        resize(pos + static_cast<size_t>(sz) * sizeof(Short));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Short) - 1;
         Byte* dest = &(*(b.begin() + pos));
@@ -348,7 +348,7 @@ Ice::OutputStream::write(const Short* begin, const Short* end)
             src += 2 * sizeof(Short);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Short));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Short));
 #endif
     }
 }
@@ -361,7 +361,7 @@ Ice::OutputStream::write(const Int* begin, const Int* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz * sizeof(Int));
+        resize(pos + static_cast<size_t>(sz) * sizeof(Int));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Int) - 1;
         Byte* dest = &(*(b.begin() + pos));
@@ -374,7 +374,7 @@ Ice::OutputStream::write(const Int* begin, const Int* end)
             src += 2 * sizeof(Int);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Int));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Int));
 #endif
     }
 }
@@ -416,7 +416,7 @@ Ice::OutputStream::write(const Long* begin, const Long* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz * sizeof(Long));
+        resize(pos + static_cast<size_t>(sz) * sizeof(Long));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Long) - 1;
         Byte* dest = &(*(b.begin() + pos));
@@ -433,7 +433,7 @@ Ice::OutputStream::write(const Long* begin, const Long* end)
             src += 2 * sizeof(Long);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Long));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Long));
 #endif
     }
 }
@@ -467,7 +467,7 @@ Ice::OutputStream::write(const Float* begin, const Float* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz * sizeof(Float));
+        resize(pos + static_cast<size_t>(sz) * sizeof(Float));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Float) - 1;
         Byte* dest = &(*(b.begin() + pos));
@@ -480,7 +480,7 @@ Ice::OutputStream::write(const Float* begin, const Float* end)
             src += 2 * sizeof(Float);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Float));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Float));
 #endif
     }
 }
@@ -522,7 +522,7 @@ Ice::OutputStream::write(const Double* begin, const Double* end)
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + sz * sizeof(Double));
+        resize(pos + static_cast<size_t>(sz) * sizeof(Double));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Double) - 1;
         Byte* dest = &(*(b.begin() + pos));
@@ -539,7 +539,7 @@ Ice::OutputStream::write(const Double* begin, const Double* end)
             src += 2 * sizeof(Double);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Double));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Double));
 #endif
     }
 }
@@ -605,7 +605,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 
         if(lastByte != b.end())
         {
-            resize(lastByte - b.begin());
+            resize(static_cast<size_t>(lastByte - b.begin()));
         }
         size_t lastIndex = b.size();
 
@@ -623,14 +623,14 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
                 // Use memmove instead of memcpy since the source and destination typically overlap.
                 //
                 resize(b.size() + 4);
-                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
             }
             else if(guessedSize > 254 && actualSize <= 254)
             {
                 //
                 // Move the UTF-8 sequence 4 bytes back
                 //
-                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
                 resize(b.size() - 4);
             }
 
@@ -700,7 +700,7 @@ Ice::OutputStream::write(const wstring& v)
 
         if(lastByte != b.end())
         {
-            resize(lastByte - b.begin());
+            resize(static_cast<size_t>(lastByte - b.begin()));
         }
         size_t lastIndex = b.size();
 
@@ -718,14 +718,14 @@ Ice::OutputStream::write(const wstring& v)
                 // Use memmove instead of memcpy since the source and destination typically overlap.
                 //
                 resize(b.size() + 4);
-                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
             }
             else if(guessedSize > 254 && actualSize <= 254)
             {
                 //
                 // Move the UTF-8 sequence 4 bytes back
                 //
-                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
                 resize(b.size() - 4);
             }
 

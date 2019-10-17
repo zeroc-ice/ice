@@ -451,6 +451,55 @@ export class Client extends TestHelper
         test(communicator.getValueFactoryManager().find("TestOF") !== null);
         out.writeLine("ok");
 
+        out.write("testing class containing complex dictionary... ");
+        {
+            const m = new Test.M();
+            m.v = new Test.LMap();
+            const k1 = new Test.StructKey(1, "1");
+            m.v.set(k1, new Test.L("one"));
+            const k2 = new Test.StructKey(2, "2");
+            m.v.set(k2, new Test.L("two"));
+
+            const [m1, m2] = await initial.opM(m);
+
+            test(m1.v.size == 2);
+            test(m2.v.size == 2);
+
+            test(m1.v.get(k1).data == "one");
+            test(m2.v.get(k1).data == "one");
+
+            test(m1.v.get(k2).data == "two");
+            test(m2.v.get(k2).data == "two");
+
+        }
+        out.writeLine("ok");
+
+        out.write("testing forward declarations... ");
+        {
+            const [f11, f12] = await initial.opF1(new Test.F1("F11"));
+            test(f11.name == "F11");
+            test(f12.name == "F12");
+
+            const [f21, f22] = await initial.opF2(
+                Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + this.getTestEndpoint())));
+            test(f21.ice_getIdentity().name == "F21");
+            await f21.op();
+            test(f22.ice_getIdentity().name == "F22");
+
+            const hasF3 = await initial.hasF3();
+            if(hasF3)
+            {
+                const [f31, f32] = await initial.opF3(
+                    new Test.F3(new Test.F1("F11"), Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+                test(f31.f1.name == "F11");
+                test(f31.f2.ice_getIdentity().name == "F21");
+
+                test(f32.f1.name == "F12");
+                test(f32.f2.ice_getIdentity().name == "F22");
+            }
+        }
+        out.writeLine("ok");
+
         await initial.shutdown();
     }
 

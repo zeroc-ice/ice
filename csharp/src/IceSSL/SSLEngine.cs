@@ -488,7 +488,6 @@ namespace IceSSL
 
         internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
         {
-
             if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +

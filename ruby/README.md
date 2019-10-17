@@ -23,7 +23,7 @@ operating systems and Ruby versions listed for our [supported platforms][2].
 
 ### Ruby Versions
 
-Ice for Ruby supports Ruby versions 1.8.1 or later. You can use a source or
+Ice for Ruby supports Ruby versions 2.0 or later. You can use a source or
 binary installation of Ruby.
 
 If you use an RPM installation, the following packages are required:
@@ -37,12 +37,6 @@ ruby-libs (RHEL)
 
 The instructions for compiling the Ice extension assume that you have already
 installed Ruby.
-
-If you installed Ruby in a non-standard location, set the `RUBY_HOME`
-environment variable to the installation directory. For example:
-```
-export RUBY_HOME=/opt/ruby
-````
 
 The build of Ice for Ruby requires that you first build Ice for C++ in the
 `cpp` subdirectory.
@@ -68,7 +62,8 @@ This process uses the `prefix` variable in `../config/Make.rules` as the
 installation's root directory. The subdirectory `<prefix>/ruby` is created as a
 copy of the local `ruby` directory and contains the Ice for Ruby extension
 library as well as Ruby source code. Using this installation method requires
-that you modify your environment as described in *Using Ice for Ruby* below.
+that you modify your environment as described in *Configuring your Environment
+for Ruby* below.
 
 Another option is to copy the contents of the local `ruby` directory to your
 Ruby installation's `site_ruby` directory. For example, if you installed Ruby
@@ -150,18 +145,18 @@ There are two ways to solve this problem:
 - Change the default security context for the Ice extension using the following
 command:
 
-    ```
-    chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
-    ```
+```
+chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
+```
 
 Replace `/opt/Ice` with your installation directory.
 
 - Disable SELinux completely by adding the following line to your
 `/etc/sysconfig/selinux` file:
 
-    ```
-    SELINUX=disabled
-    ```
+```
+SELINUX=disabled
+```
 
-[1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[1]: https://zeroc.com/downloads/ice
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3

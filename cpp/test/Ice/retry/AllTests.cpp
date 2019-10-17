@@ -302,37 +302,56 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         cout << "ok" << endl;
     }
 
-    cout << "testing invocation timeout and retries... " << flush;
-    retry2 = ICE_CHECKED_CAST(RetryPrx, communicator2->stringToProxy(retry1->ice_toString()));
-    try
     {
-        retry2->ice_invocationTimeout(500)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
-        test(false);
+        cout << "testing invocation timeout and retries... " << flush;
+        retry2 = ICE_CHECKED_CAST(RetryPrx, communicator2->stringToProxy(retry1->ice_toString()));
+        try
+        {
+            retry2->ice_invocationTimeout(500)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+            testRetryCount(2);
+            retry2->opIdempotent(-1); // Reset the counter
+            testRetryCount(-1);
+        }
+        try
+        {
+            // No more than 2 retries before timeout kicks-in
+            RetryPrxPtr prx = retry2->ice_invocationTimeout(500);
+        #ifdef ICE_CPP11_MAPPING
+            prx->opIdempotentAsync(4).get();
+        #else
+            prx->end_opIdempotent(prx->begin_opIdempotent(4));
+        #endif
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+            testRetryCount(2);
+            retry2->opIdempotent(-1);
+            testRetryCount(-1);
+        }
+
+        if(retry1->ice_getConnection())
+        {
+            // The timeout might occur on connection establishment or because of the sleep. What's
+            // important here is to make sure there are 4 retries and that no calls succeed to
+            // ensure retries with the old connection timeout semantics work.
+            RetryPrxPtr retryWithTimeout = retry1->ice_invocationTimeout(-2)->ice_timeout(200);
+            try
+            {
+                retryWithTimeout->sleep(500);
+                test(false);
+            }
+            catch(const Ice::TimeoutException&)
+            {
+            }
+            testRetryCount(4);
+        }
+        cout << "ok" << endl;
     }
-    catch(const Ice::InvocationTimeoutException&)
-    {
-        testRetryCount(2);
-        retry2->opIdempotent(-1); // Reset the counter
-        testRetryCount(-1);
-    }
-    try
-    {
-        // No more than 2 retries before timeout kicks-in
-        RetryPrxPtr prx = retry2->ice_invocationTimeout(500);
-#ifdef ICE_CPP11_MAPPING
-        prx->opIdempotentAsync(4).get();
-#else
-        prx->end_opIdempotent(prx->begin_opIdempotent(4));
-#endif
-        test(false);
-    }
-    catch(const Ice::InvocationTimeoutException&)
-    {
-        testRetryCount(2);
-        retry2->opIdempotent(-1);
-        testRetryCount(-1);
-    }
-    cout << "ok" << endl;
 
     return retry1;
 }

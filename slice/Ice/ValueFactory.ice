@@ -54,7 +54,7 @@ local interface ValueFactory
      * factory is unable to create the value.
      *
      **/
-    Value create(string type);
+    ["swift:noexcept"] Value create(string type);
 }
 
 /**
@@ -112,7 +112,7 @@ local interface ValueFactoryManager
      * an empty string for the default factory.
      *
      **/
-    void add(ValueFactory factory, ["objc:param:sliceId"] string id);
+    void add(["swift:nonnull"] ValueFactory factory, ["objc:param:sliceId"] string id);
 
     /**
      *
@@ -125,7 +125,7 @@ local interface ValueFactoryManager
      * found for the given id.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] ValueFactory find(string id);
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] ValueFactory find(string id);
 }
 #endif
 

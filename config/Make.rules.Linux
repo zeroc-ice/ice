@@ -8,32 +8,24 @@ linux_id                        := $(word 1,$(or $(filter $(known_distributions)
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(OECORE_SDK_VERSION),)
+linux_id                       = yocto
+endif
 
-build-platform                  = $(shell uname -m)-build
-target-platform                 = $(shell echo $(CXX) | sed -r 's/^([a-z0-9_]+)-.*/\1/')
-supported-platforms             = $(target-platform) $(build-platform)
-linux_id                        = yocto
+ifneq ($(filter yocto poky,$(linux_id)),)
 
-$(build-platform)_cxx           := g++
-$(build-platform)_ld            := g++
-$(build-platform)_ar            := ar
-$(build-platform)_ldflags       := $($(build-platform)_cppflags)
-$(build-platform)_targetdir     = /$(build-platform)
-$(build-platform)_installdir    = /$(build-platform)
+build-platform                 = default
+supported-platforms            = $(build-platform)
 
-$(target-platform)_cc           = $(CC)
-$(target-platform)_cxx          = $(CXX)
-$(target-platform)_libtool      = $(AR)
-$(target-platform)_targetdir    = $(if $(filter %/build,$5),/$(target-platform))
-$(target-platform)_installdir   =
-$(target-platform)_objdir       = /$(target-platform)
+$(build-platform)_cc           = $(CC)
+$(build-platform)_cxx          = $(CXX)
+$(build-platform)_cppflags     = -Wno-psabi
+$(build-platform)_libtool      = $(AR)
+$(build-platform)_targetdir    = $(if $(filter %/build,$5),/$(build-platform))
+$(build-platform)_installdir   =
+$(build-platform)_objdir       =
 
 # system install directory
 system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
-
-# The Slice translators are under OECORE_NATIVE_SYSTEM tree when building against an Ice
-# distribution from $(OECORE_TARGET_SYSROOT) on the build platform.
-ice_bindir[$(build-platform)]   = $(if $(ice_system_install),$(OECORE_NATIVE_SYSROOT)/usr/bin)
 
 else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
 

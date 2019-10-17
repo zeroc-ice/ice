@@ -2,31 +2,32 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-supported-platforms = ppc ppc64
+# The default platform (ppc64) is listed first
+supported-platforms = ppc64 ppc
 
-ppc_cppflags        = -q32 -D_LARGE_FILES
-ppc_ldflags         = $(ppc_cppflags)
-ppc_targetdir       = $(if $(filter %/build,$5),/ppc)
+supported-compilers = xlC_r xlclang++ g++
+COMPILER            ?= $(firstword $(supported-compilers))
 
-ppc64_cppflags      = -q64
-ppc64_ldflags       = $(ppc64_cppflags)
-ppc64_targetdir     = $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
-ppc64_targetname    = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_64)
+system-install-dir = /opt/freeware
 
-shared_cppflags     = -brtl
-static_targetdir        = $(if $(and $(filter-out %/build,$5),$(filter $($1_target),program)),,static)
-
-platform_cxx        = xlC_r
-platform_ld         = xlC_r
-
-xlc_compiler        = yes
-
-cppflags            = -qrtti=all -qstaticinline -qhalt=i $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
-ifeq ($(OPTIMIZE),yes)
-    cppflags        += -O2 -DNDEBUG
-else
-    cppflags        += -g
+ifneq ($(filter $(COMPILER),$(supported-compilers)),$(COMPILER))
+    $(error invalid compiler $(COMPILER); the supported compilers are: $(supported-compilers))
 endif
+
+platform_ar         = $(AR)
+INSTALL             = installbsd -c
+
+ppc_targetdir       = $(if $(filter %/build,$5),/ppc,$(if $(filter-out $($1_target),program),32))
+ppc_installdir      = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %32,$5),true)),32)
+# All 32-bit programs in "bin" get the _32 suffix
+ppc_targetname      = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_32)
+
+ppc64_targetdir     = $(if $(filter %/build,$5),/ppc64)
+
+static_targetdir    = $(if $(and $(filter-out %/build,$5),$(filter $($1_target),program)),,static)
+
+platform_cxx        = $(COMPILER)
+platform_ld         = $(COMPILER)
 
 ifeq ($(embedded_runpath),yes)
     #
@@ -37,25 +38,112 @@ ifeq ($(embedded_runpath),yes)
     endif
 endif
 
-depend-cppflags = -qmakedep=gcc -MF $1
-rpath-ldflag    = -Wl,-blibpath:$1:/usr/lib
-
-# $(call mklib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
-mklib           = $(or $($7_ar),$(AR)) -X32_64 cr $1 $2
-
-# $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
-tmpsofile       = $(dir $1)lib$2.so$(if $3,.$3)
-mkshlib         ?= $(or $($7_cxx),$(CXX)) -qmkshrobj -o $(call tmpsofile,$1,$3,$5) $2 $6 && \
-                  $(or $($7_ar),$(AR)) -X32_64 cr $1 $(call tmpsofile,$1,$3,$5) && \
-                  rm $(call tmpsofile,$1,$3,$5)
-
 #
 # $(call mkxxx,$1=libname,$2=version,$3=soversion)
 #
 mkshlibfilename = lib$(1).a
-
 mkpymodulename  = $(1).so
+
+# $(call mklib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
+mklib           = $(or $($7_ar),$(AR)) -X32_64 crs $1 $2
 
 Ice_system_libs         = -lcrypto
 IceSSL_system_libs      = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs = -lcrypt
+
+# Disabled, AIX doesn't support rpath
+rpath-ldflag        :=
+
+#
+# Compute the libpath ldflag to add when when linking an executable/library. We
+# go through the dependencies and add the libpath directories for 3rd party
+# libraries. When then append the global libpath variable.
+#
+make-lib-libpath = $(call unique,$(foreach d,$1 $(call get-all-deps,$1),$(foreach l,$($d_libs),$($l_libpath))) $2)
+shared_ldflags  = -Wl,-blibpath:$$(call join-with,:,$$(call make-lib-libpath,$4,$(subst :,$(space),$(libpath))))
+static_ldflags  = -Wl,-blibpath:$$(call join-with,:,$$(call make-lib-libpath,$4,$(subst :,$(space),$(libpath))))
+
+ifneq ($(filter all cpp,$(ICE_BIN_DIST)),)
+prefix          := /opt/freeware
+ldflags         += -L/opt/freeware/lib
+endif
+
+#
+# Compiler-specific section
+#
+ifeq ($(COMPILER),g++)
+
+# It's critical to list /opt/freeware/lib/pthread first to get the thread-safe version
+# of the C++ library runtime.
+# Note that rpath-ldflag is not usable on AIX as unlike the Linux version, -blibpath is not cumulative
+# and the last option wins.
+#
+ifeq ($(embedded_runpath),yes)
+    libpath         = /opt/freeware/lib/pthread:$(embedded_runpath_prefix)/lib:/opt/freeware/lib:/usr/lib
+else
+    libpath         = /opt/freeware/lib/pthread:/opt/freeware/lib:/usr/lib
+endif
+
+ppc_cppflags        = -maix32 -D_LARGE_FILES -pthread
+ppc_ldflags         = $(ppc_cppflags)
+ppc64_cppflags      = -maix64 -pthread
+ppc64_ldflags       = $(ppc64_cppflags)
+
+shared_cppflags     = $(if $(filter-out program,$($1_target)),-fPIC,-fPIE) -fvisibility=hidden
+
+cppflags            = $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
+nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
+
+# $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
+tmpsofile       = $(dir $1)lib$2.so$(if $3,.$3)
+mkshlib         ?= $(platform_cxx) -shared -o $(call tmpsofile,$1,$3,$5) $2 $6 && \
+                   $(platform_ar) -X32_64 crs $1 $(call tmpsofile,$1,$3,$5) && \
+                   rm $(call tmpsofile,$1,$3,$5)
+
+else
+
+ifeq ($(embedded_runpath),yes)
+    libpath         = $(embedded_runpath_prefix)/lib:/usr/lib
+else
+    libpath         = /usr/lib
+endif
+
+ppc_cppflags        = -q32 -D_LARGE_FILES
+ppc_ldflags         = $(ppc_cppflags)
+ppc64_cppflags      = -q64
+ppc64_ldflags       = $(ppc64_cppflags)
+
+shared_cppflags     = $(if $(filter-out program,$($1_target)),-qpic -qvisibility=hidden,)
+static_cppflags     = -qfuncsect
+
+ifeq ($(COMPILER),xlC_r)
+    # Used to suppress warnings in generated code
+    xlc_compiler        = yes
+endif
+
+cppflags            = $(if $(filter yes,$(OPTIMIZE)),-O2 -qmaxmem=-1 -DNDEBUG,-g)
+
+ifneq ($(filter all cpp,$(ICE_BIN_DIST)),)
+cppflags            += -I/opt/freeware/include
+endif
+
+ifeq ($(COMPILER),xlC_r)
+     cppflags        += -qrtti -qstaticinline -qhalt=i
+else ifeq ($(COMPILER),xlclang++)
+     cppflags        += -mcpu=pwr8 -Werror
+     nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
+endif
+
+depend-cppflags = -qmakedep=gcc -MF $1
+
+# $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
+tmpsofile       = $(dir $1)lib$2.so$(if $3,.$3)
+mkshlib         ?= $(platform_cxx) -qmkshrobj -o $(call tmpsofile,$1,$3,$5) $2 $6 && \
+                   $(platform_ar) -X32_64 crs $1 $(call tmpsofile,$1,$3,$5) && \
+                   rm $(call tmpsofile,$1,$3,$5)
+
+# Link with libexpat-static (from ZeroC's expat-static-devel RPM) since the IBM AIX
+# Toolbox libexpat.a shared object depends on the GCC runtime.
+expat_ldflags = -lexpat-static
+
+endif

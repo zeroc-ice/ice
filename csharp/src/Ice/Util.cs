@@ -515,7 +515,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static string stringVersion()
         {
-            return "3.7.2"; // "A.B.C", with A=major, B=minor, C=patch
+            return "3.7.3"; // "A.B.C", with A=major, B=minor, C=patch
         }
 
         /// <summary>
@@ -526,7 +526,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static int intVersion()
         {
-            return 30702; // AABBCC, with AA=major, BB=minor, CC=patch
+            return 30703; // AABBCC, with AA=major, BB=minor, CC=patch
         }
 
         /// <summary>
@@ -545,7 +545,7 @@ namespace Ice
         /// Converts a string to an encoding version.
         /// </summary>
         /// <param name="version">The string to convert.</param>
-        /// <returns>The converted object identity.</returns>
+        /// <returns>The converted encoding version.</returns>
         public static EncodingVersion stringToEncodingVersion(string version)
         {
             byte major, minor;

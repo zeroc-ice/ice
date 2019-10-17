@@ -131,7 +131,7 @@ local class EndpointInfo
      * @return The endpoint type.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] short type();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] short type();
 
     /**
      *
@@ -140,7 +140,7 @@ local class EndpointInfo
      * @return True for a datagram endpoint.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] bool datagram();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] bool datagram();
 
     /**
      *
@@ -149,7 +149,7 @@ local class EndpointInfo
      * @return True for a secure endpoint.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] bool secure();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] bool secure();
 }
 
 /**
@@ -157,7 +157,7 @@ local class EndpointInfo
  * The user-level interface to an endpoint.
  *
  **/
-["cpp:comparable", "js:comparable"]
+["cpp:comparable", "js:comparable", "swift:inherits:Swift.CustomStringConvertible"]
 local interface Endpoint
 {
     /**
@@ -167,7 +167,7 @@ local interface Endpoint
      * @return The string representation of the endpoint.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] string toString();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] string toString();
 
     /**
      *
@@ -176,7 +176,7 @@ local interface Endpoint
      * @return The endpoint information class.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] EndpointInfo getInfo();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] EndpointInfo getInfo();
 }
 
 /**

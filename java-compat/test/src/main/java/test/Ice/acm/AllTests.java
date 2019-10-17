@@ -250,10 +250,10 @@ public class AllTests
                 long now = IceInternal.Time.currentMonotonicTimeMillis();
                 try
                 {
-                    wait(2000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > 2000)
+                    wait(30000);
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > 30000)
                     {
-                        test(false); // Waited for more than 2s for close, something's wrong.
+                        test(false); // Waited for more than 30s for close, something's wrong.
                     }
                 }
                 catch(java.lang.InterruptedException ex)
@@ -405,14 +405,6 @@ public class AllTests
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            try
-            {
-                Thread.sleep(3000); // Idle for 3 seconds
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
-
             waitForClosed();
 
             synchronized(this)
@@ -453,7 +445,7 @@ public class AllTests
         public CloseOnIdleAndInvocationTest(test.TestHelper helper, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
             super(helper, "close on idle and invocation", com, out);
-            setClientACM(1, 3, 0); // Only close on idle and invocation
+            setClientACM(3, 3, 0); // Only close on idle and invocation
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -466,7 +458,7 @@ public class AllTests
             adapter.hold();
             try
             {
-                Thread.sleep(3000); // Idle for 3 seconds
+                Thread.sleep(5000); // Idle for 5 seconds
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -479,14 +471,6 @@ public class AllTests
             }
 
             adapter.activate();
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
-
             waitForClosed();
         }
     }
@@ -502,13 +486,6 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             adapter.hold();
-            try
-            {
-                Thread.sleep(3000); // Idle for 3 seconds
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
             waitForClosed();
             synchronized(this)
             {

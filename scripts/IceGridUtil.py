@@ -51,6 +51,9 @@ class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
         self.username = username
         self.password = password
 
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
+
     def getProps(self, current):
         props = IceGridClient.getProps(self, current)
         props["IceGridAdmin.Username"] = self.username
@@ -64,6 +67,9 @@ class IceGridNode(ProcessFromBinDir, Server):
         Server.__init__(self, "icegridnode", mapping=Mapping.getByName("cpp"), desc="IceGrid node " + name,
                         ready="node", *args, **kargs)
         self.name = name
+
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
     def setup(self, current):
         # Create the database directory
@@ -114,11 +120,15 @@ class IceGridNode(ProcessFromBinDir, Server):
 
 class IceGridRegistry(ProcessFromBinDir, Server):
 
-    def __init__(self, name, portnum=20, readyCount=5, *args, **kargs):
+    def __init__(self, name, portnum=20, ready="AdminSessionManager", *args, **kargs):
         Server.__init__(self, "icegridregistry", mapping=Mapping.getByName("cpp"), desc="IceGrid registry " + name,
-                        readyCount=readyCount, *args, **kargs)
+                        ready=ready, *args, **kargs)
         self.portnum = portnum
+        self.readyCount = -1
         self.name = name
+
+    def getExe(self, current):
+        return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
     def setup(self, current):
         # Create the database directory

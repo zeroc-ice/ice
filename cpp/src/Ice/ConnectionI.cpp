@@ -1650,6 +1650,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         _observer->receivedBytes(static_cast<int>(headerSize));
                     }
 
+                    //
+                    // Connection is validated on first message. This is only used by
+                    // setState() to check wether or not we can print a connection
+                    // warning (a client might close the connection forcefully if the
+                    // connection isn't validated, we don't want to print a warning
+                    // in this case).
+                    //
+                    _validated = true;
+
                     ptrdiff_t pos = _readStream.i - _readStream.b.begin();
                     if(pos < headerSize)
                     {
@@ -1683,13 +1692,14 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     {
                         throw IllegalMessageSizeException(__FILE__, __LINE__);
                     }
+
                     if(size > static_cast<Int>(_messageSizeMax))
                     {
-                        Ex::throwMemoryLimitException(__FILE__, __LINE__, size, _messageSizeMax);
+                        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
                     }
-                    if(size > static_cast<Int>(_readStream.b.size()))
+                    if(static_cast<size_t>(size) > _readStream.b.size())
                     {
-                        _readStream.b.resize(size);
+                        _readStream.b.resize(static_cast<size_t>(size));
                     }
                     _readStream.i = _readStream.b.begin() + pos;
                 }
@@ -1835,6 +1845,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
     }
 
+// dispatchFromThisThread dispatches to the correct DispatchQueue
+#ifdef ICE_SWIFT
+    _threadPool->dispatchFromThisThread(new DispatchCall(ICE_SHARED_FROM_THIS, startCB, sentCBs, compress, requestId,
+                                                         invokeNum, servantManager, adapter, outAsync,
+                                                         heartbeatCallback, current.stream));
+#else
     if(!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
     {
         dispatch(startCB, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync, heartbeatCallback,
@@ -1847,6 +1863,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                                                              heartbeatCallback, current.stream));
 
     }
+#endif
 }
 
 void
@@ -1998,6 +2015,11 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
 
     current.ioCompleted();
+
+// dispatchFromThisThread dispatches to the correct DispatchQueue
+#ifdef ICE_SWIFT
+    _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
+#else
     if(!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
     {
         finish(close);
@@ -2006,6 +2028,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     {
         _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
     }
+#endif
 }
 
 void
@@ -2724,6 +2747,8 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 _observer.finishRead(_readStream);
             }
 
+            _validated = true;
+
             assert(_readStream.i == _readStream.b.end());
             _readStream.i = _readStream.b.begin();
             Byte m[4];
@@ -2756,8 +2781,6 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw IllegalMessageSizeException(__FILE__, __LINE__);
             }
             traceRecv(_readStream, _logger, _traceLevels);
-
-            _validated = true;
         }
     }
 
@@ -3195,11 +3218,11 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 
     if(uncompressedSize > static_cast<Int>(_messageSizeMax))
     {
-        Ex::throwMemoryLimitException(__FILE__, __LINE__, uncompressedSize, _messageSizeMax);
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(uncompressedSize), _messageSizeMax);
     }
-    uncompressed.resize(uncompressedSize);
+    uncompressed.resize(static_cast<size_t>(uncompressedSize));
 
-    unsigned int uncompressedLen = uncompressedSize - headerSize;
+    unsigned int uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
     unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(Int));
     int bzError = BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
                                              &uncompressedLen,
@@ -3229,14 +3252,6 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
     _readHeader = true;
 
     assert(stream.i == stream.b.end());
-
-    //
-    // Connection is validated on first message. This is only used by
-    // setState() to check wether or not we can print a connection
-    // warning (a client might close the connection forcefully if the
-    // connection isn't validated).
-    //
-    _validated = true;
 
     try
     {

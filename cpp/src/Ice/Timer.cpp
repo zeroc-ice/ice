@@ -242,6 +242,16 @@ Timer::run()
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
             }
+
+            if(token.delay == IceUtil::Time())
+            {
+                //
+                // If thisthe task is not a repeated task, clear the task reference now rather than
+                // in the synchronization block above. Clearing the task reference might end up
+                // calling user code which could trigger a deadlock. See also issue #352.
+                //
+                token.task = ICE_NULLPTR;
+            }
         }
     }
 }

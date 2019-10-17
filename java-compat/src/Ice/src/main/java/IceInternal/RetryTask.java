@@ -16,21 +16,24 @@ class RetryTask implements Runnable, CancellationHandler
     @Override
     public void run()
     {
-        _outAsync.retry();
+        if(cancel())
+        {
+            _outAsync.retry();
 
-        //
-        // NOTE: this must be called last, destroy() blocks until all task
-        // are removed to prevent the client thread pool to be destroyed
-        // (we still need the client thread pool at this point to call
-        // exception callbacks with CommunicatorDestroyedException).
-        //
-        _queue.remove(this);
+            //
+            // NOTE: this must be called last, destroy() blocks until all task
+            // are removed to prevent the client thread pool to be destroyed
+            // (we still need the client thread pool at this point to call
+            // exception callbacks with CommunicatorDestroyedException).
+            //
+            _queue.remove(this);
+        }
     }
 
     @Override
     public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
     {
-        if(_queue.remove(this) && _future.cancel(false))
+        if(_queue.remove(this) && cancel())
         {
             if(_instance.traceLevels().retry >= 1)
             {
@@ -48,7 +51,7 @@ class RetryTask implements Runnable, CancellationHandler
 
     public boolean destroy()
     {
-        if(_future.cancel(false))
+        if(cancel())
         {
             try
             {
@@ -63,13 +66,35 @@ class RetryTask implements Runnable, CancellationHandler
         return false;
     }
 
-    public void setFuture(java.util.concurrent.Future<?> future)
+    synchronized public void setFuture(java.util.concurrent.Future<?> future)
     {
         _future = future;
+        if(_cancelled)
+        {
+            _future.cancel(false);
+        }
+    }
+
+    synchronized private boolean cancel()
+    {
+        if(_cancelled)
+        {
+            return false;
+        }
+        else
+        {
+            if(_future != null)
+            {
+                _future.cancel(false);
+            }
+            _cancelled = true;
+            return true;
+        }
     }
 
     private final Instance _instance;
     private final RetryQueue _queue;
     private final ProxyOutgoingAsyncBase _outAsync;
     private java.util.concurrent.Future<?> _future;
+    private boolean _cancelled = false;
 }

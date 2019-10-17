@@ -136,7 +136,7 @@ IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
     {
         Ice::PropertiesPtr p = getProperties(self);
         string k = getString(key);
-        Ice::Int d = getInteger(def);
+        Ice::Int d = static_cast<Ice::Int>(getInteger(def));
         Ice::Int v = p->getPropertyAsIntWithDefault(k, d);
         return INT2FIX(v);
     }

@@ -39,6 +39,10 @@ class ServerI : public Server, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wshadow"
+#endif
     enum InternalServerState
     {
         Loading,
@@ -62,6 +66,9 @@ public:
         Manual,
         Disabled
     };
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();

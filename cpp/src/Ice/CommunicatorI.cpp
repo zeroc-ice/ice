@@ -18,6 +18,9 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <Ice/UUID.h>
+#ifdef ICE_SWIFT
+#   include <Ice/ThreadPool.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -377,6 +380,22 @@ Ice::CommunicatorI::getValueFactoryManager() const ICE_NOEXCEPT
 {
     return _instance->initializationData().valueFactoryManager;
 }
+
+#ifdef ICE_SWIFT
+
+dispatch_queue_t
+Ice::CommunicatorI::getClientDispatchQueue() const
+{
+    return _instance->clientThreadPool()->getDispatchQueue();
+}
+
+dispatch_queue_t
+Ice::CommunicatorI::getServerDispatchQueue() const
+{
+    return _instance->serverThreadPool()->getDispatchQueue();
+}
+
+#endif
 
 namespace
 {

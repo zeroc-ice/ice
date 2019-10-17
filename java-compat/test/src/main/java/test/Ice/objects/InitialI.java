@@ -30,6 +30,13 @@ import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
 import test.Ice.objects.Test.M;
 import test.Ice.objects.Test.MHolder;
+import test.Ice.objects.Test.F1;
+import test.Ice.objects.Test.F1Holder;
+import test.Ice.objects.Test.F2Prx;
+import test.Ice.objects.Test.F2PrxHolder;
+import test.Ice.objects.Test.F2PrxHelper;
+import test.Ice.objects.Test.F3;
+import test.Ice.objects.Test.F3Holder;
 
 public final class InitialI extends Initial
 {
@@ -288,6 +295,38 @@ public final class InitialI extends Initial
     {
         v2.value = v1;
         return v1;
+    }
+
+    @Override
+    public F1
+    opF1(F1 f11, F1Holder f12, Ice.Current current)
+    {
+        f12.value = new F1("F12");
+        return f11;
+    }
+
+    @Override
+    public F2Prx
+    opF2(F2Prx f21, F2PrxHolder f22, Ice.Current current)
+    {
+        f22.value = F2PrxHelper.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22"));
+        return f21;
+    }
+
+    @Override
+    public F3
+    opF3(F3 f31, F3Holder f32, Ice.Current current)
+    {
+        f32.value = new F3(new F1("F12"),
+                           F2PrxHelper.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")));
+        return f31;
+    }
+
+    @Override
+    public boolean
+    hasF3(Ice.Current current)
+    {
+        return true;
     }
 
     private Ice.ObjectAdapter _adapter;

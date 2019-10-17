@@ -735,6 +735,18 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
     }
 }
 
+#ifdef ICE_SWIFT
+dispatch_queue_t
+Ice::ObjectAdapterI::getDispatchQueue() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
+    return getThreadPool()->getDispatchQueue();
+}
+#endif
+
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
 {
@@ -921,7 +933,7 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 //
 // COMPILERFIX: The ObjectAdapterI setup is broken out into a separate initialize
 // function because when it was part of the constructor C++Builder 2010 apps would
-// crash if an execption was thrown from any calls within the constructor.
+// crash if an exception was thrown from any calls within the constructor.
 //
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
                                     const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,

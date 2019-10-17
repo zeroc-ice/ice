@@ -3,6 +3,7 @@
 //
 
 project.ext.displayName = "IceSSL"
+project.ext.moduleName = "com.zeroc.icessl"
 project.ext.description = "The IceSSL plug-in"
 
 slice {

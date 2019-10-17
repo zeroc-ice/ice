@@ -2599,12 +2599,12 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
         // Get the uid/gid associated with the given user.
         //
         struct passwd pwbuf;
-        int sz = sysconf(_SC_GETPW_R_SIZE_MAX);
+        long sz = sysconf(_SC_GETPW_R_SIZE_MAX);
         if(sz == -1)
         {
             sz = 4096;
         }
-        vector<char> buffer(sz);
+        vector<char> buffer(static_cast<size_t>(sz));
         struct passwd *pw;
         int err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
         while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
@@ -2998,66 +2998,60 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 
     if(_node->getTraceLevels()->server > 1)
     {
+        Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
         if(_state == ServerI::Active)
         {
-            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
             out << "changed server `" << _id << "' state to `Active'";
         }
         else if(_state == ServerI::Inactive)
         {
-            if(_node->getTraceLevels()->server != 2 && !(previous == ServerI::Loading || previous == ServerI::Patching))
+            if(_node->getTraceLevels()->server > 2 || (previous != ServerI::Loading && previous != ServerI::Patching))
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `Inactive'";
             }
         }
         else if(_state == ServerI::Destroyed)
         {
-            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
             out << "changed server `" << _id << "' state to `Destroyed'";
         }
         else if(_node->getTraceLevels()->server > 2)
         {
             if(_state == ServerI::WaitForActivation)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `WaitForActivation'";
             }
             else if(_state == ServerI::ActivationTimeout)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `ActivationTimeout'";
             }
             else if(_state == ServerI::Activating)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `Activating'";
             }
             else if(_state == ServerI::Deactivating)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `Deactivating'";
             }
             else if(_state == ServerI::DeactivatingWaitForProcess)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `DeactivatingWaitForProcess'";
             }
             else if(_state == ServerI::Destroying)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `Destroying'";
             }
             else if(_state == ServerI::Loading)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
                 out << "changed server `" << _id << "' state to `Loading'";
             }
             else if(_state == ServerI::Patching)
             {
-                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-                out << "changed server `" << _id << "' state to `Loading'";
+                out << "changed server `" << _id << "' state to `Patching'";
             }
+        }
+        if(!reason.empty())
+        {
+            out << "\nreason = " << reason;
         }
     }
 }

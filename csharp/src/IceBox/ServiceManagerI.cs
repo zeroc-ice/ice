@@ -384,12 +384,21 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
+            // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
+            //
+            _communicator.addAdminFacet(this, "IceBox.ServiceManager");
+            _communicator.getAdmin();
+            if(adapter != null)
+            {
+                adapter.activate();
+            }
+
+            //
             // We may want to notify external scripts that the services
-            // have started. This is done by defining the property:
+            // have started and that IceBox is "ready".
+            // This is done by defining the property IceBox.PrintServicesReady=bundleName
             //
-            // PrintServicesReady=bundleName
-            //
-            // Where bundleName is whatever you choose to call this set of
+            // bundleName is whatever you choose to call this set of
             // services. It will be echoed back as "bundleName ready".
             //
             // This must be done after start() has been invoked on the
@@ -401,44 +410,20 @@ class ServiceManagerI : ServiceManagerDisp_
                 Console.Out.WriteLine(bundleName + " ready");
             }
 
-            //
-            // Register "this" as a facet to the Admin object and create Admin object
-            //
-            try
-            {
-                _communicator.addAdminFacet(this, "IceBox.ServiceManager");
-                _communicator.getAdmin();
-            }
-            catch(Ice.ObjectAdapterDeactivatedException)
-            {
-                //
-                // Expected if the communicator has been shutdown.
-                //
-            }
-
-            //
-            // Start request dispatching after we've started the services.
-            //
-            if(adapter != null)
-            {
-                try
-                {
-                    adapter.activate();
-                }
-                catch(Ice.ObjectAdapterDeactivatedException)
-                {
-                    //
-                    // Expected if the communicator has been shutdown.
-                    //
-                }
-            }
-
             _communicator.waitForShutdown();
         }
         catch(FailureException ex)
         {
             _logger.error(ex.ToString());
             return 1;
+        }
+        catch(Ice.CommunicatorDestroyedException)
+        {
+            // Expected if the communicator is shutdown
+        }
+        catch(Ice.ObjectAdapterDeactivatedException)
+        {
+            // Expected if the mmunicator is shutdown
         }
         catch(Exception ex)
         {

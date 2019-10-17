@@ -25,7 +25,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICESSL"]
+["objc:prefix:ICESSL", "swift:module:Ice:SSL"]
 module IceSSL
 {
 
@@ -42,7 +42,8 @@ local class ConnectionInfo extends Ice::ConnectionInfo
     /** The certificate chain. */
     ["cpp:type:std::vector<CertificatePtr>",
      "java:type:java.security.cert.Certificate[]",
-     "cs:type:System.Security.Cryptography.X509Certificates.X509Certificate2[]"]
+     "cs:type:System.Security.Cryptography.X509Certificates.X509Certificate2[]",
+     "swift:type:[SecCertificate]"]
     Ice::StringSeq certs;
 
     /** The certificate chain verification status. */

@@ -621,7 +621,7 @@ allTests(Test::TestHelper* helper)
         in[3] = 4 / 3;
         in[4] = -5.725;
         Ice::Double inArray[5];
-        for(int i = 0; i < 5; ++i)
+        for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -641,7 +641,7 @@ allTests(Test::TestHelper* helper)
         in[3] = false;
         in[4] = true;
         bool inArray[5];
-        for(int i = 0; i < 5; ++i)
+        for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -1261,7 +1261,7 @@ allTests(Test::TestHelper* helper)
             in[3] = 4 / 3;
             in[4] = -5.725;
             Ice::Double inArray[5];
-            for(int i = 0; i < 5; ++i)
+            for(size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
@@ -1288,7 +1288,7 @@ allTests(Test::TestHelper* helper)
             in[3] = false;
             in[4] = true;
             bool inArray[5];
-            for(int i = 0; i < 5; ++i)
+            for(size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
@@ -2041,7 +2041,7 @@ allTests(Test::TestHelper* helper)
         in[3] = 4 / 3;
         in[4] = -5.725;
         Ice::Double inArray[5];
-        for(int i = 0; i < 5; ++i)
+        for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
@@ -2082,7 +2082,7 @@ allTests(Test::TestHelper* helper)
         in[3] = false;
         in[4] = true;
         bool inArray[5];
-        for(int i = 0; i < 5; ++i)
+        for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }

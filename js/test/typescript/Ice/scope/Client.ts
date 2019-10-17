@@ -15,7 +15,7 @@ export class Client extends TestHelper
         const out = this.getWriter();
         const communicator = this.communicator();
 
-        out.write("test same Slice type name in different scopes... ");
+        out.write("test using same type name in different Slice modules... ");
 
         {
             const i1 = await Test.IPrx.checkedCast(communicator.stringToProxy("i1:" + this.getTestEndpoint()));
@@ -48,6 +48,15 @@ export class Client extends TestHelper
             const [cmap2, cmap3] = await i1.opCMap(cmap1);
             test(cmap2.get("a").s.equals(s1));
             test(cmap3.get("a").s.equals(s1));
+
+            const e = await i1.opE1(Test.E1.v1);
+            test(e == Test.E1.v1);
+
+            const s = await i1.opS1(new Test.S1("S1"));
+            test(s.s == "S1");
+
+            const c = await i1.opC1(new Test.C1("C1"));
+            test(c.s == "C1");
         }
 
         {

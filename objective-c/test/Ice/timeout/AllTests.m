@@ -98,7 +98,7 @@ connectPrx(id<TestTimeoutTimeoutPrx> prx)
 }
 
 void
-timeoutAllTests(id<ICECommunicator> communicator)
+timeoutAllTestsWithController(id<ICECommunicator> communicator, id<TestTimeoutControllerPrx> controller)
 {
     NSString* sref = @"timeout:default -p 12010";
     id<ICEObjectPrx> obj = [communicator stringToProxy:sref];
@@ -106,10 +106,6 @@ timeoutAllTests(id<ICECommunicator> communicator)
 
     id<TestTimeoutTimeoutPrx> timeout = [TestTimeoutTimeoutPrx checkedCast:obj];
     test(timeout);
-
-    id<TestTimeoutControllerPrx> controller =
-        [TestTimeoutControllerPrx checkedCast:[communicator stringToProxy:@"controller:default -p 12011"]];
-    test(controller);
 
     tprintf("testing connect timeout... ");
     {
@@ -229,7 +225,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         // Expect Success.
         //
-        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:500]];
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:1000]];
         TestTimeoutCallback* cb = [TestTimeoutCallback create];
         [to begin_sleep:100 response:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];
@@ -386,4 +382,23 @@ timeoutAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     [controller shutdown];
+}
+
+void
+timeoutAllTests(id<ICECommunicator> communicator)
+{
+    id<TestTimeoutControllerPrx> controller =
+        [TestTimeoutControllerPrx checkedCast:[communicator stringToProxy:@"controller:default -p 12011"]];
+    test(controller);
+    @try
+    {
+        timeoutAllTestsWithController(communicator, controller);
+    }
+    @catch(ICEException*)
+    {
+        // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
+        // the test from hanging on exit in case a connection which disables timeouts is still opened.
+        [controller resumeAdapter];
+        @throw;
+    }
 }

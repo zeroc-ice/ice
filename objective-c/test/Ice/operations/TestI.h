@@ -14,3 +14,8 @@
     NSCondition* _cond;
 }
 @end
+
+@interface TestOperationsBI : TestOperationsMB<TestOperationsMB>
+{
+}
+@end

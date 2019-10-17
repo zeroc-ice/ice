@@ -45,6 +45,7 @@ public class Server extends test.TestHelper
 
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new InitialI(adapter), com.zeroc.Ice.Util.stringToIdentity("initial"));
+            adapter.add(new F2I(), com.zeroc.Ice.Util.stringToIdentity("F21"));
             adapter.add(new UnexpectedObjectExceptionTestI(), com.zeroc.Ice.Util.stringToIdentity("uoet"));
             adapter.activate();
             serverReady();

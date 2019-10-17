@@ -77,7 +77,7 @@ Slice::relativePath(const string& p1, const string& p2)
     }
     else
     {
-        for(size_t i = tokens2.end() - i2; i > 0; i--)
+        for(vector<string>::difference_type i = tokens2.end() - i2; i > 0; i--)
         {
             newPath += "../";
         }
@@ -190,7 +190,7 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()->definition()) :
+    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
                                      ContainedPtr::dynamicCast(type));
 }
 
@@ -198,7 +198,7 @@ string
 Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
 {
     //
-    // Check if the file contains the python:pkgdir global metadata.
+    // Check if the file contains the js:module global metadata.
     //
     DefinitionContextPtr dc = p->definitionContext();
     assert(dc);
@@ -267,7 +267,7 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
     else if(ProxyPtr::dynamicCast(type))
     {
         ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-        return importPrefix(ContainedPtr::dynamicCast(proxy->_class()->definition()), toplevel, imports);
+        return importPrefix(ContainedPtr::dynamicCast(proxy->_class()), toplevel, imports);
     }
     else if(ContainedPtr::dynamicCast(type))
     {
@@ -500,22 +500,12 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     {
         ostringstream os;
         ClassDefPtr def = proxy->_class()->definition();
-        if(!def->isInterface() && def->allOperations().empty())
-        {
-            if(getModuleMetadata(toplevel) != "ice")
-            {
-                os << "iceNS0.";
-            }
-            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
-                                 toplevel->scope(),
-                                 getModuleMetadata(toplevel));
-        }
-        else
+        if(!def || def->isAbstract())
         {
             string prefix;
             if(typescript)
             {
-                prefix = importPrefix(ContainedPtr::dynamicCast(def), toplevel, imports);
+                prefix = importPrefix(ContainedPtr::dynamicCast(proxy->_class()), toplevel, imports);
                 os << prefix;
             }
 
@@ -527,6 +517,16 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
             {
                 os << fixId(proxy->_class()->scoped() + "Prx");
             }
+        }
+        else
+        {
+            if(getModuleMetadata(toplevel) != "ice")
+            {
+                os << "iceNS0.";
+            }
+            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
+                                 toplevel->scope(),
+                                 getModuleMetadata(toplevel));
         }
         return os.str();
     }
@@ -983,7 +983,7 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(!def || def->isAbstract())
         {
             return typeToString(type);
         }

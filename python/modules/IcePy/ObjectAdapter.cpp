@@ -17,6 +17,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Router.h>
 #include <Ice/ServantLocator.h>
+#include <Ice/Logger.h>
 
 #include <pythread.h>
 
@@ -177,7 +178,11 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
     {
         if(PyTuple_GET_SIZE(res.get()) > 2)
         {
-            PyErr_WarnEx(PyExc_RuntimeWarning, STRCAST("invalid return value for ServantLocator::locate"), 1);
+            const Ice::CommunicatorPtr com = current.adapter->getCommunicator();
+            if(com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                com->getLogger()->warning("invalid return value for ServantLocator::locate");
+            }
             return 0;
         }
         servantObj = PyTuple_GET_ITEM(res.get(), 0);
@@ -196,7 +201,11 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
     //
     if(!PyObject_IsInstance(servantObj, _objectType))
     {
-        PyErr_WarnEx(PyExc_RuntimeWarning, STRCAST("return value of ServantLocator::locate is not an Ice object"), 1);
+        const Ice::CommunicatorPtr com = current.adapter->getCommunicator();
+        if(com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            com->getLogger()->warning("return value of ServantLocator::locate is not an Ice object");
+        }
         return 0;
     }
 

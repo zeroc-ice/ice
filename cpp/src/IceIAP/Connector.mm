@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include "Transceiver.h"
 #include "EndpointI.h"
 #include "Connector.h"
@@ -22,7 +26,9 @@ IceObjC::iAPConnector::connect()
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
     TransceiverPtr transceiver = new iAPTransceiver(_instance, session);
+#if defined(__clang__) && !__has_feature(objc_arc)
     [session release];
+#endif
     return transceiver;
 }
 
@@ -132,13 +138,22 @@ IceObjC::iAPConnector::iAPConnector(const ProtocolInstancePtr& instance,
     _instance(instance),
     _timeout(timeout),
     _connectionId(connectionId),
+#if defined(__clang__) && !__has_feature(objc_arc)
     _protocol([protocol retain]),
     _accessory([accessory retain])
+#else
+    _protocol(protocol),
+    _accessory(accessory)
+#endif
 {
 }
 
 IceObjC::iAPConnector::~iAPConnector()
 {
+#if defined(__clang__) && !__has_feature(objc_arc)
     [_protocol release];
     [_accessory release];
+#endif
 }
+
+#endif

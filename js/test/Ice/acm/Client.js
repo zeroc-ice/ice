@@ -294,7 +294,7 @@
         constructor(com, out)
         {
             super("close on idle and invocation", com, out);
-            this.setClientACM(1, 3, 0); // Only close on idle and invocation
+            this.setClientACM(3, 3, 0); // Only close on idle and invocation
         }
 
         async runTestCase(adapter, proxy)
@@ -305,7 +305,7 @@
             // the close is graceful or forceful.
             //
             await adapter.hold();
-            await Ice.Promise.delay(3000);
+            await Ice.Promise.delay(5000);
             test(this._heartbeat === 0);
             test(!this._closed); // Not closed yet because of graceful close.
             await adapter.activate();

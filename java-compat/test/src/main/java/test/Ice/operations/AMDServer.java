@@ -21,6 +21,7 @@ public class AMDServer extends test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new AMDMyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+            adapter.add(new AMDBI(), Ice.Util.stringToIdentity("b"));
             adapter.activate();
 
             serverReady();

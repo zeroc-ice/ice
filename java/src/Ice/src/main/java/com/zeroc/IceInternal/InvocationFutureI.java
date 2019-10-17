@@ -444,9 +444,9 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         CancellationHandler handler;
         synchronized(this)
         {
-            _cancellationException = ex;
             if(_cancellationHandler == null)
             {
+                _cancellationException = ex;
                 return;
             }
             handler = _cancellationHandler;

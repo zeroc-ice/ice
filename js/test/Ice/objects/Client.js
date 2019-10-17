@@ -6,6 +6,7 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    require("Forward");
     const TestHelper = require("TestHelper").TestHelper;
     const test = TestHelper.test;
 
@@ -461,6 +462,32 @@
                 test(m1.v.get(k2).data == "two");
                 test(m2.v.get(k2).data == "two");
 
+            }
+            out.writeLine("ok");
+
+            out.write("testing forward declarations... ");
+            {
+                const [f11, f12] = await initial.opF1(new Test.F1("F11"));
+                test(f11.name == "F11");
+                test(f12.name == "F12");
+
+                const [f21, f22] = await initial.opF2(
+                    Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + this.getTestEndpoint())));
+                test(f21.ice_getIdentity().name == "F21");
+                await f21.op();
+                test(f22.ice_getIdentity().name == "F22");
+
+                const hasF3 = await initial.hasF3();
+                if(hasF3)
+                {
+                    const [f31, f32] = await initial.opF3(
+                        new Test.F3(new Test.F1("F11"), Test.F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+                    test(f31.f1.name == "F11");
+                    test(f31.f2.ice_getIdentity().name == "F21");
+
+                    test(f32.f1.name == "F12");
+                    test(f32.f2.ice_getIdentity().name == "F22");
+                }
             }
             out.writeLine("ok");
 

@@ -262,6 +262,8 @@ allTests(Test::TestHelper* helper)
         params["id"] = "IceBox1";
         instantiateServer(admin, "IceBox", "localnode", params);
         TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
         try
         {
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
@@ -314,6 +316,8 @@ allTests(Test::TestHelper* helper)
         params["id"] = "IceBox1";
         instantiateServer(admin, "IceBox", "localnode", params);
         TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Ordered"));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
         try
         {
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");

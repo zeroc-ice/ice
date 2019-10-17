@@ -10,14 +10,14 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <PackageId>zeroc.ice.net</PackageId>
         <Title>ZeroC Ice for .NET</Title>
-        <PackageVersion>3.7.2</PackageVersion>
+        <PackageVersion>3.7.3</PackageVersion>
         <Authors>ZeroC</Authors>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</PackageLicenseUrl>
+        <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
-        <PackageIconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</PackageIconUrl>
+        <PackageIcon>logo.png</PackageIcon>
         <Copyright>Copyright (c) ZeroC, Inc. All rights reserved</Copyright>
         <Description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</Description>
-        <PackageReleaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.2+Release+Notes</PackageReleaseNotes>
+        <PackageReleaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.3+Release+Notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
     </PropertyGroup>
@@ -38,9 +38,9 @@
             <PackagePath>lib\netstandard2.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\netcoreapp2.0\publish\*">
+        <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
             <Pack>true</Pack>
-            <PackagePath>tools\netcoreapp2.0</PackagePath>
+            <PackagePath>tools\$(AppTargetFramework)</PackagePath>
         </Content>
 
         <Content Include="..\..\slice\**\*.ice"
@@ -48,5 +48,9 @@
             <Pack>true</Pack>
             <PackagePath>slice</PackagePath>
         </Content>
+        <None Include="logo.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
     </ItemGroup>
 </Project>

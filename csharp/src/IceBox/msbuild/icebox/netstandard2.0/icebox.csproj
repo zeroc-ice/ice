@@ -18,5 +18,8 @@
     <ProjectReference Include="../../../../IceSSL/msbuild/netstandard2.0/icessl.csproj" />
     <ProjectReference Include="../../iceboxlib/netstandard2.0/iceboxlib.csproj" />
   </ItemGroup>
+  <ItemGroup>
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
+  </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)../../../../../msbuild/ice.sign.targets"/>
 </Project>

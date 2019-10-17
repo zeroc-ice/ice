@@ -37,6 +37,13 @@ import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.M;
 import test.Ice.objects.Test.MHolder;
+import test.Ice.objects.Test.F1;
+import test.Ice.objects.Test.F1Holder;
+import test.Ice.objects.Test.F2Prx;
+import test.Ice.objects.Test.F2PrxHolder;
+import test.Ice.objects.Test.F2PrxHelper;
+import test.Ice.objects.Test.F3;
+import test.Ice.objects.Test.F3Holder;
 
 public class AllTests
 {
@@ -403,6 +410,38 @@ public class AllTests
             test(m1.value.v.get(k2).data.equals("two"));
             test(m2.v.get(k2).data.equals("two"));
 
+        }
+        out.println("ok");
+
+        out.print("testing forward declared types... ");
+        out.flush();
+        {
+            F1Holder f12 = new F1Holder();
+            F1 f11 = initial.opF1(new F1("F11"), f12);
+            test(f11.name.equals("F11"));
+            test(f12.value.name.equals("F12"));
+
+            F2PrxHolder f22 = new F2PrxHolder();
+            F2Prx f21 =
+                initial.opF2(F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
+                             f22);
+            test(f21.ice_getIdentity().name.equals("F21"));
+            f21.op();
+            test(f22.value.ice_getIdentity().name.equals("F22"));
+
+            if(initial.hasF3())
+            {
+                F3Holder f32 = new F3Holder();
+                F3 f31 = initial.opF3(new F3(new F1("F11"),
+                                             F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
+                                      f32);
+
+                test(f31.f1.name.equals("F11"));
+                test(f31.f2.ice_getIdentity().name.equals("F21"));
+
+                test(f32.value.f1.name.equals("F12"));
+                test(f32.value.f2.ice_getIdentity().name.equals("F22"));
+            }
         }
         out.println("ok");
 

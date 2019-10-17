@@ -13,7 +13,7 @@ public class Client extends test.TestHelper
         java.io.PrintWriter out = getWriter();
         try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
-            out.print("test same Slice type name in different scopes... ");
+            out.print("test using same type name in different Slice modules... ");
             out.flush();
             AllTests.allTests(this);
             out.println("ok");

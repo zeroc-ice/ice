@@ -35,6 +35,7 @@ private:
 
     void runTest(const Test::MyObjectPrxPtr&, const InterceptorIPtr&);
     void runAmdTest(const Test::MyObjectPrxPtr&, const AMDInterceptorIPtr&);
+    void testInterceptorExceptions(const Test::MyObjectPrxPtr&);
 };
 
 void
@@ -169,6 +170,10 @@ Client::runTest(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& intercep
     test(interceptor->getLastOperation() == "amdAdd");
     test(!interceptor->getLastStatus());
     cout << "ok" << endl;
+
+    cout << "testing exceptions raised by the interceptor... " << flush;
+    testInterceptorExceptions(prx);
+    cout << "ok" << endl;
 }
 
 void
@@ -184,6 +189,16 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
     test(prx->amdAddWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAddWithRetry");
     test(!interceptor->getLastStatus());
+    {
+        Ice::Context ctx;
+        ctx["retry"] = "yes";
+        for(int i = 0; i < 10; ++i)
+        {
+            test(prx->amdAdd(33, 12, ctx) == 45);
+            test(interceptor->getLastOperation() == "amdAdd");
+            test(!interceptor->getLastStatus());
+        }
+    }
     cout << "ok" << endl;
     cout << "testing user exception... " << flush;
     try
@@ -234,6 +249,59 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
     test(!interceptor->getLastStatus());
     test(dynamic_cast<MySystemException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
+
+    cout << "testing exceptions raised by the interceptor... " << flush;
+    testInterceptorExceptions(prx);
+    cout << "ok" << endl;
+}
+
+void
+Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
+{
+    vector<pair<string, string> > exceptions;
+    exceptions.push_back(make_pair("raiseBeforeDispatch", "user"));
+    exceptions.push_back(make_pair("raiseBeforeDispatch", "notExist"));
+    exceptions.push_back(make_pair("raiseBeforeDispatch", "system"));
+    exceptions.push_back(make_pair("raiseAfterDispatch", "user"));
+    exceptions.push_back(make_pair("raiseAfterDispatch", "notExist"));
+    exceptions.push_back(make_pair("raiseAfterDispatch", "system"));
+    for(vector<pair<string, string> >::const_iterator p = exceptions.begin(); p != exceptions.end(); ++p)
+    {
+        Ice::Context ctx;
+        ctx[p->first] = p->second;
+        try
+        {
+            prx->ice_ping(ctx);
+            test(false);
+        }
+        catch(const Ice::UnknownUserException&)
+        {
+            test(p->second == "user");
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+            test(p->second == "notExist");
+        }
+        catch(const Ice::UnknownException&)
+        {
+            test(p->second == "system"); // non-collocated
+        }
+        catch(const MySystemException&)
+        {
+            test(p->second == "system"); // collocated
+        }
+        {
+            Ice::ObjectPrxPtr batch = prx->ice_batchOneway();
+            batch->ice_ping(ctx);
+            batch->ice_ping();
+            batch->ice_flushBatchRequests();
+
+            // Force the last batch request to be dispatched by the server thread using invocation timeouts
+            // This is required to preven threading issue with the test interceptor implementation which
+            // isn't thread safe
+            prx->ice_invocationTimeout(10000)->ice_ping();
+        }
+    }
 }
 
 DEFINE_TEST(Client)

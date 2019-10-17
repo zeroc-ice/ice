@@ -54,7 +54,7 @@ local interface ObjectAdapter
      * @return This object adapter's name.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] string getName();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] string getName();
 
     /**
      *
@@ -65,7 +65,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Communicator getCommunicator();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"] Communicator getCommunicator();
 
     /**
      *
@@ -94,7 +94,7 @@ local interface ObjectAdapter
      * @see #waitForHold
      *
      **/
-    void hold();
+    ["swift:noexcept"] void hold();
 
     /**
      *
@@ -107,7 +107,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    ["js:async"] void waitForHold();
+    ["swift:noexcept", "js:async"] void waitForHold();
 
     /**
      *
@@ -134,7 +134,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:noexcept", "js:async"] void deactivate();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void deactivate();
 
     /**
      *
@@ -148,7 +148,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    ["cpp:noexcept", "js:async"] void waitForDeactivate();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void waitForDeactivate();
 
     /**
      *
@@ -159,7 +159,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:const", "cpp:noexcept"] bool isDeactivated();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] bool isDeactivated();
 
     /**
      *
@@ -175,7 +175,7 @@ local interface ObjectAdapter
      * @see Communicator#destroy
      *
      **/
-    ["cpp:noexcept", "js:async"] void destroy();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -199,7 +199,8 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    Object* add(Object servant, ["objc:param:identity"] Identity id);
+    ["swift:nonnull", "swift:attribute:@discardableResult"]
+    Object* add(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id);
 
     /**
      *
@@ -223,7 +224,8 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    Object* addFacet(Object servant, ["objc:param:identity"] Identity id, string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"]
+    Object* addFacet(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id, string facet);
 
     /**
      *
@@ -244,7 +246,7 @@ local interface ObjectAdapter
      * @see #find
      *
      **/
-    Object* addWithUUID(Object servant);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object* addWithUUID(["swift:nonnull"] Object servant);
 
     /**
      *
@@ -267,7 +269,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    Object* addFacetWithUUID(Object servant, string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object* addFacetWithUUID(["swift:nonnull"] Object servant, string facet);
 
     /**
      *
@@ -307,7 +309,7 @@ local interface ObjectAdapter
      * @see #findDefaultServant
      *
      **/
-    void addDefaultServant(Object servant, string category);
+    void addDefaultServant(["swift:nonnull"] Object servant, string category);
 
     /**
      *
@@ -327,7 +329,7 @@ local interface ObjectAdapter
      * @see #addWithUUID
      *
      **/
-    Object remove(Identity id);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object remove(Identity id);
 
     /**
      *
@@ -346,7 +348,7 @@ local interface ObjectAdapter
      * @see #addFacetWithUUID
      *
      **/
-    Object removeFacet(Identity id, string facet);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object removeFacet(Identity id, string facet);
 
     /**
      *
@@ -364,7 +366,7 @@ local interface ObjectAdapter
      * @see #removeFacet
      *
      **/
-    FacetMap removeAllFacets(Identity id);
+    ["swift:attribute:@discardableResult"] FacetMap removeAllFacets(Identity id);
 
     /**
      *
@@ -380,7 +382,7 @@ local interface ObjectAdapter
      * @see #findDefaultServant
      *
      **/
-    Object removeDefaultServant(string category);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] Object removeDefaultServant(string category);
 
     /**
      *
@@ -402,7 +404,7 @@ local interface ObjectAdapter
      * @see #findByProxy
      *
      **/
-    ["cpp:const"] Object find(Identity id);
+    ["swift:noexcept", "cpp:const"] Object find(Identity id);
 
     /**
      *
@@ -425,7 +427,7 @@ local interface ObjectAdapter
      * @see #findByProxy
      *
      **/
-    ["cpp:const"] Object findFacet(Identity id, string facet);
+    ["swift:noexcept", "cpp:const"] Object findFacet(Identity id, string facet);
 
     /**
      *
@@ -443,7 +445,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["cpp:const"] FacetMap findAllFacets(Identity id);
+    ["swift:noexcept", "cpp:const"] FacetMap findAllFacets(Identity id);
 
     /**
      *
@@ -463,7 +465,7 @@ local interface ObjectAdapter
      * @see #findFacet
      *
      **/
-    ["cpp:const"] Object findByProxy(Object* proxy);
+    ["swift:noexcept", "cpp:const"] Object findByProxy(["swift:nonnull"] Object* proxy);
 
     /**
      *
@@ -511,7 +513,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    void addServantLocator(ServantLocator locator, string category);
+    void addServantLocator(["swift:nonnull"] ServantLocator locator, string category);
 
     /**
      *
@@ -530,7 +532,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    ServantLocator removeServantLocator(string category);
+    ["swift:nonnull", "swift:attribute:@discardableResult"] ServantLocator removeServantLocator(string category);
 
     /**
      *
@@ -549,7 +551,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    ["cpp:const"] ServantLocator findServantLocator(string category);
+    ["swift:noexcept", "cpp:const"] ServantLocator findServantLocator(string category);
 
     /**
      *
@@ -564,7 +566,7 @@ local interface ObjectAdapter
      * @see #removeDefaultServant
      *
      **/
-    ["cpp:const"] Object findDefaultServant(string category);
+    ["swift:noexcept", "cpp:const"] Object findDefaultServant(string category);
 
     /**
      *
@@ -583,7 +585,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    ["cpp:const"] Object* createProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createProxy(Identity id);
 
     /**
      *
@@ -598,7 +600,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    ["cpp:const"] Object* createDirectProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createDirectProxy(Identity id);
 
     /**
      *
@@ -614,7 +616,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    ["cpp:const"] Object* createIndirectProxy(Identity id);
+    ["cpp:const", "swift:nonnull"] Object* createIndirectProxy(Identity id);
 
     /**
      * Set an Ice locator for this object adapter. By doing so, the
@@ -643,7 +645,7 @@ local interface ObjectAdapter
      * @see #setLocator
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Locator* getLocator();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] Locator* getLocator();
 
     /**
      *
@@ -654,7 +656,7 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const", "cpp:noexcept"] EndpointSeq getEndpoints();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] EndpointSeq getEndpoints();
 
     /**
      * Refresh the set of published endpoints. The run time re-reads
@@ -678,7 +680,7 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const", "cpp:noexcept"] EndpointSeq getPublishedEndpoints();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] EndpointSeq getPublishedEndpoints();
 
     /**
      *
@@ -692,6 +694,16 @@ local interface ObjectAdapter
      *
      **/
     void setPublishedEndpoints(EndpointSeq newEndpoints);
+
+#if defined(__SLICE2SWIFT__) || defined(ICE_SWIFT)
+    /*
+     * Returns the dispatch queue.
+     *
+     * @return The dispatch queue associated wih this Object Adapter.
+     **/
+    ["cpp:const", "swift:nonnull", "cpp:type:dispatch_queue_t", "swift:type:Dispatch.DispatchQueue"]
+    LocalObject getDispatchQueue();
+#endif
 }
 
 }

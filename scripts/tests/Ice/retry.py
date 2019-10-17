@@ -10,4 +10,9 @@ traceProps = {
     "Ice.Trace.Protocol" : 1
 }
 
-TestSuite(__name__, [ClientServerTestCase(traceProps=traceProps)])
+testcases = [ClientServerTestCase(traceProps=traceProps)]
+
+if Mapping.getByPath(__name__).hasSource("Ice/retry", "collocated"):
+    testcases += [ CollocatedTestCase(traceProps=traceProps) ]
+
+TestSuite(__name__, testcases)

@@ -680,13 +680,13 @@ static void breakCycles(id o)
     test([res isKindOfClass:[TestSlicingObjectsClientPCDerived3 class]]);
     TestSlicingObjectsClientPCDerived3* p3 = (TestSlicingObjectsClientPCDerived3*)res;
     test(p3.pi == 3);
-    for(int i = 0; i < 300; ++i)
+    for(NSUInteger i = 0; i < 300; ++i)
     {
         TestSlicingObjectsClientPCDerived2* p2 = (TestSlicingObjectsClientPCDerived2*)[p3.pbs objectAtIndex:i];
-        test(p2.pi == i);
+        test(p2.pi == (ICEInt)i);
         test([p2.pbs count] == 1);
         test([[p2.pbs objectAtIndex:0] isEqual:[NSNull null]]);
-        test(p2.pcd2 == i);
+        test(p2.pcd2 == (ICEInt)i);
     }
     test(p3.pcd2 == p3.pi);
     test([p3.pcd3 isEqual:[p3.pbs objectAtIndex:10]]);
@@ -2293,14 +2293,14 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         //
         // Sending more than 254 objects exercises the encoding for object ids.
         //
-        int i;
+        NSUInteger i;
         pcd.pbs = [NSArray array];
         for(i = 0; i < 300; ++i)
         {
             TestSlicingObjectsClientPCDerived2* p2 = [TestSlicingObjectsClientPCDerived2 pcDerived2];
-            p2.pi = i;
+            p2.pi = (ICEInt)i;
             p2.pbs = [NSArray arrayWithObjects:[NSNull null], nil]; // Nil reference. This slice should not have an indirection table.
-            p2.pcd2 = i;
+            p2.pcd2 = (ICEInt)i;
             pcd.pbs = [pcd.pbs arrayByAddingObject:p2];
         }
         pcd.pcd2 = pcd.pi;
@@ -2321,10 +2321,10 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             for(i = 0; i < 300; ++i)
             {
                 TestSlicingObjectsClientPCDerived2* p2 = (TestSlicingObjectsClientPCDerived2*)[p3.pbs objectAtIndex:i];
-                test(p2.pi == i);
+                test(p2.pi == (ICEInt)i);
                 test([p2.pbs count] == 1);
                 test([[p2.pbs objectAtIndex:0] isEqual:[NSNull null]]);
-                test(p2.pcd2 == i);
+                test(p2.pcd2 == (ICEInt)i);
             }
             test(p3.pcd2 == p3.pi);
             test(p3.pcd3 == [p3.pbs objectAtIndex:10]);

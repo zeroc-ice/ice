@@ -110,6 +110,12 @@ IceSSL::SSLEngine::initialize()
     _checkCertName = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 0;
 
     //
+    // CheckCertName > 1 enables SNI, the SNI extension applies to client connections,
+    // indicating the hostname to the server (must be DNS hostname, not an IP address).
+    //
+    _serverNameIndication = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 1;
+
+    //
     // VerifyDepthMax establishes the maximum length of a peer's certificate
     // chain, including the peer's certificate. A value of 0 means there is
     // no maximum.
@@ -201,19 +207,19 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
         if(!certNameOK)
         {
             ostringstream ostr;
-            ostr << "IceSSL: certificate validation failure: "
-                 << (isIpAddress ? "IP address mismatch" : "Hostname mismatch");
+            ostr << "IceSSL: ";
+            if(_verifyPeer > 0)
+            {
+                ostr << "ignoring ";
+            }
+            ostr << "certificate verification failure " << (isIpAddress ? "IP address mismatch" : "Hostname mismatch");
             string msg = ostr.str();
             if(_securityTraceLevel >= 1)
             {
                 Trace out(_logger, _securityTraceCategory);
                 out << msg;
             }
-
-            if(_verifyPeer > 0)
-            {
-                throw SecurityException(__FILE__, __LINE__, msg);
-            }
+            throw SecurityException(__FILE__, __LINE__, msg);
         }
     }
 }
@@ -261,6 +267,12 @@ bool
 IceSSL::SSLEngine::getCheckCertName() const
 {
     return _checkCertName;
+}
+
+bool
+IceSSL::SSLEngine::getServerNameIndication() const
+{
+    return _serverNameIndication;
 }
 
 int

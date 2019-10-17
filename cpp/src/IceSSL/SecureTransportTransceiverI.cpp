@@ -120,7 +120,8 @@ checkTrustResult(SecTrustRef trust,
         //
         if(engine->getCheckCertName() && !host.empty())
         {
-            UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(false, toCFString(host)));
+            UniqueRef<CFStringRef> hostref(toCFString(host));
+            UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(false, hostref.get()));
             UniqueRef<CFArrayRef> policies;
             if((err = SecTrustCopyPolicies(trust, &policies.get())))
             {
@@ -212,8 +213,10 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
     //
     if(_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
     {
-        _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd()));
-        _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd()));
+        _maxSendPacketSize =
+            static_cast<size_t>(std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd())));
+        _maxRecvPacketSize =
+            static_cast<size_t>(std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd())));
     }
     else
     {
@@ -238,6 +241,18 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
                                     sslErrorToString(err));
+        }
+
+        //
+        // Enable SNI
+        //
+        if(!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
+        {
+            if((err = SSLSetPeerDomainName(_ssl.get(), _host.data(), _host.length())))
+            {
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SNI host failed `" + _host + "'\n" +
+                                        sslErrorToString(err));
+            }
         }
     }
 
@@ -289,7 +304,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         throw ProtocolException(__FILE__, __LINE__, os.str());
     }
 
-    for(int i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
+    for(CFIndex i = 0, count = SecTrustGetCertificateCount(_trust.get()); i < count; ++i)
     {
         SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust.get(), i);
         CFRetain(cert);
@@ -583,7 +598,7 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
         IceInternal::SocketOperation op = _delegate->write(buf);
         if(op == IceInternal::SocketOperationWrite)
         {
-            *length = buf.i - buf.b.begin();
+            *length = static_cast<size_t>(buf.i - buf.b.begin());
             _tflags |= SSLWantWrite;
             return errSSLWouldBlock;
         }
@@ -616,7 +631,7 @@ IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
         IceInternal::SocketOperation op = _delegate->read(buf);
         if(op == IceInternal::SocketOperationRead)
         {
-            *length = buf.i - buf.b.begin();
+            *length = static_cast<size_t>(buf.i - buf.b.begin());
             _tflags |= SSLWantRead;
             return errSSLWouldBlock;
         }

@@ -21,16 +21,16 @@
 
 /**
  *
- * The Ice Management eXtension facility. It provides the {@link
- * IceMX#MetricsAdmin} interface for management clients to retrieve
- * metrics from Ice applications.
+ * The Ice Management eXtension facility. It provides the
+ * {@link IceMX#MetricsAdmin} interface for management clients to
+ * retrieve metrics from Ice applications.
  *
  **/
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX"]
+["objc:prefix:ICEMX", "swift:module:Ice:MX"]
 module IceMX
 {
 
@@ -58,14 +58,16 @@ class Metrics
 
     /**
      *
-     * The total number of objects that were observed by this metrics.
+     * The total number of objects observed by this metrics. This includes
+     * the number of currently observed objects and the number of objects
+     * observed in the past.
      *
      **/
     long total = 0;
 
     /**
      *
-     * The current number of objects observed by this metrics.
+     * The number of objects currently observed by this metrics.
      *
      **/
     int current = 0;
@@ -73,7 +75,8 @@ class Metrics
     /**
      *
      * The sum of the lifetime of each observed objects. This does not
-     * include the lifetime of objects which are currently observed.
+     * include the lifetime of objects which are currently observed,
+     * only the objects observed in the past.
      *
      **/
     long totalLifetime = 0;
@@ -322,8 +325,8 @@ class DispatchMetrics extends Metrics
  * Provides information on child invocations. A child invocation is
  * either remote (sent over an Ice connection) or collocated. An
  * invocation can have multiple child invocation if it is
- * retried. Child invocation metrics are embedded within {@link
- * InvocationMetrics}.
+ * retried. Child invocation metrics are embedded within
+ * {@link InvocationMetrics}.
  *
  **/
 class ChildInvocationMetrics extends Metrics

@@ -106,19 +106,16 @@ connect(const Ice::ObjectPrxPtr& prx)
 }
 
 void
-allTests(Test::TestHelper* helper)
+allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& controller)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string sref = "timeout:" + helper->getTestEndpoint();
+
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
     TimeoutPrxPtr timeout = ICE_CHECKED_CAST(TimeoutPrx, obj);
     test(timeout);
-
-    ControllerPrxPtr controller =
-        ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:" + helper->getTestEndpoint(1)));
-    test(controller);
 
     cout << "testing connect timeout... " << flush;
     {
@@ -204,7 +201,7 @@ allTests(Test::TestHelper* helper)
         test(connection == to->ice_getConnection());
         try
         {
-            to->sleep(500);
+            to->sleep(1000);
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
@@ -230,7 +227,7 @@ allTests(Test::TestHelper* helper)
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
 
 #ifdef ICE_CPP11_MAPPING
-        auto f = to->sleepAsync(500);
+        auto f = to->sleepAsync(1000);
         try
         {
             f.get();
@@ -245,7 +242,7 @@ allTests(Test::TestHelper* helper)
         }
 #else
         CallbackPtr cb = new Callback();
-        to->begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
+        to->begin_sleep(1000, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
         cb->check();
 #endif
         obj->ice_ping();
@@ -525,28 +522,9 @@ allTests(Test::TestHelper* helper)
 
         // Keep the server thread pool busy.
 #ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleepAsync(300);
+        timeout->ice_invocationTimeout(-1)->sleepAsync(500);
 #else
-        timeout->ice_invocationTimeout(-1)->begin_sleep(300);
-#endif
-        try
-        {
-            batchTimeout->ice_flushBatchRequests();
-            test(false);
-        }
-        catch(const Ice::InvocationTimeoutException&)
-        {
-        }
-
-        batchTimeout->ice_ping();
-        batchTimeout->ice_ping();
-        batchTimeout->ice_ping();
-
-        // Keep the server thread pool busy.
-#ifdef ICE_CPP11_MAPPING
-        timeout->ice_invocationTimeout(-1)->sleepAsync(300);
-#else
-        timeout->ice_invocationTimeout(-1)->begin_sleep(300);
+        timeout->ice_invocationTimeout(-1)->begin_sleep(500);
 #endif
         try
         {
@@ -566,4 +544,25 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     controller->shutdown();
+}
+
+void
+allTests(Test::TestHelper* helper)
+{
+    ControllerPrxPtr controller =
+        ICE_CHECKED_CAST(ControllerPrx,
+                         helper->communicator()->stringToProxy("controller:" + helper->getTestEndpoint(1)));
+    test(controller);
+
+    try
+    {
+        allTestsWithController(helper, controller);
+    }
+    catch(const Ice::Exception&)
+    {
+        // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
+        // from hanging on exit in case a connection which disables timeouts is still opened.
+        controller->resumeAdapter();
+        throw;
+    }
 }

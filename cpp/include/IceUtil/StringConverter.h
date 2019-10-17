@@ -66,7 +66,7 @@ public:
     }
 };
 
-#ifdef __clang__
+#if defined(__clang__) && !defined(ICE_STATIC_LIBS)
 //
 // Explicit template instantiation so that dynamic_cast of derived exported
 // classes works well with clang, see ICE-7473.

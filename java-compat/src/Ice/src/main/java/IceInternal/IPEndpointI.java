@@ -236,7 +236,18 @@ public abstract class IPEndpointI extends EndpointI
 
         if(_sourceAddr != null)
         {
-            s += " --sourceAddress " + _sourceAddr.getAddress().getHostAddress();
+            String sourceAddr = _sourceAddr.getAddress().getHostAddress();
+            boolean addQuote = sourceAddr.indexOf(':') != -1;
+            s += " --sourceAddress ";
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += sourceAddr;
+            if(addQuote)
+            {
+                s += "\"";
+            }
         }
 
         return s;

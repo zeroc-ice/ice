@@ -32,7 +32,12 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace IceGrid;
 
+// Work-around for anonymous namspace bug in xlclang++
+#ifdef __ibmxl__
+namespace IceGridNodeNamespace
+#else
 namespace
+#endif
 {
 
 class ProcessI : public Process
@@ -110,6 +115,10 @@ setNoIndexingAttribute(const string& path)
 
 }
 
+#ifdef __ibmxl__
+using namespace IceGridNodeNamespace;
+#endif
+
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com,
                                        const ActivatorPtr& activator,
                                        bool nowarn,
@@ -158,7 +167,17 @@ NodeService::shutdown()
 {
     assert(_activator && _sessions.get());
     _activator->shutdown();
-    _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
+
+    //
+    // If the session manager waits for session creation with the master, we interrupt
+    // the session creation. This is necessary to unblock the main thread which might
+    // be waiting for waitForCreate to return.
+    //
+    if(_sessions->isWaitingForCreate())
+    {
+        _sessions->terminate();
+    }
+
     return true;
 }
 
@@ -743,6 +762,33 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
+
+    // If IceGrid.Registry.[Admin]PermissionsVerifier is not set and
+    // IceGrid.Registry.[Admin]CryptPasswords is set, load the
+    // Glacier2CryptPermissionsVerifier plug-in
+    //
+    vector<string> vTypes;
+    vTypes.push_back("");
+    vTypes.push_back("Admin");
+
+    for(vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
+    {
+        string verifier = "IceGrid.Registry." + *p + "PermissionsVerifier";
+
+        if(initData.properties->getProperty(verifier).empty())
+        {
+            string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + *p + "CryptPasswords");
+
+            if(!cryptPasswords.empty())
+            {
+                initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
+                                                 "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+
+                initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p +
+                                                 "PermissionsVerifier", cryptPasswords);
+            }
+        }
+    }
 
     //
     // Never create Admin object in Ice.Admin adapter

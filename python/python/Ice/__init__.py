@@ -521,28 +521,28 @@ class EnumBase(object):
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
-            return self._value < other._value;
+            return self._value < other._value
         elif other == None:
             return False
         return NotImplemented
 
     def __le__(self, other):
         if isinstance(other, self.__class__):
-            return self._value <= other._value;
-        elif other == None:
+            return self._value <= other._value
+        elif other is None:
             return False
         return NotImplemented
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self._value == other._value;
+            return self._value == other._value
         elif other == None:
             return False
         return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, self.__class__):
-            return self._value != other._value;
+            return self._value != other._value
         elif other == None:
             return False
         return NotImplemented
@@ -556,7 +556,7 @@ class EnumBase(object):
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
-            return self._value >= other._value;
+            return self._value >= other._value
         elif other == None:
             return False
         return NotImplemented
@@ -820,28 +820,6 @@ define the start and stop methods.'''
 to terminate.'''
         pass
 
-class BatchRequest(object):
-    '''Base class for batch request interceptor. A subclass must
-define the enqueue method.'''
-    def __init__(self, size, operation, proxy):
-        self._size = size
-        self._operation = operation
-        self._proxy = proxy
-
-    def getSize():
-        return self._size
-
-    def getOperation():
-        return self._operation
-
-    def getProxy():
-        return self._proxy
-
-    def enqueue():
-        '''Call enqueue from the batch request interceptor enqueue
-implementation to confirm the batching a this request.'''
-        pass
-
 class BatchRequestInterceptor(object):
     '''Base class for batch request interceptor. A subclass must
 define the enqueue method.'''
@@ -849,7 +827,7 @@ define the enqueue method.'''
     def __init__(self):
         pass
 
-    def enqueue(request, queueCount, queueSize):
+    def enqueue(self, request, queueCount, queueSize):
         '''Invoked when a request is batched.'''
         pass
 

@@ -300,8 +300,8 @@
         NSDate* start = [NSDate date];
         while(!_closed)
         {
-            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:2]];
-            if(start.timeIntervalSinceNow > -1)
+            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:30]];
+            if(start.timeIntervalSinceNow < -30)
             {
                 test(NO);
             }
@@ -535,10 +535,6 @@
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
-    [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
-    [_cond unlock];
-
     [self waitForClosed];
 
     [_cond lock];
@@ -599,7 +595,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setClientACM:1 close:3 heartbeat:0]; // Only close on idle and invocation
+    [tc setClientACM:3 close:3 heartbeat:0]; // Only close on idle and invocation
     return tc;
 }
 +(NSString*) getName
@@ -616,7 +612,7 @@
     [adapter hold];
 
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:5]]; // Idle for 5 seconds
     [_cond unlock];
 
     [_cond lock];
@@ -631,10 +627,6 @@
     }
 
     [adapter activate];
-    [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-    [_cond unlock];
-
     [self waitForClosed];
 }
 @end
@@ -659,11 +651,6 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     [adapter hold];
-
-    [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
-    [_cond unlock];
-
     [self waitForClosed];
 
     [_cond lock];

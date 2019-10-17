@@ -58,6 +58,24 @@ public:
         called();
     }
 
+    void opE1(Test::E1 e)
+    {
+        test(e == Test::ICE_ENUM(E1, v1));
+        called();
+    }
+
+    void opS1(const Test::S1& s)
+    {
+        test(s.s == "S1");
+        called();
+    }
+
+    void opC1(const Test::C1Ptr& c)
+    {
+        test(c->s == "C1");
+        called();
+    }
+
     void error(const Ice::Exception&)
     {
         test(false);
@@ -385,6 +403,17 @@ allTests(Test::TestHelper* helper)
         Test::CMap cmap3 = i->opCMap(cmap1, cmap2);
         test(cmap2["a"]->s == c1->s);
         test(cmap3["a"]->s == c1->s);
+
+        Test::E1 e = i->opE1(Test::ICE_ENUM(E1, v1));
+        test(e == Test::ICE_ENUM(E1, v1));
+
+        Test::S1 s;
+        s.s = "S1";
+        s = i->opS1(s);
+        test(s.s == "S1");
+
+        Test::C1Ptr c = i->opC1(ICE_MAKE_SHARED(Test::C1, "C1"));
+        test(c->s == "C1");
     }
 
 #ifdef ICE_CPP11_MAPPING
@@ -440,6 +469,23 @@ allTests(Test::TestHelper* helper)
             auto result = i->opCMapAsync(cmap1).get();
             test(Ice::targetEqualTo(result.returnValue["a"], c1));
             test(Ice::targetEqualTo(result.c2["a"], c1));
+        }
+
+        {
+            auto result = i->opE1Async(Test::E1::v1).get();
+            test(result == Test::E1::v1);
+        }
+
+        {
+            Test::S1 s;
+            s.s = "S1";
+            s = i->opS1Async(s).get();
+            test(s.s == "S1");
+        }
+
+        {
+            auto result = i->opC1Async(ICE_MAKE_SHARED(Test::C1, "C1")).get();
+            test(result->s == "C1");
         }
     }
 
@@ -616,6 +662,83 @@ allTests(Test::TestHelper* helper)
                 test(false);
             }
         }
+
+        {
+            promise<void> p;
+            auto f = p.get_future();
+            auto result = i->opE1Async(Test::E1::v1,
+                                       [&p](Test::E1 v)
+                                       {
+                                           test(v == Test::E1::v1);
+                                           p.set_value();
+                                       },
+                                       [&p](exception_ptr e)
+                                       {
+                                           p.set_exception(e);
+                                       });
+
+            try
+            {
+                f.get();
+            }
+            catch(const exception& ex)
+            {
+                cerr << ex.what() << endl;
+                test(false);
+            }
+        }
+
+        {
+            Test::S1 s;
+            s.s = "S1";
+            promise<void> p;
+            auto f = p.get_future();
+            auto result = i->opS1Async(s,
+                                       [&p](Test::S1 v)
+                                       {
+                                           test(v.s == "S1");
+                                           p.set_value();
+                                       },
+                                       [&p](exception_ptr e)
+                                       {
+                                           p.set_exception(e);
+                                       });
+
+            try
+            {
+                f.get();
+            }
+            catch(const exception& ex)
+            {
+                cerr << ex.what() << endl;
+                test(false);
+            }
+        }
+
+        {
+            promise<void> p;
+            auto f = p.get_future();
+            auto result = i->opC1Async(ICE_MAKE_SHARED(Test::C1, "C1"),
+                                       [&p](Test::C1Ptr v)
+                                       {
+                                           test(v->s == "C1");
+                                           p.set_value();
+                                       },
+                                       [&p](exception_ptr e)
+                                       {
+                                           p.set_exception(e);
+                                       });
+
+            try
+            {
+                f.get();
+            }
+            catch(const exception& ex)
+            {
+                cerr << ex.what() << endl;
+                test(false);
+            }
+        }
     }
 #else
     //
@@ -665,6 +788,17 @@ allTests(Test::TestHelper* helper)
 
         Test::CMap cmap2;
         Test::CMap cmap3 = i->end_opCMap(cmap2, i->begin_opCMap(cmap1));
+
+        Test::E1 e = i->end_opE1(i->begin_opE1(Test::ICE_ENUM(E1, v1)));
+        test(e == Test::ICE_ENUM(E1, v1));
+
+        Test::S1 s;
+        s.s = "S1";
+        s = i->end_opS1(i->begin_opS1(s));
+        test(s.s == "S1");
+
+        Test::C1Ptr c = i->end_opC1(i->begin_opC1(new Test::C1("C1")));
+        test(c->s == "C1");
     }
     //
     // C++ 98 type safe callbacks
@@ -715,6 +849,22 @@ allTests(Test::TestHelper* helper)
         i->begin_opCMap(cmap1, opCMapCB);
         cb->check();
 
+        Test::Callback_I_opE1Ptr opE1 =
+            Test::newCallback_I_opE1(cb, &Test::Callback::opE1, &Test::Callback::error);
+        i->begin_opE1(Test::ICE_ENUM(E1, v1), opE1);
+        cb->check();
+
+        Test::S1 s;
+        s.s = "S1";
+        Test::Callback_I_opS1Ptr opS1 =
+            Test::newCallback_I_opS1(cb, &Test::Callback::opS1, &Test::Callback::error);
+        i->begin_opS1(s, opS1);
+        cb->check();
+
+        Test::Callback_I_opC1Ptr opC1 =
+            Test::newCallback_I_opC1(cb, &Test::Callback::opC1, &Test::Callback::error);
+        i->begin_opC1(new Test::C1("C1"), opC1);
+        cb->check();
     }
 #endif
 

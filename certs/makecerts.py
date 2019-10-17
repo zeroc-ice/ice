@@ -95,7 +95,7 @@ factory.getCA().save("cacert.pem").save("cacert.der")
 #
 # Client certificate
 #
-client = factory.create("client")
+client = factory.create("client", extendedKeyUsage="clientAuth")
 client.save("client.p12")
 
 #
@@ -103,7 +103,7 @@ client.save("client.p12")
 #
 # NOTE: server.pem is used by scripts/TestController.py
 #
-server = factory.create("server", cn = (dns if usedns else ip), ip=ip, dns=dns)
+server = factory.create("server", cn = (dns if usedns else ip), ip=ip, dns=dns, extendedKeyUsage="serverAuth,clientAuth")
 server.save("server.p12").save("server.pem")
 
 try:

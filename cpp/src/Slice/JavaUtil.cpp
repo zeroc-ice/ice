@@ -3764,8 +3764,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     if(proxy)
     {
         ClassDefPtr def = proxy->_class()->definition();
-        assert(def);
-        if(def->isAbstract())
+        if(!def || def->isAbstract())
         {
             return getUnqualified(proxy->_class(), package, "", "Prx");
         }

@@ -19,6 +19,51 @@
 using namespace std;
 using namespace Slice;
 
+Slice::CompilerException::CompilerException(const char* file, int line, const string& r) :
+    IceUtil::Exception(file, line),
+    _reason(r)
+{
+}
+
+#ifndef ICE_CPP11_COMPILER
+Slice::CompilerException::~CompilerException() throw()
+{
+}
+#endif
+
+string
+Slice::CompilerException::ice_id() const
+{
+    return "::Slice::CompilerException";
+}
+
+void
+Slice::CompilerException::ice_print(ostream& out) const
+{
+    IceUtil::Exception::ice_print(out);
+    out << ": " << _reason;
+}
+
+#ifndef ICE_CPP11_MAPPING
+Slice::CompilerException*
+Slice::CompilerException::ice_clone() const
+{
+    return new CompilerException(*this);
+}
+#endif
+
+void
+Slice::CompilerException::ice_throw() const
+{
+    throw *this;
+}
+
+string
+Slice::CompilerException::reason() const
+{
+    return _reason;
+}
+
 extern FILE* slice_in;
 extern int slice_debug;
 
@@ -225,6 +270,20 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
     {
         emitWarning(file, line, msg);
     }
+}
+
+void
+Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
+{
+    emitError(file, line, msg);
+    throw CompilerException(__FILE__, __LINE__, msg);
+}
+
+void
+Slice::DefinitionContext::error(const string& file, const string& line, const string& msg) const
+{
+    emitError(file, line, msg);
+    throw CompilerException(__FILE__, __LINE__, msg);
 }
 
 bool
@@ -4298,6 +4357,7 @@ Slice::ClassDef::isDelegate() const
 {
     return isLocal() && isInterface() && hasMetaData("delegate") && allOperations().size() == 1;
 }
+
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases,
                           bool local) :
     SyntaxTreeBase(container->unit()),
@@ -6835,11 +6895,6 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
         popContainer();
         assert(_definitionContextStack.size() == 1);
         popDefinitionContext();
-
-        if(!checkUndefinedTypes())
-        {
-            status = EXIT_FAILURE;
-        }
     }
 
     Slice::unit = 0;
@@ -6936,113 +6991,6 @@ Slice::Unit::eraseWhiteSpace(string& s)
     {
         s.erase(++idx);
     }
-}
-
-bool
-Slice::Unit::checkUndefinedTypes()
-{
-    class Visitor : public ParserVisitor
-    {
-    public:
-
-        Visitor(int& errors) :
-            _errors(errors),
-            _local(false)
-        {
-        }
-
-        virtual bool visitClassDefStart(const ClassDefPtr& p)
-        {
-            _local = p->isLocal();
-            return true;
-        }
-
-        virtual bool visitExceptionStart(const ExceptionPtr& p)
-        {
-            _local = p->isLocal();
-            return true;
-        }
-
-        virtual bool visitStructStart(const StructPtr& p)
-        {
-            _local = p->isLocal();
-            return true;
-        }
-
-        virtual void visitOperation(const OperationPtr& p)
-        {
-            if(p->returnType())
-            {
-                checkUndefined(p->returnType(), "return type", p->file(), p->line());
-            }
-            ParamDeclList params = p->parameters();
-            for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
-            {
-                checkUndefined((*q)->type(), "parameter " + (*q)->name(), (*q)->file(), (*q)->line());
-            }
-        }
-
-        virtual void visitParamDecl(const ParamDeclPtr& p)
-        {
-            checkUndefined(p->type(), "parameter " + p->name(), p->file(), p->line());
-        }
-
-        virtual void visitDataMember(const DataMemberPtr& p)
-        {
-            checkUndefined(p->type(), "member " + p->name(), p->file(), p->line());
-        }
-
-        virtual void visitSequence(const SequencePtr& p)
-        {
-            _local = p->isLocal();
-            checkUndefined(p->type(), "element type", p->file(), p->line());
-        }
-
-        virtual void visitDictionary(const DictionaryPtr& p)
-        {
-            _local = p->isLocal();
-            checkUndefined(p->keyType(), "key type", p->file(), p->line());
-            checkUndefined(p->valueType(), "value type", p->file(), p->line());
-        }
-
-    private:
-
-        void checkUndefined(const TypePtr& type, const string& desc, const string& file, const string& line)
-        {
-            //
-            // See ICE-6867. Any use of a proxy requires the full type definition, as does any
-            // use of a class in a non-local context.
-            //
-            ProxyPtr p = ProxyPtr::dynamicCast(type);
-            if(p)
-            {
-                const ClassDeclPtr cl = p->_class();
-                if(!cl->definition())
-                {
-                    ostringstream ostr;
-                    ostr << desc << " uses a proxy for undefined type `" << cl->scoped() << "'";
-                    emitError(file, line, ostr.str());
-                    _errors++;
-                }
-            }
-
-            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-            if(cl && !cl->definition() && !_local)
-            {
-                ostringstream ostr;
-                ostr << desc << " refers to undefined type `" << cl->scoped() << "'";
-                emitError(file, line, ostr.str());
-                _errors++;
-            }
-        }
-
-        int& _errors;
-        bool _local;
-    };
-
-    Visitor v(_errors);
-    visit(&v, true);
-    return _errors == 0;
 }
 
 // ----------------------------------------------------------------------

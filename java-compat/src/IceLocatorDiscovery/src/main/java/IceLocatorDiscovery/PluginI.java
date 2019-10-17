@@ -142,14 +142,27 @@ class PluginI implements Plugin
         {
             _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+            if(_timeout < 0)
+            {
+                _timeout = 300;
+            }
             _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+            if(_retryCount < 0)
+            {
+                _retryCount = 0;
+            }
             _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
+            if(_retryDelay < 0)
+            {
+                _retryDelay = 0;
+            }
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
             _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
             _voidLocator = voidLocator;
+            _pending = false;
             _pendingRetryCount = 0;
             _failureCount = 0;
             _warnOnce = true;
@@ -234,7 +247,7 @@ class PluginI implements Plugin
                 {
                     synchronized(this)
                     {
-                        while(!_locators.containsKey(instanceName) && _pendingRetryCount > 0)
+                        while(!_locators.containsKey(instanceName) && _pending)
                         {
                             wait(waitTime);
                         }
@@ -293,12 +306,12 @@ class PluginI implements Plugin
                 return;
             }
 
-            if(_pendingRetryCount > 0) // No need to retry, we found a locator
+            if(_pending) // No need to continue, we found a locator
             {
                 _future.cancel(false);
                 _future = null;
-
                 _pendingRetryCount = 0;
+                _pending = false;
             }
 
             if(_traceLevel > 0)
@@ -392,8 +405,9 @@ class PluginI implements Plugin
                     _pendingRequests.add(request);
                 }
 
-                if(_pendingRetryCount == 0) // No request in progress
+                if(!_pending) // No request in progress
                 {
+                    _pending = true;
                     _pendingRetryCount = _retryCount;
                     _failureCount = 0;
                     try
@@ -447,6 +461,7 @@ class PluginI implements Plugin
                             req.invoke(_voidLocator);
                         }
                         _pendingRequests.clear();
+                        _pending = false;
                         _pendingRetryCount = 0;
                     }
                 }
@@ -456,15 +471,15 @@ class PluginI implements Plugin
         synchronized void
         exception(Ice.LocalException ex)
         {
-            if(++_failureCount == _lookups.size() && _pendingRetryCount > 0)
+            if(++_failureCount == _lookups.size() && _pending)
             {
                 //
                 // All the lookup calls failed, cancel the timer and propagate the error to the requests.
                 //
                 _future.cancel(false);
                 _future = null;
-
                 _pendingRetryCount = 0;
+                _pending = false;
 
                 if(_warnOnce)
                 {
@@ -511,8 +526,15 @@ class PluginI implements Plugin
             {
                 synchronized(LocatorI.this)
                 {
-                    if(--_pendingRetryCount > 0)
+                    if(!_pending)
                     {
+                        assert(_pendingRequests.isEmpty());
+                        return; // Request failed
+                    }
+
+                    if(_pendingRetryCount > 0)
+                    {
+                        --_pendingRetryCount;
                         try
                         {
                             if(_traceLevel > 1)
@@ -555,6 +577,9 @@ class PluginI implements Plugin
                         _pendingRetryCount = 0;
                     }
 
+                    assert(_pendingRetryCount == 0);
+                    _pending = false;
+
                     if(_traceLevel > 0)
                     {
                         StringBuilder s = new StringBuilder("locator lookup timed out:\nlookup = ");
@@ -586,12 +611,12 @@ class PluginI implements Plugin
 
         private final LookupPrx _lookup;
         private final java.util.Map<LookupPrx, LookupReplyPrx> _lookups = new java.util.HashMap<>();
-        private final int _timeout;
+        private int _timeout;
         private java.util.concurrent.Future<?> _future;
         private final java.util.concurrent.ScheduledExecutorService _timer;
         private final int _traceLevel;
-        private final int _retryCount;
-        private final int _retryDelay;
+        private int _retryCount;
+        private int _retryDelay;
 
         private String _instanceName;
         private boolean _warned;
@@ -599,6 +624,7 @@ class PluginI implements Plugin
         private Ice.LocatorPrx _voidLocator;
         private Map<String, Ice.LocatorPrx> _locators = new java.util.HashMap<>();
 
+        private boolean _pending;
         private int _pendingRetryCount;
         private int _failureCount;
         private boolean _warnOnce;

@@ -162,6 +162,9 @@ class Component(object):
     def getProps(self, process, current):
         return {}
 
+    def overrideConfig(self, mapping, config):
+        return config
+
     def isCross(self, testId):
         return False
 
@@ -210,11 +213,15 @@ class Platform(object):
 
     def __init__(self):
         try:
-            run("dotnet --version")
+            version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("info : global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
+            self.defaultNetCoreFramework = "netcoreapp{}".format("3.0" if int(version[0]) >= 3 else "2.1")
         except:
             self.nugetPackageCache = None
+
+        self._hasNodeJS = None
+        self._hasSwift = None
 
     def init(self, component):
         self.parseBuildVariables(component, {
@@ -224,6 +231,27 @@ class Platform(object):
 
     def hasDotNet(self):
         return self.nugetPackageCache != None
+
+    def hasNodeJS(self):
+        if self._hasNodeJS is None:
+            try:
+                run("node --version")
+                self._hasNodeJS = True
+            except:
+                self._hasNodeJS = False
+        return self._hasNodeJS
+
+    def hasSwift(self, version):
+        if self._hasSwift is None:
+            try:
+                m = re.search("Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
+                if m and m.group(1):
+                    self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
+                else:
+                    self.hasSwift = False
+            except:
+                self._hasSwift = False
+        return self._hasSwift
 
     def parseBuildVariables(self, component, variables):
         # Run make to get the values of the given variables
@@ -251,9 +279,9 @@ class Platform(object):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             if component.useBinDist(mapping, current):
-                return os.path.join(installDir, "tools", "netcoreapp2.1")
+                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
             else:
-                return os.path.join(installDir, "bin", "netcoreapp2.1")
+                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
@@ -304,11 +332,24 @@ class AIX(Platform):
     def hasOpenSSL(self):
         return True
 
+    def _getLibDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        return os.path.join(installDir, "lib32" if current.config.buildPlatform == "ppc" else "lib")
+
+    def getDefaultBuildPlatform(self):
+        return "ppc64"
+
+    def getInstallDir(self):
+        return "/opt/freeware"
+
 class Linux(Platform):
 
     def __init__(self):
         Platform.__init__(self)
         self.multiArch = {}
+        self.linuxId = None
+        self.buildPlatform = None
+        self.foreignPlatforms = []
 
     def init(self, component):
         Platform.init(self, component)
@@ -395,8 +436,10 @@ class Windows(Platform):
                     self.compiler = "v120"
                 elif out.find("Version 19.00.") != -1:
                     self.compiler = "v140"
-                elif out.find("Version 19.") != -1:
+                elif out.find("Version 19.1") != -1:
                     self.compiler = "v141"
+                elif out.find("Version 19.2") != -1:
+                    self.compiler = "v142"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
             except:
@@ -517,6 +560,7 @@ similar.
 class Mapping(object):
 
     mappings = OrderedDict()
+    disabled = OrderedDict()
 
     class Config(object):
 
@@ -678,6 +722,7 @@ class Mapping(object):
             options.update(current.testcase.getMapping().getOptions(current))
             options.update(current.testcase.getTestSuite().getOptions(current))
             options.update(current.testcase.getOptions(current))
+
             clone = copy.copy(self)
             for o in self.parsedOptions:
                 if o in options and getattr(self, o) not in options[o]:
@@ -775,17 +820,29 @@ class Mapping(object):
         return mappings
 
     @classmethod
-    def add(self, name, mapping, component, path=None):
+    def add(self, name, mapping, component, path=None, enable=True):
         name = name.replace("\\", "/")
-        self.mappings[name] = mapping.init(name, component, path)
+        m = mapping.init(name, component, path)
+        if enable:
+            self.mappings[name] = m
+        else:
+            self.disabled[name] = m
+
+    @classmethod
+    def disable(self, name):
+        m = self.mappings[name]
+        if m:
+            self.disabled[name] = m
+            del self.mappings[name]
 
     @classmethod
     def remove(self, name):
         del self.mappings[name]
 
     @classmethod
-    def getAll(self, driver=None):
-        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))]
+    def getAll(self, driver=None, includeDisabled=False):
+        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + \
+            ([m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else [])
 
     def __init__(self, path=None):
         self.name = None
@@ -806,7 +863,8 @@ class Mapping(object):
         return self.component.getTestDir(self)
 
     def createConfig(self, options):
-        return self.Config(options)
+        config = self.Config(options)
+        return self.component.overrideConfig(self, config)
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if len(filters) > 0:
@@ -1229,6 +1287,12 @@ class Process(Runnable):
                             print("process {0} is hanging on shutdown - {1}".format(process, time.strftime("%x %X")))
                             if current.driver.isInterrupted():
                                 raise
+                        except RuntimeError as ex:
+                            output = self.getOutput(current)
+                            if output:
+                                raise RuntimeError(str(ex) + output)
+                            else:
+                                raise ex
             finally:
                 if not process.isTerminated():
                     process.terminate()
@@ -1358,7 +1422,6 @@ class ProcessIsReleaseOnly:
 
     def isReleaseOnly(self):
         return True
-
 
 class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
 
@@ -1911,7 +1974,8 @@ class TestSuite(object):
     def isMainThreadOnly(self, driver):
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin]:
+        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin,
+                  SwiftMapping]:
             if isinstance(self.mapping, m):
                 config = driver.configs[self.mapping]
                 if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
@@ -2062,6 +2126,7 @@ class RemoteProcessController(ProcessController):
             self.proxy = proxy
             self.terminated = False
             self.stdout = False
+            self.output = ""
 
         def __str__(self):
             return "{0} proxy={1}".format(self.exe, self.proxy)
@@ -2073,10 +2138,14 @@ class RemoteProcessController(ProcessController):
             import Ice
             try:
                 result = self.proxy.waitSuccess(timeout)
-            except Ice.UserException:
-                raise Expect.TIMEOUT("waitSuccess timeout")
+            except Ice.UserException as ex:
+                if "timed out" in ex.reason:
+                    raise Expect.TIMEOUT("waitSuccess timeout")
+                else:
+                    raise
             except Ice.LocalException:
                 raise
+
             if exitstatus != result:
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
 
@@ -2159,20 +2228,29 @@ class RemoteProcessController(ProcessController):
 
         # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
         proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
-        try:
-            proxy.ice_ping()
-            with self.cond:
-                self.processControllerProxies[ident] = proxy
-                return self.processControllerProxies[ident]
-        except Exception:
-            pass
 
-        # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
-        with self.cond:
-            if not ident in self.processControllerProxies:
-                self.cond.wait(30)
-            if ident in self.processControllerProxies:
-                return self.processControllerProxies[ident]
+        #
+        # First try to discover the process controller with IceDiscovery, if this doesn't
+        # work we'll wait for 10s for the process controller to register with the registry.
+        # If the wait times out, we retry again.
+        #
+        nRetry = 0
+        while nRetry < 10:
+            nRetry += 1
+
+            try:
+                proxy.ice_ping()
+                with self.cond:
+                    self.processControllerProxies[ident] = proxy
+                    return self.processControllerProxies[ident]
+            except Exception:
+                pass
+
+            with self.cond:
+                if not ident in self.processControllerProxies:
+                    self.cond.wait(10)
+                if ident in self.processControllerProxies:
+                    return self.processControllerProxies[ident]
 
         raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
@@ -2402,7 +2480,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-12-0" # Default value
 
     def __str__(self):
-        return "iOS Simulator"
+        return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
 
     def getControllerIdentity(self, current):
         return current.testcase.getMapping().getIOSControllerIdentity(current)
@@ -2590,7 +2668,7 @@ class BrowserProcessController(RemoteProcessController):
         self.url = None
         self.driver = None
         try:
-            cmd = "node -e \"require('./bin/HttpServer')()\"";
+            cmd = "node -e \"require('./bin/HttpServer')()\""
             cwd = current.testcase.getMapping().getPath()
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
@@ -2647,7 +2725,13 @@ class BrowserProcessController(RemoteProcessController):
         # another testcase, the controller page will connect to the process controller registry
         # to register itself with this script.
         #
-        testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
+        testsuite = ""
+        if current.config.es5:
+            testsuite += "es5/"
+        elif isinstance(current.testcase.getMapping(), TypeScriptMapping):
+            testsuite += "typescript/"
+        testsuite += str(current.testsuite)
+
         if current.config.protocol == "wss":
             protocol = "https"
             port = "9090"
@@ -2664,13 +2748,20 @@ class BrowserProcessController(RemoteProcessController):
                                                                                   self.host)
         if url != self.url:
             self.url = url
+            ident = current.driver.getCommunicator().stringToIdentity("Browser/ProcessController")
             if self.driver:
+                # Clear the previous controller connection if it exists. This ensures that the reload
+                # of the test controller will use a new connection (with Chrome the connection close
+                # callback for the old page is sometime called after the new paged is loaded).
+                with self.cond:
+                    if ident in self.processControllerProxies:
+                        prx = self.processControllerProxies[ident]
+                        self.clearProcessController(prx, prx.ice_getCachedConnection())
                 self.driver.get(url)
             else:
                 # If no process controller is registered, we request the user to load the controller
                 # page in the browser. Once loaded, the controller will register and we'll redirect to
                 # the correct testsuite page.
-                ident = current.driver.getCommunicator().stringToIdentity("Browser/ProcessController")
                 prx = None
                 with self.cond:
                     while True:
@@ -2965,11 +3056,12 @@ class Driver:
         initData.properties.setProperty("IceSSL.Password", "password")
         initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
         initData.properties.setProperty("IceSSL.KeychainPassword", "password")
-        initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+        initData.properties.setProperty("IceSSL.VerifyPeer", "0")
 
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
+        initData.properties.setProperty("IceDiscovery.RetryCount", "10") # Retry 10 times with the default 300ms timeout
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
         # initData.properties.setProperty("Ice.Trace.Protocol", "1")
@@ -3100,6 +3192,11 @@ class CppMapping(Mapping):
         #
         if not isinstance(platform, Darwin):
             libPaths.append(self.component.getLibDir(process, self, current))
+
+        # On AIX we also need to add the lib directory for the TestCommon library
+        # when testing against a binary distribution
+        if isinstance(platform, AIX) and self.component.useBinDist(self, current):
+            libPaths.append(os.path.join(self.path, "lib32" if current.config.buildPlatform == "ppc" else "lib"))
 
         #
         # Add the test suite library directories to the platform library path environment variable.
@@ -3242,6 +3339,16 @@ class JavaMapping(Mapping):
 
 class JavaCompatMapping(JavaMapping):
 
+    class Config(JavaMapping.Config):
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("Java Compat Mapping options:")
+            print("--android                 Run the Android tests.")
+            print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
+            print("--avd=<name>              Start specific Android Virtual Device.")
+
     def getPluginEntryPoint(self, plugin, process, current):
         return {
             "IceSSL" : "IceSSL.PluginFactory",
@@ -3281,8 +3388,8 @@ class CSharpMapping(Mapping):
 
             if self.dotnetcore:
                 self.libTargetFramework = "netstandard2.0"
-                self.binTargetFramework = "netcoreapp2.1" if self.framework == "" else self.framework
-                self.testTargetFramework = "netcoreapp2.1" if self.framework == "" else self.framework
+                self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
+                self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             else:
                 self.libTargetFramework = "net45" if self.framework == "" else "netstandard2.0"
                 self.binTargetFramework = "net45" if self.framework == "" else self.framework
@@ -3338,7 +3445,7 @@ class CSharpMapping(Mapping):
         })
         if current.config.xamarin:
             props["Ice.InitPlugins"] = 0
-            props["IceSSL.CAs"] = "cacert.der";
+            props["IceSSL.CAs"] = "cacert.der"
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
@@ -3397,10 +3504,19 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        if current.config.dotnetcore:
-            return "dotnet " + os.path.join(path, exe) + ".dll " + args
-        else:
-            return os.path.join(path, exe) + ".exe " + args
+        useDotnetExe = (current.config.dotnetcore and
+                        (current.config.testTargetFramework in ["netcoreapp2.1", "netcoreapp2.2"] or
+                         process.isFromBinDir()))
+        command = ""
+        if useDotnetExe:
+            command += "dotnet "
+        command += os.path.join(path, exe)
+        if useDotnetExe:
+            command += ".dll "
+        elif isinstance(platform, Windows):
+            command += ".exe"
+        command += " {}".format(args)
+        return command
 
     def getSDKPackage(self):
         return "system-images;android-27;google_apis;x86"
@@ -3475,12 +3591,6 @@ class CppBasedMapping(Mapping):
         return env
 
 class ObjCMapping(CppBasedMapping):
-
-    def getTestSuites(self, ids=[]):
-        return Mapping.getTestSuites(self, ids) if isinstance(platform, Darwin) else []
-
-    def findTestSuite(self, testsuite):
-        return Mapping.findTestSuite(self, testsuite) if isinstance(platform, Darwin) else None
 
     class Config(CppBasedMapping.Config):
         mappingName = "objc"
@@ -3772,11 +3882,96 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
 
     class Config(Mapping.Config):
 
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["browser=", "worker"])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("TypeScript mapping options:")
+            print("--browser=<name>      Run with the given browser.")
+            print("--worker              Run with Web workers enabled.")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+
+            if self.browser and self.protocol == "tcp":
+                self.protocol = "ws"
+
         def canRun(self, testId, current):
-            return Mapping.Config.canRun(self, testId, current) and self.browser != "Ie" # IE doesn't support ES6
+            # TODO: test TypeScript with browser, the test are currently only compiled for CommonJS (NodeJS)
+            return Mapping.Config.canRun(self, testId, current) and not self.browser
 
     def _getDefaultSource(self, processType):
         return { "client" : "Client.ts", "serveramd" : "ServerAMD.ts", "server" : "Server.ts" }[processType]
+
+class SwiftMapping(Mapping):
+
+    class Config(CppBasedClientMapping.Config):
+
+        mappingName = "swift"
+        mappingDesc = "Swift"
+
+        def __init__(self, options=[]):
+            CppBasedClientMapping.Config.__init__(self, options)
+            if self.buildConfig == platform.getDefaultBuildConfig():
+                # Check the OPTIMIZE environment variable to figure out if it's Debug/Release build
+                self.buildConfig = "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+
+
+    def getCommandLine(self, current, process, exe, args):
+        testdir = self.component.getTestDir(self)
+        assert(current.testcase.getPath(current).startswith(testdir))
+        package = current.testcase.getPath(current)[len(testdir) + 1:].replace(os.sep, ".")
+
+        cmd = "xcodebuild -project {0} -target 'TestDriver {1}' -configuration {2} -showBuildSettings".format(
+            self.getXcodeProject(current),
+            "macOS",
+            current.config.buildConfig)
+
+        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+
+        return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1} {2} {3}".format(
+            targetBuildDir,
+            package,
+            exe,
+            args)
+
+    def _getDefaultSource(self, processType):
+        return { "client" : "Client.swift",
+                 "server" : "Server.swift",
+                 "serveramd" : "ServerAMD.swift",
+                 "collocated" : "Collocated.swift"
+        }[processType]
+
+    def getIOSControllerIdentity(self, current):
+        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
+        return "{0}/com.zeroc.Swift-Test-Controller".format(category)
+
+    def getIOSAppFullPath(self, current):
+        cmd = "xcodebuild -project {0} \
+                          -target 'TestDriver iOS' \
+                          -configuration {1} \
+                          -showBuildSettings \
+                          -sdk {2}".format(self.getXcodeProject(current),
+                                           current.config.buildConfig,
+                                           current.config.buildPlatform)
+        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        return "{0}/TestDriver.app".format(targetBuildDir)
+
+    def getSSLProps(self, process, current):
+        props = Mapping.getByName("cpp").getSSLProps(process, current)
+        props["IceSSL.DefaultDir"] = ("certs" if current.config.buildPlatform == "iphoneos" else
+                                      os.path.join(self.component.getSourceDir(), "certs"))
+        return props
+
+    def getPluginEntryPoint(self, plugin, process, current):
+        return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
+
+    def getXcodeProject(self, current):
+        return "{0}/{1}".format(current.testcase.getMapping().getPath(),
+                                "ice-test.xcodeproj" if self.component.useBinDist(self, current) else "ice.xcodeproj")
 
 #
 # Instantiate platform global variable
@@ -3842,7 +4037,7 @@ def runTests(mappings=None, drivers=None):
     try:
         options = [Driver.getSupportedArgs(), Mapping.Config.getSupportedArgs()]
         options += [driver.getSupportedArgs() for driver in drivers]
-        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll()]
+        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll(includeDisabled=True)]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:

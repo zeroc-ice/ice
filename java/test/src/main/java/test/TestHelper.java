@@ -222,5 +222,5 @@ public abstract class TestHelper
     private ControllerHelper _controllerHelper;
     private ClassLoader _classLoader;
     private Communicator _communicator;
-    private java.io.PrintWriter _printWriter = new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out));
+    private java.io.PrintWriter _printWriter = new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out), true);
 }

@@ -143,6 +143,7 @@ Collocated::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(InitialI, adapter), Ice::stringToIdentity("initial"));
     adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(F2I), Ice::stringToIdentity("F21"));
     adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), Ice::stringToIdentity("uoet"));
     InitialPrxPtr allTests(Test::TestHelper*);
     InitialPrxPtr initial = allTests(this);

@@ -27,7 +27,9 @@ final class UdpMulticastClientTransceiver implements Transceiver
     @Override
     public void setReadyCallback(ReadyCallback callback)
     {
+        assert(_readyCallback == null && callback != null);
         _readyCallback = callback;
+        _thread.start();
     }
 
     @Override
@@ -249,7 +251,6 @@ final class UdpMulticastClientTransceiver implements Transceiver
                     runWriteThread();
                 }
             };
-            _thread.start();
         }
         catch(Exception ex)
         {

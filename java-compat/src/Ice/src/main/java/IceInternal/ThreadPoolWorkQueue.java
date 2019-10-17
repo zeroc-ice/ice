@@ -4,8 +4,6 @@
 
 package IceInternal;
 
-import java.util.List;
-
 final class ThreadPoolWorkQueue extends EventHandler
 {
     ThreadPoolWorkQueue(Instance instance, ThreadPool threadPool, Selector selector)

@@ -527,7 +527,7 @@ Slice::printVersionCheck(Output& out)
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
     int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
-    if(iceVersion % 100 > 50)
+    if(iceVersion % 100 >= 50)
     {
         //
         // Beta version: exact match required
@@ -545,7 +545,7 @@ Slice::printVersionCheck(Output& out)
         //
         // Generated code is release; reject beta header
         //
-        out << "\n#   if ICE_INT_VERSION % 100 > 50";
+        out << "\n#   if ICE_INT_VERSION % 100 >= 50";
         out << "\n#       error Beta header file detected";
         out << "\n#   endif";
 
@@ -752,13 +752,13 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
             // Non local classes without operations map to the base
             // proxy class shared_ptr<Ice::ObjectPrx>
             //
-            if(def && !def->isInterface() && def->allOperations().empty())
+            if(!def || def->isAbstract())
             {
-                return getUnqualified(cpp11BuiltinTable[Builtin::KindObjectProxy], scope);
+                return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">";
             }
             else
             {
-                return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">";
+                return getUnqualified(cpp11BuiltinTable[Builtin::KindObjectProxy], scope);
             }
         }
         else
@@ -1496,7 +1496,7 @@ Slice::writeStreamHelpers(Output& out,
                           bool cpp11)
 {
     // If c is a C++11 class/exception whose base class contains data members (recursively), then we need to generate
-    // an StreamWriter even if its implementation is empty. This is becuase our default marsaling uses ice_tuple() which
+    // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
     // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
     // is not an issue for structs.
     if(dataMembers.empty() && !(cpp11 && hasBaseDataMembers))
@@ -1580,7 +1580,7 @@ Slice::writeStreamHelpers(Output& out,
     }
 
     //
-    // Generate StreamWriter
+    // Generate StreamReader
     //
     out << nl << "template<typename S>";
     out << nl << "struct StreamReader" << (cpp11 ? "<" : "< ") << fullName << ", S>";
@@ -1619,9 +1619,13 @@ Slice::writeStreamHelpers(Output& out,
 }
 
 void
-Slice::writeIceTuple(::IceUtilInternal::Output& out, const string& scope, DataMemberList dataMembers, int typeCtx)
+Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int typeCtx)
 {
-    out << sp << nl << "std::tuple<";
+    //
+    // Use an empty scope to get full qualified names from calls to typeToString.
+    //
+    const string scope = "";
+    out << nl << "std::tuple<";
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(q != dataMembers.begin())

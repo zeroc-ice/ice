@@ -183,7 +183,11 @@ function allTests($helper)
     test($mo5->h == $mo1->h);
     test($mo5->i == $mo1->i);
     test($mo5->j == $mo1->j);
-    test($mo5->k == null);
+    //
+    // With Swift mapping you cannot distinguish null from unset
+    // so we test for both here to support cross testing.
+    //
+    test($mo5->k == null || $mo5->k == $none);
     test($mo5->bs[0] == 5);
     test($mo5->ss == $mo1->ss);
     test($mo5->iid[4] == 3);

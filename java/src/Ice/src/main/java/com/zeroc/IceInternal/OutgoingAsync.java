@@ -5,7 +5,6 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.FormatType;
-import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice._ObjectPrxI;
 import com.zeroc.Ice.OperationInterruptedException;
 import com.zeroc.Ice.OperationMode;

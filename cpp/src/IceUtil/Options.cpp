@@ -431,7 +431,7 @@ IceUtilInternal::Options::split(const string& line)
                                     j < i + 3 && j < l.size() && octalDigits.find_first_of(c = l[j]) != string::npos;
                                     ++j)
                                 {
-                                    us = us * 8 + c - '0';
+                                    us = us * 8 + static_cast<unsigned short>(c - '0');
                                 }
                                 i = j - 1;
                                 arg.push_back(static_cast<char>(us));
@@ -529,7 +529,7 @@ IceUtilInternal::Options::split(const string& line)
             }
             default:
             {
-                assert(!"Impossible parse state");
+                assert(false); // Impossible parse state
                 break;
             }
         }
@@ -559,7 +559,7 @@ IceUtilInternal::Options::split(const string& line)
         }
         default:
         {
-            assert(!"Impossible parse state");
+            assert(false); // Impossible parse state
             break;
         }
     }

@@ -288,7 +288,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
 #   else
     LPCWSTR algorithmId = 0;
 #   endif
-    int checksumLength = 0;
+    size_t checksumLength = 0;
 
     const string pbkdf2SHA1Token = "$pbkdf2$";
 
@@ -397,7 +397,8 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
 
     UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                                           reinterpret_cast<const uint8_t*>(salt.c_str()),
-                                                          salt.size(), kCFAllocatorNull));
+                                                          static_cast<CFIndex>(salt.size()),
+                                                          kCFAllocatorNull));
 
     SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error.get());
     if(error)
@@ -412,9 +413,15 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     }
 
     vector<uint8_t> checksumBuffer1(checksumLength);
-    OSStatus status = CCKeyDerivationPBKDF(kCCPBKDF2, password.c_str(), password.size(),
-                                           CFDataGetBytePtr(saltBuffer.get()), CFDataGetLength(saltBuffer.get()),
-                                           algorithmId, rounds, &checksumBuffer1[0], checksumLength);
+    OSStatus status = CCKeyDerivationPBKDF(kCCPBKDF2,
+                                           password.c_str(),
+                                           password.size(),
+                                           CFDataGetBytePtr(saltBuffer.get()),
+                                           static_cast<size_t>(CFDataGetLength(saltBuffer.get())),
+                                           algorithmId,
+                                           static_cast<unsigned int>(rounds),
+                                           &checksumBuffer1[0],
+                                           checksumLength);
     if(status != errSecSuccess)
     {
         return false;
@@ -427,7 +434,8 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     }
     data.reset(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                            reinterpret_cast<const uint8_t*>(checksum.c_str()),
-                                           checksum.size(), kCFAllocatorNull));
+                                           static_cast<CFIndex>(checksum.size()),
+                                           kCFAllocatorNull));
     SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error.get());
     if(error)
     {
@@ -474,7 +482,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
         return false;
     }
 
-    DWORD checksumBuffer2Length = checksumLength;
+    DWORD checksumBuffer2Length = static_cast<DWORD>(checksumLength);
     vector<BYTE> checksumBuffer2(checksumLength);
 
     if(!CryptStringToBinary(checksum.c_str(), static_cast<DWORD>(checksum.size()),

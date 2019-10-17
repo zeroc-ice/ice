@@ -91,6 +91,7 @@ public class Collocated extends test.TestHelper
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Initial initial = new InitialI(adapter);
             adapter.add(initial, Ice.Util.stringToIdentity("initial"));
+            adapter.add(new F2I(), Ice.Util.stringToIdentity("F21"));
             UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
             adapter.add(object, Ice.Util.stringToIdentity("uoet"));
             AllTests.allTests(this);

@@ -4,8 +4,6 @@
 
 package com.zeroc.IceSSL;
 
-import com.zeroc.IceInternal.Network;
-
 final class ConnectorI implements com.zeroc.IceInternal.Connector
 {
     @Override

@@ -43,11 +43,11 @@ component-configs       = $(call unique,$(foreach c,$(configs),\
 #
 # Some variables for utilities
 #
-INSTALL                 = install -p
-MV                      = mv -f
-RM                      = rm -f
-MKDIR                   = mkdir
-CHMOD                   = chmod
+INSTALL                 ?= install -p
+MV                      ?= mv -f
+RM                      ?= rm -f
+MKDIR                   ?= mkdir
+CHMOD                   ?= chmod
 
 Q                       := $(if $(V),,@)
 E                       := $(if $(V),@:,@echo)
@@ -166,8 +166,8 @@ endif
 $3/%.h $2/%.$($6_targetext): $1/%.ice $($6_path) | $3
 	$(E) "Compiling $$<"
 	$(Q)$(RM) $3/$$*.h $2/$$*.$($6_targetext)
-	$(Q)$($6_path) $(strip $5) --depend $$< | sed 's|\(.*:\)|$3/$$*.h $2/$$*.$($6_targetext):|' > $2/$$*.ice.d
-	$(Q)$($6_path) $(strip $5) --output-dir $2 $$<
+	$(Q)$($6_path) $(strip $5) $(SLICEFLAGS) --depend $$< | sed 's|\(.*:\)|$3/$$*.h $2/$$*.$($6_targetext):|' > $2/$$*.ice.d
+	$(Q)$($6_path) $(strip $5) $(SLICEFLAGS) --output-dir $2 $$<
 	$(if $(filter-out $2,$3),$(Q)$(MV) $2/$$*.h $3/)
 
 endef
@@ -217,7 +217,7 @@ $(DESTDIR)$5/$(call mklibname,$1,$3,$4): $2/$(call mklibname,$1,$3,$4) | $(DESTD
 endef
 
 # $(call get-static-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion,$5=devinstall)
-get-static-library-targets = $2/$(call mklibname,$1)
+get-static-library-targets = $(if $2,$2/$(call mklibname,$1))
 
 #
 # $(call make-shared-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=objects,$6=dependencies,$7=ldflags,
@@ -267,10 +267,10 @@ endif
 endef
 
 # $(call get-shared-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion,$5=devinstall)
-get-shared-library-targets = $(addprefix $2/,\
+get-shared-library-targets = $(if $2,$(addprefix $2/,\
                               $(call mkshlibfilename,$1,$3,$4) \
                               $(if $(and $4,$(filter-out undefined,$(origin mksoname))),$(call mksoname,$1,$3,$4)) \
-                              $(if $(and $(filter yes,$5),$3,$(filter-out undefined,$(origin mkshlibname))),$(call mkshlibname,$1,$3,$4)))
+                              $(if $(and $(filter yes,$5),$3,$(filter-out undefined,$(origin mkshlibname))),$(call mkshlibname,$1,$3,$4))))
 
 #
 # $(call make-shared-module,$1=libname,$2=libdir,$3=version,$4=soversion,$5=objects,$6=dependencies,$7=ldflags,
@@ -864,10 +864,12 @@ $1_install_platforms    := $(call component-platforms,$1,$(notdir $1))
 #
 $(notdir $1)_targetext  := $$(or $$($(notdir $1)_targetext),$(patsubst slice2%,%,$(or $2,$(notdir $1))))
 
-ifeq ($$(ice_bindir[$(build-platform)]),)
-$(notdir $1)_path       = $$($(notdir $1)[$(build-platform)-static]_targetdir)/$(notdir $1)
-else
+ifneq ($$(ice_compilers_dir),)
+$(notdir $1)_path       = $$(ice_compilers_dir)/bin/$(notdir $1)
+else ifneq ($$(ice_bindir[$(build-platform)]),)
 $(notdir $1)_path       = $$(ice_bindir[$(build-platform)])/$(notdir $1)
+else
+$(notdir $1)_path       = $$($(notdir $1)[$(build-platform)-static]_targetdir)/$(notdir $1)
 endif
 
 projects        += $(project)
@@ -936,6 +938,7 @@ currentdir      = $(call dirname,$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIS
 unique          = $(strip $(if $1,$(firstword $1) $(call unique,$(filter-out $(firstword $1),$1))))
 runique         = $(strip $(if $1,$(lastword $1) $(call runique,$(filter-out $(lastword $1),$1))))
 files-to-dirs   = $(call unique,$(call dirname,$(filter $(if $2,$(addprefix %.,$2),%),$1)))
+join-with       = $(subst $(space),$1,$(strip $2))
 
 empty           :=
 space           := $(empty) $(empty)
@@ -1087,7 +1090,7 @@ platform-and-config-var = $(strip $(platform-var) $(config-var))
 
 #
 # Functions to transform a list of source filenames to generated source/header, object or dependency filenames.
-# 
+#
 generated-extensions := ice
 source-extensions    := ice y l cpp m mm
 

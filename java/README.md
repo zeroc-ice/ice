@@ -97,7 +97,7 @@ GUI tool.
 The Maven package id for the ProGuard package is as follows:
 
 ```
-groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.0'
+groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.1.1'
 ```
 
 ### Java Application Bundler
@@ -108,7 +108,7 @@ bundle for the IceGrid GUI tool.
 The Maven package id for the application bundler package is as follows:
 
 ```
-groupId=com.panayotis, version=1.0.2, artifactId=appbundler
+groupId=com.panayotis, version=1.1.0, artifactId=appbundler
 ```
 
 ## Building Ice for Java
@@ -126,7 +126,7 @@ export ICE_HOME=/usr
 On Windows with an MSI installation:
 ```
 set ICE_BIN_DIST=cpp
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.2
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.3
 ```
 
 If you are using Ice for C++ from a source build on Windows, you must set
@@ -140,8 +140,8 @@ set CPP_CONFIGURATION=Debug
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
-Before building Ice for Java, review the settings in the file `gradle.properties`
-and edit as necessary.
+Before building Ice for Java, review the settings in the file
+`gradle.properties` and edit as necessary.
 
 To build Ice, all services, and tests, run
 ```
@@ -168,17 +168,17 @@ gradlew install
 The following JAR files will be installed to `<prefix>/lib`.
 
 ```
-glacier2-3.7.2.jar
-ice-3.7.2.jar
-icebox-3.7.2.jar
-icebt-3.7.2.jar
-icediscovery-3.7.2.jar
-icegrid-3.7.2.jar
+glacier2-3.7.3.jar
+ice-3.7.3.jar
+icebox-3.7.3.jar
+icebt-3.7.3.jar
+icediscovery-3.7.3.jar
+icegrid-3.7.3.jar
 icegridgui.jar
-icelocatordiscovery-3.7.2.jar
-icepatch2-3.7.2.jar
-icessl-3.7.2.jar
-icestorm-3.7.2.jar
+icelocatordiscovery-3.7.3.jar
+icepatch2-3.7.3.jar
+icessl-3.7.3.jar
+icestorm-3.7.3.jar
 ```
 
 POM files are also installed for ease of deployment to a Maven-based
@@ -191,13 +191,13 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 ```
-export ICE_HOME=/opt/Ice-3.7.2 (For local build)
+export ICE_HOME=/opt/Ice-3.7.3 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.2
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.3
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -219,25 +219,12 @@ the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 3.2.1
-- Android SDK 24
-- Android Build Tools 27.0.1
+- Android Studio 3.5
+- Android SDK 29
 
 Using Ice's Java mapping with Java 8 requires at minimum API level 24:
 
 - Android 7 (API24)
-
-If you want to target a later version of the Android API level for the test
-suite, edit `test/android/controller/gradle.properties` and change the
-following variables:
-
-```
-ice_compileSdkVersion
-ice_minSdkVersion
-ice_targetSdkVersion
-```
-
-*NOTE: Do not use Android Studio to modify the project's settings.*
 
 ### Building the Android Test Controller
 
@@ -317,8 +304,8 @@ On macOS, the build also creates an application bundle named IceGrid GUI. You
 can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
 Finder.
 
-[1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[1]: https://zeroc.com/downloads/ice
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [3]: https://gradle.org
 [4]: http://proguard.sourceforge.net
 [5]: https://commons.apache.org/proper/commons-compress/

@@ -689,40 +689,31 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     cout << "ok" << endl;
 
-#ifdef ICE_OS_UWP
-    bool uwp = true;
-#else
-    bool uwp = false;
-#endif
-    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
-            "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-
-    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
-        if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
-        {
-            cout << "testing indirect proxies to collocated objects... " << flush;
-            //
-            // Set up test for calling a collocated object through an indirect, adapterless reference.
-            //
-            Ice::PropertiesPtr properties = communicator->getProperties();
-            properties->setProperty("Ice.PrintAdapterReady", "0");
-            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
-            adapter->setLocator(locator);
+        cout << "testing indirect proxies to collocated objects... " << flush;
 
-            Ice::Identity id;
-            id.name = Ice::generateUUID();
-            registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
-            adapter->activate();
+        communicator->getProperties()->setProperty("Hello.AdapterId", Ice::generateUUID());
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
 
-            HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(communicator->identityToString(id)));
-            test(!helloPrx->ice_getConnection());
+        Ice::Identity id;
+        id.name = Ice::generateUUID();
+        adapter->add(ICE_MAKE_SHARED(HelloI), id);
 
-            adapter->deactivate();
-            cout << "ok" << endl;
-        }
+        // Ensure that calls on the well-known proxy is collocated.
+        HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(communicator->identityToString(id)));
+        test(!helloPrx->ice_getConnection());
+
+        // Ensure that calls on the indirect proxy (with adapter ID) is collocated
+        helloPrx = ICE_CHECKED_CAST(HelloPrx, adapter->createIndirectProxy(id));
+        test(!helloPrx->ice_getConnection());
+
+        // Ensure that calls on the direct proxy is collocated
+        helloPrx = ICE_CHECKED_CAST(HelloPrx, adapter->createDirectProxy(id));
+        test(!helloPrx->ice_getConnection());
+
+        cout << "ok" << endl;
     }
+
     cout << "shutdown server manager... " << flush;
     manager->shutdown();
     cout << "ok" << endl;

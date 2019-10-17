@@ -202,19 +202,18 @@ classdef AllTests
                 for depth = 0:20000
                     p.v = Recursive();
                     p = p.v;
-                    if (depth < 10 && mod(depth, 10) == 0) || ...
-                       (depth < 1000 && mod(depth, 100) == 0) || ...
-                       (depth < 10000 && mod(depth, 1000) == 0) || ...
-                       mod(depth, 10000) == 0
-                        initial.setRecursive(top);
-                    end
+                    os = communicator.createOutputStream();
+                    os.writeValue(top);
+                    os.writePendingValues();
+                    is = os.createInputStream();
+                    h = IceInternal.ValueHolder();
+                    is.readValue(@(v) h.set(v), 'Test.Recursive');
+                    is.readPendingValues();
                 end
-                assert(~initial.supportsClassGraphDepthMax());
+                assert(false);
             catch ex
-                if isa(ex, 'Ice.UnknownLocalException')
+                if isa(ex, 'Ice.MarshalException')
                     % Expected marshal exception from the server (max class graph depth reached)
-                elseif isa(ex, 'Ice.UnknownException')
-                    % Expected stack overflow from the server (Java only)
                 else
                     rethrow(ex);
                 end
@@ -271,6 +270,29 @@ classdef AllTests
             assert(strcmp(m2.v(2).value.data, 'two'));
 
             fprintf('ok\n');
+
+            fprintf('testing forward declarations... ');
+
+            [f11, f12] = initial.opF1(F1('F11'));
+            assert(strcmp(f11.name, 'F11'));
+            assert(strcmp(f12.name, 'F12'));
+
+            ref = ['F21:', helper.getTestEndpoint()];
+            [f21, f22] = initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy(ref)));
+            assert(strcmp(f21.ice_getIdentity().name, 'F21'));
+            f21.op();
+            assert(strcmp(f22.ice_getIdentity().name, 'F22'));
+
+            if initial.hasF3()
+                [f31, f32] = initial.opF3(F3(f11, f21));
+                assert(strcmp(f31.f1.name, 'F11'));
+                assert(strcmp(f31.f2.ice_getIdentity().name, 'F21'));
+
+                assert(strcmp(f32.f1.name, 'F12'));
+                assert(strcmp(f32.f2.ice_getIdentity().name, 'F22'));
+            end
+            fprintf('ok\n');
+
             r = initial;
         end
     end

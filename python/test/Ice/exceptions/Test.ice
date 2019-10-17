@@ -71,6 +71,8 @@ interface Thrower
 
     void throwAfterResponse();
     void throwAfterException() throws A;
+
+    int throwMarshalException(out int p);
 }
 
 interface WrongOperation

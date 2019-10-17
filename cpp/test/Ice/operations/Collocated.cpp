@@ -25,6 +25,7 @@ Collocated::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.AdapterId", "test");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPrxPtr prx = adapter->add(ICE_MAKE_SHARED(MyDerivedClassI), Ice::stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(BI), Ice::stringToIdentity("b"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     test(!prx->ice_getConnection());

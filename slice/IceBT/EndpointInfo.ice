@@ -27,7 +27,7 @@
  * IceBT provides a Bluetooth transport for Ice.
  *
  **/
-["objc:prefix:ICEBT"]
+["objc:prefix:ICEBT", "swift:module:Ice:SSL"]
 module IceBT
 {
 

@@ -707,7 +707,7 @@ void
 Ice::NoValueFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable object factory found for `" << type << "'";
+    out << ":\nprotocol error: no suitable value factory found for `" << type << "'";
     if(!reason.empty())
     {
         out << ":\n" << reason;
@@ -788,28 +788,28 @@ void
 Ice::NotRegisteredException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\n no " << kindOfObject << " with id `" << id << "' is registered";
+    out << ":\nno " << kindOfObject << " with id `" << id << "' is registered";
 }
 
 void
 Ice::TwowayOnlyException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\n operation `" << operation << "' can only be invoked as a twoway request";
+    out << ":\noperation `" << operation << "' can only be invoked as a twoway request";
 }
 
 void
 Ice::CloneNotImplementedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\n ice_clone() must be implemented in classes derived from abstract base classes";
+    out << ":\nice_clone() must be implemented in classes derived from abstract base classes";
 }
 
 void
 Ice::FeatureNotSupportedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nfeature `" << unsupportedFeature << "' is not supported.";
+    out << ":\nfeature `" << unsupportedFeature << "' is not supported";
 }
 
 void

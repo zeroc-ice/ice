@@ -577,5 +577,32 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
+    cout << "testing forward declarations... " << flush;
+    {
+        F1Ptr f12;
+        F1Ptr f11 = initial->opF1(ICE_MAKE_SHARED(F1, "F11"), f12);
+        test(f11->name == "F11");
+        test(f12->name == "F12");
+
+        F2PrxPtr f22;
+        F2PrxPtr f21 = initial->opF2(ICE_UNCHECKED_CAST(F2Prx,
+            communicator->stringToProxy("F21:" + helper->getTestEndpoint())), f22);
+        test(f21->ice_getIdentity().name == "F21");
+        f21->op();
+        test(f22->ice_getIdentity().name == "F22");
+
+        if(initial->hasF3())
+        {
+            F3Ptr f32;
+            F3Ptr f31 = initial->opF3(ICE_MAKE_SHARED(F3, f11, f21), f32);
+            test(f31->f1->name == "F11");
+            test(f31->f2->ice_getIdentity().name == "F21");
+
+            test(f32->f1->name == "F12");
+            test(f32->f2->ice_getIdentity().name == "F22");
+        }
+    }
+    cout << "ok" << endl;
+
     return initial;
 }

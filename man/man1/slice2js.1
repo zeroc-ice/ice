@@ -15,7 +15,7 @@ is defined during this compilation.
 
 Full documentation for slice2js is available online at:
 .br
-https://doc.zeroc.com/display/Ice37/slice2js+Command-Line+Options
+https://doc.zeroc.com/ice/3.7/language-mappings/javascript-mapping/client-side-slice-to-javascript-mapping/slice2js-command-line-options
 
 .SH OPTIONS
 
@@ -84,6 +84,13 @@ Directs dependency information to the specified file. The output
 format depends on whether --depend or --depend-xml is also specified.
 
 .TP
+.BR \-\-depend\-json\fR
+.br
+Print dependency information in JSON format to standard output by default,
+or to the file specified by the --depend-file option. No code is generated
+when this option is specified.
+
+.TP
 .BR \-\-validate\fR
 .br
 Checks the provided command-line options for correctness, and does not
@@ -95,11 +102,9 @@ generate any code.
 Print generated code to standard output.
 
 .TP
-.BR \-\-depend\-json\fR
+.BR \-\-typescript\fR
 .br
-Print dependency information in JSON format to standard output by default,
-or to the file specified by the --depend-file option. No code is generated
-when this option is specified.
+Generate TypeScript declaration files.
 
 .SH SEE ALSO
 
@@ -110,4 +115,5 @@ when this option is specified.
 .BR slice2objc (1),
 .BR slice2php (1),
 .BR slice2py (1),
-.BR slice2rb (1)
+.BR slice2rb (1),
+.BR slice2swift(1)

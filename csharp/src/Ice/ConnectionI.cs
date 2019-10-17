@@ -1216,6 +1216,15 @@ namespace Ice
                                     _observer.receivedBytes(Protocol.headerSize);
                                 }
 
+                                //
+                                // Connection is validated on first message. This is only used by
+                                // setState() to check wether or not we can print a connection
+                                // warning (a client might close the connection forcefully if the
+                                // connection isn't validated, we don't want to print a warning
+                                // in this case).
+                                //
+                                _validated = true;
+
                                 int pos = _readStream.pos();
                                 if(pos < Protocol.headerSize)
                                 {
@@ -1253,6 +1262,7 @@ namespace Ice
                                 {
                                     throw new IllegalMessageSizeException();
                                 }
+
                                 if(size > _messageSizeMax)
                                 {
                                     Ex.throwMemoryLimitException(size, _messageSizeMax);
@@ -2256,6 +2266,8 @@ namespace Ice
                         observerFinishRead(_readStream.getBuffer());
                     }
 
+                    _validated = true;
+
                     Debug.Assert(_readStream.pos() == Protocol.headerSize);
                     _readStream.pos(0);
                     byte[] m = _readStream.readBlob(4);
@@ -2287,8 +2299,6 @@ namespace Ice
                         throw new IllegalMessageSizeException();
                     }
                     TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
-
-                    _validated = true;
                 }
             }
 
@@ -2578,14 +2588,6 @@ namespace Ice
             _readHeader = true;
 
             Debug.Assert(info.stream.pos() == info.stream.size());
-
-            //
-            // Connection is validated on first message. This is only used by
-            // setState() to check wether or not we can print a connection
-            // warning (a client might close the connection forcefully if the
-            // connection isn't validated).
-            //
-            _validated = true;
 
             try
             {

@@ -154,7 +154,22 @@ allTests(Test::TestHelper* helper)
     while(nRetry-- > 0)
     {
         replyI->reset();
-        objMcast->ping(reply);
+        try
+        {
+            objMcast->ping(reply);
+        }
+        catch(const Ice::SocketException&)
+        {
+            // Multicast IPv6 not supported on the platform. This occurs for example
+            // on AIX PVP clould VMs.
+            if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+            {
+                cout << "(not supported) ";
+                ret = true;
+                break;
+            }
+            throw;
+        }
         ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
         if(ret)
         {
@@ -175,7 +190,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing udp bi-dir connection... " << flush;
     obj->ice_getConnection()->setAdapter(adapter);
-    objMcast->ice_getConnection()->setAdapter(adapter);
     nRetry = 5;
     while(nRetry-- > 0)
     {
@@ -205,6 +219,7 @@ allTests(Test::TestHelper* helper)
     //
 //     cout << "testing udp bi-dir connection... " << flush;
 //     nRetry = 5;
+//     objMcast->ice_getConnection()->setAdapter(adapter);
 //     while(nRetry-- > 0)
 //     {
 //         replyI->reset();

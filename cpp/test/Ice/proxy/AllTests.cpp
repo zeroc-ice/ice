@@ -236,6 +236,12 @@ allTests(Test::TestHelper* helper)
     b1 = communicator->stringToProxy("test -p 6.5 -e 1.0");
     test(b1->ice_toString() == "test -t -p 6.5 -e 1.0");
 
+    b1 = communicator->stringToProxy("test:tcp --sourceAddress \"::1\"");
+    test(Ice::targetEqualTo(b1, communicator->stringToProxy(b1->ice_toString())));
+
+    b1 = communicator->stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+    test(Ice::targetEqualTo(b1, communicator->stringToProxy(b1->ice_toString())));
+
     try
     {
         communicator->stringToProxy("test:tcp@adapterId");
@@ -1083,6 +1089,7 @@ allTests(Test::TestHelper* helper)
     test(cl == base);
     test(derived == base);
     test(cl == derived);
+    test(ICE_CHECKED_CAST(Test::MyDerivedClassPrx, cl, "facet") == ICE_NULLPTR);
 
     Ice::LocatorPrxPtr loc = ICE_CHECKED_CAST(Ice::LocatorPrx, base);
     test(loc == 0);
@@ -1155,7 +1162,9 @@ allTests(Test::TestHelper* helper)
             Ice::ConnectionPtr connection = cl->ice_getConnection();
             if(connection)
             {
+                test(!cl->ice_isFixed());
                 Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
+                test(prx->ice_isFixed());
                 prx->ice_ping();
                 test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
                 test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");

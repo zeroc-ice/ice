@@ -5,6 +5,7 @@
 
 require 'Ice'
 Ice::loadSlice('Test.ice')
+Ice::loadSlice('Forward.ice')
 Ice::loadSlice('ClientPrivate.ice')
 require './AllTests'
 

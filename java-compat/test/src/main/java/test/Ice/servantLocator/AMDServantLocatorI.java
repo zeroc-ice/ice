@@ -57,6 +57,11 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
             return null;
         }
 
+        if(current.id.name.equals("invalidReturnValue") || current.id.name.equals("invalidReturnType"))
+        {
+            return null;
+        }
+
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
         if(current.id.name.equals("locate"))
         {

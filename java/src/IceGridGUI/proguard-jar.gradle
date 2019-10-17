@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "net.sf.proguard:proguard-gradle:6.0.2"
+        classpath "net.sf.proguard:proguard-gradle:6.1.1"
     }
 }
 
@@ -44,6 +44,7 @@ else {
      'java.prefs.jmod',
      'java.naming.jmod',
      'java.datatransfer.jmod',
+     'jdk.unsupported.desktop.jmod',
      'javafx.base.jmod',
      'javafx.controls.jmod',
      'javafx.graphics.jmod',
@@ -83,7 +84,7 @@ if(System.properties['os.name'] == "Mac OS X") {
                           shortversion: "${project.version}",
                           applicationCategory: "public.app-category.utilities",
                           mainclassname: "com.zeroc.IceGridGUI/Main",
-                          copyright: "Copyright © 2005-present ZeroC, Inc. All rights reserved.") {
+                          copyright: "Copyright © ZeroC, Inc. All rights reserved.") {
                 classpath(file: "${libDir}/${jarName}") {}
                 option(value: "-Dapple.laf.useScreenMenuBar=true") {}
                 option(value: "-Dcom.apple.macos.use-file-dialog-packages=true") {}

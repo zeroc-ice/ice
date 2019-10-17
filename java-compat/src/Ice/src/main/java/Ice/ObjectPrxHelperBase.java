@@ -7,9 +7,6 @@ package Ice;
 import java.util.LinkedList;
 import java.util.List;
 
-import Ice.Instrumentation.InvocationObserver;
-import IceInternal.RetryException;
-
 /**
  * Base class for all proxies.
  **/
@@ -2308,6 +2305,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             return newInstance(ref);
         }
+    }
+
+    /**
+     * Returns whether this proxy is a fixed proxy.
+     *
+     * @return <code>true</code> if this is a fixed proxy, <code>false</code> otherwise.
+     **/
+    @Override
+    public final boolean ice_isFixed()
+    {
+        return _reference instanceof IceInternal.FixedReference;
     }
 
     /**

@@ -5,6 +5,7 @@
 package test.Ice.operations;
 
 import test.Ice.operations.Test._MyDerivedClassTie;
+import test.Ice.operations.M._BTie;
 
 public class TieServer extends test.TestHelper
 {
@@ -24,6 +25,7 @@ public class TieServer extends test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new _MyDerivedClassTie(new TieMyDerivedClassI()), Ice.Util.stringToIdentity("test"));
+            adapter.add(new _BTie(new BI()), Ice.Util.stringToIdentity("b"));
             adapter.activate();
 
             serverReady();

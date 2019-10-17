@@ -5,6 +5,10 @@
 #ifndef ICE_STREAM_ENDPOINT_I_H
 #define ICE_STREAM_ENDPOINT_I_H
 
+#include <Ice/Config.h>
+
+#if TARGET_OS_IPHONE != 0
+
 #include <Ice/ProtocolInstance.h>
 #include <Ice/IPEndpointI.h>
 #include <Ice/WSEndpoint.h>
@@ -49,7 +53,9 @@ public:
 
 private:
 
+#ifndef ICE_SWIFT
     const bool _voip;
+#endif
     const Ice::CommunicatorPtr _communicator;
     IceInternal::UniqueRef<CFMutableDictionaryRef> _proxySettings;
     std::string _proxyHost;
@@ -147,5 +153,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif

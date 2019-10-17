@@ -5,7 +5,6 @@
 export class P<T> extends Promise<T>
 {
     constructor(executor?:(resolve:(value:T|PromiseLike<T>)=>void, reject:(reason:any)=>void) => void);
-    finally(callback:() => void | PromiseLike<void>): T | PromiseLike<T>;
     delay(ms:number): P<T>;
     resolve<T>(value?:T|PromiseLike<T>):void;
     reject<T>(reason:any):void;

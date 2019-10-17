@@ -16,7 +16,7 @@
 
 #include <Ice/Connection.ice>
 
-["objc:prefix:ICEIAP"]
+["objc:prefix:ICEIAP", "swift:module:Ice:IAP"]
 module IceIAP
 {
 

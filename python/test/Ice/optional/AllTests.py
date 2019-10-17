@@ -177,7 +177,11 @@ def allTests(helper, communicator):
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
     test(mo5.j == mo1.j)
-    test(mo5.k == None)
+    #
+    # With Swift mapping you cannot distinguish null from unset
+    # so we test for both here to support cross testing.
+    #
+    test(mo5.k is None or mo5.k is Ice.Unset)
     if sys.version_info[0] == 2:
         test(mo5.bs == "\x05")
     else:

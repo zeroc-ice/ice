@@ -44,7 +44,8 @@ public:
             vector<string>::const_iterator q = p->second->_stack.begin();
             if(p->second->_stack.size() > 10)
             {
-                q = p->second->_stack.begin() + p->second->_stack.size() - 10;
+                q = p->second->_stack.begin() +
+                    static_cast<vector<string>::difference_type>(p->second->_stack.size() - 10);
             }
             cerr << "Last 10 updates of observer `" << p->second->_name << "':" << endl;
             for(; q != p->second->_stack.end(); ++q)
@@ -479,6 +480,10 @@ testFailedAndPrintObservers(const char* expr, const char* file, unsigned int lin
 #undef test
 #define test(ex) ((ex) ? ((void)0) : testFailedAndPrintObservers(#ex, __FILE__, __LINE__))
 
+#if defined(_AIX) && defined(__GNUC__) && !defined(__ibmxl__)
+// Strange optimization bug with catching ExtendedPermissionDeniedException with GCC 8.1 on AIX
+__attribute__((optimize("O0")))
+#endif
 void
 allTests(Test::TestHelper* helper)
 {

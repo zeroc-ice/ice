@@ -2,6 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+//
+// Disable deprecation warnings for SecCertificateCopyNormalizedIssuerContent and
+// SecCertificateCopyNormalizedSubjectContent
+//
+#include <IceUtil/DisableWarnings.h>
+
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SecureTransport.h>
 #include <IceSSL/CertificateI.h>
@@ -77,7 +83,11 @@ class ASN1Parser
 {
 public:
 
-    ASN1Parser(CFDataRef data) : _data(CFDataGetBytePtr(data)), _length(CFDataGetLength(data)), _p(_data), _next(0)
+    ASN1Parser(CFDataRef data) :
+        _data(CFDataGetBytePtr(data)),
+        _length(static_cast<size_t>(CFDataGetLength(data))),
+        _p(_data),
+        _next(0)
     {
     }
 
@@ -164,7 +174,7 @@ public:
     parseUTF8String()
     {
         int length = parseLength(0);
-        string v(reinterpret_cast<const char*>(_p), length);
+        string v(reinterpret_cast<const char*>(_p), static_cast<size_t>(length));
         _p += length;
         return v;
     }
@@ -293,8 +303,8 @@ getX509Name(SecCertificateRef cert, CFTypeRef key)
     if(property)
     {
         CFArrayRef dn = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
-        int size = CFArrayGetCount(dn);
-        for(int i = 0; i < size; ++i)
+        CFIndex size = CFArrayGetCount(dn);
+        for(CFIndex i = 0; i < size; ++i)
         {
             CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(dn, i));
             rdnPairs.push_front(make_pair(
@@ -317,9 +327,9 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
     if(property)
     {
         CFArrayRef names = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
-        int size = CFArrayGetCount(names);
+        CFIndex size = CFArrayGetCount(names);
 
-        for(int i = 0; i < size; ++i)
+        for(CFIndex i = 0; i < size; ++i)
         {
             CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(names, i));
 
@@ -341,7 +351,7 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
                 {
                     CFArrayRef section = (CFArrayRef)v;
                     ostringstream os;
-                    for(int j = 0, count = CFArrayGetCount(section); j < count;)
+                    for(CFIndex j = 0, count = CFArrayGetCount(section); j < count;)
                     {
                         CFDictionaryRef d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, j);
 
@@ -434,7 +444,7 @@ SecureTransportCertificateI::getAuthorityKeyIdentifier() const
     if(property)
     {
         CFTypeRef type = 0;
-        CFTypeRef value;
+        CFTypeRef value = 0;
         if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyType, &type))
         {
             if(CFEqual(type, kSecPropertyTypeSection))
@@ -453,8 +463,8 @@ SecureTransportCertificateI::getAuthorityKeyIdentifier() const
             {
                 CFDataRef data = static_cast<CFDataRef>(
                     CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyValue));
-                keyid.resize(CFDataGetLength(data));
-                memcpy(&keyid[0], CFDataGetBytePtr(data), CFDataGetLength(data));
+                keyid.resize(static_cast<size_t>(CFDataGetLength(data)));
+                memcpy(&keyid[0], CFDataGetBytePtr(data), static_cast<size_t>(CFDataGetLength(data)));
             }
         }
     }
@@ -473,7 +483,7 @@ SecureTransportCertificateI::getSubjectKeyIdentifier() const
     if(property)
     {
         CFTypeRef type = 0;
-        CFTypeRef value;
+        CFTypeRef value = 0;
         if(CFDictionaryGetValueIfPresent(property.get(), kSecPropertyKeyType, &type))
         {
             if(CFEqual(type, kSecPropertyTypeSection))
@@ -492,8 +502,8 @@ SecureTransportCertificateI::getSubjectKeyIdentifier() const
             {
                 CFDataRef data = static_cast<CFDataRef>(
                     CFDictionaryGetValue(static_cast<CFDictionaryRef>(value), kSecPropertyKeyValue));
-                keyid.resize(CFDataGetLength(data));
-                memcpy(&keyid[0], CFDataGetBytePtr(data), CFDataGetLength(data));
+                keyid.resize(static_cast<size_t>(CFDataGetLength(data)));
+                memcpy(&keyid[0], CFDataGetBytePtr(data), static_cast<size_t>(CFDataGetLength(data)));
             }
         }
     }
@@ -574,7 +584,7 @@ SecureTransportCertificateI::encode() const
     ostringstream os;
     os << "-----BEGIN CERTIFICATE-----\n";
     os << IceInternal::Base64::encode(data);
-    os << "-----END CERTIFICATE-----\n";
+    os << "\n-----END CERTIFICATE-----\n";
     return os.str();
 #else // macOS
     UniqueRef<CFDataRef> exported;
@@ -583,7 +593,8 @@ SecureTransportCertificateI::encode() const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
     }
-    return string(reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())), CFDataGetLength(exported.get()));
+    return string(reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())),
+                  static_cast<size_t>(CFDataGetLength(exported.get())));
 #endif
 }
 
@@ -805,23 +816,23 @@ IceSSL::SecureTransport::CertificatePtr
 IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    string::size_type size, startpos, endpos = 0;
-    startpos = encoding.find("-----BEGIN CERTIFICATE-----", endpos);
+    string::size_type size = 0;
+    string::size_type startpos = 0;
+    startpos = encoding.find("-----BEGIN CERTIFICATE-----", 0);
     if(startpos != string::npos)
     {
         startpos += sizeof("-----BEGIN CERTIFICATE-----");
-        endpos = encoding.find("-----END CERTIFICATE-----", startpos);
+        string::size_type endpos = encoding.find("-----END CERTIFICATE-----", startpos);
         size = endpos - startpos;
     }
     else
     {
         startpos = 0;
-        endpos = string::npos;
         size = encoding.size();
     }
 
     vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
-    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], data.size()));
+    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], static_cast<CFIndex>(data.size())));
     SecCertificateRef cert = SecCertificateCreateWithData(0, certdata.get());
     if(!cert)
     {
@@ -833,7 +844,7 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
     UniqueRef<CFDataRef> data(
         CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                     reinterpret_cast<const UInt8*>(encoding.c_str()),
-                                    encoding.size(), kCFAllocatorNull));
+                                    static_cast<CFIndex>(encoding.size()), kCFAllocatorNull));
 
     SecExternalFormat format = kSecFormatUnknown;
     SecExternalItemType type = kSecItemTypeCertificate;

@@ -166,9 +166,18 @@ RemoteLoggerI::wait(int calls)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     _receivedCalls -= calls;
+    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
+    IceUtil::Time start = now;
+    IceUtil::Time delay = IceUtil::Time::seconds(10);
     while(_receivedCalls < 0)
     {
-        _monitor.wait();
+        _monitor.timedWait(delay);
+        now = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        if(now - start >= IceUtil::Time::seconds(10))
+        {
+            test(false); // Waited for more than 2s for close, something's wrong.
+        }
+        delay = start + IceUtil::Time::seconds(10) - now;
     }
 }
 

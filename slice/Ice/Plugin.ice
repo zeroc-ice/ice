@@ -89,7 +89,7 @@ local interface PluginManager
      * @see #getPlugin
      *
      **/
-    ["cpp:noexcept"] StringSeq getPlugins();
+    ["cpp:noexcept", "swift:noexcept"] StringSeq getPlugins();
 
     /**
      *
@@ -122,7 +122,7 @@ local interface PluginManager
      * Called when the communicator is being destroyed.
      *
      **/
-    ["cpp:noexcept"] void destroy();
+    ["cpp:noexcept", "swift:noexcept"] void destroy();
 }
 
 #endif

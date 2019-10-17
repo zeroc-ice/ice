@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-    <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140.3.7.2\tools</CppToolsDir>
+    <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140.3.7.3\tools</CppToolsDir>
   </PropertyGroup>
 
   <!-- Dynamic libraries and import libraries -->

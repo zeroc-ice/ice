@@ -89,11 +89,11 @@ getEndpoints(id<TestBindingTestIntfPrx> proxy)
 {
     NSMutableArray* edpts = [NSMutableArray array];
     bool escape = NO;
-    int beg = 0;
-    int length = 0;
+    NSUInteger beg = 0;
+    NSUInteger length = 0;
     NSString* s = [proxy ice_toString];
-    int index;
-    for(index = 0; index < (int)[s length]; ++index)
+    NSUInteger index;
+    for(index = 0; index < [s length]; ++index)
     {
         unichar c = [s characterAtIndex:index];
         if(c == '"')
@@ -156,7 +156,7 @@ random_shuffle(NSMutableArray* array)
     NSUInteger count = [array count];
     while(count--)
     {
-        [array exchangeObjectAtIndex:count withObjectAtIndex:(random() % (count + 1))];
+        [array exchangeObjectAtIndex:count withObjectAtIndex:(NSUInteger)random() % (count + 1)];
     }
 }
 

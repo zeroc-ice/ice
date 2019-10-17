@@ -12,7 +12,6 @@ import com.zeroc.IceInternal.Transceiver;
 import com.zeroc.Ice.EndpointParseException;
 import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.InputStream;
-import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.OutputStream;
 
 import android.bluetooth.BluetoothAdapter;

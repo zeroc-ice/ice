@@ -392,7 +392,7 @@ adminAllTests(id<ICECommunicator> communicator)
 
         test([logMessages count] == 4);
         test([prefix isEqual:@"NullLogger"]);
-        int i = 0;
+        NSUInteger i = 0;
         test([((ICELogMessage*)[logMessages objectAtIndex:i]).traceCategory isEqual:@"testCat"] &&
              [((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"trace"]);
         test([((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"warning"]);

@@ -171,21 +171,40 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             // Hostname verification was included in OpenSSL 1.0.2
             //
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10002000L
-            if(_engine->getCheckCertName() && !_host.empty() && (sslVerifyMode & SSL_VERIFY_PEER))
+            if(_engine->getCheckCertName() && !_host.empty())
             {
                 X509_VERIFY_PARAM* param = SSL_get0_param(_ssl);
                 if(IceInternal::isIpAddress(_host))
                 {
-                    X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str());
+                    if(!X509_VERIFY_PARAM_set1_ip_asc(param, _host.c_str()))
+                    {
+                        throw SecurityException(__FILE__, __LINE__, "IceSSL: error setting the expected IP address `"
+                                                + _host + "'");
+                    }
                 }
                 else
                 {
-                    X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0);
+                    if(!X509_VERIFY_PARAM_set1_host(param, _host.c_str(), 0))
+                    {
+                        throw SecurityException(__FILE__, __LINE__, "IceSSL: error setting the expected host name `"
+                                                + _host + "'");
+                    }
                 }
             }
 #endif
 
             SSL_set_verify(_ssl, sslVerifyMode, IceSSL_opensslVerifyCallback);
+        }
+
+        //
+        // Enable SNI
+        //
+        if(!_incoming && _engine->getServerNameIndication() && !_host.empty() && !IceInternal::isIpAddress(_host))
+        {
+            if(!SSL_set_tlsext_host_name(_ssl, _host.c_str()))
+            {
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SNI host failed `" + _host + "'");
+            }
         }
     }
 
@@ -320,6 +339,24 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     _cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10002000L
+    try
+    {
+        //
+        // Peer hostname verification is new in OpenSSL 1.0.2 for older versions
+        // We use IceSSL built-in hostname verification.
+        //
+        _engine->verifyPeerCertName(address, info);
+    }
+    catch(const SecurityException&)
+    {
+        _verified = false;
+        if(_engine->getVerifyPeer() > 0)
+        {
+            throw;
+        }
+    }
+#endif
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
 
     if(_engine->securityTraceLevel() >= 1)

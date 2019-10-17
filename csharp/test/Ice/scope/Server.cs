@@ -56,6 +56,24 @@ namespace Ice
                     return c1;
                 }
 
+                public override Test.E1
+                opE1(Test.E1 e1, Ice.Current current)
+                {
+                    return e1;
+                }
+
+                public override Test.S1
+                opS1(Test.S1 s1, Ice.Current current)
+                {
+                    return s1;
+                }
+
+                public override Test.C1
+                opC1(Test.C1 c1, Ice.Current current)
+                {
+                    return c1;
+                }
+
                 override
                 public void shutdown(Ice.Current current)
                 {

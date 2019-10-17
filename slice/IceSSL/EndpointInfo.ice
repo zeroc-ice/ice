@@ -28,7 +28,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICESSL"]
+["objc:prefix:ICESSL", "swift:module:Ice:SSL"]
 module IceSSL
 {
 

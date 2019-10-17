@@ -32,6 +32,14 @@
 #   pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
+//
+// Avoid clang conversion warnings
+//
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wconversion"
+#   pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 #ifdef _MSC_VER
 #   ifdef slice_wrap
 #      undef slice_wrap

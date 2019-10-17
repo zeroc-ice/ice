@@ -515,7 +515,7 @@ namespace Ice
         /// <summary>
         /// Returns whether this proxy communicates only via secure endpoints.
         /// </summary>
-        /// <returns>True if this proxy communicates only vi secure endpoints; false, otherwise.</returns>
+        /// <returns>True if this proxy communicates only via secure endpoints; false, otherwise.</returns>
         bool ice_isSecure();
 
         /// <summary>
@@ -704,6 +704,13 @@ namespace Ice
         /// <param name="connection">The fixed proxy connection.</param>
         /// <returns>A fixed proxy bound to the given connection.</returns>
         ObjectPrx ice_fixed(Ice.Connection connection);
+
+        /// <summary>
+        /// Returns whether this proxy is a fixed proxy.
+        /// </summary>
+        /// <returns>True if this is a fixed proxy, false otherwise.
+        /// </returns>
+        bool ice_isFixed();
 
         /// <summary>
         /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -2184,6 +2191,16 @@ namespace Ice
             {
                 return newInstance(@ref);
             }
+        }
+
+        /// <summary>
+        /// Returns whether this proxy is a fixed proxy.
+        /// </summary>
+        /// <returns>True if this is a fixed proxy, false otherwise.
+        /// </returns>
+        public bool ice_isFixed()
+        {
+            return _reference is IceInternal.FixedReference;
         }
 
         private class ProxyGetConnectionAsyncCallback : ProxyAsyncResultCompletionCallback<Callback_Object_ice_getConnection>

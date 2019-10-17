@@ -16,10 +16,13 @@
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45;$(DefineConstants)</DefineConstants>
+    <!-- Source Link Settings -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->
@@ -60,15 +63,31 @@
       </When>
   </Choose>
 
-  <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
+  <Choose>
+      <When Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">
+          <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+              <DebugSymbols>true</DebugSymbols>
+              <DebugType>full</DebugType>
+              <Optimize>false</Optimize>
+              <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
+          </PropertyGroup>
 
-  <PropertyGroup Condition="$(Configuration.Contains('Release'))">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
+          <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+              <DebugType>pdbonly</DebugType>
+              <Optimize>true</Optimize>
+          </PropertyGroup>
+      </When>
+      <Otherwise>
+          <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+              <DebugType>portable</DebugType>
+              <Optimize>true</Optimize>
+              <DebugSymbols>true</DebugSymbols>
+          </PropertyGroup>
+
+          <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+              <DebugType>portable</DebugType>
+              <Optimize>false</Optimize>
+          </PropertyGroup>
+      </Otherwise>
+  </Choose>
 </Project>

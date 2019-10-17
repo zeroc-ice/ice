@@ -35,6 +35,11 @@ import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 import test.Ice.objects.Test.M;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.Initial.OpMResult;
+
+import test.Ice.objects.Test.F1;
+import test.Ice.objects.Test.F2Prx;
+import test.Ice.objects.Test.F3;
+
 public class AllTests
 {
     private static void test(boolean b)
@@ -401,6 +406,32 @@ public class AllTests
             test(opMResult.returnValue.v.get(k2).data.equals("two"));
             test(opMResult.v2.v.get(k2).data.equals("two"));
 
+        }
+        out.println("ok");
+
+        out.print("testing forward declared types... ");
+        out.flush();
+        {
+            Initial.OpF1Result opF1Result = initial.opF1(new F1("F11"));
+            test(opF1Result.returnValue.name.equals("F11"));
+            test(opF1Result.f12.name.equals("F12"));
+
+            Initial.OpF2Result opF2Result =
+                initial.opF2(F2Prx.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())));
+            test(opF2Result.returnValue.ice_getIdentity().name.equals("F21"));
+            opF2Result.returnValue.op();
+            test(opF2Result.f22.ice_getIdentity().name.equals("F22"));
+
+            if(initial.hasF3())
+            {
+                Initial.OpF3Result opF3Result = initial.opF3(new F3(new F1("F11"),
+                                                                    F2Prx.uncheckedCast(communicator.stringToProxy("F21"))));
+                test(opF3Result.returnValue.f1.name.equals("F11"));
+                test(opF3Result.returnValue.f2.ice_getIdentity().name.equals("F21"));
+
+                test(opF3Result.f32.f1.name.equals("F12"));
+                test(opF3Result.f32.f2.ice_getIdentity().name.equals("F22"));
+            }
         }
         out.println("ok");
 

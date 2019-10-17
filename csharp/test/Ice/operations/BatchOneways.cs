@@ -74,7 +74,6 @@ namespace Ice
                     try
                     {
                         batch.opByteSOneway(bs1);
-                        test(true);
                     }
                     catch (Ice.MemoryLimitException)
                     {

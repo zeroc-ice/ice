@@ -28,6 +28,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
  - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
+ - the [.NET Core 3.0 SDK][5], if you use Visual Studio 2019
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -44,8 +45,8 @@ To build all Ice assemblies and the associated test suite, run:
 msbuild msbuild\ice.proj
 ```
 
-Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0
-are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
+Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard
+2.0 are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
 
 > Note: the assemblies for .NET Standard 2.0 are created only when you build with
 > Visual Studio 2017 or greater.
@@ -55,37 +56,40 @@ You can skip the build of the test suite with the `BuildDist` target:
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist` targets
-allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
-with or without the test suite.
+The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and
+`NetStandardBuildDist` targets allow you to build assemblies only for the .NET
+Framework 4.5 or .NET Standard 2.0, with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp2.1`. You can change the target framework
-by setting the `AppTargetFrameworks` property to a different Target Framework Monikers (TFMs)
-value, for example:
+The iceboxnet and test applications target `netcoreapp3.0` when using Visual
+Studio 2019 and `netcoreapp2.1` when using Visual Studio 2017. You can change
+the target framework by setting the `AppTargetFramework` property to a different
+Target Framework Moniker value, for example:
+
 ```
-msbuild msbuild\ice.proj /p:"AppTargetFrameworks=net462"
+msbuild msbuild\ice.proj /p:"AppTargetFramework=net462"
 ```
 
-This builds the test programs for `net462`. The target frameworks you specify must
-implement .NET Standard 2.0.
+This builds the test programs for `net462`. The target frameworks you specify
+must implement .NET Standard 2.0.
 
 #### Strong Name Signatures
 
-You can add Strong Naming signatures to the Ice assemblies by setting the following
-environment variables before building these assemblies:
+You can add Strong Naming signatures to the Ice assemblies by setting the
+following environment variables before building these assemblies:
 
- - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
- - KEYFILE Identity full key pair used to sign the assembly
+ - `PUBLIC_KEYFILE` Identity public key used to delay sign the assembly
+ - `KEYFILE` Identity full key pair used to sign the assembly
 
-If only PUBLIC_KEYFILE is set, the assemblies are delay-signed during the build
-and you must re-sign the assemblies later with the full identity key pair.
+If only `PUBLIC_KEYFILE` is set, the assemblies are delay-signed during the
+build and you must re-sign the assemblies later with the full identity key pair.
 
-If only KEYFILE is set, the assemblies are fully signed during the build using
-KEYFILE.
+If only `KEYFILE` is set, the assemblies are fully signed during the build using
+`KEYFILE`.
 
-If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
-the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
-This can be used for generating [Enhanced Strong Naming][5] signatures.
+If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed
+during the build using `PUBLIC_KEYFILE` and re-signed after the build using
+`KEYFILE`. This can be used for generating [Enhanced Strong Naming][6]
+signatures.
 
 *Strong Name Signatures can be generated only from Windows builds.*
 
@@ -93,8 +97,8 @@ This can be used for generating [Enhanced Strong Naming][5] signatures.
 
 You can sign the Ice binaries with Authenticode by setting the following
 environment variables before building these assemblies:
- - SIGN_CERTIFICATE to your Authenticode certificate
- - SIGN_PASSWORD to the certificate password
+ - `SIGN_CERTIFICATE` to your Authenticode certificate
+ - `SIGN_PASSWORD` to the certificate password
 
 *Authenticode can be generated only from Windows builds.*
 
@@ -105,17 +109,19 @@ You can build only the test suite with this command:
 msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 ```
 
-This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary.
+This build retrieves and installs the `zeroc.ice.net` NuGet package if
+necessary.
 
 ## Building on Linux or macOS
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.1 SDK][4] to build Ice for .NET from source.
+You need the [.NET Core 2.1 SDK][4] or [.NET Core 3.0 SDK][5] to build
+Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
-Open a command prompt and change to the `csharp` subdirectory:
+Open a command prompt and change to the `csharp` directory:
 ```
 cd csharp
 ```
@@ -131,6 +137,15 @@ Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 dotnet msbuild msbuild/ice.proj /t:BuildDist
+```
+
+The iceboxnet and test applications target `netcoreapp3.0` when using .NET Core
+3.0 SDK and `netcoreapp2.1` when using .NET Core 2.1 SDK. You can change the
+target framework by setting the `AppTargetFramework` property to a different
+Target Framework Moniker value, for example:
+
+```
+dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=netcoreapp2.2"
 ```
 
 ## Running the Tests
@@ -151,14 +166,14 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 On Windows, `allTests.py` executes by default the tests for .NET Framework 4.5.
-In order to execute the tests with .NET Core framework add the `--dotnetcore` option.
-For example:
+In order to execute the tests with .NET Core framework add the `--dotnetcore`
+option. For example:
 ```
 python allTests.py --dotnetcore
 ```
 
-If you build the test against a different target framework you must use `--framework` option
-with the corresponding target framework.
+If you build the test against a different target framework you must use
+`--framework` option with the corresponding target framework.
 
 For example to run test build against .NET Framework 4.6.2:
 ```
@@ -172,19 +187,40 @@ python allTests.py --dotnetcore --framework=netcoreapp3.0
 
 ## NuGet Package
 
+### Creating NuGet Packages on Windows
+
 To create a NuGet package, open a Visual Studio command prompt and run the
 following command:
 ```
 msbuild msbuild\ice.proj /t:NuGetPack
 ```
 
-This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
+This creates the `zeroc.ice.net` Nuget package in the `msbuild\zeroc.ice.net`
+directory.
 
-> Note: The new NuGet package always includes assemblies for the .NET Framework 4.5.
-> If you build with Visual Studio 2017, the NuGet package also includes assemblies
-> for .NET Standard 2.0.
+> Note: The NuGet package always includes assemblies for the .NET Framework 4.5.
+>
+> If you build with Visual Studio 2017 or Visual Studio 2019, the NuGet package
+> also includes assemblies for .NET Standard 2.0.
+>
+> If you build with Visual Studio 2019 the NuGet package include iceboxnet
+> executables targeting .NET Framework 4.5, .NET Core 3.0 and .NET Core 2.1.
+>
+> If you build with Visual Studio 2017 the NuGet package include iceboxnet
+> executables targeting .NET Framework 4.5 and .NET Core 2.1.
+>
 
-*Temporary limitation: you currently cannot create NuGet packages on Linux and macOS.*
+### Creating NuGet Packages on Linux or macOS
+
+To create a NuGet package, open a command prompt and run the
+following command:
+
+```
+dotnet msbuild msbuild/ice.proj /t:NuGetPack
+```
+
+This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net`
+directory.
 
 ## Building Ice for Xamarin Test Suite
 
@@ -193,22 +229,22 @@ the Ice test suite as a Xamarin application that can be deployed on iOS, Android
 or UWP platforms.
 
 The Xamarin test suite uses the Ice assemblies for .NET Standard 2.0. either
-from the source distribution or using the zeroc.ice.net NuGet package. If using
-the assembles from the source distribution, they must be built before this
+from the source distribution or using the `zeroc.ice.net` NuGet package. If
+using the assembles from the source distribution, they must be built before this
 application.
 
 ### Building on Windows
 
 #### Windows Build Requirements
 
-* Visual Studio 2017 with following workloads:
+* Visual Studio 2017 or Visual Studio 2019 with following workloads:
   * Universal Windows Platform development
   * Mobile development with .NET
   * .NET Core cross-platform development
 
 #### Building the Android test controller
 
-Open a Visual Studio 2017 command prompt:
+Open a Visual Studio 2017 or Visual Studio 2019 command prompt:
 
 ```
 MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
@@ -216,7 +252,7 @@ MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
 
 #### Building the UWP test controller
 
-Open a Visual Studio 2017 command prompt:
+Open a Visual Studio 2019 or Visual Studio 2017 command prompt:
 
 ```
 MSBuild msbuild\ice.proj /t:UWPXamarinBuild
@@ -272,8 +308,9 @@ python allTests.py --android --controller-app --config Release --platform x64
 python allTests.py --controller-app --config Release --platform iphonesimulator
 ```
 
-[1]: https://zeroc.com/distributions/ice
+[1]: https://zeroc.com/downloads/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
+[3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
 [4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
-[5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[5]: https://dotnet.microsoft.com/download/dotnet-core/3.0
+[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming

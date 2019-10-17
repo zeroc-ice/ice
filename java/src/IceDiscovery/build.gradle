@@ -3,6 +3,7 @@
 //
 
 project.ext.displayName = "IceDiscovery"
+project.ext.moduleName = "com.zeroc.icediscovery"
 project.ext.description = "Allow Ice applications to discover objects and object adapters"
 
 slice {

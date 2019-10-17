@@ -63,6 +63,7 @@ public:
     void setPassword(const std::string& password);
 
     bool getCheckCertName() const;
+    bool getServerNameIndication() const;
     int getVerifyPeer() const;
     int securityTraceLevel() const;
     std::string securityTraceCategory() const;
@@ -83,6 +84,7 @@ private:
     PasswordPromptPtr _prompt;
 
     bool _checkCertName;
+    bool _serverNameIndication;
     int _verifyDepthMax;
     int _verifyPeer;
     int _securityTraceLevel;

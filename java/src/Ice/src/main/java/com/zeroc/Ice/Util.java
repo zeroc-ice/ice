@@ -529,7 +529,7 @@ public final class Util
      **/
     public static String stringVersion()
     {
-        return "3.7.2"; // "A.B.C", with A=major, B=minor, C=patch
+        return "3.7.3"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
     /**
@@ -541,7 +541,7 @@ public final class Util
      **/
     public static int intVersion()
     {
-        return 30702; // AABBCC, with AA=major, BB=minor, CC=patch
+        return 30703; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
     /**
@@ -619,14 +619,13 @@ public final class Util
      * @param <T> The result type.
      * @return The InvocationFuture object.
      **/
-    @SuppressWarnings("unchecked")
     static public <T> InvocationFuture<T> getInvocationFuture(java.util.concurrent.CompletableFuture<T> f)
     {
         if(!(f instanceof InvocationFuture))
         {
             throw new IllegalArgumentException("future did not originate from an asynchronous proxy invocation");
         }
-        return (InvocationFuture)f;
+        return (InvocationFuture<T>)f;
     }
 
     /**
@@ -643,7 +642,6 @@ public final class Util
         }
 
         StringBuilder buf = new StringBuilder(id.length());
-        String pkg = null;
         for(int i = 0; i < _iceTypeIdPrefixes.length; ++i)
         {
             if(id.startsWith(_iceTypeIdPrefixes[i]))

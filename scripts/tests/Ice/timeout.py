@@ -10,4 +10,4 @@ traceProps = {
     "Ice.Trace.Protocol" : 1
 }
 
-TestSuite(__name__, [ClientServerTestCase(traceProps=traceProps)], options = { "compress" : [False] }, )
+TestSuite(__name__, [ClientServerTestCase(server=Server(readyCount=2), traceProps=traceProps)], options = { "compress" : [False] }, )

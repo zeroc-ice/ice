@@ -51,7 +51,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    ["cpp:noexcept"] string getProperty(string key);
+    ["cpp:noexcept", "swift:noexcept"] string getProperty(string key);
 
     /**
      *
@@ -68,7 +68,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    ["cpp:noexcept"] string getPropertyWithDefault(string key, string \value);
+    ["cpp:noexcept", "swift:noexcept"] string getPropertyWithDefault(string key, string \value);
 
     /**
      *
@@ -82,7 +82,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    ["cpp:noexcept"] int getPropertyAsInt(string key);
+    ["cpp:noexcept", "swift:noexcept"] int getPropertyAsInt(string key);
 
     /**
      *
@@ -100,7 +100,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    ["cpp:noexcept"] int getPropertyAsIntWithDefault(string key, int \value);
+    ["cpp:noexcept", "swift:noexcept"] int getPropertyAsIntWithDefault(string key, int \value);
 
      /**
      *
@@ -120,7 +120,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    ["cpp:noexcept"] StringSeq getPropertyAsList(string key);
+    ["cpp:noexcept", "swift:noexcept"] StringSeq getPropertyAsList(string key);
 
     /**
      *
@@ -143,7 +143,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    ["cpp:noexcept"] StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
+    ["cpp:noexcept", "swift:noexcept"] StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
 
     /**
      *
@@ -156,7 +156,7 @@ local interface Properties
      * @return The matching property set.
      *
      **/
-    ["cpp:noexcept"] PropertyDict getPropertiesForPrefix(string prefix);
+    ["cpp:noexcept", "swift:noexcept"] PropertyDict getPropertiesForPrefix(string prefix);
 
     /**
      *
@@ -169,7 +169,7 @@ local interface Properties
      * @see #getProperty
      *
      **/
-    void setProperty(string key, string \value);
+    ["swift:noexcept"] void setProperty(string key, string \value);
 
     /**
      *
@@ -181,7 +181,7 @@ local interface Properties
      * @return The command line options for this property set.
      *
      **/
-    ["cpp:noexcept"] StringSeq getCommandLineOptions();
+    ["cpp:noexcept", "swift:noexcept"] StringSeq getCommandLineOptions();
 
     /**
      *
@@ -235,7 +235,7 @@ local interface Properties
      * @return A copy of this property set.
      *
      **/
-    ["cpp:noexcept"] Properties clone();
+    ["cpp:noexcept", "swift:noexcept", "swift:nonnull"] Properties clone();
 }
 
 #endif

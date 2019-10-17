@@ -4,7 +4,7 @@
 #
 
 from TestHelper import TestHelper
-TestHelper.loadSlice("Test.ice ClientPrivate.ice")
+TestHelper.loadSlice("Test.ice Forward.ice ClientPrivate.ice")
 import Ice
 import TestI
 import AllTests
@@ -20,6 +20,7 @@ class Collocated(TestHelper):
             adapter = communicator.createObjectAdapter("TestAdapter")
             initial = TestI.InitialI(adapter)
             adapter.add(initial, Ice.stringToIdentity("initial"))
+            adapter.add(TestI.F2I(), Ice.stringToIdentity("F21"))
             adapter.add(TestI.UnexpectedObjectExceptionTestI(), Ice.stringToIdentity("uoet"))
             # adapter.activate() // Don't activate OA to ensure collocation is used.
             AllTests.allTests(self, communicator)

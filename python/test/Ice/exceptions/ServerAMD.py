@@ -136,6 +136,12 @@ class ThrowerI(Test.Thrower):
         f.set_exception(Test.A())
         return f
 
+    def throwMarshalException(self, current):
+        if "return" in current.ctx:
+            return Ice.Future.completed(("", 0))
+        if "param" in current.ctx:
+            return Ice.Future.completed((0, ""))
+        return Ice.Future.completed(None)
 
 class ServerAMD(TestHelper):
 

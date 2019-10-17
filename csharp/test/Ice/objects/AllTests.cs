@@ -505,6 +505,39 @@ namespace Ice
 
                     }
                     output.WriteLine("ok");
+
+                    output.Write("testing forward declared types... ");
+                    output.Flush();
+                    {
+                        F1 f12;
+                        F1 f11 = initial.opF1(new F1("F11"), out f12);
+                        test(f11.name.Equals("F11"));
+                        test(f12.name.Equals("F12"));
+
+                        F2Prx f22;
+                        F2Prx f21 = initial.opF2(
+                            F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
+                            out f22);
+                        test(f21.ice_getIdentity().name.Equals("F21"));
+                        f21.op();
+                        test(f22.ice_getIdentity().name.Equals("F22"));
+
+                        if(initial.hasF3())
+                        {
+                            F3 f32;
+                            F3 f31 = initial.opF3(new F3(new F1("F11"),
+                                                         F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
+                                                  out f32);
+
+                            test(f31.f1.name.Equals("F11"));
+                            test(f31.f2.ice_getIdentity().name.Equals("F21"));
+
+                            test(f32.f1.name.Equals("F12"));
+                            test(f32.f2.ice_getIdentity().name.Equals("F22"));
+                        }
+                    }
+                    output.WriteLine("ok");
+
                     return initial;
                 }
             }

@@ -13,6 +13,24 @@
     {
         async allTests()
         {
+            const controller = Test.ControllerPrx.uncheckedCast(
+                this.communicator().stringToProxy("controller:" + this.getTestEndpoint(1)));
+            test(controller !== null);
+            try
+            {
+                await this.allTestsWithController(controller);
+            }
+            catch(ex)
+            {
+                // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent the test
+                // from hanging on exit in case a connection which disables timeouts is still opened.
+                controller.resumeAdapter();
+                throw ex;
+            }
+        }
+
+        async allTestsWithController(controller)
+        {
             async function connect(prx)
             {
                 let nRetry = 10;
@@ -50,10 +68,6 @@
 
             const timeout = await Test.TimeoutPrx.checkedCast(obj);
             test(timeout !== null);
-
-            const controller = Test.ControllerPrx.uncheckedCast(
-                communicator.stringToProxy("controller:" + this.getTestEndpoint(1)));
-            test(controller !== null);
 
             out.write("testing connect timeout... ");
             {
@@ -135,7 +149,7 @@
 
                 try
                 {
-                    await to.sleep(500);
+                    await to.sleep(1000);
                     test(false);
                 }
                 catch(ex)
@@ -152,7 +166,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.InvocationTimeoutException, ex);
+                    test(false);
                 }
             }
             out.writeLine("ok");

@@ -26,7 +26,6 @@ public:
 
     virtual void initialize();
     virtual void destroy();
-    virtual void verifyPeer(const std::string&, const IceSSL::ConnectionInfoPtr&, const std::string&);
     virtual IceInternal::TransceiverPtr
     createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
 

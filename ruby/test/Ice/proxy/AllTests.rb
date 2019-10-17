@@ -70,6 +70,12 @@ def allTests(helper, communicator)
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" && \
          b1.ice_getAdapterId().empty?)
 
+    b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"")
+    test(b1 == communicator.stringToProxy(b1.ice_toString()))
+
+    b1 = communicator.stringToProxy("test:udp --sourceAddress \"::1\" --interface \":0:0:0:0:0:0:0:1\"")
+    test(b1 == communicator.stringToProxy(b1.ice_toString()))
+
     b1 = communicator.stringToProxy("test@adapter")
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.empty? && \
          b1.ice_getAdapterId() == "adapter")
@@ -617,6 +623,7 @@ def allTests(helper, communicator)
     test(cl == base)
     test(derived == base)
     test(cl == derived)
+    test(Test::MyDerivedClassPrx::checkedCast(cl, "facet") == nil)
 
     loc = Ice::LocatorPrx::checkedCast(base)
     test(loc == nil)
@@ -651,6 +658,8 @@ def allTests(helper, communicator)
     STDOUT.flush
     connection = cl.ice_getConnection()
     if connection != nil
+        test(!cl.ice_isFixed())
+        test(cl.ice_fixed(connection).ice_isFixed())
         cl.ice_fixed(connection).getContext()
         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")

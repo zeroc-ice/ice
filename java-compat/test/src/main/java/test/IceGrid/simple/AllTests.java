@@ -158,6 +158,27 @@ public class AllTests
             //
             properties = communicator.getProperties()._clone();
             properties.setProperty("Ice.Default.Locator", "");
+            properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
+            properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                   "IceLocatorDiscovery.PluginFactory");
+            properties.setProperty("IceLocatorDiscovery.Lookup",
+                                   "udp -h " + multicast + " --interface unknown");
+            try(Ice.Communicator com = helper.initialize(properties))
+            {
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                    test(false);
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+            }
+
+            properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.Default.Locator", "");
+            properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                    "IceLocatorDiscovery.PluginFactory");
             properties.setProperty("IceLocatorDiscovery.Lookup",

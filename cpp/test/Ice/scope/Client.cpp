@@ -19,7 +19,7 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    cout << "test same Slice type name in different scopes... " << flush;
+    cout << "test using same type name in different Slice modules... " << flush;
     void allTests(Test::TestHelper*);
     allTests(this);
     cout << "ok" << endl;

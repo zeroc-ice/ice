@@ -95,6 +95,12 @@ proxyAllTests(id<ICECommunicator> communicator)
          [[[b1 ice_getIdentity] category] isEqualToString:@"category"] &&
          [[b1 ice_getAdapterId] length] == 0);
 
+    b1 = [communicator stringToProxy:@"test:tcp --sourceAddress \"::1\""];
+    test([b1 isEqual:[communicator stringToProxy:[b1 ice_toString]]]);
+
+    b1 = [communicator stringToProxy:@"test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\""];
+    test([b1 isEqual:[communicator stringToProxy:[b1 ice_toString]]]);
+
     b1 = [communicator stringToProxy:@"test@adapter"];
     test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] &&
          [[[b1 ice_getIdentity] category] length] == 0 &&
@@ -714,6 +720,8 @@ proxyAllTests(id<ICECommunicator> communicator)
         id<ICEConnection> connection = [cl ice_getConnection];
         if(connection != nil)
         {
+            test(![cl ice_isFixed]);
+            test([[cl ice_fixed:connection] ice_isFixed]);
             [[cl ice_fixed:connection] getContext];
             test([[[cl ice_secure:YES] ice_fixed:connection] ice_isSecure]);
             test([[[[cl ice_facet:@"facet"] ice_fixed:connection] ice_getFacet] isEqualToString:@"facet"]);
