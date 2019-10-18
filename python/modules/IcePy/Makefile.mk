@@ -8,15 +8,15 @@ IcePy_target            := python-module
 IcePy_targetname        := IcePy
 IcePy_targetdir         := $(lang_srcdir)/python
 IcePy_installdir        := $(install_pythondir)
-IcePy_cppflags          := -I$(project) $(ice_cpp_cppflags) -I$(top_srcdir)/cpp/src $(python_cppflags)
+IcePy_cppflags          := -I$(project) $(ice_cpp_cppflags) -I$(top_srcdir)/cpp98/src $(python_cppflags)
 IcePy_system_libs       := $(python_ldflags)
 IcePy_dependencies      := IceDiscovery IceLocatorDiscovery IceSSL Ice
 IcePy_libs              := mcpp
 IcePy_extra_sources     := $(filter-out %Util.cpp %Ruby.cpp,\
-                           $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
-                           $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
-                           $(top_srcdir)/cpp/src/Slice/PythonUtil.cpp \
-                           $(top_srcdir)/cpp/src/Slice/StringLiteralUtil.cpp \
+                           $(wildcard $(top_srcdir)/cpp98/src/Slice/*.cpp)) \
+                           $(top_srcdir)/cpp98/src/Slice/SliceUtil.cpp \
+                           $(top_srcdir)/cpp98/src/Slice/PythonUtil.cpp \
+                           $(top_srcdir)/cpp98/src/Slice/StringLiteralUtil.cpp \
 
 #
 # On the default platform, always write the module in the python directory.

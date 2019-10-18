@@ -8,11 +8,6 @@
       <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
-  <!-- Visual Studio 2010 doesn't set DefaultPlatformToolset -->
-  <PropertyGroup>
-    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
-  </PropertyGroup>
-
   <!--
       Import version settings required for library targets.
   -->
@@ -104,13 +99,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(IceBuildingUWP)' == 'yes'">
-      <ClCompile>
-          <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\uwp\$(Platform)\$(IceConfiguration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      </ClCompile>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(IceBuildingUWP)' != 'yes'">
+  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
       <ClCompile>
           <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(IceCppMapping)\$(Platform)\$(IceConfiguration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       </ClCompile>
@@ -154,7 +143,7 @@
   </ItemDefinitionGroup>
 
   <!--
-      ICE_CPP11_MAPPING is required with the cpp11 mapping (the only mapping with uwp)
+      ICE_CPP11_MAPPING is required with the cpp11 mapping
   -->
   <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11'">
     <ClCompile>
@@ -213,20 +202,6 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!-- Disable additional warnings with VS2013 -->
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120'">
-    <ClCompile>
-       <DisableSpecificWarnings>%(DisableSpecificWarnings);4127;4505;4512</DisableSpecificWarnings>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <!-- Disable additional warnings with VS2010 -->
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v100'">
-    <ClCompile>
-       <DisableSpecificWarnings>%(DisableSpecificWarnings);4127;4428;4505;4512</DisableSpecificWarnings>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
   <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'!='v100'">
     <Link>
       <!--
@@ -238,12 +213,6 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(IceBuildingUWP)' == 'yes'">
-    <ClCompile>
-      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
   <!--
       Base target names.
   -->
@@ -251,26 +220,13 @@
     <!--
         C++11 mapping target names.
     -->
-    <When Condition="'$(IceCppMapping)' == 'cpp11' and '$(IceBuildingUWP)' != 'yes'">
+    <When Condition="'$(IceCppMapping)' == 'cpp11'">
       <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
       </PropertyGroup>
 
       <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
-      </PropertyGroup>
-    </When>
-
-    <!--
-        UWP mapping target names.
-    -->
-    <When Condition="'$(IceBuildingUWP)' == 'yes'">
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-        <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11d"))</TargetName>
-      </PropertyGroup>
-
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-        <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11"))</TargetName>
       </PropertyGroup>
     </When>
 

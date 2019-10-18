@@ -19,18 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Checksum.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\MD5.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\MD5I.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Parser.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Preprocessor.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Python.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\PythonUtil.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Scanner.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\SliceUtil.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Checksum.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\FileTracker.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Grammar.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\MD5.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\MD5I.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Parser.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Preprocessor.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Python.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\PythonUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Scanner.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\SliceUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\StringLiteralUtil.cpp" />
     <ClCompile Include="..\BatchRequestInterceptor.cpp" />
     <ClCompile Include="..\Communicator.cpp" />
     <ClCompile Include="..\Connection.cpp" />

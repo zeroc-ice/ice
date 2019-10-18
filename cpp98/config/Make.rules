@@ -1,0 +1,154 @@
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+#
+# Supported configurations
+#
+supported-configs = shared static cpp11-shared cpp11-static
+
+-include        $(lang_srcdir)/config/Make.rules.$(os)
+ifeq ($(os),Darwin)
+include         $(lang_srcdir)/config/Make.xcodesdk.rules
+endif
+
+# Validate platforms and configs
+$(eval $(call validate-config))
+
+#
+# Define which projects to build for the different configurations.
+#
+coreandstub_components  = IceUtil \
+                          Ice \
+                          IceSSL \
+                          IceDiscovery \
+                          IceLocatorDiscovery \
+                          Glacier2 \
+                          IceStorm \
+                          IceGrid \
+                          IceBox \
+                          IcePatch2
+
+# Add the Bluetooth transport if Bluetooth system libraries are available
+ifneq ($(IceBT_system_libs),)
+coreandstub_components  += IceBT
+endif
+
+#
+# Build all the projects with the shared configuration, except IceUtil and Slice
+# that are static-only
+#
+shared_projects         = %
+shared_excludes         = IceUtil Slice
+
+#
+# Build only few components with the static configuration (core and stubs)
+#
+static_components       = $(coreandstub_components)
+static_projects         = test/Common \
+                          test/Ice/% \
+                          test/IceSSL/% \
+                          test/IceDiscovery/simple \
+                          test/Glacier2/application \
+                          test/IceGrid/simple
+
+static_excludes         = test/Ice/library test/Ice/plugin
+
+#
+# Components and projects which are built with C++11
+#
+cpp11_components        = $(coreandstub_components) icebox
+
+cpp11_projects          = test/Common \
+                          test/IceUtil/% \
+                          test/Slice/% \
+                          test/Ice/% \
+                          test/IceSSL/% \
+                          test/IceDiscovery/% \
+                          test/IceBox/% \
+                          test/Glacier2/application \
+                          test/Glacier2/sessionHelper \
+                          test/IceGrid/simple
+
+cpp11_excludes          = IcePatch2 \
+                          test/Ice/gc
+
+#
+# If building on a Linux multilib platform, we restrict what we build for
+# the 32-bits architecture. We basically, build the same set of components
+# as C++11 (libraries and icebox executable).
+#
+ifeq ($(multilib-platform),yes)
+x86_components          = $(coreandstub_components) IceDB IceStormService icebox
+x86_projects            = test/%
+endif
+
+#
+# C++11 configuration to build the C++11 mapping.
+#
+# Appends cpp11 to the configuration directory name. If we are building the
+# target outside the component build directory, we also append the ++11
+# suffix to the targetname. This is for example how icebox is compiled as
+# icebox++11 when compiled with the C++11 configuration. We also don't add
+# the cpp11 name to the target directory if building outside the build
+# directory.
+#
+cpp11_cppflags          = -DICE_CPP11_MAPPING -std=c++11
+cpp11_ldflags           = $(cpp11_cppflags)
+cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)
+cpp11_targetdir         = $(if $(filter %/build,$5),cpp11)
+
+#
+# $(call make-cpp-src-project,$1=project)
+#
+define make-cpp-src-project
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
+$1_slicecompiler        := slice2cpp
+$1_sliceflags           += -I$(slicedir)
+$1_cppflags             += -Isrc -I$1/generated -I$(includedir) -I$(includedir)/generated -DICE_BUILDING_SRC
+$(make-project)
+srcs:: $1
+endif
+endef
+
+#
+# $(call make-cpp-test-project,$1=project)
+#
+define make-cpp-test-project
+$1_slicecompiler        := slice2cpp
+$1_sliceflags           += -I$(slicedir)
+$1_cppflags             += -I$1/generated -I$1 -Itest/include $(ice_cpp_cppflags)
+$(make-project)
+tests:: $1
+endef
+
+#
+# $(create-cpp-test-project $1=test)
+#
+define create-cpp-test-project
+$1_srcext               := cpp
+$1_dependencies         := $$(or $$($1_dependencies),TestCommon Ice)
+
+# Also link with IceSSL and IceBT (Debian/Ubuntu/Yocto) when compiling the project with the static configuration
+$1[static]_cppflags     += $(if $(IceBT_system_libs),-DICE_HAS_BT)
+$1[static]_dependencies := IceSSL $(if $(IceBT_system_libs),IceBT)
+
+# Dependencies and target dirs for Xcode SDK test projects
+$1[xcodesdk]_dependencies                       := IceSSL
+$1[iphoneos-xcodesdk]_targetdir                 := test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-xcodesdk]_targetdir          := test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
+$1[iphoneos-cpp11-xcodesdk]_targetdir           := test/ios/bundles/Bundles++11-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-cpp11-xcodesdk]_targetdir    := test/ios/bundles/Bundles++11-iphonesimulator/$(subst /,_,$1)
+
+$(create-test-project)
+endef
+
+#
+# Create top-level include/config dir
+#
+$(DESTDIR)$(install_includedir) $(DESTDIR)$(install_configdir):
+	$(Q)$(MKDIR) $@

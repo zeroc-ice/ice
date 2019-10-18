@@ -34,9 +34,7 @@ class IceBox(ProcessFromBinDir, Server):
 
     def getExe(self, current):
         mapping = self.getMapping(current)
-        if isinstance(mapping, JavaCompatMapping):
-            return "IceBox.Server"
-        elif isinstance(mapping, JavaMapping):
+        if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Server"
         elif isinstance(mapping, CSharpMapping):
             return "iceboxnet"
@@ -75,9 +73,7 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
 
     def getExe(self, current):
         mapping = self.getMapping(current)
-        if isinstance(mapping, JavaCompatMapping):
-            return "IceBox.Admin"
-        elif isinstance(mapping, JavaMapping):
+        if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Admin"
         elif isinstance(platform, AIX) and \
              current.config.buildPlatform == "ppc" and not component.useBinDist(mapping, current):

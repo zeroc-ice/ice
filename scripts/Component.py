@@ -230,21 +230,17 @@ from IceStormUtil import *
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
         Mapping.add(m, CppMapping(), component)
-    elif m == "java-compat" or re.match("java-compat-.*", m):
-        Mapping.add(m, JavaCompatMapping(), component)
+    elif m == "cpp98" or re.match("cpp98-.*", m):
+        Mapping.add(m, Cpp98Mapping(), component)
     elif m == "java" or re.match("java-.*", m):
         Mapping.add(m, JavaMapping(), component)
     elif m == "python" or re.match("python-.*", m):
         Mapping.add(m, PythonMapping(), component)
-    elif m == "ruby" or re.match("ruby-.*", m):
-        Mapping.add(m, RubyMapping(), component, enable=not isinstance(platform, Windows))
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
-    elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping(), component, enable=isinstance(platform, Darwin))
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Mapping.add("swift", SwiftMapping(), component, enable=platform.hasSwift((5, 0)))

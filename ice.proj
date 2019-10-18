@@ -25,10 +25,6 @@
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
-    </Projects>
-
     <!-- For PHP build both thread safe and non thread safe configurations -->
     <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
       <Properties>Platform=$(Platform);Configuration=$(Configuration);BuildWithPhpVersion=7.1</Properties>

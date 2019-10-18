@@ -1,0 +1,1174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{10409629-905B-4370-AAEE-B0458725C38C}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{605E3CFB-F312-46C4-ABF2-A8E26A66E152}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{7191E98D-DD02-4836-934B-E25571A72CDD}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{76D8992F-EDA3-4FAE-B303-05D9A03B2125}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+    <Filter Include="Resource Files\Win32">
+      <UniqueIdentifier>{1c1296c4-dd4b-420f-8e31-fbf5993a5c28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\x64">
+      <UniqueIdentifier>{c280c0f1-e313-436a-9966-234aff49a6ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\x64\Debug">
+      <UniqueIdentifier>{7ece7fb8-49d8-4051-8d17-2e2e38cea90c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\x64\Release">
+      <UniqueIdentifier>{3e379faf-c6c1-4ece-8cce-42f0121006e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Win32\Debug">
+      <UniqueIdentifier>{e411c020-22be-424c-9a70-605e8d4fa06c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Win32\Release">
+      <UniqueIdentifier>{3dc1cea9-e62c-4da9-8654-3a358e27a2b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{2a73cac1-73f5-4c26-86d9-ea2fb5174687}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Debug">
+      <UniqueIdentifier>{8f6918f6-4939-479d-8d59-aec203c3a608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32">
+      <UniqueIdentifier>{2ec9c6f6-a705-42e0-b4e3-249cea21bab5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Debug">
+      <UniqueIdentifier>{b9f3875a-5a8b-44ac-937b-c8872d43e684}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64">
+      <UniqueIdentifier>{7fc12f50-71b7-471e-a537-c4b42dac1654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Debug">
+      <UniqueIdentifier>{cccab72e-1120-4343-8390-810a0deeefdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64">
+      <UniqueIdentifier>{dc4de605-8105-436b-bf9e-e67775ddfd3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Debug">
+      <UniqueIdentifier>{a534641f-afba-4a5c-a89e-1170f0f7a5c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Release">
+      <UniqueIdentifier>{ad43740b-66eb-43ea-9b0b-2dd3a07cefab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Release">
+      <UniqueIdentifier>{2467dd5d-5a35-4a5b-ab85-0cdfaed7a3a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Release">
+      <UniqueIdentifier>{a523c5a1-c83b-4c8f-9c0f-61402d19a8da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Release">
+      <UniqueIdentifier>{efb1387e-a41e-4b1e-958c-88d9bb342a60}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\Ice.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Win32\Debug\EventLoggerMsg.rc">
+      <Filter>Resource Files\Win32\Debug</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Win32\Release\EventLoggerMsg.rc">
+      <Filter>Resource Files\Win32\Release</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="x64\Debug\EventLoggerMsg.rc">
+      <Filter>Resource Files\x64\Debug</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="x64\Release\EventLoggerMsg.rc">
+      <Filter>Resource Files\x64\Release</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Win32\Debug\BuiltinSequences.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Communicator.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\CommunicatorF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Connection.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ConnectionF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Current.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Endpoint.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\EndpointF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\EndpointTypes.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\FacetMap.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Identity.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ImplicitContext.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ImplicitContextF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Instrumentation.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\InstrumentationF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\LocalException.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Locator.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\LocatorF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Logger.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\LoggerF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Metrics.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ObjectAdapter.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ObjectAdapterF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ObjectFactory.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Plugin.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\PluginF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Process.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ProcessF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Properties.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\PropertiesAdmin.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\PropertiesF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\RemoteLogger.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Router.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\RouterF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ServantLocator.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ServantLocatorF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\SliceChecksumDict.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ValueFactory.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Version.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\BuiltinSequences.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Communicator.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\CommunicatorF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Connection.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ConnectionF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Current.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Endpoint.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\EndpointF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\EndpointTypes.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\FacetMap.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Identity.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ImplicitContext.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ImplicitContextF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Instrumentation.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\InstrumentationF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\LocalException.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Locator.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\LocatorF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Logger.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\LoggerF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Metrics.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ObjectAdapter.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ObjectAdapterF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ObjectFactory.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Plugin.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\PluginF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Process.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ProcessF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Properties.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\PropertiesAdmin.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\PropertiesF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\RemoteLogger.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Router.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\RouterF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ServantLocator.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ServantLocatorF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\SliceChecksumDict.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ValueFactory.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Version.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\BuiltinSequences.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Communicator.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\CommunicatorF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Connection.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ConnectionF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Current.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Endpoint.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\EndpointF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\EndpointTypes.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\FacetMap.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Identity.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ImplicitContext.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ImplicitContextF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Instrumentation.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\InstrumentationF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\LocalException.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Locator.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\LocatorF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Logger.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\LoggerF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Metrics.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ObjectAdapter.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ObjectAdapterF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ObjectFactory.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Plugin.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\PluginF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Process.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ProcessF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Properties.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\PropertiesAdmin.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\PropertiesF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\RemoteLogger.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Router.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\RouterF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ServantLocator.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ServantLocatorF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\SliceChecksumDict.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ValueFactory.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Version.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\BuiltinSequences.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Communicator.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\CommunicatorF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Connection.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ConnectionF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Current.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Endpoint.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\EndpointF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\EndpointTypes.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\FacetMap.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Identity.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ImplicitContext.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ImplicitContextF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Instrumentation.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\InstrumentationF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\LocalException.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Locator.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\LocatorF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Logger.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\LoggerF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Metrics.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ObjectAdapter.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ObjectAdapterF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ObjectFactory.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Plugin.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\PluginF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Process.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ProcessF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Properties.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\PropertiesAdmin.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\PropertiesF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\RemoteLogger.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Router.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\RouterF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ServantLocator.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ServantLocatorF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\SliceChecksumDict.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ValueFactory.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Version.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\include\Ice\*.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\*.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IceUtil\*.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\EventLoggerMsg.mc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\BuiltinSequences.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Communicator.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\CommunicatorF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Connection.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ConnectionF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Current.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Endpoint.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\EndpointF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\EndpointTypes.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\FacetMap.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Identity.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ImplicitContext.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ImplicitContextF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Instrumentation.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\InstrumentationF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\LocalException.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Locator.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\LocatorF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Logger.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\LoggerF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Metrics.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ObjectAdapter.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ObjectAdapterF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ObjectFactory.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Plugin.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PluginF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Process.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ProcessF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Properties.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertiesAdmin.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertiesF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\RemoteLogger.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Router.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\RouterF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ServantLocator.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ServantLocatorF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\SliceChecksumDict.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ValueFactory.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Version.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\BuiltinSequences.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Communicator.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\CommunicatorF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Connection.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ConnectionF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Current.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Endpoint.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\EndpointF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\EndpointTypes.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\FacetMap.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Identity.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ImplicitContext.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ImplicitContextF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Instrumentation.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\InstrumentationF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\LocalException.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Locator.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\LocatorF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Logger.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\LoggerF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Metrics.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ObjectAdapter.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ObjectAdapterF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ObjectFactory.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Plugin.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PluginF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Process.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ProcessF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Properties.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertiesAdmin.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertiesF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\RemoteLogger.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Router.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\RouterF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ServantLocator.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ServantLocatorF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\SliceChecksumDict.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ValueFactory.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Version.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\BuiltinSequences.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Communicator.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\CommunicatorF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Connection.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ConnectionF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Current.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Endpoint.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\EndpointF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\EndpointTypes.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\FacetMap.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Identity.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ImplicitContext.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ImplicitContextF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Instrumentation.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\InstrumentationF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\LocalException.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Locator.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\LocatorF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Logger.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\LoggerF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Metrics.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ObjectAdapter.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ObjectAdapterF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ObjectFactory.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Plugin.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PluginF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Process.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ProcessF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Properties.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertiesAdmin.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertiesF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\RemoteLogger.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Router.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\RouterF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ServantLocator.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ServantLocatorF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\SliceChecksumDict.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ValueFactory.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Version.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\BuiltinSequences.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Communicator.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\CommunicatorF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Connection.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ConnectionF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Current.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Endpoint.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\EndpointF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\EndpointTypes.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\FacetMap.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Identity.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ImplicitContext.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ImplicitContextF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Instrumentation.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\InstrumentationF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\LocalException.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Locator.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\LocatorF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Logger.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\LoggerF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Metrics.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ObjectAdapter.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ObjectAdapterF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ObjectFactory.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Plugin.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PluginF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Process.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ProcessF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Properties.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertiesAdmin.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertiesF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\RemoteLogger.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Router.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\RouterF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ServantLocator.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ServantLocatorF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\SliceChecksumDict.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ValueFactory.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Version.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\BuiltinSequences.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Communicator.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\CommunicatorF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Connection.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ConnectionF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Current.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Endpoint.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointTypes.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\FacetMap.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Identity.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContext.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContextF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Instrumentation.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\InstrumentationF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocalException.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Logger.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\LoggerF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapter.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapterF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectFactory.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Plugin.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\PluginF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ProcessF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Properties.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\RemoteLogger.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Router.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\RouterF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocator.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocatorF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\SliceChecksumDict.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ValueFactory.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Version.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+  </ItemGroup>
+</Project>

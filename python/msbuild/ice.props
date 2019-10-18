@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IceLanguageMapping>python</IceLanguageMapping>
   </PropertyGroup>
-  <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
+  <Import Project="..\..\cpp98\msbuild\Ice.Cpp98.props" />
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='Win32'">
     <PythonHome Condition="'$(PythonHome)' == ''">C:\Program Files (x86)\Python37-32</PythonHome>
   </PropertyGroup>

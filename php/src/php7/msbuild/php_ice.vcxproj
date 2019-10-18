@@ -211,7 +211,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\PHPUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\PHPUtil.cpp" />
     <ClCompile Include="..\Communicator.cpp" />
     <ClCompile Include="..\Connection.cpp" />
     <ClCompile Include="..\Endpoint.cpp" />
@@ -251,7 +251,7 @@
     <Import Project="..\..\..\msbuild\packages\php-7.3-nts.7.3.0\build\native\php-7.3-nts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.3-nts.7.3.0\build\native\php-7.3-nts.targets')" />
     <Import Project="..\..\..\msbuild\packages\php-7.3-ts.7.3.0\build\native\php-7.3-ts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.3-ts.7.3.0\build\native\php-7.3-ts.targets')" />
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp98\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

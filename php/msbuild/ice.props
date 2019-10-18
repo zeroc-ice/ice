@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IceLanguageMapping>php</IceLanguageMapping>
   </PropertyGroup>
-  <Import Project="..\..\cpp\msbuild\ice.cpp98.props" />
+  <Import Project="..\..\cpp98\msbuild\ice.cpp98.props" />
 
   <PropertyGroup Label="UserMacros">
 

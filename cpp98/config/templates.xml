@@ -1,0 +1,128 @@
+<!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
+
+<icegrid>
+  <application name="Templates">
+
+    <server-template id="Glacier2">
+
+      <parameter name="instance-name" default="${application}.Glacier2"/>
+      <parameter name="client-endpoints"/>
+      <parameter name="server-endpoints" default=""/>
+      <parameter name="session-timeout" default="0"/>
+
+      <server id="${instance-name}" exe="glacier2router" activation="always">
+         <properties>
+            <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+            <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+            <property name="Glacier2.InstanceName" value="${instance-name}"/>
+            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+         </properties>
+      </server>
+
+    </server-template>
+
+    <service-template id="IceStorm">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+
+      <service name="${instance-name}" entry="IceStormService,37:createIceStorm">
+
+        <adapter name="${service}.TopicManager"
+                 id="${instance-name}.TopicManager"
+                 endpoints="${topic-manager-endpoints}">
+          <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
+        </adapter>
+
+        <adapter name="${service}.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
+
+        <properties>
+           <property name="${service}.LMDB.Path" value="${service.data}"/>
+           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+        </properties>
+      </service>
+
+    </service-template>
+
+    <server-template id="IceStorm">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+
+      <icebox id="${instance-name}" exe="icebox" activation="on-demand">
+        <service-instance template="IceStorm"
+                          instance-name="${instance-name}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          flush-timeout="${flush-timeout}"/>
+      </icebox>
+
+    </server-template>
+
+    <service-template id="IceStorm-HA">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="node-id"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="node-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+      <parameter name="publish-replica-group"/>
+      <parameter name="topic-manager-replica-group"/>
+
+      <service name="${instance-name}${node-id}" entry="IceStormService,37:createIceStorm">
+
+        <adapter name="${service}.TopicManager"
+                 id="${instance-name}${node-id}.TopicManager"
+                 endpoints="${topic-manager-endpoints}"
+                 replica-group="${topic-manager-replica-group}"/>
+
+        <adapter name="${service}.Publish"
+                 id="${instance-name}${node-id}.Publish"
+                 endpoints="${publish-endpoints}"
+                 replica-group="${publish-replica-group}"/>
+
+        <adapter name="${service}.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
+
+        <properties>
+           <property name="${service}.LMDB.Path" value="${service.data}"/>
+           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.NodeId" value="${node-id}"/>
+           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+        </properties>
+      </service>
+
+    </service-template>
+
+    <server-template id="IceStorm-HA">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="node-id"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="node-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+      <parameter name="publish-replica-group"/>
+      <parameter name="topic-manager-replica-group"/>
+
+      <icebox id="${instance-name}${node-id}" exe="icebox" activation="on-demand">
+        <service-instance template="IceStorm-HA"
+                          instance-name="${instance-name}"
+                          node-id="${node-id}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          node-endpoints="${node-endpoints}"
+                          flush-timeout="${flush-timeout}"
+                          publish-replica-group="${publish-replica-group}"
+                          topic-manager-replica-group="${topic-manager-replica-group}"/>
+      </icebox>
+
+   </server-template>
+
+  </application>
+</icegrid>

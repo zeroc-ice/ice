@@ -11,7 +11,7 @@
 
     <!-- Ice for PHP configurations -->
     <PropertyGroup>
-        <CppDistTargets>c++98\slice2php;c++98\slice2html;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
+        <CppDistTargets>c++98\slice2php;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Debug' or '$(Configuration)' == 'Debug'">Debug</CppConfiguration>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
         <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v141'">7.2</BuildWithPhpVersion>
@@ -41,7 +41,7 @@
         <Otherwise>
             <PropertyGroup>
                 <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-                <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(CppConfiguration)</IceToolsPath>
+                <IceToolsPath>$(IceHome)\cpp98\bin\$(Platform)\$(CppConfiguration)</IceToolsPath>
             </PropertyGroup>
         </Otherwise>
     </Choose>
@@ -58,10 +58,10 @@
             </PropertyGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
-                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
+                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp98\msbuild\ice.$(DefaultPlatformToolset).sln">
                     <Properties>Configuration=Release;Platform=Win32</Properties>
                 </CppDistSolution>
-                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
+                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp98\msbuild\ice.$(DefaultPlatformToolset).sln">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </CppDistSolution>
             </ItemGroup>
@@ -90,7 +90,7 @@
         </When>
         <Otherwise>
             <ItemGroup>
-                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
+                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp98\msbuild\ice.$(DefaultPlatformToolset).sln">
                     <Properties>Configuration=$(CppConfiguration);Platform=$(Platform)</Properties>
                 </CppDistSolution>
                 <DistSolution Include="ice.sln">
@@ -101,7 +101,7 @@
      </Choose>
 
     <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'cpp'">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp98\msbuild\ice.$(DefaultPlatformToolset).sln"/>
         <MSBuild Projects="@(CppDistSolution)"
                  Targets="$(CppDistTargets)"
                  BuildInParallel="true"

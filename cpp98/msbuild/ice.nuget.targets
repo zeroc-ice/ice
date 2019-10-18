@@ -1,0 +1,79 @@
+<Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
+    </PropertyGroup>
+
+    <!-- Dynamic libraries and import libraries -->
+    <ItemGroup>
+        <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
+                   Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libeay32.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\ssleay32.dll"/>
+
+        <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icedb*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icexml*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
+    </ItemGroup>
+
+    <!-- Executables & Tools -->
+    <ItemGroup>
+
+        <ExecutableExcludes Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceboxadmin.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebridge.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegridadmin.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegriddb.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormadmin.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormdb.exe"
+                            Condition="'$(DefaultBuild)' != '$(Platform)|$(Configuration)' and '$(Configuration)' == 'Debug'"/>
+
+        <ExecutableExcludes Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
+
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
+                     Exclude="@(ExecutableExcludes)"/>
+
+        <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe" />
+    </ItemGroup>
+
+    <!-- public C++ header and Slice files -->
+    <ItemGroup>
+        <Headers Include="$(IceSrcRootDir)include\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\IceBT\*.h;
+                          $(IceSrcRootDir)include\IceIAP\*.h;
+                          $(IceSrcRootDir)include\generated\**\*.h"/>
+
+        <Headers Include="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceDiscovery\*.h;
+                          $(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceLocatorDiscovery\*.h"/>
+
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
+                Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
+    </ItemGroup>
+
+    <!-- Copy required files to the package specific directories -->
+    <Target Name="NugetPack">
+        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
+              SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
+
+        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
+              SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
+
+        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
+              SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
+
+        <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
+    </Target>
+</Project>

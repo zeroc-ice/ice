@@ -96,10 +96,10 @@ nodejs := $(shell command -v node 2> /dev/null)
 #
 # Languages, platforms and configurations to build
 #
-supported-languages     ?= $(strip cpp java java-compat python ruby php \
+supported-languages     ?= $(strip cpp cpp98 java python php \
                                    $(if $(filter %/node,$(nodejs)),js) \
                                    $(if $(filter %/dotnet,$(dotnet)),csharp) \
-                                   $(if $(filter Darwin,$(os)),objective-c swift))
+                                   $(if $(filter Darwin,$(os)), swift))
 supported-configs       ?= shared
 
 version                 = 3.7.3

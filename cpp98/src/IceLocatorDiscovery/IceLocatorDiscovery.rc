@@ -1,0 +1,33 @@
+#include<IceUtil/ResourceConfig.h>
+
+#define ICE_INTERNALNAME ICE_LIBNAME("icelocatordiscovery") "\0"
+#define ICE_ORIGINALFILENAME ICE_LIBNAME("icelocatordiscovery") ".dll\0"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION ICE_VERSION
+PRODUCTVERSION ICE_VERSION
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_DLL
+FILESUBTYPE VFT2_UNKNOWN
+FILEFLAGS VER_DEBUG
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", ICE_COMPANY_NAME
+            VALUE "FileDescription", "IceLocatorDiscovery C++ Plug-in\0"
+            VALUE "FileVersion", ICE_STRING_VERSION
+            VALUE "InternalName", ICE_INTERNALNAME
+            VALUE "LegalCopyright", ICE_COPYRIGHT
+            VALUE "OriginalFilename", ICE_ORIGINALFILENAME
+            VALUE "ProductName", ICE_PRODUCT_NAME
+            VALUE "ProductVersion", ICE_STRING_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

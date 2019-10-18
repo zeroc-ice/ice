@@ -9,10 +9,8 @@
         <UwpPlatform Condition="'$(Platform)' == 'x64'">x64</UwpPlatform>
         <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
 
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v141</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</DefaultPlatformToolset>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -37,17 +35,17 @@
         </Otherwise>
     </Choose>
 
-    <!-- Targets required to build Slice compilers -->
+   <!-- Targets required to build Slice compilers -->
     <Choose>
-        <When Condition="'$(VisualStudioVersion)' == '12.0' or '$(OS)' != 'Windows_NT'">
+        <When Condition="'$(OS)' != 'Windows_NT'">
             <ItemGroup>
-                <SliceCompilers Include="slice2cs;slice2html"/>
+                <SliceCompilers Include="slice2cs"/>
             </ItemGroup>
         </When>
 
         <Otherwise>
             <ItemGroup>
-                <SliceCompilers Include="c++98\slice2cs;c++98\slice2html"/>
+                <SliceCompilers Include="c++98\slice2cs"/>
             </ItemGroup>
         </Otherwise>
     </Choose>

@@ -1,0 +1,74 @@
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
+
+include $(top_srcdir)/config/Make.xcodesdk.rules
+
+supported-configs       += xcodesdk cpp11-xcodesdk
+
+is-iostest-program      = $(and $(filter-out macosx,$2),$(filter test/%,$1))
+
+#
+# Xcode configuration to build Xcode sdks for Ice.
+#
+xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-program),,$(if $(filter all cpp obj%c,$(ICE_BIN_DIST)),,../)../sdk/$2.sdk/usr/lib))
+xcodesdk_installdir     = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-program),,../sdk/$2.sdk/usr/lib))
+xcodesdk_targetrule     = $(if $(is-iostest-program),iostest,$(if $(filter-out program,$($1_target)),static))
+
+xcodesdk_components     = Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP TestCommon
+xcodesdk_projects       = test/Ice/% test/IceSSL/configuration
+xcodesdk_excludes       = $(addprefix test/Ice/,background \
+                                                faultTolerance \
+                                                gc \
+                                                logger \
+                                                properties \
+                                                stringConverter \
+                                                threadPoolPriority)
+
+#
+# Rule to build an iOS bundle for testing (this is used for packaging client/server programs)
+#
+define make-iostest-program
+$2/$1.bundle/Info.plist:
+	$(Q)if [ ! -f $2/$1.bundle/Info.plist ] ; \
+	then \
+	    $(MKDIR) -p $2/$1.bundle ; \
+	    sed "s/NAME/$1/" test/ios/bundles/BundleInfo.plist > $2/$1.bundle/Info.plist ; \
+	fi
+
+$2/$1.bundle/$1.dylib: $5 $2/$1.bundle/Info.plist $(foreach d,$6,$($d_targets))
+	$(E) "Linking [$8-$9] $$@"
+	$(Q)$(RM) $2/$1.bundle/$1.dylib
+	$(Q)$(or $($8_cxx),$(platform_cxx)) -bundle $(LDFLAGS) -o $2/$1.bundle/$1.dylib $5 $(strip $7)
+endef
+
+get-iostest-program-targets = $2/$1.bundle/$1.dylib $2/$1.bundle/Info.plist
+
+make-iostest-library = $(make-static-library)
+get-iostest-library-targets = $(get-static-library-targets)
+
+ifneq ($(findstring xcodesdk,$(configs)),)
+$(eval $(call make-xcodesdk,bin/slice2cpp))
+component_with_config_extensions := make-cpp-xcodesdk-component-with-config
+endif
+
+#
+# $(call make-xcodesdk-component-with-config,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config])
+#
+define make-cpp-xcodesdk-component-with-config
+ifneq ($(filter src/%,$1),)
+
+$(make-xcodesdk-component-with-config)
+ifneq ($$(and $(filter Ice,$2),$(filter-out $(sdk_includedirs),$3-IceUtil)),)
+sdk_includedirs += $3-IceUtil
+$$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
+        $(top_srcdir)/sdk/$3.sdk/usr/include,$5))
+$$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
+        $(install_sdkdir)/$3.sdk/usr/include,$5_install))
+endif
+
+$5_clean::
+	$(Q)$(RM) -r $(top_srcdir)/sdk/$3.sdk/usr/include/$2
+
+endif
+endef

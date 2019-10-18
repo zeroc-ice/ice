@@ -10,8 +10,8 @@ include $(top_srcdir)/config/Make.rules
 #
 # Load C++ dependencies
 #
-$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2php))
-$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL IceDiscovery IceLocatorDiscovery)))
+$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp98/src/slice2php))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp98/src/,Ice IceSSL IceDiscovery IceLocatorDiscovery)))
 
 #
 # Load php rules after loading C++ dependencies

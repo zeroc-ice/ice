@@ -34,7 +34,7 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
                 pass
 
         out = (p.stderr if stdout else p.stdout).read().decode('UTF-8').strip()
-        if(not err and p.wait() != 0) or (err and p.wait() == 0) :
+        if(not err and p.wait() != 0) or (err and p.wait() == 0):
             raise RuntimeError(cmd + " failed:\n" + out)
     finally:
         #
@@ -1460,7 +1460,7 @@ class EchoServer(Server):
 
     def getProps(self, current):
         props = Server.getProps(self, current)
-        props["Ice.MessageSizeMax"] = 8192 # Don't limit the amount of data to transmit between client/server
+        props["Ice.MessageSizeMax"] = 8192  # Don't limit the amount of data to transmit between client/server
         return props
 
     def getCommandLine(self, current, args=""):
@@ -1974,8 +1974,7 @@ class TestSuite(object):
     def isMainThreadOnly(self, driver):
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin,
-                  SwiftMapping]:
+        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, JavaScriptMixin, SwiftMapping]:
             if isinstance(self.mapping, m):
                 config = driver.configs[self.mapping]
                 if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
@@ -2080,10 +2079,7 @@ class LocalProcessController(ProcessController):
                     programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(current.testsuite.getPath(),
                                          "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")))
-                if isinstance(process.getMapping(current), ObjCMapping):
-                    traceProps["Ice.StdErr"] = traceFile
-                else:
-                    traceProps["Ice.LogFile"] = traceFile
+                traceProps["Ice.LogFile"] = traceFile
             props.update(traceProps)
 
         args = ["--{0}={1}".format(k, val(v)) for k,v in props.items()] + [val(a) for a in args]
@@ -2339,8 +2335,6 @@ class AndroidProcessController(RemoteProcessController):
     def getControllerIdentity(self, current):
         if isinstance(current.testcase.getMapping(), CSharpMapping):
             return "AndroidXamarin/ProcessController"
-        elif isinstance(current.testcase.getMapping(), JavaCompatMapping):
-            return "AndroidCompat/ProcessController"
         else:
             return "Android/ProcessController"
 
@@ -3250,6 +3244,11 @@ class CppMapping(Mapping):
         build = "Debug" if os.path.exists(os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))) else "Release"
         return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), appName)
 
+
+class Cpp98Mapping(CppMapping):
+    pass
+
+
 class JavaMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -3336,35 +3335,6 @@ class JavaMapping(Mapping):
 
     def getActivityName(self):
         return "com.zeroc.testcontroller/.ControllerActivity"
-
-class JavaCompatMapping(JavaMapping):
-
-    class Config(JavaMapping.Config):
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("Java Compat Mapping options:")
-            print("--android                 Run the Android tests.")
-            print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
-            print("--avd=<name>              Start specific Android Virtual Device.")
-
-    def getPluginEntryPoint(self, plugin, process, current):
-        return {
-            "IceSSL" : "IceSSL.PluginFactory",
-            "IceBT" : "IceBT.PluginFactory",
-            "IceDiscovery" : "IceDiscovery.PluginFactory",
-            "IceLocatorDiscovery" : "IceLocatorDiscovery.PluginFactory"
-        }[plugin]
-
-    def getEnv(self, process, current):
-        classPath = [os.path.join(self.path, "lib", "test.jar")]
-        if os.path.exists(os.path.join(self.path, "lib", "IceTestLambda.jar")):
-            classPath += [os.path.join(self.path, "lib", "IceTestLambda.jar")]
-        return { "CLASSPATH" : os.pathsep.join(classPath) }
-
-    def getSDKPackage(self):
-        return "system-images;android-21;google_apis;x86_64"
 
 class CSharpMapping(Mapping):
 
@@ -3552,6 +3522,44 @@ class CSharpMapping(Mapping):
         return os.path.join(self.getPath(), "test", "xamarin", "controller.iOS", "bin", "iPhoneSimulator",
                             current.config.buildConfig, "controller.iOS.app")
 
+class Cpp98BasedMapping(Mapping):
+
+    class Config(Mapping.Config):
+
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", [self.mappingName + "-config=", self.mappingName + "-platform=", "openssl"])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print(self.mappingDesc + " mapping options:")
+            print("--{0}-config=<config>     {1} build configuration for native executables (overrides --config)."
+                .format(self.mappingName, self.mappingDesc))
+            print("--{0}-platform=<platform> {1} build platform for native executables (overrides --platform)."
+                .format(self.mappingName, self.mappingDesc))
+            print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+            parseOptions(self, options,
+                { self.mappingName + "-config" : "buildConfig",
+                  self.mappingName + "-platform" : "buildPlatform" })
+
+    def getSSLProps(self, process, current):
+        return Mapping.getByName("cpp98").getSSLProps(process, current)
+
+    def getPluginEntryPoint(self, plugin, process, current):
+        return Mapping.getByName("cpp98").getPluginEntryPoint(plugin, process, current)
+
+    def getEnv(self, process, current):
+        env = Mapping.getEnv(self, process, current)
+        if self.component.getInstallDir(self, current) != platform.getInstallDir():
+            # If not installed in the default platform installation directory, add
+            # the C++ library directory to the library path
+            env[platform.getLdPathEnvName()] = self.component.getLibDir(process, Mapping.getByName("cpp98"), current)
+        return env
+
 class CppBasedMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -3590,39 +3598,7 @@ class CppBasedMapping(Mapping):
             env[platform.getLdPathEnvName()] = self.component.getLibDir(process, Mapping.getByName("cpp"), current)
         return env
 
-class ObjCMapping(CppBasedMapping):
-
-    class Config(CppBasedMapping.Config):
-        mappingName = "objc"
-        mappingDesc = "Objective-C"
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-            self.arc = self.buildConfig.lower().find("arc") >= 0
-
-    def _getDefaultSource(self, processType):
-        return {
-            "client" : "Client.m",
-            "server" : "Server.m",
-            "collocated" : "Collocated.m",
-        }[processType]
-
-    def _getDefaultExe(self, processType):
-        return Mapping._getDefaultExe(self, processType).lower()
-
-    def getIOSControllerIdentity(self, current):
-        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
-        mapping = "ObjC-ARC" if current.config.arc else "ObjC"
-        return "{0}/com.zeroc.{1}-Test-Controller".format(category, mapping)
-
-    def getIOSAppFullPath(self, current):
-        appName = "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
-        path = os.path.join(self.component.getTestDir(self), "ios", "controller")
-        path = os.path.join(path, "build-{0}-{1}".format(current.config.buildPlatform, current.config.buildConfig))
-        build = "Debug" if os.path.exists(os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))) else "Release"
-        return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), appName)
-
-class PythonMapping(CppBasedMapping):
+class PythonMapping(Cpp98BasedMapping):
 
     class Config(CppBasedMapping.Config):
         mappingName = "python"
@@ -3635,7 +3611,7 @@ class PythonMapping(CppBasedMapping):
                                              args)
 
     def getEnv(self, process, current):
-        env = CppBasedMapping.getEnv(self, process, current)
+        env = Cpp98BasedMapping.getEnv(self, process, current)
         dirs = []
         if self.component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
@@ -3660,7 +3636,7 @@ class PythonMapping(CppBasedMapping):
             "collocated" : "Collocated.py",
         }[processType]
 
-class CppBasedClientMapping(CppBasedMapping):
+class CppBasedClientMapping(Cpp98BasedMapping):
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
@@ -3668,29 +3644,6 @@ class CppBasedClientMapping(CppBasedMapping):
 
     def getServerMapping(self, testId=None):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
-
-class RubyMapping(CppBasedClientMapping):
-
-    class Config(CppBasedClientMapping.Config):
-        mappingName = "ruby"
-        mappingDesc = "Ruby"
-
-    def getCommandLine(self, current, process, exe, args):
-        return "ruby  {0} {1} {2}".format(os.path.join(self.path, "test", "TestHelper.rb"), exe, args)
-
-    def getEnv(self, process, current):
-        env = CppBasedMapping.getEnv(self, process, current)
-        dirs = []
-        if self.component.getInstallDir(self, current) != platform.getInstallDir():
-            # If not installed in the default platform installation directory, add
-            # the Ice ruby directory to RUBYLIB
-            dirs += [os.path.join(self.path, "ruby")]
-        dirs += [current.testcase.getPath(current)]
-        env["RUBYLIB"] = os.pathsep.join(dirs)
-        return env
-
-    def _getDefaultSource(self, processType):
-        return { "client" : "Client.rb" }[processType]
 
 class PhpMapping(CppBasedClientMapping):
 

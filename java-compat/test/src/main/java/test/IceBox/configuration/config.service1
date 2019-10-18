@@ -1,9 +1,0 @@
-Service1OA.Endpoints=default -p 12010 -h 127.0.0.1
-
-#Ice.ProgramName
-Service=1
-Service1.Ovrd=1
-Service1.Unset=1
-
-Arg=1
-ArgUnset=2

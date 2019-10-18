@@ -14,7 +14,7 @@ include $(top_srcdir)/config/Make.rules
 #
 # Load C++ dependencies
 #
-$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL IceLocatorDiscovery IceDiscovery)))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp98/src/,Ice IceSSL IceLocatorDiscovery IceDiscovery)))
 
 #
 # Load python rules after loading C++ dependencies

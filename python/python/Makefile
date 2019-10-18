@@ -11,7 +11,7 @@ include $(lang_srcdir)/config/Make.rules
 #
 # Load C++ dependencies
 #
-$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2py))
+$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp98/src/slice2py))
 
 .NOTPARALLEL:
 
