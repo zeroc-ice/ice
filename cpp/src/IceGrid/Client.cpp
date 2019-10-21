@@ -139,7 +139,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::CtrlCHandler ctrlCHandler;
+        IceUtil::CtrlCHandler ctrlCHandler;
         Ice::PropertiesPtr defaultProps = Ice::createProperties();
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         Ice::InitializationData id;

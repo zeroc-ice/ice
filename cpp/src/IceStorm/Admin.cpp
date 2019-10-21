@@ -42,7 +42,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::CtrlCHandler ctrlCHandler;
+        IceUtil::CtrlCHandler ctrlCHandler;
 
         Ice::InitializationData id;
         Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);

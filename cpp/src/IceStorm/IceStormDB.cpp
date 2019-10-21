@@ -35,7 +35,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::CtrlCHandler ctrlCHandler;
+        IceUtil::CtrlCHandler ctrlCHandler;
         Ice::CommunicatorHolder ich(argc, argv);
         communicator = ich.communicator();
 

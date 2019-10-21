@@ -13,23 +13,6 @@ namespace
 
 string configPath;
 
-class TestApplication : public Ice::Application
-{
-public:
-
-    virtual int
-    run(int, char*[])
-    {
-        Ice::PropertiesPtr properties = communicator()->getProperties();
-        test(properties->getProperty("Ice.Trace.Network") == "1");
-        test(properties->getProperty("Ice.Trace.Protocol") == "1");
-        test(properties->getProperty("Config.Path") == configPath);
-        test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
-        test(appName() == properties->getProperty("Ice.ProgramName"));
-        return EXIT_SUCCESS;
-    }
-};
-
 }
 
 class Client : public Test::TestHelper
@@ -40,7 +23,7 @@ public:
 };
 
 void
-Client::run(int argc, char** argv)
+Client::run(int, char**)
 {
     ifstream in("./config/configPath");
     if(!in)
@@ -61,13 +44,6 @@ Client::run(int argc, char** argv)
         test(properties->getProperty("Ice.Trace.Protocol") == "1");
         test(properties->getProperty("Config.Path") == configPath);
         test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
-        cout << "ok" << endl;
-    }
-
-    {
-        cout << "testing load properties from UTF-8 path using Ice::Application... " << flush;
-        TestApplication app;
-        app.main(argc, argv, configPath.c_str());
         cout << "ok" << endl;
     }
 

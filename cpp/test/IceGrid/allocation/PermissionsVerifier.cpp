@@ -4,6 +4,7 @@
 
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
+#include <TestHelper.h>
 
 using namespace std;
 
@@ -18,23 +19,18 @@ public:
     }
 };
 
-class PermissionsVerifierServer : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[])
+    virtual void run(int argc, char** argv)
     {
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
+        Ice::CommunicatorHolder communicator = initialize(argc, argv);
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PermissionsVerifier");
         adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("PermissionsVerifier"));
         adapter->activate();
-        communicator()->waitForShutdown();
-        return EXIT_SUCCESS;
+        communicator->waitForShutdown();
     }
 };
 
-int
-main(int argc, char* argv[])
-{
-    PermissionsVerifierServer app;
-    return app.main(argc, argv);
-}
+DEFINE_TEST(Server)
