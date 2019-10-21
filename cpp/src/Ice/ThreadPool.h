@@ -120,7 +120,7 @@ private:
 
     bool ioCompleted(ThreadPoolCurrent&);
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     bool startMessage(ThreadPoolCurrent&);
     void finishMessage(ThreadPoolCurrent&);
 #else
@@ -163,7 +163,7 @@ private:
 
     std::set<EventHandlerThreadPtr> _threads; // All threads, running or not.
     int _inUse; // Number of threads that are currently in use.
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     int _inUseIO; // Number of threads that are currently performing IO.
     std::vector<std::pair<EventHandler*, SocketOperation> > _handlers;
     std::vector<std::pair<EventHandler*, SocketOperation> >::const_iterator _nextHandler;
@@ -186,7 +186,7 @@ public:
         return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this));
     }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     bool startMessage()
     {
         return _threadPool->startMessage(const_cast<ThreadPoolCurrent&>(*this));
@@ -214,7 +214,7 @@ private:
     ThreadPool::EventHandlerThreadPtr _thread;
     EventHandlerPtr _handler;
     bool _ioCompleted;
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     bool _leader;
 #else
     DWORD _count;
@@ -232,7 +232,7 @@ public:
     void destroy();
     void queue(const ThreadPoolWorkItemPtr&);
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     bool startAsync(SocketOperation);
     bool finishAsync(SocketOperation);
 #endif
@@ -259,7 +259,7 @@ private:
 // the IOCP implementation and ensures that finishMessage isn't called multiple
 // times.
 //
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
 template<class T> class ThreadPoolMessage
 {
 public:

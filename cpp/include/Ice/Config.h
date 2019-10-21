@@ -17,13 +17,11 @@
 #include <vector>
 #include <map>
 
-#ifndef ICE_OS_UWP
-#   if defined(_WIN32)
-#      include <process.h>
-#   else
-#      include <sys/types.h>
-#      include <cstddef>
-#   endif
+#if defined(_WIN32)
+#   include <process.h>
+#else
+#   include <sys/types.h>
+#   include <cstddef>
 #endif
 
 #ifdef ICE_SWIFT

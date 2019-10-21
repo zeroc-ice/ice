@@ -97,11 +97,7 @@ void
 MyDerivedClassI::supportsCompressAsync(std::function<void(bool)> response,
                                        std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
-#if defined(ICE_OS_UWP)
-    response(false);
-#else
     response(true);
-#endif
 }
 
 void
@@ -1097,11 +1093,7 @@ void
 MyDerivedClassI::supportsCompress_async(const Test::AMD_MyClass_supportsCompressPtr& cb,
                                         const Ice::Current&)
 {
-#if defined(ICE_OS_UWP)
-    cb->ice_response(false);
-#else
     cb->ice_response(true);
-#endif
 }
 
 void

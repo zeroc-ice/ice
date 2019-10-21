@@ -1053,7 +1053,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
             if(instanceCount() == 1)
             {
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#if defined(_WIN32)
                 WORD version = MAKEWORD(1, 1);
                 WSADATA data;
                 if(WSAStartup(version, &data) != 0)
@@ -1322,7 +1322,7 @@ IceInternal::Instance::~Instance()
     }
     if(instanceCount() == 0)
     {
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#if defined(_WIN32)
         WSACleanup();
 #endif
 
@@ -1476,7 +1476,6 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     try
     {
         _endpointHostResolver = new EndpointHostResolver(this);
-#ifndef ICE_OS_UWP
         bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
         int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
         if(hasPriority)
@@ -1487,7 +1486,6 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         {
             _endpointHostResolver->start();
         }
-#endif
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1680,12 +1678,10 @@ IceInternal::Instance::destroy()
     {
         _serverThreadPool->joinWithAllThreads();
     }
-#ifndef ICE_OS_UWP
     if(_endpointHostResolver)
     {
         _endpointHostResolver->getThreadControl().join();
     }
-#endif
 
 #ifdef ICE_CPP11_COMPILER
     for(const auto& p : _objectFactoryMap)

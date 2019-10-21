@@ -3,7 +3,7 @@
 //
 
 #include <IceUtil/Config.h>
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#ifdef _WIN32
 #   include <winsock2.h>
 #endif
 

@@ -12,7 +12,7 @@
 namespace IceUtilInternal
 {
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#ifdef _WIN32
 
 class ConsoleUtil;
 ICE_DEFINE_PTR(ConsoleUtilPtr, ConsoleUtil);

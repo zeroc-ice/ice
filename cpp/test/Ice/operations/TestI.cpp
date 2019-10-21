@@ -62,11 +62,7 @@ MyDerivedClassI::shutdown(const Ice::Current& current)
 bool
 MyDerivedClassI::supportsCompress(const Ice::Current&)
 {
-#if defined(ICE_OS_UWP)
-    return false;
-#else
     return true;
-#endif
 }
 
 void

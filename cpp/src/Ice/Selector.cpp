@@ -24,13 +24,7 @@ struct timespec zeroTimeout = { 0, 0 };
 }
 #endif
 
-#if defined(ICE_OS_UWP)
-using namespace Windows::Storage::Streams;
-using namespace Windows::Networking;
-using namespace Windows::Networking::Sockets;
-#endif
-
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 
 Selector::Selector(const InstancePtr& instance) : _instance(instance)
 {
@@ -116,12 +110,6 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
 void
 Selector::finish(IceInternal::EventHandler* handler)
 {
-#ifdef ICE_OS_UWP
-    // If async operations are no longer pending, clear the completion handler to break
-    // the cyclic reference count.
-    assert(!handler->_started && !handler->_pending);
-    handler->getNativeInfo()->setCompletedHandler(nullptr);
-#endif
     handler->_registered = SocketOperationNone;
     handler->_finish = false; // Ensures that finished() is only called once on the event handler.
 }

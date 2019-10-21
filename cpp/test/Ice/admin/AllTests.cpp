@@ -393,11 +393,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-#ifndef ICE_OS_UWP
-    //
-    // This doesn't work well with UWP because connection to localhost are
-    // restricted to the same process.
-    //
     cout << "testing logger facet... " << flush;
     {
         Ice::PropertyDict props;
@@ -579,7 +574,6 @@ allTests(Test::TestHelper* helper)
         com->destroy();
     }
     cout << "ok" << endl;
-#endif
 
     cout << "testing custom facet... " << flush;
     {

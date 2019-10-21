@@ -812,48 +812,6 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
 {
     if(error < WSABASEERR)
     {
-#ifdef ICE_OS_UWP
-
-        wstring lpMsgBuf(256, wchar_t());
-        DWORD stored = 0;
-
-        while(stored == 0)
-        {
-            stored = FormatMessageW(
-                FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS |
-                (source != ICE_NULLPTR ? FORMAT_MESSAGE_FROM_HMODULE : 0),
-                source,
-                error,
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                const_cast<wchar_t*>(lpMsgBuf.data()),
-                static_cast<int>(lpMsgBuf.size()),
-                ICE_NULLPTR);
-
-            if(stored == 0)
-            {
-                DWORD err = GetLastError();
-                if(err == ERROR_INSUFFICIENT_BUFFER)
-                {
-                    if(lpMsgBuf.size() >= 65536)
-                    {
-                        break; // already at the max size
-                    }
-                    else
-                    {
-                        lpMsgBuf.resize(min<size_t>(lpMsgBuf.size() * 4, 65536));
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        LPWSTR msg = const_cast<wchar_t*>(lpMsgBuf.data());
-
-#else
         LPWSTR msg = 0;
 
         DWORD stored = FormatMessageW(
@@ -867,7 +825,6 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             reinterpret_cast<LPWSTR>(&msg),
             0,
             ICE_NULLPTR);
-#endif
 
         if(stored > 0)
         {
@@ -877,12 +834,6 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             {
                 result = result.substr(0, result.length() - 2);
             }
-#ifndef ICE_OS_UWP
-            if(msg)
-            {
-                LocalFree(msg);
-            }
-#endif
             return wstringToString(result, getProcessStringConverter(), getProcessWstringConverter());
         }
         else

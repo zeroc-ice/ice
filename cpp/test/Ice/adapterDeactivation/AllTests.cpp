@@ -29,32 +29,22 @@ allTests(Test::TestHelper* helper)
 #endif
     cout << "ok" << endl;
 
-#ifdef ICE_OS_UWP
-    bool uwp = true;
-#else
-    bool uwp = false;
-#endif
-
     {
-        if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-                    communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+        cout << "creating/destroying/recreating object adapter... " << flush;
+        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+        try
         {
-            cout << "creating/destroying/recreating object adapter... " << flush;
-            ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-            try
-            {
-                communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-                test(false);
-            }
-            catch(const AlreadyRegisteredException&)
-            {
-            }
-            adpt->destroy();
-
-            adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-            adpt->destroy();
-            cout << "ok" << endl;
+            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+            test(false);
         }
+        catch(const AlreadyRegisteredException&)
+        {
+        }
+        adpt->destroy();
+
+        adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+        adpt->destroy();
+        cout << "ok" << endl;
     }
 
     cout << "creating/activating/deactivating object adapter in one operation... " << flush;

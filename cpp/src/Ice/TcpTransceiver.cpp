@@ -55,7 +55,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
     return _stream->read(buf);
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 bool
 IceInternal::TcpTransceiver::startWrite(Buffer& buf)
 {

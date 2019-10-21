@@ -1158,7 +1158,6 @@ Glacier2::SessionFactoryHelper::createInitData()
         initData.properties->setProperty("Ice.Default.Router", createProxyStr(_identity));
     }
 
-#ifndef ICE_OS_UWP
     //
     // If using a secure connection setup the IceSSL plug-in, if IceSSL
     // plug-in has already been setup we don't want to override the
@@ -1169,8 +1168,6 @@ Glacier2::SessionFactoryHelper::createInitData()
     {
         initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");
     }
-#endif
-
     return initData;
 }
 

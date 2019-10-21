@@ -29,10 +29,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
 
-    string value;
-
-#ifndef ICE_OS_UWP
-    value = properties->getProperty("Ice.Default.SourceAddress");
+    string value = properties->getProperty("Ice.Default.SourceAddress");
     if(!value.empty())
     {
         const_cast<Address&>(defaultSourceAddress) = getNumericAddress(value);
@@ -42,7 +39,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
                                           value + "'");
         }
     }
-#endif
 
     value = properties->getProperty("Ice.Override.Timeout");
     if(!value.empty())

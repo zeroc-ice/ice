@@ -8,13 +8,6 @@
 
 using namespace IceInternal;
 
-#if defined(ICE_OS_UWP)
-
-#include <Ice/Properties.h>
-using namespace Platform;
-using namespace Windows::Foundation;
-#endif
-
 StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
                            const NetworkProxyPtr& proxy,
                            const Address& addr,
@@ -30,7 +23,7 @@ StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
 #endif
 {
     init();
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     if(doConnect(_fd, _proxy ? _proxy->getAddress() : _addr, sourceAddr))
     {
         _state = _proxy ? StateProxyWrite : StateConnected;
@@ -86,24 +79,6 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
     {
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
-#elif defined(ICE_OS_UWP)
-        if(_write.error != ERROR_SUCCESS)
-        {
-            try
-            {
-                checkConnectErrorCode(__FILE__, __LINE__, _write.error);
-            }
-            catch(Ice::DNSException& ex)
-            {
-                //
-                // Don't need to pass a wide string converter as the wide string come from
-                // Windows API.
-                //
-                const Address& addr = _proxy ? _proxy->getAddress() : _addr;
-                ex.host = wstringToString(addr.host->RawName->Data(), Ice::getProcessStringConverter());
-                throw;
-            }
-        }
 #else
         doFinishConnect(_fd);
 #endif
@@ -147,7 +122,7 @@ StreamSocket::isConnected()
 size_t
 StreamSocket::getSendPacketSize(size_t length)
 {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     return _maxSendPacketSize > 0 ? std::min(length, _maxSendPacketSize) : length;
 #else
     return length;
@@ -157,7 +132,7 @@ StreamSocket::getSendPacketSize(size_t length)
 size_t
 StreamSocket::getRecvPacketSize(size_t length)
 {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     return _maxRecvPacketSize > 0 ? std::min(length, _maxRecvPacketSize) : length;
 #else
     return length;
@@ -173,7 +148,6 @@ StreamSocket::setBufferSize(int rcvSize, int sndSize)
 SocketOperation
 StreamSocket::read(Buffer& buf)
 {
-#if !defined(ICE_OS_UWP)
     if(_state == StateProxyRead)
     {
         while(true)
@@ -192,14 +166,12 @@ StreamSocket::read(Buffer& buf)
         }
     }
     buf.i += read(reinterpret_cast<char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
-#endif
     return buf.i != buf.b.end() ? SocketOperationRead : SocketOperationNone;
 }
 
 SocketOperation
 StreamSocket::write(Buffer& buf)
 {
-#if !defined(ICE_OS_UWP)
     if(_state == StateProxyWrite)
     {
         while(true)
@@ -218,11 +190,9 @@ StreamSocket::write(Buffer& buf)
         }
     }
     buf.i += write(reinterpret_cast<const char*>(&*buf.i), static_cast<size_t>(buf.b.end() - buf.i));
-#endif
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationNone;
 }
 
-#if !defined(ICE_OS_UWP)
 ssize_t
 StreamSocket::read(char* buf, size_t length)
 {
@@ -348,9 +318,8 @@ StreamSocket::write(const char* buf, size_t length)
     }
     return sent;
 }
-#endif
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 AsyncInfo*
 StreamSocket::getAsyncInfo(SocketOperation op)
 {
@@ -365,9 +334,6 @@ StreamSocket::getAsyncInfo(SocketOperation op)
         return 0;
     }
 }
-#endif
-
-#if defined(ICE_USE_IOCP)
 
 bool
 StreamSocket::startWrite(Buffer& buf)
@@ -491,121 +457,6 @@ StreamSocket::finishRead(Buffer& buf)
     }
 
 }
-
-#elif defined(ICE_OS_UWP)
-
-bool
-StreamSocket::startWrite(Buffer& buf)
-{
-    if(_state == StateConnectPending)
-    {
-        const Address& addr = _proxy ? _proxy->getAddress() : _addr;
-        try
-        {
-            try
-            {
-                queueAction(SocketOperationConnect,
-                            safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd)->ConnectAsync(
-                                  addr.host, addr.port,
-                                  Windows::Networking::Sockets::SocketProtectionLevel::PlainSocket), true);
-            }
-            catch(Platform::Exception^ ex)
-            {
-                checkConnectErrorCode(__FILE__, __LINE__, ex->HResult);
-            }
-        }
-        catch(Ice::DNSException& ex)
-        {
-            //
-            // Don't need to pass a wide string converter as the wide string come from
-            // Windows API.
-            //
-            ex.host = wstringToString(addr.host->RawName->Data(), Ice::getProcessStringConverter());
-            throw;
-        }
-        return false;
-    }
-
-    assert(!buf.b.empty());
-    assert(buf.i != buf.b.end());
-
-    size_t packetSize = getSendPacketSize(buf.b.end() - buf.i);
-    _writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<unsigned int>(packetSize)));
-    try
-    {
-        queueOperation(SocketOperationWrite, _writer->StoreAsync());
-    }
-    catch(Platform::Exception^ ex)
-    {
-        checkErrorCode(__FILE__, __LINE__, ex->HResult);
-    }
-    return packetSize == static_cast<size_t>(buf.b.end() - buf.i);
-}
-
-void
-StreamSocket::finishWrite(Buffer& buf)
-{
-    _write.operation = nullptr; // Must be cleared with the connection lock held
-    if(_fd == INVALID_SOCKET || (_state < StateConnected && _state != StateProxyWrite))
-    {
-        return;
-    }
-
-    if(_write.error != ERROR_SUCCESS)
-    {
-        checkErrorCode(__FILE__, __LINE__, _write.error);
-    }
-
-    buf.i += _write.count;
-}
-
-void
-StreamSocket::startRead(Buffer& buf)
-{
-    assert(!buf.b.empty() && buf.i != buf.b.end());
-    size_t packetSize = getRecvPacketSize(buf.b.end() - buf.i);
-    try
-    {
-        queueOperation(SocketOperationRead, _reader->LoadAsync(static_cast<unsigned int>(packetSize)));
-    }
-    catch(Platform::Exception^ ex)
-    {
-        checkErrorCode(__FILE__, __LINE__, ex->HResult);
-    }
-}
-
-void
-StreamSocket::finishRead(Buffer& buf)
-{
-    _read.operation = nullptr; // Must be cleared with the connection lock held
-    if(_fd == INVALID_SOCKET)
-    {
-        return;
-    }
-
-    if(_read.error != ERROR_SUCCESS)
-    {
-        checkErrorCode(__FILE__, __LINE__, _read.error);
-    }
-    else if(_read.count == 0)
-    {
-        throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
-    }
-
-    try
-    {
-        auto data = ref new Platform::Array<unsigned char>(_read.count);
-        _reader->ReadBytes(data);
-        memcpy(&*buf.i, data->Data, _read.count);
-    }
-    catch(Platform::Exception^ ex)
-    {
-        checkErrorCode(__FILE__, __LINE__, ex->HResult);
-    }
-
-    buf.i += _read.count;
-}
-
 #endif
 
 void
@@ -614,16 +465,6 @@ StreamSocket::close()
     assert(_fd != INVALID_SOCKET);
     try
     {
-#if defined(ICE_OS_UWP)
-        if(_read.operation)
-        {
-            _read.operation->Cancel();
-        }
-        if(_write.operation)
-        {
-            _write.operation->Cancel();
-        }
-#endif
         closeSocket(_fd);
         _fd = INVALID_SOCKET;
     }
@@ -656,14 +497,6 @@ StreamSocket::init()
     //
     _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_fd));
     _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_fd));
-#elif defined(ICE_OS_UWP)
-    Windows::Networking::Sockets::StreamSocket^ s = safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd);
-    _writer = ref new Windows::Storage::Streams::DataWriter(s->OutputStream);
-    _reader = ref new Windows::Storage::Streams::DataReader(s->InputStream);
-    _reader->InputStreamOptions = Windows::Storage::Streams::InputStreamOptions::Partial;
-
-    _maxSendPacketSize = std::max(static_cast<unsigned int>(512), s->Control->OutboundBufferSizeInBytes / 2);
-    _maxRecvPacketSize = _instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", 128 * 1024);
 #endif
 }
 

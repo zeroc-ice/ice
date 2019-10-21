@@ -30,9 +30,7 @@
 #   pragma warning(disable:4244) // 'argument': conversion from 'int' to 'u_short', possible loss of data
 #endif
 
-#if defined(ICE_OS_UWP)
-#   include <IceUtil/InputUtil.h>
-#elif defined(_WIN32)
+#if defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
 #   ifdef __MINGW32__
@@ -80,17 +78,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifdef ICE_OS_UWP
-using namespace Concurrency;
-using namespace Platform;
-using namespace Windows::Foundation;
-using namespace Windows::Foundation::Collections;
-using namespace Windows::Storage::Streams;
-using namespace Windows::Networking;
-using namespace Windows::Networking::Sockets;
-using namespace Windows::Networking::Connectivity;
-#endif
-
 #ifdef _WIN32
 int
 IceInternal::getSystemErrno()
@@ -118,8 +105,6 @@ public:
         return compareAddress(lhs, rhs) < 0;
     }
 };
-
-#ifndef ICE_OS_UWP
 
 #   ifndef ICE_CPP11_COMPILER
 
@@ -196,9 +181,8 @@ setKeepAlive(SOCKET fd)
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
-#endif
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#if defined(_WIN32)
 void
 setTcpLoopbackFastPath(SOCKET fd)
 {
@@ -220,23 +204,6 @@ setTcpLoopbackFastPath(SOCKET fd)
 }
 #endif
 
-#ifdef ICE_OS_UWP
-SOCKET
-createSocketImpl(bool udp, int)
-{
-    if(udp)
-    {
-        return ref new DatagramSocket();
-    }
-    else
-    {
-        StreamSocket^ socket = ref new StreamSocket();
-        socket->Control->KeepAlive = true;
-        socket->Control->NoDelay = true;
-        return socket;
-    }
-}
-#else
 SOCKET
 createSocketImpl(bool udp, int family)
 {
@@ -260,7 +227,7 @@ createSocketImpl(bool udp, int family)
         setTcpNoDelay(fd);
         setKeepAlive(fd);
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#if defined(_WIN32)
         //
         // FIX: the fast path loopback appears to cause issues with
         // connection closure when it's enabled. Sometime, a peer
@@ -275,9 +242,7 @@ createSocketImpl(bool udp, int family)
 
     return fd;
 }
-#endif
 
-#ifndef ICE_OS_UWP
 vector<Address>
 getLocalAddresses(ProtocolSupport protocol, bool includeLoopback, bool singleAddressPerInterface)
 {
@@ -852,8 +817,6 @@ getLoopbackAddresses(ProtocolSupport protocol, int port = 0)
     return result;
 }
 
-#endif // #ifndef ICE_OS_UWP
-
 }
 
 ReadyCallback::~ReadyCallback()
@@ -896,154 +859,6 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
     }
 }
 
-#elif defined(ICE_OS_UWP)
-
-void
-IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, bool connect)
-{
-    AsyncInfo* asyncInfo = getAsyncInfo(op);
-    if(checkIfErrorOrCompleted(op, action, action->Status, connect))
-    {
-        asyncInfo->count = 0;
-        asyncInfo->error = ERROR_SUCCESS;
-    }
-    else
-    {
-        action->Completed = ref new AsyncActionCompletedHandler(
-            [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
-            {
-                //
-                // COMPILERFIX with v141 using operator!= and operator== inside
-                // a lambda callback triggers a compiler bug, we move the code to
-                // a seperate private method to workaround the issue.
-                //
-                this->queueActionCompleted(op, asyncInfo, info, status);
-            });
-        asyncInfo->operation = action;
-    }
-}
-
-void
-IceInternal::NativeInfo::queueActionCompleted(SocketOperation op, AsyncInfo* asyncInfo, IAsyncAction^ info,
-                                              Windows::Foundation::AsyncStatus status)
-{
-    if(status != Windows::Foundation::AsyncStatus::Completed)
-    {
-        asyncInfo->error = info->ErrorCode.Value;
-    }
-    else
-    {
-        asyncInfo->error = ERROR_SUCCESS;
-    }
-    asyncInfo->count = 0;
-    completed(op);
-}
-
-void
-IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsigned int>^ operation)
-{
-    AsyncInfo* info = getAsyncInfo(op);
-    Windows::Foundation::AsyncStatus status = operation->Status;
-    if(status == Windows::Foundation::AsyncStatus::Completed)
-    {
-        //
-        // NOTE: it's important to modify the count _before_ calling the completion handler
-        // since this might not always be called with the connection mutex but from a Windows
-        // thread pool thread if we chained multiple Async calls (GetGetOutputStreamAsync and
-        // StoreAsync for example, see the UDPTransceiver implementation). So we can't modify
-        // the AsyncInfo structure after calling the completed callback.
-        //
-        info->count = static_cast<int>(operation->GetResults());
-        info->error = ERROR_SUCCESS;
-        _completedHandler(op);
-        return;
-    }
-    else if(!checkIfErrorOrCompleted(op, operation, status))
-    {
-        if(!info->completedHandler)
-        {
-            info->completedHandler = ref new AsyncOperationCompletedHandler<unsigned int>(
-                [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
-                {
-                    //
-                    // COMPILERFIX with v141 using operator!= and operator== inside
-                    // a lambda callback triggers a compiler bug, we move the code to
-                    // a seperate private method to workaround the issue.
-                    //
-                    this->queueOperationCompleted(op, info, operation, status);
-                });
-        }
-        operation->Completed = info->completedHandler;
-        info->operation = operation;
-    }
-}
-
-void
-IceInternal::NativeInfo::queueOperationCompleted(SocketOperation op, AsyncInfo* info,
-                                                 IAsyncOperation<unsigned int>^ operation,
-                                                 Windows::Foundation::AsyncStatus status)
-{
-    if(status != Windows::Foundation::AsyncStatus::Completed)
-    {
-        info->count = 0;
-        info->error = operation->ErrorCode.Value;
-    }
-    else
-    {
-        info->count = static_cast<int>(operation->GetResults());
-        info->error = ERROR_SUCCESS;
-    }
-    completed(op);
-}
-
-void
-IceInternal::NativeInfo::setCompletedHandler(SocketOperationCompletedHandler^ handler)
-{
-    _completedHandler = handler;
-}
-
-void
-IceInternal::NativeInfo::completed(SocketOperation operation)
-{
-    assert(_completedHandler);
-    _completedHandler(operation);
-}
-
-bool
-IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, Windows::Foundation::AsyncStatus status, bool connect)
-{
-    //
-    // NOTE: It's important to only check for info->Status once as it
-    // might change during the checks below (the Status can be changed
-    // by the Windows thread pool concurrently).
-    //
-    // We consider that a canceled async status is the same as an
-    // error. A canceled async status can occur if there's a timeout
-    // and the socket is closed.
-    //
-    if(status == Windows::Foundation::AsyncStatus::Completed)
-    {
-        _completedHandler(op);
-        return true;
-    }
-    else if (status == Windows::Foundation::AsyncStatus::Started)
-    {
-        return false;
-    }
-    else
-    {
-        if(connect) // Connect
-        {
-            checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
-        }
-        else
-        {
-            checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
-        }
-        return true; // Prevent compiler warning.
-    }
-}
-
 #else
 
 void
@@ -1070,22 +885,13 @@ IceInternal::NativeInfo::newFd()
 bool
 IceInternal::noMoreFds(int error)
 {
-#if defined(ICE_OS_UWP)
-    return error == (int)SocketErrorStatus::TooManyOpenFiles;
-#elif defined(_WIN32)
+#if defined(_WIN32)
     return error == WSAEMFILE;
 #else
     return error == EMFILE || error == ENFILE;
 #endif
 }
 
-#if defined(ICE_OS_UWP)
-string
-IceInternal::errorToStringDNS(int)
-{
-    return "Host not found";
-}
-#else
 string
 IceInternal::errorToStringDNS(int error)
 {
@@ -1095,47 +901,7 @@ IceInternal::errorToStringDNS(int error)
     return gai_strerror(error);
 #  endif
 }
-#endif
 
-#ifdef ICE_OS_UWP
-vector<Address>
-IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::EndpointSelectionType, bool, bool)
-{
-    try
-    {
-        vector<Address> result;
-        Address addr;
-        if(host.empty())
-        {
-            addr.host = ref new HostName("localhost");
-        }
-        else
-        {
-            //
-            // Don't need to pass a wide string converter as the wide string is passed
-            // to Windows API.
-            //
-            addr.host = ref new HostName(ref new String(
-                                             stringToWstring(host,
-                                                             getProcessStringConverter()).c_str()));
-        }
-        stringstream os;
-        os << port;
-        //
-        // Don't need to use any string converter here as the port number use just
-        // ASCII characters.
-        //
-        addr.port = ref new String(stringToWstring(os.str()).c_str());
-        result.push_back(addr);
-        return result;
-    }
-    catch(Platform::Exception^ pex)
-    {
-        throw DNSException(__FILE__, __LINE__, (int)SocketError::GetStatus(pex->HResult), host);
-    }
-
-}
-#else
 vector<Address>
 IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, Ice::EndpointSelectionType selType,
                           bool preferIPv6, bool canBlock)
@@ -1238,22 +1004,12 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     sortAddresses(result, protocol, selType, preferIPv6);
     return result;
 }
-#endif
 
-#ifdef ICE_OS_UWP
-ProtocolSupport
-IceInternal::getProtocolSupport(const Address&)
-{
-    // For UWP, there's no distinction between IPv4 and IPv6 adresses.
-    return EnableBoth;
-}
-#else
 ProtocolSupport
 IceInternal::getProtocolSupport(const Address& addr)
 {
     return addr.saStorage.ss_family == AF_INET ? EnableIPv4 : EnableIPv6;
 }
-#endif
 
 Address
 IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock)
@@ -1265,16 +1021,6 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
     if(host.empty())
     {
         Address addr;
-#ifdef ICE_OS_UWP
-        ostringstream os;
-        os << port;
-        //
-        // Don't need to use any string converter here as the port number use just
-        // ASCII characters.
-        //
-        addr.port = ref new String(stringToWstring(os.str()).c_str());
-        addr.host = nullptr; // Equivalent of inaddr_any, see doBind implementation.
-#else
         memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
         if(protocol != EnableIPv4)
         {
@@ -1288,7 +1034,6 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
             addr.saIn.sin_port = htons(port);
             addr.saIn.sin_addr.s_addr = htonl(INADDR_ANY);
         }
-#endif
         return addr;
     }
     vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered),
@@ -1299,26 +1044,6 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 int
 IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 {
-#ifdef ICE_OS_UWP
-    int o = String::CompareOrdinal(addr1.port, addr2.port);
-    if(o != 0)
-    {
-        return o;
-    }
-    if(addr1.host == addr2.host)
-    {
-        return 0;
-    }
-    if(addr1.host == nullptr)
-    {
-        return -1;
-    }
-    if(addr2.host == nullptr)
-    {
-        return 1;
-    }
-    return String::CompareOrdinal(addr1.host->RawName, addr2.host->RawName);
-#else
     if(addr1.saStorage.ss_family < addr2.saStorage.ss_family)
     {
         return -1;
@@ -1371,16 +1096,8 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
     }
 
     return 0;
-#endif
 }
 
-#ifdef ICE_OS_UWP
-bool
-IceInternal::isIPv6Supported()
-{
-    return true;
-}
-#else
 bool
 IceInternal::isIPv6Supported()
 {
@@ -1395,23 +1112,13 @@ IceInternal::isIPv6Supported()
         return true;
     }
 }
-#endif
 
-#ifdef ICE_OS_UWP
-SOCKET
-IceInternal::createSocket(bool udp, const Address&)
-{
-    return createSocketImpl(udp, 0);
-}
-#else
 SOCKET
 IceInternal::createSocket(bool udp, const Address& addr)
 {
     return createSocketImpl(udp, addr.saStorage.ss_family);
 }
-#endif
 
-#ifndef ICE_OS_UWP
 SOCKET
 IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport protocol)
 {
@@ -1433,27 +1140,11 @@ IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport p
     }
     return fd;
 }
-#else
-SOCKET
-IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport)
-{
-    return createSocket(udp, addr);
-}
-#endif
 
 void
 IceInternal::closeSocketNoThrow(SOCKET fd)
 {
-#if defined(ICE_OS_UWP)
-    //
-    // NOTE: StreamSocket::Close or DatagramSocket::Close aren't
-    // exposed in C++, you have to delete the socket to close
-    // it. According some Microsoft samples, this is safe even if
-    // there are still references to the object...
-    //
-    //fd->Close();
-    delete fd;
-#elif defined(_WIN32)
+#if defined(_WIN32)
     int error = WSAGetLastError();
     closesocket(fd);
     WSASetLastError(error);
@@ -1467,16 +1158,7 @@ IceInternal::closeSocketNoThrow(SOCKET fd)
 void
 IceInternal::closeSocket(SOCKET fd)
 {
-#if defined(ICE_OS_UWP)
-    //
-    // NOTE: StreamSocket::Close or DatagramSocket::Close aren't
-    // exposed in C++, you have to delete the socket to close
-    // it. According some Microsoft samples, this is safe even if
-    // there are still references to the object...
-    //
-    //fd->Close();
-    delete fd;
-#elif defined(_WIN32)
+#if defined(_WIN32)
     int error = WSAGetLastError();
     if(closesocket(fd) == SOCKET_ERROR)
     {
@@ -1514,32 +1196,16 @@ IceInternal::addrToString(const Address& addr)
 void
 IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 {
-#ifndef ICE_OS_UWP
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
-#else
-    StreamSocket^ stream = dynamic_cast<StreamSocket^>(fd);
-    if(stream)
-    {
-        addr.host = stream->Information->LocalAddress;
-        addr.port = stream->Information->LocalPort;
-    }
-    DatagramSocket^ datagram = dynamic_cast<DatagramSocket^>(fd);
-    if(datagram)
-    {
-        addr.host = datagram->Information->LocalAddress;
-        addr.port = datagram->Information->LocalPort;
-    }
-#endif
 }
 
 bool
 IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 {
-#ifndef ICE_OS_UWP
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getpeername(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
@@ -1554,21 +1220,6 @@ IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
     }
 
     return true;
-#else
-    StreamSocket^ stream = dynamic_cast<StreamSocket^>(fd);
-    if(stream != nullptr)
-    {
-        addr.host = stream->Information->RemoteAddress;
-        addr.port = stream->Information->RemotePort;
-    }
-    DatagramSocket^ datagram = dynamic_cast<DatagramSocket^>(fd);
-    if(datagram != nullptr)
-    {
-        addr.host = datagram->Information->RemoteAddress;
-        addr.port = datagram->Information->RemotePort;
-    }
-    return addr.host != nullptr;
-#endif
 }
 
 std::string
@@ -1692,69 +1343,9 @@ IceInternal::addressesToString(const Address& localAddr, const Address& remoteAd
 bool
 IceInternal::isAddressValid(const Address& addr)
 {
-#ifndef ICE_OS_UWP
     return addr.saStorage.ss_family != AF_UNSPEC;
-#else
-    return addr.host != nullptr || addr.port != nullptr;
-#endif
 }
 
-#ifdef ICE_OS_UWP
-vector<string>
-IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
-{
-    vector<string> hosts;
-    if(host.empty() || host == "0.0.0.0" || host == "::" || host == "0:0:0:0:0:0:0:0")
-    {
-        for(IIterator<HostName^>^ it = NetworkInformation::GetHostNames()->First(); it->HasCurrent; it->MoveNext())
-        {
-            HostName^ h = it->Current;
-            if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
-            {
-                hosts.push_back(wstringToString(h->CanonicalName->Data(), getProcessStringConverter()));
-            }
-        }
-        if(hosts.empty() || includeLoopback)
-        {
-            if(protocolSupport != EnableIPv6)
-            {
-                hosts.push_back("127.0.0.1");
-            }
-            if(protocolSupport != EnableIPv4)
-            {
-                hosts.push_back("::1");
-            }
-        }
-    }
-    return hosts;
-}
-
-vector<string>
-IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport)
-{
-    vector<string> interfaces;
-    if(intf.empty() || intf == "0.0.0.0" || intf == "::" || intf == "0:0:0:0:0:0:0:0")
-    {
-        for(IIterator<HostName^>^ it = NetworkInformation::GetHostNames()->First(); it->HasCurrent; it->MoveNext())
-        {
-            HostName^ h = it->Current;
-            if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
-            {
-                string s = wstringToString(h->CanonicalName->Data(), getProcessStringConverter());
-                if(find(interfaces.begin(), interfaces.end(), s) == interfaces.end())
-                {
-                    interfaces.push_back(s);
-                }
-            }
-        }
-    }
-    if(interfaces.empty())
-    {
-        interfaces.push_back(intf);
-    }
-    return interfaces;
-}
-#else
 vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
@@ -1807,12 +1398,10 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     }
     return interfaces;
 }
-#endif
 
 string
 IceInternal::inetAddrToString(const Address& ss)
 {
-#ifndef ICE_OS_UWP
     int size = getAddressStorageSize(ss);
     if(size == 0)
     {
@@ -1824,26 +1413,11 @@ IceInternal::inetAddrToString(const Address& ss)
     getnameinfo(&ss.sa, static_cast<socklen_t>(size), namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0,
                 NI_NUMERICHOST);
     return string(namebuf);
-#else
-    if(ss.host == nullptr)
-    {
-        return "";
-    }
-    else
-    {
-        //
-        // Don't need to pass a wide string converter as the wide string come
-        // from Windows API.
-        //
-        return wstringToString(ss.host->RawName->Data(), getProcessStringConverter());
-    }
-#endif
 }
 
 int
 IceInternal::getPort(const Address& addr)
 {
-#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         return ntohs(addr.saIn.sin_port);
@@ -1856,23 +1430,11 @@ IceInternal::getPort(const Address& addr)
     {
         return -1;
     }
-#else
-    IceUtil::Int64 port = 0;
-    //
-    // Don't need to use any string converter here as the port number use just ASCII characters.
-    //
-    if(addr.port == nullptr || !IceUtilInternal::stringToInt64(wstringToString(addr.port->Data()), port))
-    {
-        return -1;
-    }
-    return static_cast<int>(port);
-#endif
 }
 
 void
 IceInternal::setPort(Address& addr, int port)
 {
-#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         addr.saIn.sin_port = htons(port);
@@ -1882,21 +1444,11 @@ IceInternal::setPort(Address& addr, int port)
         assert(addr.saStorage.ss_family == AF_INET6);
         addr.saIn6.sin6_port = htons(port);
     }
-#else
-    ostringstream os;
-    os << port;
-    //
-    // Don't need to use any string converter here as the port number use just
-    // ASCII characters.
-    //
-    addr.port = ref new String(stringToWstring(os.str()).c_str());
-#endif
 }
 
 bool
 IceInternal::isMulticast(const Address& addr)
 {
-#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         return IN_MULTICAST(ntohl(addr.saIn.sin_addr.s_addr));
@@ -1905,35 +1457,6 @@ IceInternal::isMulticast(const Address& addr)
     {
         return IN6_IS_ADDR_MULTICAST(&addr.saIn6.sin6_addr);
     }
-#else
-    if(addr.host == nullptr)
-    {
-        return false;
-    }
-    //
-    // Don't need to use string converters here, this is just to do a local
-    // comparison to find if the address is multicast.
-    //
-    string host = wstringToString(addr.host->RawName->Data());
-    string ip = IceUtilInternal::toUpper(host);
-    vector<string> tokens;
-    IceUtilInternal::splitString(ip, ".", tokens);
-    if(tokens.size() == 4)
-    {
-        IceUtil::Int64 j;
-        if(IceUtilInternal::stringToInt64(tokens[0], j))
-        {
-            if(j >= 233 && j <= 239)
-            {
-                return true;
-            }
-        }
-    }
-    if(ip.find("::") != string::npos)
-    {
-        return ip.compare(0, 2, "FF") == 0;
-    }
-#endif
     return false;
 }
 
@@ -2009,12 +1532,6 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
     }
 }
 
-#ifdef ICE_OS_UWP
-void
-IceInternal::setBlock(SOCKET fd, bool)
-{
-}
-#else
 void
 IceInternal::setBlock(SOCKET fd, bool block)
 {
@@ -2060,30 +1577,20 @@ IceInternal::setBlock(SOCKET fd, bool block)
     }
 #endif
 }
-#endif
 
 void
 IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
-#ifndef ICE_OS_UWP
     if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
-#else
-    StreamSocket^ stream = dynamic_cast<StreamSocket^>(fd);
-    if(stream != nullptr)
-    {
-        stream->Control->OutboundBufferSizeInBytes = sz;
-    }
-#endif
 }
 
 int
 IceInternal::getSendBufferSize(SOCKET fd)
 {
-#ifndef ICE_OS_UWP
     int sz;
     socklen_t len = sizeof(sz);
     if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
@@ -2093,22 +1600,8 @@ IceInternal::getSendBufferSize(SOCKET fd)
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     return sz;
-#else
-    StreamSocket^ stream = dynamic_cast<StreamSocket^>(fd);
-    if(stream != nullptr)
-    {
-        return stream->Control->OutboundBufferSizeInBytes;
-    }
-    return 0; // Not supported
-#endif
 }
 
-#ifdef ICE_OS_UWP
-void
-IceInternal::setRecvBufferSize(SOCKET, int)
-{
-}
-#else
 void
 IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 {
@@ -2118,12 +1611,10 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
-#endif
 
 int
 IceInternal::getRecvBufferSize(SOCKET fd)
 {
-#ifndef ICE_OS_UWP
     int sz;
     socklen_t len = sizeof(sz);
     if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
@@ -2133,12 +1624,8 @@ IceInternal::getRecvBufferSize(SOCKET fd)
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     return sz;
-#else
-    return 0; // Not supported
-#endif
 }
 
-#ifndef ICE_OS_UWP
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
@@ -2173,55 +1660,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
         }
     }
 }
-#else
-void
-IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
-{
-    try
-    {
-        //
-        // NOTE: UWP mcast interface is set earlier in doBind.
-        //
-        safe_cast<DatagramSocket^>(fd)->JoinMulticastGroup(group.host);
 
-        //
-        // BUGFIX DatagramSocket will not recive any messages from a multicast group if the
-        // messages originate in the same host until the socket is used to send at least one
-        // message. We send a valiate connection message that the peers will ignore to workaround
-        // the issue.
-        //
-        auto out = IceInternal::runSync(safe_cast<DatagramSocket^>(fd)->GetOutputStreamAsync(group.host, group.port));
-        auto writer = ref new DataWriter(out);
-
-        OutputStream os;
-        os.write(magic[0]);
-        os.write(magic[1]);
-        os.write(magic[2]);
-        os.write(magic[3]);
-        os.write(currentProtocol);
-        os.write(currentProtocolEncoding);
-        os.write(validateConnectionMsg);
-        os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
-        os.write(headerSize); // Message size.
-        os.i = os.b.begin();
-
-        writer->WriteBytes(ref new Array<unsigned char>(&*os.i, static_cast<unsigned int>(headerSize)));
-
-        IceInternal::runSync(writer->StoreAsync());
-    }
-    catch(Platform::Exception^ pex)
-    {
-        throw SocketException(__FILE__, __LINE__, (int)SocketError::GetStatus(pex->HResult));
-    }
-}
-#endif
-
-#ifdef ICE_OS_UWP
-void
-IceInternal::setMcastInterface(SOCKET, const string&, const Address&)
-{
-}
-#else
 void
 IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& addr)
 {
@@ -2242,14 +1681,7 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
-#endif
 
-#ifdef ICE_OS_UWP
-void
-IceInternal::setMcastTtl(SOCKET, int, const Address&)
-{
-}
-#else
 void
 IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
 {
@@ -2268,14 +1700,7 @@ IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
-#endif
 
-#ifdef ICE_OS_UWP
-void
-IceInternal::setReuseAddress(SOCKET, bool)
-{
-}
-#else
 void
 IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 {
@@ -2286,119 +1711,7 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
-#endif
 
-#ifdef ICE_OS_UWP
-namespace
-{
-
-void
-checkResultAndWait(IAsyncAction^ action)
-{
-    auto status = action->Status;
-    switch(status)
-    {
-        case Windows::Foundation::AsyncStatus::Started:
-        {
-            promise<HRESULT> p;
-            action->Completed = ref new AsyncActionCompletedHandler(
-                [&p] (IAsyncAction^ action, Windows::Foundation::AsyncStatus status)
-                    {
-                        p.set_value(status != Windows::Foundation::AsyncStatus::Completed ? action->ErrorCode.Value : 0);
-                    });
-
-            HRESULT result = p.get_future().get();
-            if(result)
-            {
-                checkErrorCode(__FILE__, __LINE__, result);
-            }
-            break;
-        }
-        case Windows::Foundation::AsyncStatus::Error:
-        {
-            checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-}
-
-}
-#endif
-
-#ifdef ICE_OS_UWP
-Address
-IceInternal::doBind(SOCKET fd, const Address& addr, const string& intf)
-{
-    Address local;
-    try
-    {
-        StreamSocketListener^ listener = dynamic_cast<StreamSocketListener^>(fd);
-        if(listener != nullptr)
-        {
-            if(addr.host == nullptr) // inaddr_any
-            {
-                checkResultAndWait(listener->BindServiceNameAsync(addr.port));
-            }
-            else
-            {
-                checkResultAndWait(listener->BindEndpointAsync(addr.host, addr.port));
-            }
-            local.host = addr.host;
-            local.port = listener->Information->LocalPort;
-        }
-
-        DatagramSocket^ datagram = dynamic_cast<DatagramSocket^>(fd);
-        if(datagram != nullptr)
-        {
-            if(addr.host == nullptr) // inaddr_any
-            {
-                NetworkAdapter^ adapter;
-                if(!intf.empty())
-                {
-                    auto s = ref new String(Ice::stringToWstring(intf).c_str());
-                    auto profiles = NetworkInformation::GetConnectionProfiles();
-                    for(auto i = profiles->First(); adapter == nullptr && i->HasCurrent; i->MoveNext())
-                    {
-                        auto names = i->Current->GetNetworkNames();
-                        for(auto j = names->First(); adapter == nullptr && j->HasCurrent; j->MoveNext())
-                        {
-                            if(j->Current->Equals(s))
-                            {
-                                adapter = i->Current->NetworkAdapter;
-                            }
-                        }
-                    }
-                }
-
-                if(adapter)
-                {
-                    checkResultAndWait(datagram->BindServiceNameAsync(addr.port, adapter));
-                }
-                else
-                {
-                    checkResultAndWait(datagram->BindServiceNameAsync(addr.port));
-                }
-            }
-            else
-            {
-                checkResultAndWait(datagram->BindEndpointAsync(addr.host, addr.port));
-            }
-            local.host = datagram->Information->LocalAddress;
-            local.port = datagram->Information->LocalPort;
-        }
-    }
-    catch(const Ice::SocketException&)
-    {
-        closeSocketNoThrow(fd);
-        throw;
-    }
-    return local;
-}
-#else
 Address
 IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 {
@@ -2421,9 +1734,6 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 #  endif
     return local;
 }
-#endif
-
-#ifndef ICE_OS_UWP
 
 Address
 IceInternal::getNumericAddress(const std::string& address)
@@ -2865,94 +2175,6 @@ IceInternal::createPipe(SOCKET fds[2])
 #endif
 }
 
-#else // ICE_OS_UWP
-
-void
-IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr)
-{
-    if(herr == E_ACCESSDENIED)
-    {
-        throw SocketException(file, line, static_cast<int>(herr));
-    }
-    SocketErrorStatus error = SocketError::GetStatus(herr);
-    if(error == SocketErrorStatus::ConnectionRefused)
-    {
-        throw ConnectionRefusedException(file, line, static_cast<int>(error));
-    }
-    else if(error == SocketErrorStatus::NetworkDroppedConnectionOnReset ||
-            error == SocketErrorStatus::ConnectionTimedOut ||
-            error == SocketErrorStatus::NetworkIsUnreachable ||
-            error == SocketErrorStatus::UnreachableHost ||
-            error == SocketErrorStatus::ConnectionResetByPeer ||
-            error == SocketErrorStatus::SoftwareCausedConnectionAbort)
-    {
-        throw ConnectFailedException(file, line, static_cast<int>(error));
-    }
-    else if(error == SocketErrorStatus::HostNotFound)
-    {
-        throw DNSException(file, line, static_cast<int>(error), "");
-    }
-    else
-    {
-        throw SocketException(file, line, static_cast<int>(error));
-    }
-}
-
-void
-IceInternal::checkErrorCode(const char* file, int line, HRESULT herr)
-{
-    if(herr == E_ACCESSDENIED)
-    {
-        throw SocketException(file, line, static_cast<int>(herr));
-    }
-    SocketErrorStatus error = SocketError::GetStatus(herr);
-    if(error == SocketErrorStatus::NetworkDroppedConnectionOnReset ||
-       error == SocketErrorStatus::SoftwareCausedConnectionAbort ||
-       error == SocketErrorStatus::ConnectionResetByPeer)
-    {
-        throw ConnectionLostException(file, line, static_cast<int>(error));
-    }
-    else if(error == SocketErrorStatus::HostNotFound)
-    {
-        throw DNSException(file, line, static_cast<int>(error), "");
-    }
-    else
-    {
-        throw SocketException(file, line, static_cast<int>(error));
-    }
-}
-
-//
-// UWP impose some restriction on operations that block when run from
-// STA thread and throws concurrency::invalid_operation. We cannot
-// directly call task::get or task::way, this helper method is used to
-// workaround this limitation.
-//
-void
-IceInternal::runSync(Windows::Foundation::IAsyncAction^ action)
-{
-    std::promise<void> p;
-
-    concurrency::create_task(action).then(
-        [&p](concurrency::task<void> t)
-        {
-            try
-            {
-                t.get();
-                p.set_value();
-            }
-            catch(...)
-            {
-                p.set_exception(std::current_exception());
-            }
-        },
-        concurrency::task_continuation_context::use_arbitrary());
-
-    return p.get_future().get();
-}
-
-#endif
-
 #if defined(ICE_USE_IOCP)
 void
 IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourceAddr, AsyncInfo& info)
@@ -3062,14 +2284,8 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
 bool
 IceInternal::isIpAddress(const string& name)
 {
-#ifdef ICE_OS_UWP
-     HostName^ hostname = ref new HostName(ref new String(stringToWstring(name,
-                                                          getProcessStringConverter()).c_str()));
-     return hostname->Type == HostNameType::Ipv4 || hostname->Type == HostNameType::Ipv6;
-#else
     in_addr addr;
     in6_addr addr6;
 
     return inet_pton(AF_INET, name.c_str(), &addr) > 0 || inet_pton(AF_INET6, name.c_str(), &addr6) > 0;
-#endif
 }

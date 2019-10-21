@@ -4,21 +4,17 @@
 
 #include <Ice/SHA1.h>
 
-#ifndef ICE_OS_UWP
-#   if defined(_WIN32)
-#      include <Wincrypt.h>
-#      include <IceUtil/Exception.h>
-#   elif defined(__APPLE__)
-#      include <CommonCrypto/CommonDigest.h>
-#   else
-#      include <openssl/sha.h>
-#   endif
+#if defined(_WIN32)
+#   include <Wincrypt.h>
+#   include <IceUtil/Exception.h>
+#elif defined(__APPLE__)
+#   include <CommonCrypto/CommonDigest.h>
+#else
+#   include <openssl/sha.h>
 #endif
 
 using namespace std;
 using namespace IceUtil;
-
-#ifndef ICE_OS_UWP
 
 namespace IceInternal
 {
@@ -153,23 +149,11 @@ IceInternal::SHA1::finalize(std::vector<unsigned char>& md)
 {
     _hasher->finalize(md);
 }
-#endif
 
 void
 IceInternal::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
 {
-#if defined(ICE_OS_UWP)
-    auto dataA =
-        ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(data), static_cast<unsigned int>(length));
-    auto hasher = Windows::Security::Cryptography::Core::HashAlgorithmProvider::OpenAlgorithm("SHA1");
-    auto hashed = hasher->HashData(Windows::Security::Cryptography::CryptographicBuffer::CreateFromByteArray(dataA));
-    auto reader = ::Windows::Storage::Streams::DataReader::FromBuffer(hashed);
-    md.resize(reader->UnconsumedBufferLength);
-    if(!md.empty())
-    {
-        reader->ReadBytes(::Platform::ArrayReference<unsigned char>(&md[0], static_cast<unsigned int>(md.size())));
-    }
-#elif defined(_WIN32)
+#if defined(_WIN32)
     SHA1 hasher;
     hasher.update(data, length);
     hasher.finalize(md);

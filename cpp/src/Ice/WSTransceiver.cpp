@@ -128,49 +128,6 @@ Long ice_nlltoh(const Byte* src)
     return v;
 }
 
-#if defined(ICE_OS_UWP)
-Short htons(Short v)
-{
-    Short result;
-    Byte* dest = reinterpret_cast<Byte*>(&result);
-
-    //
-    // Transfer a short in network (big-endian) order.
-    //
-#ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v);
-    *dest++ = *src++;
-    *dest = *src;
-#else
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Short) - 1;
-    *dest++ = *src--;
-    *dest = *src;
-#endif
-    return result;
-}
-
-Short ntohs(Short value)
-{
-    const Byte* src = reinterpret_cast<Byte*>(&value);
-    Short v;
-
-    //
-    // Extract a 64-bit integer in network (big-endian) order.
-    //
-#ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v);
-    *dest++ = *src++;
-    *dest = *src;
-#else
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Short) - 1;
-    *dest-- = *src++;
-    *dest = *src;
-#endif
-
-    return v;
-}
-#endif
-
 }
 
 NativeInfoPtr
@@ -179,7 +136,7 @@ IceInternal::WSTransceiver::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 AsyncInfo*
 IceInternal::WSTransceiver::getAsyncInfo(SocketOperation status)
 {
@@ -641,7 +598,7 @@ IceInternal::WSTransceiver::read(Buffer& buf)
     return s;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 bool
 IceInternal::WSTransceiver::startWrite(Buffer& buf)
 {

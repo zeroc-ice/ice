@@ -11,10 +11,6 @@
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 
-#ifdef ICE_OS_UWP
-#   include <deque>
-#endif
-
 namespace IceInternal
 {
 
@@ -33,7 +29,7 @@ class UdpTransceiver : public Transceiver, public NativeInfo
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
@@ -43,7 +39,7 @@ public:
     virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&);
     virtual SocketOperation read(Buffer&);
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
@@ -68,17 +64,6 @@ private:
 
     void setBufSize(int, int);
 
-#ifdef ICE_OS_UWP
-    void appendMessage(Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^);
-    Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^ readMessage();
-
-    void connectCompleted(Windows::Foundation::IAsyncAction^, Windows::Foundation::AsyncStatus);
-    void getOutputStreamMcastCompleted(
-        Windows::Foundation::IAsyncOperation<Windows::Storage::Streams::IOutputStream^>^,
-        Windows::Foundation::AsyncStatus);
-    void getOutputStreamCompleted(concurrency::task<Windows::Storage::Streams::IOutputStream^>, Buffer&);
-#endif
-
     friend class UdpEndpointI;
     friend class UdpConnector;
 
@@ -99,17 +84,11 @@ private:
     static const int _udpOverhead;
     static const int _maxPacketSize;
 
-#if defined(ICE_USE_IOCP)
+#ifdef ICE_USE_IOCP
     AsyncInfo _read;
     AsyncInfo _write;
     Address _readAddr;
     socklen_t _readAddrLen;
-#elif defined(ICE_OS_UWP)
-    AsyncInfo _write;
-    Windows::Storage::Streams::DataWriter^ _writer;
-    IceUtil::Mutex _mutex;
-    bool _readPending;
-    std::deque<Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^> _received;
 #endif
 };
 

@@ -52,7 +52,7 @@ public:
 };
 ICE_DEFINE_PTR(ControllerHelperPtr, ControllerHelper);
 
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+#if (TARGET_OS_IPHONE != 0)
 
 //
 // streambuf redirection implementation
@@ -127,12 +127,12 @@ private:
 
     ControllerHelper* _controllerHelper;
     Ice::CommunicatorPtr _communicator;
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     IceUtil::CtrlCHandler* _ctrlCHandler;
 #endif
 };
 
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+#if (TARGET_OS_IPHONE != 0)
 
 class TestFailedException
 {
@@ -177,7 +177,7 @@ runTest(int argc, char* argv[])
 
 }
 
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+#if (TARGET_OS_IPHONE != 0)
 #   define DEFINE_TEST(HELPER)                                \
     extern "C"                                                \
     {                                                         \

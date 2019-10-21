@@ -91,12 +91,8 @@ Client::run(int argc, char** argv)
     //
     // Plugin directory is provided as the last argument
     //
-#if defined(ICE_OS_UWP)
-    string pluginDir = "plugins/uwp/";
-#else
     string pluginDir = argv[argc - 1];
     pluginDir += "/";
-#endif
 
     Ice::registerPluginFactory("Static1", createMyPlugin, true); // true = Load on communicator initialization
     Ice::registerPluginFactory("Static2", createMyPlugin, false);

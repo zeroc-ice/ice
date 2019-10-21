@@ -463,11 +463,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     props["IceMX.Metrics.View.GroupBy"] = "none";
     updateProps(clientProps, serverProps, update.get(), props);
 
-#ifndef ICE_OS_UWP
     int threadCount = 4;
-#else
-    int threadCount = 3; // No endpoint host resolver thread with UWP.
-#endif
 
     Ice::Long timestamp;
     IceMX::MetricsView view = clientMetrics->getMetricsView("View", timestamp);
@@ -771,11 +767,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
         cout << "ok" << endl;
 
-        //
-        // Ice doesn't do any endpoint lookup with UWP, the UWP
-        // runtime takes care of if.
-        //
-#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE==0
         cout << "testing endpoint lookup metrics... " << flush;
 
         props["IceMX.Metrics.View.Map.EndpointLookup.GroupBy"] = "id";
@@ -1545,7 +1537,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         test(obsv->connectionObserver->getTotal() > 0);
         test(obsv->connectionEstablishmentObserver->getTotal() > 0);
-#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getTotal() > 0);
 #endif
         test(obsv->invocationObserver->remoteObserver->getTotal() > 0);
@@ -1562,7 +1554,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         test(obsv->connectionObserver->getCurrent() > 0);
         test(obsv->connectionEstablishmentObserver->getCurrent() == 0);
-#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getCurrent() == 0);
 #endif
         waitForCurrent(obsv->invocationObserver->remoteObserver, 0);
@@ -1585,7 +1577,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         test(obsv->connectionObserver->getFailedCount() > 0);
         test(obsv->connectionEstablishmentObserver->getFailedCount() > 0);
-#if !defined(ICE_OS_UWP) && TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE==0
         test(obsv->endpointLookupObserver->getFailedCount() > 0);
 #endif
     }

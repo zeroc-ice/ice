@@ -13,10 +13,6 @@
 #include <Ice/Properties.h>
 #include <Ice/TraceLevels.h>
 
-#if defined(ICE_OS_UWP)
-#   include <Ice/StringConverter.h>
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace Ice::Instrumentation;
@@ -173,7 +169,7 @@ IceInternal::ThreadPoolWorkQueue::destroy()
     //Lock sync(*this); Called with the thread pool locked
     assert(!_destroyed);
     _destroyed = true;
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
     _threadPool._selector.ready(this, SocketOperationRead, true);
@@ -185,7 +181,7 @@ IceInternal::ThreadPoolWorkQueue::queue(const ThreadPoolWorkItemPtr& item)
 {
     //Lock sync(*this); Called with the thread pool locked
     _workItems.push_back(item);
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else
     if(_workItems.size() == 1)
@@ -195,7 +191,7 @@ IceInternal::ThreadPoolWorkQueue::queue(const ThreadPoolWorkItemPtr& item)
 #endif
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 bool
 IceInternal::ThreadPoolWorkQueue::startAsync(SocketOperation)
 {
@@ -222,7 +218,7 @@ IceInternal::ThreadPoolWorkQueue::message(ThreadPoolCurrent& current)
             workItem = _workItems.front();
             _workItems.pop_front();
         }
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
         else
         {
             assert(_destroyed);
@@ -289,19 +285,18 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _threadIdleTime(0),
     _stackSize(0),
     _inUse(0),
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     _inUseIO(0),
     _nextHandler(_handlers.end()),
 #endif
     _promote(true)
 {
     PropertiesPtr properties = _instance->initializationData().properties;
-#ifndef ICE_OS_UWP
-#   ifdef _WIN32
+#ifdef _WIN32
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
     int nProcessors = sysInfo.dwNumberOfProcessors;
-#   elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
     size_t sz = sizeof(nProcessors);
     int nProcessors;
@@ -309,13 +304,12 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     {
         nProcessors = 1;
     }
-#   else
+#else
     int nProcessors = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
     if(nProcessors == -1)
     {
         nProcessors = 1;
     }
-#   endif
 #endif
 
     //
@@ -332,12 +326,11 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     }
 
     int sizeMax = properties->getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
-#ifndef ICE_OS_UWP
     if(sizeMax == -1)
     {
         sizeMax = nProcessors;
     }
-#endif
+
     if(sizeMax < size)
     {
         Warning out(_instance->initializationData().logger);
@@ -370,11 +363,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     const_cast<int&>(_size) = size;
     const_cast<int&>(_sizeMax) = sizeMax;
     const_cast<int&>(_sizeWarn) = sizeWarn;
-#ifndef ICE_OS_UWP
     const_cast<int&>(_sizeIO) = min(sizeMax, nProcessors);
-#else
-    const_cast<int&>(_sizeIO) = sizeMax;
-#endif
     const_cast<int&>(_threadIdleTime) = threadIdleTime;
 
 #ifdef ICE_USE_IOCP
@@ -539,7 +528,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
 {
     Lock sync(*this);
     assert(!_destroyed);
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     closeNow = _selector.finish(handler.get(), closeNow); // This must be called before!
     _workQueue->queue(new FinishedWorkItem(handler, !closeNow));
     return closeNow;
@@ -666,7 +655,7 @@ IceInternal::ThreadPool::getDispatchQueue() const ICE_NOEXCEPT
 void
 IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 {
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     ThreadPoolCurrent current(_instance, this, thread);
     bool select = false;
     while(true)
@@ -820,12 +809,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         try
         {
             current._ioCompleted = false;
-#ifdef ICE_OS_UWP
-            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _threadIdleTime));
-#else
             current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
                                                                                  current._error, _threadIdleTime));
-#endif
         }
         catch(const SelectorTimeoutException&)
         {
@@ -839,14 +824,6 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else if(_inUse < static_cast<int>(_threads.size() - 1)) // If not the last idle thread, we can exit.
                 {
-#ifndef ICE_OS_UWP
-                    BOOL hasIO = false;
-                    GetThreadIOPendingFlag(GetCurrentThread(), &hasIO);
-                    if(hasIO)
-                    {
-                        continue;
-                    }
-#endif
                     if(_instance->traceLevels()->threadPool >= 1)
                     {
                         Trace out(_instance->initializationData().logger, _instance->traceLevels()->threadPoolCat);
@@ -870,13 +847,9 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 
             try
             {
-#ifdef ICE_OS_UWP
-                current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _serverIdleTime));
-#else
 
                 current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
-                                                            current._error, _serverIdleTime));
-#endif
+                                                                                     current._error, _serverIdleTime));
             }
             catch(const SelectorTimeoutException&)
             {
@@ -908,19 +881,6 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             Error out(_instance->initializationData().logger);
             out << "exception in `" << _prefix << "':\n" << ex << "\nevent handler: " << current._handler->toString();
         }
-#ifdef ICE_OS_UWP
-        catch(Platform::Exception^ ex)
-        {
-            //
-            // We don't need to pass the wide string converter in the call to wstringToString
-            // because the wide string is using the platform default encoding.
-            //
-            Error out(_instance->initializationData().logger);
-            out << "exception in `" << _prefix << "':\n"
-                << wstringToString(ex->Message->Data(), _instance->getStringConverter())
-                << "\nevent handler: " << current._handler->toString();
-        }
-#endif
         catch(...)
         {
             Error out(_instance->initializationData().logger);
@@ -952,7 +912,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
     if(_sizeMax > 1)
     {
 
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
         --_inUseIO;
 
         if(!_destroyed)
@@ -1022,7 +982,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
     return _serialize && current._handler.get() != _workQueue.get();
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 bool
 IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
 {
@@ -1034,11 +994,9 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_completed = static_cast<SocketOperation>(current._handler->_completed | current.operation);
         current._handler->_started = static_cast<SocketOperation>(current._handler->_started & ~current.operation);
 
-#ifndef ICE_OS_UWP
         AsyncInfo* info = current._handler->getNativeInfo()->getAsyncInfo(current.operation);
         info->count = current._count;
         info->error = current._error;
-#endif
 
         if(!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {
@@ -1317,7 +1275,7 @@ ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance,
     _threadPool(threadPool.get()),
     _thread(thread),
     _ioCompleted(false)
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+#if !defined(ICE_USE_IOCP)
     , _leader(false)
 #endif
 {

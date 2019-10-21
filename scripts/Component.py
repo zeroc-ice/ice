@@ -66,20 +66,6 @@ class Ice(Component):
         elif "static" in config.buildConfig:
             return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
                     ["Ice/library", "Ice/plugin"])
-        elif isinstance(mapping, CppMapping) and config.uwp:
-            return (["Ice/.*", "IceSSL/configuration"],
-                    ["Ice/background",
-                     "Ice/echo",
-                     "Ice/faultTolerance",
-                     "Ice/gc",
-                     "Ice/library",
-                     "Ice/logger",
-                     "Ice/networkProxy",        # SOCKS proxy not supported with UWP
-                     "Ice/properties",          # Property files are not supported with UWP
-                     "Ice/plugin",
-                     "Ice/threadPoolPriority"])
-        elif isinstance(platform, Windows) and platform.getCompiler() in ["v100"]:
-            return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
         elif isinstance(mapping, CSharpMapping) and config.xamarin:
             return (["Ice/.*"],
                     ["Ice/hash",

@@ -140,22 +140,6 @@
 #endif
 
 //
-// Visual Studio 2015 or later
-//
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
-
-//
-// Check if building for UWP
-//
-#   include <winapifamily.h>
-#   if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
-#      define ICE_OS_UWP
-#      define ICE_STATIC_LIBS
-#   endif
-
-#endif
-
-//
 // Support for thread-safe function local static initialization
 // (a.k.a. "magic statics")
 //
@@ -298,31 +282,15 @@
 
 #   ifdef ICE_CPP11_MAPPING
 #      if defined(_DEBUG)
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11D.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
-#         endif
+#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
 #      else
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
-#         endif
+#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
 #      endif
 #   else
 #      if defined(_DEBUG)
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwpD.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
-#         endif
+#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
 #      else
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
-#         endif
+#          define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
 #      endif
 #   endif
 

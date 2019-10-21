@@ -12,7 +12,7 @@ using namespace Test;
 namespace
 {
 
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 Test::TestHelper* instance = 0;
 
 void
@@ -28,7 +28,7 @@ shutdownOnInterruptCallback(int)
 
 }
 
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+#if (TARGET_OS_IPHONE != 0)
 
 StreamHelper::StreamHelper() : _controllerHelper(0)
 {
@@ -121,11 +121,11 @@ StreamHelper::sputc(char c)
 
 Test::TestHelper::TestHelper(bool registerPlugins) :
     _controllerHelper(0)
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     , _ctrlCHandler(0)
 #endif
 {
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     instance = this;
 #endif
 
@@ -141,7 +141,7 @@ Test::TestHelper::TestHelper(bool registerPlugins) :
 #endif
     }
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#if defined(_WIN32)
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 
@@ -157,7 +157,7 @@ Test::TestHelper::TestHelper(bool registerPlugins) :
 
 Test::TestHelper::~TestHelper()
 {
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     if(_ctrlCHandler)
     {
         delete _ctrlCHandler;
@@ -328,7 +328,7 @@ Test::TestHelper::shutdown()
     }
 }
 
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+#if (TARGET_OS_IPHONE != 0)
 void
 Test::TestHelper::shutdownOnInterrupt()
 {

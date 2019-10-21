@@ -491,7 +491,6 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
                                               "no argument provided for --sourceAddress option in endpoint " +
                                               endpoint);
         }
-#ifndef ICE_OS_UWP
         const_cast<Address&>(_sourceAddr) = getNumericAddress(argument);
         if(!isAddressValid(_sourceAddr))
         {
@@ -499,7 +498,6 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
                                               "invalid IP address provided for --sourceAddress option in endpoint " +
                                               endpoint);
         }
-#endif
     }
     else
     {
@@ -534,8 +532,6 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, Input
     s->read(const_cast<string&>(_host), false);
     s->read(const_cast<Ice::Int&>(_port));
 }
-
-#ifndef ICE_OS_UWP
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
     IceUtil::Thread("Ice.HostResolver"),
@@ -712,45 +708,3 @@ IceInternal::EndpointHostResolver::updateObserver()
                                                  _observer.get()));
     }
 }
-
-#else
-
-IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
-    _instance(instance)
-{
-}
-
-void
-IceInternal::EndpointHostResolver::resolve(const string& host,
-                                           int port,
-                                           Ice::EndpointSelectionType selType,
-                                           const IPEndpointIPtr& endpoint,
-                                           const EndpointI_connectorsPtr& callback)
-{
-    //
-    // No DNS lookup support with UWP.
-    //
-    callback->connectors(endpoint->connectors(getAddresses(host, port,
-                                                           _instance->protocolSupport(),
-                                                           selType,
-                                                           _instance->preferIPv6(),
-                                                           false),
-                                              _instance->networkProxy()));
-}
-
-void
-IceInternal::EndpointHostResolver::destroy()
-{
-}
-
-void
-IceInternal::EndpointHostResolver::run()
-{
-}
-
-void
-IceInternal::EndpointHostResolver::updateObserver()
-{
-}
-
-#endif

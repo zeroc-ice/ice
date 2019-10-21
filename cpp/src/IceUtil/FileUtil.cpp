@@ -10,14 +10,12 @@
 #include <string.h>
 
 #ifdef _WIN32
-#  include <process.h>
-#  include <io.h>
-#  ifndef ICE_OS_UWP
-#    include <Shlwapi.h>
-#  endif
+#   include <process.h>
+#   include <io.h>
+#   include <Shlwapi.h>
 #else
-#  include <unistd.h>
-#  include <dirent.h>
+#   include <unistd.h>
+#   include <dirent.h>
 #endif
 
 using namespace std;
@@ -91,13 +89,12 @@ IceUtilInternal::directoryExists(const string& path)
 //
 // Determine if a directory exists and is empty.
 //
-#ifndef ICE_OS_UWP
 bool
 IceUtilInternal::isEmptyDirectory(const string& path)
 {
-#   ifdef _WIN32
+#ifdef _WIN32
     return PathIsDirectoryEmptyW(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str());
-#   else
+#else
     struct dirent* d;
     DIR* dir = opendir(path.c_str());
     if(dir)
@@ -119,9 +116,8 @@ IceUtilInternal::isEmptyDirectory(const string& path)
     {
         return false;
     }
-#   endif
-}
 #endif
+}
 
 //
 // Determine if a regular file exists.
@@ -240,7 +236,6 @@ IceUtilInternal::open(const string& path, int flags)
     }
 }
 
-#ifndef ICE_OS_UWP
 int
 IceUtilInternal::getcwd(string& cwd)
 {
@@ -256,7 +251,6 @@ IceUtilInternal::getcwd(string& cwd)
     cwd = wstringToString(cwdbuf, IceUtil::getProcessStringConverter());
     return 0;
 }
-#endif
 
 int
 IceUtilInternal::unlink(const string& path)
@@ -286,15 +280,8 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-#ifndef ICE_OS_UWP
     _fd = ::CreateFileW(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
                         GENERIC_WRITE, 0, ICE_NULLPTR, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, ICE_NULLPTR);
-#else
-    CREATEFILE2_EXTENDED_PARAMETERS params;
-    params.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-    _fd = ::CreateFile2(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
-                        GENERIC_WRITE, 0, OPEN_ALWAYS, &params);
-#endif
     _path = path;
 
     if(_fd == INVALID_HANDLE_VALUE)

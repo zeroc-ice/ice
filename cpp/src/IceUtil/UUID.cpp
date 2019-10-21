@@ -20,7 +20,7 @@
 
 using namespace std;
 
-#if defined(ICE_OS_UWP) || !defined(_WIN32)
+#ifndef _WIN32
 
 namespace
 {
@@ -87,7 +87,7 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 string
 IceUtil::generateUUID()
 {
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#ifdef _WIN32
 
     UUID uuid;
     RPC_STATUS ret = UuidCreate(&uuid);

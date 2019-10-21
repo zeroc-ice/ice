@@ -9,7 +9,7 @@
 using namespace IceUtilInternal;
 using namespace std;
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#ifdef _WIN32
 namespace
 {
 

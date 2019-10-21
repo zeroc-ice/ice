@@ -16,7 +16,7 @@ IceInternal::WSAcceptor::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 IceInternal::AsyncInfo*
 IceInternal::WSAcceptor::getAsyncInfo(IceInternal::SocketOperation status)
 {
@@ -37,7 +37,7 @@ IceInternal::WSAcceptor::listen()
     return _endpoint;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 void
 IceInternal::WSAcceptor::startAccept()
 {
