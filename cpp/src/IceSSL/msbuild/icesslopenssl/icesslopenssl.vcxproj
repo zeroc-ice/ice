@@ -113,8 +113,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\..\msbuild\packages\zeroc.openssl.v120.1.0.2.6\build\native\zeroc.openssl.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v120.1.0.2.6\build\native\zeroc.openssl.v120.targets')" />
-    <Import Project="..\..\..\..\msbuild\packages\zeroc.openssl.v140.1.0.2.6\build\native\zeroc.openssl.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v140.1.0.2.6\build\native\zeroc.openssl.v140.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.openssl.v141.1.0.2.6\build\native\zeroc.openssl.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v141.1.0.2.6\build\native\zeroc.openssl.v141.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.openssl.v142.1.0.2.6\build\native\zeroc.openssl.v142.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v142.1.0.2.6\build\native\zeroc.openssl.v142.targets')" />
   </ImportGroup>
@@ -123,8 +121,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v120.1.0.2.6\build\native\zeroc.openssl.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.openssl.v120.1.0.2.6\build\native\zeroc.openssl.v120.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v140.1.0.2.6\build\native\zeroc.openssl.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.openssl.v140.1.0.2.6\build\native\zeroc.openssl.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v141.1.0.2.6\build\native\zeroc.openssl.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.openssl.v141.1.0.2.6\build\native\zeroc.openssl.v141.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.openssl.v142.1.0.2.6\build\native\zeroc.openssl.v142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.openssl.v142.1.0.2.6\build\native\zeroc.openssl.v142.targets'))" />
   </Target>

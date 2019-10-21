@@ -42,9 +42,7 @@
     <ClCompile Include="..\Communicator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\PHPUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="..\..\..\..\cpp98\src\Slice\PHPUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Config.h">

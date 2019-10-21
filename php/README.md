@@ -94,13 +94,13 @@ extension with namespaces disabled by setting the MSBuild property
 msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 ```
 
-The PHP extension is build by default using PHP 7.1, the extension can be build
-with PHP 7.1, 7.2 or 7.3 by setting MSBuildProperty `BuildWithPhpVersion` to the
+The PHP extension is build by default using PHP 7.2, the extension can be build
+with PHP 7.2 or 7.3 by setting MSBuildProperty `BuildWithPhpVersion` to the
 desired version for example you can use the following command to build the
-extension with PHP 7.2:
+extension with PHP 7.3:
 
 ```
-msbuild msbuild\ice.proj /p:BuildWithPhpVersion=7.2
+msbuild msbuild\ice.proj /p:BuildWithPhpVersion=7.3
 ```
 
 The PHP extension depends on Ice for C++ components from the `cpp` subdirectory,
@@ -177,7 +177,7 @@ php -i
 
 Review the output for a line like this:
 ```
-extension_dir => C:\Program Files\iis express\PHP\v7.1\ext\ => C:\Program Files\iis express\PHP\v7.1\ext\
+extension_dir => C:\Program Files\iis express\PHP\v7.2\ext\ => C:\Program Files\iis express\PHP\v7.2\ext\
 ```
 
 Once you've copied the extension to the appropriate directory, you will need
@@ -185,7 +185,7 @@ to enable the extension in your PHP configuration. First you must discover the
 location of PHP's configuration file (`php.ini`), which is also displayed by
 the `-i` option. Look for the following line:
 ```
-Loaded Configuration File => C:\Program Files\iis express\PHP\v7.1\php.ini
+Loaded Configuration File => C:\Program Files\iis express\PHP\v7.2\php.ini
 ```
 
 Open `php.ini` and append the following directive:
@@ -225,7 +225,7 @@ example, on Linux you can add the directory containing the Ice run-time
 libraries to `/etc/ld.so.conf` and run `ldconfig`.
 
 For IIS configured to run PHP as FastCGI, the simplest solution is to copy the
-libraries next to the `php-cgi.exe` in `C:\Program Files\iis express\PHP\v7.1`.
+libraries next to the `php-cgi.exe` in `C:\Program Files\iis express\PHP\v7.2`.
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v142.3.7.3\build\native\zeroc.ice.v142.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v142.3.7.3\build\native\zeroc.ice.v142.props') and '$(ICE_BIN_DIST)' == 'all'" />
-  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.3\build\native\zeroc.ice.v100.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.3\build\native\zeroc.ice.v100.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.3\build\native\zeroc.ice.v141.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.3\build\native\zeroc.ice.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
-  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.3\build\native\zeroc.ice.v120.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.3\build\native\zeroc.ice.v120.props') and '$(ICE_BIN_DIST)' == 'all'" />
-  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.3\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.3\build\native\zeroc.ice.v140.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Cpp11-Debug|Win32">
       <Configuration>Cpp11-Debug</Configuration>
@@ -95,10 +92,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\msbuild\ice.test.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.3\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.3\build\native\zeroc.ice.v140.targets') and '$(ICE_BIN_DIST)' == 'all'" />
-    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.3\build\native\zeroc.ice.v120.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.3\build\native\zeroc.ice.v120.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.3\build\native\zeroc.ice.v141.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.3\build\native\zeroc.ice.v141.targets') and '$(ICE_BIN_DIST)' == 'all'" />
-    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.3\build\native\zeroc.ice.v100.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.3\build\native\zeroc.ice.v100.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v142.3.7.3\build\native\zeroc.ice.v142.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v142.3.7.3\build\native\zeroc.ice.v142.targets') and '$(ICE_BIN_DIST)' == 'all'" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -7,8 +7,7 @@
 
   <PropertyGroup Label="UserMacros">
 
-    <!-- The PHP version used to build the extension. The supported values are 7.1, 7.2 and 7.3. -->
-    <BuildWithPhpVersion Condition="'$(DefaultPlatformToolset)' == 'v140'">7.1</BuildWithPhpVersion>
+    <!-- The PHP version used to build the extension. The supported values are 7.2 and 7.3. -->
     <BuildWithPhpVersion Condition="'$(DefaultPlatformToolset)' == 'v141'">7.2</BuildWithPhpVersion>
 
     <!-- Determines whether the extension uses PHP namespaces -->

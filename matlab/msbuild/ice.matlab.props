@@ -12,7 +12,7 @@
         </When>
         <When Condition="'$(ICE_BIN_DIST)' == 'cpp'">
             <PropertyGroup>
-                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.v140.$(IceVersion)</IceHome>
+                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.v141.$(IceVersion)</IceHome>
                 <IceToolsPath>$(IceHome)\tools</IceToolsPath>
             </PropertyGroup>
         </When>

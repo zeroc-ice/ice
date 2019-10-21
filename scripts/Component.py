@@ -235,9 +235,7 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
-    if platform.getCompiler() not in ["v140", "v141"]:
-        Mapping.disable("python")
-    if platform.getCompiler() not in ["v140", "v141"]:
+    if platform.getCompiler() not in ["v141"]:
         Mapping.disable("php")
 
 #

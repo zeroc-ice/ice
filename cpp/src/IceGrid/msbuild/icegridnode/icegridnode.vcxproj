@@ -263,8 +263,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets')" />
-    <Import Project="..\..\..\..\msbuild\packages\lmdb.v120.0.9.24\build\native\lmdb.v120.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v120.0.9.24\build\native\lmdb.v120.targets')" />
-    <Import Project="..\..\..\..\msbuild\packages\lmdb.v140.0.9.24\build\native\lmdb.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v140.0.9.24\build\native\lmdb.v140.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\lmdb.v141.0.9.24\build\native\lmdb.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v141.0.9.24\build\native\lmdb.v141.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\lmdb.v142.0.9.24\build\native\lmdb.v142.targets" Condition="Exists('..\..\..\..\msbuild\packages\lmdb.v142.0.9.24\build\native\lmdb.v142.targets')" />
   </ImportGroup>
@@ -275,8 +273,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v120.0.9.24\build\native\lmdb.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v120.0.9.24\build\native\lmdb.v120.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v140.0.9.24\build\native\lmdb.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v140.0.9.24\build\native\lmdb.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v141.0.9.24\build\native\lmdb.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v141.0.9.24\build\native\lmdb.v141.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\lmdb.v142.0.9.24\build\native\lmdb.v142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\lmdb.v142.0.9.24\build\native\lmdb.v142.targets'))" />
   </Target>
