@@ -22,6 +22,9 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- TODO: Fix Documentation Warnings -->
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->
