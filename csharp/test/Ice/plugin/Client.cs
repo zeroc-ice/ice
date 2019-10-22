@@ -21,13 +21,9 @@ public class Client : Test.TestHelper
 
     public override void run(string[] args)
     {
-#if NET45
-        string pluginPath = "msbuild/plugin/net45/Plugin.dll";
-#else
         string pluginPath =
             String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
-#endif
         {
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();

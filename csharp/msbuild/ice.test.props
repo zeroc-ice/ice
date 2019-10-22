@@ -11,7 +11,6 @@
     <Prefer32Bit>false</Prefer32Bit>
     <WarningLevel>4</WarningLevel>
     <ErrorReport>prompt</ErrorReport>
-    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45</DefineConstants>
   </PropertyGroup>
 
   <Target Name="Info">

@@ -1291,60 +1291,6 @@ public class AllTests
                     test(false);
                 }
             }
-#if NET45
-            {
-                //
-                // This should fail because the client ony enables SSLv3 and the server
-                // uses the default protocol set that disables SSLv3
-                //
-                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-                initData.properties.setProperty("IceSSL.Protocols", "ssl3");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-                d["IceSSL.VerifyPeer"] = "2";
-                Test.ServerPrx server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
-                    test(false);
-                }
-                catch(Ice.ConnectionLostException)
-                {
-                    // Expected.
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                fact.destroyServer(server);
-                comm.destroy();
-
-                //
-                // This should success because the client and the server enables SSLv3
-                //
-                comm = Ice.Util.initialize(ref args, initData);
-                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
-                d["IceSSL.VerifyPeer"] = "2";
-                d["IceSSL.Protocols"] = "ssl3, tls1_0, tls1_1, tls1_2";
-                server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                fact.destroyServer(server);
-                comm.destroy();
-            }
-#endif
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing expired certificates... ");

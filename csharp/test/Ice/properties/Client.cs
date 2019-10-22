@@ -13,21 +13,6 @@ using System.Reflection;
 
 public class Client : Test.TestHelper
 {
-    class PropertiesClient : Ice.Application
-    {
-        public override int
-        run(String[] args)
-        {
-            Ice.Properties properties = communicator().getProperties();
-            test(properties.getProperty("Ice.Trace.Network").Equals("1"));
-            test(properties.getProperty("Ice.Trace.Protocol").Equals("1"));
-            test(properties.getProperty("Config.Path").Equals("./config/中国_client.config"));
-            test(properties.getProperty("Ice.ProgramName").Equals("PropertiesClient"));
-            test(appName().Equals(properties.getProperty("Ice.ProgramName")));
-            return 0;
-        }
-    }
-
     public override void run(string[] args)
     {
         {
@@ -39,11 +24,6 @@ public class Client : Test.TestHelper
             test(properties.getProperty("Ice.Trace.Protocol").Equals("1"));
             test(properties.getProperty("Config.Path").Equals("./config/中国_client.config"));
             test(properties.getProperty("Ice.ProgramName").Equals("PropertiesClient"));
-            Console.Out.WriteLine("ok");
-            Console.Out.Write("testing load properties from UTF-8 path using Ice::Application... ");
-            Console.Out.Flush();
-            PropertiesClient c = new PropertiesClient();
-            c.main(args, "./config/中国_client.config");
             Console.Out.WriteLine("ok");
         }
 

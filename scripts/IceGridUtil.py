@@ -257,7 +257,7 @@ class IceGridTestCase(TestCase):
             varStr = " ".join(["{0}={1}".format(k, val(v)) for k,v in variables.items()])
             targets = " ".join(self.targets)
             application = self.application
-            if isinstance(self.mapping, CSharpMapping) and current.config.dotnetcore:
+            if isinstance(self.mapping, CSharpMapping):
                 application = application.replace(".xml", ".netcoreapp.xml")
             self.runadmin(current, "application add -n {0} {1} {2}".format(application, varStr, targets))
 

@@ -307,48 +307,19 @@ namespace Ice
 
         public void load(string file)
         {
-#if NET45
-            if(file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
-               file.StartsWith("HKLM\\", StringComparison.Ordinal))
+            try
             {
-                RegistryKey key =
-                    file.StartsWith("HKCU\\", StringComparison.Ordinal) ? Registry.CurrentUser : Registry.LocalMachine;
-                RegistryKey iceKey = key.OpenSubKey(file.Substring(file.IndexOf("\\") + 1));
-                if(iceKey == null)
+                using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
                 {
-                    Ice.InitializationException ex = new Ice.InitializationException();
-                    ex.reason = "Could not open Windows registry key `" + file + "'";
-                    throw ex;
-                }
-
-                foreach(string propKey in iceKey.GetValueNames())
-                {
-                    RegistryValueKind kind = iceKey.GetValueKind(propKey);
-                    if(kind == RegistryValueKind.String || kind == RegistryValueKind.ExpandString)
-                    {
-                        setProperty(propKey, iceKey.GetValue(propKey).ToString());
-                    }
+                    parse(sr);
                 }
             }
-            else
+            catch(System.IO.IOException ex)
             {
-#endif
-                try
-                {
-                    using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
-                    {
-                        parse(sr);
-                    }
-                }
-                catch(System.IO.IOException ex)
-                {
-                    FileException fe = new FileException(ex);
-                    fe.path = file;
-                    throw fe;
-                }
-#if NET45
+                FileException fe = new FileException(ex);
+                fe.path = file;
+                throw fe;
             }
-#endif
         }
 
         public Properties ice_clone_()

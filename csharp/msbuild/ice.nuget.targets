@@ -7,23 +7,17 @@
     <!-- For CSharp we use Slice compiler from x64 Release builds -->
     <ItemGroup>
         <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\$(CppPlatform)\$(Configuration)\slice2cs.exe" />
-
-       <Net45IceBox Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe"/>
-       <Net45IceBox Include="$(IcePdbRootDir)bin\net45\iceboxnet.pdb"/>
-
         <!--
              With .Net Core we have to pack the dependencies next iceboxnet.dll,
              the .exe native executable is exclude as it is platform dependend
         -->
-        <NetStandardIceBox Include="$(IceSrcRootDir)bin\**\publish\*"
-                           Exclude="$(IceSrcRootDir)bin\**\publish\*.exe"
-                           Condition="'$(NetStandardTargets)' == 'true'" />
+        <IceBox Include="$(IceSrcRootDir)bin\**\publish\*"
+                Exclude="$(IceSrcRootDir)bin\**\publish\*.exe" />
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
                              $(IceSrcRootDir)lib\**\*.xml"/>
 
-        <Net45Pdbs Include="$(IcePdbRootDir)\lib\net45\*.pdb" />
-        <NetStandardPdbs Include="$(IceSrcRootDir)lib\netstandard2.0\*.pdb" />
+        <Pdbs Include="$(IceSrcRootDir)lib\netstandard2.0\*.pdb" />
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
@@ -33,13 +27,9 @@
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
         <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib\%(Assemblies.RecursiveDir)"/>
-        <Copy SourceFiles="@(Net45Pdbs)" DestinationFolder="$(PackageDirectory)\lib\net45"/>
-        <Copy SourceFiles="@(NetStandardPdbs)" DestinationFolder="$(PackageDirectory)\lib\netstandard2.0"
-              Condition="'$(NetStandardTargets)' == 'true'"/>
+        <Copy SourceFiles="@(Pdbs)" DestinationFolder="$(PackageDirectory)\lib\netstandard2.0"/>
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
         <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
-        <Copy SourceFiles="@(Net45IceBox)" DestinationFolder="$(PackageDirectory)\tools\net45"/>
-        <Copy SourceFiles="@(NetStandardIceBox)" DestinationFolder="$(PackageDirectory)\tools\%(NetStandardIceBox.RecursiveDir)\.."
-              Condition="'$(NetStandardTargets)' == 'true'"/>
+        <Copy SourceFiles="@(IceBox)" DestinationFolder="$(PackageDirectory)\tools\%(NetStandardIceBox.RecursiveDir)\.."/>
     </Target>
 </Project>

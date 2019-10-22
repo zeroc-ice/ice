@@ -21,7 +21,7 @@ class IceBox(ProcessFromBinDir, Server):
         # tests
         #
         if self.configFile:
-            if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
+            if isinstance(mapping, CSharpMapping):
                 configFile = self.configFile.format(testdir=current.testsuite.getPath())
                 with open(configFile, 'r') as source:
                     framework = mapping.getTargetFramework(current)
@@ -55,7 +55,7 @@ class IceBox(ProcessFromBinDir, Server):
         args = Server.getEffectiveArgs(self, current, args)
         if self.configFile:
             mapping = self.getMapping(current)
-            if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
+            if isinstance(mapping, CSharpMapping):
                 args.append("--Ice.Config={0}.{1}".format(self.configFile, mapping.getTargetFramework(current)))
             else:
                 args.append("--Ice.Config={0}".format(self.configFile))
