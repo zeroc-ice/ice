@@ -94,7 +94,7 @@ facetsAllTests(id<ICECommunicator> communicator)
     [adapter deactivate];
 
     tprintf("testing stringToProxy... ");
-    NSString* ref = @"d:default -p 12010";
+    NSString* ref = [NSString stringWithFormat:@"d:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> db = [communicator stringToProxy:ref];
     test(db);
     tprintf("ok\n");

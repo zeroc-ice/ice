@@ -95,7 +95,9 @@ defaultServerProperties(int *argc, char** argv)
     }
 #endif
 
-    NSArray* args = [properties parseIceCommandLineOptions:[ICEUtil argsToStringSeq:*argc argv:argv]];
+    NSArray* args = [ICEUtil argsToStringSeq:*argc argv:argv];
+    args = [properties parseIceCommandLineOptions:args];
+    args = [properties parseCommandLineOptions:@"Test" options:args];
     [ICEUtil stringSeqToArgs:args argc:argc argv:argv];
 
     return properties;
@@ -149,9 +151,21 @@ defaultClientProperties(int* argc, char** argv)
     }
 #endif
 
-    NSArray* args = [properties parseIceCommandLineOptions:[ICEUtil argsToStringSeq:*argc argv:argv]];
+    NSArray* args = [ICEUtil argsToStringSeq:*argc argv:argv];
+    args = [properties parseIceCommandLineOptions:args];
+    args = [properties parseCommandLineOptions:@"Test" options:args];
     [ICEUtil stringSeqToArgs:args argc:argc argv:argv];
+
     return properties;
+}
+
+NSString*
+getTestEndpoint(id<ICECommunicator> com, int num)
+{
+    id<ICEProperties> properties = [com getProperties];
+    NSString* protocol = [properties getPropertyWithDefault:@"Ice.Default.Protocol" value:@"default"];
+    int basePort = [properties getPropertyAsIntWithDefault:@"Test.BasePort" value:12010];
+    return [NSString stringWithFormat:@"%@ -p %d", protocol, basePort + num];
 }
 
 #if TARGET_OS_IPHONE

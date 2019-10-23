@@ -740,7 +740,7 @@ static void breakCycles(id o)
 id<TestSlicingObjectsClientTestIntfPrx>
 slicingObjectsAllTests(id<ICECommunicator> communicator)
 {
-    id<ICEObjectPrx> obj = [communicator stringToProxy:@"Test:default -p 12010"];
+    id<ICEObjectPrx> obj = [communicator stringToProxy:[NSString stringWithFormat:@"Test:%@", getTestEndpoint(communicator, 0)]];
     id<TestSlicingObjectsClientTestIntfPrx> test = [TestSlicingObjectsClientTestIntfPrx checkedCast:obj];
 
     tprintf("base as Object... ");

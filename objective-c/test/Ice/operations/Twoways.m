@@ -1696,7 +1696,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p, id<Tes
             [ctx setObject:@"TWO" forKey:@"two" ];
             [ctx setObject:@"THREE" forKey:@"three"];
 
-            id<TestOperationsMyClassPrx> pc = [TestOperationsMyClassPrx uncheckedCast:[ic stringToProxy:@"test:default -p 12010"]];
+            id<TestOperationsMyClassPrx> pc = [TestOperationsMyClassPrx uncheckedCast:[ic stringToProxy:[NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)]]];
 
             [[ic getImplicitContext] setContext:ctx];
             test([[[ic getImplicitContext] getContext] isEqual:ctx]);

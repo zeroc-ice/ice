@@ -10,7 +10,7 @@ TestProxyMyClassPrx*
 proxyAllTests(id<ICECommunicator> communicator)
 {
     tprintf("testing stringToProxy... ");
-    NSString* ref = @"test:default -p 12010";
+    NSString* ref = [NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:ref];
     test(base);
 
@@ -252,7 +252,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("testing propertyToProxy... ");
     id<ICEProperties> prop = [communicator getProperties];
     NSString* propertyPrefix = @"Foo.Proxy";
-    [prop setProperty:propertyPrefix value:@"test:default -p 12010"];
+    [prop setProperty:propertyPrefix value:[NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)]];
     b1 = [communicator propertyToProxy:propertyPrefix];
     test([[[b1 ice_getIdentity] name] isEqualToString:@"test"] && [[[b1 ice_getIdentity] category] length] == 0 &&
          [[b1 ice_getAdapterId] length] == 0 && [[b1 ice_getFacet] length] == 0);
@@ -296,7 +296,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     //test([b1 ice_getLocatorCacheTimeout] == 60);
     //prop->setProperty("Ice.Default.LocatorCacheTimeout" :@"");
 
-    [prop setProperty:propertyPrefix value:@"test:default -p 12010"];
+    [prop setProperty:propertyPrefix value:[NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)]];
 
     property = [propertyPrefix stringByAppendingString:@".Router"];
     test(![b1 ice_getRouter]);
@@ -770,7 +770,7 @@ proxyAllTests(id<ICECommunicator> communicator)
 
     tprintf("testing encoding versioning... ");
     TestProxyMyClassPrx* cl20 = [TestProxyMyClassPrx uncheckedCast:
-                                       [communicator stringToProxy:@"test -e 2.0:default -p 12010"]];
+                                       [communicator stringToProxy:[NSString stringWithFormat:@"test -e 2.0:%@", getTestEndpoint(communicator, 0)]]];
     @try
     {
         [cl20 ice_ping];
@@ -782,7 +782,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     }
 
     TestProxyMyClassPrx* cl10 = [TestProxyMyClassPrx uncheckedCast:
-                                       [communicator stringToProxy:@"test -e 1.0:default -p 12010"]];
+                                       [communicator stringToProxy:[NSString stringWithFormat:@"test -e 1.0:%@", getTestEndpoint(communicator, 0)]]];
     [cl10 ice_ping];
     [[cl10 ice_encodingVersion:ICEEncoding_1_0] ice_ping];
     //cl->ice_collocationOptimized(false)->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
@@ -790,7 +790,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
     // call will use the 1.1 encoding
     TestProxyMyClassPrx* cl13 = [TestProxyMyClassPrx uncheckedCast:
-                                       [communicator stringToProxy:@"test -e 1.3:default -p 12010"]];
+                                       [communicator stringToProxy:[NSString stringWithFormat:@"test -e 1.3:%@", getTestEndpoint(communicator, 0)]]];
     [cl13 ice_ping];
     [cl13 end_ice_ping:[cl13 begin_ice_ping]];
 
@@ -838,7 +838,7 @@ proxyAllTests(id<ICECommunicator> communicator)
 
     tprintf("testing protocol versioning... ");
 
-    cl20 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:@"test -p 2.0:default -p 12010"]];
+    cl20 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:[NSString stringWithFormat:@"test -p 2.0:%@", getTestEndpoint(communicator, 0)]]];
     @try
     {
         [cl20 ice_ping];
@@ -849,12 +849,12 @@ proxyAllTests(id<ICECommunicator> communicator)
         // Server 2.0 proxy doesn't support 1.0 version.
     }
 
-    cl10 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:@"test -p 1.0:default -p 12010"]];
+    cl10 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:[NSString stringWithFormat:@"test -p 1.0:%@", getTestEndpoint(communicator, 0)]]];
     [cl10 ice_ping];
 
     // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
     // call will use the 1.0 encoding
-    cl13 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:@"test -p 1.3:default -p 12010"]];
+    cl13 = [TestProxyMyClassPrx uncheckedCast:[communicator stringToProxy:[NSString stringWithFormat:@"test -p 1.3:%@", getTestEndpoint(communicator, 0)]]];
     [cl13 ice_ping];
     [cl13 end_ice_ping:[cl13 begin_ice_ping]];
 

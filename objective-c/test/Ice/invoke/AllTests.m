@@ -112,7 +112,7 @@ static NSString* testString = @"This is a test string";
 id<TestInvokeMyClassPrx>
 invokeAllTests(id<ICECommunicator> communicator)
 {
-    NSString* ref = @"test:default -p 12010";
+    NSString* ref = [NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:ref];
     test(base);
 

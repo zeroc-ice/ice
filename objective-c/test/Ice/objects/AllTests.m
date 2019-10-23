@@ -61,7 +61,7 @@ id<TestObjectsInitialPrx>
 objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
 {
     tprintf("testing stringToProxy... ");
-    NSString* ref = @"initial:default -p 12010";
+    NSString* ref = [NSString stringWithFormat:@"initial:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:ref];
     test(base);
     tprintf("ok\n");
@@ -353,7 +353,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
     tprintf("ok\n");
 
     tprintf("testing UnexpectedObjectException... ");
-    ref = @"uoet:default -p 12010";
+    ref = [NSString stringWithFormat:@"uoet:%@", getTestEndpoint(communicator, 0)];
     base = [communicator stringToProxy:ref];
     test(base);
     id<TestObjectsUnexpectedObjectExceptionTestPrx> uoet = [TestObjectsUnexpectedObjectExceptionTestPrx uncheckedCast:base];
@@ -475,7 +475,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         TestObjectsMutableBasePrxSeq* seq = [TestObjectsMutableBasePrxSeq array];
 
         [seq addObject:[NSNull null]];
-        ref = @"base:default -p 12010";
+        ref = [NSString stringWithFormat:@"base:%@", getTestEndpoint(communicator, 0)];
         base = [communicator stringToProxy:ref];
         id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
         [seq addObject:b];
@@ -539,7 +539,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         TestObjectsMutableObjectPrxDict* dict = [TestObjectsMutableObjectPrxDict dictionary];
 
         [dict setObject:[NSNull null] forKey:@"zero"];
-        ref = @"object:default -p 12010";
+        ref = [NSString stringWithFormat:@"object:%@", getTestEndpoint(communicator, 0)];
         id<ICEObjectPrx> o = [communicator stringToProxy:ref];
         [dict setObject:o forKey:@"one"];
 
@@ -602,7 +602,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         TestObjectsMutableBasePrxDict* dict = [TestObjectsMutableBasePrxDict dictionary];
 
         [dict setObject:[NSNull null] forKey:@"zero"];
-        ref = @"base:default -p 12010";
+        ref = [NSString stringWithFormat:@"base:%@", getTestEndpoint(communicator, 0)];
         base = [communicator stringToProxy:ref];
         id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
         [dict setObject:b forKey:@"one"];
@@ -636,7 +636,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
 
     @try
     {
-        ref = @"test:default -p 12010";
+        ref = [NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)];
         id<TestObjectsTestIntfPrx> q = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
 
         {
@@ -697,7 +697,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         test([f12.name isEqualToString:@"F12"]);
 
         TestObjectsF2Prx* f22;
-        ref = @"F21:default -p 12010";
+        ref = [NSString stringWithFormat:@"F21:%@", getTestEndpoint(communicator, 0)];
         TestObjectsF2Prx* f21 = [initial opF2:[TestObjectsF2Prx uncheckedCast:[communicator stringToProxy:ref]]
                                           f22: &f22];
         test([[f21 ice_getIdentity].name isEqualToString:@"F21"]);

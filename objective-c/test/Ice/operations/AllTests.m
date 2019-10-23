@@ -9,12 +9,12 @@
 id<TestOperationsMyClassPrx>
 operationsAllTests(id<ICECommunicator> communicator)
 {
-    NSString* ref = @"test:default -p 12010";
+    NSString* ref = [NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:(ref)];
     id<TestOperationsMyClassPrx> cl = [TestOperationsMyClassPrx checkedCast:base];
     id<TestOperationsMyDerivedClassPrx> derived = [TestOperationsMyDerivedClassPrx checkedCast:cl];
     id<TestOperationsMBPrx> bprx =
-        [TestOperationsMBPrx checkedCast:[communicator stringToProxy: @"b:default -p 12010"]];
+        [TestOperationsMBPrx checkedCast:[communicator stringToProxy: [NSString stringWithFormat:@"b:%@", getTestEndpoint(communicator, 0)]]];
 
     tprintf("testing twoway operations... ");
     void twoways(id<ICECommunicator>, id<TestOperationsMyClassPrx>, id<TestOperationsMBPrx>);

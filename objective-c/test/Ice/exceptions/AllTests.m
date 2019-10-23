@@ -86,7 +86,7 @@ exceptionsAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing stringToProxy... ");
-    NSString *ref = @"thrower:default -p 12010";
+    NSString *ref = [NSString stringWithFormat:@"thrower:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:ref];
     test(base);
     tprintf("ok\n");

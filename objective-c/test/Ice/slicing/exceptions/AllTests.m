@@ -281,7 +281,7 @@
 id<TestSlicingExceptionsClientTestIntfPrx>
 slicingExceptionsAllTests(id<ICECommunicator> communicator)
 {
-    id<ICEObjectPrx> obj = [communicator stringToProxy:@"Test:default -p 12010"];
+    id<ICEObjectPrx> obj = [communicator stringToProxy:[NSString stringWithFormat:@"Test:%@", getTestEndpoint(communicator, 0)]];
     id<TestSlicingExceptionsClientTestIntfPrx> test = [TestSlicingExceptionsClientTestIntfPrx checkedCast:obj];
     tprintf("base... ");
     {

@@ -9,8 +9,8 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    [[communicator getProperties] setProperty:@"TestAMIAdapter.Endpoints" value:@"default -p 12010:udp"];
-    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"default -p 12011"];
+    [[communicator getProperties] setProperty:@"TestAMIAdapter.Endpoints" value:getTestEndpoint(communicator, 0)];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:getTestEndpoint(communicator, 1)];
     [[communicator getProperties] setProperty:@"ControllerAdapter.ThreadPool.Size" value:@"1"];
 
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAMIAdapter"];

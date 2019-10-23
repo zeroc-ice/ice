@@ -10,7 +10,7 @@ static int
 run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"Ice.Warn.Dispatch" value:@"0"];
-    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
+    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:getTestEndpoint(communicator, 0)];
     [[communicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:@"default -p 12011"];
     [[communicator getProperties] setProperty:@"TestAdapter2.MessageSizeMax" value:@"0"];
     [[communicator getProperties] setProperty:@"TestAdapter3.Endpoints" value:@"default -p 12012"];

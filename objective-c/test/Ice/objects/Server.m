@@ -38,7 +38,7 @@ run(id<ICECommunicator> communicator)
     [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::J"];
     [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::H"];
 
-    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
+    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:getTestEndpoint(communicator, 0)];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     ICEObject* initial = [TestObjectsInitialI initial];
     [adapter add:initial identity:[ICEUtil stringToIdentity:@"initial"]];

@@ -10,7 +10,7 @@ TestEnumTestIntfPrx*
 enumAllTests(id<ICECommunicator> communicator)
 {
 
-    ICEObjectPrx* obj = [communicator stringToProxy:@"test:default -p 12010"];
+    ICEObjectPrx* obj = [communicator stringToProxy:[NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)]];
     test(obj);
     TestEnumTestIntfPrx* proxy = [TestEnumTestIntfPrx checkedCast:obj];
     test(proxy);

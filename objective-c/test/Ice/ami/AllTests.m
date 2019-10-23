@@ -86,12 +86,12 @@
 void
 amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 {
-    NSString* ref = @"test:default -p 12010";
+    NSString* ref = [NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:(ref)];
     id<TestAMITestIntfPrx> p = [TestAMITestIntfPrx checkedCast:base];
     test(p);
 
-    ref = @"testController:default -p 12011";
+    ref = [NSString stringWithFormat:@"testController:%@", getTestEndpoint(communicator, 1)];
     base = [communicator stringToProxy:ref];
     TestAMITestIntfControllerPrx* testController = [TestAMITestIntfControllerPrx uncheckedCast:base];
     test(testController);

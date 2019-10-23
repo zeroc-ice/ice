@@ -278,7 +278,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     [[communicator getValueFactoryManager] add:^(id s) { return [factory create:s]; } sliceId:@""];
 #endif
     tprintf("testing stringToProxy... ");
-    NSString* sref = @"initial:default -p 12010";
+    NSString* sref = [NSString stringWithFormat:@"initial:%@", getTestEndpoint(communicator, 0)];
     id<ICEObjectPrx> base = [communicator stringToProxy:sref];
     test(base);
     tprintf("ok\n");

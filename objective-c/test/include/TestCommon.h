@@ -30,6 +30,8 @@ TEST_API void TestCommonTestInit(id, SEL, NSString*, BOOL, BOOL);
 TEST_API id<ICEProperties> defaultServerProperties(int* argc, char** argv);
 TEST_API id<ICEProperties> defaultClientProperties(int* argc, char** argv);
 
+TEST_API NSString* getTestEndpoint(id<ICECommunicator>, int);
+
 TEST_API void serverReady(id<ICECommunicator>);
 
 TEST_API void serverStop(void);
