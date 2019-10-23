@@ -2229,21 +2229,26 @@ class RemoteProcessController(ProcessController):
         # work we'll wait for 10s for the process controller to register with the registry.
         # If the wait times out, we retry again.
         #
+        def callback(future):
+            try:
+                future.result()
+                with self.cond:
+                    if not ident in self.processControllerProxies:
+                        self.processControllerProxies[proxy.ice_getIdentity()] = proxy
+                    self.cond.notifyAll()
+            except Exception:
+                pass
+
         nRetry = 0
         while nRetry < 10:
             nRetry += 1
 
-            try:
-                proxy.ice_ping()
-                with self.cond:
-                    self.processControllerProxies[ident] = proxy
-                    return self.processControllerProxies[ident]
-            except Exception:
-                pass
+            if self.supportsDiscovery():
+                proxy.ice_pingAsync().add_done_callback(callback)
 
             with self.cond:
                 if not ident in self.processControllerProxies:
-                    self.cond.wait(10)
+                    self.cond.wait(5)
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
 
@@ -2270,6 +2275,9 @@ class RemoteProcessController(ProcessController):
                 proxy.ice_getConnection().setCallback(CallbackI(self))
 
             self.cond.notifyAll()
+
+    def supportsDiscovery(self):
+        return True
 
     def clearProcessController(self, proxy, conn=None):
         with self.cond:
@@ -2314,6 +2322,12 @@ class RemoteProcessController(ProcessController):
             self.controllerApps = []
         if self.adapter:
             self.adapter.destroy()
+        if self.future:
+            try:
+                self.future.result()
+            except Exception as ex:
+                print(ex)
+                pass
 
 class AndroidProcessController(RemoteProcessController):
 
@@ -2330,6 +2344,9 @@ class AndroidProcessController(RemoteProcessController):
 
     def __str__(self):
         return "Android"
+
+    def supportsDiscovery(self):
+        return self.device is not None  # Discovery is only used with devices
 
     def getControllerIdentity(self, current):
         if isinstance(current.testcase.getMapping(), CSharpMapping):
@@ -2712,6 +2729,9 @@ class BrowserProcessController(RemoteProcessController):
     def __str__(self):
         return str(self.driver) if self.driver else "Manual"
 
+    def supportsDiscovery(self):
+        return False
+
     def getControllerIdentity(self, current):
         #
         # Load the controller page each time we're asked for the controller and if we're running
@@ -3054,11 +3074,10 @@ class Driver:
         initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
-        initData.properties.setProperty("IceDiscovery.RetryCount", "10") # Retry 10 times with the default 300ms timeout
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
         # initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        # initData.properties.setProperty("Ice.Trace.Network", "3")
+        # initData.properties.setProperty("Ice.Trace.Network", "2")
         # initData.properties.setProperty("Ice.StdErr", "allTests.log")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
         initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")
