@@ -2633,7 +2633,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << " & ";
                 }
-                out << " < " << getAbsolute(*q);
+                out << getAbsolute(*q);
             }
         }
 
