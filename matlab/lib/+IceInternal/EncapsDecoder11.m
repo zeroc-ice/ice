@@ -455,6 +455,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         function r = readSlicedData(obj)
             if isempty(obj.current.slices) % No preserved slices.
                 r = [];
+                return;
             end
 
             %
