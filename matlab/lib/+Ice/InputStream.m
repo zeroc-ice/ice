@@ -282,7 +282,7 @@ classdef InputStream < handle
         end
         function r = readStringSeq(obj)
             sz = obj.readAndCheckSeqSize(1);
-            r = {};
+            r = cell(1, sz);
             for i = 1:sz
                 r{i} = obj.readString();
             end
@@ -463,20 +463,6 @@ classdef InputStream < handle
 
             obj.pos = obj.pos + sz - 4;
         end
-        function r = readEncapsulation(obj)
-            start = obj.pos;
-            sz = obj.readInt();
-            if sz < 6
-                throw(Ice.EncapsulationException());
-            end
-
-            if obj.pos - 4 + sz > obj.size + 1
-                throw(Ice.UnmarshalOutOfBoundsException());
-            end
-
-            data = obj.buf.buf(start + 1:start + sz); % Include the size & encoding version
-            obj.pos = obj.pos + sz - 4;
-        end
         function r = getEncoding(obj)
             if isempty(obj.encapsStack)
                 r = obj.encoding;
@@ -509,7 +495,7 @@ classdef InputStream < handle
                 r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 3)), 'int32');
                 obj.pos = obj.pos + 4;
                 if r < 0
-                    throw new UnmarshalOutOfBoundsException();
+                    throw(Ice.UnmarshalOutOfBoundsException());
                 end
             else
                 r = int32(b);
@@ -585,27 +571,27 @@ classdef InputStream < handle
                 return;
             end
 
-            facet = obj.readStringSeq();
-            mode = obj.readByte();
-            secure = obj.readBool();
+            obj.readStringSeq();
+            obj.readByte();
+            obj.readBool();
 
             %
             % The versions are only included in encoding >= 1.1.
             %
             if ~obj.encoding_1_0
-                protocolVersion = Ice.ProtocolVersion.ice_read(obj);
-                encodingVersion = Ice.EncodingVersion.ice_read(obj);
+                Ice.ProtocolVersion.ice_read(obj);
+                Ice.EncodingVersion.ice_read(obj);
             end
 
             numEndpoints = obj.readSize();
 
             if numEndpoints > 0
                 for i = 1:numEndpoints
-                    type = obj.readShort();
+                    obj.readShort();
                     obj.skipEncapsulation();
                 end
             else
-                adapterId = obj.readString();
+                obj.readString();
             end
 
             %
@@ -730,7 +716,6 @@ classdef InputStream < handle
                 end
 
                 if tag > readTag
-                    offset = 0;
                     if tag < 30
                         offset = 1;
                     elseif tag < 255

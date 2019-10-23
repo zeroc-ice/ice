@@ -12,5 +12,5 @@ function r = stringToProtocolVersion(s)
     if isempty(tokens)
         throw(MException('Ice:ArgumentException', 'expecting a version in X.Y format'));
     end
-    r = Ice.ProtocolVersion(str2num(tokens{1}{1}), str2num(tokens{1}{2}));
+    r = Ice.ProtocolVersion(str2double(tokens{1}{1}), str2double(tokens{1}{2}));
 end

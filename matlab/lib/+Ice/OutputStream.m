@@ -351,8 +351,6 @@ classdef OutputStream < handle
             % encapsulation encoding version if there's a current write
             % encapsulation, otherwise, use the stream encoding version.
             %
-
-            encoding = [];
             if ~isempty(obj.encapsStack)
                 encoding = obj.encapsStack.encoding;
                 if isempty(format)

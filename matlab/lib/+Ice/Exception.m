@@ -10,7 +10,7 @@ classdef (Abstract) Exception < MException
     end
     methods
         function obj = Exception(id, msg)
-            obj = obj@MException(id, msg)
+            obj = obj@MException(id, msg);
         end
     end
 end

@@ -20,7 +20,7 @@ classdef InterfaceByValue < Ice.Value
             os.startSlice(obj.id, -1, true);
             os.endSlice();
         end
-        function iceReadImpl(obj, is)
+        function iceReadImpl(~, is)
             is.startSlice();
             is.endSlice();
         end

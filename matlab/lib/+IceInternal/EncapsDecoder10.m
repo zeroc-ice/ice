@@ -131,7 +131,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             obj.skipFirstSlice = true;
         end
 
-        function r = endInstance(obj, preserve)
+        function r = endInstance(obj, ~)
             %
             % Read the Ice::Value slice.
             %
@@ -179,7 +179,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             r = obj.typeId;
         end
 
-        function endSlice(obj)
+        function endSlice(~)
             % Nothing to do
         end
 
@@ -189,7 +189,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             obj.is.skip(obj.sliceSize - 4);
         end
 
-        function r = readOptional(obj, readTag, expectedFormat)
+        function r = readOptional(~, ~, ~)
             r = false;
         end
     end

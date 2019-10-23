@@ -4,7 +4,7 @@
 
 classdef ClassResolver < handle
     methods
-        function obj = ClassResolver(props)
+        function obj = ClassResolver()
             obj.typeToConstructorMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end
         function r = resolve(obj, typeId)
@@ -21,7 +21,7 @@ classdef ClassResolver < handle
                 %
                 r = obj.typeToConstructorMap(typeId);
                 return;
-            catch ex
+            catch
                 %
                 % The map raises an exception if a key doesn't exist.
                 %

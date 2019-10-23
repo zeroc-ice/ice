@@ -11,7 +11,7 @@ classdef (Abstract) UserException < Ice.Exception
 
     methods
         function obj = UserException(id, msg)
-            obj = obj@Ice.Exception(id, msg)
+            obj = obj@Ice.Exception(id, msg);
         end
         % ice_getSlicedData - Obtain the SlicedData object that contains the
         %   marshaled state of any slices for unknown exception types.
@@ -19,7 +19,7 @@ classdef (Abstract) UserException < Ice.Exception
         % Returns (Ice.SlicedData) - The marshaled state of any slices for
         %   unknown exception types.
 
-        function r = ice_getSlicedData(obj)
+        function r = ice_getSlicedData(~)
             r = [];
         end
     end

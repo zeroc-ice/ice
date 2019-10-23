@@ -23,7 +23,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
             end
         end
 
-        function startInstance(obj, sliceType, slicedData)
+        function startInstance(obj, sliceType, ~)
             obj.sliceType = sliceType;
         end
 
@@ -39,7 +39,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end
 
-        function startSlice(obj, typeId, compactId, last)
+        function startSlice(obj, typeId, ~, ~)
             %
             % For instance slices, encode a boolean to indicate how the type ID
             % is encoded and the type ID either as a string or index. For
