@@ -1973,14 +1973,14 @@ class TestSuite(object):
     def isMainThreadOnly(self, driver):
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, JavaScriptMixin, SwiftMapping]:
-            if isinstance(self.mapping, m):
-                config = driver.configs[self.mapping]
-                if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
-                    return True # Not supported yet for tests that require a remote process controller
-                return False
-        else:
+
+        if isinstance(self.mapping, MatlabMapping):
             return True
+
+        config = driver.configs[self.mapping]
+        if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
+            return True # Not supported yet for tests that require a remote process controller
+        return False
 
     def addTestCase(self, testcase):
         if testcase.name in self.testcases:

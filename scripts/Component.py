@@ -157,7 +157,6 @@ class Ice(Component):
         return True
 
     def isMainThreadOnly(self, testId):
-        #return testId.startswith("IceStorm") # TODO: WORKAROUND for ICE-8175
         return False # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
@@ -196,7 +195,6 @@ class Ice(Component):
     def isCross(self, testId):
         return testId in [
             "Ice/ami",
-            "Ice/info",
             "Ice/exceptions",
             "Ice/enums",
             "Ice/facets",
@@ -205,7 +203,6 @@ class Ice(Component):
             "Ice/objects",
             "Ice/operations",
             "Ice/proxy",
-            "Ice/servantLocator",
             "Ice/slicing/exceptions",
             "Ice/slicing/objects",
             "Ice/optional",
