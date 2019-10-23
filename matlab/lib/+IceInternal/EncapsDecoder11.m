@@ -204,7 +204,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % that not all instance references were read if they are from
                 % unknown optional data members.
                 %
-                if length(indirectionTable) == 0
+                if isempty(indirectionTable)
                     throw(Ice.MarshalException('', '', 'empty indirection table'));
                 end
                 if isempty(obj.current.indirectPatchList) && ...
@@ -484,14 +484,14 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             r = Ice.SlicedData(obj.current.slices); % Makes a shallow copy
         end
 
-        function r = resolveCompactId(obj, id)
+        function r = resolveCompactId(~, id)
             type = '';
 
             if isempty(type)
                 prop = sprintf('IceCompactId.TypeId_%d.typeId', id);
                 try
                     type = eval(prop);
-                catch ex
+                catch
                 end
             end
 

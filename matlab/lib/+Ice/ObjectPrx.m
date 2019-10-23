@@ -408,10 +408,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
             obj.instantiate_();
             num = obj.iceCallWithResult('ice_getNumEndpoints');
-            r = {};
+            r = cell(1, num);
             for i = 1:num
                 impl = libpointer('voidPtr');
-                e = obj.iceCallWithResult('ice_getEndpoint', i - 1, impl); % C-style index
+                obj.iceCallWithResult('ice_getEndpoint', i - 1, impl); % C-style index
                 assert(~isNull(impl));
                 r{i} = Ice.Endpoint(impl);
             end
@@ -998,7 +998,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             os.startEncapsulation(format);
         end
 
-        function iceEndWriteParams(obj, os)
+        function iceEndWriteParams(~, os)
             os.endEncapsulation();
         end
 
@@ -1149,7 +1149,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function iceThrowUserException(obj, is, varargin) % Varargs are user exception type names
+        function iceThrowUserException(~, is, varargin) % Varargs are user exception type names
             try
                 is.startEncapsulation();
                 is.throwException();
@@ -1176,7 +1176,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = checkedCast(p, varargin)
-            if length(varargin) == 0
+            if isempty(varargin)
                 r = p;
             else
                 r = Ice.ObjectPrx.iceCheckedCast(p, Ice.ObjectPrx.ice_staticId(), 'Ice.ObjectPrx', varargin{:});
@@ -1184,7 +1184,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = uncheckedCast(p, varargin)
-            if length(varargin) == 0
+            if isempty(varargin)
                 r = p;
             elseif length(varargin) == 1
                 if ~isempty(p)

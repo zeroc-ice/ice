@@ -11,11 +11,11 @@ classdef (Abstract) EncapsEncoder < handle
             obj.typeIdIndex = 0;
         end
 
-        function r = writeOptional(obj, tag, format)
+        function r = writeOptional(~, ~, ~)
             r = false;
         end
 
-        function writePendingValues(obj)
+        function writePendingValues(~)
             %
             % Overridden for the 1.0 encoding, not necessary for subsequent encodings.
             %
@@ -35,7 +35,7 @@ classdef (Abstract) EncapsEncoder < handle
             %
             try
                 r = obj.typeIdMap(typeId);
-            catch ex
+            catch
                 obj.typeIdIndex = obj.typeIdIndex + 1;
                 obj.typeIdMap(typeId) = obj.typeIdIndex;
                 r = -1;

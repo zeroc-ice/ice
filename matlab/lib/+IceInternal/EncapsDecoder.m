@@ -20,11 +20,11 @@ classdef (Abstract) EncapsDecoder < handle
             obj.delayedPostUnmarshal = {};
         end
 
-        function r = readOptional(obj, readTag, expectedFormat)
+        function r = readOptional(~, ~, ~)
             r = false;
         end
 
-        function readPendingValues(obj)
+        function readPendingValues(~)
         end
 
         function finish(obj)
@@ -143,7 +143,6 @@ classdef (Abstract) EncapsDecoder < handle
             % the callback will be called when the instance is
             % unmarshaled.
             %
-            pl = [];
             if obj.patchMap.isKey(index)
                 pl = obj.patchMap(index);
             else
@@ -181,7 +180,7 @@ classdef (Abstract) EncapsDecoder < handle
                 % Patch all instances now that the instance is unmarshaled.
                 %
                 l = obj.patchMap(index);
-                assert(length(l.list) > 0);
+                assert(~isempty(l.list));
 
                 %
                 % Patch all pointers that refer to the instance.

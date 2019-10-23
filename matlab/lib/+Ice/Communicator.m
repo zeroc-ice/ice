@@ -100,7 +100,7 @@ classdef Communicator < IceInternal.WrapperObject
                 r = Ice.ObjectPrx(obj, obj.encoding, impl);
             end
         end
-        function r = proxyToString(obj, proxy)
+        function r = proxyToString(~, proxy)
             % proxyToString   Convert a proxy into a string.
             %
             % Parameters:
@@ -303,7 +303,7 @@ classdef Communicator < IceInternal.WrapperObject
 
             obj.iceCall('flushBatchRequests', mode);
         end
-        function f = flushBatchRequestsAsync(obj, mode)
+        function r = flushBatchRequestsAsync(obj, mode)
             % flushBatchRequestsAsync   Flush any pending batch requests for this
             %   communicator. This means all batch requests invoked on fixed
             %   proxies for all connections associated with the communicator.
@@ -324,7 +324,7 @@ classdef Communicator < IceInternal.WrapperObject
         end
         function r = getClassResolver(obj)
             if isempty(obj.classResolver) % Lazy initialization.
-                obj.classResolver = IceInternal.ClassResolver(obj.getProperties());
+                obj.classResolver = IceInternal.ClassResolver();
             end
             r = obj.classResolver;
         end

@@ -12,7 +12,7 @@ function r = identityToString(id, varargin)
 
     if length(varargin) == 1
         mode = varargin{1};
-    elseif length(varargin) == 0
+    elseif isempty(varargin)
         mode = Ice.ToStringMode.Unicode;
     elseif length(varargin) > 2
         throw(MException('Ice:ArgumentException', 'too many arguments'));

@@ -30,18 +30,18 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             assert(index > 0); % Check for rollover
             obj.iceInternal_ = index;
         end
-        function ice_preMarshal(obj)
+        function ice_preMarshal(~)
             % ice_preMarshal - The Ice run time invokes this method prior to
             %   marshaling an object's data members. This allows a subclass
             %   to override this method in order to validate its data members.
         end
-        function ice_postUnmarshal(obj)
+        function ice_postUnmarshal(~)
             % ice_postUnmarshal - The Ice run time invokes this method after
             %   unmarshaling an object's data members. This allows a subclass
             %   to override this method in order to perform additional
             %   initialization.
         end
-        function r = ice_getSlicedData(obj)
+        function r = ice_getSlicedData(~)
             % ice_getSlicedData - Returns the sliced data if the value has a
             %   preserve-slice base class and has been sliced during
             %   unmarshaling of the value; an empty array is returned otherwise.
@@ -71,14 +71,14 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             obj.iceReadImpl(is);
             is.endValue(false);
         end
-        function r = iceDelayPostUnmarshal(obj)
+        function r = iceDelayPostUnmarshal(~)
             %
             % Overridden by subclasses that need to do some post-processing after the initial round of
             % unmarshaling is complete.
             %
             r = false;
         end
-        function icePostUnmarshal(obj)
+        function icePostUnmarshal(~)
             %
             % Overridden by subclasses that need to do some post-processing after the initial round of
             % unmarshaling is complete.

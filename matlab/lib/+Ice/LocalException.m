@@ -7,7 +7,7 @@ classdef (Abstract) LocalException < Ice.Exception
 
     methods
         function obj = LocalException(id, msg)
-            obj = obj@Ice.Exception(id, msg)
+            obj = obj@Ice.Exception(id, msg);
         end
     end
 end

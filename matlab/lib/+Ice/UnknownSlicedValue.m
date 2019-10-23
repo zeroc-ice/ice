@@ -35,9 +35,9 @@ classdef UnknownSlicedValue < Ice.Value
         end
     end
     methods(Access=protected)
-        function iceWriteImpl(obj, os)
+        function iceWriteImpl(~, ~)
         end
-        function obj = iceReadImpl(obj, is)
+        function obj = iceReadImpl(obj, ~)
         end
     end
     properties(Access=private)
