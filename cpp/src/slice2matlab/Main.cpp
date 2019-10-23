@@ -1838,7 +1838,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 if(!convertMembers.empty())
                 {
-                    out << nl << "function r = iceDelayPostUnmarshal(obj)";
+                    out << nl << "function r = iceDelayPostUnmarshal(~)";
                     out.inc();
                     out << nl << "r = true;";
                     out.dec();
@@ -2841,7 +2841,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "function id = ice_id(obj)";
+    out << nl << "function id = ice_id(~)";
     out.inc();
     out << nl << "id = '" << scoped << "';";
     out.dec();
