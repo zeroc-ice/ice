@@ -15,31 +15,31 @@ namespace IceInternal
         where T : Metrics, new()
         where O : Ice.Instrumentation.Observer
     {
-        override public void
+        public override void
         attach()
         {
             base.attach();
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.attach();
             }
         }
 
-        override public void
+        public override void
         detach()
         {
             base.detach();
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.detach();
             }
         }
 
-        override public void
+        public override void
         failed(string exceptionName)
         {
             base.failed(exceptionName);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.failed(exceptionName);
             }
@@ -63,7 +63,7 @@ namespace IceInternal
             where Observer : Ice.Instrumentation.Observer
         {
             ObserverImpl obsv = getObserver<S, ObserverImpl>(mapName, helper);
-            if(obsv != null)
+            if (obsv != null)
             {
                 obsv.setDelegate(del);
                 return obsv;
@@ -86,7 +86,7 @@ namespace IceInternal
         public O getObserver(MetricsHelper<T> helper, O del)
         {
             OImpl o = getObserver(helper);
-            if(o != null)
+            if (o != null)
             {
                 o.setDelegate(del);
                 return o;
@@ -97,7 +97,7 @@ namespace IceInternal
         public O getObserver(MetricsHelper<T> helper, object observer, O del)
         {
             OImpl o = getObserver(helper, observer);
-            if(o != null)
+            if (o != null)
             {
                 o.setDelegate(del);
                 return o;
@@ -106,7 +106,7 @@ namespace IceInternal
         }
     }
 
-    static class AttrsUtil
+    internal static class AttrsUtil
     {
         public static void
         addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
@@ -147,9 +147,9 @@ namespace IceInternal
         }
     }
 
-    class ConnectionHelper : MetricsHelper<ConnectionMetrics>
+    internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
     {
-        class AttributeResolverI : AttributeResolver
+        private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -161,13 +161,13 @@ namespace IceInternal
                     add("state", cl.GetMethod("getState"));
                     AttrsUtil.addConnectionAttributes(this, cl);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public ConnectionHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, Ice.Instrumentation.ConnectionState state)
             : base(_attributes)
@@ -179,11 +179,11 @@ namespace IceInternal
 
         public string getId()
         {
-            if(_id == null)
+            if (_id == null)
             {
                 StringBuilder os = new StringBuilder();
                 Ice.IPConnectionInfo info = getIPConnectionInfo();
-                if(info != null)
+                if (info != null)
                 {
                     os.Append(info.localAddress).Append(':').Append(info.localPort);
                     os.Append(" -> ");
@@ -193,7 +193,7 @@ namespace IceInternal
                 {
                     os.Append("connection-").Append(_connectionInfo);
                 }
-                if(_connectionInfo.connectionId.Length > 0)
+                if (_connectionInfo.connectionId.Length > 0)
                 {
                     os.Append(" [").Append(_connectionInfo.connectionId).Append("]");
                 }
@@ -204,27 +204,27 @@ namespace IceInternal
 
         public string getState()
         {
-            switch(_state)
+            switch (_state)
             {
-            case Ice.Instrumentation.ConnectionState.ConnectionStateValidating:
-                return "validating";
-            case Ice.Instrumentation.ConnectionState.ConnectionStateHolding:
-                return "holding";
-            case Ice.Instrumentation.ConnectionState.ConnectionStateActive:
-                return "active";
-            case Ice.Instrumentation.ConnectionState.ConnectionStateClosing:
-                return "closing";
-            case Ice.Instrumentation.ConnectionState.ConnectionStateClosed:
-                return "closed";
-            default:
-                Debug.Assert(false);
-                return "";
+                case Ice.Instrumentation.ConnectionState.ConnectionStateValidating:
+                    return "validating";
+                case Ice.Instrumentation.ConnectionState.ConnectionStateHolding:
+                    return "holding";
+                case Ice.Instrumentation.ConnectionState.ConnectionStateActive:
+                    return "active";
+                case Ice.Instrumentation.ConnectionState.ConnectionStateClosing:
+                    return "closing";
+                case Ice.Instrumentation.ConnectionState.ConnectionStateClosed:
+                    return "closed";
+                default:
+                    Debug.Assert(false);
+                    return "";
             }
         }
 
         public string getParent()
         {
-            if(_connectionInfo.adapterName != null && _connectionInfo.adapterName.Length > 0)
+            if (_connectionInfo.adapterName != null && _connectionInfo.adapterName.Length > 0)
             {
                 return _connectionInfo.adapterName;
             }
@@ -246,7 +246,7 @@ namespace IceInternal
 
         public Ice.EndpointInfo getEndpointInfo()
         {
-            if(_endpointInfo == null)
+            if (_endpointInfo == null)
             {
                 _endpointInfo = _endpoint.getInfo();
             }
@@ -256,9 +256,9 @@ namespace IceInternal
         private Ice.IPConnectionInfo
         getIPConnectionInfo()
         {
-            for(Ice.ConnectionInfo p = _connectionInfo; p != null; p = p.underlying)
+            for (Ice.ConnectionInfo p = _connectionInfo; p != null; p = p.underlying)
             {
-                if(p is Ice.IPConnectionInfo)
+                if (p is Ice.IPConnectionInfo)
                 {
                     return (Ice.IPConnectionInfo)p;
                 }
@@ -266,16 +266,16 @@ namespace IceInternal
             return null;
         }
 
-        readonly private Ice.ConnectionInfo _connectionInfo;
-        readonly private Ice.Endpoint _endpoint;
-        readonly private Ice.Instrumentation.ConnectionState _state;
+        private readonly Ice.ConnectionInfo _connectionInfo;
+        private readonly Ice.Endpoint _endpoint;
+        private readonly Ice.Instrumentation.ConnectionState _state;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
     }
 
-    class DispatchHelper : MetricsHelper<DispatchMetrics>
+    internal class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
-        class AttributeResolverI : AttributeResolver
+        private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -294,13 +294,13 @@ namespace IceInternal
                     add("current", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
                     add("mode", cl.GetMethod("getMode"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public DispatchHelper(Ice.Current current, int size) : base(_attributes)
         {
@@ -308,12 +308,12 @@ namespace IceInternal
             _size = size;
         }
 
-        override protected string defaultResolve(string attribute)
+        protected override string defaultResolve(string attribute)
         {
-            if(attribute.IndexOf("context.", 0) == 0)
+            if (attribute.IndexOf("context.", 0) == 0)
             {
                 string v;
-                if(_current.ctx.TryGetValue(attribute.Substring(8), out v))
+                if (_current.ctx.TryGetValue(attribute.Substring(8), out v))
                 {
                     return v;
                 }
@@ -321,7 +321,7 @@ namespace IceInternal
             throw new ArgumentOutOfRangeException(attribute);
         }
 
-        override public void initMetrics(DispatchMetrics v)
+        public override void initMetrics(DispatchMetrics v)
         {
             v.size += _size;
         }
@@ -333,10 +333,10 @@ namespace IceInternal
 
         public string getId()
         {
-            if(_id == null)
+            if (_id == null)
             {
                 StringBuilder os = new StringBuilder();
-                if(_current.id.category != null && _current.id.category.Length > 0)
+                if (_current.id.category != null && _current.id.category.Length > 0)
                 {
                     os.Append(_current.id.category).Append('/');
                 }
@@ -353,7 +353,7 @@ namespace IceInternal
 
         public Ice.ConnectionInfo getConnectionInfo()
         {
-            if(_current.con != null)
+            if (_current.con != null)
             {
                 return _current.con.getInfo();
             }
@@ -362,7 +362,7 @@ namespace IceInternal
 
         public Ice.Endpoint getEndpoint()
         {
-            if(_current.con != null)
+            if (_current.con != null)
             {
                 return _current.con.getEndpoint();
             }
@@ -376,7 +376,7 @@ namespace IceInternal
 
         public Ice.EndpointInfo getEndpointInfo()
         {
-            if(_current.con != null && _endpointInfo == null)
+            if (_current.con != null && _endpointInfo == null)
             {
                 _endpointInfo = _current.con.getEndpoint().getInfo();
             }
@@ -393,15 +393,15 @@ namespace IceInternal
             return _current.adapter.getCommunicator().identityToString(_current.id);
         }
 
-        readonly private Ice.Current _current;
-        readonly private int _size;
+        private readonly Ice.Current _current;
+        private readonly int _size;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
     }
 
-    class InvocationHelper : MetricsHelper<InvocationMetrics>
+    internal class InvocationHelper : MetricsHelper<InvocationMetrics>
     {
-        class AttributeResolverI : AttributeResolver
+        internal class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -420,13 +420,13 @@ namespace IceInternal
                     add("mode", cl.GetMethod("getMode"));
                     add("proxy", cl.GetMethod("getProxy"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public InvocationHelper(Ice.ObjectPrx proxy, string op, Dictionary<string, string> ctx) : base(_attributes)
         {
@@ -435,12 +435,12 @@ namespace IceInternal
             _context = ctx;
         }
 
-        override protected string defaultResolve(string attribute)
+        protected override string defaultResolve(string attribute)
         {
-            if(attribute.IndexOf("context.", 0) == 0)
+            if (attribute.IndexOf("context.", 0) == 0)
             {
                 string v;
-                if(_context.TryGetValue(attribute.Substring(8), out v))
+                if (_context.TryGetValue(attribute.Substring(8), out v))
                 {
                     return v;
                 }
@@ -450,28 +450,28 @@ namespace IceInternal
 
         public string getMode()
         {
-            if(_proxy == null)
+            if (_proxy == null)
             {
                 throw new ArgumentOutOfRangeException("mode");
             }
 
-            if(_proxy.ice_isTwoway())
+            if (_proxy.ice_isTwoway())
             {
                 return "twoway";
             }
-            else if(_proxy.ice_isOneway())
+            else if (_proxy.ice_isOneway())
             {
                 return "oneway";
             }
-            else if(_proxy.ice_isBatchOneway())
+            else if (_proxy.ice_isBatchOneway())
             {
                 return "batch-oneway";
             }
-            else if(_proxy.ice_isDatagram())
+            else if (_proxy.ice_isDatagram())
             {
                 return "datagram";
             }
-            else if(_proxy.ice_isBatchDatagram())
+            else if (_proxy.ice_isBatchDatagram())
             {
                 return "batch-datagram";
             }
@@ -483,16 +483,16 @@ namespace IceInternal
 
         public string getId()
         {
-            if(_id == null)
+            if (_id == null)
             {
-                if(_proxy != null)
+                if (_proxy != null)
                 {
                     StringBuilder os = new StringBuilder();
                     try
                     {
                         os.Append(_proxy.ice_endpoints(emptyEndpoints)).Append(" [").Append(_operation).Append(']');
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
                         os.Append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
@@ -525,7 +525,7 @@ namespace IceInternal
 
         public string getIdentity()
         {
-            if(_proxy != null)
+            if (_proxy != null)
             {
                 return _proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity());
             }
@@ -540,17 +540,17 @@ namespace IceInternal
             return _operation;
         }
 
-        readonly private Ice.ObjectPrx _proxy;
-        readonly private string _operation;
-        readonly private Dictionary<string, string> _context;
+        private readonly Ice.ObjectPrx _proxy;
+        private readonly string _operation;
+        private readonly Dictionary<string, string> _context;
         private string _id;
 
-        readonly static private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
+        private static readonly Ice.Endpoint[] emptyEndpoints = Array.Empty<Ice.Endpoint>();
     }
 
-    class ThreadHelper : MetricsHelper<ThreadMetrics>
+    internal class ThreadHelper : MetricsHelper<ThreadMetrics>
     {
-        class AttributeResolverI : AttributeResolver
+        private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -560,13 +560,13 @@ namespace IceInternal
                     add("parent", cl.GetField("_parent"));
                     add("id", cl.GetField("_id"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public ThreadHelper(string parent, string id, Ice.Instrumentation.ThreadState state) : base(_attributes)
         {
@@ -575,32 +575,32 @@ namespace IceInternal
             _state = state;
         }
 
-        override public void initMetrics(ThreadMetrics v)
+        public override void initMetrics(ThreadMetrics v)
         {
-            switch(_state)
+            switch (_state)
             {
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                ++v.inUseForIO;
-                break;
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                ++v.inUseForUser;
-                break;
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                ++v.inUseForOther;
-                break;
-            default:
-                break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
+                    ++v.inUseForIO;
+                    break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
+                    ++v.inUseForUser;
+                    break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
+                    ++v.inUseForOther;
+                    break;
+                default:
+                    break;
             }
         }
 
-        readonly public string _parent;
-        readonly public string _id;
-        readonly private Ice.Instrumentation.ThreadState _state;
+        public readonly string _parent;
+        public readonly string _id;
+        private readonly Ice.Instrumentation.ThreadState _state;
     }
 
-    class EndpointHelper : MetricsHelper<Metrics>
+    internal class EndpointHelper : MetricsHelper<Metrics>
     {
-        class AttributeResolverI : AttributeResolver
+        private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -611,13 +611,13 @@ namespace IceInternal
                     add("id", cl.GetMethod("getId"));
                     AttrsUtil.addEndpointAttributes(this, cl);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public EndpointHelper(Ice.Endpoint endpt, string id) : base(_attributes)
         {
@@ -632,7 +632,7 @@ namespace IceInternal
 
         public Ice.EndpointInfo getEndpointInfo()
         {
-            if(_endpointInfo == null)
+            if (_endpointInfo == null)
             {
                 _endpointInfo = _endpoint.getInfo();
             }
@@ -646,7 +646,7 @@ namespace IceInternal
 
         public string getId()
         {
-            if(_id == null)
+            if (_id == null)
             {
                 _id = _endpoint.ToString();
             }
@@ -658,14 +658,14 @@ namespace IceInternal
             return _endpoint.ToString();
         }
 
-        readonly private Ice.Endpoint _endpoint;
+        private readonly Ice.Endpoint _endpoint;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
     }
 
     public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
     {
-        class AttributeResolverI : AttributeResolver
+        private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -677,13 +677,13 @@ namespace IceInternal
                     add("requestId", cl.GetMethod("getRequestId"));
                     AttrsUtil.addConnectionAttributes(this, cl);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size) :
             base(_attributes)
@@ -694,17 +694,17 @@ namespace IceInternal
             _size = size;
         }
 
-        override public void initMetrics(RemoteMetrics v)
+        public override void initMetrics(RemoteMetrics v)
         {
             v.size += _size;
         }
 
         public string getId()
         {
-            if(_id == null)
+            if (_id == null)
             {
                 _id = _endpoint.ToString();
-                if(_connectionInfo.connectionId != null && _connectionInfo.connectionId.Length > 0)
+                if (_connectionInfo.connectionId != null && _connectionInfo.connectionId.Length > 0)
                 {
                     _id += " [" + _connectionInfo.connectionId + "]";
                 }
@@ -719,7 +719,7 @@ namespace IceInternal
 
         public string getParent()
         {
-            if(_connectionInfo.adapterName != null && _connectionInfo.adapterName.Length > 0)
+            if (_connectionInfo.adapterName != null && _connectionInfo.adapterName.Length > 0)
             {
                 return _connectionInfo.adapterName;
             }
@@ -741,24 +741,24 @@ namespace IceInternal
 
         public Ice.EndpointInfo getEndpointInfo()
         {
-            if(_endpointInfo == null)
+            if (_endpointInfo == null)
             {
                 _endpointInfo = _endpoint.getInfo();
             }
             return _endpointInfo;
         }
 
-        readonly private Ice.ConnectionInfo _connectionInfo;
-        readonly private Ice.Endpoint _endpoint;
-        readonly private int _size;
-        readonly private int _requestId;
+        private readonly Ice.ConnectionInfo _connectionInfo;
+        private readonly Ice.Endpoint _endpoint;
+        private readonly int _size;
+        private readonly int _requestId;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
     }
 
     public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
     {
-        class AttributeResolverI : AttributeResolver
+        private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -769,13 +769,13 @@ namespace IceInternal
                     add("id", cl.GetMethod("getId"));
                     add("requestId", cl.GetMethod("getRequestId"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
             }
         }
-        static AttributeResolver _attributes = new AttributeResolverI();
+        private static AttributeResolver _attributes = new AttributeResolverI();
 
         public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
             base(_attributes)
@@ -785,7 +785,7 @@ namespace IceInternal
             _size = size;
         }
 
-        override public void initMetrics(CollocatedMetrics v)
+        public override void initMetrics(CollocatedMetrics v)
         {
             v.size += _size;
         }
@@ -805,9 +805,9 @@ namespace IceInternal
             return "Communicator";
         }
 
-        readonly private int _size;
-        readonly private int _requestId;
-        readonly private string _id;
+        private readonly int _size;
+        private readonly int _requestId;
+        private readonly string _id;
     }
 
     public class ObserverWithDelegateI : ObserverWithDelegate<Metrics, Ice.Instrumentation.Observer>
@@ -821,7 +821,7 @@ namespace IceInternal
         {
             _sentBytes = num;
             forEach(sentBytesUpdate);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.sentBytes(num);
             }
@@ -831,7 +831,7 @@ namespace IceInternal
         {
             _receivedBytes = num;
             forEach(receivedBytesUpdate);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.receivedBytes(num);
             }
@@ -858,7 +858,7 @@ namespace IceInternal
         userException()
         {
             forEach(userException);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.userException();
             }
@@ -866,10 +866,11 @@ namespace IceInternal
 
         public void reply(int size)
         {
-            forEach((DispatchMetrics v) => {
-                    v.replySize += size;
-                });
-            if(delegate_ != null)
+            forEach((DispatchMetrics v) =>
+            {
+                v.replySize += size;
+            });
+            if (delegate_ != null)
             {
                 delegate_.reply(size);
             }
@@ -886,10 +887,11 @@ namespace IceInternal
     {
         public void reply(int size)
         {
-            forEach((RemoteMetrics v) => {
-                    v.replySize += size;
-                });
-            if(delegate_ != null)
+            forEach((RemoteMetrics v) =>
+            {
+                v.replySize += size;
+            });
+            if (delegate_ != null)
             {
                 delegate_.reply(size);
             }
@@ -901,10 +903,11 @@ namespace IceInternal
     {
         public void reply(int size)
         {
-            forEach((CollocatedMetrics v) => {
-                    v.replySize += size;
-                });
-            if(delegate_ != null)
+            forEach((CollocatedMetrics v) =>
+            {
+                v.replySize += size;
+            });
+            if (delegate_ != null)
             {
                 delegate_.reply(size);
             }
@@ -918,7 +921,7 @@ namespace IceInternal
         userException()
         {
             forEach(userException);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.userException();
             }
@@ -928,7 +931,7 @@ namespace IceInternal
         retried()
         {
             forEach(incrementRetry);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.retried();
             }
@@ -938,7 +941,7 @@ namespace IceInternal
                                                                     int requestId, int size)
         {
             Ice.Instrumentation.RemoteObserver del = null;
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 del = delegate_.getRemoteObserver(con, endpt, requestId, size);
             }
@@ -953,7 +956,7 @@ namespace IceInternal
                                                                             int size)
         {
             Ice.Instrumentation.CollocatedObserver del = null;
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 del = delegate_.getCollocatedObserver(adapter, requestId, size);
             }
@@ -982,7 +985,7 @@ namespace IceInternal
             _oldState = oldState;
             _newState = newState;
             forEach(threadStateUpdate);
-            if(delegate_ != null)
+            if (delegate_ != null)
             {
                 delegate_.stateChanged(oldState, newState);
             }
@@ -990,33 +993,33 @@ namespace IceInternal
 
         private void threadStateUpdate(ThreadMetrics v)
         {
-            switch(_oldState)
+            switch (_oldState)
             {
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                --v.inUseForIO;
-                break;
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                --v.inUseForUser;
-                break;
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                --v.inUseForOther;
-                break;
-            default:
-                break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
+                    --v.inUseForIO;
+                    break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
+                    --v.inUseForUser;
+                    break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
+                    --v.inUseForOther;
+                    break;
+                default:
+                    break;
             }
-            switch(_newState)
+            switch (_newState)
             {
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                ++v.inUseForIO;
-                break;
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                ++v.inUseForUser;
-                break;
-            case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                ++v.inUseForOther;
-                break;
-            default:
-                break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
+                    ++v.inUseForIO;
+                    break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
+                    ++v.inUseForUser;
+                    break;
+                case Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
+                    ++v.inUseForOther;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -1049,7 +1052,7 @@ namespace IceInternal
                 _invocations.registerSubMap<RemoteMetrics>("Remote", cl.GetField("remotes"));
                 _invocations.registerSubMap<CollocatedMetrics>("Collocated", cl.GetField("collocated"));
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Debug.Assert(false);
             }
@@ -1057,18 +1060,18 @@ namespace IceInternal
 
         public Ice.Instrumentation.Observer getConnectionEstablishmentObserver(Ice.Endpoint endpt, string connector)
         {
-            if(_connects.isEnabled())
+            if (_connects.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.Observer del = null;
-                    if(_delegate != null)
+                    if (_delegate != null)
                     {
                         del = _delegate.getConnectionEstablishmentObserver(endpt, connector);
                     }
                     return _connects.getObserver(new EndpointHelper(endpt, connector), del);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1078,18 +1081,18 @@ namespace IceInternal
 
         public Ice.Instrumentation.Observer getEndpointLookupObserver(Ice.Endpoint endpt)
         {
-            if(_endpointLookups.isEnabled())
+            if (_endpointLookups.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.Observer del = null;
-                    if(_delegate != null)
+                    if (_delegate != null)
                     {
                         del = _delegate.getEndpointLookupObserver(endpt);
                     }
                     return _endpointLookups.getObserver(new EndpointHelper(endpt), del);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1102,19 +1105,19 @@ namespace IceInternal
                                                                             Ice.Instrumentation.ConnectionState s,
                                                                             Ice.Instrumentation.ConnectionObserver obsv)
         {
-            if(_connections.isEnabled())
+            if (_connections.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.ConnectionObserver del = null;
                     ConnectionObserverI o = obsv is ConnectionObserverI ? (ConnectionObserverI)obsv : null;
-                    if(_delegate != null)
+                    if (_delegate != null)
                     {
                         del = _delegate.getConnectionObserver(c, e, s, o != null ? o.getDelegate() : obsv);
                     }
                     return _connections.getObserver(new ConnectionHelper(c, e, s), obsv, del);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1126,19 +1129,19 @@ namespace IceInternal
                                                                     Ice.Instrumentation.ThreadState s,
                                                                     Ice.Instrumentation.ThreadObserver obsv)
         {
-            if(_threads.isEnabled())
+            if (_threads.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.ThreadObserver del = null;
                     ThreadObserverI o = obsv is ThreadObserverI ? (ThreadObserverI)obsv : null;
-                    if(_delegate != null)
+                    if (_delegate != null)
                     {
                         del = _delegate.getThreadObserver(parent, id, s, o != null ? o.getDelegate() : obsv);
                     }
                     return _threads.getObserver(new ThreadHelper(parent, id, s), obsv, del);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1149,18 +1152,18 @@ namespace IceInternal
         public Ice.Instrumentation.InvocationObserver getInvocationObserver(Ice.ObjectPrx prx, string operation,
                                                                             Dictionary<string, string> ctx)
         {
-            if(_invocations.isEnabled())
+            if (_invocations.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.InvocationObserver del = null;
-                    if(_delegate != null)
+                    if (_delegate != null)
                     {
                         del = _delegate.getInvocationObserver(prx, operation, ctx);
                     }
                     return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), del);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1170,18 +1173,18 @@ namespace IceInternal
 
         public Ice.Instrumentation.DispatchObserver getDispatchObserver(Ice.Current c, int size)
         {
-            if(_dispatch.isEnabled())
+            if (_dispatch.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.DispatchObserver del = null;
-                    if(_delegate != null)
+                    if (_delegate != null)
                     {
                         del = _delegate.getDispatchObserver(c, size);
                     }
                     return _dispatch.getObserver(new DispatchHelper(c, size), del);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1191,7 +1194,7 @@ namespace IceInternal
 
         public void setObserverUpdater(Ice.Instrumentation.ObserverUpdater updater)
         {
-            if(updater == null)
+            if (updater == null)
             {
                 _connections.setUpdater(null);
                 _threads.setUpdater(null);
@@ -1201,7 +1204,7 @@ namespace IceInternal
                 _connections.setUpdater(updater.updateConnectionObservers);
                 _threads.setUpdater(updater.updateThreadObservers);
             }
-            if(_delegate != null)
+            if (_delegate != null)
             {
                 _delegate.setObserverUpdater(updater);
             }
@@ -1212,19 +1215,19 @@ namespace IceInternal
             return _metrics;
         }
 
-        readonly private MetricsAdminI _metrics;
-        readonly private Ice.Instrumentation.CommunicatorObserver _delegate;
-        readonly private ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
+        private readonly MetricsAdminI _metrics;
+        private readonly Ice.Instrumentation.CommunicatorObserver _delegate;
+        private readonly ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
             Ice.Instrumentation.ConnectionObserver> _connections;
-        readonly private ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
+        private readonly ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
             Ice.Instrumentation.DispatchObserver> _dispatch;
-        readonly private ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
+        private readonly ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
             Ice.Instrumentation.InvocationObserver> _invocations;
-        readonly private ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
+        private readonly ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
             Ice.Instrumentation.ThreadObserver> _threads;
-        readonly private ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+        private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
             Ice.Instrumentation.Observer> _connects;
-        readonly private ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+        private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
             Ice.Instrumentation.Observer> _endpointLookups;
     }
 }

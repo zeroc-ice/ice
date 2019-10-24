@@ -27,7 +27,7 @@ namespace Ice
                 // send() blocking after sending a given amount of data.
                 //
                 properties.setProperty("Ice.TCP.RcvSize", "50000");
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

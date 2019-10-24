@@ -16,9 +16,9 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
-            if(args.Any(v => v.Equals("--with-deploy")))
+            if (args.Any(v => v.Equals("--with-deploy")))
             {
                 AllTests.allTestsWithDeploy(this);
             }

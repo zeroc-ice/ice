@@ -58,7 +58,7 @@ namespace IceInternal
             _shrinkCounter = buf._shrinkCounter;
             _order = buf._order;
 
-            if(adopt)
+            if (adopt)
             {
                 buf.clear();
             }
@@ -91,7 +91,7 @@ namespace IceInternal
         public void expand(int n)
         {
             int sz = (b == _emptyBuffer) ? n : b.position() + n;
-            if(sz > _size)
+            if (sz > _size)
             {
                 resize(sz, false);
             }
@@ -101,11 +101,11 @@ namespace IceInternal
         {
             Debug.Assert(b == _emptyBuffer || _capacity > 0);
 
-            if(n == 0)
+            if (n == 0)
             {
                 clear();
             }
-            else if(n > _capacity)
+            else if (n > _capacity)
             {
                 reserve(n);
             }
@@ -114,7 +114,7 @@ namespace IceInternal
             //
             // When used for reading, we want to set the buffer's limit to the new size.
             //
-            if(reading)
+            if (reading)
             {
                 b.limit(_size);
             }
@@ -122,7 +122,7 @@ namespace IceInternal
 
         public void reset()
         {
-            if(_size > 0 && _size * 2 < _capacity)
+            if (_size > 0 && _size * 2 < _capacity)
             {
                 //
                 // If the current buffer size is smaller than the
@@ -130,7 +130,7 @@ namespace IceInternal
                 // current size. This is to avoid holding on to too much
                 // memory if it's not needed anymore.
                 //
-                if(++_shrinkCounter > 2)
+                if (++_shrinkCounter > 2)
                 {
                     reserve(_size);
                     _shrinkCounter = 0;
@@ -141,7 +141,7 @@ namespace IceInternal
                 _shrinkCounter = 0;
             }
             _size = 0;
-            if(b != _emptyBuffer)
+            if (b != _emptyBuffer)
             {
                 b.limit(b.capacity());
                 b.position(0);
@@ -152,12 +152,12 @@ namespace IceInternal
         {
             Debug.Assert(_capacity == b.capacity());
 
-            if(n > _capacity)
+            if (n > _capacity)
             {
                 _capacity = System.Math.Max(n, 2 * _capacity);
                 _capacity = System.Math.Max(240, _capacity);
             }
-            else if(n < _capacity)
+            else if (n < _capacity)
             {
                 _capacity = n;
             }
@@ -170,7 +170,7 @@ namespace IceInternal
             {
                 ByteBuffer buf = ByteBuffer.allocate(_capacity);
 
-                if(b == _emptyBuffer)
+                if (b == _emptyBuffer)
                 {
                     b = buf;
                 }
@@ -187,12 +187,12 @@ namespace IceInternal
 
                 b.order(_order);
             }
-            catch(System.OutOfMemoryException)
+            catch (System.OutOfMemoryException)
             {
                 _capacity = b.capacity(); // Restore the previous capacity
                 throw;
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 _capacity = b.capacity(); // Restore the previous capacity.
                 Ice.MarshalException e = new Ice.MarshalException(ex);
@@ -207,7 +207,7 @@ namespace IceInternal
 
         public ByteBuffer b;
         // Sentinel used for null buffer.
-        static private ByteBuffer _emptyBuffer = new ByteBuffer();
+        private static ByteBuffer _emptyBuffer = new ByteBuffer();
 
         private int _size;
         private int _capacity; // Cache capacity to avoid excessive method calls.

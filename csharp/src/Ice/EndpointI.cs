@@ -38,7 +38,7 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(!(obj is EndpointI))
+            if (!(obj is EndpointI))
             {
                 return false;
             }
@@ -54,7 +54,7 @@ namespace IceInternal
         //
         // Marshal the endpoint.
         //
-        virtual public void streamWrite(Ice.OutputStream s)
+        public virtual void streamWrite(Ice.OutputStream s)
         {
             s.startEncapsulation();
             streamWriteImpl(s);
@@ -168,9 +168,9 @@ namespace IceInternal
             List<string> unknown = new List<string>();
 
             string str = "`" + protocol() + " ";
-            foreach(string p in args)
+            foreach (string p in args)
             {
-                if(IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+                if (IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
                 {
                     str += " \"" + p + "\"";
                 }
@@ -181,25 +181,25 @@ namespace IceInternal
             }
             str += "'";
 
-            for(int n = 0; n < args.Count; ++n)
+            for (int n = 0; n < args.Count; ++n)
             {
                 string option = args[n];
-                if(option.Length < 2 || option[0] != '-')
+                if (option.Length < 2 || option[0] != '-')
                 {
                     unknown.Add(option);
                     continue;
                 }
 
                 string argument = null;
-                if(n + 1 < args.Count && args[n + 1][0] != '-')
+                if (n + 1 < args.Count && args[n + 1][0] != '-')
                 {
                     argument = args[++n];
                 }
 
-                if(!checkOption(option, argument, str))
+                if (!checkOption(option, argument, str))
                 {
                     unknown.Add(option);
-                    if(argument != null)
+                    if (argument != null)
                     {
                         unknown.Add(argument);
                     }

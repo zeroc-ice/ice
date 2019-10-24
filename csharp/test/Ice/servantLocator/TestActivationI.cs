@@ -10,7 +10,7 @@ namespace Ice
         {
             override public void activateServantLocator(bool activate, Ice.Current current)
             {
-                if(activate)
+                if (activate)
                 {
                     current.adapter.addServantLocator(new ServantLocatorI(""), "");
                     current.adapter.addServantLocator(new ServantLocatorI("category"), "category");

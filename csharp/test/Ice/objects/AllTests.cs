@@ -62,35 +62,35 @@ namespace Ice
             {
                 public static Ice.Value MyValueFactory(string type)
                 {
-                    if(type.Equals("::Test::B"))
+                    if (type.Equals("::Test::B"))
                     {
                         return new BI();
                     }
-                    else if(type.Equals("::Test::C"))
+                    else if (type.Equals("::Test::C"))
                     {
                         return new CI();
                     }
-                    else if(type.Equals("::Test::D"))
+                    else if (type.Equals("::Test::D"))
                     {
                         return new DI();
                     }
-                    else if(type.Equals("::Test::E"))
+                    else if (type.Equals("::Test::E"))
                     {
                         return new EI();
                     }
-                    else if(type.Equals("::Test::F"))
+                    else if (type.Equals("::Test::F"))
                     {
                         return new FI();
                     }
-                    else if(type.Equals("::Test::I"))
+                    else if (type.Equals("::Test::I"))
                     {
                         return new II();
                     }
-                    else if(type.Equals("::Test::J"))
+                    else if (type.Equals("::Test::J"))
                     {
                         return new JI();
                     }
-                    else if(type.Equals("::Test::H"))
+                    else if (type.Equals("::Test::H"))
                     {
                         return new HI();
                     }
@@ -248,14 +248,14 @@ namespace Ice
 
                     output.Write("testing protected members... ");
                     output.Flush();
-                    EI e =(EI)initial.getE();
+                    EI e = (EI)initial.getE();
                     test(e != null && e.checkValues());
                     System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
                                                            System.Reflection.BindingFlags.Public |
                                                            System.Reflection.BindingFlags.Instance;
                     test(!typeof(E).GetField("i", flags).IsPublic && !typeof(E).GetField("i", flags).IsPrivate);
                     test(!typeof(E).GetField("s", flags).IsPublic && !typeof(E).GetField("s", flags).IsPrivate);
-                    FI f =(FI)initial.getF();
+                    FI f = (FI)initial.getF();
                     test(f.checkValues());
                     test(((EI)f.e2).checkValues());
                     test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
@@ -293,7 +293,7 @@ namespace Ice
                     }
                     {
                         L l = new L("l");
-                        Ice.Value[] v1 = new Ice.Value[]{ l };
+                        Ice.Value[] v1 = new Ice.Value[] { l };
                         Ice.Value[] v2;
                         Ice.Value[] v3 = initial.opValueSeq(v1, out v2);
                         test(((L)v2[0]).data.Equals("l"));
@@ -301,7 +301,7 @@ namespace Ice
                     }
                     {
                         L l = new L("l");
-                        Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value>{ {"l", l} };
+                        Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value> { { "l", l } };
                         Dictionary<string, Ice.Value> v2;
                         Dictionary<string, Ice.Value> v3 = initial.opValueMap(v1, out v2);
                         test(((L)v2["l"]).data.Equals("l"));
@@ -326,7 +326,7 @@ namespace Ice
                         initial.throwEDerived();
                         test(false);
                     }
-                    catch(EDerived ederived)
+                    catch (EDerived ederived)
                     {
                         test(ederived.a1.name.Equals("a1"));
                         test(ederived.a2.name.Equals("a2"));
@@ -341,7 +341,7 @@ namespace Ice
                     {
                         initial.setG(new G(new S("hello"), "g"));
                     }
-                    catch(Ice.OperationNotExistException)
+                    catch (Ice.OperationNotExistException)
                     {
                     }
                     output.WriteLine("ok");
@@ -367,7 +367,7 @@ namespace Ice
                         retS = initial.opBaseSeq(inS, out outS);
                         test(retS.Length == 1 && outS.Length == 1);
                     }
-                    catch(Ice.OperationNotExistException)
+                    catch (Ice.OperationNotExistException)
                     {
                     }
                     output.WriteLine("ok");
@@ -379,13 +379,13 @@ namespace Ice
                     int depth = 0;
                     try
                     {
-                        for(; depth <= 1000; ++depth)
+                        for (; depth <= 1000; ++depth)
                         {
                             p.v = new Test.Recursive();
                             p = p.v;
-                            if((depth < 10 &&(depth % 10) == 0) ||
-                              (depth < 1000 &&(depth % 100) == 0) ||
-                              (depth < 10000 &&(depth % 1000) == 0) ||
+                            if ((depth < 10 && (depth % 10) == 0) ||
+                              (depth < 1000 && (depth % 100) == 0) ||
+                              (depth < 10000 && (depth % 1000) == 0) ||
                               (depth % 10000) == 0)
                             {
                                 initial.setRecursive(top);
@@ -393,11 +393,11 @@ namespace Ice
                         }
                         test(!initial.supportsClassGraphDepthMax());
                     }
-                    catch(Ice.UnknownLocalException)
+                    catch (Ice.UnknownLocalException)
                     {
                         // Expected marshal exception from the server(max class graph depth reached)
                     }
-                    catch(Ice.UnknownException)
+                    catch (Ice.UnknownException)
                     {
                         // Expected stack overflow from the server(Java only)
                     }
@@ -410,7 +410,7 @@ namespace Ice
                     {
                         test(initial.getCompact() != null);
                     }
-                    catch(Ice.OperationNotExistException)
+                    catch (Ice.OperationNotExistException)
                     {
                     }
                     output.WriteLine("ok");
@@ -435,12 +435,12 @@ namespace Ice
                         uoet.op();
                         test(false);
                     }
-                    catch(Ice.UnexpectedObjectException ex)
+                    catch (Ice.UnexpectedObjectException ex)
                     {
                         test(ex.type.Equals("::Test::AlsoEmpty"));
                         test(ex.expectedType.Equals("::Test::Empty"));
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         output.WriteLine(ex.ToString());
                         test(false);
@@ -522,7 +522,7 @@ namespace Ice
                         f21.op();
                         test(f22.ice_getIdentity().name.Equals("F22"));
 
-                        if(initial.hasF3())
+                        if (initial.hasF3())
                         {
                             F3 f32;
                             F3 f31 = initial.opF3(new F3(new F1("F11"),

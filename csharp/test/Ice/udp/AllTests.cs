@@ -15,7 +15,7 @@ namespace Ice
             {
                 public override void reply(Ice.Current current)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         ++_replies;
                         System.Threading.Monitor.Pulse(this);
@@ -24,7 +24,7 @@ namespace Ice
 
                 public void reset()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         _replies = 0;
                     }
@@ -32,13 +32,13 @@ namespace Ice
 
                 public bool waitReply(int expectedReplies, long timeout)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
-                        while(_replies < expectedReplies)
+                        while (_replies < expectedReplies)
                         {
-                            int delay =(int)(end - IceInternal.Time.currentMonotonicTimeMillis());
-                            if(delay > 0)
+                            int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
+                            if (delay > 0)
                             {
                                 System.Threading.Monitor.Wait(this, delay);
                             }
@@ -71,14 +71,14 @@ namespace Ice
 
                 int nRetry = 5;
                 bool ret = false;
-                while(nRetry-- > 0)
+                while (nRetry-- > 0)
                 {
                     replyI.reset();
                     obj.ping(reply);
                     obj.ping(reply);
                     obj.ping(reply);
                     ret = replyI.waitReply(3, 2000);
-                    if(ret)
+                    if (ret)
                     {
                         break; // Success
                     }
@@ -86,11 +86,11 @@ namespace Ice
                     // If the 3 datagrams were not received within the 2 seconds, we try again to
                     // receive 3 new datagrams using a new object. We give up after 5 retries.
                     replyI = new PingReplyI();
-                    reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
                 }
                 test(ret == true);
 
-                if(communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
+                if (communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
                 {
                     //
                     // Only run this test if compression is disabled, the test expect fixed message size
@@ -100,7 +100,7 @@ namespace Ice
                     try
                     {
                         seq = new byte[1024];
-                        while(true)
+                        while (true)
                         {
                             seq = new byte[seq.Length * 2 + 10];
                             replyI.reset();
@@ -108,7 +108,7 @@ namespace Ice
                             replyI.waitReply(1, 10000);
                         }
                     }
-                    catch(Ice.DatagramLimitException)
+                    catch (Ice.DatagramLimitException)
                     {
                         //
                         // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
@@ -131,10 +131,10 @@ namespace Ice
                         //
                         test(!b);
                     }
-                    catch(Ice.DatagramLimitException)
+                    catch (Ice.DatagramLimitException)
                     {
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         Console.Out.WriteLine(ex);
                         test(false);
@@ -149,10 +149,10 @@ namespace Ice
                 //
                 // Use loopback to prevent other machines to answer.
                 //
-                if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+                if (communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
                 {
                     endpoint.Append("udp -h \"ff15::1:1\"");
-                    if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                    if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
                     {
                         endpoint.Append(" --interface \"::1\"");
                     }
@@ -160,7 +160,7 @@ namespace Ice
                 else
                 {
                     endpoint.Append("udp -h 239.255.1.1");
-                    if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                    if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
                     {
                         endpoint.Append(" --interface 127.0.0.1");
                     }
@@ -171,19 +171,19 @@ namespace Ice
                 var objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
                 nRetry = 5;
-                while(nRetry-- > 0)
+                while (nRetry-- > 0)
                 {
                     replyI.reset();
                     objMcast.ping(reply);
                     ret = replyI.waitReply(5, 5000);
-                    if(ret)
+                    if (ret)
                     {
                         break;
                     }
                     replyI = new PingReplyI();
-                    reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
                 }
-                if(!ret)
+                if (!ret)
                 {
                     Console.Out.WriteLine("failed(is a firewall enabled?)");
                 }
@@ -197,19 +197,19 @@ namespace Ice
                 obj.ice_getConnection().setAdapter(adapter);
                 objMcast.ice_getConnection().setAdapter(adapter);
                 nRetry = 5;
-                while(nRetry-- > 0)
+                while (nRetry-- > 0)
                 {
                     replyI.reset();
                     obj.pingBiDir(reply.ice_getIdentity());
                     obj.pingBiDir(reply.ice_getIdentity());
                     obj.pingBiDir(reply.ice_getIdentity());
                     ret = replyI.waitReply(3, 2000);
-                    if(ret)
+                    if (ret)
                     {
                         break; // Success
                     }
                     replyI = new PingReplyI();
-                    reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
                 }
                 test(ret);
                 Console.Out.WriteLine("ok");

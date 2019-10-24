@@ -11,8 +11,6 @@ namespace IceSSL
     using System.Security.Authentication;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
-    using System.Text;
-    using System.Globalization;
 
     internal class SSLEngine
     {
@@ -29,7 +27,7 @@ namespace IceSSL
 
         internal void initialize()
         {
-            if(_initialized)
+            if (_initialized)
             {
                 return;
             }
@@ -45,11 +43,11 @@ namespace IceSSL
 
             string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
             StoreLocation storeLocation;
-            if(certStoreLocation == "CurrentUser")
+            if (certStoreLocation == "CurrentUser")
             {
                 storeLocation = StoreLocation.CurrentUser;
             }
-            else if(certStoreLocation == "LocalMachine")
+            else if (certStoreLocation == "LocalMachine")
             {
                 storeLocation = StoreLocation.LocalMachine;
             }
@@ -66,16 +64,16 @@ namespace IceSSL
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
             var protocols = properties.getPropertyAsList(prefix + "Protocols");
-            if(protocols.Length > 0)
+            if (protocols.Length > 0)
             {
                 _protocols = parseProtocols(protocols);
             }
             else
             {
                 _protocols = 0;
-                foreach(int v in Enum.GetValues(typeof(SslProtocols)))
+                foreach (int v in Enum.GetValues(typeof(SslProtocols)))
                 {
-                    if(v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
+                    if (v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
                     {
                         _protocols |= (SslProtocols)v;
                     }
@@ -103,9 +101,9 @@ namespace IceSSL
             // Check for a certificate verifier.
             //
             string certVerifierClass = properties.getProperty(prefix + "CertVerifier");
-            if(certVerifierClass.Length > 0)
+            if (certVerifierClass.Length > 0)
             {
-                if(_verifier != null)
+                if (_verifier != null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: certificate verifier already installed";
@@ -113,7 +111,7 @@ namespace IceSSL
                 }
 
                 Type cls = _facade.findType(certVerifierClass);
-                if(cls == null)
+                if (cls == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: unable to load certificate verifier class " + certVerifierClass;
@@ -124,14 +122,14 @@ namespace IceSSL
                 {
                     _verifier = (CertificateVerifier)IceInternal.AssemblyUtil.createInstance(cls);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
                     e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
                     throw e;
                 }
 
-                if(_verifier == null)
+                if (_verifier == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
@@ -143,9 +141,9 @@ namespace IceSSL
             // Check for a password callback.
             //
             string passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
-            if(passwordCallbackClass.Length > 0)
+            if (passwordCallbackClass.Length > 0)
             {
-                if(_passwordCallback != null)
+                if (_passwordCallback != null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: password callback already installed";
@@ -153,7 +151,7 @@ namespace IceSSL
                 }
 
                 Type cls = _facade.findType(passwordCallbackClass);
-                if(cls == null)
+                if (cls == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
@@ -164,14 +162,14 @@ namespace IceSSL
                 {
                     _passwordCallback = (PasswordCallback)IceInternal.AssemblyUtil.createInstance(cls);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
                     e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
                     throw e;
                 }
 
-                if(_passwordCallback == null)
+                if (_passwordCallback == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
@@ -183,7 +181,7 @@ namespace IceSSL
             // If the user hasn't supplied a certificate collection, we need to examine
             // the property settings.
             //
-            if(_certs == null)
+            if (_certs == null)
             {
                 //
                 // If IceSSL.CertFile is defined, load a certificate from a file and
@@ -197,9 +195,9 @@ namespace IceSSL
                 const string findPrefix = prefix + "FindCert.";
                 Dictionary<string, string> findCertProps = properties.getPropertiesForPrefix(findPrefix);
 
-                if(certFile.Length > 0)
+                if (certFile.Length > 0)
                 {
-                    if(!checkPath(ref certFile))
+                    if (!checkPath(ref certFile))
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: certificate file not found: " + certFile;
@@ -207,11 +205,11 @@ namespace IceSSL
                     }
 
                     SecureString password = null;
-                    if(passwordStr.Length > 0)
+                    if (passwordStr.Length > 0)
                     {
                         password = createSecureString(passwordStr);
                     }
-                    else if(_passwordCallback != null)
+                    else if (_passwordCallback != null)
                     {
                         password = _passwordCallback.getPassword(certFile);
                     }
@@ -220,7 +218,7 @@ namespace IceSSL
                     {
                         X509Certificate2 cert;
                         X509KeyStorageFlags importFlags;
-                        if(_useMachineContext)
+                        if (_useMachineContext)
                         {
                             importFlags = X509KeyStorageFlags.MachineKeySet;
                         }
@@ -229,7 +227,7 @@ namespace IceSSL
                             importFlags = X509KeyStorageFlags.UserKeySet;
                         }
 
-                        if(password != null)
+                        if (password != null)
                         {
                             cert = new X509Certificate2(certFile, password, importFlags);
                         }
@@ -239,40 +237,40 @@ namespace IceSSL
                         }
                         _certs.Add(cert);
                     }
-                    catch(CryptographicException ex)
+                    catch (CryptographicException ex)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
                         e.reason = "IceSSL: error while attempting to load certificate from " + certFile;
                         throw e;
                     }
                 }
-                else if(findCert.Length > 0)
+                else if (findCert.Length > 0)
                 {
                     string certStore = properties.getPropertyWithDefault("IceSSL.CertStore", "My");
                     _certs.AddRange(findCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
-                    if(_certs.Count == 0)
+                    if (_certs.Count == 0)
                     {
                         throw new Ice.PluginInitializationException("IceSSL: no certificates found");
                     }
                 }
-                else if(findCertProps.Count > 0)
+                else if (findCertProps.Count > 0)
                 {
                     //
                     // If IceSSL.FindCert.* properties are defined, add the selected certificates
                     // to the collection.
                     //
-                    foreach(KeyValuePair<string, string> entry in findCertProps)
+                    foreach (KeyValuePair<string, string> entry in findCertProps)
                     {
                         string name = entry.Key;
                         string val = entry.Value;
-                        if(val.Length > 0)
+                        if (val.Length > 0)
                         {
                             string storeSpec = name.Substring(findPrefix.Length);
                             StoreLocation storeLoc = 0;
                             StoreName storeName = 0;
                             string sname = null;
                             parseStore(name, storeSpec, ref storeLoc, ref storeName, ref sname);
-                            if(sname == null)
+                            if (sname == null)
                             {
                                 sname = storeName.ToString();
                             }
@@ -280,7 +278,7 @@ namespace IceSSL
                             _certs.AddRange(coll);
                         }
                     }
-                    if(_certs.Count == 0)
+                    if (_certs.Count == 0)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: no certificates found";
@@ -289,20 +287,20 @@ namespace IceSSL
                 }
             }
 
-            if(_caCerts == null)
+            if (_caCerts == null)
             {
                 string certAuthFile = properties.getProperty(prefix + "CAs");
-                if(certAuthFile.Length == 0)
+                if (certAuthFile.Length == 0)
                 {
                     certAuthFile = properties.getProperty(prefix + "CertAuthFile");
                 }
-                if(certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
+                if (certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
                 {
                     _caCerts = new X509Certificate2Collection();
                 }
-                if(certAuthFile.Length > 0)
+                if (certAuthFile.Length > 0)
                 {
-                    if(!checkPath(ref certAuthFile))
+                    if (!checkPath(ref certAuthFile))
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: CA certificate file not found: " + certAuthFile;
@@ -311,7 +309,7 @@ namespace IceSSL
 
                     try
                     {
-                        using(System.IO.FileStream fs = System.IO.File.OpenRead(certAuthFile))
+                        using (System.IO.FileStream fs = System.IO.File.OpenRead(certAuthFile))
                         {
                             byte[] data = new byte[fs.Length];
                             fs.Read(data, 0, data.Length);
@@ -321,24 +319,24 @@ namespace IceSSL
                             {
                                 strbuf = System.Text.Encoding.UTF8.GetString(data);
                             }
-                            catch(Exception)
+                            catch (Exception)
                             {
                                 // Ignore
                             }
 
-                            if(strbuf.Length == data.Length)
+                            if (strbuf.Length == data.Length)
                             {
                                 int size, startpos, endpos = 0;
                                 bool first = true;
-                                while(true)
+                                while (true)
                                 {
                                     startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
-                                    if(startpos != -1)
+                                    if (startpos != -1)
                                     {
                                         endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
                                         size = endpos - startpos + "-----END CERTIFICATE-----".Length;
                                     }
-                                    else if(first)
+                                    else if (first)
                                     {
                                         startpos = 0;
                                         endpos = strbuf.Length;
@@ -361,7 +359,7 @@ namespace IceSSL
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
                         e.reason = "IceSSL: error while attempting to load CA certificate from " + certAuthFile;
@@ -384,7 +382,7 @@ namespace IceSSL
 
         internal void setCACertificates(X509Certificate2Collection caCerts)
         {
-            if(_initialized)
+            if (_initialized)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                 e.reason = "IceSSL: plug-in is already initialized";
@@ -396,7 +394,7 @@ namespace IceSSL
 
         internal void setCertificates(X509Certificate2Collection certs)
         {
-            if(_initialized)
+            if (_initialized)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                 e.reason = "IceSSL: plug-in is already initialized";
@@ -470,7 +468,7 @@ namespace IceSSL
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
             s.Append("SSL connection summary");
-            if(connInfo.Length > 0)
+            if (connInfo.Length > 0)
             {
                 s.Append("\n");
                 s.Append(connInfo);
@@ -486,14 +484,14 @@ namespace IceSSL
             _logger.trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
+        internal void verifyPeer(string address, ConnectionInfo info, string desc)
         {
-            if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
+            if (_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
                     "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" + desc;
-                if(_securityTraceLevel >= 1)
+                if (_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);
                 }
@@ -502,11 +500,11 @@ namespace IceSSL
                 throw ex;
             }
 
-            if(!_trustManager.verify(info, desc))
+            if (!_trustManager.verify(info, desc))
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     desc;
-                if(_securityTraceLevel >= 1)
+                if (_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);
                 }
@@ -516,11 +514,11 @@ namespace IceSSL
                 throw ex;
             }
 
-            if(_verifier != null && !_verifier.verify(info))
+            if (_verifier != null && !_verifier.verify(info))
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") +
                     " connection rejected by certificate verifier\n" + desc;
-                if(_securityTraceLevel >= 1)
+                if (_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);
                 }
@@ -538,7 +536,7 @@ namespace IceSSL
                                        ref string sname)
         {
             int pos = store.IndexOf('.');
-            if(pos == -1)
+            if (pos == -1)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                 e.reason = "IceSSL: property `" + prop + "' has invalid format";
@@ -546,11 +544,11 @@ namespace IceSSL
             }
 
             string sloc = store.Substring(0, pos).ToUpperInvariant();
-            if(sloc.Equals("CURRENTUSER"))
+            if (sloc.Equals("CURRENTUSER"))
             {
                 loc = StoreLocation.CurrentUser;
             }
-            else if(sloc.Equals("LOCALMACHINE"))
+            else if (sloc.Equals("LOCALMACHINE"))
             {
                 loc = StoreLocation.LocalMachine;
             }
@@ -562,7 +560,7 @@ namespace IceSSL
             }
 
             sname = store.Substring(pos + 1);
-            if(sname.Length == 0)
+            if (sname.Length == 0)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                 e.reason = "IceSSL: invalid store name in " + prop;
@@ -577,7 +575,7 @@ namespace IceSSL
                 name = (StoreName)Enum.Parse(typeof(StoreName), sname, true);
                 sname = null;
             }
-            catch(ArgumentException)
+            catch (ArgumentException)
             {
                 // Ignore - assume the user is selecting a non-standard store.
             }
@@ -590,12 +588,12 @@ namespace IceSSL
             //
             path = path.Trim();
 
-            if(IceInternal.AssemblyUtil.isWindows)
+            if (IceInternal.AssemblyUtil.isWindows)
             {
                 //
                 // We need at least 3 non-whitespace characters to have an absolute path
                 //
-                if(path.Length < 3)
+                if (path.Length < 3)
                 {
                     return false;
                 }
@@ -603,7 +601,7 @@ namespace IceSSL
                 //
                 // Check for X:\ path ('\' may have been converted to '/')
                 //
-                if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
+                if ((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
                 {
                     return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
                 }
@@ -617,15 +615,15 @@ namespace IceSSL
 
         private bool checkPath(ref string path)
         {
-            if(File.Exists(path))
+            if (File.Exists(path))
             {
                 return true;
             }
 
-            if(_defaultDir.Length > 0 && !isAbsolutePath(path))
+            if (_defaultDir.Length > 0 && !isAbsolutePath(path))
             {
                 string s = _defaultDir + Path.DirectorySeparatorChar + path;
-                if(File.Exists(s))
+                if (File.Exists(s))
                 {
                     path = s;
                     return true;
@@ -639,52 +637,52 @@ namespace IceSSL
         {
             SslProtocols result = SslProtocols.Default;
 
-            if(arr.Length > 0)
+            if (arr.Length > 0)
             {
                 result = 0;
-                for(int i = 0; i < arr.Length; ++i)
+                for (int i = 0; i < arr.Length; ++i)
                 {
                     string protocol = null;
                     string s = arr[i].ToUpperInvariant();
-                    switch(s)
+                    switch (s)
                     {
                         case "SSL3":
                         case "SSLV3":
-                        {
-                            protocol = "Ssl3";
-                            break;
-                        }
+                            {
+                                protocol = "Ssl3";
+                                break;
+                            }
                         case "TLS":
                         case "TLS1":
                         case "TLS1_0":
                         case "TLSV1":
                         case "TLSV1_0":
-                        {
-                            protocol = "Tls";
-                            break;
-                        }
+                            {
+                                protocol = "Tls";
+                                break;
+                            }
                         case "TLS1_1":
                         case "TLSV1_1":
-                        {
-                            protocol = "Tls11";
-                            break;
-                        }
+                            {
+                                protocol = "Tls11";
+                                break;
+                            }
                         case "TLS1_2":
                         case "TLSV1_2":
-                        {
-                            protocol = "Tls12";
-                            break;
-                        }
+                            {
+                                protocol = "Tls12";
+                                break;
+                            }
                         case "TLS1_3":
                         case "TLSV1_3":
-                        {
-                            protocol = "Tls13";
-                            break;
-                        }
+                            {
+                                protocol = "Tls13";
+                                break;
+                            }
                         default:
-                        {
-                            break;
-                        }
+                            {
+                                break;
+                            }
                     }
 
                     try
@@ -692,7 +690,7 @@ namespace IceSSL
                         SslProtocols value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
                         result |= value;
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: unrecognized protocol `" + s + "'";
@@ -716,13 +714,13 @@ namespace IceSSL
                 {
                     store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                     store = new X509Store(name, storeLocation);
                 }
                 store.Open(OpenFlags.ReadOnly);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
                 e.reason = "IceSSL: failure while opening store specified by " + prop;
@@ -749,9 +747,9 @@ namespace IceSSL
             result.AddRange(store.Certificates);
             try
             {
-                if(value != "*")
+                if (value != "*")
                 {
-                    if(value.IndexOf(':') == -1)
+                    if (value.IndexOf(':') == -1)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: no key in `" + value + "'";
@@ -759,38 +757,38 @@ namespace IceSSL
                     }
                     int start = 0;
                     int pos;
-                    while((pos = value.IndexOf(':', start)) != -1)
+                    while ((pos = value.IndexOf(':', start)) != -1)
                     {
                         //
                         // Parse the X509FindType.
                         //
                         string field = value.Substring(start, pos - start).Trim().ToUpperInvariant();
                         X509FindType findType;
-                        if(field.Equals("SUBJECT"))
+                        if (field.Equals("SUBJECT"))
                         {
                             findType = X509FindType.FindBySubjectName;
                         }
-                        else if(field.Equals("SUBJECTDN"))
+                        else if (field.Equals("SUBJECTDN"))
                         {
                             findType = X509FindType.FindBySubjectDistinguishedName;
                         }
-                        else if(field.Equals("ISSUER"))
+                        else if (field.Equals("ISSUER"))
                         {
                             findType = X509FindType.FindByIssuerName;
                         }
-                        else if(field.Equals("ISSUERDN"))
+                        else if (field.Equals("ISSUERDN"))
                         {
                             findType = X509FindType.FindByIssuerDistinguishedName;
                         }
-                        else if(field.Equals("THUMBPRINT"))
+                        else if (field.Equals("THUMBPRINT"))
                         {
                             findType = X509FindType.FindByThumbprint;
                         }
-                        else if(field.Equals("SUBJECTKEYID"))
+                        else if (field.Equals("SUBJECTKEYID"))
                         {
                             findType = X509FindType.FindBySubjectKeyIdentifier;
                         }
-                        else if(field.Equals("SERIAL"))
+                        else if (field.Equals("SERIAL"))
                         {
                             findType = X509FindType.FindBySerialNumber;
                         }
@@ -805,11 +803,11 @@ namespace IceSSL
                         // Parse the argument.
                         //
                         start = pos + 1;
-                        while(start < value.Length && (value[start] == ' ' || value[start] == '\t'))
+                        while (start < value.Length && (value[start] == ' ' || value[start] == '\t'))
                         {
                             ++start;
                         }
-                        if(start == value.Length)
+                        if (start == value.Length)
                         {
                             Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                             e.reason = "IceSSL: missing argument in `" + value + "'";
@@ -817,19 +815,19 @@ namespace IceSSL
                         }
 
                         string arg;
-                        if(value[start] == '"' || value[start] == '\'')
+                        if (value[start] == '"' || value[start] == '\'')
                         {
                             int end = start;
                             ++end;
-                            while(end < value.Length)
+                            while (end < value.Length)
                             {
-                                if(value[end] == value[start] && value[end - 1] != '\\')
+                                if (value[end] == value[start] && value[end - 1] != '\\')
                                 {
                                     break;
                                 }
                                 ++end;
                             }
-                            if(end == value.Length || value[end] != value[start])
+                            if (end == value.Length || value[end] != value[start])
                             {
                                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                                 e.reason = "IceSSL: unmatched quote in `" + value + "'";
@@ -843,7 +841,7 @@ namespace IceSSL
                         {
                             char[] ws = new char[] { ' ', '\t' };
                             int end = value.IndexOfAny(ws, start);
-                            if(end == -1)
+                            if (end == -1)
                             {
                                 arg = value.Substring(start);
                                 start = value.Length;
@@ -861,7 +859,7 @@ namespace IceSSL
                         // TODO: allow user to specify a value for validOnly?
                         //
                         bool validOnly = false;
-                        if(findType == X509FindType.FindBySubjectDistinguishedName ||
+                        if (findType == X509FindType.FindBySubjectDistinguishedName ||
                            findType == X509FindType.FindByIssuerDistinguishedName)
                         {
                             X500DistinguishedNameFlags[] flags = {
@@ -870,10 +868,10 @@ namespace IceSSL
                             };
                             X500DistinguishedName dn = new X500DistinguishedName(arg);
                             X509Certificate2Collection r = result;
-                            for(int i = 0; i < flags.Length; ++i)
+                            for (int i = 0; i < flags.Length; ++i)
                             {
                                 r = result.Find(findType, dn.Decode(flags[i]), validOnly);
-                                if(r.Count > 0)
+                                if (r.Count > 0)
                                 {
                                     break;
                                 }
@@ -898,7 +896,7 @@ namespace IceSSL
         private static SecureString createSecureString(string s)
         {
             SecureString result = new SecureString();
-            foreach(char ch in s)
+            foreach (char ch in s)
             {
                 result.AppendChar(ch);
             }
@@ -910,28 +908,28 @@ namespace IceSSL
             len = 0;
             next = 0;
 
-            if(start + 1 > data.Length)
+            if (start + 1 > data.Length)
             {
                 return false;
             }
 
             len = data[start];
             int len2 = 0;
-            if(len > 0x80) // Composed length
+            if (len > 0x80) // Composed length
             {
                 len2 = len - 0x80;
-                if(start + len2 + 1 > data.Length)
+                if (start + len2 + 1 > data.Length)
                 {
                     return false;
                 }
                 len = 0;
-                for(int i = 0; i < len2; i++)
+                for (int i = 0; i < len2; i++)
                 {
                     len *= 256;
                     len += data[start + i + 1];
                 }
             }
-            else if(len == 0x80) // Undefined length encoding
+            else if (len == 0x80) // Undefined length encoding
             {
                 return false;
             }

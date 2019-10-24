@@ -32,7 +32,7 @@ namespace IceInternal
             {
                 _desc = Network.fdToString(_fd);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Network.closeSocketNoThrow(_fd);
                 throw;
@@ -47,17 +47,17 @@ namespace IceInternal
 
         public int connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
         {
-            if(_state == StateNeedConnect)
+            if (_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
                 return SocketOperation.Connect;
             }
-            else if(_state <= StateConnectPending)
+            else if (_state <= StateConnectPending)
             {
-                if(_writeEventArgs.SocketError != SocketError.Success)
+                if (_writeEventArgs.SocketError != SocketError.Success)
                 {
                     SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
-                    if(Network.connectionRefused(ex))
+                    if (Network.connectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
@@ -70,17 +70,17 @@ namespace IceInternal
                 _state = _proxy != null ? StateProxyWrite : StateConnected;
             }
 
-            if(_state == StateProxyWrite)
+            if (_state == StateProxyWrite)
             {
                 _proxy.beginWrite(_addr, writeBuffer);
                 return SocketOperation.Write;
             }
-            else if(_state == StateProxyRead)
+            else if (_state == StateProxyRead)
             {
                 _proxy.beginRead(readBuffer);
                 return SocketOperation.Read;
             }
-            else if(_state == StateProxyConnected)
+            else if (_state == StateProxyConnected)
             {
                 _proxy.finish(readBuffer, writeBuffer);
 
@@ -121,18 +121,18 @@ namespace IceInternal
 
         public int read(Buffer buf)
         {
-            if(_state == StateProxyRead)
+            if (_state == StateProxyRead)
             {
-                while(true)
+                while (true)
                 {
                     int ret = read(buf.b);
-                    if(ret == 0)
+                    if (ret == 0)
                     {
                         return SocketOperation.Read;
                     }
 
                     _state = toState(_proxy.endRead(buf));
-                    if(_state != StateProxyRead)
+                    if (_state != StateProxyRead)
                     {
                         return SocketOperation.None;
                     }
@@ -144,17 +144,17 @@ namespace IceInternal
 
         public int write(Buffer buf)
         {
-            if(_state == StateProxyWrite)
+            if (_state == StateProxyWrite)
             {
-                while(true)
+                while (true)
                 {
                     int ret = write(buf.b);
-                    if(ret == 0)
+                    if (ret == 0)
                     {
                         return SocketOperation.Write;
                     }
                     _state = toState(_proxy.endWrite(buf));
-                    if(_state != StateProxyWrite)
+                    if (_state != StateProxyWrite)
                     {
                         return SocketOperation.None;
                     }
@@ -176,9 +176,9 @@ namespace IceInternal
                 _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.connectionLost(ex))
+                if (Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
@@ -188,7 +188,7 @@ namespace IceInternal
 
         public void finishRead(Buffer buf)
         {
-            if(_fd == null) // Transceiver was closed
+            if (_fd == null) // Transceiver was closed
             {
                 return;
             }
@@ -196,14 +196,14 @@ namespace IceInternal
             Debug.Assert(_fd != null && _readEventArgs != null);
             try
             {
-                if(_readEventArgs.SocketError != SocketError.Success)
+                if (_readEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 int ret = _readEventArgs.BytesTransferred;
                 _readEventArgs.SetBuffer(null, 0, 0);
 
-                if(ret == 0)
+                if (ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
                 }
@@ -211,20 +211,20 @@ namespace IceInternal
                 Debug.Assert(ret > 0);
                 buf.b.position(buf.b.position() + ret);
 
-                if(_state == StateProxyRead)
+                if (_state == StateProxyRead)
                 {
                     _state = toState(_proxy.endRead(buf));
                 }
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.connectionLost(ex))
+                if (Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
                 throw new Ice.SocketException(ex);
             }
-            catch(ObjectDisposedException ex)
+            catch (ObjectDisposedException ex)
             {
                 throw new Ice.ConnectionLostException(ex);
             }
@@ -233,7 +233,7 @@ namespace IceInternal
         public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null && _writeEventArgs != null);
-            if(_state == StateConnectPending)
+            if (_state == StateConnectPending)
             {
                 completed = false;
                 _writeCallback = callback;
@@ -244,7 +244,7 @@ namespace IceInternal
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new Ice.SocketException(ex);
                 }
@@ -260,15 +260,15 @@ namespace IceInternal
                 completed = packetSize == buf.b.remaining();
                 return completedSynchronously;
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.connectionLost(ex))
+                if (Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
                 throw new Ice.SocketException(ex);
             }
-            catch(ObjectDisposedException ex)
+            catch (ObjectDisposedException ex)
             {
                 throw new Ice.ConnectionLostException(ex);
             }
@@ -276,9 +276,9 @@ namespace IceInternal
 
         public void finishWrite(Buffer buf)
         {
-            if(_fd == null) // Transceiver was closed
+            if (_fd == null) // Transceiver was closed
             {
-                if(buf.size() - buf.b.position() < _maxSendPacketSize)
+                if (buf.size() - buf.b.position() < _maxSendPacketSize)
                 {
                     buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
                 }
@@ -287,20 +287,20 @@ namespace IceInternal
 
             Debug.Assert(_fd != null && _writeEventArgs != null);
 
-            if(_state < StateConnected && _state != StateProxyWrite)
+            if (_state < StateConnected && _state != StateProxyWrite)
             {
                 return;
             }
 
             try
             {
-                if(_writeEventArgs.SocketError != SocketError.Success)
+                if (_writeEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 int ret = _writeEventArgs.BytesTransferred;
                 _writeEventArgs.SetBuffer(null, 0, 0);
-                if(ret == 0)
+                if (ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
                 }
@@ -308,21 +308,21 @@ namespace IceInternal
                 Debug.Assert(ret > 0);
                 buf.b.position(buf.b.position() + ret);
 
-                if(_state == StateProxyWrite)
+                if (_state == StateProxyWrite)
                 {
                     _state = toState(_proxy.endWrite(buf));
                 }
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.connectionLost(ex))
+                if (Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
 
                 throw new Ice.SocketException(ex);
             }
-            catch(ObjectDisposedException ex)
+            catch (ObjectDisposedException ex)
             {
                 throw new Ice.ConnectionLostException(ex);
             }
@@ -356,7 +356,7 @@ namespace IceInternal
         private int read(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
-            if(AssemblyUtil.isMono)
+            if (AssemblyUtil.isMono)
             {
                 //
                 // Mono on Android and iOS don't support the use of synchronous socket
@@ -366,29 +366,29 @@ namespace IceInternal
                 return 0;
             }
             int read = 0;
-            while(buf.hasRemaining())
+            while (buf.hasRemaining())
             {
                 try
                 {
                     int ret = _fd.Receive(buf.rawBytes(), buf.position(), buf.remaining(), SocketFlags.None);
-                    if(ret == 0)
+                    if (ret == 0)
                     {
                         throw new Ice.ConnectionLostException();
                     }
                     read += ret;
                     buf.position(buf.position() + ret);
                 }
-                catch(SocketException ex)
+                catch (SocketException ex)
                 {
-                    if(Network.wouldBlock(ex))
+                    if (Network.wouldBlock(ex))
                     {
                         return read;
                     }
-                    else if(Network.interrupted(ex))
+                    else if (Network.interrupted(ex))
                     {
                         continue;
                     }
-                    else if(Network.connectionLost(ex))
+                    else if (Network.connectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -402,7 +402,7 @@ namespace IceInternal
         private int write(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
-            if(AssemblyUtil.isMono)
+            if (AssemblyUtil.isMono)
             {
                 //
                 // Mono on Android and iOS don't support the use of synchronous socket
@@ -412,21 +412,21 @@ namespace IceInternal
                 return 0;
             }
             int packetSize = buf.remaining();
-            if(AssemblyUtil.isWindows)
+            if (AssemblyUtil.isWindows)
             {
                 //
                 // On Windows, limiting the buffer size is important to prevent
                 // poor throughput performances when transfering large amount of
                 // data. See Microsoft KB article KB823764.
                 //
-                if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
+                if (_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
                 {
                     packetSize = _maxSendPacketSize / 2;
                 }
             }
 
             int sent = 0;
-            while(buf.hasRemaining())
+            while (buf.hasRemaining())
             {
                 try
                 {
@@ -435,18 +435,18 @@ namespace IceInternal
 
                     sent += ret;
                     buf.position(buf.position() + ret);
-                    if(packetSize > buf.remaining())
+                    if (packetSize > buf.remaining())
                     {
                         packetSize = buf.remaining();
                     }
                 }
-                catch(SocketException ex)
+                catch (SocketException ex)
                 {
-                    if(Network.wouldBlock(ex))
+                    if (Network.wouldBlock(ex))
                     {
                         return sent;
                     }
-                    else if(Network.connectionLost(ex))
+                    else if (Network.connectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -459,15 +459,15 @@ namespace IceInternal
         {
             switch (e.LastOperation)
             {
-            case SocketAsyncOperation.Receive:
-                _readCallback(e.UserToken);
-                break;
-            case SocketAsyncOperation.Send:
-            case SocketAsyncOperation.Connect:
-                _writeCallback(e.UserToken);
-                break;
-            default:
-                throw new ArgumentException("The last operation completed on the socket was not a receive or send");
+                case SocketAsyncOperation.Receive:
+                    _readCallback(e.UserToken);
+                    break;
+                case SocketAsyncOperation.Send:
+                case SocketAsyncOperation.Connect:
+                    _writeCallback(e.UserToken);
+                    break;
+                default:
+                    throw new ArgumentException("The last operation completed on the socket was not a receive or send");
             }
         }
 
@@ -495,14 +495,14 @@ namespace IceInternal
 
         private int toState(int operation)
         {
-            switch(operation)
+            switch (operation)
             {
-            case SocketOperation.Read:
-                return StateProxyRead;
-            case SocketOperation.Write:
-                return StateProxyWrite;
-            default:
-                return StateProxyConnected;
+                case SocketOperation.Read:
+                    return StateProxyRead;
+                case SocketOperation.Write:
+                    return StateProxyWrite;
+                default:
+                    return StateProxyConnected;
             }
         }
 
@@ -520,8 +520,8 @@ namespace IceInternal
         private SocketAsyncEventArgs _writeEventArgs;
         private SocketAsyncEventArgs _readEventArgs;
 
-        AsyncCallback _writeCallback;
-        AsyncCallback _readCallback;
+        private AsyncCallback _writeCallback;
+        private AsyncCallback _readCallback;
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;

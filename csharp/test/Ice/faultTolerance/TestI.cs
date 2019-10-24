@@ -10,7 +10,7 @@ public sealed class TestI : TestIntfDisp_
 {
     public TestI()
     {
-        lock(this)
+        lock (this)
         {
             _p = Process.GetCurrentProcess();
             _pid = _p.Id;
@@ -35,7 +35,7 @@ public sealed class TestI : TestIntfDisp_
 
     public override int pid(Ice.Current current)
     {
-        lock(this)
+        lock (this)
         {
             return _pid;
         }

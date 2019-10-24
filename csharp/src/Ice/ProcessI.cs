@@ -18,18 +18,18 @@ namespace IceInternal
 
         public override void writeMessage(string message, int fd, Ice.Current current)
         {
-            switch(fd)
+            switch (fd)
             {
                 case 1:
-                {
-                    System.Console.Out.WriteLine(message);
-                    break;
-                }
+                    {
+                        System.Console.Out.WriteLine(message);
+                        break;
+                    }
                 case 2:
-                {
-                    System.Console.Error.WriteLine(message);
-                    break;
-                }
+                    {
+                        System.Console.Error.WriteLine(message);
+                        break;
+                    }
             }
         }
 

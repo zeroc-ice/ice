@@ -16,9 +16,9 @@ namespace Ice
 
             public override void op(bool kill, Ice.Current current)
             {
-                if(kill)
+                if (kill)
                 {
-                    if(current.con != null)
+                    if (current.con != null)
                     {
                         current.con.close(Ice.ConnectionClose.Forcefully);
                     }
@@ -31,7 +31,7 @@ namespace Ice
 
             public override int opIdempotent(int nRetry, Ice.Current current)
             {
-                if(nRetry > _counter)
+                if (nRetry > _counter)
                 {
                     ++_counter;
                     throw new Ice.ConnectionLostException();

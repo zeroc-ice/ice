@@ -25,354 +25,354 @@ namespace controller
     {
         public static TestHelper create(string type)
         {
-            if(type.Equals("Ice.acm.Server"))
+            if (type.Equals("Ice.acm.Server"))
             {
                 return new Ice.acm.Server();
             }
-            else if(type.Equals("Ice.acm.Client"))
+            else if (type.Equals("Ice.acm.Client"))
             {
                 return new Ice.acm.Client();
             }
 
-            else if(type.Equals("Ice.adapterDeactivation.Server"))
+            else if (type.Equals("Ice.adapterDeactivation.Server"))
             {
                 return new Ice.adapterDeactivation.Server();
             }
-            else if(type.Equals("Ice.adapterDeactivation.Client"))
+            else if (type.Equals("Ice.adapterDeactivation.Client"))
             {
                 return new Ice.adapterDeactivation.Client();
             }
-            else if(type.Equals("Ice.adapterDeactivation.Collocated"))
+            else if (type.Equals("Ice.adapterDeactivation.Collocated"))
             {
                 return new Ice.adapterDeactivation.Collocated();
             }
 
-            else if(type.Equals("Ice.admin.Server"))
+            else if (type.Equals("Ice.admin.Server"))
             {
                 return new Ice.admin.Server();
             }
-            else if(type.Equals("Ice.admin.Client"))
+            else if (type.Equals("Ice.admin.Client"))
             {
                 return new Ice.admin.Client();
             }
 
-            else if(type.Equals("Ice.ami.Server"))
+            else if (type.Equals("Ice.ami.Server"))
             {
                 return new Ice.ami.Server();
             }
-            else if(type.Equals("Ice.ami.Client"))
+            else if (type.Equals("Ice.ami.Client"))
             {
                 return new Ice.ami.Client();
             }
-            else if(type.Equals("Ice.ami.Collocated"))
+            else if (type.Equals("Ice.ami.Collocated"))
             {
                 return new Ice.ami.Collocated();
             }
 
-            else if(type.Equals("Ice.binding.Server"))
+            else if (type.Equals("Ice.binding.Server"))
             {
                 return new Ice.binding.Server();
             }
-            else if(type.Equals("Ice.binding.Client"))
+            else if (type.Equals("Ice.binding.Client"))
             {
                 return new Ice.binding.Client();
             }
 
-            else if(type.Equals("Ice.checksum.Server"))
+            else if (type.Equals("Ice.checksum.Server"))
             {
                 return new Ice.checksum.Server();
             }
-            else if(type.Equals("Ice.checksum.Client"))
+            else if (type.Equals("Ice.checksum.Client"))
             {
                 return new Ice.checksum.Client();
             }
 
-            else if(type.Equals("Ice.defaultServant.Client"))
+            else if (type.Equals("Ice.defaultServant.Client"))
             {
                 return new Ice.defaultServant.Client();
             }
 
-            else if(type.Equals("Ice.defaultValue.Client"))
+            else if (type.Equals("Ice.defaultValue.Client"))
             {
                 return new Ice.defaultValue.Client();
             }
 
-            else if(type.Equals("Ice.dictMapping.Client"))
+            else if (type.Equals("Ice.dictMapping.Client"))
             {
                 return new Ice.dictMapping.Client();
             }
-            else if(type.Equals("Ice.dictMapping.Collocated"))
+            else if (type.Equals("Ice.dictMapping.Collocated"))
             {
                 return new Ice.dictMapping.Collocated();
             }
-            else if(type.Equals("Ice.dictMapping.Server"))
+            else if (type.Equals("Ice.dictMapping.Server"))
             {
                 return new Ice.dictMapping.Server();
             }
-            else if(type.Equals("Ice.dictMapping.Serveramd"))
+            else if (type.Equals("Ice.dictMapping.Serveramd"))
             {
                 return new Ice.dictMapping.AMD.Server();
             }
 
-            else if(type.Equals("Ice.enums.Client"))
+            else if (type.Equals("Ice.enums.Client"))
             {
                 return new Ice.enums.Client();
             }
-            else if(type.Equals("Ice.enums.Server"))
+            else if (type.Equals("Ice.enums.Server"))
             {
                 return new Ice.enums.Server();
             }
 
-            else if(type.Equals("Ice.exceptions.Client"))
+            else if (type.Equals("Ice.exceptions.Client"))
             {
                 return new Ice.exceptions.Client();
             }
-            else if(type.Equals("Ice.exceptions.Collocated"))
+            else if (type.Equals("Ice.exceptions.Collocated"))
             {
                 return new Ice.exceptions.Collocated();
             }
-            else if(type.Equals("Ice.exceptions.Server"))
+            else if (type.Equals("Ice.exceptions.Server"))
             {
                 return new Ice.exceptions.Server();
             }
-            else if(type.Equals("Ice.exceptions.Serveramd"))
+            else if (type.Equals("Ice.exceptions.Serveramd"))
             {
                 return new Ice.exceptions.AMD.Server();
             }
 
-            else if(type.Equals("Ice.facets.Client"))
+            else if (type.Equals("Ice.facets.Client"))
             {
                 return new Ice.facets.Client();
             }
-            else if(type.Equals("Ice.facets.Collocated"))
+            else if (type.Equals("Ice.facets.Collocated"))
             {
                 return new Ice.facets.Collocated();
             }
-            else if(type.Equals("Ice.facets.Server"))
+            else if (type.Equals("Ice.facets.Server"))
             {
                 return new Ice.facets.Server();
             }
 
-            else if(type.Equals("Ice.hold.Client"))
+            else if (type.Equals("Ice.hold.Client"))
             {
                 return new Ice.hold.Client();
             }
-            else if(type.Equals("Ice.hold.Server"))
+            else if (type.Equals("Ice.hold.Server"))
             {
                 return new Ice.hold.Server();
             }
 
-            else if(type.Equals("Ice.info.Client"))
+            else if (type.Equals("Ice.info.Client"))
             {
                 return new Ice.info.Client();
             }
-            else if(type.Equals("Ice.info.Server"))
+            else if (type.Equals("Ice.info.Server"))
             {
                 return new Ice.info.Server();
             }
 
-            else if(type.Equals("Ice.inheritance.Client"))
+            else if (type.Equals("Ice.inheritance.Client"))
             {
                 return new Ice.inheritance.Client();
             }
-            else if(type.Equals("Ice.inheritance.Collocated"))
+            else if (type.Equals("Ice.inheritance.Collocated"))
             {
                 return new Ice.inheritance.Collocated();
             }
-            else if(type.Equals("Ice.inheritance.Server"))
+            else if (type.Equals("Ice.inheritance.Server"))
             {
                 return new Ice.inheritance.Server();
             }
 
-            else if(type.Equals("Ice.interceptor.Client"))
+            else if (type.Equals("Ice.interceptor.Client"))
             {
                 return new Ice.interceptor.Client();
             }
 
-            else if(type.Equals("Ice.invoke.Client"))
+            else if (type.Equals("Ice.invoke.Client"))
             {
                 return new Ice.invoke.Client();
             }
-            else if(type.Equals("Ice.invoke.Server"))
+            else if (type.Equals("Ice.invoke.Server"))
             {
                 return new Ice.invoke.Server();
             }
 
-            else if(type.Equals("Ice.location.Client"))
+            else if (type.Equals("Ice.location.Client"))
             {
                 return new Ice.location.Client();
             }
-            else if(type.Equals("Ice.location.Server"))
+            else if (type.Equals("Ice.location.Server"))
             {
                 return new Ice.location.Server();
             }
 
-            else if(type.Equals("Ice.objects.Client"))
+            else if (type.Equals("Ice.objects.Client"))
             {
                 return new Ice.objects.Client();
             }
-            else if(type.Equals("Ice.objects.Collocated"))
+            else if (type.Equals("Ice.objects.Collocated"))
             {
                 return new Ice.objects.Collocated();
             }
-            else if(type.Equals("Ice.objects.Server"))
+            else if (type.Equals("Ice.objects.Server"))
             {
                 return new Ice.objects.Server();
             }
 
-            else if(type.Equals("Ice.operations.Client"))
+            else if (type.Equals("Ice.operations.Client"))
             {
                 return new Ice.operations.Client();
             }
-            else if(type.Equals("Ice.operations.Collocated"))
+            else if (type.Equals("Ice.operations.Collocated"))
             {
                 return new Ice.operations.Collocated();
             }
-            else if(type.Equals("Ice.operations.Server"))
+            else if (type.Equals("Ice.operations.Server"))
             {
                 return new Ice.operations.Server();
             }
-            else if(type.Equals("Ice.operations.Serveramd"))
+            else if (type.Equals("Ice.operations.Serveramd"))
             {
                 return new Ice.operations.AMD.Server();
             }
-            else if(type.Equals("Ice.operations.Serveramdtie"))
+            else if (type.Equals("Ice.operations.Serveramdtie"))
             {
                 return new Ice.operations.AMD.tie.Server();
             }
-            else if(type.Equals("Ice.operations.Servertie"))
+            else if (type.Equals("Ice.operations.Servertie"))
             {
                 return new Ice.operations.tie.Server();
             }
 
-            else if(type.Equals("Ice.optional.Client"))
+            else if (type.Equals("Ice.optional.Client"))
             {
                 return new Ice.optional.Client();
             }
-            else if(type.Equals("Ice.optional.Server"))
+            else if (type.Equals("Ice.optional.Server"))
             {
                 return new Ice.optional.Server();
             }
-            else if(type.Equals("Ice.optional.Serveramd"))
+            else if (type.Equals("Ice.optional.Serveramd"))
             {
                 return new Ice.optional.AMD.Server();
             }
 
-            else if(type.Equals("Ice.namespacemd.Client"))
+            else if (type.Equals("Ice.namespacemd.Client"))
             {
                 return new Ice.namespacemd.Client();
             }
-            else if(type.Equals("Ice.namespacemd.Server"))
+            else if (type.Equals("Ice.namespacemd.Server"))
             {
                 return new Ice.namespacemd.Server();
             }
 
-            else if(type.Equals("Ice.proxy.Client"))
+            else if (type.Equals("Ice.proxy.Client"))
             {
                 return new Ice.proxy.Client();
             }
-            else if(type.Equals("Ice.proxy.Collocated"))
+            else if (type.Equals("Ice.proxy.Collocated"))
             {
                 return new Ice.proxy.Collocated();
             }
-            else if(type.Equals("Ice.proxy.Server"))
+            else if (type.Equals("Ice.proxy.Server"))
             {
                 return new Ice.proxy.Server();
             }
-            else if(type.Equals("Ice.proxy.Serveramd"))
+            else if (type.Equals("Ice.proxy.Serveramd"))
             {
                 return new Ice.proxy.AMD.Server();
             }
 
-            else if(type.Equals("Ice.retry.Client"))
+            else if (type.Equals("Ice.retry.Client"))
             {
                 return new Ice.retry.Client();
             }
-            else if(type.Equals("Ice.retry.Collocated"))
+            else if (type.Equals("Ice.retry.Collocated"))
             {
                 return new Ice.retry.Collocated();
             }
-            else if(type.Equals("Ice.retry.Server"))
+            else if (type.Equals("Ice.retry.Server"))
             {
                 return new Ice.retry.Server();
             }
 
-            else if(type.Equals("Ice.scope.Client"))
+            else if (type.Equals("Ice.scope.Client"))
             {
                 return new Ice.scope.Client();
             }
-            else if(type.Equals("Ice.scope.Server"))
+            else if (type.Equals("Ice.scope.Server"))
             {
                 return new Ice.scope.Server();
             }
 
-            else if(type.Equals("Ice.seqMapping.Client"))
+            else if (type.Equals("Ice.seqMapping.Client"))
             {
                 return new Ice.seqMapping.Client();
             }
-            else if(type.Equals("Ice.seqMapping.Collocated"))
+            else if (type.Equals("Ice.seqMapping.Collocated"))
             {
                 return new Ice.seqMapping.Collocated();
             }
-            else if(type.Equals("Ice.seqMapping.Server"))
+            else if (type.Equals("Ice.seqMapping.Server"))
             {
                 return new Ice.seqMapping.Server();
             }
-            else if(type.Equals("Ice.seqMapping.Serveramd"))
+            else if (type.Equals("Ice.seqMapping.Serveramd"))
             {
                 return new Ice.seqMapping.AMD.Server();
             }
 
-            else if(type.Equals("Ice.serialize.Client"))
+            else if (type.Equals("Ice.serialize.Client"))
             {
                 return new Ice.serialize.Client();
             }
 
-            else if(type.Equals("Ice.servantLocator.Client"))
+            else if (type.Equals("Ice.servantLocator.Client"))
             {
                 return new Ice.servantLocator.Client();
             }
-            else if(type.Equals("Ice.servantLocator.Collocated"))
+            else if (type.Equals("Ice.servantLocator.Collocated"))
             {
                 return new Ice.servantLocator.Collocated();
             }
-            else if(type.Equals("Ice.servantLocator.Server"))
+            else if (type.Equals("Ice.servantLocator.Server"))
             {
                 return new Ice.servantLocator.Server();
             }
-            else if(type.Equals("Ice.servantLocator.Serveramd"))
+            else if (type.Equals("Ice.servantLocator.Serveramd"))
             {
                 return new Ice.servantLocator.AMD.Server();
             }
 
-            else if(type.Equals("Ice.stream.Client"))
+            else if (type.Equals("Ice.stream.Client"))
             {
                 return new Ice.stream.Client();
             }
 
-            else if(type.Equals("Ice.threadPoolPriority.Client"))
+            else if (type.Equals("Ice.threadPoolPriority.Client"))
             {
                 return new Ice.threadPoolPriority.Client();
             }
-            else if(type.Equals("Ice.threadPoolPriority.Server"))
+            else if (type.Equals("Ice.threadPoolPriority.Server"))
             {
                 return new Ice.threadPoolPriority.Server();
             }
 
-            else if(type.Equals("Ice.timeout.Client"))
+            else if (type.Equals("Ice.timeout.Client"))
             {
                 return new Ice.timeout.Client();
             }
-            else if(type.Equals("Ice.timeout.Server"))
+            else if (type.Equals("Ice.timeout.Server"))
             {
                 return new Ice.timeout.Server();
             }
 
-            else if(type.Equals("Ice.udp.Client"))
+            else if (type.Equals("Ice.udp.Client"))
             {
                 return new Ice.udp.Client();
             }
-            else if(type.Equals("Ice.udp.Server"))
+            else if (type.Equals("Ice.udp.Server"))
             {
                 return new Ice.udp.Server();
             }
@@ -398,15 +398,15 @@ namespace controller
         public void communicatorInitialized(Communicator communicator)
         {
             var properties = communicator.getProperties();
-            if(properties.getProperty("Ice.Plugin.IceSSL").Equals("IceSSL.dll:IceSSL.PluginFactory"))
+            if (properties.getProperty("Ice.Plugin.IceSSL").Equals("IceSSL.dll:IceSSL.PluginFactory"))
             {
-                var plugin =(IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+                var plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
                 plugin.setCertificates(loadCertificate(properties.getProperty("IceSSL.CertFile"),
                                                        properties.getProperty("IceSSL.Password")));
                 plugin.setCACertificates(loadCertificate(properties.getProperty("IceSSL.CAs")));
                 communicator.getPluginManager().initializePlugins();
 
-                if(communicator.getProperties().getPropertyWithDefault("Ice.Admin.DelayCreation", "0").Equals("1"))
+                if (communicator.getProperties().getPropertyWithDefault("Ice.Admin.DelayCreation", "0").Equals("1"))
                 {
                     communicator.getAdmin();
                 }
@@ -420,7 +420,7 @@ namespace controller
             var memoryStream = new MemoryStream();
             stream.CopyTo(memoryStream);
             var cert = new X509Certificate2Collection();
-            if(string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(password))
             {
                 cert.Import(memoryStream.ToArray());
             }
@@ -438,7 +438,7 @@ namespace controller
 
         public void join()
         {
-            if(_thread != null)
+            if (_thread != null)
             {
                 _thread.Join();
             }
@@ -446,7 +446,7 @@ namespace controller
 
         public void completed(int status)
         {
-            lock(this)
+            lock (this)
             {
                 _completed = true;
                 _status = status;
@@ -466,7 +466,7 @@ namespace controller
                     _helper.run(_args);
                     completed(0);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     _helper.getWriter().WriteLine("unexpected unknown exception while running `{0}':\n", ex);
                     completed(1);
@@ -482,7 +482,7 @@ namespace controller
 
         public void serverReady()
         {
-            lock(this)
+            lock (this)
             {
                 _ready = true;
                 Monitor.PulseAll(this);
@@ -491,17 +491,17 @@ namespace controller
 
         public void shutdown()
         {
-            lock(this)
+            lock (this)
             {
-                if(_completed)
+                if (_completed)
                 {
                     return;
                 }
 
-                if(_helper != null)
+                if (_helper != null)
                 {
                     var communicator = _helper.communicator();
-                    if(communicator != null)
+                    if (communicator != null)
                     {
                         communicator.shutdown();
                     }
@@ -511,11 +511,11 @@ namespace controller
 
         public void waitReady(int msec)
         {
-            lock(this)
+            lock (this)
             {
-                while(!_ready && !_completed)
+                while (!_ready && !_completed)
                 {
-                    if(!Monitor.Wait(this, msec * 1000))
+                    if (!Monitor.Wait(this, msec * 1000))
                     {
                         throw new ProcessFailedException("timed out waiting for the process to be ready");
                     }
@@ -525,11 +525,11 @@ namespace controller
 
         public int waitSuccess(int msec)
         {
-            lock(this)
+            lock (this)
             {
-                while(!_completed)
+                while (!_completed)
                 {
-                    if(!Monitor.Wait(this, msec * 1000))
+                    if (!Monitor.Wait(this, msec * 1000))
                     {
                         throw new ProcessFailedException("timed out waiting for the process to be ready");
                     }
@@ -599,7 +599,7 @@ namespace controller
 
         public override string getHost(string protocol, bool ipv6, Current current)
         {
-            if(_mainPage.platformAdapter.isEmulator())
+            if (_mainPage.platformAdapter.isEmulator())
             {
                 return "127.0.0.1";
             }
@@ -629,7 +629,7 @@ namespace controller
             //initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", new Guid().ToString());
 
-            if(!mainPage.platformAdapter.isEmulator())
+            if (!mainPage.platformAdapter.isEmulator())
             {
                 initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
@@ -650,14 +650,14 @@ namespace controller
         public void
         registerProcessController()
         {
-            Task.Run(async() =>
+            Task.Run(async () =>
                 {
                     try
                     {
-                        if(_mainPage.RegisterProcessControllerEnabled())
+                        if (_mainPage.RegisterProcessControllerEnabled())
                         {
                             ProcessControllerRegistryPrx registry;
-                            if(_mainPage.processControllerRegistryHost().Length == 0)
+                            if (_mainPage.processControllerRegistryHost().Length == 0)
                             {
                                 registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
                                     _communicator.stringToProxy("Util/ProcessControllerRegistry"));
@@ -682,22 +682,22 @@ namespace controller
                             await registry.setProcessControllerAsync(_processController);
                         }
                     }
-                    catch(ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                         Thread.Sleep(500);
                         registerProcessController();
                     }
-                    catch(Ice.TimeoutException)
+                    catch (Ice.TimeoutException)
                     {
                         Thread.Sleep(500);
                         registerProcessController();
                     }
-                    catch(DNSException)
+                    catch (DNSException)
                     {
                         Thread.Sleep(500);
                         registerProcessController();
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         _mainPage.print(ex.ToString());
                     }
@@ -729,22 +729,22 @@ namespace controller
             RegisterProcessController.Clicked += RegisterProcessController_Clicked;
 
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-            foreach(NetworkInterface ni in nics)
+            foreach (NetworkInterface ni in nics)
             {
                 IPInterfaceProperties ipProps = ni.GetIPProperties();
                 UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
-                foreach(UnicastIPAddressInformation uni in uniColl)
+                foreach (UnicastIPAddressInformation uni in uniColl)
                 {
-                    if(uni.Address.AddressFamily == AddressFamily.InterNetwork)
+                    if (uni.Address.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        if(!uni.Address.Equals(IPAddress.Loopback))
+                        if (!uni.Address.Equals(IPAddress.Loopback))
                         {
                             IPv4Address.Items.Add(uni.Address.ToString());
                         }
                     }
-                    else if(uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
+                    else if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
                     {
-                        if(!uni.Address.Equals(IPAddress.IPv6Loopback))
+                        if (!uni.Address.Equals(IPAddress.IPv6Loopback))
                         {
                             IPv6Address.Items.Add(uni.Address.ToString());
                         }
@@ -756,13 +756,13 @@ namespace controller
             {
                 _controllerI = new ControllerI(this);
             }
-            catch(PluginInitializationException ex)
+            catch (PluginInitializationException ex)
             {
                 print(ex.ToString());
                 print(ex.reason);
                 print(ex.StackTrace);
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 print(ex.ToString());
             }

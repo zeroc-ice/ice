@@ -15,7 +15,7 @@ namespace Ice
         {
             protected static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     Debug.Assert(false);
                     throw new System.Exception();
@@ -51,7 +51,7 @@ namespace Ice
             override public void
             opBatch(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     ++_batchCount;
                     Monitor.Pulse(this);
@@ -61,7 +61,7 @@ namespace Ice
             override public int
             opBatchCount(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     return _batchCount;
                 }
@@ -70,9 +70,9 @@ namespace Ice
             override public bool
             waitForBatch(int count, Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
-                    while(_batchCount < count)
+                    while (_batchCount < count)
                     {
                         test(Monitor.Wait(this, 10000));
                     }
@@ -97,10 +97,10 @@ namespace Ice
             override public void
             shutdown(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     _shutdown = true;
-                    if(_pending != null)
+                    if (_pending != null)
                     {
                         _pending.SetResult(null);
                         _pending = null;
@@ -170,9 +170,9 @@ namespace Ice
             override public Task
             startDispatchAsync(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_shutdown)
+                    if (_shutdown)
                     {
                         // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
                         // before start dispatch.
@@ -180,7 +180,7 @@ namespace Ice
                         v.SetResult(null);
                         return v.Task;
                     }
-                    else if(_pending != null)
+                    else if (_pending != null)
                     {
                         _pending.SetResult(null);
                     }
@@ -192,13 +192,13 @@ namespace Ice
             override public void
             finishDispatch(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_shutdown)
+                    if (_shutdown)
                     {
                         return;
                     }
-                    else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+                    else if (_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
                     {
                         _pending.SetResult(null);
                         _pending = null;

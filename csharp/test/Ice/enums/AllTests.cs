@@ -74,22 +74,22 @@ namespace Ice
                 bool encoding_1_0 = communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0");
 
                 ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.ByteEnum.benum11,(int)Test.ByteEnum.benum11);
+                ostr.writeEnum((int)Test.ByteEnum.benum11, (int)Test.ByteEnum.benum11);
                 bytes = ostr.finished();
                 test(bytes.Length == 1); // ByteEnum should require one byte
 
                 ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.ShortEnum.senum11,(int)Test.ShortEnum.senum11);
+                ostr.writeEnum((int)Test.ShortEnum.senum11, (int)Test.ShortEnum.senum11);
                 bytes = ostr.finished();
-                test(bytes.Length ==(encoding_1_0 ? 2 : 5));
+                test(bytes.Length == (encoding_1_0 ? 2 : 5));
 
                 ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.IntEnum.ienum11,(int)Test.IntEnum.ienum12);
+                ostr.writeEnum((int)Test.IntEnum.ienum11, (int)Test.IntEnum.ienum12);
                 bytes = ostr.finished();
-                test(bytes.Length ==(encoding_1_0 ? 4 : 5));
+                test(bytes.Length == (encoding_1_0 ? 4 : 5));
 
                 ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.SimpleEnum.blue,(int)Test.SimpleEnum.blue);
+                ostr.writeEnum((int)Test.SimpleEnum.blue, (int)Test.SimpleEnum.blue);
                 bytes = ostr.finished();
                 test(bytes.Length == 1); // SimpleEnum should require one byte
 
@@ -146,7 +146,7 @@ namespace Ice
                     Test.ByteEnum[] b2;
                     Test.ByteEnum[] b3 = proxy.opByteSeq(b1, out b2);
 
-                    for(int i = 0; i < b1.Length; ++i)
+                    for (int i = 0; i < b1.Length; ++i)
                     {
                         test(b1[i] == b2[i]);
                         test(b1[i] == b3[i]);
@@ -172,7 +172,7 @@ namespace Ice
                     Test.ShortEnum[] s2;
                     Test.ShortEnum[] s3 = proxy.opShortSeq(s1, out s2);
 
-                    for(int i = 0; i < s1.Length; ++i)
+                    for (int i = 0; i < s1.Length; ++i)
                     {
                         test(s1[i] == s2[i]);
                         test(s1[i] == s3[i]);
@@ -198,7 +198,7 @@ namespace Ice
                     Test.IntEnum[] i2;
                     Test.IntEnum[] i3 = proxy.opIntSeq(i1, out i2);
 
-                    for(int i = 0; i < i1.Length; ++i)
+                    for (int i = 0; i < i1.Length; ++i)
                     {
                         test(i1[i] == i2[i]);
                         test(i1[i] == i3[i]);
@@ -216,7 +216,7 @@ namespace Ice
                     Test.SimpleEnum[] s2;
                     Test.SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out s2);
 
-                    for(int i = 0; i < s1.Length; ++i)
+                    for (int i = 0; i < s1.Length; ++i)
                     {
                         test(s1[i] == s2[i]);
                         test(s1[i] == s3[i]);

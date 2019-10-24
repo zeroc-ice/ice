@@ -4,7 +4,7 @@
 
 namespace IceSSL
 {
-    class AcceptorI : IceInternal.Acceptor
+    internal class AcceptorI : IceInternal.Acceptor
     {
         public void close()
         {
@@ -22,7 +22,7 @@ namespace IceSSL
             //
             // The plug-in may not be fully initialized.
             //
-            if(!_instance.initialized())
+            if (!_instance.initialized())
             {
                 Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
                 ex.reason = "IceSSL: plug-in is not initialized";
@@ -67,7 +67,7 @@ namespace IceSSL
             // .NET requires that a certificate be supplied.
             //
             var certs = instance.certs();
-            if(certs == null || certs.Count == 0)
+            if (certs == null || certs.Count == 0)
             {
                 Ice.SecurityException ex = new Ice.SecurityException();
                 ex.reason = "IceSSL: certificate required for server endpoint";

@@ -14,12 +14,12 @@ namespace Ice
             public override void run(string[] args)
             {
                 var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[]{"Ice.operations.TypeId"};
+                initData.typeIdNamespaces = new string[] { "Ice.operations.TypeId" };
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
                 initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
                 initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-                using(var communicator = initialize(initData))
+                using (var communicator = initialize(initData))
                 {
                     var myClass = AllTests.allTests(this);
 

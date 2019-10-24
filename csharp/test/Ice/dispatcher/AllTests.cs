@@ -39,9 +39,9 @@ public class AllTests : Test.AllTests
 
         public void check()
         {
-            lock(this)
+            lock (this)
             {
-                while(!_called)
+                while (!_called)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -57,7 +57,7 @@ public class AllTests : Test.AllTests
 
         public void exception(Ice.Exception ex)
         {
-            if(!(ex is Ice.NoEndpointException))
+            if (!(ex is Ice.NoEndpointException))
             {
                 _output.WriteLine(ex.ToString());
                 test(false);
@@ -73,7 +73,7 @@ public class AllTests : Test.AllTests
 
         public void ignoreEx(Ice.Exception ex)
         {
-            if(!(ex is Ice.CommunicatorDestroyedException))
+            if (!(ex is Ice.CommunicatorDestroyedException))
             {
                 _output.WriteLine(ex.ToString());
                 test(false);
@@ -87,7 +87,7 @@ public class AllTests : Test.AllTests
 
         public void called()
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_called);
                 _called = true;
@@ -138,7 +138,8 @@ public class AllTests : Test.AllTests
                     {
                         test(false);
                     },
-                    (Ice.Exception ex) => {
+                    (Ice.Exception ex) =>
+                    {
                         test(ex is Ice.InvocationTimeoutException);
                         test(Dispatcher.isDispatcherThread());
                         cb.called();
@@ -154,7 +155,7 @@ public class AllTests : Test.AllTests
             byte[] seq = new byte[10 * 1024];
             (new System.Random()).NextBytes(seq);
             Ice.AsyncResult r;
-            while((r = p.begin_opWithPayload(seq).whenCompleted(resp, excb).whenSent(scb)).sentSynchronously());
+            while ((r = p.begin_opWithPayload(seq).whenCompleted(resp, excb).whenSent(scb)).sentSynchronously()) ;
             testController.resumeAdapter();
             r.waitForCompleted();
         }
@@ -173,7 +174,7 @@ public class AllTests : Test.AllTests
                     previous.Wait();
                     cb.response();
                 }
-                catch(System.AggregateException ex)
+                catch (System.AggregateException ex)
                 {
                     cb.exception((Ice.Exception)ex.InnerException);
                 }
@@ -209,7 +210,7 @@ public class AllTests : Test.AllTests
                             previous.Wait();
                             test(false);
                         }
-                        catch(System.AggregateException ex)
+                        catch (System.AggregateException ex)
                         {
                             test(ex.InnerException is Ice.InvocationTimeoutException);
                             test(Dispatcher.isDispatcherThread() || thread == Thread.CurrentThread);
@@ -242,7 +243,7 @@ public class AllTests : Test.AllTests
                             previous.Wait();
                             test(false);
                         }
-                        catch(System.AggregateException ex)
+                        catch (System.AggregateException ex)
                         {
                             test(ex.InnerException is Ice.InvocationTimeoutException);
                             test(Dispatcher.isDispatcherThread());
@@ -263,7 +264,7 @@ public class AllTests : Test.AllTests
                 {
                     previous.Wait();
                 }
-                catch(System.AggregateException ex)
+                catch (System.AggregateException ex)
                 {
                     test(ex.InnerException is Ice.CommunicatorDestroyedException);
                 }
@@ -279,7 +280,7 @@ public class AllTests : Test.AllTests
                     continuation2,
                     TaskContinuationOptions.ExecuteSynchronously);
             }
-            while(sentSynchronously.getResult());
+            while (sentSynchronously.getResult());
             testController.resumeAdapter();
             t.Wait();
         }
@@ -302,7 +303,7 @@ public class AllTests : Test.AllTests
                         await i.opAsync();
                         test(false);
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         test(Dispatcher.isDispatcherThread());
                     }
@@ -313,13 +314,13 @@ public class AllTests : Test.AllTests
                         await to.sleepAsync(500);
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch (Ice.InvocationTimeoutException)
                     {
                         test(Dispatcher.isDispatcherThread());
                     }
                     t.SetResult(null);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     t.SetException(ex);
                 }

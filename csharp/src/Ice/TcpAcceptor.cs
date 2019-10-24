@@ -11,16 +11,16 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Text;
 
-    class TcpAcceptor : Acceptor
+    internal class TcpAcceptor : Acceptor
     {
         public virtual void close()
         {
-            if(_acceptFd != null)
+            if (_acceptFd != null)
             {
                 Network.closeSocketNoThrow(_acceptFd);
                 _acceptFd = null;
             }
-            if(_fd != null)
+            if (_fd != null)
             {
                 Network.closeSocketNoThrow(_fd);
                 _fd = null;
@@ -34,7 +34,7 @@ namespace IceInternal
                 _addr = Network.doBind(_fd, _addr);
                 Network.doListen(_fd, _backlog);
             }
-            catch(SystemException)
+            catch (SystemException)
             {
                 _fd = null;
                 throw;
@@ -47,15 +47,15 @@ namespace IceInternal
         {
             try
             {
-                _result = _fd.BeginAccept(delegate(IAsyncResult result)
+                _result = _fd.BeginAccept(delegate (IAsyncResult result)
                                           {
-                                              if(!result.CompletedSynchronously)
+                                              if (!result.CompletedSynchronously)
                                               {
                                                   callback(result.AsyncState);
                                               }
                                           }, state);
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
                 throw new Ice.SocketException(ex);
             }
@@ -64,14 +64,14 @@ namespace IceInternal
 
         public virtual void finishAccept()
         {
-            if(_fd != null)
+            if (_fd != null)
             {
                 _acceptFd = null;
                 try
                 {
                     _acceptFd = _fd.EndAccept(_result);
                 }
-                catch(SocketException ex)
+                catch (SocketException ex)
                 {
                     _acceptError = ex;
                 }
@@ -80,7 +80,7 @@ namespace IceInternal
 
         public virtual Transceiver accept()
         {
-            if(_acceptFd == null)
+            if (_acceptFd == null)
             {
                 throw _acceptError;
             }
@@ -108,10 +108,10 @@ namespace IceInternal
 
             List<string> intfs =
                 Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport(), true);
-            if(intfs.Count != 0)
+            if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
-                s.Append(String.Join(", ", intfs.ToArray()));
+                s.Append(string.Join(", ", intfs.ToArray()));
             }
             return s.ToString();
         }
@@ -135,7 +135,7 @@ namespace IceInternal
                 Network.setBlock(_fd, false);
                 Network.setTcpBufSize(_fd, _instance);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 _fd = null;
                 throw;

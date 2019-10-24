@@ -11,9 +11,9 @@ namespace IceInternal
     {
         public void add(Ice.ValueFactory factory, string id)
         {
-            lock(this)
+            lock (this)
             {
-                if(_factoryMap.ContainsKey(id))
+                if (_factoryMap.ContainsKey(id))
                 {
                     Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
                     ex.id = id;
@@ -26,7 +26,7 @@ namespace IceInternal
 
         public Ice.ValueFactory find(string id)
         {
-            lock(this)
+            lock (this)
             {
                 Ice.ValueFactory factory = null;
                 _factoryMap.TryGetValue(id, out factory);

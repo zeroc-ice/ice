@@ -11,13 +11,13 @@ namespace IceInternal
         public void shutdown()
         {
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
                 //
                 // Ignore shutdown requests if the object adapter factory has
                 // already been shut down.
                 //
-                if(_instance == null)
+                if (_instance == null)
                 {
                     return;
                 }
@@ -34,7 +34,7 @@ namespace IceInternal
             // Deactivate outside the thread synchronization, to avoid
             // deadlocks.
             //
-            foreach(Ice.ObjectAdapter adapter in adapters)
+            foreach (Ice.ObjectAdapter adapter in adapters)
             {
                 adapter.deactivate();
             }
@@ -43,12 +43,12 @@ namespace IceInternal
         public void waitForShutdown()
         {
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
                 //
                 // First we wait for the shutdown of the factory itself.
                 //
-                while(_instance != null)
+                while (_instance != null)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -59,7 +59,7 @@ namespace IceInternal
             //
             // Now we wait for deactivation of each object adapter.
             //
-            foreach(Ice.ObjectAdapter adapter in adapters)
+            foreach (Ice.ObjectAdapter adapter in adapters)
             {
                 adapter.waitForDeactivate();
             }
@@ -67,7 +67,7 @@ namespace IceInternal
 
         public bool isShutdown()
         {
-            lock(this)
+            lock (this)
             {
                 return _instance == null;
             }
@@ -81,17 +81,17 @@ namespace IceInternal
             waitForShutdown();
 
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
-            foreach(Ice.ObjectAdapter adapter in adapters)
+            foreach (Ice.ObjectAdapter adapter in adapters)
             {
                 adapter.destroy();
             }
 
-            lock(this)
+            lock (this)
             {
                 _adapters.Clear();
             }
@@ -101,12 +101,12 @@ namespace IceInternal
         updateConnectionObservers()
         {
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
-            foreach(Ice.ObjectAdapterI adapter in adapters)
+            foreach (Ice.ObjectAdapterI adapter in adapters)
             {
                 adapter.updateConnectionObservers();
             }
@@ -116,12 +116,12 @@ namespace IceInternal
         updateThreadObservers()
         {
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
-            foreach(Ice.ObjectAdapterI adapter in adapters)
+            foreach (Ice.ObjectAdapterI adapter in adapters)
             {
                 adapter.updateThreadObservers();
             }
@@ -129,16 +129,16 @@ namespace IceInternal
 
         public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx router)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if(name.Length > 0)
+                if (name.Length > 0)
                 {
-                    if(_adapterNamesInUse.Contains(name))
+                    if (_adapterNamesInUse.Contains(name))
                     {
                         Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
                         ex.kindOfObject = "object adapter";
@@ -156,7 +156,7 @@ namespace IceInternal
             Ice.ObjectAdapterI adapter = null;
             try
             {
-                if(name.Length == 0)
+                if (name.Length == 0)
                 {
                     string uuid = System.Guid.NewGuid().ToString();
                     adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
@@ -166,33 +166,33 @@ namespace IceInternal
                     adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
                 }
 
-                lock(this)
+                lock (this)
                 {
-                    if(_instance == null)
+                    if (_instance == null)
                     {
                         throw new Ice.CommunicatorDestroyedException();
                     }
                     _adapters.Add(adapter);
                 }
             }
-            catch(Ice.CommunicatorDestroyedException ex)
+            catch (Ice.CommunicatorDestroyedException)
             {
-                if(adapter != null)
+                if (adapter != null)
                 {
                     adapter.destroy();
                 }
-                throw ex;
+                throw;
             }
-            catch(Ice.LocalException ex)
+            catch (Ice.LocalException)
             {
-                if(name.Length > 0)
+                if (name.Length > 0)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         _adapterNamesInUse.Remove(name);
                     }
                 }
-                throw ex;
+                throw;
             }
 
             return adapter;
@@ -201,9 +201,9 @@ namespace IceInternal
         public Ice.ObjectAdapter findObjectAdapter(Ice.ObjectPrx proxy)
         {
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     return null;
                 }
@@ -211,16 +211,16 @@ namespace IceInternal
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
-            foreach(Ice.ObjectAdapterI adapter in adapters)
+            foreach (Ice.ObjectAdapterI adapter in adapters)
             {
                 try
                 {
-                    if(adapter.isLocal(proxy))
+                    if (adapter.isLocal(proxy))
                     {
                         return adapter;
                     }
                 }
-                catch(Ice.ObjectAdapterDeactivatedException)
+                catch (Ice.ObjectAdapterDeactivatedException)
                 {
                     // Ignore.
                 }
@@ -231,9 +231,9 @@ namespace IceInternal
 
         public void removeObjectAdapter(Ice.ObjectAdapterI adapter)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     return;
                 }
@@ -246,12 +246,12 @@ namespace IceInternal
         public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
         {
             List<Ice.ObjectAdapterI> adapters;
-            lock(this)
+            lock (this)
             {
                 adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
-            foreach(Ice.ObjectAdapterI adapter in adapters)
+            foreach (Ice.ObjectAdapterI adapter in adapters)
             {
                 adapter.flushAsyncBatchRequests(compressBatch, outAsync);
             }

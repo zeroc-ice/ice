@@ -20,7 +20,7 @@ public class TestServiceI : IceBox.Service
         // Set the callback on the admin facet.
         //
         Ice.Object propFacet = serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
-        if(propFacet != null)
+        if (propFacet != null)
         {
             Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
             admin.addUpdateCallback(facet.updated);

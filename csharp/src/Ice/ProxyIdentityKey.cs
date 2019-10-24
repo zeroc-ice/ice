@@ -37,7 +37,7 @@ namespace Ice
             {
                 return Compare(obj1, obj2) == 0;
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 return false;
             }
@@ -51,15 +51,15 @@ namespace Ice
         public int Compare(object obj1, object obj2)
         {
             ObjectPrx proxy1 = obj1 as ObjectPrx;
-            if(obj1 != null && proxy1 == null)
+            if (obj1 != null && proxy1 == null)
             {
-                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
             }
 
             ObjectPrx proxy2 = obj2 as ObjectPrx;
-            if(obj2 != null && proxy2 == null)
+            if (obj2 != null && proxy2 == null)
             {
-                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
             }
             return Util.proxyIdentityCompare(proxy1, proxy2);
         }
@@ -99,7 +99,7 @@ namespace Ice
             {
                 return Compare(obj1, obj2) == 0;
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 return false;
             }
@@ -113,15 +113,15 @@ namespace Ice
         public int Compare(object obj1, object obj2)
         {
             ObjectPrx proxy1 = obj1 as ObjectPrx;
-            if(obj1 != null && proxy1 == null)
+            if (obj1 != null && proxy1 == null)
             {
-                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
             }
 
             ObjectPrx proxy2 = obj2 as ObjectPrx;
-            if(obj2 != null && proxy2 == null)
+            if (obj2 != null && proxy2 == null)
             {
-                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
             }
             return Util.proxyIdentityAndFacetCompare(proxy1, proxy2);
         }

@@ -15,7 +15,7 @@ namespace Ice
                 public override void run(string[] args)
                 {
                     var initData = new InitializationData();
-                    initData.typeIdNamespaces = new string[]{"Ice.operations.AMD.TypeId"};
+                    initData.typeIdNamespaces = new string[] { "Ice.operations.AMD.TypeId" };
                     initData.properties = createTestProperties(ref args);
 
                     //
@@ -28,7 +28,7 @@ namespace Ice
                     // We don't want connection warnings because of the timeout test.
                     //
                     initData.properties.setProperty("Ice.Warn.Connections", "0");
-                    using(var communicator = initialize(initData))
+                    using (var communicator = initialize(initData))
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

@@ -10,18 +10,19 @@ namespace IceInternal
 {
     public sealed class Patcher
     {
-        static public System.Action<T> arrayReadValue<T>(T[] arr, int index) where T : Ice.Value
+        public static System.Action<T> arrayReadValue<T>(T[] arr, int index) where T : Ice.Value
         {
             return (T v) => { arr[index] = v; };
         }
 
-        static public System.Action<T> listReadValue<T>(List<T> seq, int index) where T : Ice.Value
+        public static System.Action<T> listReadValue<T>(List<T> seq, int index) where T : Ice.Value
         {
-            return (T v) => {
+            return (T v) =>
+            {
                 int count = seq.Count;
-                if(index >= count) // Need to grow the sequence.
+                if (index >= count) // Need to grow the sequence.
                 {
-                    for(int i = count; i < index; i++)
+                    for (int i = count; i < index; i++)
                     {
                         seq.Add(default(T));
                     }
@@ -34,14 +35,15 @@ namespace IceInternal
             };
         }
 
-        static public System.Action<T> customSeqReadValue<T>(IEnumerable<T> seq, int index) where T : Ice.Value
+        public static System.Action<T> customSeqReadValue<T>(IEnumerable<T> seq, int index) where T : Ice.Value
         {
-            return (T v) => {
+            return (T v) =>
+            {
                 var info = getInvokeInfo<T>(seq.GetType());
                 int count = info.getCount(seq);
-                if(index >= count) // Need to grow the sequence.
+                if (index >= count) // Need to grow the sequence.
                 {
-                    for(int i = count; i < index; i++)
+                    for (int i = count; i < index; i++)
                     {
                         info.invokeAdd(seq, default(T));
                     }
@@ -56,38 +58,38 @@ namespace IceInternal
 
         private static InvokeInfo getInvokeInfo<T>(Type t)
         {
-            lock(_methodTable)
+            lock (_methodTable)
             {
                 InvokeInfo i;
-                if(_methodTable.TryGetValue(t, out i))
+                if (_methodTable.TryGetValue(t, out i))
                 {
                     return i;
                 }
 
                 MethodInfo am = t.GetMethod("Add", new Type[] { typeof(T) });
-                if(am == null)
+                if (am == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
                 }
 
                 PropertyInfo pi = t.GetProperty("Item");
-                if(pi == null)
+                if (pi == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without an indexer");
                 }
                 MethodInfo sm = pi.GetSetMethod();
-                if(sm == null)
+                if (sm == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
                 }
 
                 pi = t.GetProperty("Count");
-                if(pi == null)
+                if (pi == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without a Count property");
                 }
                 MethodInfo cm = pi.GetGetMethod();
-                if(cm == null)
+                if (cm == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
                 }
@@ -113,9 +115,9 @@ namespace IceInternal
                 {
                     return (int)_countMethod.Invoke(seq, null);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    throw  new Ice.MarshalException("Could not read Count property during patching", ex);
+                    throw new Ice.MarshalException("Could not read Count property during patching", ex);
                 }
             }
 
@@ -126,9 +128,9 @@ namespace IceInternal
                     object[] arg = new object[] { v };
                     _addMethod.Invoke(seq, arg);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    throw  new Ice.MarshalException("Could not invoke Add method during patching", ex);
+                    throw new Ice.MarshalException("Could not invoke Add method during patching", ex);
                 }
             }
 
@@ -139,9 +141,9 @@ namespace IceInternal
                     object[] args = new object[] { index, v };
                     _setMethod.Invoke(seq, args);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    throw  new Ice.MarshalException("Could not call indexer during patching", ex);
+                    throw new Ice.MarshalException("Could not call indexer during patching", ex);
                 }
             }
 

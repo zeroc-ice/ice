@@ -12,10 +12,10 @@ internal class PluginI : Ice.Plugin
     public void initialize()
     {
         IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
-        for(short s = 0; s < 100; ++s)
+        for (short s = 0; s < 100; ++s)
         {
             IceInternal.EndpointFactory factory = facade.getEndpointFactory(s);
-            if(factory != null)
+            if (factory != null)
             {
                 facade.addEndpointFactory(new EndpointFactory(factory));
             }

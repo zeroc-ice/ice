@@ -44,33 +44,33 @@ namespace IceInternal
 
         public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
-            lock(this)
+            lock (this)
             {
                 int requestId;
-                if(_sendAsyncRequests.TryGetValue(outAsync, out requestId))
+                if (_sendAsyncRequests.TryGetValue(outAsync, out requestId))
                 {
-                    if(requestId > 0)
+                    if (requestId > 0)
                     {
                         _asyncRequests.Remove(requestId);
                     }
                     _sendAsyncRequests.Remove(outAsync);
-                    if(outAsync.exception(ex))
+                    if (outAsync.exception(ex))
                     {
                         outAsync.invokeExceptionAsync();
                     }
                     _adapter.decDirectCount(); // invokeAll won't be called, decrease the direct count.
                     return;
                 }
-                if(outAsync is OutgoingAsync)
+                if (outAsync is OutgoingAsync)
                 {
                     OutgoingAsync o = (OutgoingAsync)outAsync;
                     Debug.Assert(o != null);
-                    foreach(KeyValuePair<int, OutgoingAsyncBase> e in _asyncRequests)
+                    foreach (KeyValuePair<int, OutgoingAsyncBase> e in _asyncRequests)
                     {
-                        if(e.Value == o)
+                        if (e.Value == o)
                         {
                             _asyncRequests.Remove(e.Key);
-                            if(outAsync.exception(ex))
+                            if (outAsync.exception(ex))
                             {
                                 outAsync.invokeExceptionAsync();
                             }
@@ -84,11 +84,11 @@ namespace IceInternal
         public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
         {
             OutgoingAsyncBase outAsync;
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(_response);
 
-                if(_traceLevels.protocol >= 1)
+                if (_traceLevels.protocol >= 1)
                 {
                     fillInValue(os, 10, os.size());
                 }
@@ -98,15 +98,15 @@ namespace IceInternal
 
                 iss.pos(Protocol.replyHdr.Length + 4);
 
-                if(_traceLevels.protocol >= 1)
+                if (_traceLevels.protocol >= 1)
                 {
                     TraceUtil.traceRecv(iss, _logger, _traceLevels);
                 }
 
-                if(_asyncRequests.TryGetValue(requestId, out outAsync))
+                if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
                     outAsync.getIs().swap(iss);
-                    if(!outAsync.response())
+                    if (!outAsync.response())
                     {
                         outAsync = null;
                     }
@@ -114,9 +114,9 @@ namespace IceInternal
                 }
             }
 
-            if(outAsync != null)
+            if (outAsync != null)
             {
-                if(amd)
+                if (amd)
                 {
                     outAsync.invokeResponseAsync();
                 }
@@ -172,11 +172,11 @@ namespace IceInternal
             int requestId = 0;
             try
             {
-                lock(this)
+                lock (this)
                 {
                     outAsync.cancelable(this); // This will throw if the request is canceled
 
-                    if(_response)
+                    if (_response)
                     {
                         requestId = ++_requestId;
                         _asyncRequests.Add(requestId, outAsync);
@@ -185,14 +185,14 @@ namespace IceInternal
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 _adapter.decDirectCount();
                 throw;
             }
 
             outAsync.attachCollocatedObserver(_adapter, requestId);
-            if(!synchronous || !_response || _reference.getInvocationTimeout() > 0)
+            if (!synchronous || !_response || _reference.getInvocationTimeout() > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set
                 _adapter.getThreadPool().dispatch(
@@ -204,7 +204,7 @@ namespace IceInternal
                         }
                     }, null);
             }
-            else if(_dispatcher)
+            else if (_dispatcher)
             {
                 _adapter.getThreadPool().dispatchFromThisThread(
                     () =>
@@ -217,7 +217,7 @@ namespace IceInternal
             }
             else // Optimization: directly call invokeAll if there's no dispatcher.
             {
-                if(sentAsync(outAsync))
+                if (sentAsync(outAsync))
                 {
                     invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                 }
@@ -227,14 +227,14 @@ namespace IceInternal
 
         private bool sentAsync(OutgoingAsyncBase outAsync)
         {
-            lock(this)
+            lock (this)
             {
-                if(!_sendAsyncRequests.Remove(outAsync))
+                if (!_sendAsyncRequests.Remove(outAsync))
                 {
                     return false; // The request timed-out.
                 }
 
-                if(!outAsync.sent())
+                if (!outAsync.sent())
                 {
                     return true;
                 }
@@ -245,14 +245,14 @@ namespace IceInternal
 
         private void invokeAll(Ice.OutputStream os, int requestId, int batchRequestNum)
         {
-            if(_traceLevels.protocol >= 1)
+            if (_traceLevels.protocol >= 1)
             {
                 fillInValue(os, 10, os.size());
-                if(requestId > 0)
+                if (requestId > 0)
                 {
                     fillInValue(os, Protocol.headerSize, requestId);
                 }
-                else if(batchRequestNum > 0)
+                else if (batchRequestNum > 0)
                 {
                     fillInValue(os, Protocol.headerSize, batchRequestNum);
                 }
@@ -261,7 +261,7 @@ namespace IceInternal
 
             Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
 
-            if(batchRequestNum > 0)
+            if (batchRequestNum > 0)
             {
                 iss.pos(Protocol.requestBatchHdr.Length);
             }
@@ -274,7 +274,7 @@ namespace IceInternal
             ServantManager servantManager = _adapter.getServantManager();
             try
             {
-                while(invokeNum > 0)
+                while (invokeNum > 0)
                 {
                     //
                     // Increase the direct count for the dispatch. We increase it again here for
@@ -286,7 +286,7 @@ namespace IceInternal
                     {
                         _adapter.incDirectCount();
                     }
-                    catch(Ice.ObjectAdapterDeactivatedException ex)
+                    catch (Ice.ObjectAdapterDeactivatedException ex)
                     {
                         handleException(requestId, ex, false);
                         break;
@@ -298,7 +298,7 @@ namespace IceInternal
                     --invokeNum;
                 }
             }
-            catch(Ice.LocalException ex)
+            catch (Ice.LocalException ex)
             {
                 invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
             }
@@ -306,20 +306,20 @@ namespace IceInternal
             _adapter.decDirectCount();
         }
 
-        void
+        private void
         handleException(int requestId, Ice.Exception ex, bool amd)
         {
-            if(requestId == 0)
+            if (requestId == 0)
             {
                 return; // Ignore exception for oneway messages.
             }
 
             OutgoingAsyncBase outAsync;
-            lock(this)
+            lock (this)
             {
-                if(_asyncRequests.TryGetValue(requestId, out outAsync))
+                if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    if(!outAsync.exception(ex))
+                    if (!outAsync.exception(ex))
                     {
                         outAsync = null;
                     }
@@ -327,14 +327,14 @@ namespace IceInternal
                 }
             }
 
-            if(outAsync != null)
+            if (outAsync != null)
             {
                 //
                 // If called from an AMD dispatch, invoke asynchronously
                 // the completion callback since this might be called from
                 // the user code.
                 //
-                if(amd)
+                if (amd)
                 {
                     outAsync.invokeExceptionAsync();
                 }

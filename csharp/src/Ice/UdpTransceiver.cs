@@ -12,7 +12,7 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Text;
 
-    sealed class UdpTransceiver : Transceiver
+    internal sealed class UdpTransceiver : Transceiver
     {
         public Socket fd()
         {
@@ -21,26 +21,26 @@ namespace IceInternal
 
         public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
-            if(_state == StateNeedConnect)
+            if (_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
                 try
                 {
-                    if(_sourceAddr != null)
+                    if (_sourceAddr != null)
                     {
                         _fd.Bind(_sourceAddr);
                     }
                     _fd.Connect(_addr);
                 }
-                catch(SocketException ex)
+                catch (SocketException ex)
                 {
-                    if(Network.wouldBlock(ex))
+                    if (Network.wouldBlock(ex))
                     {
                         return SocketOperation.Connect;
                     }
                     throw new Ice.ConnectFailedException(ex);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new Ice.ConnectFailedException(ex);
                 }
@@ -61,13 +61,13 @@ namespace IceInternal
 
         public void close()
         {
-            if(_fd != null)
+            if (_fd != null)
             {
                 try
                 {
                     _fd.Close();
                 }
-                catch(System.IO.IOException)
+                catch (System.IO.IOException)
                 {
                 }
                 _fd = null;
@@ -76,11 +76,11 @@ namespace IceInternal
 
         public EndpointI bind()
         {
-            if(Network.isMulticast((IPEndPoint)_addr))
+            if (Network.isMulticast((IPEndPoint)_addr))
             {
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = (IPEndPoint)_addr;
-                if(AssemblyUtil.isWindows)
+                if (AssemblyUtil.isWindows)
                 {
                     //
                     // Windows does not allow binding to the mcast address itself
@@ -89,7 +89,7 @@ namespace IceInternal
                     // address won't the multicast address and the client will
                     // therefore reject the datagram.
                     //
-                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                    if (_addr.AddressFamily == AddressFamily.InterNetwork)
                     {
                         _addr = new IPEndPoint(IPAddress.Any, _port);
                     }
@@ -100,7 +100,7 @@ namespace IceInternal
                 }
 
                 _addr = Network.doBind(_fd, _addr);
-                if(_port == 0)
+                if (_port == 0)
                 {
                     _mcastAddr.Port = ((IPEndPoint)_addr).Port;
                 }
@@ -108,7 +108,7 @@ namespace IceInternal
             }
             else
             {
-                 _addr = Network.doBind(_fd, _addr);
+                _addr = Network.doBind(_fd, _addr);
             }
             _bound = true;
             _endpoint = _endpoint.endpoint(this);
@@ -123,7 +123,7 @@ namespace IceInternal
 
         public int write(Buffer buf)
         {
-            if(!buf.b.hasRemaining())
+            if (!buf.b.hasRemaining())
             {
                 return SocketOperation.None;
             }
@@ -135,17 +135,17 @@ namespace IceInternal
             Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
             int ret = 0;
-            while(true)
+            while (true)
             {
                 try
                 {
-                    if(_state == StateConnected)
+                    if (_state == StateConnected)
                     {
                         ret = _fd.Send(buf.b.rawBytes(), 0, buf.size(), SocketFlags.None);
                     }
                     else
                     {
-                        if(_peerAddr == null)
+                        if (_peerAddr == null)
                         {
                             throw new Ice.SocketException();
                         }
@@ -153,19 +153,19 @@ namespace IceInternal
                     }
                     break;
                 }
-                catch(SocketException ex)
+                catch (SocketException ex)
                 {
-                    if(Network.interrupted(ex))
+                    if (Network.interrupted(ex))
                     {
                         continue;
                     }
 
-                    if(Network.wouldBlock(ex))
+                    if (Network.wouldBlock(ex))
                     {
                         return SocketOperation.Write;
                     }
 
-                    if(Network.connectionLost(ex))
+                    if (Network.connectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -174,7 +174,7 @@ namespace IceInternal
                         throw new Ice.SocketException(ex);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw new Ice.SyscallException(e);
                 }
@@ -188,7 +188,7 @@ namespace IceInternal
 
         public int read(Buffer buf, ref bool hasMoreData)
         {
-            if(!buf.b.hasRemaining())
+            if (!buf.b.hasRemaining())
             {
                 return SocketOperation.None;
             }
@@ -201,14 +201,14 @@ namespace IceInternal
             buf.b.position(0);
 
             int ret = 0;
-            while(true)
+            while (true)
             {
                 try
                 {
                     EndPoint peerAddr = _peerAddr;
-                    if(peerAddr == null)
+                    if (peerAddr == null)
                     {
-                        if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                        if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {
                             peerAddr = new IPEndPoint(IPAddress.Any, 0);
                         }
@@ -220,7 +220,7 @@ namespace IceInternal
                     }
 
                     // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
-                    if(_state == StateConnected ||
+                    if (_state == StateConnected ||
                        AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                     {
                         ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
@@ -232,9 +232,9 @@ namespace IceInternal
                     }
                     break;
                 }
-                catch(SocketException e)
+                catch (SocketException e)
                 {
-                    if(Network.recvTruncated(e))
+                    if (Network.recvTruncated(e))
                     {
                         // The message was truncated and the whole buffer is filled. We ignore
                         // this error here, it will be detected at the connection level when
@@ -243,17 +243,17 @@ namespace IceInternal
                         break;
                     }
 
-                    if(Network.interrupted(e))
+                    if (Network.interrupted(e))
                     {
                         continue;
                     }
 
-                    if(Network.wouldBlock(e))
+                    if (Network.wouldBlock(e))
                     {
                         return SocketOperation.Read;
                     }
 
-                    if(Network.connectionLost(e))
+                    if (Network.connectionLost(e))
                     {
                         throw new Ice.ConnectionLostException();
                     }
@@ -262,18 +262,18 @@ namespace IceInternal
                         throw new Ice.SocketException(e);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw new Ice.SyscallException(e);
                 }
             }
 
-            if(ret == 0)
+            if (ret == 0)
             {
                 throw new Ice.ConnectionLostException();
             }
 
-            if(_state == StateNeedConnect)
+            if (_state == StateNeedConnect)
             {
                 Debug.Assert(_incoming);
 
@@ -284,7 +284,7 @@ namespace IceInternal
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if(_instance.traceLevel() >= 1)
+                if (_instance.traceLevel() >= 1)
                 {
                     string s = "connected " + protocol() + " socket\n" + ToString();
                     _instance.logger().trace(_instance.traceCategory(), s);
@@ -308,7 +308,7 @@ namespace IceInternal
             try
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
-                if(_state == StateConnected ||
+                if (_state == StateConnected ||
                    AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                 {
                     _readCallback = callback;
@@ -325,16 +325,16 @@ namespace IceInternal
                     return !_fd.ReceiveFromAsync(_readEventArgs);
                 }
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.recvTruncated(ex))
+                if (Network.recvTruncated(ex))
                 {
                     // Nothing todo
                     return true;
                 }
                 else
                 {
-                    if(Network.connectionLost(ex))
+                    if (Network.connectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -348,7 +348,7 @@ namespace IceInternal
 
         public void finishRead(Buffer buf)
         {
-            if(_fd == null)
+            if (_fd == null)
             {
                 return;
             }
@@ -356,21 +356,21 @@ namespace IceInternal
             int ret;
             try
             {
-                if(_readEventArgs.SocketError != SocketError.Success)
+                if (_readEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 ret = _readEventArgs.BytesTransferred;
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
-                if(_state != StateConnected &&
+                if (_state != StateConnected &&
                    !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     _peerAddr = _readEventArgs.RemoteEndPoint;
                 }
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.recvTruncated(ex))
+                if (Network.recvTruncated(ex))
                 {
                     // The message was truncated and the whole buffer is filled. We ignore
                     // this error here, it will be detected at the connection level when
@@ -379,12 +379,12 @@ namespace IceInternal
                 }
                 else
                 {
-                    if(Network.connectionLost(ex))
+                    if (Network.connectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
 
-                    if(Network.connectionRefused(ex))
+                    if (Network.connectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
@@ -395,14 +395,14 @@ namespace IceInternal
                 }
             }
 
-            if(ret == 0)
+            if (ret == 0)
             {
                 throw new Ice.ConnectionLostException();
             }
 
             Debug.Assert(ret > 0);
 
-            if(_state == StateNeedConnect)
+            if (_state == StateNeedConnect)
             {
                 Debug.Assert(_incoming);
 
@@ -414,7 +414,7 @@ namespace IceInternal
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if(_instance.traceLevel() >= 1)
+                if (_instance.traceLevel() >= 1)
                 {
                     string s = "connected " + protocol() + " socket\n" + ToString();
                     _instance.logger().trace(_instance.traceCategory(), s);
@@ -427,11 +427,11 @@ namespace IceInternal
 
         public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
-            if(!_incoming && _state < StateConnected)
+            if (!_incoming && _state < StateConnected)
             {
                 Debug.Assert(_addr != null);
                 completed = false;
-                if(_sourceAddr != null)
+                if (_sourceAddr != null)
                 {
                     _fd.Bind(_sourceAddr);
                 }
@@ -451,7 +451,7 @@ namespace IceInternal
             {
                 _writeCallback = callback;
 
-                if(_state == StateConnected)
+                if (_state == StateConnected)
                 {
                     _writeEventArgs.UserToken = state;
                     _writeEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
@@ -459,7 +459,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    if(_peerAddr == null)
+                    if (_peerAddr == null)
                     {
                         throw new Ice.SocketException();
                     }
@@ -469,9 +469,9 @@ namespace IceInternal
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
                 }
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.connectionLost(ex))
+                if (Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
@@ -487,19 +487,19 @@ namespace IceInternal
 
         public void finishWrite(Buffer buf)
         {
-            if(_fd == null)
+            if (_fd == null)
             {
                 buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
                 _writeEventArgs = null;
                 return;
             }
 
-            if(!_incoming && _state < StateConnected)
+            if (!_incoming && _state < StateConnected)
             {
-                if(_writeEventArgs.SocketError != SocketError.Success)
+                if (_writeEventArgs.SocketError != SocketError.Success)
                 {
                     SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
-                    if(Network.connectionRefused(ex))
+                    if (Network.connectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
@@ -514,15 +514,15 @@ namespace IceInternal
             int ret;
             try
             {
-                if(_writeEventArgs.SocketError != SocketError.Success)
+                if (_writeEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 ret = _writeEventArgs.BytesTransferred;
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
-                if(Network.connectionLost(ex))
+                if (Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
@@ -532,7 +532,7 @@ namespace IceInternal
                 }
             }
 
-            if(ret == 0)
+            if (ret == 0)
             {
                 throw new Ice.ConnectionLostException();
             }
@@ -550,14 +550,14 @@ namespace IceInternal
         public Ice.ConnectionInfo getInfo()
         {
             Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
-            if(_fd != null)
+            if (_fd != null)
             {
                 EndPoint localEndpoint = Network.getLocalAddress(_fd);
                 info.localAddress = Network.endpointAddressToString(localEndpoint);
                 info.localPort = Network.endpointPort(localEndpoint);
-                if(_state == StateNotConnected)
+                if (_state == StateNotConnected)
                 {
-                    if(_peerAddr != null)
+                    if (_peerAddr != null)
                     {
                         info.remoteAddress = Network.endpointAddressToString(_peerAddr);
                         info.remotePort = Network.endpointPort(_peerAddr);
@@ -566,7 +566,7 @@ namespace IceInternal
                 else
                 {
                     EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
-                    if(remoteEndpoint != null)
+                    if (remoteEndpoint != null)
                     {
                         info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
                         info.remotePort = Network.endpointPort(remoteEndpoint);
@@ -576,7 +576,7 @@ namespace IceInternal
                 info.sndSize = Network.getSendBufferSize(_fd);
             }
 
-            if(_mcastAddr != null)
+            if (_mcastAddr != null)
             {
                 info.mcastAddress = Network.endpointAddressToString(_mcastAddr);
                 info.mcastPort = Network.endpointPort(_mcastAddr);
@@ -591,7 +591,7 @@ namespace IceInternal
             // the UDP send buffer size (which ever is smaller).
             //
             int packetSize = Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
-            if(packetSize < buf.size())
+            if (packetSize < buf.size())
             {
                 throw new Ice.DatagramLimitException();
             }
@@ -604,20 +604,20 @@ namespace IceInternal
 
         public override string ToString()
         {
-            if(_fd == null)
+            if (_fd == null)
             {
                 return "<closed>";
             }
 
             string s;
-            if(_incoming && !_bound)
+            if (_incoming && !_bound)
             {
                 s = "local address = " + Network.addrToString(_addr);
             }
-            else if(_state == StateNotConnected)
+            else if (_state == StateNotConnected)
             {
                 s = "local address = " + Network.localAddrToString(Network.getLocalAddress(_fd));
-                if(_peerAddr != null)
+                if (_peerAddr != null)
                 {
                     s += "\nremote address = " + Network.addrToString(_peerAddr);
                 }
@@ -627,7 +627,7 @@ namespace IceInternal
                 s = Network.fdToString(_fd);
             }
 
-            if(_mcastAddr != null)
+            if (_mcastAddr != null)
             {
                 s += "\nmulticast address = " + Network.addrToString(_mcastAddr);
             }
@@ -638,7 +638,7 @@ namespace IceInternal
         {
             StringBuilder s = new StringBuilder(ToString());
             List<string> intfs;
-            if(_mcastAddr == null)
+            if (_mcastAddr == null)
             {
                 intfs = Network.getHostsForEndpointExpand(Network.endpointAddressToString(_addr),
                                                           _instance.protocolSupport(), true);
@@ -648,7 +648,7 @@ namespace IceInternal
                 intfs = Network.getInterfacesForMulticast(_mcastInterface,
                                                           Network.getProtocolSupport(_mcastAddr.Address));
             }
-            if(intfs.Count != 0)
+            if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
                 s.Append(string.Join(", ", intfs.ToArray()));
@@ -688,19 +688,19 @@ namespace IceInternal
                 _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(-1, -1);
                 Network.setBlock(_fd, false);
-                if(Network.isMulticast((IPEndPoint)_addr))
+                if (Network.isMulticast((IPEndPoint)_addr))
                 {
-                    if(_mcastInterface.Length > 0)
+                    if (_mcastInterface.Length > 0)
                     {
                         Network.setMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
                     }
-                    if(mcastTtl != -1)
+                    if (mcastTtl != -1)
                     {
                         Network.setMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
                     }
                 }
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 _fd = null;
                 throw;
@@ -736,13 +736,13 @@ namespace IceInternal
                 setBufSize(-1, -1);
                 Network.setBlock(_fd, false);
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
-                if(_readEventArgs != null)
+                if (_readEventArgs != null)
                 {
                     _readEventArgs.Dispose();
                 }
-                if(_writeEventArgs != null)
+                if (_writeEventArgs != null)
                 {
                     _writeEventArgs.Dispose();
                 }
@@ -762,7 +762,7 @@ namespace IceInternal
                 string prop;
                 int dfltSize;
                 int sizeRequested;
-                if(i == 0)
+                if (i == 0)
                 {
                     isSnd = false;
                     direction = "receive";
@@ -784,21 +784,21 @@ namespace IceInternal
                 //
                 // Get property for buffer size if size not passed in.
                 //
-                if(sizeRequested == -1)
+                if (sizeRequested == -1)
                 {
                     sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
                 }
                 //
                 // Check for sanity.
                 //
-                if(sizeRequested < (_udpOverhead + Protocol.headerSize))
+                if (sizeRequested < (_udpOverhead + Protocol.headerSize))
                 {
                     _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +
                                                dfltSize);
                     sizeRequested = dfltSize;
                 }
 
-                if(sizeRequested != dfltSize)
+                if (sizeRequested != dfltSize)
                 {
                     //
                     // Try to set the buffer size. The kernel will silently adjust
@@ -806,7 +806,7 @@ namespace IceInternal
                     // get the size that was actually set.
                     //
                     int sizeSet;
-                    if(i == 0)
+                    if (i == 0)
                     {
                         Network.setRecvBufferSize(_fd, sizeRequested);
                         _rcvSize = Network.getRecvBufferSize(_fd);
@@ -823,16 +823,16 @@ namespace IceInternal
                     // Warn if the size that was set is less than the requested size
                     // and we have not already warned
                     //
-                    if(sizeSet < sizeRequested)
+                    if (sizeSet < sizeRequested)
                     {
                         BufSizeWarnInfo winfo = _instance.getBufSizeWarn(Ice.UDPEndpointType.value);
-                        if((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
+                        if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
                         {
                             _instance.logger().warning("UDP " + direction + " buffer size: requested size of " +
                                                        sizeRequested + " adjusted to " + sizeSet);
 
-                            if(isSnd)
+                            if (isSnd)
                             {
                                 _instance.setSndBufSizeWarn(Ice.UDPEndpointType.value, sizeRequested);
                             }
@@ -850,16 +850,16 @@ namespace IceInternal
         {
             switch (e.LastOperation)
             {
-            case SocketAsyncOperation.Receive:
-            case SocketAsyncOperation.ReceiveFrom:
-                _readCallback(e.UserToken);
-                break;
-            case SocketAsyncOperation.Send:
-            case SocketAsyncOperation.Connect:
-                _writeCallback(e.UserToken);
-                break;
-            default:
-                throw new ArgumentException("The last operation completed on the socket was not a receive or send");
+                case SocketAsyncOperation.Receive:
+                case SocketAsyncOperation.ReceiveFrom:
+                    _readCallback(e.UserToken);
+                    break;
+                case SocketAsyncOperation.Send:
+                case SocketAsyncOperation.Connect:
+                    _writeCallback(e.UserToken);
+                    break;
+                default:
+                    throw new ArgumentException("The last operation completed on the socket was not a receive or send");
             }
         }
 
@@ -882,8 +882,8 @@ namespace IceInternal
         private SocketAsyncEventArgs _writeEventArgs;
         private SocketAsyncEventArgs _readEventArgs;
 
-        AsyncCallback _writeCallback;
-        AsyncCallback _readCallback;
+        private AsyncCallback _writeCallback;
+        private AsyncCallback _readCallback;
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;

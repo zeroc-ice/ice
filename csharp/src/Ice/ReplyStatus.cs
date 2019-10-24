@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    sealed class ReplyStatus
+    internal sealed class ReplyStatus
     {
         public const byte replyOK = 0;
         public const byte replyUserException = 1;

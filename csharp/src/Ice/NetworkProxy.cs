@@ -74,11 +74,11 @@ namespace IceInternal
 
         public void beginWrite(EndPoint endpoint, Buffer buf)
         {
-            if(!(endpoint is IPEndPoint))
+            if (!(endpoint is IPEndPoint))
             {
                 throw new Ice.FeatureNotSupportedException("SOCKS4 does not support domain names");
             }
-            else if(endpoint.AddressFamily != AddressFamily.InterNetwork)
+            else if (endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
                 throw new Ice.FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
             }
@@ -127,7 +127,7 @@ namespace IceInternal
             readBuffer.b.position(0);
             byte b1 = readBuffer.b.get();
             byte b2 = readBuffer.b.get();
-            if(b1 != 0x00 || b2 != 0x5a)
+            if (b1 != 0x00 || b2 != 0x5a)
             {
                 throw new Ice.ConnectFailedException();
             }
@@ -223,7 +223,7 @@ namespace IceInternal
             // reading otherwise we're done.
             //
             int end = new HttpParser().isCompleteMessage(buf.b, 0, buf.b.position());
-            if(end < 0 && !buf.b.hasRemaining())
+            if (end < 0 && !buf.b.hasRemaining())
             {
                 //
                 // Read one more byte, we can't easily read bytes in advance
@@ -240,7 +240,7 @@ namespace IceInternal
         {
             HttpParser parser = new HttpParser();
             parser.parse(readBuffer.b, 0, readBuffer.b.position());
-            if(parser.status() != 200)
+            if (parser.status() != 200)
             {
                 throw new Ice.ConnectFailedException();
             }

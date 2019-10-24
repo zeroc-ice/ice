@@ -15,7 +15,7 @@ namespace Ice
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.UDP.SndSize", "16384");
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     AllTests.allTests(this);
 
@@ -24,12 +24,12 @@ namespace Ice
                     {
                         num = args.Length == 1 ? Int32.Parse(args[0]) : 1;
                     }
-                    catch(FormatException)
+                    catch (FormatException)
                     {
                         num = 1;
                     }
 
-                    for(int i = 0; i < num; ++i)
+                    for (int i = 0; i < num; ++i)
                     {
                         var prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
                         Test.TestIntfPrxHelper.uncheckedCast(prx).shutdown();

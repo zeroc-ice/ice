@@ -19,7 +19,7 @@ namespace Ice
 
             public override void startServer(Ice.Current current)
             {
-                foreach(Ice.Communicator c in _communicators)
+                foreach (Ice.Communicator c in _communicators)
                 {
                     c.waitForShutdown();
                     c.destroy();
@@ -48,7 +48,7 @@ namespace Ice
                 // another OA(e.g.: TestAdapter2 is re-activated using port of TestAdapter).
                 //
                 int nRetry = 10;
-                while(--nRetry > 0)
+                while (--nRetry > 0)
                 {
                     Ice.ObjectAdapter adapter = null;
                     Ice.ObjectAdapter adapter2 = null;
@@ -75,20 +75,20 @@ namespace Ice
                         adapter2.activate();
                         break;
                     }
-                    catch(Ice.SocketException ex)
+                    catch (Ice.SocketException ex)
                     {
-                        if(nRetry == 0)
+                        if (nRetry == 0)
                         {
                             throw ex;
                         }
 
                         // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web
                         // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-                        if(adapter != null)
+                        if (adapter != null)
                         {
                             adapter.destroy();
                         }
-                        if(adapter2 != null)
+                        if (adapter2 != null)
                         {
                             adapter2.destroy();
                         }
@@ -98,7 +98,7 @@ namespace Ice
 
             public override void shutdown(Ice.Current current)
             {
-                foreach(Ice.Communicator c in _communicators)
+                foreach (Ice.Communicator c in _communicators)
                 {
                     c.destroy();
                 }

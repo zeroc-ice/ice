@@ -8,7 +8,7 @@ public sealed class TestI : TestIntfDisp_
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new System.Exception();
         }

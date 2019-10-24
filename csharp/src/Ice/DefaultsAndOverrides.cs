@@ -17,7 +17,7 @@ namespace IceInternal
             defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
             val = properties.getProperty("Ice.Default.Host");
-            if(val.Length != 0)
+            if (val.Length != 0)
             {
                 defaultHost = val;
             }
@@ -27,10 +27,10 @@ namespace IceInternal
             }
 
             val = properties.getProperty("Ice.Default.SourceAddress");
-            if(val.Length > 0)
+            if (val.Length > 0)
             {
                 defaultSourceAddress = Network.getNumericAddress(val);
-                if(defaultSourceAddress == null)
+                if (defaultSourceAddress == null)
                 {
                     throw new Ice.InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" +
                                                           val + "'");
@@ -42,11 +42,11 @@ namespace IceInternal
             }
 
             val = properties.getProperty("Ice.Override.Timeout");
-            if(val.Length > 0)
+            if (val.Length > 0)
             {
                 overrideTimeout = true;
                 overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
-                if(overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
+                if (overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
                 {
                     overrideTimeoutValue = -1;
                     StringBuilder msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
@@ -62,11 +62,11 @@ namespace IceInternal
             }
 
             val = properties.getProperty("Ice.Override.ConnectTimeout");
-            if(val.Length > 0)
+            if (val.Length > 0)
             {
                 overrideConnectTimeout = true;
                 overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
-                if(overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
+                if (overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
                 {
                     overrideConnectTimeoutValue = -1;
                     StringBuilder msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
@@ -82,11 +82,11 @@ namespace IceInternal
             }
 
             val = properties.getProperty("Ice.Override.CloseTimeout");
-            if(val.Length > 0)
+            if (val.Length > 0)
             {
                 overrideCloseTimeout = true;
                 overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
-                if(overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
+                if (overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
                 {
                     overrideCloseTimeoutValue = -1;
                     StringBuilder msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
@@ -102,11 +102,11 @@ namespace IceInternal
             }
 
             val = properties.getProperty("Ice.Override.Compress");
-            if(val.Length > 0)
+            if (val.Length > 0)
             {
                 overrideCompress = true;
                 overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
-                if(!BZip2.supported() && overrideCompressValue)
+                if (!BZip2.supported() && overrideCompressValue)
                 {
                     string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                     Console.Error.WriteLine("warning: " + lib + " not found, Ice.Override.Compress ignored.");
@@ -120,7 +120,7 @@ namespace IceInternal
             }
 
             val = properties.getProperty("Ice.Override.Secure");
-            if(val.Length > 0)
+            if (val.Length > 0)
             {
                 overrideSecure = true;
                 overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
@@ -135,11 +135,11 @@ namespace IceInternal
                 properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
 
             val = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
-            if(val.Equals("Random"))
+            if (val.Equals("Random"))
             {
                 defaultEndpointSelection = Ice.EndpointSelectionType.Random;
             }
-            else if(val.Equals("Ordered"))
+            else if (val.Equals("Ordered"))
             {
                 defaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
             }
@@ -151,7 +151,7 @@ namespace IceInternal
             }
 
             defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
-            if(defaultTimeout < 1 && defaultTimeout != -1)
+            if (defaultTimeout < 1 && defaultTimeout != -1)
             {
                 defaultTimeout = 60000;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
@@ -161,7 +161,7 @@ namespace IceInternal
             }
 
             defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
-            if(defaultLocatorCacheTimeout < -1)
+            if (defaultLocatorCacheTimeout < -1)
             {
                 defaultLocatorCacheTimeout = -1;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
@@ -171,7 +171,7 @@ namespace IceInternal
             }
 
             defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
-            if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
+            if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
             {
                 defaultInvocationTimeout = -1;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");

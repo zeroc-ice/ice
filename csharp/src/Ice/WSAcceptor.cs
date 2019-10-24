@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    class WSAcceptor : Acceptor
+    internal class WSAcceptor : Acceptor
     {
         public void close()
         {

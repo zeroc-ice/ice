@@ -22,7 +22,7 @@ namespace Ice
                 Twoways.twoways(communicator, cl);
                 output.WriteLine("ok");
 
-                if(!collocated)
+                if (!collocated)
                 {
                     output.Write("testing twoway operations with AMI... ");
                     output.Flush();

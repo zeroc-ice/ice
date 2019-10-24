@@ -10,7 +10,7 @@ public class Dispatcher
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new System.Exception();
         }
@@ -26,34 +26,34 @@ public class Dispatcher
 
     public void run()
     {
-        while(true)
+        while (true)
         {
             System.Action call = null;
-            lock(_m)
+            lock (_m)
             {
-                if(!_terminated && _calls.Count == 0)
+                if (!_terminated && _calls.Count == 0)
                 {
                     Monitor.Wait(_m);
                 }
 
-                if(_calls.Count > 0)
+                if (_calls.Count > 0)
                 {
                     call = _calls.Dequeue();
                 }
-                else if(_terminated)
+                else if (_terminated)
                 {
                     // Terminate only once all calls are dispatched.
                     return;
                 }
             }
 
-            if(call != null)
+            if (call != null)
             {
                 try
                 {
                     call();
                 }
-                catch(System.Exception)
+                catch (System.Exception)
                 {
                     // Exceptions should never propagate here.
                     test(false);
@@ -64,10 +64,10 @@ public class Dispatcher
 
     public void dispatch(System.Action call, Ice.Connection con)
     {
-        lock(_m)
+        lock (_m)
         {
             _calls.Enqueue(call);
-            if(_calls.Count == 1)
+            if (_calls.Count == 1)
             {
                 Monitor.Pulse(_m);
             }
@@ -76,7 +76,7 @@ public class Dispatcher
 
     static public void terminate()
     {
-        lock(_m)
+        lock (_m)
         {
             _instance._terminated = true;
             Monitor.Pulse(_m);

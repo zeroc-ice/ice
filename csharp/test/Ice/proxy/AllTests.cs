@@ -41,7 +41,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("\"test -f facet'");
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("\"test -f facet\"");
@@ -58,7 +58,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test test");
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test\\040test");
@@ -68,7 +68,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test\\777");
                     test(false);
                 }
-                catch(Ice.IdentityParseException)
+                catch (Ice.IdentityParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test\\40test");
@@ -106,7 +106,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 try
@@ -114,7 +114,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test:"); // Missing endpoint.
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -126,7 +126,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("id@adapter test");
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("category/test@adapter");
@@ -165,7 +165,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("id -f \"facet x");
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 try
@@ -173,7 +173,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("id -f \'facet x");
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test -f facet:tcp");
@@ -196,7 +196,7 @@ namespace Ice
                     b1 = communicator.stringToProxy("test -f facet@test @test");
                     test(false);
                 }
-                catch(Ice.ProxyParseException)
+                catch (Ice.ProxyParseException)
                 {
                 }
                 b1 = communicator.stringToProxy("test");
@@ -235,7 +235,7 @@ namespace Ice
                     communicator.stringToProxy("test:tcp@adapterId");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
                 // This is an unknown endpoint warning, not a parse exception.
@@ -253,7 +253,7 @@ namespace Ice
                     communicator.stringToProxy("test: :tcp");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -265,7 +265,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -274,7 +274,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -283,7 +283,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -314,7 +314,7 @@ namespace Ice
                     id = Ice.Util.stringToIdentity("xx\01FooBar");
                     test(false);
                 }
-                catch(Ice.IdentityParseException)
+                catch (Ice.IdentityParseException)
                 {
                 }
 
@@ -324,7 +324,7 @@ namespace Ice
                     id = Ice.Util.stringToIdentity("xx\\ud911");
                     test(false);
                 }
-                catch(Ice.IdentityParseException)
+                catch (Ice.IdentityParseException)
                 {
                 }
 
@@ -376,7 +376,7 @@ namespace Ice
                 var b2 = communicator.stringToProxy(communicator.proxyToString(b1));
                 test(b1.Equals(b2));
 
-                if(b1.ice_getConnection() != null) // not colloc-optimized target
+                if (b1.ice_getConnection() != null) // not colloc-optimized target
                 {
                     b2 = b1.ice_getConnection().createProxy(Ice.Util.stringToIdentity("fixed"));
                     String str = communicator.proxyToString(b2);
@@ -595,7 +595,7 @@ namespace Ice
                     baseProxy.ice_timeout(0);
                     test(false);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                 }
 
@@ -603,7 +603,7 @@ namespace Ice
                 {
                     baseProxy.ice_timeout(-1);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                     test(false);
                 }
@@ -613,7 +613,7 @@ namespace Ice
                     baseProxy.ice_timeout(-2);
                     test(false);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                 }
 
@@ -622,7 +622,7 @@ namespace Ice
                     baseProxy.ice_invocationTimeout(0);
                     test(false);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                 }
 
@@ -631,7 +631,7 @@ namespace Ice
                     baseProxy.ice_invocationTimeout(-1);
                     baseProxy.ice_invocationTimeout(-2);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                     test(false);
                 }
@@ -641,7 +641,7 @@ namespace Ice
                     baseProxy.ice_invocationTimeout(-3);
                     test(false);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                 }
 
@@ -649,7 +649,7 @@ namespace Ice
                 {
                     baseProxy.ice_locatorCacheTimeout(0);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                     test(false);
                 }
@@ -658,7 +658,7 @@ namespace Ice
                 {
                     baseProxy.ice_locatorCacheTimeout(-1);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                     test(false);
                 }
@@ -668,7 +668,7 @@ namespace Ice
                     baseProxy.ice_locatorCacheTimeout(-2);
                     test(false);
                 }
-                catch(ArgumentException)
+                catch (ArgumentException)
                 {
                 }
 
@@ -774,7 +774,7 @@ namespace Ice
                 test(endpts1[0].Equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
 
                 Ice.Connection baseConnection = baseProxy.ice_getConnection();
-                if(baseConnection != null)
+                if (baseConnection != null)
                 {
                     Ice.Connection baseConnection2 = baseProxy.ice_connectionId("base2").ice_getConnection();
                     compObj1 = compObj1.ice_fixed(baseConnection);
@@ -813,10 +813,10 @@ namespace Ice
                 output.Flush();
                 {
                     Ice.Connection connection = cl.ice_getConnection();
-                    if(connection != null)
+                    if (connection != null)
                     {
                         test(!cl.ice_isFixed());
-                        Test.MyClassPrx prx =(Test.MyClassPrx)cl.ice_fixed(connection);
+                        Test.MyClassPrx prx = (Test.MyClassPrx)cl.ice_fixed(connection);
                         test(prx.ice_isFixed());
                         prx.ice_ping();
                         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
@@ -839,14 +839,14 @@ namespace Ice
                         {
                             cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
                         }
-                        catch(Ice.NoEndpointException)
+                        catch (Ice.NoEndpointException)
                         {
                         }
                         try
                         {
                             cl.ice_datagram().ice_fixed(connection).ice_ping();
                         }
-                        catch(Ice.NoEndpointException)
+                        catch (Ice.NoEndpointException)
                         {
                         }
                     }
@@ -857,7 +857,7 @@ namespace Ice
                             cl.ice_fixed(connection);
                             test(false);
                         }
-                        catch(ArgumentException)
+                        catch (ArgumentException)
                         {
                             // Expected with null connection.
                         }
@@ -874,7 +874,7 @@ namespace Ice
                     cl20.ice_ping();
                     test(false);
                 }
-                catch(Ice.UnsupportedEncodingException)
+                catch (Ice.UnsupportedEncodingException)
                 {
                     // Server 2.0 endpoint doesn't support 1.1 version.
                 }
@@ -907,7 +907,7 @@ namespace Ice
                                                                   out outEncaps);
                     test(false);
                 }
-                catch(Ice.UnknownLocalException ex)
+                catch (Ice.UnknownLocalException ex)
                 {
                     // The server thrown an UnsupportedEncodingException
                     test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
@@ -928,7 +928,7 @@ namespace Ice
                                                                   out outEncaps);
                     test(false);
                 }
-                catch(Ice.UnknownLocalException ex)
+                catch (Ice.UnknownLocalException ex)
                 {
                     // The server thrown an UnsupportedEncodingException
                     test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
@@ -945,7 +945,7 @@ namespace Ice
                     cl20.ice_ping();
                     test(false);
                 }
-                catch(Ice.UnsupportedProtocolException)
+                catch (Ice.UnsupportedProtocolException)
                 {
                     // Server 2.0 proxy doesn't support 1.0 version.
                 }
@@ -971,7 +971,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 99 -v abcd -x abc");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -981,7 +981,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -991,7 +991,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1 -t 1 -v abcd");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1001,7 +1001,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1 -v abcd -v abcd");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1011,7 +1011,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -v abcd");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1021,7 +1021,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1031,7 +1031,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t -v abcd");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1041,7 +1041,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 1 -v");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1051,7 +1051,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t x -v abcd");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1061,7 +1061,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t -1 -v abcd");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1071,7 +1071,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 99 -v x?c");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1081,7 +1081,7 @@ namespace Ice
                     communicator.stringToProxy("id:opaque -t 99 -v xc");
                     test(false);
                 }
-                catch(Ice.EndpointParseException)
+                catch (Ice.EndpointParseException)
                 {
                 }
 
@@ -1094,7 +1094,7 @@ namespace Ice
                 Ice.ObjectPrx p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
                 test(communicator.proxyToString(p2).Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
-                if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
+                if (communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
                 {
                     // Working?
                     bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("ssl");
@@ -1108,11 +1108,11 @@ namespace Ice
                     // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
                     p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
                     pstr = communicator.proxyToString(p1);
-                    if(ssl)
+                    if (ssl)
                     {
                         test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
                     }
-                    else if(tcp)
+                    else if (tcp)
                     {
                         test(pstr.Equals(
                             "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));

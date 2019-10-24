@@ -11,7 +11,7 @@ using IceInternal;
 
 namespace Ice
 {
-    sealed class CommunicatorI : Communicator
+    internal sealed class CommunicatorI : Communicator
     {
         public void destroy()
         {
@@ -24,7 +24,7 @@ namespace Ice
             {
                 _instance.objectAdapterFactory().shutdown();
             }
-            catch(Ice.CommunicatorDestroyedException)
+            catch (Ice.CommunicatorDestroyedException)
             {
                 // Ignore
             }
@@ -36,7 +36,7 @@ namespace Ice
             {
                 _instance.objectAdapterFactory().waitForShutdown();
             }
-            catch(Ice.CommunicatorDestroyedException)
+            catch (Ice.CommunicatorDestroyedException)
             {
                 // Ignore
             }
@@ -48,7 +48,7 @@ namespace Ice
             {
                 return _instance.objectAdapterFactory().isShutdown();
             }
-            catch(Ice.CommunicatorDestroyedException)
+            catch (Ice.CommunicatorDestroyedException)
             {
                 return true;
             }
@@ -91,7 +91,7 @@ namespace Ice
 
         public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
         {
-            if(name.Length == 0)
+            if (name.Length == 0)
             {
                 name = Guid.NewGuid().ToString();
             }
@@ -102,7 +102,7 @@ namespace Ice
 
         public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
         {
-            if(name.Length == 0)
+            if (name.Length == 0)
             {
                 name = Guid.NewGuid().ToString();
             }
@@ -111,7 +111,7 @@ namespace Ice
             // We set the proxy properties here, although we still use the proxy supplied.
             //
             Dictionary<string, string> properties = proxyToProperty(router, name + ".Router");
-            foreach(KeyValuePair<string, string> entry in properties)
+            foreach (KeyValuePair<string, string> entry in properties)
             {
                 getProperties().setProperty(entry.Key, entry.Value);
             }
@@ -188,7 +188,7 @@ namespace Ice
                 outgoing.invoke(_flushBatchRequests_name, compressBatch, true);
                 completed.Task.Wait();
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -230,9 +230,9 @@ namespace Ice
                     {
                         result.throwLocalException();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        if(exceptionCallback_ != null)
+                        if (exceptionCallback_ != null)
                         {
                             exceptionCallback_.Invoke(ex);
                         }
@@ -255,7 +255,7 @@ namespace Ice
 
         public void end_flushBatchRequests(AsyncResult result)
         {
-            if(result != null && result.getCommunicator() != this)
+            if (result != null && result.getCommunicator() != this)
             {
                 const string msg = "Communicator for call to end_" + _flushBatchRequests_name +
                                    " does not match communicator that was used to call corresponding begin_" +
@@ -333,7 +333,7 @@ namespace Ice
             {
                 _instance.finishSetup(ref args, this);
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 _instance.destroy();
                 throw;

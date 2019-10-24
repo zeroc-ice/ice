@@ -17,13 +17,13 @@ namespace Ice
                     obj.requestFailedException();
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException ex)
+                catch (Ice.ObjectNotExistException ex)
                 {
                     test(ex.id.Equals(obj.ice_getIdentity()));
                     test(ex.facet.Equals(obj.ice_getFacet()));
                     test(ex.operation.Equals("requestFailedException"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -33,11 +33,11 @@ namespace Ice
                     obj.unknownUserException();
                     test(false);
                 }
-                catch(Ice.UnknownUserException ex)
+                catch (Ice.UnknownUserException ex)
                 {
                     test(ex.unknown.Equals("reason"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -47,11 +47,11 @@ namespace Ice
                     obj.unknownLocalException();
                     test(false);
                 }
-                catch(Ice.UnknownLocalException ex)
+                catch (Ice.UnknownLocalException ex)
                 {
                     test(ex.unknown.Equals("reason"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -61,11 +61,11 @@ namespace Ice
                     obj.unknownException();
                     test(false);
                 }
-                catch(Ice.UnknownException ex)
+                catch (Ice.UnknownException ex)
                 {
                     test(ex.unknown.Equals("reason"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -75,15 +75,15 @@ namespace Ice
                     obj.userException();
                     test(false);
                 }
-                catch(Ice.UnknownUserException ex)
+                catch (Ice.UnknownUserException ex)
                 {
                     //Console.Error.WriteLine(ex.unknown);
                     test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
                 }
-                catch(Ice.OperationNotExistException)
+                catch (Ice.OperationNotExistException)
                 {
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -93,12 +93,12 @@ namespace Ice
                     obj.localException();
                     test(false);
                 }
-                catch(Ice.UnknownLocalException ex)
+                catch (Ice.UnknownLocalException ex)
                 {
                     test(ex.unknown.IndexOf("Ice::SocketException") >= 0 ||
                          ex.unknown.IndexOf("Ice.SocketException") >= 0);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -108,14 +108,14 @@ namespace Ice
                     obj.csException();
                     test(false);
                 }
-                catch(Ice.UnknownException ex)
+                catch (Ice.UnknownException ex)
                 {
                     test(ex.unknown.IndexOf("System.Exception") >= 0);
                 }
-                catch(Ice.OperationNotExistException)
+                catch (Ice.OperationNotExistException)
                 {
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -125,11 +125,11 @@ namespace Ice
                     obj.unknownExceptionWithServantException();
                     test(false);
                 }
-                catch(Ice.UnknownException ex)
+                catch (Ice.UnknownException ex)
                 {
                     test(ex.unknown.Equals("reason"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -139,11 +139,11 @@ namespace Ice
                     obj.impossibleException(false);
                     test(false);
                 }
-                catch(Ice.UnknownUserException)
+                catch (Ice.UnknownUserException)
                 {
                     // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -153,11 +153,11 @@ namespace Ice
                     obj.impossibleException(true);
                     test(false);
                 }
-                catch(Ice.UnknownUserException)
+                catch (Ice.UnknownUserException)
                 {
                     // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -167,11 +167,11 @@ namespace Ice
                     obj.intfUserException(false);
                     test(false);
                 }
-                catch(Test.TestImpossibleException)
+                catch (Test.TestImpossibleException)
                 {
                     // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                     test(false);
@@ -182,11 +182,11 @@ namespace Ice
                     obj.intfUserException(true);
                     test(false);
                 }
-                catch(Test.TestImpossibleException)
+                catch (Test.TestImpossibleException)
                 {
                     // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -219,11 +219,11 @@ namespace Ice
                     o.ice_ids();
                     test(false);
                 }
-                catch(Ice.UnknownUserException ex)
+                catch (Ice.UnknownUserException ex)
                 {
                     test(ex.unknown.Equals("::Test::TestIntfUserException"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -234,11 +234,11 @@ namespace Ice
                     o.ice_ids();
                     test(false);
                 }
-                catch(Ice.UnknownUserException ex)
+                catch (Ice.UnknownUserException ex)
                 {
                     test(ex.unknown.Equals("::Test::TestIntfUserException"));
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -252,7 +252,7 @@ namespace Ice
                 {
                     Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                 }
                 output.WriteLine("ok");
@@ -267,14 +267,14 @@ namespace Ice
                 {
                     Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                 }
                 try
                 {
                     Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                 }
                 output.WriteLine("ok");
@@ -299,11 +299,11 @@ namespace Ice
                 {
                     obj.asyncResponse();
                 }
-                catch(Test.TestIntfUserException)
+                catch (Test.TestIntfUserException)
                 {
                     test(false);
                 }
-                catch(Test.TestImpossibleException)
+                catch (Test.TestImpossibleException)
                 {
                     //
                     // Called by finished().
@@ -317,11 +317,11 @@ namespace Ice
                 {
                     obj.asyncException();
                 }
-                catch(Test.TestIntfUserException)
+                catch (Test.TestIntfUserException)
                 {
                     test(false);
                 }
-                catch(Test.TestImpossibleException)
+                catch (Test.TestImpossibleException)
                 {
                     //
                     // Called by finished().
@@ -340,7 +340,7 @@ namespace Ice
                     obj.ice_ping();
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     output.WriteLine("ok");
                 }
@@ -352,7 +352,7 @@ namespace Ice
                     obj.ice_ping();
                     output.WriteLine("ok");
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }

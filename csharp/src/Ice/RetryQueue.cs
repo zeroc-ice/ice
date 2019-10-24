@@ -32,14 +32,14 @@ namespace IceInternal
         public void asyncRequestCanceled(OutgoingAsyncBase outAsync, Ice.LocalException ex)
         {
             Debug.Assert(_outAsync == outAsync);
-            if(_retryQueue.cancel(this))
+            if (_retryQueue.cancel(this))
             {
-                if(_instance.traceLevels().retry >= 1)
+                if (_instance.traceLevels().retry >= 1)
                 {
                     _instance.initializationData().logger.trace(_instance.traceLevels().retryCat,
                                                                 string.Format("operation retry canceled\n{0}", ex));
                 }
-                if(_outAsync.exception(ex))
+                if (_outAsync.exception(ex))
                 {
                     _outAsync.invokeExceptionAsync();
                 }
@@ -52,7 +52,7 @@ namespace IceInternal
             {
                 _outAsync.abort(new Ice.CommunicatorDestroyedException());
             }
-            catch(Ice.CommunicatorDestroyedException)
+            catch (Ice.CommunicatorDestroyedException)
             {
                 // Abort can throw if there's no callback, just ignore in this case
             }
@@ -72,9 +72,9 @@ namespace IceInternal
 
         public void add(ProxyOutgoingAsyncBase outAsync, int interval)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
@@ -87,12 +87,12 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
                 Dictionary<RetryTask, object> keep = new Dictionary<RetryTask, object>();
-                foreach(RetryTask task in _requests.Keys)
+                foreach (RetryTask task in _requests.Keys)
                 {
-                    if(_instance.timer().cancel(task))
+                    if (_instance.timer().cancel(task))
                     {
                         task.destroy();
                     }
@@ -103,7 +103,7 @@ namespace IceInternal
                 }
                 _requests = keep;
                 _instance = null;
-                while(_requests.Count > 0)
+                while (_requests.Count > 0)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -112,11 +112,11 @@ namespace IceInternal
 
         public void remove(RetryTask task)
         {
-            lock(this)
+            lock (this)
             {
-                if(_requests.Remove(task))
+                if (_requests.Remove(task))
                 {
-                    if(_instance == null && _requests.Count == 0)
+                    if (_instance == null && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
@@ -127,11 +127,11 @@ namespace IceInternal
 
         public bool cancel(RetryTask task)
         {
-            lock(this)
+            lock (this)
             {
-                if(_requests.Remove(task))
+                if (_requests.Remove(task))
                 {
-                    if(_instance == null && _requests.Count == 0)
+                    if (_instance == null && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);

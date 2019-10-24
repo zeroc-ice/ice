@@ -25,7 +25,7 @@ namespace Ice
                 // that task inlining works.
                 //
                 properties.setProperty("Ice.ThreadPool.Client.Size", "5");
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

@@ -20,7 +20,7 @@ namespace Ice
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ThreadPool.Server.Size", "2");
 
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");

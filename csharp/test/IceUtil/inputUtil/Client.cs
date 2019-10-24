@@ -43,8 +43,8 @@ public class Client : Test.TestHelper
             // Testing double quote
             args = IceUtilInternal.Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-                 args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
-                 test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+            args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
+            test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
             args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
@@ -66,7 +66,7 @@ public class Client : Test.TestHelper
             args = IceUtilInternal.Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\\x000Dffi"));
         }
-        catch(IceUtilInternal.Options.BadQuote)
+        catch (IceUtilInternal.Options.BadQuote)
         {
             test(false);
         }
@@ -78,14 +78,14 @@ public class Client : Test.TestHelper
         badQuoteCommands[3] = "-Dir=\"test";
         badQuoteCommands[4] = "-Dir='test";
         badQuoteCommands[5] = "-Dir=$'test";
-        for(int i = 0; i < 6; ++i)
+        for (int i = 0; i < 6; ++i)
         {
             try
             {
                 IceUtilInternal.Options.split(badQuoteCommands[i]);
                 test(false);
             }
-            catch(IceUtilInternal.Options.BadQuote)
+            catch (IceUtilInternal.Options.BadQuote)
             {
             }
         }

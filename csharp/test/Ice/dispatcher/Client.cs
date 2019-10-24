@@ -26,7 +26,7 @@ public class Client : Test.TestHelper
             //
             initData.properties.setProperty("Ice.TCP.SndSize", "50000");
             initData.dispatcher = new Dispatcher().dispatch;
-            using(var communicator = initialize(initData))
+            using (var communicator = initialize(initData))
             {
                 AllTests.allTests(this);
             }

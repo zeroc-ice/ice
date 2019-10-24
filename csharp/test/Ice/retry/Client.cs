@@ -22,7 +22,7 @@ namespace Ice
                 // This test kills connections, so we don't want warnings.
                 //
                 initData.properties.setProperty("Ice.Warn.Connections", "0");
-                using(var communicator = initialize(initData))
+                using (var communicator = initialize(initData))
                 {
                     //
                     // Configure a second communicator for the invocation timeout
@@ -31,7 +31,7 @@ namespace Ice
                     //
                     initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
                     initData.observer = Instrumentation.getObserver();
-                    using(var communicator2 = initialize(initData))
+                    using (var communicator2 = initialize(initData))
                     {
                         var retry = AllTests.allTests(this, communicator, communicator2, "retry:" + getTestEndpoint(0));
                         retry.shutdown();

@@ -12,7 +12,7 @@ public class AllTests
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new System.Exception();
         }
@@ -27,9 +27,9 @@ public class AllTests
 
         public virtual void check()
         {
-            lock(this)
+            lock (this)
             {
-                while(!_called)
+                while (!_called)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -40,7 +40,7 @@ public class AllTests
 
         public virtual void called()
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_called);
                 _called = true;
@@ -50,7 +50,7 @@ public class AllTests
 
         public virtual bool isCalled()
         {
-            lock(this)
+            lock (this)
             {
                 return _called;
             }
@@ -93,7 +93,7 @@ public class AllTests
 
         public bool checkException(bool wait)
         {
-            if(wait)
+            if (wait)
             {
                 _response.check();
                 return true;
@@ -106,7 +106,7 @@ public class AllTests
 
         public bool checkResponse(bool wait)
         {
-            if(wait)
+            if (wait)
             {
                 _response.check();
                 return true;
@@ -149,11 +149,11 @@ public class AllTests
         public void Run()
         {
             int count = 0;
-            while(true)
+            while (true)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_destroyed)
+                    if (_destroyed)
                     {
                         return;
                     }
@@ -161,7 +161,7 @@ public class AllTests
 
                 try
                 {
-                    if(++count == 10) // Don't blast the connection with only oneway's
+                    if (++count == 10) // Don't blast the connection with only oneway's
                     {
                         count = 0;
                         _background.ice_twoway().ice_ping();
@@ -169,7 +169,7 @@ public class AllTests
                     _background.begin_op();
                     Thread.Sleep(1);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
             }
@@ -177,7 +177,7 @@ public class AllTests
 
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
                 _destroyed = true;
             }
@@ -247,7 +247,7 @@ public class AllTests
                 obj.ice_ping();
                 test(false);
             }
-            catch(Ice.TimeoutException)
+            catch (Ice.TimeoutException)
             {
             }
             backgroundController.resumeCall("findAdapterById");
@@ -288,7 +288,7 @@ public class AllTests
                 obj.ice_ping();
                 test(false);
             }
-            catch(Ice.TimeoutException)
+            catch (Ice.TimeoutException)
             {
             }
             backgroundController.resumeCall("getClientProxy");
@@ -314,7 +314,7 @@ public class AllTests
 
         bool ws = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("test-ws");
         bool wss = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss");
-        if(!ws && !wss)
+        if (!ws && !wss)
         {
             Console.Write("testing buffered transport... ");
             Console.Out.Flush();
@@ -327,21 +327,21 @@ public class AllTests
 
             OpAMICallback cb = new OpAMICallback();
             List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();
-            for(int i = 0; i < 10000; ++i)
+            for (int i = 0; i < 10000; ++i)
             {
                 Ice.AsyncResult r = background.begin_op().whenCompleted(cb.responseNoOp, cb.noException);
                 results.Add(r);
-                if(i % 50 == 0)
+                if (i % 50 == 0)
                 {
                     backgroundController.holdAdapter();
                     backgroundController.resumeAdapter();
                 }
-                if(i % 100 == 0)
+                if (i % 100 == 0)
                 {
                     r.waitForCompleted();
                 }
             }
-            foreach(Ice.AsyncResult r in results)
+            foreach (Ice.AsyncResult r in results)
             {
                 r.waitForCompleted();
             }
@@ -357,16 +357,16 @@ public class AllTests
         {
             background.op();
         }
-        catch(Ice.LocalException ex)
+        catch (Ice.LocalException ex)
         {
             System.Console.Out.WriteLine(ex);
             test(false);
         }
         background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
-            if(i == 0 || i == 2)
+            if (i == 0 || i == 2)
             {
                 configuration.connectorsException(new Ice.DNSException());
             }
@@ -381,7 +381,7 @@ public class AllTests
                 prx.op();
                 test(false);
             }
-            catch(Ice.Exception)
+            catch (Ice.Exception)
             {
             }
 
@@ -392,7 +392,7 @@ public class AllTests
                 prx.end_op(r);
                 test(false);
             }
-            catch(Ice.Exception)
+            catch (Ice.Exception)
             {
             }
             test(r.IsCompleted);
@@ -403,7 +403,7 @@ public class AllTests
             cbEx.checkException(true);
             test(r.IsCompleted);
 
-            if(i == 0 || i == 2)
+            if (i == 0 || i == 2)
             {
                 configuration.connectorsException(null);
             }
@@ -417,13 +417,13 @@ public class AllTests
         OpThread thread2 = new OpThread(background);
         try
         {
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 try
                 {
                     background.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     test(false);
                 }
@@ -436,12 +436,12 @@ public class AllTests
                 {
                     background.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             System.Console.Out.WriteLine(ex);
             test(false);
@@ -463,15 +463,15 @@ public class AllTests
         {
             background.op();
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
         background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
-            if(i == 0 || i == 2)
+            if (i == 0 || i == 2)
             {
                 configuration.initializeException(new Ice.SocketException());
             }
@@ -486,7 +486,7 @@ public class AllTests
                 prx.op();
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
 
@@ -497,7 +497,7 @@ public class AllTests
                 prx.end_op(r);
                 test(false);
             }
-            catch(Ice.Exception)
+            catch (Ice.Exception)
             {
             }
             test(r.IsCompleted);
@@ -508,7 +508,7 @@ public class AllTests
             cbEx.checkException(true);
             test(r.IsCompleted);
 
-            if(i == 0 || i == 2)
+            if (i == 0 || i == 2)
             {
                 configuration.initializeException(null);
             }
@@ -524,11 +524,11 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.initializeException(false);
         }
-        catch(Ice.SecurityException)
+        catch (Ice.SecurityException)
         {
             ctl.initializeException(false);
         }
@@ -536,13 +536,13 @@ public class AllTests
         OpThread thread1 = new OpThread(background);
         OpThread thread2 = new OpThread(background);
 
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             try
             {
                 background.ice_ping();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 test(false);
             }
@@ -555,14 +555,14 @@ public class AllTests
             {
                 background.ice_ping();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
             }
             try
             {
                 background.ice_ping();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 test(false);
             }
@@ -578,14 +578,14 @@ public class AllTests
             {
                 background.ice_ping();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
             }
             try
             {
                 background.ice_ping();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 test(false);
             }
@@ -595,7 +595,7 @@ public class AllTests
                 background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
                 background.op();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 test(false);
             }
@@ -635,7 +635,7 @@ public class AllTests
         {
             background.op();
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -648,12 +648,12 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.SocketException)
+        catch (Ice.SocketException)
         {
             configuration.readException(null);
         }
 
-        for(int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; ++i)
         {
             configuration.readException(new Ice.SocketException());
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
@@ -664,14 +664,14 @@ public class AllTests
                 prx.end_op(r);
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
             test(r.IsCompleted);
             configuration.readException(null);
         }
 
-        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
+        if (!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
            !background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss"))
         {
             try
@@ -681,7 +681,7 @@ public class AllTests
                 background.op();
                 configuration.readReady(true);
             }
-            catch(Ice.LocalException ex)
+            catch (Ice.LocalException ex)
             {
                 Console.Error.WriteLine(ex);
                 test(false);
@@ -696,13 +696,13 @@ public class AllTests
                 background.op();
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
                 configuration.readException(null);
                 configuration.readReady(true);
             }
 
-            for(int i = 0; i < 2; ++i)
+            for (int i = 0; i < 2; ++i)
             {
                 configuration.readReady(false);
                 configuration.readException(new Ice.SocketException());
@@ -713,7 +713,7 @@ public class AllTests
                     background.end_op(r);
                     test(false);
                 }
-                catch(Ice.SocketException)
+                catch (Ice.SocketException)
                 {
                 }
                 test(r.IsCompleted);
@@ -741,7 +741,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.writeException(false);
         }
@@ -753,7 +753,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch(Ice.LocalException ex)
+        catch (Ice.LocalException ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -768,7 +768,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.writeException(false);
             ctl.writeReady(true);
@@ -839,13 +839,13 @@ public class AllTests
         {
             background.op();
         }
-        catch(Ice.LocalException ex)
+        catch (Ice.LocalException ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
         }
 
-        for(int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; ++i)
         {
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
 
@@ -856,7 +856,7 @@ public class AllTests
                 prx.op();
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
                 configuration.writeException(null);
             }
@@ -870,7 +870,7 @@ public class AllTests
                 prx.end_op(r);
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
             test(r.IsCompleted);
@@ -884,7 +884,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.SocketException)
+        catch (Ice.SocketException)
         {
             configuration.readException(null);
         }
@@ -899,7 +899,7 @@ public class AllTests
                 background.end_op(r);
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
             test(r.IsCompleted);
@@ -914,7 +914,7 @@ public class AllTests
             background.op();
             configuration.writeReady(true);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -926,7 +926,7 @@ public class AllTests
             background.op();
             configuration.readReady(true);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -939,13 +939,13 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.SocketException)
+        catch (Ice.SocketException)
         {
             configuration.writeReady(true);
             configuration.writeException(null);
         }
 
-        for(int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; ++i)
         {
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
 
@@ -959,7 +959,7 @@ public class AllTests
                 prx.end_op(r);
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
             test(r.IsCompleted);
@@ -975,7 +975,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.SocketException)
+        catch (Ice.SocketException)
         {
             configuration.readException(null);
             configuration.readReady(true);
@@ -991,7 +991,7 @@ public class AllTests
                 background.end_op(r);
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
             test(r.IsCompleted);
@@ -1012,7 +1012,7 @@ public class AllTests
                 background.end_op(r);
                 test(false);
             }
-            catch(Ice.SocketException)
+            catch (Ice.SocketException)
             {
             }
             test(r.IsCompleted);
@@ -1033,7 +1033,7 @@ public class AllTests
         OpAMICallback cbWP = new OpAMICallback();
 
         // Fill up the receive and send buffers
-        for(int i = 0; i < 200; ++i) // 2MB
+        for (int i = 0; i < 200; ++i) // 2MB
         {
             backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, cbWP.noException);
         }
@@ -1066,7 +1066,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.writeException(false);
         }
@@ -1078,7 +1078,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.readException(false);
         }
@@ -1090,7 +1090,7 @@ public class AllTests
             background.op();
             ctl.writeReady(true);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -1102,7 +1102,7 @@ public class AllTests
             background.op();
             ctl.readReady(true);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -1115,7 +1115,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.writeException(false);
             ctl.writeReady(true);
@@ -1129,7 +1129,7 @@ public class AllTests
             background.op();
             test(false);
         }
-        catch(Ice.ConnectionLostException)
+        catch (Ice.ConnectionLostException)
         {
             ctl.readException(false);
             ctl.readReady(true);
@@ -1138,13 +1138,13 @@ public class AllTests
         OpThread thread1 = new OpThread(background);
         OpThread thread2 = new OpThread(background);
 
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             try
             {
                 background.ice_ping();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 test(false);
             }
@@ -1155,7 +1155,7 @@ public class AllTests
             {
                 background.op();
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
             }
             configuration.writeException(null);

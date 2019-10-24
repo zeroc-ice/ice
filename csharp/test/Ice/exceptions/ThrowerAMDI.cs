@@ -46,7 +46,7 @@ namespace Ice
                 public override Task
                 throwAorDasAorDAsync(int a, Ice.Current current)
                 {
-                    if(a > 0)
+                    if (a > 0)
                     {
                         throw new Test.A(a);
                     }

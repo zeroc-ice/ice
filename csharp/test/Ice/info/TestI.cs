@@ -12,9 +12,9 @@ namespace Ice
         {
             private static Ice.IPEndpointInfo getIPEndpointInfo(Ice.EndpointInfo info)
             {
-                for(; info != null; info = info.underlying)
+                for (; info != null; info = info.underlying)
                 {
-                    if(info is Ice.IPEndpointInfo)
+                    if (info is Ice.IPEndpointInfo)
                     {
                         return info as Ice.IPEndpointInfo;
                     }
@@ -24,9 +24,9 @@ namespace Ice
 
             private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
             {
-                for(; info != null; info = info.underlying)
+                for (; info != null; info = info.underlying)
                 {
-                    if(info is Ice.IPConnectionInfo)
+                    if (info is Ice.IPConnectionInfo)
                     {
                         return info as Ice.IPConnectionInfo;
                     }
@@ -53,9 +53,9 @@ namespace Ice
                 ctx["host"] = ipinfo.host;
                 ctx["port"] = ipinfo.port.ToString();
 
-                if(ipinfo is Ice.UDPEndpointInfo)
+                if (ipinfo is Ice.UDPEndpointInfo)
                 {
-                    Ice.UDPEndpointInfo udp =(Ice.UDPEndpointInfo)ipinfo;
+                    Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)ipinfo;
                     ctx["mcastInterface"] = udp.mcastInterface;
                     ctx["mcastTtl"] = udp.mcastTtl.ToString();
                 }
@@ -76,10 +76,10 @@ namespace Ice
                 ctx["remoteAddress"] = ipinfo.remoteAddress;
                 ctx["remotePort"] = ipinfo.remotePort.ToString();
 
-                if(info is Ice.WSConnectionInfo)
+                if (info is Ice.WSConnectionInfo)
                 {
-                    Ice.WSConnectionInfo wsinfo =(Ice.WSConnectionInfo)info;
-                    foreach(KeyValuePair<string, string> e in wsinfo.headers)
+                    Ice.WSConnectionInfo wsinfo = (Ice.WSConnectionInfo)info;
+                    foreach (KeyValuePair<string, string> e in wsinfo.headers)
                     {
                         ctx["ws." + e.Key] = e.Value;
                     }

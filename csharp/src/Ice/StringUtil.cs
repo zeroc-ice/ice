@@ -29,10 +29,10 @@ namespace IceUtilInternal
         public static int findFirstOf(string str, string match, int start)
         {
             int len = str.Length;
-            for(int i = start; i < len; i++)
+            for (int i = start; i < len; i++)
             {
                 char ch = str[i];
-                if(match.IndexOf((char) ch) != -1)
+                if (match.IndexOf((char)ch) != -1)
                 {
                     return i;
                 }
@@ -59,10 +59,10 @@ namespace IceUtilInternal
         public static int findFirstNotOf(string str, string match, int start)
         {
             int len = str.Length;
-            for(int i = start; i < len; i++)
+            for (int i = start; i < len; i++)
             {
                 char ch = str[i];
-                if(match.IndexOf(ch) == -1)
+                if (match.IndexOf(ch) == -1)
                 {
                     return i;
                 }
@@ -74,134 +74,134 @@ namespace IceUtilInternal
         private static void
         encodeChar(char c, StringBuilder sb, string special, Ice.ToStringMode toStringMode)
         {
-            switch(c)
+            switch (c)
             {
                 case '\\':
-                {
-                    sb.Append("\\\\");
-                    break;
-                }
+                    {
+                        sb.Append("\\\\");
+                        break;
+                    }
                 case '\'':
-                {
-                    sb.Append("\\'");
-                    break;
-                }
+                    {
+                        sb.Append("\\'");
+                        break;
+                    }
                 case '"':
-                {
-                    sb.Append("\\\"");
-                    break;
-                }
+                    {
+                        sb.Append("\\\"");
+                        break;
+                    }
                 case '\a':
-                {
-                    if(toStringMode == Ice.ToStringMode.Compat)
                     {
-                        // Octal escape for compatibility with 3.6 and earlier
-                        sb.Append("\\007");
-                    }
-                    else
-                    {
-                        sb.Append("\\a");
-                    }
-                    break;
-                }
-                case '\b':
-                {
-                    sb.Append("\\b");
-                    break;
-                }
-                case '\f':
-                {
-                    sb.Append("\\f");
-                    break;
-                }
-                case '\n':
-                {
-                    sb.Append("\\n");
-                    break;
-                }
-                case '\r':
-                {
-                    sb.Append("\\r");
-                    break;
-                }
-                case '\t':
-                {
-                    sb.Append("\\t");
-                    break;
-                }
-                case '\v':
-                {
-                    if(toStringMode == Ice.ToStringMode.Compat)
-                    {
-                        // Octal escape for compatibility with 3.6 and earlier
-                        sb.Append("\\013");
-                    }
-                    else
-                    {
-                        sb.Append("\\v");
-                    }
-                    break;
-                }
-                default:
-                {
-                    if(special != null && special.IndexOf(c) != -1)
-                    {
-                        sb.Append('\\');
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        int i = (int)c;
-                        if(i < 32 || i > 126)
+                        if (toStringMode == Ice.ToStringMode.Compat)
                         {
-                            if(toStringMode == Ice.ToStringMode.Compat)
-                            {
-                                //
-                                // When ToStringMode=Compat, c is a UTF-8 byte
-                                //
-                                Debug.Assert(i < 256);
-
-                                sb.Append('\\');
-                                string octal = System.Convert.ToString(i, 8);
-                                //
-                                // Add leading zeroes so that we avoid problems during
-                                // decoding. For example, consider the encoded string
-                                // \0013 (i.e., a character with value 1 followed by
-                                // the character '3'). If the leading zeroes were omitted,
-                                // the result would be incorrectly interpreted by the
-                                // decoder as a single character with value 11.
-                                //
-                                for(int j = octal.Length; j < 3; j++)
-                                {
-                                    sb.Append('0');
-                                }
-                                sb.Append(octal);
-                            }
-                            else if(i < 32 || i == 127 || toStringMode == Ice.ToStringMode.ASCII)
-                            {
-                                // append \\unnnn
-                                sb.Append("\\u");
-                                string hex = System.Convert.ToString(i, 16);
-                                for(int j = hex.Length; j < 4; j++)
-                                {
-                                    sb.Append('0');
-                                }
-                                sb.Append(hex);
-                            }
-                            else
-                            {
-                                // keep as is
-                                sb.Append(c);
-                            }
+                            // Octal escape for compatibility with 3.6 and earlier
+                            sb.Append("\\007");
                         }
                         else
                         {
-                            // printable ASCII character
+                            sb.Append("\\a");
+                        }
+                        break;
+                    }
+                case '\b':
+                    {
+                        sb.Append("\\b");
+                        break;
+                    }
+                case '\f':
+                    {
+                        sb.Append("\\f");
+                        break;
+                    }
+                case '\n':
+                    {
+                        sb.Append("\\n");
+                        break;
+                    }
+                case '\r':
+                    {
+                        sb.Append("\\r");
+                        break;
+                    }
+                case '\t':
+                    {
+                        sb.Append("\\t");
+                        break;
+                    }
+                case '\v':
+                    {
+                        if (toStringMode == Ice.ToStringMode.Compat)
+                        {
+                            // Octal escape for compatibility with 3.6 and earlier
+                            sb.Append("\\013");
+                        }
+                        else
+                        {
+                            sb.Append("\\v");
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        if (special != null && special.IndexOf(c) != -1)
+                        {
+                            sb.Append('\\');
                             sb.Append(c);
                         }
+                        else
+                        {
+                            int i = (int)c;
+                            if (i < 32 || i > 126)
+                            {
+                                if (toStringMode == Ice.ToStringMode.Compat)
+                                {
+                                    //
+                                    // When ToStringMode=Compat, c is a UTF-8 byte
+                                    //
+                                    Debug.Assert(i < 256);
+
+                                    sb.Append('\\');
+                                    string octal = System.Convert.ToString(i, 8);
+                                    //
+                                    // Add leading zeroes so that we avoid problems during
+                                    // decoding. For example, consider the encoded string
+                                    // \0013 (i.e., a character with value 1 followed by
+                                    // the character '3'). If the leading zeroes were omitted,
+                                    // the result would be incorrectly interpreted by the
+                                    // decoder as a single character with value 11.
+                                    //
+                                    for (int j = octal.Length; j < 3; j++)
+                                    {
+                                        sb.Append('0');
+                                    }
+                                    sb.Append(octal);
+                                }
+                                else if (i < 32 || i == 127 || toStringMode == Ice.ToStringMode.ASCII)
+                                {
+                                    // append \\unnnn
+                                    sb.Append("\\u");
+                                    string hex = System.Convert.ToString(i, 16);
+                                    for (int j = hex.Length; j < 4; j++)
+                                    {
+                                        sb.Append('0');
+                                    }
+                                    sb.Append(hex);
+                                }
+                                else
+                                {
+                                    // keep as is
+                                    sb.Append(c);
+                                }
+                            }
+                            else
+                            {
+                                // printable ASCII character
+                                sb.Append(c);
+                            }
+                        }
+                        break;
                     }
-                break;
-                }
             }
         }
 
@@ -210,19 +210,19 @@ namespace IceUtilInternal
         //
         public static string escapeString(string s, string special, Ice.ToStringMode toStringMode)
         {
-            if(special != null)
+            if (special != null)
             {
-                for(int i = 0; i < special.Length; ++i)
+                for (int i = 0; i < special.Length; ++i)
                 {
-                    if(special[i] < 32 || special[i] > 126)
+                    if (special[i] < 32 || special[i] > 126)
                     {
                         throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                           "special");
+                                                           nameof(special));
                     }
                 }
             }
 
-            if(toStringMode == Ice.ToStringMode.Compat)
+            if (toStringMode == Ice.ToStringMode.Compat)
             {
                 // Encode UTF-8 bytes
 
@@ -230,7 +230,7 @@ namespace IceUtilInternal
                 byte[] bytes = utf8.GetBytes(s);
 
                 StringBuilder result = new StringBuilder(bytes.Length);
-                for(int i = 0; i < bytes.Length; i++)
+                for (int i = 0; i < bytes.Length; i++)
                 {
                     encodeChar((char)bytes[i], result, special, toStringMode);
                 }
@@ -241,17 +241,17 @@ namespace IceUtilInternal
             {
                 StringBuilder result = new StringBuilder(s.Length);
 
-                for(int i = 0; i < s.Length; i++)
+                for (int i = 0; i < s.Length; i++)
                 {
                     char c = s[i];
-                    if(toStringMode == Ice.ToStringMode.Unicode || !char.IsSurrogate(c))
+                    if (toStringMode == Ice.ToStringMode.Unicode || !char.IsSurrogate(c))
                     {
                         encodeChar(c, result, special, toStringMode);
                     }
                     else
                     {
                         Debug.Assert(toStringMode == Ice.ToStringMode.ASCII && char.IsSurrogate(c));
-                        if(i + 1 == s.Length)
+                        if (i + 1 == s.Length)
                         {
                             throw new System.ArgumentException("High surrogate without low surrogate");
                         }
@@ -262,7 +262,7 @@ namespace IceUtilInternal
                             // append \Unnnnnnnn
                             result.Append("\\U");
                             string hex = System.Convert.ToString(codePoint, 16);
-                            for(int j = hex.Length; j < 8; j++)
+                            for (int j = hex.Length; j < 8; j++)
                             {
                                 result.Append('0');
                             }
@@ -279,10 +279,10 @@ namespace IceUtilInternal
         checkChar(string s, int pos)
         {
             char c = s[pos];
-            if(c < 32 || c == 127)
+            if (c < 32 || c == 127)
             {
                 string msg;
-                if(pos > 0)
+                if (pos > 0)
                 {
                     msg = "character after `" + s.Substring(0, pos) + "'";
                 }
@@ -308,11 +308,11 @@ namespace IceUtilInternal
             Debug.Assert(start < end);
             Debug.Assert(end <= s.Length);
 
-            if(s[start] != '\\')
+            if (s[start] != '\\')
             {
                 result.Append(checkChar(s, start++));
             }
-            else if(start + 1 == end)
+            else if (start + 1 == end)
             {
                 ++start;
                 result.Append('\\'); // trailing backslash
@@ -321,107 +321,107 @@ namespace IceUtilInternal
             {
                 char c = s[++start];
 
-                switch(c)
+                switch (c)
                 {
                     case '\\':
                     case '\'':
                     case '"':
                     case '?':
-                    {
-                        ++start;
-                        result.Append(c);
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append(c);
+                            break;
+                        }
                     case 'a':
-                    {
-                        ++start;
-                        result.Append('\a');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\a');
+                            break;
+                        }
                     case 'b':
-                    {
-                        ++start;
-                        result.Append('\b');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\b');
+                            break;
+                        }
                     case 'f':
-                    {
-                        ++start;
-                        result.Append('\f');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\f');
+                            break;
+                        }
                     case 'n':
-                    {
-                        ++start;
-                        result.Append('\n');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\n');
+                            break;
+                        }
                     case 'r':
-                    {
-                        ++start;
-                        result.Append('\r');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\r');
+                            break;
+                        }
                     case 't':
-                    {
-                        ++start;
-                        result.Append('\t');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\t');
+                            break;
+                        }
                     case 'v':
-                    {
-                        ++start;
-                        result.Append('\v');
-                        break;
-                    }
+                        {
+                            ++start;
+                            result.Append('\v');
+                            break;
+                        }
                     case 'u':
                     case 'U':
-                    {
-                        int codePoint = 0;
-                        bool inBMP = (c == 'u');
-                        int size = inBMP ? 4 : 8;
-                        ++start;
-                        while(size > 0 && start < end)
                         {
-                            c = s[start++];
-                            int charVal = 0;
-                            if(c >= '0' && c <= '9')
+                            int codePoint = 0;
+                            bool inBMP = (c == 'u');
+                            int size = inBMP ? 4 : 8;
+                            ++start;
+                            while (size > 0 && start < end)
                             {
-                                charVal = c - '0';
+                                c = s[start++];
+                                int charVal = 0;
+                                if (c >= '0' && c <= '9')
+                                {
+                                    charVal = c - '0';
+                                }
+                                else if (c >= 'a' && c <= 'f')
+                                {
+                                    charVal = 10 + (c - 'a');
+                                }
+                                else if (c >= 'A' && c <= 'F')
+                                {
+                                    charVal = 10 + (c - 'A');
+                                }
+                                else
+                                {
+                                    break; // while
+                                }
+                                codePoint = codePoint * 16 + charVal;
+                                --size;
                             }
-                            else if(c >= 'a' && c <= 'f')
+                            if (size > 0)
                             {
-                                charVal = 10 + (c - 'a');
+                                throw new System.ArgumentException("Invalid universal character name: too few hex digits");
                             }
-                            else if(c >= 'A' && c <= 'F')
+                            if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
                             {
-                                charVal = 10 + (c - 'A');
+                                throw new System.ArgumentException("A universal character name cannot designate a surrogate");
+                            }
+                            if (inBMP || codePoint <= 0xFFFF)
+                            {
+                                result.Append((char)codePoint);
                             }
                             else
                             {
-                                break; // while
+                                result.Append(char.ConvertFromUtf32(codePoint));
                             }
-                            codePoint = codePoint * 16 + charVal;
-                            --size;
+                            break;
                         }
-                        if(size > 0)
-                        {
-                            throw new System.ArgumentException("Invalid universal character name: too few hex digits");
-                        }
-                        if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
-                        {
-                            throw new System.ArgumentException("A universal character name cannot designate a surrogate");
-                        }
-                        if(inBMP || codePoint <= 0xFFFF)
-                        {
-                            result.Append((char)codePoint);
-                        }
-                        else
-                        {
-                            result.Append(char.ConvertFromUtf32(codePoint));
-                        }
-                        break;
-                    }
 
                     case '0':
                     case '1':
@@ -432,95 +432,95 @@ namespace IceUtilInternal
                     case '6':
                     case '7':
                     case 'x':
-                    {
-                        // UTF-8 byte sequence encoded with octal escapes
-
-                        byte[] arr = new byte[end - start];
-                        int i = 0;
-                        bool more = true;
-                        while(more)
                         {
-                            int val = 0;
-                            if(c == 'x')
+                            // UTF-8 byte sequence encoded with octal escapes
+
+                            byte[] arr = new byte[end - start];
+                            int i = 0;
+                            bool more = true;
+                            while (more)
                             {
-                                int size = 2;
-                                ++start;
-                                while(size > 0 && start < end)
+                                int val = 0;
+                                if (c == 'x')
                                 {
-                                    c = s[start++];
-                                    int charVal = 0;
-                                    if(c >= '0' && c <= '9')
+                                    int size = 2;
+                                    ++start;
+                                    while (size > 0 && start < end)
                                     {
-                                        charVal = c - '0';
+                                        c = s[start++];
+                                        int charVal = 0;
+                                        if (c >= '0' && c <= '9')
+                                        {
+                                            charVal = c - '0';
+                                        }
+                                        else if (c >= 'a' && c <= 'f')
+                                        {
+                                            charVal = 10 + (c - 'a');
+                                        }
+                                        else if (c >= 'A' && c <= 'F')
+                                        {
+                                            charVal = 10 + (c - 'A');
+                                        }
+                                        else
+                                        {
+                                            --start; // move back
+                                            break; // while
+                                        }
+                                        val = val * 16 + charVal;
+                                        --size;
                                     }
-                                    else if(c >= 'a' && c <= 'f')
+                                    if (size == 2)
                                     {
-                                        charVal = 10 + (c - 'a');
+                                        throw new System.ArgumentException("Invalid \\x escape sequence: no hex digit");
                                     }
-                                    else if(c >= 'A' && c <= 'F')
-                                    {
-                                        charVal = 10 + (c - 'A');
-                                    }
-                                    else
-                                    {
-                                        --start; // move back
-                                        break; // while
-                                    }
-                                    val = val * 16 + charVal;
-                                    --size;
                                 }
-                                if(size == 2)
+                                else
                                 {
-                                    throw new System.ArgumentException("Invalid \\x escape sequence: no hex digit");
-                                }
-                            }
-                            else
-                            {
-                                for(int j = 0; j < 3 && start < end; ++j)
-                                {
-                                    int charVal = s[start++] - '0';
-                                    if(charVal < 0 || charVal > 7)
+                                    for (int j = 0; j < 3 && start < end; ++j)
                                     {
-                                        --start; // move back
-                                        Debug.Assert(j != 0); // must be at least one digit
-                                        break; // for
+                                        int charVal = s[start++] - '0';
+                                        if (charVal < 0 || charVal > 7)
+                                        {
+                                            --start; // move back
+                                            Debug.Assert(j != 0); // must be at least one digit
+                                            break; // for
+                                        }
+                                        val = val * 8 + charVal;
                                     }
-                                    val = val * 8 + charVal;
+                                    if (val > 255)
+                                    {
+                                        string msg = "octal value \\" + System.Convert.ToString(val, 8) + " (" + val + ") is out of range";
+                                        throw new System.ArgumentException(msg);
+                                    }
                                 }
-                                if(val > 255)
+
+                                arr[i++] = (byte)val;
+
+                                more = false;
+
+                                if ((start + 1 < end) && s[start] == '\\')
                                 {
-                                    string msg = "octal value \\" + System.Convert.ToString(val, 8) + " (" + val + ") is out of range";
-                                    throw new System.ArgumentException(msg);
+                                    c = s[start + 1];
+                                    if (c == 'x' || (c >= '0' && c <= '9'))
+                                    {
+                                        start++;
+                                        more = true;
+                                    }
                                 }
                             }
 
-                            arr[i++] = (byte)val;
-
-                            more = false;
-
-                            if((start + 1 < end) && s[start] == '\\')
-                            {
-                                c = s[start + 1];
-                                if(c == 'x' || (c >= '0' && c <= '9'))
-                                {
-                                    start++;
-                                    more = true;
-                                }
-                            }
+                            result.Append(utf8Encoding.GetString(arr, 0, i)); // May raise ArgumentException.
+                            break;
                         }
-
-                        result.Append(utf8Encoding.GetString(arr, 0, i)); // May raise ArgumentException.
-                        break;
-                    }
                     default:
-                    {
-                        if(string.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
                         {
-                            result.Append('\\'); // not in special, so we keep the backslash
+                            if (string.IsNullOrEmpty(special) || special.IndexOf(c) == -1)
+                            {
+                                result.Append('\\'); // not in special, so we keep the backslash
+                            }
+                            result.Append(checkChar(s, start++));
+                            break;
                         }
-                        result.Append(checkChar(s, start++));
-                        break;
-                    }
                 }
             }
             return start;
@@ -534,23 +534,23 @@ namespace IceUtilInternal
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);
 
-            if(special != null)
+            if (special != null)
             {
-                for(int i = 0; i < special.Length; ++i)
+                for (int i = 0; i < special.Length; ++i)
                 {
-                    if(special[i] < 32 || special[i] > 126)
+                    if (special[i] < 32 || special[i] > 126)
                     {
                         throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                           "special");
+                                                           nameof(special));
                     }
                 }
             }
 
             // Optimization for strings without escapes
-            if(start == end || s.IndexOf('\\', start, end - start) == -1)
+            if (start == end || s.IndexOf('\\', start, end - start) == -1)
             {
                 int p = start;
-                while(p < end)
+                while (p < end)
                 {
                     checkChar(s, p++);
                 }
@@ -560,7 +560,7 @@ namespace IceUtilInternal
             {
                 StringBuilder sb = new StringBuilder(end - start);
                 UTF8Encoding utf8Encoding = new UTF8Encoding(false, true);
-                while(start < end)
+                while (start < end)
                 {
                     start = decodeChar(s, start, end, special, sb, utf8Encoding);
                 }
@@ -571,7 +571,7 @@ namespace IceUtilInternal
         //
         // Split string helper; returns null for unmatched quotes
         //
-        static public string[] splitString(string str, string delim)
+        public static string[] splitString(string str, string delim)
         {
             List<string> l = new List<string>();
             char[] arr = new char[str.Length];
@@ -579,34 +579,34 @@ namespace IceUtilInternal
 
             int n = 0;
             char quoteChar = '\0';
-            while(pos < str.Length)
+            while (pos < str.Length)
             {
-                if(quoteChar == '\0' && (str[pos] == '"' || str[pos] == '\''))
+                if (quoteChar == '\0' && (str[pos] == '"' || str[pos] == '\''))
                 {
                     quoteChar = str[pos++];
                     continue; // Skip the quote.
                 }
-                else if(quoteChar == '\0' && str[pos] == '\\' && pos + 1 < str.Length &&
+                else if (quoteChar == '\0' && str[pos] == '\\' && pos + 1 < str.Length &&
                         (str[pos + 1] == '\'' || str[pos + 1] == '"'))
                 {
                     ++pos; // Skip the backslash
                 }
-                else if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < str.Length && str[pos + 1] == quoteChar)
+                else if (quoteChar != '\0' && str[pos] == '\\' && pos + 1 < str.Length && str[pos + 1] == quoteChar)
                 {
                     ++pos; // Skip the backslash
                 }
-                else if(quoteChar != '\0' && str[pos] == quoteChar)
+                else if (quoteChar != '\0' && str[pos] == quoteChar)
                 {
                     ++pos;
                     quoteChar = '\0';
                     continue; // Skip the quote.
                 }
-                else if(delim.IndexOf(str[pos]) != -1)
+                else if (delim.IndexOf(str[pos]) != -1)
                 {
-                    if(quoteChar == '\0')
+                    if (quoteChar == '\0')
                     {
                         ++pos;
-                        if(n > 0)
+                        if (n > 0)
                         {
                             l.Add(new string(arr, 0, n));
                             n = 0;
@@ -615,18 +615,18 @@ namespace IceUtilInternal
                     }
                 }
 
-                if(pos < str.Length)
+                if (pos < str.Length)
                 {
                     arr[n++] = str[pos++];
                 }
 
             }
 
-            if(n > 0)
+            if (n > 0)
             {
                 l.Add(new string(arr, 0, n));
             }
-            if(quoteChar != '\0')
+            if (quoteChar != '\0')
             {
                 return null; // Unmatched quote.
             }
@@ -647,14 +647,14 @@ namespace IceUtilInternal
         public static int checkQuote(string s, int start)
         {
             char quoteChar = s[start];
-            if(quoteChar == '"' || quoteChar == '\'')
+            if (quoteChar == '"' || quoteChar == '\'')
             {
                 start++;
                 int len = s.Length;
                 int pos;
-                while(start < len && (pos = s.IndexOf(quoteChar, start)) != -1)
+                while (start < len && (pos = s.IndexOf(quoteChar, start)) != -1)
                 {
-                    if(s[pos - 1] != '\\')
+                    if (s[pos - 1] != '\\')
                     {
                         return pos;
                     }
@@ -674,7 +674,7 @@ namespace IceUtilInternal
             // If pattern does not contain a wildcard just compare strings.
             //
             int beginIndex = pat.IndexOf('*');
-            if(beginIndex < 0)
+            if (beginIndex < 0)
             {
                 return s.Equals(pat);
             }
@@ -682,7 +682,7 @@ namespace IceUtilInternal
             //
             // Make sure start of the strings match
             //
-            if(beginIndex > s.Length || !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex)))
+            if (beginIndex > s.Length || !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex)))
             {
                 return false;
             }
@@ -692,12 +692,12 @@ namespace IceUtilInternal
             // wildcard. If emptyMatch is true, allow a match of "".
             //
             int endLength = pat.Length - beginIndex - 1;
-            if(endLength > s.Length)
+            if (endLength > s.Length)
             {
                 return false;
             }
             int endIndex = s.Length - endLength;
-            if(endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
+            if (endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
             {
                 return false;
             }
@@ -705,7 +705,7 @@ namespace IceUtilInternal
             //
             // Make sure end of the strings match
             //
-            if(!s.Substring(endIndex, s.Length - endIndex).Equals(
+            if (!s.Substring(endIndex, s.Length - endIndex).Equals(
                    pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1)))
             {
                 return false;

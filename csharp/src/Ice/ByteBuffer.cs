@@ -35,7 +35,7 @@ namespace IceInternal
 
         public static ByteBuffer allocate(int capacity)
         {
-            if(capacity < 0)
+            if (capacity < 0)
             {
                 throwOutOfRange("capacity", capacity, "capacity must be non-negative");
             }
@@ -66,11 +66,11 @@ namespace IceInternal
 
         public ByteBuffer position(int pos)
         {
-            if(pos < 0)
+            if (pos < 0)
             {
                 throwOutOfRange("pos", pos, "position must be non-negative");
             }
-            if(pos > _limit)
+            if (pos > _limit)
             {
                 throwOutOfRange("pos", pos, "position must be less than limit");
             }
@@ -85,11 +85,11 @@ namespace IceInternal
 
         public ByteBuffer limit(int newLimit)
         {
-            if(newLimit < 0)
+            if (newLimit < 0)
             {
                 throwOutOfRange("newLimit", newLimit, "limit must be non-negative");
             }
-            if(newLimit > _capacity)
+            if (newLimit > _capacity)
             {
                 throwOutOfRange("newLimit", newLimit, "limit must be less than capacity");
             }
@@ -111,7 +111,7 @@ namespace IceInternal
 
         public void compact()
         {
-            if(_position < _limit)
+            if (_position < _limit)
             {
                 int n = _limit - _position;
                 System.Buffer.BlockCopy(_bytes, _position, _bytes, 0, n);
@@ -149,19 +149,19 @@ namespace IceInternal
 
         public byte[] toArray(int startIndex, int length)
         {
-            if(startIndex < 0)
+            if (startIndex < 0)
             {
                 throwOutOfRange("startIndex", startIndex, "startIndex must be non-negative");
             }
-            if(startIndex >= _position)
+            if (startIndex >= _position)
             {
                 throwOutOfRange("startIndex", startIndex, "startIndex must be less than position");
             }
-            if(length < 0)
+            if (length < 0)
             {
                 throwOutOfRange("length", length, "length must be non-negative");
             }
-            if(startIndex + length > _position)
+            if (startIndex + length > _position)
             {
                 throw new ArgumentException("startIndex + length must not exceed end mark of buffer");
             }
@@ -197,11 +197,11 @@ namespace IceInternal
 
         public ByteBuffer get(byte[] b, int offset, int length)
         {
-            if(offset < 0)
+            if (offset < 0)
             {
                 throwOutOfRange("offset", offset, "offset must be non-negative");
             }
-            if(offset + length > System.Buffer.ByteLength(b))
+            if (offset + length > System.Buffer.ByteLength(b))
             {
                 throwOutOfRange("length", length, "insufficient room beyond given offset in destination array");
             }
@@ -231,15 +231,15 @@ namespace IceInternal
 
         public ByteBuffer put(byte[] b, int offset, int length)
         {
-            if(offset < 0)
+            if (offset < 0)
             {
                 throwOutOfRange("offset", offset, "offset must be non-negative");
             }
-            if(offset + length > System.Buffer.ByteLength(b))
+            if (offset + length > System.Buffer.ByteLength(b))
             {
                 throwOutOfRange("length", length, "insufficient data beyond given offset in source array");
             }
-            if(length > 0)
+            if (length > 0)
             {
                 checkOverflow(length);
                 System.Buffer.BlockCopy(b, offset, _bytes, _position, length);
@@ -276,7 +276,7 @@ namespace IceInternal
         }
 
         [StructLayout(LayoutKind.Explicit)]
-        struct ValBytes
+        public struct ValBytes
         {
             [FieldOffset(0)]
             public short shortVal;
@@ -321,7 +321,7 @@ namespace IceInternal
         public short getShort(int pos)
         {
             checkUnderflow(pos, 2);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _valBytes.b0 = _bytes[pos];
                 _valBytes.b1 = _bytes[pos + 1];
@@ -338,13 +338,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 2;
                     _valBytes.b1 = _bytes[index];
@@ -359,7 +359,7 @@ namespace IceInternal
         {
             checkOverflow(2);
             _valBytes.shortVal = val;
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _bytes[_position] = _valBytes.b0;
                 _bytes[_position + 1] = _valBytes.b1;
@@ -377,13 +377,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 2;
                     _valBytes.shortVal = seq[i];
@@ -398,7 +398,7 @@ namespace IceInternal
         public int getInt()
         {
             checkUnderflow(4);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _valBytes.b0 = _bytes[_position];
                 _valBytes.b1 = _bytes[_position + 1];
@@ -420,13 +420,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
                     _valBytes.b3 = _bytes[index];
@@ -448,16 +448,16 @@ namespace IceInternal
 
         public ByteBuffer putInt(int pos, int val)
         {
-            if(pos < 0)
+            if (pos < 0)
             {
                 throwOutOfRange("pos", pos, "position must be non-negative");
             }
-            if(pos + 4 > _limit)
+            if (pos + 4 > _limit)
             {
                 throwOutOfRange("pos", pos, "position must be less than limit - 4");
             }
             _valBytes.intVal = val;
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _bytes[pos] = _valBytes.b0;
                 _bytes[pos + 1] = _valBytes.b1;
@@ -478,13 +478,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
                     _valBytes.intVal = seq[i];
@@ -508,7 +508,7 @@ namespace IceInternal
         public long getLong(int pos)
         {
             checkUnderflow(pos, 8);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _valBytes.b0 = _bytes[pos];
                 _valBytes.b1 = _bytes[pos + 1];
@@ -537,13 +537,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
                     _valBytes.b7 = _bytes[index];
@@ -564,7 +564,7 @@ namespace IceInternal
         {
             checkOverflow(8);
             _valBytes.longVal = val;
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _bytes[_position] = _valBytes.b0;
                 _bytes[_position + 1] = _valBytes.b1;
@@ -594,13 +594,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
                     _valBytes.longVal = seq[i];
@@ -621,7 +621,7 @@ namespace IceInternal
         public float getFloat()
         {
             checkUnderflow(4);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _valBytes.b0 = _bytes[_position];
                 _valBytes.b1 = _bytes[_position + 1];
@@ -643,13 +643,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
                     _valBytes.b3 = _bytes[index];
@@ -666,7 +666,7 @@ namespace IceInternal
         {
             checkOverflow(4);
             _valBytes.floatVal = val;
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _bytes[_position] = _valBytes.b0;
                 _bytes[_position + 1] = _valBytes.b1;
@@ -688,13 +688,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
                     _valBytes.floatVal = seq[i];
@@ -711,7 +711,7 @@ namespace IceInternal
         public double getDouble()
         {
             checkUnderflow(8);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _valBytes.b0 = _bytes[_position];
                 _valBytes.b1 = _bytes[_position + 1];
@@ -741,13 +741,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
                     _valBytes.b7 = _bytes[index];
@@ -768,7 +768,7 @@ namespace IceInternal
         {
             checkOverflow(8);
             _valBytes.doubleVal = val;
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 _bytes[_position] = _valBytes.b0;
                 _bytes[_position + 1] = _valBytes.b1;
@@ -798,13 +798,13 @@ namespace IceInternal
         {
             int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
-            if(NO._o == _order)
+            if (NO._o == _order)
             {
                 System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
-                for(int i = 0; i < seq.Length; ++i)
+                for (int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
                     _valBytes.doubleVal = seq[i];
@@ -829,7 +829,7 @@ namespace IceInternal
 
         public byte[] rawBytes(int offset, int len)
         {
-            if(offset + len > _limit)
+            if (offset + len > _limit)
             {
                 throw new InvalidOperationException("buffer underflow");
             }
@@ -840,7 +840,7 @@ namespace IceInternal
 
         private void checkUnderflow(int size)
         {
-            if(_position + size > _limit)
+            if (_position + size > _limit)
             {
                 throw new InvalidOperationException("buffer underflow");
             }
@@ -848,7 +848,7 @@ namespace IceInternal
 
         private void checkUnderflow(int pos, int size)
         {
-            if(pos + size > _limit)
+            if (pos + size > _limit)
             {
                 throw new InvalidOperationException("buffer underflow");
             }
@@ -856,7 +856,7 @@ namespace IceInternal
 
         private void checkOverflow(int size)
         {
-            if(_position + size > _limit)
+            if (_position + size > _limit)
             {
                 throw new InvalidOperationException("buffer overflow");
             }

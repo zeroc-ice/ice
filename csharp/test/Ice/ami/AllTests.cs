@@ -60,14 +60,14 @@ namespace Ice
                 {
                     get
                     {
-                        lock(this)
+                        lock (this)
                         {
                             return _sent;
                         }
                     }
                     set
                     {
-                        lock(this)
+                        lock (this)
                         {
                             _sent = value;
                         }
@@ -78,14 +78,14 @@ namespace Ice
                 {
                     get
                     {
-                        lock(this)
+                        lock (this)
                         {
                             return _sentSynchronously;
                         }
                     }
                     set
                     {
-                        lock(this)
+                        lock (this)
                         {
                             _sentSynchronously = value;
                         }
@@ -111,9 +111,9 @@ namespace Ice
 
                 public virtual void check()
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        while(!_called)
+                        while (!_called)
                         {
                             Monitor.Wait(this);
                         }
@@ -123,7 +123,7 @@ namespace Ice
 
                 public virtual void called()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         Debug.Assert(!_called);
                         _called = true;
@@ -210,11 +210,11 @@ namespace Ice
                         Test.TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_opWithUE(result);
                         test(false);
                     }
-                    catch(Test.TestIntfException)
+                    catch (Test.TestIntfException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -229,11 +229,11 @@ namespace Ice
                         result.getProxy().end_ice_isA(result);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -248,11 +248,11 @@ namespace Ice
                         result.getProxy().end_ice_ping(result);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -267,11 +267,11 @@ namespace Ice
                         result.getProxy().end_ice_id(result);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -286,11 +286,11 @@ namespace Ice
                         result.getProxy().end_ice_ids(result);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -305,11 +305,11 @@ namespace Ice
                         result.getProxy().end_ice_getConnection(result);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -324,11 +324,11 @@ namespace Ice
                         Test.TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -397,11 +397,11 @@ namespace Ice
                     {
                         throw e;
                     }
-                    catch(Test.TestIntfException)
+                    catch (Test.TestIntfException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -458,11 +458,11 @@ namespace Ice
                     {
                         throw e;
                     }
-                    catch(Test.TestIntfException)
+                    catch (Test.TestIntfException)
                     {
                         called();
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                         test(false);
                     }
@@ -606,7 +606,7 @@ namespace Ice
                     test(r.AsyncState == _cookie);
                     try
                     {
-                        if(r.getConnection() != null)
+                        if (r.getConnection() != null)
                         {
                             r.getConnection().end_flushBatchRequests(r);
                         }
@@ -616,7 +616,7 @@ namespace Ice
                         }
                         test(false);
                     }
-                    catch(Ice.LocalException)
+                    catch (Ice.LocalException)
                     {
                         called();
                     }
@@ -688,25 +688,25 @@ namespace Ice
                 private void
                 throwEx()
                 {
-                    switch(_t)
+                    switch (_t)
                     {
                         case ThrowType.LocalException:
-                        {
-                            throw new Ice.ObjectNotExistException();
-                        }
+                            {
+                                throw new Ice.ObjectNotExistException();
+                            }
                         case ThrowType.UserException:
-                        {
-                            throw new Test.TestIntfException();
-                        }
+                            {
+                                throw new Test.TestIntfException();
+                            }
                         case ThrowType.OtherException:
-                        {
-                            throw new System.Exception();
-                        }
+                            {
+                                throw new System.Exception();
+                            }
                         default:
-                        {
-                            Debug.Assert(false);
-                            break;
-                        }
+                            {
+                                Debug.Assert(false);
+                                break;
+                            }
                     }
                 }
 
@@ -746,7 +746,7 @@ namespace Ice
                     test(p.ice_idsAsync().Result.Length == 2);
                     test(p.ice_idsAsync(ctx).Result.Length == 2);
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         test(p.ice_getConnectionAsync().Result != null);
                     }
@@ -762,7 +762,7 @@ namespace Ice
                         p.opWithUEAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException ae)
+                    catch (AggregateException ae)
                     {
                         ae.Handle(ex => ex is Test.TestIntfException);
                     }
@@ -772,7 +772,7 @@ namespace Ice
                         p.opWithUEAsync(ctx).Wait();
                         test(false);
                     }
-                    catch(AggregateException ae)
+                    catch (AggregateException ae)
                     {
                         ae.Handle(ex => ex is Test.TestIntfException);
                     }
@@ -782,7 +782,7 @@ namespace Ice
                 output.Write("testing async/await...");
                 output.Flush();
                 {
-                    Task.Run(async() =>
+                    Task.Run(async () =>
                         {
                             Dictionary<string, string> ctx = new Dictionary<string, string>();
 
@@ -802,7 +802,7 @@ namespace Ice
                             ids = await p.ice_idsAsync(ctx);
                             test(ids.Length == 2);
 
-                            if(!collocated)
+                            if (!collocated)
                             {
                                 var conn = await p.ice_getConnectionAsync();
                                 test(conn != null);
@@ -821,7 +821,7 @@ namespace Ice
                                 await p.opWithUEAsync();
                                 test(false);
                             }
-                            catch(System.Exception ex)
+                            catch (System.Exception ex)
                             {
                                 test(ex is Test.TestIntfException);
                             }
@@ -831,7 +831,7 @@ namespace Ice
                                 await p.opWithUEAsync(ctx);
                                 test(false);
                             }
-                            catch(System.Exception ex)
+                            catch (System.Exception ex)
                             {
                                 test(ex is Test.TestIntfException);
                             }
@@ -884,7 +884,7 @@ namespace Ice
                             test(previous.Result.Length == 2);
                         }).Wait();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         p.ice_getConnectionAsync().ContinueWith(previous =>
                             {
@@ -911,7 +911,7 @@ namespace Ice
                             {
                                 previous.Wait();
                             }
-                            catch(AggregateException ae)
+                            catch (AggregateException ae)
                             {
                                 ae.Handle(ex => ex is Test.TestIntfException);
                             }
@@ -923,7 +923,7 @@ namespace Ice
                             {
                                 previous.Wait();
                             }
-                            catch(AggregateException ae)
+                            catch (AggregateException ae)
                             {
                                 ae.Handle(ex => ex is Test.TestIntfException);
                             }
@@ -957,7 +957,7 @@ namespace Ice
                     result = p.begin_ice_ids(ctx);
                     test(p.end_ice_ids(result).Length == 2);
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         result = p.begin_ice_getConnection();
                         test(p.end_ice_getConnection(result) != null);
@@ -979,7 +979,7 @@ namespace Ice
                         p.end_opWithUE(result);
                         test(false);
                     }
-                    catch(Test.TestIntfException)
+                    catch (Test.TestIntfException)
                     {
                     }
                     result = p.begin_opWithUE(ctx);
@@ -988,7 +988,7 @@ namespace Ice
                         p.end_opWithUE(result);
                         test(false);
                     }
-                    catch(Test.TestIntfException)
+                    catch (Test.TestIntfException)
                     {
                     }
                 }
@@ -1038,7 +1038,7 @@ namespace Ice
                     p.begin_ice_ids(ctx, cbWC.ids, cookie);
                     cbWC.check();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         p.begin_ice_getConnection(cb.connection, null);
                         cb.check();
@@ -1101,7 +1101,7 @@ namespace Ice
                     p.begin_ice_ids(ctx).whenCompleted(cb.ids, null);
                     cb.check();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         p.begin_ice_getConnection().whenCompleted(cb.connection, null);
                         cb.check();
@@ -1182,7 +1182,7 @@ namespace Ice
                         }, null);
                     cb.check();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         p.begin_ice_getConnection().whenCompleted(
                            (Ice.Connection conn) =>
@@ -1253,23 +1253,23 @@ namespace Ice
                         indirect.end_op(r);
                         test(false);
                     }
-                    catch(Ice.NoEndpointException)
+                    catch (Ice.NoEndpointException)
                     {
                     }
 
                     try
                     {
-                        r =((Test.TestIntfPrx)p.ice_oneway()).begin_opWithResult();
+                        r = ((Test.TestIntfPrx)p.ice_oneway()).begin_opWithResult();
                         test(false);
                     }
-                    catch(ArgumentException)
+                    catch (ArgumentException)
                     {
                     }
 
                     //
                     // Check that CommunicatorDestroyedException is raised directly.
                     //
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
@@ -1283,7 +1283,7 @@ namespace Ice
                             p2.begin_op();
                             test(false);
                         }
-                        catch(Ice.CommunicatorDestroyedException)
+                        catch (Ice.CommunicatorDestroyedException)
                         {
                             // Expected.
                         }
@@ -1301,7 +1301,7 @@ namespace Ice
                         indirect.opAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException ae)
+                    catch (AggregateException ae)
                     {
                         ae.Handle((ex) =>
                         {
@@ -1311,17 +1311,17 @@ namespace Ice
 
                     try
                     {
-                       ((Test.TestIntfPrx)p.ice_oneway()).opWithResultAsync();
+                        ((Test.TestIntfPrx)p.ice_oneway()).opWithResultAsync();
                         test(false);
                     }
-                    catch(Ice.TwowayOnlyException)
+                    catch (Ice.TwowayOnlyException)
                     {
                     }
 
                     //
                     // Check that CommunicatorDestroyedException is raised directly.
                     //
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
@@ -1335,7 +1335,7 @@ namespace Ice
                             p2.opAsync();
                             test(false);
                         }
-                        catch(Ice.CommunicatorDestroyedException)
+                        catch (Ice.CommunicatorDestroyedException)
                         {
                             // Expected.
                         }
@@ -1371,7 +1371,7 @@ namespace Ice
                     i.begin_ice_ids(cbWC.idsEx, cookie);
                     cbWC.check();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         i.begin_ice_getConnection(cb.connectionEx, null);
                         cb.check();
@@ -1404,7 +1404,7 @@ namespace Ice
                     i.begin_ice_ids().whenCompleted(cb.ids, cb.ex);
                     cb.check();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         i.begin_ice_getConnection().whenCompleted(cb.connection, cb.ex);
                         cb.check();
@@ -1465,7 +1465,7 @@ namespace Ice
                         });
                     cb.check();
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         i.begin_ice_getConnection().whenCompleted(
                            (Ice.Connection conn) =>
@@ -1532,7 +1532,7 @@ namespace Ice
                         i.ice_isAAsync("::Test::TestIntf").Wait();
                         test(false);
                     }
-                    catch(AggregateException)
+                    catch (AggregateException)
                     {
                     }
 
@@ -1541,7 +1541,7 @@ namespace Ice
                         i.opAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException)
+                    catch (AggregateException)
                     {
                     }
 
@@ -1550,7 +1550,7 @@ namespace Ice
                         i.opWithResultAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException)
+                    catch (AggregateException)
                     {
                     }
 
@@ -1559,7 +1559,7 @@ namespace Ice
                         i.opWithUEAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException)
+                    catch (AggregateException)
                     {
                     }
 
@@ -1574,7 +1574,7 @@ namespace Ice
                         p.opWithUEAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException ae)
+                    catch (AggregateException ae)
                     {
                         ae.Handle((ex) =>
                         {
@@ -1674,7 +1674,7 @@ namespace Ice
 
                     List<SentCallback> cbs = new List<SentCallback>();
                     byte[] seq = new byte[10024];
-                   (new Random()).NextBytes(seq);
+                    (new Random()).NextBytes(seq);
                     testController.holdAdapter();
                     try
                     {
@@ -1685,13 +1685,13 @@ namespace Ice
                             r = p.begin_opWithPayload(seq).whenCompleted(cb2.ex).whenSent(cb2.sent);
                             cbs.Add(cb2);
                         }
-                        while(r.sentSynchronously());
+                        while (r.sentSynchronously());
                     }
                     finally
                     {
                         testController.resumeAdapter();
                     }
-                    foreach(SentCallback cb3 in cbs)
+                    foreach (SentCallback cb3 in cbs)
                     {
                         cb3.check();
                     }
@@ -1747,7 +1747,7 @@ namespace Ice
 
                     List<Task> tasks = new List<Task>();
                     byte[] seq = new byte[10024];
-                   (new Random()).NextBytes(seq);
+                    (new Random()).NextBytes(seq);
                     testController.holdAdapter();
                     try
                     {
@@ -1759,13 +1759,13 @@ namespace Ice
                             t = p.opWithPayloadAsync(seq, progress: cb);
                             tasks.Add(t);
                         }
-                        while(cb.SentSynchronously);
+                        while (cb.SentSynchronously);
                     }
                     finally
                     {
                         testController.resumeAdapter();
                     }
-                    foreach(Task t in tasks)
+                    foreach (Task t in tasks)
                     {
                         t.Wait();
                     }
@@ -1878,7 +1878,7 @@ namespace Ice
 
                     List<SentCallback> cbs = new List<SentCallback>();
                     byte[] seq = new byte[10024];
-                   (new System.Random()).NextBytes(seq);
+                    (new System.Random()).NextBytes(seq);
                     testController.holdAdapter();
                     try
                     {
@@ -1898,13 +1898,13 @@ namespace Ice
                                 });
                             cbs.Add(cb2);
                         }
-                        while(r.sentSynchronously());
+                        while (r.sentSynchronously());
                     }
                     finally
                     {
                         testController.resumeAdapter();
                     }
-                    foreach(SentCallback cb3 in cbs)
+                    foreach (SentCallback cb3 in cbs)
                     {
                         cb3.check();
                     }
@@ -1923,7 +1923,7 @@ namespace Ice
                         p.end_op(result);
                         test(false);
                     }
-                    catch(System.ArgumentException)
+                    catch (System.ArgumentException)
                     {
                     }
 
@@ -1933,7 +1933,7 @@ namespace Ice
                         p.end_opWithResult(result);
                         test(false);
                     }
-                    catch(System.ArgumentException)
+                    catch (System.ArgumentException)
                     {
                     }
 
@@ -1942,7 +1942,7 @@ namespace Ice
                         p.end_op(null);
                         test(false);
                     }
-                    catch(System.ArgumentException)
+                    catch (System.ArgumentException)
                     {
                     }
                 }
@@ -1956,7 +1956,7 @@ namespace Ice
                                                    ThrowType.UserException,
                                                    ThrowType.OtherException };
 
-                    for(int i = 0; i < 3; ++i)
+                    for (int i = 0; i < 3; ++i)
                     {
                         Thrower cb = new Thrower(throwEx[i]);
 
@@ -1982,7 +1982,7 @@ namespace Ice
                                 }).Wait();
                             test(false);
                         }
-                        catch(AggregateException)
+                        catch (AggregateException)
                         {
                         }
                         cb.check();
@@ -2021,14 +2021,14 @@ namespace Ice
                                         t.Wait();
                                         test(false);
                                     }
-                                    catch(AggregateException ex)
+                                    catch (AggregateException ex)
                                     {
                                         cb.ex((Ice.Exception)ex.InnerException);
                                     }
                                 }).Wait();
                             test(false);
                         }
-                        catch(AggregateException)
+                        catch (AggregateException)
                         {
                         }
                         cb.check();
@@ -2073,7 +2073,7 @@ namespace Ice
                         // AsyncResult.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         Ice.AsyncResult r = b1.begin_opBatch();
                         test(r.IsCompleted);
                         test(!r.isSent());
@@ -2087,13 +2087,13 @@ namespace Ice
                         test(p.waitForBatch(2));
                     }
 
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         //
                         // AsyncResult exception.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         FlushCallback cb = new FlushCallback(cookie);
@@ -2110,7 +2110,7 @@ namespace Ice
                         // Type-safe.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.opBatch();
                         FlushCallback cb = new FlushCallback();
@@ -2123,13 +2123,13 @@ namespace Ice
                         test(p.waitForBatch(2));
                     }
 
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         //
                         // Type-safe exception.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         FlushCallback cb = new FlushCallback();
@@ -2160,7 +2160,7 @@ namespace Ice
 
                     {
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         var bf = b1.opBatchAsync();
                         test(bf.IsCompleted);
@@ -2176,10 +2176,10 @@ namespace Ice
                         test(p.waitForBatch(2));
                     }
 
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         test(p.opBatchCount() == 0);
-                        Test.TestIntfPrx b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        Test.TestIntfPrx b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         FlushCallback cb = new FlushCallback();
@@ -2207,7 +2207,7 @@ namespace Ice
                         // AsyncResult.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.opBatch();
                         FlushCallback cb = new FlushCallback(cookie);
@@ -2242,13 +2242,13 @@ namespace Ice
                         test(r2.IsCompleted);
                     }
 
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         //
                         // AsyncResult exception.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         FlushCallback cb = new FlushCallback(cookie);
@@ -2273,7 +2273,7 @@ namespace Ice
                         // Type-safe.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.opBatch();
                         FlushCallback cb = new FlushCallback();
@@ -2294,13 +2294,13 @@ namespace Ice
                         test(p.waitForBatch(2));
                     }
 
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         //
                         // Type-safe exception.
                         //
                         test(p.opBatchCount() == 0);
-                        var b1 =(Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         FlushCallback cb = new FlushCallback();
@@ -2323,7 +2323,7 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                if(p.ice_getConnection() != null)
+                if (p.ice_getConnection() != null)
                 {
                     output.Write("testing batch requests with connection... ");
                     output.Flush();
@@ -2373,7 +2373,7 @@ namespace Ice
                                 t.Wait();
                                 test(false);
                             }
-                            catch(System.AggregateException)
+                            catch (System.AggregateException)
                             {
                             }
                             test(p.opBatchCount() == 0);
@@ -2464,7 +2464,7 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
-                if(p.ice_getConnection() != null)
+                if (p.ice_getConnection() != null)
                 {
                     output.Write("testing batch requests with connection and lambda... ");
                     output.Flush();
@@ -3276,7 +3276,7 @@ namespace Ice
 
                 output.Write("testing async/await... ");
                 output.Flush();
-                Func<Task> task = async() =>
+                Func<Task> task = async () =>
                 {
                     try
                     {
@@ -3289,12 +3289,12 @@ namespace Ice
                         {
                             await p.opWithUEAsync();
                         }
-                        catch(Test.TestIntfException)
+                        catch (Test.TestIntfException)
                         {
                         }
 
-                            // Operations implemented with amd and async.
-                            await p.opAsyncDispatchAsync();
+                        // Operations implemented with amd and async.
+                        await p.opAsyncDispatchAsync();
 
                         r = await p.opWithResultAsyncDispatchAsync();
                         test(r == 15);
@@ -3304,19 +3304,19 @@ namespace Ice
                             await p.opWithUEAsyncDispatchAsync();
                             test(false);
                         }
-                        catch(Test.TestIntfException)
+                        catch (Test.TestIntfException)
                         {
                         }
                     }
-                    catch(Ice.OperationNotExistException)
+                    catch (Ice.OperationNotExistException)
                     {
-                            // Expected with cross testing, this opXxxAsyncDispatch methods are C# only.
-                        }
+                        // Expected with cross testing, this opXxxAsyncDispatch methods are C# only.
+                    }
                 };
                 task().Wait();
                 output.WriteLine("ok");
 
-                if(p.ice_getConnection() != null)
+                if (p.ice_getConnection() != null)
                 {
                     output.Write("testing async Task cancellation... ");
                     output.Flush();
@@ -3332,7 +3332,7 @@ namespace Ice
                             testController.holdAdapter();
                             ProgresCallback cb = null;
                             byte[] seq = new byte[10024];
-                            for(int i = 0; i < 200; ++i) // 2MB
+                            for (int i = 0; i < 200; ++i) // 2MB
                             {
                                 cb = new ProgresCallback();
                                 p.opWithPayloadAsync(seq, progress: cb);
@@ -3351,7 +3351,7 @@ namespace Ice
                                 t1.Wait();
                                 test(false);
                             }
-                            catch(AggregateException ae)
+                            catch (AggregateException ae)
                             {
                                 ae.Handle(ex =>
                                 {
@@ -3363,7 +3363,7 @@ namespace Ice
                                 t2.Wait();
                                 test(false);
                             }
-                            catch(AggregateException ae)
+                            catch (AggregateException ae)
                             {
                                 ae.Handle(ex =>
                                 {
@@ -3376,7 +3376,7 @@ namespace Ice
                                 t3.Wait();
                                 test(false);
                             }
-                            catch(AggregateException ae)
+                            catch (AggregateException ae)
                             {
                                 ae.Handle(ex =>
                                 {
@@ -3405,10 +3405,10 @@ namespace Ice
                         {
                             r1 = p.begin_op();
                             byte[] seq = new byte[10024];
-                           (new System.Random()).NextBytes(seq);
-                            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously()) ;
+                            (new System.Random()).NextBytes(seq);
+                            while ((r2 = p.begin_opWithPayload(seq)).sentSynchronously()) ;
 
-                            if(p.ice_getConnection() != null)
+                            if (p.ice_getConnection() != null)
                             {
                                 test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
                                      !r1.sentSynchronously() && !r1.isCompleted_());
@@ -3481,7 +3481,7 @@ namespace Ice
                         test(r.getProxy() == p2);
                         p2.end_ice_flushBatchRequests(r);
 
-                        if(p.ice_getConnection() != null)
+                        if (p.ice_getConnection() != null)
                         {
                             //
                             // Batch request via connection
@@ -3508,7 +3508,7 @@ namespace Ice
                         }
                     }
 
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         Ice.AsyncResult r1 = null;
                         Ice.AsyncResult r2 = null;
@@ -3517,7 +3517,7 @@ namespace Ice
                         {
                             Ice.AsyncResult r = null;
                             byte[] seq = new byte[10024];
-                            for(int i = 0; i < 200; ++i) // 2MB
+                            for (int i = 0; i < 200; ++i) // 2MB
                             {
                                 r = p.begin_opWithPayload(seq);
                             }
@@ -3533,7 +3533,7 @@ namespace Ice
                                 p.end_ice_ping(r1);
                                 test(false);
                             }
-                            catch(Ice.InvocationCanceledException)
+                            catch (Ice.InvocationCanceledException)
                             {
                             }
                             try
@@ -3541,7 +3541,7 @@ namespace Ice
                                 p.end_ice_id(r2);
                                 test(false);
                             }
-                            catch(Ice.InvocationCanceledException)
+                            catch (Ice.InvocationCanceledException)
                             {
                             }
 
@@ -3568,7 +3568,7 @@ namespace Ice
                                 p.end_op(r1);
                                 test(false);
                             }
-                            catch(Ice.InvocationCanceledException)
+                            catch (Ice.InvocationCanceledException)
                             {
                             }
                             try
@@ -3576,7 +3576,7 @@ namespace Ice
                                 p.end_ice_id(r2);
                                 test(false);
                             }
-                            catch(Ice.InvocationCanceledException)
+                            catch (Ice.InvocationCanceledException)
                             {
                             }
                         }
@@ -3588,7 +3588,7 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                if(p.ice_getConnection() != null && p.supportsAMD())
+                if (p.ice_getConnection() != null && p.supportsAMD())
                 {
                     output.Write("testing graceful close connection with wait... ");
                     output.Flush();
@@ -3621,12 +3621,12 @@ namespace Ice
                         //
                         int maxQueue = 2;
                         bool done = false;
-                        while(!done && maxQueue < 50)
+                        while (!done && maxQueue < 50)
                         {
                             done = true;
                             p.ice_ping();
                             List<Task> results = new List<Task>();
-                            for(int i = 0; i < maxQueue; ++i)
+                            for (int i = 0; i < maxQueue; ++i)
                             {
                                 results.Add(p.opWithPayloadAsync(seq));
                             }
@@ -3634,14 +3634,14 @@ namespace Ice
                             ProgresCallback cb = new ProgresCallback();
                             p.closeAsync(Test.CloseMode.GracefullyWithWait, progress: cb);
 
-                            if(!cb.SentSynchronously)
+                            if (!cb.SentSynchronously)
                             {
-                                for(int i = 0; i < maxQueue; i++)
+                                for (int i = 0; i < maxQueue; i++)
                                 {
                                     cb = new ProgresCallback();
                                     Task t = p.opWithPayloadAsync(seq, progress: cb);
                                     results.Add(t);
-                                    if(cb.SentSynchronously)
+                                    if (cb.SentSynchronously)
                                     {
                                         done = false;
                                         maxQueue *= 2;
@@ -3654,7 +3654,7 @@ namespace Ice
                                 maxQueue *= 2;
                                 done = false;
                             }
-                            foreach(Task q in results)
+                            foreach (Task q in results)
                             {
                                 q.Wait();
                             }
@@ -3670,7 +3670,7 @@ namespace Ice
                         // without waiting for the pending invocation to complete. There will be no retry and we expect the
                         // invocation to fail with ConnectionManuallyClosedException.
                         //
-                        p =(Test.TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
+                        p = (Test.TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
                         Ice.Connection con = p.ice_getConnection();
                         CallbackBase cb = new CallbackBase();
                         Task t = p.startDispatchAsync(
@@ -3685,7 +3685,7 @@ namespace Ice
                             t.Wait();
                             test(false);
                         }
-                        catch(System.AggregateException ex)
+                        catch (System.AggregateException ex)
                         {
                             test(ex.InnerException is Ice.ConnectionManuallyClosedException);
                             test((ex.InnerException as Ice.ConnectionManuallyClosedException).graceful);
@@ -3731,7 +3731,7 @@ namespace Ice
                             t.Wait();
                             test(false);
                         }
-                        catch(AggregateException ex)
+                        catch (AggregateException ex)
                         {
                             test(ex.InnerException is Ice.ConnectionManuallyClosedException);
                             test(!(ex.InnerException as Ice.ConnectionManuallyClosedException).graceful);
@@ -3748,7 +3748,7 @@ namespace Ice
                             p.close(Test.CloseMode.Forcefully);
                             test(false);
                         }
-                        catch(Ice.ConnectionLostException)
+                        catch (Ice.ConnectionLostException)
                         {
                             // Expected.
                         }
@@ -3783,10 +3783,10 @@ namespace Ice
                            (t) =>
                             {
                                 test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
-                                    //
-                                    // t1 Continuation run in the thread that completes it.
-                                    //
-                                    var id = Thread.CurrentThread.ManagedThreadId;
+                                //
+                                // t1 Continuation run in the thread that completes it.
+                                //
+                                var id = Thread.CurrentThread.ManagedThreadId;
                                 t3 = t1.ContinueWith(prev =>
                                     {
                                         test(id == Thread.CurrentThread.ManagedThreadId);
@@ -3796,24 +3796,24 @@ namespace Ice
                                     p.ice_scheduler());
                                 s1.SetResult(1);
 
-                                    //
-                                    // t2 completed from the main thread
-                                    //
-                                    t4 = t2.ContinueWith(prev =>
-                                                {
-                                                    test(id != Thread.CurrentThread.ManagedThreadId);
-                                                    test(Thread.CurrentThread.Name == null ||
-                                                         !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
-                                                },
-                                                CancellationToken.None,
-                                                TaskContinuationOptions.ExecuteSynchronously,
-                                                p.ice_scheduler());
+                                //
+                                // t2 completed from the main thread
+                                //
+                                t4 = t2.ContinueWith(prev =>
+                                            {
+                                                test(id != Thread.CurrentThread.ManagedThreadId);
+                                                test(Thread.CurrentThread.Name == null ||
+                                                     !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                                            },
+                                            CancellationToken.None,
+                                            TaskContinuationOptions.ExecuteSynchronously,
+                                            p.ice_scheduler());
                             }, p.ice_scheduler()).Wait();
                         s2.SetResult(1);
                         Task.WaitAll(t1, t2, t3, t4);
                     }
 
-                    if(!collocated)
+                    if (!collocated)
                     {
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
                         PingReplyI replyI = new PingReplyI();

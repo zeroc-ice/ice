@@ -23,7 +23,7 @@ public class PluginInitializeFailFactory : Ice.PluginFactory
 
         private static void test(bool b)
         {
-            if(!b)
+            if (!b)
             {
                 throw new System.Exception();
             }

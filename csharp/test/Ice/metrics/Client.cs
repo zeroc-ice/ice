@@ -26,7 +26,7 @@ public class Client : Test.TestHelper
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        using(var communicator = initialize(initData))
+        using (var communicator = initialize(initData))
         {
             Test.MetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();

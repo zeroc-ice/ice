@@ -18,12 +18,12 @@ namespace Ice
                 inS.startEncapsulation();
                 Ice.OutputStream outS = new Ice.OutputStream(communicator);
                 outS.startEncapsulation();
-                if(current.operation.Equals("opOneway"))
+                if (current.operation.Equals("opOneway"))
                 {
                     outParams = new byte[0];
                     return true;
                 }
-                else if(current.operation.Equals("opString"))
+                else if (current.operation.Equals("opString"))
                 {
                     string s = inS.readString();
                     outS.writeString(s);
@@ -32,9 +32,9 @@ namespace Ice
                     outParams = outS.finished();
                     return true;
                 }
-                else if(current.operation.Equals("opException"))
+                else if (current.operation.Equals("opException"))
                 {
-                    if(current.ctx.ContainsKey("raise"))
+                    if (current.ctx.ContainsKey("raise"))
                     {
                         throw new Test.MyException();
                     }
@@ -44,16 +44,16 @@ namespace Ice
                     outParams = outS.finished();
                     return false;
                 }
-                else if(current.operation.Equals("shutdown"))
+                else if (current.operation.Equals("shutdown"))
                 {
                     communicator.shutdown();
                     outParams = null;
                     return true;
                 }
-                else if(current.operation.Equals("ice_isA"))
+                else if (current.operation.Equals("ice_isA"))
                 {
                     string s = inS.readString();
-                    if(s.Equals("::Test::MyClass"))
+                    if (s.Equals("::Test::MyClass"))
                     {
                         outS.writeBool(true);
                     }
@@ -86,11 +86,11 @@ namespace Ice
                 inS.startEncapsulation();
                 Ice.OutputStream outS = new Ice.OutputStream(communicator);
                 outS.startEncapsulation();
-                if(current.operation.Equals("opOneway"))
+                if (current.operation.Equals("opOneway"))
                 {
                     return Task.FromResult(new Ice.Object_Ice_invokeResult(true, new byte[0]));
                 }
-                else if(current.operation.Equals("opString"))
+                else if (current.operation.Equals("opString"))
                 {
                     string s = inS.readString();
                     outS.writeString(s);
@@ -98,22 +98,22 @@ namespace Ice
                     outS.endEncapsulation();
                     return Task.FromResult(new Ice.Object_Ice_invokeResult(true, outS.finished()));
                 }
-                else if(current.operation.Equals("opException"))
+                else if (current.operation.Equals("opException"))
                 {
                     Test.MyException ex = new Test.MyException();
                     outS.writeException(ex);
                     outS.endEncapsulation();
                     return Task.FromResult(new Ice.Object_Ice_invokeResult(false, outS.finished()));
                 }
-                else if(current.operation.Equals("shutdown"))
+                else if (current.operation.Equals("shutdown"))
                 {
                     communicator.shutdown();
                     return Task.FromResult(new Ice.Object_Ice_invokeResult(true, null));
                 }
-                else if(current.operation.Equals("ice_isA"))
+                else if (current.operation.Equals("ice_isA"))
                 {
                     string s = inS.readString();
-                    if(s.Equals("::Test::MyClass"))
+                    if (s.Equals("::Test::MyClass"))
                     {
                         outS.writeBool(true);
                     }

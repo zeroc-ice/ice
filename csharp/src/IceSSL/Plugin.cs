@@ -46,9 +46,9 @@ namespace IceSSL
     /// <summary>
     /// Interface that allows applications to interact with the IceSSL plug-in.
     /// </summary>
-    abstract public class Plugin : Ice.Plugin
+    public abstract class Plugin : Ice.Plugin
     {
-        abstract public void initialize();
+        public abstract void initialize();
 
         /// <summary>
         /// Specify the certificate authorities certificates to use
@@ -61,7 +61,7 @@ namespace IceSSL
         /// configuration.
         /// </summary>
         /// <param name="certs">The certificate authorities certificates to use.</param>
-        abstract public void setCACertificates(X509Certificate2Collection certs);
+        public abstract void setCACertificates(X509Certificate2Collection certs);
 
         /// <summary>
         /// Specify the certificates to use for SSL connections. This
@@ -73,37 +73,37 @@ namespace IceSSL
         /// plug-in skips its normal property-based configuration.
         /// </summary>
         /// <param name="certs">The certificates to use for SSL connections.</param>
-        abstract public void setCertificates(X509Certificate2Collection certs);
+        public abstract void setCertificates(X509Certificate2Collection certs);
 
         /// <summary>
         /// Establish the certificate verifier object. This must be
         /// done before any connections are established.
         /// </summary>
         /// <param name="verifier">The certificate verifier.</param>
-        abstract public void setCertificateVerifier(CertificateVerifier verifier);
+        public abstract void setCertificateVerifier(CertificateVerifier verifier);
 
         /// <summary>
         /// Obtain the certificate verifier object.
         /// </summary>
         /// <returns>The certificate verifier (null if not set).</returns>
-        abstract public CertificateVerifier getCertificateVerifier();
+        public abstract CertificateVerifier getCertificateVerifier();
 
         /// <summary>
         /// Establish the password callback object. This must be
         /// done before the plug-in is initialized.
         /// </summary>
         /// <param name="callback">The password callback.</param>
-        abstract public void setPasswordCallback(PasswordCallback callback);
+        public abstract void setPasswordCallback(PasswordCallback callback);
 
         /// <summary>
         /// Returns the password callback.
         /// </summary>
         /// <returns>The password callback (null if not set).</returns>
-        abstract public PasswordCallback getPasswordCallback();
+        public abstract PasswordCallback getPasswordCallback();
 
         /// <summary>
         /// This method is for internal use.
         /// </summary>
-        abstract public void destroy();
+        public abstract void destroy();
     }
 }

@@ -20,9 +20,9 @@ namespace Ice
 
                 public void check()
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        while(!_called)
+                        while (!_called)
                         {
                             Monitor.Wait(this);
                         }
@@ -33,7 +33,7 @@ namespace Ice
 
                 public void called()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         Debug.Assert(!_called);
                         _called = true;
@@ -85,11 +85,11 @@ namespace Ice
                     retry2.op(true);
                     test(false);
                 }
-                catch(Ice.UnknownLocalException)
+                catch (Ice.UnknownLocalException)
                 {
                     // Expected with collocation
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                 }
                 Instrumentation.testInvocationCount(1);
@@ -173,7 +173,7 @@ namespace Ice
                     retry1.opNotIdempotent();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 Instrumentation.testInvocationCount(1);
@@ -184,7 +184,7 @@ namespace Ice
                     retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent());
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                 }
                 Instrumentation.testInvocationCount(1);
@@ -192,7 +192,7 @@ namespace Ice
                 Instrumentation.testRetryCount(0);
                 output.WriteLine("ok");
 
-                if(retry1.ice_getConnection() == null)
+                if (retry1.ice_getConnection() == null)
                 {
                     Instrumentation.testInvocationCount(1);
 
@@ -202,7 +202,7 @@ namespace Ice
                         retry1.opSystemException();
                         test(false);
                     }
-                    catch(SystemFailure)
+                    catch (SystemFailure)
                     {
                     }
                     Instrumentation.testInvocationCount(1);
@@ -213,7 +213,7 @@ namespace Ice
                         retry1.end_opSystemException(retry1.begin_opSystemException());
                         test(false);
                     }
-                    catch(SystemFailure)
+                    catch (SystemFailure)
                     {
                     }
                     Instrumentation.testInvocationCount(1);
@@ -230,10 +230,10 @@ namespace Ice
                     try
                     {
                         // No more than 2 retries before timeout kicks-in
-                       ((Test.RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
+                        ((Test.RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch (Ice.InvocationTimeoutException)
                     {
                         Instrumentation.testRetryCount(2);
                         retry2.opIdempotent(-1); // Reset the counter
@@ -242,17 +242,17 @@ namespace Ice
                     try
                     {
                         // No more than 2 retries before timeout kicks-in
-                        Test.RetryPrx prx =(Test.RetryPrx)retry2.ice_invocationTimeout(500);
+                        Test.RetryPrx prx = (Test.RetryPrx)retry2.ice_invocationTimeout(500);
                         prx.end_opIdempotent(prx.begin_opIdempotent(4));
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch (Ice.InvocationTimeoutException)
                     {
                         Instrumentation.testRetryCount(2);
                         retry2.opIdempotent(-1); // Reset the counter
                         Instrumentation.testRetryCount(-1);
                     }
-                    if(retry1.ice_getConnection() != null)
+                    if (retry1.ice_getConnection() != null)
                     {
                         // The timeout might occur on connection establishment or because of the sleep. What's
                         // important here is to make sure there are 4 retries and that no calls succeed to
@@ -264,7 +264,7 @@ namespace Ice
                             retryWithTimeout.sleep(500);
                             test(false);
                         }
-                        catch(Ice.TimeoutException)
+                        catch (Ice.TimeoutException)
                         {
                         }
                         Instrumentation.testRetryCount(4);

@@ -9,7 +9,7 @@ public class TestI : TestIntfDisp_
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new System.Exception();
         }
@@ -48,7 +48,7 @@ public class TestControllerI : TestIntfControllerDisp_
 {
     private static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new System.Exception();
         }

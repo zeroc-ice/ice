@@ -21,7 +21,7 @@ namespace IceInternal
             Debug.Assert(prefix != null);
 
             string timeoutProperty;
-            if((prefix.Equals("Ice.ACM.Client") || prefix.Equals("Ice.ACM.Server")) &&
+            if ((prefix.Equals("Ice.ACM.Client") || prefix.Equals("Ice.ACM.Server")) &&
                p.getProperty(prefix + ".Timeout").Length == 0)
             {
                 timeoutProperty = prefix; // Deprecated property.
@@ -32,14 +32,14 @@ namespace IceInternal
             }
 
             timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To milliseconds
-            if(timeout < 0)
+            if (timeout < 0)
             {
                 l.warning("invalid value for property `" + timeoutProperty + "', default value will be used instead");
                 timeout = dflt.timeout;
             }
 
             int hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", (int)dflt.heartbeat);
-            if(hb >= (int)Ice.ACMHeartbeat.HeartbeatOff && hb <= (int)Ice.ACMHeartbeat.HeartbeatAlways)
+            if (hb >= (int)Ice.ACMHeartbeat.HeartbeatOff && hb <= (int)Ice.ACMHeartbeat.HeartbeatAlways)
             {
                 heartbeat = (Ice.ACMHeartbeat)hb;
             }
@@ -51,7 +51,7 @@ namespace IceInternal
             }
 
             int cl = p.getPropertyAsIntWithDefault(prefix + ".Close", (int)dflt.close);
-            if(cl >= (int)Ice.ACMClose.CloseOff && cl <= (int)Ice.ACMClose.CloseOnIdleForceful)
+            if (cl >= (int)Ice.ACMClose.CloseOff && cl <= (int)Ice.ACMClose.CloseOnIdleForceful)
             {
                 close = (Ice.ACMClose)cl;
             }
@@ -83,7 +83,7 @@ namespace IceInternal
         Ice.ACM getACM();
     }
 
-    class FactoryACMMonitor : ACMMonitor
+    public class FactoryACMMonitor : ACMMonitor
     {
         internal class Change
         {
@@ -105,22 +105,22 @@ namespace IceInternal
 
         internal void destroy()
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     //
                     // Ensure all the connections have been cleared, it's important to wait here
                     // to prevent the timer destruction in IceInternal::Instance::destroy.
                     //
-                    while(_connections.Count > 0)
+                    while (_connections.Count > 0)
                     {
                         System.Threading.Monitor.Wait(this);
                     }
                     return;
                 }
 
-                if(_connections.Count > 0)
+                if (_connections.Count > 0)
                 {
                     //
                     // Cancel the scheduled timer task and schedule it again now to clear the
@@ -136,7 +136,7 @@ namespace IceInternal
                 //
                 // Wait for the connection set to be cleared by the timer thread.
                 //
-                while(_connections.Count > 0)
+                while (_connections.Count > 0)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -145,14 +145,14 @@ namespace IceInternal
 
         public void add(Ice.ConnectionI connection)
         {
-            if(_config.timeout == 0)
+            if (_config.timeout == 0)
             {
                 return;
             }
 
-            lock(this)
+            lock (this)
             {
-                if(_connections.Count == 0)
+                if (_connections.Count == 0)
                 {
                     _connections.Add(connection);
                     _instance.timer().scheduleRepeated(this, _config.timeout / 2);
@@ -166,12 +166,12 @@ namespace IceInternal
 
         public void remove(Ice.ConnectionI connection)
         {
-            if(_config.timeout == 0)
+            if (_config.timeout == 0)
             {
                 return;
             }
 
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(_instance != null);
                 _changes.Add(new Change(connection, true));
@@ -180,7 +180,7 @@ namespace IceInternal
 
         public void reap(Ice.ConnectionI connection)
         {
-            lock(this)
+            lock (this)
             {
                 _reapedConnections.Add(connection);
             }
@@ -191,15 +191,15 @@ namespace IceInternal
             Debug.Assert(_instance != null);
 
             ACMConfig config = (ACMConfig)_config.Clone();
-            if(timeout.HasValue)
+            if (timeout.HasValue)
             {
                 config.timeout = timeout.Value * 1000; // To milliseconds
             }
-            if(c.HasValue)
+            if (c.HasValue)
             {
                 config.close = c.Value;
             }
-            if(h.HasValue)
+            if (h.HasValue)
             {
                 config.heartbeat = h.Value;
             }
@@ -217,9 +217,9 @@ namespace IceInternal
 
         internal List<Ice.ConnectionI> swapReapedConnections()
         {
-            lock(this)
+            lock (this)
             {
-                if(_reapedConnections.Count == 0)
+                if (_reapedConnections.Count == 0)
                 {
                     return null;
                 }
@@ -231,18 +231,18 @@ namespace IceInternal
 
         public void runTimerTask()
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     _connections.Clear();
                     System.Threading.Monitor.PulseAll(this);
                     return;
                 }
 
-                foreach(Change change in _changes)
+                foreach (Change change in _changes)
                 {
-                    if(change.remove)
+                    if (change.remove)
                     {
                         _connections.Remove(change.connection);
                     }
@@ -253,7 +253,7 @@ namespace IceInternal
                 }
                 _changes.Clear();
 
-                if(_connections.Count == 0)
+                if (_connections.Count == 0)
                 {
                     _instance.timer().cancel(this);
                     return;
@@ -265,13 +265,13 @@ namespace IceInternal
             // that connections can be added or removed during monitoring.
             //
             long now = Time.currentMonotonicTimeMillis();
-            foreach(Ice.ConnectionI connection in _connections)
+            foreach (Ice.ConnectionI connection in _connections)
             {
                 try
                 {
                     connection.monitor(now, _config);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     handleException(ex);
                 }
@@ -280,9 +280,9 @@ namespace IceInternal
 
         internal void handleException(System.Exception ex)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     return;
                 }
@@ -291,7 +291,7 @@ namespace IceInternal
         }
 
         private Instance _instance;
-        readonly private ACMConfig _config;
+        private readonly ACMConfig _config;
 
         private HashSet<Ice.ConnectionI> _connections = new HashSet<Ice.ConnectionI>();
         private List<Change> _changes = new List<Change>();
@@ -309,11 +309,11 @@ namespace IceInternal
 
         public void add(Ice.ConnectionI connection)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(_connection == null);
                 _connection = connection;
-                if(_config.timeout > 0)
+                if (_config.timeout > 0)
                 {
                     _timer.scheduleRepeated(this, _config.timeout / 2);
                 }
@@ -322,11 +322,11 @@ namespace IceInternal
 
         public void remove(Ice.ConnectionI connection)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(_connection == connection);
                 _connection = null;
-                if(_config.timeout > 0)
+                if (_config.timeout > 0)
                 {
                     _timer.cancel(this);
                 }
@@ -355,9 +355,9 @@ namespace IceInternal
         public void runTimerTask()
         {
             Ice.ConnectionI connection;
-            lock(this)
+            lock (this)
             {
-                if(_connection == null)
+                if (_connection == null)
                 {
                     return;
                 }
@@ -368,15 +368,15 @@ namespace IceInternal
             {
                 connection.monitor(Time.currentMonotonicTimeMillis(), _config);
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 _parent.handleException(ex);
             }
         }
 
-        readonly private FactoryACMMonitor _parent;
-        readonly private Timer _timer;
-        readonly private ACMConfig _config;
+        private readonly FactoryACMMonitor _parent;
+        private readonly Timer _timer;
+        private readonly ACMConfig _config;
 
         private Ice.ConnectionI _connection;
     }

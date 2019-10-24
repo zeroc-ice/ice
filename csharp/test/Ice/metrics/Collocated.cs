@@ -27,7 +27,7 @@ public class Collocated : Test.TestHelper
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        using(var communicator = initialize(initData))
+        using (var communicator = initialize(initData))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

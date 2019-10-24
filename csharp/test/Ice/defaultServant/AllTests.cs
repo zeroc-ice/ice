@@ -41,7 +41,7 @@ namespace Ice
                 string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
                 Test.MyObjectPrx prx = null;
-                for(int idx = 0; idx < 5; ++idx)
+                for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
                     prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
@@ -56,7 +56,7 @@ namespace Ice
                     prx.ice_ping();
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     // Expected
                 }
@@ -66,7 +66,7 @@ namespace Ice
                     prx.getName();
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     // Expected
                 }
@@ -78,7 +78,7 @@ namespace Ice
                     prx.ice_ping();
                     test(false);
                 }
-                catch(Ice.FacetNotExistException)
+                catch (Ice.FacetNotExistException)
                 {
                     // Expected
                 }
@@ -88,13 +88,13 @@ namespace Ice
                     prx.getName();
                     test(false);
                 }
-                catch(Ice.FacetNotExistException)
+                catch (Ice.FacetNotExistException)
                 {
                     // Expected
                 }
 
                 identity.category = "bar";
-                for(int idx = 0; idx < 5; idx++)
+                for (int idx = 0; idx < 5; idx++)
                 {
                     identity.name = names[idx];
                     prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
@@ -104,7 +104,7 @@ namespace Ice
                         prx.ice_ping();
                         test(false);
                     }
-                    catch(Ice.ObjectNotExistException)
+                    catch (Ice.ObjectNotExistException)
                     {
                         // Expected
                     }
@@ -114,7 +114,7 @@ namespace Ice
                         prx.getName();
                         test(false);
                     }
-                    catch(Ice.ObjectNotExistException)
+                    catch (Ice.ObjectNotExistException)
                     {
                         // Expected
                     }
@@ -127,7 +127,7 @@ namespace Ice
                 {
                     prx.ice_ping();
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     // Expected
                 }
@@ -145,7 +145,7 @@ namespace Ice
                 r = oa.findDefaultServant("");
                 test(r == servant);
 
-                for(int idx = 0; idx < 5; ++idx)
+                for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
                     prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));

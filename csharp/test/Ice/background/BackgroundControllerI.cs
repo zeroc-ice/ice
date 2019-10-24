@@ -9,7 +9,7 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
 {
     public override void pauseCall(string opName, Ice.Current current)
     {
-        lock(this)
+        lock (this)
         {
             _pausedCalls.Add(opName);
         }
@@ -17,7 +17,7 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
 
     public override void resumeCall(string opName, Ice.Current current)
     {
-        lock(this)
+        lock (this)
         {
             _pausedCalls.Remove(opName);
             System.Threading.Monitor.PulseAll(this);
@@ -26,9 +26,9 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
 
     internal void checkCallPause(Ice.Current current)
     {
-        lock(this)
+        lock (this)
         {
-            while(_pausedCalls.Contains(current.operation))
+            while (_pausedCalls.Contains(current.operation))
             {
                 System.Threading.Monitor.Wait(this);
                 break;

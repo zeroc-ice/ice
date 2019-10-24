@@ -29,7 +29,7 @@ namespace Ice
                 {
                     _adapter.destroy();
                 }
-                catch(Ice.ObjectAdapterDeactivatedException)
+                catch (Ice.ObjectAdapterDeactivatedException)
                 {
                 }
             }

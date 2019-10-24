@@ -45,7 +45,7 @@ namespace Ice
                     prx.badAdd(33, 12);
                     test(false);
                 }
-                catch(Test.InvalidInputException)
+                catch (Test.InvalidInputException)
                 {
                     // expected
                 }
@@ -60,7 +60,7 @@ namespace Ice
                     prx.notExistAdd(33, 12);
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     // expected
                 }
@@ -75,15 +75,15 @@ namespace Ice
                     prx.badSystemAdd(33, 12);
                     test(false);
                 }
-                catch(Ice.UnknownException)
+                catch (Ice.UnknownException)
                 {
                     test(!prx.ice_isCollocationOptimized());
                 }
-                catch(MySystemException)
+                catch (MySystemException)
                 {
                     test(prx.ice_isCollocationOptimized());
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -118,7 +118,7 @@ namespace Ice
                 {
                     var ctx = new Dictionary<string, string>();
                     ctx.Add("retry", "yes");
-                    for(int i = 0; i < 10; ++i)
+                    for (int i = 0; i < 10; ++i)
                     {
                         test(prx.amdAdd(33, 12, ctx) == 45);
                         test(interceptor.getLastOperation().Equals("amdAdd"));
@@ -134,7 +134,7 @@ namespace Ice
                     prx.amdBadAdd(33, 12);
                     test(false);
                 }
-                catch(Test.InvalidInputException)
+                catch (Test.InvalidInputException)
                 {
                     // expected
                 }
@@ -150,7 +150,7 @@ namespace Ice
                     prx.amdNotExistAdd(33, 12);
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     // expected
                 }
@@ -166,15 +166,15 @@ namespace Ice
                     prx.amdBadSystemAdd(33, 12);
                     test(false);
                 }
-                catch(Ice.UnknownException)
+                catch (Ice.UnknownException)
                 {
                     test(!prx.ice_isCollocationOptimized());
                 }
-                catch(MySystemException)
+                catch (MySystemException)
                 {
                     test(prx.ice_isCollocationOptimized());
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     test(false);
                 }
@@ -190,7 +190,7 @@ namespace Ice
 
             public override void run(string[] args)
             {
-                using(var communicator = initialize(ref args))
+                using (var communicator = initialize(ref args))
                 {
                     //
                     // Create OA and servants
@@ -239,7 +239,7 @@ namespace Ice
                 exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "user"));
                 exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "notExist"));
                 exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "system"));
-                foreach(var e in exceptions)
+                foreach (var e in exceptions)
                 {
                     var ctx = new Dictionary<string, string>();
                     ctx.Add(e.Item1, e.Item2);
@@ -248,19 +248,19 @@ namespace Ice
                         prx.ice_ping(ctx);
                         test(false);
                     }
-                    catch(Ice.UnknownUserException)
+                    catch (Ice.UnknownUserException)
                     {
                         test(e.Item2.Equals("user"));
                     }
-                    catch(Ice.ObjectNotExistException)
+                    catch (Ice.ObjectNotExistException)
                     {
                         test(e.Item2.Equals("notExist"));
                     }
-                    catch(Ice.UnknownException)
+                    catch (Ice.UnknownException)
                     {
                         test(e.Item2.Equals("system")); // non-collocated
                     }
-                    catch(MySystemException)
+                    catch (MySystemException)
                     {
                         test(e.Item2.Equals("system")); // collocated
                     }

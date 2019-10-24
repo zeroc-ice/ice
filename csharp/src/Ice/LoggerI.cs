@@ -14,7 +14,7 @@ namespace Ice
         {
             _prefix = prefix;
 
-            if(prefix.Length > 0)
+            if (prefix.Length > 0)
             {
                 _formattedPrefix = prefix + ": ";
             }
@@ -25,7 +25,7 @@ namespace Ice
 
         public void print(string message)
         {
-            lock(_globalMutex)
+            lock (_globalMutex)
             {
                 write(message);
             }
@@ -34,7 +34,7 @@ namespace Ice
         public virtual void trace(string category, string message)
         {
             string s = format("--", category, message);
-            lock(_globalMutex)
+            lock (_globalMutex)
             {
                 write(s);
             }
@@ -43,7 +43,7 @@ namespace Ice
         public virtual void warning(string message)
         {
             string s = format("-!", "warning", message);
-            lock(_globalMutex)
+            lock (_globalMutex)
             {
                 write(s);
             }
@@ -52,7 +52,7 @@ namespace Ice
         public virtual void error(string message)
         {
             string s = format("!!", "error", message);
-            lock(_globalMutex)
+            lock (_globalMutex)
             {
                 write(s);
             }
@@ -154,11 +154,11 @@ namespace Ice
                                         int id, string message)
         {
             System.Text.StringBuilder s;
-            if(type == TraceEventType.Error)
+            if (type == TraceEventType.Error)
             {
                 s = new System.Text.StringBuilder("!!");
             }
-            else if(type == TraceEventType.Warning)
+            else if (type == TraceEventType.Warning)
             {
                 s = new System.Text.StringBuilder("-!");
             }
@@ -195,7 +195,7 @@ namespace Ice
             : base(prefix)
         {
             _console = console;
-            if(console && !Trace.Listeners.Contains(_consoleListener))
+            if (console && !Trace.Listeners.Contains(_consoleListener))
             {
                 Trace.Listeners.Add(_consoleListener);
             }

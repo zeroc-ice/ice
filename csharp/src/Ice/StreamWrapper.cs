@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -29,7 +28,7 @@ namespace IceInternal
     // as a single byte, followed by the contents of the _bytes buffer.
     //
 
-    public class OutputStreamWrapper : Stream, System.IDisposable
+    public class OutputStreamWrapper : Stream
     {
         public OutputStreamWrapper(Ice.OutputStream s)
         {
@@ -57,12 +56,12 @@ namespace IceInternal
             Debug.Assert(array != null && offset >= 0 && count >= 0 && offset + count <= array.Length);
             try
             {
-                if(_bytes != null)
+                if (_bytes != null)
                 {
                     //
                     // If we can fit the data into the first 254 bytes, write it to _bytes.
                     //
-                    if(count <= _bytes.Length - _pos)
+                    if (count <= _bytes.Length - _pos)
                     {
                         System.Buffer.BlockCopy(array, offset, _bytes, _pos, count);
                         _pos += count;
@@ -71,7 +70,7 @@ namespace IceInternal
 
                     _s.writeSize(255); // Dummy size, until we know how big the stream
                                        // really is and can patch the size.
-                    if(_pos > 0)
+                    if (_pos > 0)
                     {
                         //
                         // Write the current contents of _bytes.
@@ -90,7 +89,7 @@ namespace IceInternal
                 _s.getBuffer().b.put(array, offset, count);
                 _pos += count;
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 throw new IOException("could not write to stream", ex);
             }
@@ -100,12 +99,12 @@ namespace IceInternal
         {
             try
             {
-                if(_bytes != null)
+                if (_bytes != null)
                 {
                     //
                     // If we can fit the data into the first 254 bytes, write it to _bytes.
                     //
-                    if(_pos < _bytes.Length)
+                    if (_pos < _bytes.Length)
                     {
                         _bytes[_pos++] = value;
                         return;
@@ -113,7 +112,7 @@ namespace IceInternal
 
                     _s.writeSize(255); // Dummy size, until we know how big the stream
                                        // really is and can patch the size.
-                    if(_pos > 0)
+                    if (_pos > 0)
                     {
                         //
                         // Write the current contents of _bytes.
@@ -132,7 +131,7 @@ namespace IceInternal
                 _s.getBuffer().b.put(value);
                 _pos += 1;
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 throw new IOException("could not write to stream", ex);
             }
@@ -166,7 +165,7 @@ namespace IceInternal
         {
             try
             {
-                if(_bytes != null)
+                if (_bytes != null)
                 {
                     Debug.Assert(_pos <= _bytes.Length);
                     _s.pos(_spos);
@@ -182,7 +181,7 @@ namespace IceInternal
                     _s.pos(currentPos);
                 }
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 throw new IOException("could not flush stream", ex);
             }
@@ -228,7 +227,7 @@ namespace IceInternal
         private long _length;
     }
 
-    public class InputStreamWrapper : Stream, System.IDisposable
+    public class InputStreamWrapper : Stream
     {
         public InputStreamWrapper(int size, Ice.InputStream s)
         {
@@ -244,7 +243,7 @@ namespace IceInternal
             {
                 _s.getBuffer().b.get(buffer, offset, count);
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 throw new IOException("could not read from stream", ex);
             }
@@ -257,7 +256,7 @@ namespace IceInternal
             {
                 return _s.getBuffer().b.get();
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 throw new IOException("could not read from stream", ex);
             }
@@ -325,28 +324,28 @@ namespace IceInternal
         public override long Seek(long offset, SeekOrigin origin)
         {
             // Deliberately no size check here--positioning beyond the limit of the stream is legal.
-            switch(origin)
+            switch (origin)
             {
                 case SeekOrigin.Begin:
-                {
-                    _pos = (int)offset;
-                    break;
-                }
+                    {
+                        _pos = (int)offset;
+                        break;
+                    }
                 case SeekOrigin.Current:
-                {
-                    _pos += (int)offset;
-                    break;
-                }
+                    {
+                        _pos += (int)offset;
+                        break;
+                    }
                 case SeekOrigin.End:
-                {
-                    _pos = (int)_length + (int)offset;
-                    break;
-                }
+                    {
+                        _pos = (int)_length + (int)offset;
+                        break;
+                    }
                 default:
-                {
-                    Debug.Assert(false);
-                    break;
-                }
+                    {
+                        Debug.Assert(false);
+                        break;
+                    }
             }
             _s.pos(_pos);
             return _pos;

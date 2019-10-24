@@ -30,7 +30,7 @@ namespace Ice
 
             override public Dictionary<string, string> getChanges(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     return _changes;
                 }
@@ -77,7 +77,7 @@ namespace Ice
 
             public void updated(Dictionary<string, string> changes)
             {
-                lock(this)
+                lock (this)
                 {
                     _changes = changes;
                 }
@@ -96,12 +96,12 @@ namespace Ice
                 //
                 Ice.InitializationData init = new Ice.InitializationData();
                 init.properties = Ice.Util.createProperties();
-                foreach(KeyValuePair<string, string> e in props)
+                foreach (KeyValuePair<string, string> e in props)
                 {
                     init.properties.setProperty(e.Key, e.Value);
                 }
 
-                if(init.properties.getPropertyAsInt("NullLogger") > 0)
+                if (init.properties.getPropertyAsInt("NullLogger") > 0)
                 {
                     init.logger = new NullLogger();
                 }
@@ -123,9 +123,9 @@ namespace Ice
                 RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
                 Ice.Object propFacet = communicator.findAdminFacet("Properties");
 
-                if(propFacet != null)
+                if (propFacet != null)
                 {
-                    Ice.NativePropertiesAdmin admin =(Ice.NativePropertiesAdmin)propFacet;
+                    Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
                     Debug.Assert(admin != null);
                     admin.addUpdateCallback(servant.updated);
                 }

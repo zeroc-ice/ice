@@ -8,17 +8,17 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Globalization;
 
-    sealed class TraceUtil
+    internal sealed class TraceUtil
     {
         internal static void traceSend(Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
         {
-            if(tl.protocol >= 1)
+            if (tl.protocol >= 1)
             {
                 int p = str.pos();
                 Ice.InputStream iss = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
                 iss.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     byte type = printMessage(s, iss);
 
@@ -30,12 +30,12 @@ namespace IceInternal
 
         internal static void traceRecv(Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
         {
-            if(tl.protocol >= 1)
+            if (tl.protocol >= 1)
             {
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     byte type = printMessage(s, str);
 
@@ -47,13 +47,13 @@ namespace IceInternal
 
         internal static void trace(string heading, Ice.OutputStream str, Ice.Logger logger, TraceLevels tl)
         {
-            if(tl.protocol >= 1)
+            if (tl.protocol >= 1)
             {
                 int p = str.pos();
                 Ice.InputStream iss = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
                 iss.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
                     printMessage(s, iss);
@@ -66,12 +66,12 @@ namespace IceInternal
 
         internal static void trace(string heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
         {
-            if(tl.protocol >= 1)
+            if (tl.protocol >= 1)
             {
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
                     printMessage(s, str);
@@ -86,11 +86,11 @@ namespace IceInternal
 
         internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
         {
-            lock(typeof(TraceUtil))
+            lock (mutex)
             {
-                if(slicingIds.Add(typeId))
+                if (slicingIds.Add(typeId))
                 {
-                    using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                    using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                     {
                         s.Write("unknown " + kind + " type `" + typeId + "'");
                         logger.trace(slicingCat, s.ToString());
@@ -115,23 +115,23 @@ namespace IceInternal
         {
             const int inc = 8;
 
-            for(int i = 0; i < data.Length; i += inc)
+            for (int i = 0; i < data.Length; i += inc)
             {
-                for(int j = i; j - i < inc; j++)
+                for (int j = i; j - i < inc; j++)
                 {
-                    if(j < data.Length)
+                    if (j < data.Length)
                     {
                         int n = data[j];
-                        if(n < 0)
+                        if (n < 0)
                         {
                             n += 256;
                         }
                         string s;
-                        if(n < 10)
+                        if (n < 10)
                         {
                             s = "  " + n;
                         }
-                        else if(n < 100)
+                        else if (n < 100)
                         {
                             s = " " + n;
                         }
@@ -149,12 +149,12 @@ namespace IceInternal
 
                 System.Console.Out.Write('"');
 
-                for(int j = i; j < data.Length && j - i < inc; j++)
+                for (int j = i; j < data.Length && j - i < inc; j++)
                 {
                     // TODO: this needs fixing
-                    if(data[j] >= 32 && data[j] < 127)
+                    if (data[j] >= 32 && data[j] < 127)
                     {
-                        System.Console.Out.Write((char) data[j]);
+                        System.Console.Out.Write((char)data[j]);
                     }
                     else
                     {
@@ -171,7 +171,7 @@ namespace IceInternal
             try
             {
                 Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
-                if(str.instance() != null)
+                if (str.instance() != null)
                 {
                     toStringMode = str.instance().toStringMode();
                 }
@@ -182,7 +182,7 @@ namespace IceInternal
 
                 string[] facet = str.readStringSeq();
                 s.Write("\nfacet = ");
-                if(facet.Length > 0)
+                if (facet.Length > 0)
                 {
                     s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
                 }
@@ -190,7 +190,7 @@ namespace IceInternal
                 string operation = str.readString();
                 s.Write("\noperation = " + operation);
             }
-            catch(System.IO.IOException)
+            catch (System.IO.IOException)
             {
                 Debug.Assert(false);
             }
@@ -200,7 +200,7 @@ namespace IceInternal
         {
             int requestId = str.readInt();
             s.Write("\nrequest id = " + requestId);
-            if(requestId == 0)
+            if (requestId == 0)
             {
                 s.Write(" (oneway)");
             }
@@ -213,7 +213,7 @@ namespace IceInternal
             int batchRequestNum = str.readInt();
             s.Write("\nnumber of requests = " + batchRequestNum);
 
-            for(int i = 0; i < batchRequestNum; ++i)
+            for (int i = 0; i < batchRequestNum; ++i)
             {
                 s.Write("\nrequest #" + i + ':');
                 printRequestHeader(s, str);
@@ -228,102 +228,102 @@ namespace IceInternal
             byte replyStatus = str.readByte();
             s.Write("\nreply status = " + (int)replyStatus + ' ');
 
-            switch(replyStatus)
+            switch (replyStatus)
             {
-            case ReplyStatus.replyOK:
-            {
-                s.Write("(ok)");
-                break;
-            }
+                case ReplyStatus.replyOK:
+                    {
+                        s.Write("(ok)");
+                        break;
+                    }
 
-            case ReplyStatus.replyUserException:
-            {
-                s.Write("(user exception)");
-                break;
-            }
+                case ReplyStatus.replyUserException:
+                    {
+                        s.Write("(user exception)");
+                        break;
+                    }
 
-            case ReplyStatus.replyObjectNotExist:
-            case ReplyStatus.replyFacetNotExist:
-            case ReplyStatus.replyOperationNotExist:
-            {
-                switch(replyStatus)
-                {
                 case ReplyStatus.replyObjectNotExist:
-                {
-                    s.Write("(object not exist)");
-                    break;
-                }
-
                 case ReplyStatus.replyFacetNotExist:
-                {
-                    s.Write("(facet not exist)");
-                    break;
-                }
-
                 case ReplyStatus.replyOperationNotExist:
-                {
-                    s.Write("(operation not exist)");
-                    break;
-                }
+                    {
+                        switch (replyStatus)
+                        {
+                            case ReplyStatus.replyObjectNotExist:
+                                {
+                                    s.Write("(object not exist)");
+                                    break;
+                                }
 
-                default:
-                {
-                    Debug.Assert(false);
-                    break;
-                }
-                }
+                            case ReplyStatus.replyFacetNotExist:
+                                {
+                                    s.Write("(facet not exist)");
+                                    break;
+                                }
 
-                printIdentityFacetOperation(s, str);
-                break;
-            }
+                            case ReplyStatus.replyOperationNotExist:
+                                {
+                                    s.Write("(operation not exist)");
+                                    break;
+                                }
 
-            case ReplyStatus.replyUnknownException:
-            case ReplyStatus.replyUnknownLocalException:
-            case ReplyStatus.replyUnknownUserException:
-            {
-                switch(replyStatus)
-                {
+                            default:
+                                {
+                                    Debug.Assert(false);
+                                    break;
+                                }
+                        }
+
+                        printIdentityFacetOperation(s, str);
+                        break;
+                    }
+
                 case ReplyStatus.replyUnknownException:
-                {
-                    s.Write("(unknown exception)");
-                    break;
-                }
-
                 case ReplyStatus.replyUnknownLocalException:
-                {
-                    s.Write("(unknown local exception)");
-                    break;
-                }
-
                 case ReplyStatus.replyUnknownUserException:
-                {
-                    s.Write("(unknown user exception)");
-                    break;
-                }
+                    {
+                        switch (replyStatus)
+                        {
+                            case ReplyStatus.replyUnknownException:
+                                {
+                                    s.Write("(unknown exception)");
+                                    break;
+                                }
+
+                            case ReplyStatus.replyUnknownLocalException:
+                                {
+                                    s.Write("(unknown local exception)");
+                                    break;
+                                }
+
+                            case ReplyStatus.replyUnknownUserException:
+                                {
+                                    s.Write("(unknown user exception)");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    Debug.Assert(false);
+                                    break;
+                                }
+                        }
+
+                        string unknown = str.readString();
+                        s.Write("\nunknown = " + unknown);
+                        break;
+                    }
 
                 default:
-                {
-                    Debug.Assert(false);
-                    break;
-                }
-                }
-
-                string unknown = str.readString();
-                s.Write("\nunknown = " + unknown);
-                break;
+                    {
+                        s.Write("(unknown)");
+                        break;
+                    }
             }
 
-            default:
-            {
-                s.Write("(unknown)");
-                break;
-            }
-            }
-
-            if(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
+            if (replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
             {
                 Ice.EncodingVersion v = str.skipEncapsulation();
-                if(!v.Equals(Ice.Util.Encoding_1_0))
+                if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
                     s.Write(Ice.Util.encodingVersionToString(v));
@@ -339,54 +339,54 @@ namespace IceInternal
             {
                 byte mode = str.readByte();
                 s.Write("\nmode = " + (int)mode + ' ');
-                switch((Ice.OperationMode)mode)
+                switch ((Ice.OperationMode)mode)
                 {
-                case Ice.OperationMode.Normal:
-                {
-                    s.Write("(normal)");
-                    break;
-                }
+                    case Ice.OperationMode.Normal:
+                        {
+                            s.Write("(normal)");
+                            break;
+                        }
 
-                case Ice.OperationMode.Nonmutating:
-                {
-                    s.Write("(nonmutating)");
-                    break;
-                }
+                    case Ice.OperationMode.Nonmutating:
+                        {
+                            s.Write("(nonmutating)");
+                            break;
+                        }
 
-                case Ice.OperationMode.Idempotent:
-                {
-                    s.Write("(idempotent)");
-                    break;
-                }
+                    case Ice.OperationMode.Idempotent:
+                        {
+                            s.Write("(idempotent)");
+                            break;
+                        }
 
-                default:
-                {
-                    s.Write("(unknown)");
-                    break;
-                }
+                    default:
+                        {
+                            s.Write("(unknown)");
+                            break;
+                        }
                 }
 
                 int sz = str.readSize();
                 s.Write("\ncontext = ");
-                while(sz-- > 0)
+                while (sz-- > 0)
                 {
                     string key = str.readString();
                     string val = str.readString();
                     s.Write(key + '/' + val);
-                    if(sz > 0)
+                    if (sz > 0)
                     {
                         s.Write(", ");
                     }
                 }
 
                 Ice.EncodingVersion v = str.skipEncapsulation();
-                if(!v.Equals(Ice.Util.Encoding_1_0))
+                if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
                     s.Write(Ice.Util.encodingVersionToString(v));
                 }
             }
-            catch(System.IO.IOException)
+            catch (System.IO.IOException)
             {
                 Debug.Assert(false);
             }
@@ -401,12 +401,16 @@ namespace IceInternal
                 str.readByte();
                 str.readByte();
 
-                /* byte pMajor = */ str.readByte();
-                /* byte pMinor = */ str.readByte();
+                /* byte pMajor = */
+                str.readByte();
+                /* byte pMinor = */
+                str.readByte();
                 //s.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
 
-                /* byte eMajor = */ str.readByte();
-                /* byte eMinor = */ str.readByte();
+                /* byte eMajor = */
+                str.readByte();
+                /* byte eMinor = */
+                str.readByte();
                 //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
                 byte type = str.readByte();
@@ -414,38 +418,38 @@ namespace IceInternal
 
                 byte compress = str.readByte();
                 s.Write("\ncompression status = " + (int)compress + ' ');
-                switch(compress)
+                switch (compress)
                 {
-                case 0:
-                {
-                    s.Write("(not compressed; do not compress response, if any)");
-                    break;
-                }
+                    case 0:
+                        {
+                            s.Write("(not compressed; do not compress response, if any)");
+                            break;
+                        }
 
-                case 1:
-                {
-                    s.Write("(not compressed; compress response, if any)");
-                    break;
-                }
+                    case 1:
+                        {
+                            s.Write("(not compressed; compress response, if any)");
+                            break;
+                        }
 
-                case 2:
-                {
-                    s.Write("(compressed; compress response, if any)");
-                    break;
-                }
+                    case 2:
+                        {
+                            s.Write("(compressed; compress response, if any)");
+                            break;
+                        }
 
-                default:
-                {
-                    s.Write("(unknown)");
-                    break;
-                }
+                    default:
+                        {
+                            s.Write("(unknown)");
+                            break;
+                        }
                 }
 
                 int size = str.readInt();
                 s.Write("\nmessage size = " + size);
                 return type;
             }
-            catch(System.IO.IOException)
+            catch (System.IO.IOException)
             {
                 Debug.Assert(false);
                 return 0;
@@ -456,38 +460,38 @@ namespace IceInternal
         {
             byte type = printHeader(s, str);
 
-            switch(type)
+            switch (type)
             {
-            case Protocol.closeConnectionMsg:
-            case Protocol.validateConnectionMsg:
-            {
-                // We're done.
-                break;
-            }
+                case Protocol.closeConnectionMsg:
+                case Protocol.validateConnectionMsg:
+                    {
+                        // We're done.
+                        break;
+                    }
 
-            case Protocol.requestMsg:
-            {
-                printRequest(s, str);
-                break;
-            }
+                case Protocol.requestMsg:
+                    {
+                        printRequest(s, str);
+                        break;
+                    }
 
-            case Protocol.requestBatchMsg:
-            {
-                printBatchRequest(s, str);
-                break;
-            }
+                case Protocol.requestBatchMsg:
+                    {
+                        printBatchRequest(s, str);
+                        break;
+                    }
 
-            case Protocol.replyMsg:
-            {
-                printReply(s, str);
-                break;
-            }
+                case Protocol.replyMsg:
+                    {
+                        printReply(s, str);
+                        break;
+                    }
 
-            default:
-            {
-                s.Write("(unknown)");
-                break;
-            }
+                default:
+                    {
+                        s.Write("(unknown)");
+                        break;
+                    }
             }
 
             return type;
@@ -495,12 +499,12 @@ namespace IceInternal
 
         internal static void traceHeader(string heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
         {
-            if(tl.protocol >= 1)
+            if (tl.protocol >= 1)
             {
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
+                using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
                     printHeader(s, str);
@@ -513,22 +517,23 @@ namespace IceInternal
 
         private static string getMessageTypeAsString(byte type)
         {
-            switch(type)
+            switch (type)
             {
-            case Protocol.requestMsg:
-                return "request";
-            case Protocol.requestBatchMsg:
-                return "batch request";
-            case Protocol.replyMsg:
-                return "reply";
-            case Protocol.closeConnectionMsg:
-                return "close connection";
-            case Protocol.validateConnectionMsg:
-                return  "validate connection";
-            default:
-                return "unknown";
+                case Protocol.requestMsg:
+                    return "request";
+                case Protocol.requestBatchMsg:
+                    return "batch request";
+                case Protocol.replyMsg:
+                    return "reply";
+                case Protocol.closeConnectionMsg:
+                    return "close connection";
+                case Protocol.validateConnectionMsg:
+                    return "validate connection";
+                default:
+                    return "unknown";
             }
         }
-    }
 
+        private static readonly object mutex = new object();
+    }
 }

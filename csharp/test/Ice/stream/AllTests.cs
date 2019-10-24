@@ -19,38 +19,38 @@ namespace Ice
             //
             private static bool Compare(ICollection c1, ICollection c2)
             {
-                if(c1 == null)
+                if (c1 == null)
                 {
                     return c2 == null;
                 }
-                if(c2 == null)
+                if (c2 == null)
                 {
                     return false;
                 }
-                if(!c1.GetType().Equals(c2.GetType()))
+                if (!c1.GetType().Equals(c2.GetType()))
                 {
                     return false;
                 }
 
-                if(c1.Count != c2.Count)
+                if (c1.Count != c2.Count)
                 {
                     return false;
                 }
 
                 IEnumerator i1 = c1.GetEnumerator();
                 IEnumerator i2 = c2.GetEnumerator();
-                while(i1.MoveNext())
+                while (i1.MoveNext())
                 {
                     i2.MoveNext();
-                    if(i1.Current is ICollection)
+                    if (i1.Current is ICollection)
                     {
                         Debug.Assert(i2.Current is ICollection);
-                        if(!Compare((ICollection)i1.Current,(ICollection)i2.Current))
+                        if (!Compare((ICollection)i1.Current, (ICollection)i2.Current))
                         {
                             return false;
                         }
                     }
-                    else if(!i1.Current.Equals(i2.Current))
+                    else if (!i1.Current.Equals(i2.Current))
                     {
                         return false;
                     }
@@ -113,7 +113,7 @@ namespace Ice
 
                 public Ice.Value create(string type)
                 {
-                    if(_factory != null)
+                    if (_factory != null)
                     {
                         return _factory(type);
                     }
@@ -178,7 +178,7 @@ namespace Ice
                         inS.readBool();
                         test(false);
                     }
-                    catch(Ice.UnmarshalOutOfBoundsException)
+                    catch (Ice.UnmarshalOutOfBoundsException)
                     {
                     }
                 }
@@ -228,7 +228,7 @@ namespace Ice
                     outS.writeFloat((float)5.0);
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    test(inS.readFloat() ==(float)5.0);
+                    test(inS.readFloat() == (float)5.0);
                 }
 
                 {
@@ -294,10 +294,10 @@ namespace Ice
                     TestReadValueCallback cb = new TestReadValueCallback();
                     inS.readValue(cb.invoke);
                     inS.readPendingValues();
-                    var o2 =(Test.OptionalClass)cb.obj;
+                    var o2 = (Test.OptionalClass)cb.obj;
                     test(o2.bo == o.bo);
                     test(o2.by == o.by);
-                    if(communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0"))
+                    if (communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0"))
                     {
                         test(!o2.sh.HasValue);
                         test(!o2.i.HasValue);
@@ -323,7 +323,7 @@ namespace Ice
                     var cb = new TestReadValueCallback();
                     inS.readValue(cb.invoke);
                     inS.readPendingValues();
-                    var o2 =(Test.OptionalClass)cb.obj;
+                    var o2 = (Test.OptionalClass)cb.obj;
                     test(o2.bo == o.bo);
                     test(o2.by == o.by);
                     test(!o2.sh.HasValue);
@@ -373,7 +373,7 @@ namespace Ice
                     outS.writeSerializable(small);
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    var small2 =(Serialize.Small)inS.readSerializable();
+                    var small2 = (Serialize.Small)inS.readSerializable();
                     test(small2.i == 99);
                 }
 
@@ -515,7 +515,7 @@ namespace Ice
                 }
 
                 var smallStructArray = new Test.SmallStruct[3];
-                for(int i = 0; i < smallStructArray.Length; ++i)
+                for (int i = 0; i < smallStructArray.Length; ++i)
                 {
                     smallStructArray[i] = new Test.SmallStruct();
                     smallStructArray[i].bo = true;
@@ -531,7 +531,7 @@ namespace Ice
                 }
 
                 var myClassArray = new Test.MyClass[4];
-                for(int i = 0; i < myClassArray.Length; ++i)
+                for (int i = 0; i < myClassArray.Length; ++i)
                 {
                     myClassArray[i] = new Test.MyClass();
                     myClassArray[i].c = myClassArray[i];
@@ -553,7 +553,7 @@ namespace Ice
                 }
 
                 var myInterfaceArray = new Ice.Value[4];
-                for(int i = 0; i < myInterfaceArray.Length; ++i)
+                for (int i = 0; i < myInterfaceArray.Length; ++i)
                 {
                     myInterfaceArray[i] = new Ice.InterfaceByValue("::Test::MyInterface");
                 }
@@ -567,7 +567,7 @@ namespace Ice
                     var arr2 = Test.MyClassSHelper.read(inS);
                     inS.readPendingValues();
                     test(arr2.Length == myClassArray.Length);
-                    for(int i = 0; i < arr2.Length; ++i)
+                    for (int i = 0; i < arr2.Length; ++i)
                     {
                         test(arr2[i] != null);
                         test(arr2[i].c == arr2[i]);
@@ -598,9 +598,9 @@ namespace Ice
                     test(arr2S[1].Length == arrS[1].Length);
                     test(arr2S[2].Length == arrS[2].Length);
 
-                    for(int j = 0; j < arr2S.Length; ++j)
+                    for (int j = 0; j < arr2S.Length; ++j)
                     {
-                        for(int k = 0; k < arr2S[j].Length; ++k)
+                        for (int k = 0; k < arr2S[j].Length; ++k)
                         {
                             test(arr2S[j][k].c == arr2S[j][k]);
                             test(arr2S[j][k].o == arr2S[j][k]);
@@ -659,7 +659,7 @@ namespace Ice
                     inS.readPendingValues();
                     test(cb.obj != null);
                     test(cb.obj is TestValueReader);
-                    var reader =(TestValueReader)cb.obj;
+                    var reader = (TestValueReader)cb.obj;
                     test(reader.called);
                     test(reader.obj != null);
                     test(reader.obj.s.e == Test.MyEnum.enum2);
@@ -699,7 +699,7 @@ namespace Ice
                         inS.throwException();
                         test(false);
                     }
-                    catch(Test.MyException ex1)
+                    catch (Test.MyException ex1)
                     {
                         test(ex1.c.s.e == c.s.e);
                         test(Compare(ex1.c.seq1, c.seq1));
@@ -712,7 +712,7 @@ namespace Ice
                         test(Compare(ex1.c.seq8, c.seq8));
                         test(Compare(ex1.c.seq9, c.seq9));
                     }
-                    catch(Ice.UserException)
+                    catch (Ice.UserException)
                     {
                         test(false);
                     }
@@ -829,7 +829,7 @@ namespace Ice
                     inS = new Ice.InputStream(communicator, data);
                     var l2 = Test.SmallStructListHelper.read(inS);
                     test(l2.Count == l.Count);
-                    for(int i = 0; i < l2.Count; ++i)
+                    for (int i = 0; i < l2.Count; ++i)
                     {
                         test(l2[i].Equals(smallStructArray[i]));
                     }
@@ -845,7 +845,7 @@ namespace Ice
                     var l2 = Test.MyClassListHelper.read(inS);
                     inS.readPendingValues();
                     test(l2.Count == l.Count);
-                    for(int i = 0; i < l2.Count; ++i)
+                    for (int i = 0; i < l2.Count; ++i)
                     {
                         test(l2[i] != null);
                         test(l2[i].c == l2[i]);
@@ -933,7 +933,7 @@ namespace Ice
                     test(l2.Count == l.Count);
                     var e = l.GetEnumerator();
                     var e2 = l2.GetEnumerator();
-                    while(e.MoveNext() && e2.MoveNext())
+                    while (e.MoveNext() && e2.MoveNext())
                     {
                         test(e.Current.Equals(e2.Current));
                     }
@@ -971,7 +971,7 @@ namespace Ice
                     test(l2.Count == l.Count);
                     var e = l.GetEnumerator();
                     var e2 = l2.GetEnumerator();
-                    while(e.MoveNext() && e2.MoveNext())
+                    while (e.MoveNext() && e2.MoveNext())
                     {
                         test(e.Current.Equals(e2.Current));
                     }
@@ -1035,7 +1035,7 @@ namespace Ice
                     test(l2.Count == l.Count);
                     var e = l.GetEnumerator();
                     var e2 = l2.GetEnumerator();
-                    while(e.MoveNext() && e2.MoveNext())
+                    while (e.MoveNext() && e2.MoveNext())
                     {
                         test(e.Current.Equals(e2.Current));
                     }

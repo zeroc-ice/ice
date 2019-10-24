@@ -13,7 +13,7 @@ namespace Ice
         {
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.SystemException();
                 }
@@ -28,9 +28,9 @@ namespace Ice
 
                 public virtual void check()
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        while(!_called)
+                        while (!_called)
                         {
                             System.Threading.Monitor.Wait(this);
                         }
@@ -41,7 +41,7 @@ namespace Ice
 
                 public virtual void called()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         Debug.Assert(!_called);
                         _called = true;
@@ -56,7 +56,7 @@ namespace Ice
             {
                 public void opNVI(Ice.AsyncResult result)
                 {
-                    Dictionary<int, int> i =(Dictionary<int, int>)result.AsyncState;
+                    Dictionary<int, int> i = (Dictionary<int, int>)result.AsyncState;
                     Dictionary<int, int> o;
                     Dictionary<int, int> r = Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNV(out o, result);
                     test(Ice.CollectionComparer.Equals(i, o));
@@ -66,7 +66,7 @@ namespace Ice
 
                 public void opNRI(Ice.AsyncResult result)
                 {
-                    Dictionary<string, string> i =(Dictionary<string, string>)result.AsyncState;
+                    Dictionary<string, string> i = (Dictionary<string, string>)result.AsyncState;
                     Dictionary<string, string> o;
                     Dictionary<string, string> r = Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNR(out o, result);
                     test(Ice.CollectionComparer.Equals(i, o));
@@ -76,11 +76,11 @@ namespace Ice
 
                 public void opNDVI(Ice.AsyncResult result)
                 {
-                    Dictionary<string, Dictionary<int, int>> i =(Dictionary<string, Dictionary<int, int>>)result.AsyncState;
+                    Dictionary<string, Dictionary<int, int>> i = (Dictionary<string, Dictionary<int, int>>)result.AsyncState;
                     Dictionary<string, Dictionary<int, int>> o;
                     Dictionary<string, Dictionary<int, int>> r =
                         Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDV(out o, result);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -95,7 +95,7 @@ namespace Ice
                     Dictionary<string, Dictionary<string, string>> o;
                     Dictionary<string, Dictionary<string, string>> r =
                         Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDR(out o, result);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -105,10 +105,10 @@ namespace Ice
 
                 public void opNDAISI(Ice.AsyncResult result)
                 {
-                    Dictionary<string, int[]> i =(Dictionary<string, int[]>)result.AsyncState;
+                    Dictionary<string, int[]> i = (Dictionary<string, int[]>)result.AsyncState;
                     Dictionary<string, int[]> o;
                     Dictionary<string, int[]> r = Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDAIS(out o, result);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -118,11 +118,11 @@ namespace Ice
 
                 public void opNDGISI(Ice.AsyncResult result)
                 {
-                    Dictionary<string, List<int>> i =(Dictionary<string, List<int>>)result.AsyncState;
+                    Dictionary<string, List<int>> i = (Dictionary<string, List<int>>)result.AsyncState;
                     Dictionary<string, List<int>> o;
                     Dictionary<string, List<int>> r =
                         Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDGIS(out o, result);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -132,11 +132,11 @@ namespace Ice
 
                 public void opNDASSI(Ice.AsyncResult result)
                 {
-                    Dictionary<string, string[]> i =(Dictionary<string, string[]>)result.AsyncState;
+                    Dictionary<string, string[]> i = (Dictionary<string, string[]>)result.AsyncState;
                     Dictionary<string, string[]> o;
                     Dictionary<string, string[]> r =
                         Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDASS(out o, result);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -146,11 +146,11 @@ namespace Ice
 
                 public void opNDGSSI(Ice.AsyncResult result)
                 {
-                    Dictionary<string, List<string>> i =(Dictionary<string, List<string>>)result.AsyncState;
+                    Dictionary<string, List<string>> i = (Dictionary<string, List<string>>)result.AsyncState;
                     Dictionary<string, List<string>> o;
                     Dictionary<string, List<string>> r =
                         Test.MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opNDGSS(out o, result);
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));

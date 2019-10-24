@@ -39,7 +39,7 @@ namespace Ice
 
             public override void throwAorDasAorD(int a, Ice.Current current)
             {
-                if(a > 0)
+                if (a > 0)
                 {
                     var ex = new Test.A();
                     ex.aMem = a;

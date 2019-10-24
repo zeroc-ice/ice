@@ -4,20 +4,14 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Net;
-    using System.Net.Sockets;
-
-    sealed class ConnectorI : IceInternal.Connector
+    internal sealed class ConnectorI : IceInternal.Connector
     {
         public IceInternal.Transceiver connect()
         {
             //
             // The plug-in may not be fully initialized.
             //
-            if(!_instance.initialized())
+            if (!_instance.initialized())
             {
                 Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
                 ex.reason = "IceSSL: plug-in is not initialized";
@@ -44,12 +38,12 @@ namespace IceSSL
 
         public override bool Equals(object obj)
         {
-            if(!(obj is ConnectorI))
+            if (!(obj is ConnectorI))
             {
                 return false;
             }
 
-            if(this == obj)
+            if (this == obj)
             {
                 return true;
             }

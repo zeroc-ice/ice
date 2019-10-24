@@ -22,7 +22,7 @@ internal sealed class ServerI : ServerDisp_
             IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
             test(info.certs == null);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -39,7 +39,7 @@ internal sealed class ServerI : ServerDisp_
                  info.certs[0].Subject.Equals(subjectDN) &&
                  info.certs[0].Issuer.Equals(issuerDN));
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -53,7 +53,7 @@ internal sealed class ServerI : ServerDisp_
             IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
             test(info.cipher.Equals(cipher));
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             test(false);
         }
@@ -94,7 +94,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
-        foreach(string key in props.Keys)
+        foreach (string key in props.Keys)
         {
             initData.properties.setProperty(key, props[key]);
         }
@@ -112,7 +112,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
     public override void destroyServer(ServerPrx srv, Ice.Current current)
     {
         Ice.Identity key = srv.ice_getIdentity();
-        if(_servers.Contains(key))
+        if (_servers.Contains(key))
         {
             ServerI server = _servers[key] as ServerI;
             server.destroy();

@@ -11,7 +11,7 @@ public class Client : Test.TestHelper
     public sealed class caseI : @abstract.caseDisp_
     {
         public override Task<int>
-        catchAsync(int @checked,  Ice.Current current)
+        catchAsync(int @checked, Ice.Current current)
         {
             return Task<int>.FromResult(0);
         }
@@ -27,7 +27,7 @@ public class Client : Test.TestHelper
     public sealed class explicitI : @abstract.explicitDisp_
     {
         public override Task<int>
-        catchAsync(int @checked,  Ice.Current current)
+        catchAsync(int @checked, Ice.Current current)
         {
             return Task<int>.FromResult(0);
         }
@@ -75,14 +75,14 @@ public class Client : Test.TestHelper
         @abstract.@casePrx c1 = null;
         test(c1 == null);
         int c2 = 0;
-        if(c1 != null)
+        if (c1 != null)
         {
             c1.@catch(0, out c2);
         }
         @abstract.@decimal d = new decimalI();
         test(d != null);
         @abstract.@decimalPrx d1 = null;
-        if(d1 != null)
+        if (d1 != null)
         {
             d1.@default();
         }
@@ -92,7 +92,7 @@ public class Client : Test.TestHelper
         @abstract.@delegate e1 = null;
         test(e1 == null);
         @abstract.@explicitPrx f1 = null;
-        if(f1 != null)
+        if (f1 != null)
         {
             f1.@catch(0, out c2);
             f1.@default();
@@ -116,7 +116,7 @@ public class Client : Test.TestHelper
 
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

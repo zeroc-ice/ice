@@ -16,10 +16,10 @@ namespace IceInternal
         public RequestHandler
         getRequestHandler(RoutableReference rf, Ice.ObjectPrxHelperBase proxy)
         {
-            if(rf.getCollocationOptimized())
+            if (rf.getCollocationOptimized())
             {
                 Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
-                if(adapter != null)
+                if (adapter != null)
                 {
                     return proxy.iceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
                 }
@@ -27,11 +27,11 @@ namespace IceInternal
 
             bool connect = false;
             ConnectRequestHandler handler;
-            if(rf.getCacheConnection())
+            if (rf.getCacheConnection())
             {
-                lock(this)
+                lock (this)
                 {
-                    if(!_handlers.TryGetValue(rf, out handler))
+                    if (!_handlers.TryGetValue(rf, out handler))
                     {
                         handler = new ConnectRequestHandler(rf, proxy);
                         _handlers.Add(rf, handler);
@@ -45,7 +45,7 @@ namespace IceInternal
                 connect = true;
             }
 
-            if(connect)
+            if (connect)
             {
                 rf.getConnection(handler);
             }
@@ -55,12 +55,12 @@ namespace IceInternal
         internal void
         removeRequestHandler(Reference rf, RequestHandler handler)
         {
-            if(rf.getCacheConnection())
+            if (rf.getCacheConnection())
             {
-                lock(this)
+                lock (this)
                 {
                     ConnectRequestHandler h;
-                    if(_handlers.TryGetValue(rf, out h) && h == handler)
+                    if (_handlers.TryGetValue(rf, out h) && h == handler)
                     {
                         _handlers.Remove(rf);
                     }
@@ -68,8 +68,8 @@ namespace IceInternal
             }
         }
 
-        readonly Instance _instance;
-        readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
+        private readonly Instance _instance;
+        private readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
             new Dictionary<Reference, ConnectRequestHandler>();
     }
 }

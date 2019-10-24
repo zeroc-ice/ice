@@ -35,7 +35,7 @@ namespace Ice
         public
         ThreadHookPlugin(Communicator communicator, System.Action threadStart, System.Action threadStop)
         {
-            if(communicator == null)
+            if (communicator == null)
             {
                 PluginInitializationException ex = new PluginInitializationException();
                 ex.reason = "Communicator cannot be null";

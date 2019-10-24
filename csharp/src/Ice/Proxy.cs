@@ -86,7 +86,7 @@ namespace Ice
         }
 
         private Dictionary<string, string> _ctx;
-        static private Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
     }
 
     /// <summary>
@@ -843,11 +843,11 @@ namespace Ice
         {
             Instance instance = null;
 
-            if(context.Context is Communicator)
+            if (context.Context is Communicator)
             {
                 instance = IceInternal.Util.getInstance(context.Context as Communicator);
             }
-            else if(context.Context is Instance)
+            else if (context.Context is Instance)
             {
                 instance = context.Context as Instance;
             }
@@ -906,7 +906,7 @@ namespace Ice
             {
                 return iceI_ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -996,7 +996,7 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_isA, bool>(
                 (Callback_Object_ice_isA cb, bool result) =>
                 {
-                    if(cb != null)
+                    if (cb != null)
                     {
                         cb.Invoke(result);
                     }
@@ -1031,7 +1031,7 @@ namespace Ice
             {
                 iceI_ice_pingAsync(context, null, CancellationToken.None, true).Wait();
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -1113,7 +1113,7 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ping, object>(
                 (Callback_Object_ice_ping cb, object result) =>
                 {
-                    if(cb != null)
+                    if (cb != null)
                     {
                         cb.Invoke();
                     }
@@ -1144,7 +1144,7 @@ namespace Ice
             {
                 return iceI_ice_idsAsync(context, null, CancellationToken.None, true).Result;
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -1213,7 +1213,7 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ids, string[]>(
                 (Callback_Object_ice_ids cb, string[] result) =>
                 {
-                    if(cb != null)
+                    if (cb != null)
                     {
                         cb.Invoke(result);
                     }
@@ -1256,7 +1256,7 @@ namespace Ice
             {
                 return iceI_ice_idAsync(context, null, CancellationToken.None, true).Result;
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -1329,7 +1329,7 @@ namespace Ice
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_id, string>(
                 (Callback_Object_ice_id cb, string result) =>
                 {
-                    if(cb != null)
+                    if (cb != null)
                     {
                         cb.Invoke(result);
                     }
@@ -1387,7 +1387,7 @@ namespace Ice
                 outEncaps = result.outEncaps;
                 return result.returnValue;
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -1545,11 +1545,11 @@ namespace Ice
         /// </summary>
         public ObjectPrx ice_identity(Identity newIdentity)
         {
-            if(newIdentity.name.Length == 0)
+            if (newIdentity.name.Length == 0)
             {
                 throw new IllegalIdentityException();
             }
-            if(newIdentity.Equals(_reference.getIdentity()))
+            if (newIdentity.Equals(_reference.getIdentity()))
             {
                 return this;
             }
@@ -1598,12 +1598,12 @@ namespace Ice
         /// <returns>The proxy with the new facet.</returns>
         public ObjectPrx ice_facet(string newFacet)
         {
-            if(newFacet == null)
+            if (newFacet == null)
             {
                 newFacet = "";
             }
 
-            if(newFacet.Equals(_reference.getFacet()))
+            if (newFacet.Equals(_reference.getFacet()))
             {
                 return this;
             }
@@ -1632,12 +1632,12 @@ namespace Ice
         /// <returns>The proxy with the new adapter ID.</returns>
         public ObjectPrx ice_adapterId(string newAdapterId)
         {
-            if(newAdapterId == null)
+            if (newAdapterId == null)
             {
                 newAdapterId = "";
             }
 
-            if(newAdapterId.Equals(_reference.getAdapterId()))
+            if (newAdapterId.Equals(_reference.getAdapterId()))
             {
                 return this;
             }
@@ -1663,14 +1663,14 @@ namespace Ice
         /// <returns>The proxy with the new endpoints.</returns>
         public ObjectPrx ice_endpoints(Endpoint[] newEndpoints)
         {
-            if(Arrays.Equals(newEndpoints, _reference.getEndpoints()))
+            if (Arrays.Equals(newEndpoints, _reference.getEndpoints()))
             {
                 return this;
             }
             else
             {
                 var endpts = new EndpointI[newEndpoints.Length];
-                for(int i = 0; i < newEndpoints.Length; ++i)
+                for (int i = 0; i < newEndpoints.Length; ++i)
                 {
                     endpts[i] = (EndpointI)newEndpoints[i];
                 }
@@ -1693,11 +1693,11 @@ namespace Ice
         /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
         public ObjectPrx ice_locatorCacheTimeout(int newTimeout)
         {
-            if(newTimeout < -1)
+            if (newTimeout < -1)
             {
                 throw new ArgumentException("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
             }
-            if(newTimeout == _reference.getLocatorCacheTimeout())
+            if (newTimeout == _reference.getLocatorCacheTimeout())
             {
                 return this;
             }
@@ -1722,11 +1722,11 @@ namespace Ice
         /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
         public ObjectPrx ice_invocationTimeout(int newTimeout)
         {
-            if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
+            if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
             {
                 throw new ArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
             }
-            if(newTimeout == _reference.getInvocationTimeout())
+            if (newTimeout == _reference.getInvocationTimeout())
             {
                 return this;
             }
@@ -1752,7 +1752,7 @@ namespace Ice
         /// <returns>The new proxy with the specified caching policy.</returns>
         public ObjectPrx ice_connectionCached(bool newCache)
         {
-            if(newCache == _reference.getCacheConnection())
+            if (newCache == _reference.getCacheConnection())
             {
                 return this;
             }
@@ -1778,7 +1778,7 @@ namespace Ice
         /// <returns>The new proxy with the specified endpoint selection policy.</returns>
         public ObjectPrx ice_endpointSelection(EndpointSelectionType newType)
         {
-            if(newType == _reference.getEndpointSelection())
+            if (newType == _reference.getEndpointSelection())
             {
                 return this;
             }
@@ -1806,7 +1806,7 @@ namespace Ice
         /// <returns>The new proxy with the specified selection policy.</returns>
         public ObjectPrx ice_secure(bool b)
         {
-            if(b == _reference.getSecure())
+            if (b == _reference.getSecure())
             {
                 return this;
             }
@@ -1824,7 +1824,7 @@ namespace Ice
         /// <returns>The new proxy with the specified encoding version.</returns>
         public ObjectPrx ice_encodingVersion(EncodingVersion e)
         {
-            if(e.Equals(_reference.getEncoding()))
+            if (e.Equals(_reference.getEncoding()))
             {
                 return this;
             }
@@ -1860,7 +1860,7 @@ namespace Ice
         /// <returns>The new proxy with the new endpoint selection policy.</returns>
         public ObjectPrx ice_preferSecure(bool b)
         {
-            if(b == _reference.getPreferSecure())
+            if (b == _reference.getPreferSecure())
             {
                 return this;
             }
@@ -1889,7 +1889,7 @@ namespace Ice
         public ObjectPrx ice_router(RouterPrx router)
         {
             Reference @ref = _reference.changeRouter(router);
-            if(@ref.Equals(_reference))
+            if (@ref.Equals(_reference))
             {
                 return this;
             }
@@ -1917,7 +1917,7 @@ namespace Ice
         public ObjectPrx ice_locator(LocatorPrx locator)
         {
             var @ref = _reference.changeLocator(locator);
-            if(@ref.Equals(_reference))
+            if (@ref.Equals(_reference))
             {
                 return this;
             }
@@ -1943,7 +1943,7 @@ namespace Ice
         /// <returns>The new proxy the specified collocation optimization.</returns>
         public ObjectPrx ice_collocationOptimized(bool b)
         {
-            if(b == _reference.getCollocationOptimized())
+            if (b == _reference.getCollocationOptimized())
             {
                 return this;
             }
@@ -1959,7 +1959,7 @@ namespace Ice
         /// <returns>A new proxy that uses twoway invocations.</returns>
         public ObjectPrx ice_twoway()
         {
-            if(_reference.getMode() == Reference.Mode.ModeTwoway)
+            if (_reference.getMode() == Reference.Mode.ModeTwoway)
             {
                 return this;
             }
@@ -1984,7 +1984,7 @@ namespace Ice
         /// <returns>A new proxy that uses oneway invocations.</returns>
         public ObjectPrx ice_oneway()
         {
-            if(_reference.getMode() == Reference.Mode.ModeOneway)
+            if (_reference.getMode() == Reference.Mode.ModeOneway)
             {
                 return this;
             }
@@ -2009,7 +2009,7 @@ namespace Ice
         /// <returns>A new proxy that uses batch oneway invocations.</returns>
         public ObjectPrx ice_batchOneway()
         {
-            if(_reference.getMode() == Reference.Mode.ModeBatchOneway)
+            if (_reference.getMode() == Reference.Mode.ModeBatchOneway)
             {
                 return this;
             }
@@ -2034,7 +2034,7 @@ namespace Ice
         /// <returns>A new proxy that uses datagram invocations.</returns>
         public ObjectPrx ice_datagram()
         {
-            if(_reference.getMode() == Reference.Mode.ModeDatagram)
+            if (_reference.getMode() == Reference.Mode.ModeDatagram)
             {
                 return this;
             }
@@ -2059,7 +2059,7 @@ namespace Ice
         /// <returns>A new proxy that uses batch datagram invocations.</returns>
         public ObjectPrx ice_batchDatagram()
         {
-            if(_reference.getMode() == Reference.Mode.ModeBatchDatagram)
+            if (_reference.getMode() == Reference.Mode.ModeBatchDatagram)
             {
                 return this;
             }
@@ -2086,7 +2086,7 @@ namespace Ice
         public ObjectPrx ice_compress(bool co)
         {
             var @ref = _reference.changeCompress(co);
-            if(@ref.Equals(_reference))
+            if (@ref.Equals(_reference))
             {
                 return this;
             }
@@ -2113,12 +2113,12 @@ namespace Ice
         /// <returns>A new proxy with the specified timeout.</returns>
         public ObjectPrx ice_timeout(int t)
         {
-            if(t < 1 && t != -1)
+            if (t < 1 && t != -1)
             {
                 throw new ArgumentException("invalid value passed to ice_timeout: " + t);
             }
             var @ref = _reference.changeTimeout(t);
-            if(@ref.Equals(_reference))
+            if (@ref.Equals(_reference))
             {
                 return this;
             }
@@ -2147,7 +2147,7 @@ namespace Ice
         public ObjectPrx ice_connectionId(string connectionId)
         {
             var @ref = _reference.changeConnectionId(connectionId);
-            if(@ref.Equals(_reference))
+            if (@ref.Equals(_reference))
             {
                 return this;
             }
@@ -2174,16 +2174,16 @@ namespace Ice
         /// <returns>A fixed proxy bound to the given connection.</returns>
         public ObjectPrx ice_fixed(Ice.Connection connection)
         {
-            if(connection == null)
+            if (connection == null)
             {
                 throw new ArgumentException("invalid null connection passed to ice_fixed");
             }
-            if(!(connection is Ice.ConnectionI))
+            if (!(connection is Ice.ConnectionI))
             {
                 throw new ArgumentException("invalid connection passed to ice_fixed");
             }
             var @ref = _reference.changeConnection((Ice.ConnectionI)connection);
-            if(@ref.Equals(_reference))
+            if (@ref.Equals(_reference))
             {
                 return this;
             }
@@ -2218,15 +2218,15 @@ namespace Ice
                     try
                     {
                         result.throwLocalException();
-                        if(responseCallback_ != null)
+                        if (responseCallback_ != null)
                         {
                             responseCallback_.Invoke(((ProxyGetConnection)OutgoingAsync).getConnection());
                         }
 
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        if(exceptionCallback_ != null)
+                        if (exceptionCallback_ != null)
                         {
                             exceptionCallback_.Invoke(ex);
                         }
@@ -2268,7 +2268,7 @@ namespace Ice
                 iceI_ice_getConnection(completed, true);
                 return completed.Task.Result;
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -2312,7 +2312,7 @@ namespace Ice
             {
                 outgoing.invoke(_ice_getConnection_name, synchronous);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 outgoing.abort(ex);
             }
@@ -2329,18 +2329,18 @@ namespace Ice
         public Connection ice_getCachedConnection()
         {
             RequestHandler handler;
-            lock(this)
+            lock (this)
             {
                 handler = _requestHandler;
             }
 
-            if(handler != null)
+            if (handler != null)
             {
                 try
                 {
                     return handler.getConnection();
                 }
-                catch(LocalException)
+                catch (LocalException)
                 {
                 }
             }
@@ -2372,9 +2372,9 @@ namespace Ice
                     {
                         result.throwLocalException();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        if(exceptionCallback_ != null)
+                        if (exceptionCallback_ != null)
                         {
                             exceptionCallback_.Invoke(ex);
                         }
@@ -2396,7 +2396,7 @@ namespace Ice
                 iceI_ice_flushBatchRequests(completed, true);
                 completed.Task.Wait();
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 throw ex.InnerException;
             }
@@ -2432,7 +2432,7 @@ namespace Ice
             {
                 outgoing.invoke(_ice_flushBatchRequests_name, synchronous);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 outgoing.abort(ex);
             }
@@ -2474,7 +2474,7 @@ namespace Ice
         /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
         /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
         /// <returns>True if the proxies are equal; false, otherwise.</returns>
-        public static bool operator==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
+        public static bool operator ==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
         {
             return Equals(lhs, rhs);
         }
@@ -2486,7 +2486,7 @@ namespace Ice
         /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
         /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
         /// <returns>True if the proxies are not equal; false, otherwise.</returns>
-        public static bool operator!=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
+        public static bool operator !=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
         {
             return !Equals(lhs, rhs);
         }
@@ -2507,7 +2507,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void iceCopyFrom(ObjectPrx from)
         {
-            lock(from)
+            lock (from)
             {
                 var h = (ObjectPrxHelperBase)from;
                 _reference = h._reference;
@@ -2536,7 +2536,7 @@ namespace Ice
             // If the request didn't get sent or if it's non-mutating or idempotent it can
             // also always be retried if the retry count isn't reached.
             //
-            if(ex is LocalException && (!sent ||
+            if (ex is LocalException && (!sent ||
                                         mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
                                         ex is CloseConnectionException ||
                                         ex is ObjectNotExistException))
@@ -2547,7 +2547,7 @@ namespace Ice
                                                                                             _reference,
                                                                                             ref cnt);
                 }
-                catch(CommunicatorDestroyedException)
+                catch (CommunicatorDestroyedException)
                 {
                     //
                     // The communicator is already destroyed, so we cannot retry.
@@ -2569,7 +2569,7 @@ namespace Ice
             // operation.
             //
 
-            if(!ice_isTwoway())
+            if (!ice_isTwoway())
             {
                 throw new TwowayOnlyException(name);
             }
@@ -2583,7 +2583,7 @@ namespace Ice
             // operation.
             //
 
-            if(!ice_isTwoway())
+            if (!ice_isTwoway())
             {
                 throw new ArgumentException("`" + name + "' can only be called with a twoway proxy");
             }
@@ -2592,11 +2592,11 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public RequestHandler iceGetRequestHandler()
         {
-            if(_reference.getCacheConnection())
+            if (_reference.getCacheConnection())
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_requestHandler != null)
+                    if (_requestHandler != null)
                     {
                         return _requestHandler;
                     }
@@ -2609,9 +2609,9 @@ namespace Ice
         public BatchRequestQueue
         iceGetBatchRequestQueue()
         {
-            lock(this)
+            lock (this)
             {
-                if(_batchRequestQueue == null)
+                if (_batchRequestQueue == null)
                 {
                     _batchRequestQueue = _reference.getBatchRequestQueue();
                 }
@@ -2623,11 +2623,11 @@ namespace Ice
         public RequestHandler
         iceSetRequestHandler(RequestHandler handler)
         {
-            if(_reference.getCacheConnection())
+            if (_reference.getCacheConnection())
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_requestHandler == null)
+                    if (_requestHandler == null)
                     {
                         _requestHandler = handler;
                     }
@@ -2640,11 +2640,11 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void iceUpdateRequestHandler(RequestHandler previous, RequestHandler handler)
         {
-            if(_reference.getCacheConnection() && previous != null)
+            if (_reference.getCacheConnection() && previous != null)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_requestHandler != null && _requestHandler != handler)
+                    if (_requestHandler != null && _requestHandler != handler)
                     {
                         //
                         // Update the request handler only if "previous" is the same
@@ -2666,11 +2666,11 @@ namespace Ice
             InputStream iss = null;
             OutputStream os = null;
 
-            if(_reference.getInstance().cacheMessageBuffers() > 0)
+            if (_reference.getInstance().cacheMessageBuffers() > 0)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_streamCache != null && _streamCache.Count > 0)
+                    if (_streamCache != null && _streamCache.Count > 0)
                     {
                         haveEntry = true;
                         iss = _streamCache.First.Value.iss;
@@ -2680,7 +2680,7 @@ namespace Ice
                     }
                 }
             }
-            if(!haveEntry)
+            if (!haveEntry)
             {
                 return new OutgoingAsyncT<T>(this, completed);
             }
@@ -2705,7 +2705,7 @@ namespace Ice
                 try
                 {
                     prepare(operation, mode, context);
-                    if(inParams == null || inParams.Length == 0)
+                    if (inParams == null || inParams.Length == 0)
                     {
                         os_.writeEmptyEncapsulation(encoding_);
                     }
@@ -2715,7 +2715,7 @@ namespace Ice
                     }
                     invoke(operation, synchronous);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     abort(ex);
                 }
@@ -2728,7 +2728,7 @@ namespace Ice
                 {
                     var ret = new Object_Ice_invokeResult();
                     EncodingVersion encoding;
-                    if(proxy_.iceReference().getMode() == Reference.Mode.ModeTwoway)
+                    if (proxy_.iceReference().getMode() == Reference.Mode.ModeTwoway)
                     {
                         ret.outEncaps = is_.readEncapsulation(out encoding);
                     }
@@ -2756,7 +2756,7 @@ namespace Ice
             {
             }
 
-            override protected AsyncCallback getCompletedCallback()
+            protected override AsyncCallback getCompletedCallback()
             {
                 return (AsyncResult r) =>
                 {
@@ -2766,19 +2766,19 @@ namespace Ice
                         Object_Ice_invokeResult result = ((InvokeOutgoingAsyncT)outgoing_).getResult(wait());
                         try
                         {
-                            if(responseCallback_ != null)
+                            if (responseCallback_ != null)
                             {
                                 responseCallback_.Invoke(result.returnValue, result.outEncaps);
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             throw new AggregateException(ex);
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        if(exceptionCallback_ != null)
+                        if (exceptionCallback_ != null)
                         {
                             exceptionCallback_.Invoke(ex);
                         }
@@ -2797,11 +2797,11 @@ namespace Ice
             public override void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
                                                   OutgoingAsyncBase og)
             {
-                if(progress_ != null && !alreadySent)
+                if (progress_ != null && !alreadySent)
                 {
                     progress_.Report(sentSynchronously);
                 }
-                if(done)
+                if (done)
                 {
                     SetResult(new Object_Ice_invokeResult(true, null));
                 }
@@ -2820,11 +2820,11 @@ namespace Ice
             InputStream iss = null;
             OutputStream os = null;
 
-            if(_reference.getInstance().cacheMessageBuffers() > 0)
+            if (_reference.getInstance().cacheMessageBuffers() > 0)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_streamCache != null && _streamCache.Count > 0)
+                    if (_streamCache != null && _streamCache.Count > 0)
                     {
                         haveEntry = true;
                         iss = _streamCache.First.Value.iss;
@@ -2834,7 +2834,7 @@ namespace Ice
                     }
                 }
             }
-            if(!haveEntry)
+            if (!haveEntry)
             {
                 return new InvokeOutgoingAsyncT(this, completed);
             }
@@ -2853,9 +2853,9 @@ namespace Ice
         public void
         cacheMessageBuffers(InputStream iss, OutputStream os)
         {
-            lock(this)
+            lock (this)
             {
-                if(_streamCache == null)
+                if (_streamCache == null)
                 {
                     _streamCache = new LinkedList<StreamCacheEntry>();
                 }
@@ -2944,7 +2944,7 @@ namespace Ice
         public static ObjectPrx checkedCast(ObjectPrx b, string f)
         {
             ObjectPrx d = null;
-            if(b != null)
+            if (b != null)
             {
                 try
                 {
@@ -2955,7 +2955,7 @@ namespace Ice
                     h.iceCopyFrom(bb);
                     d = h;
                 }
-                catch(FacetNotExistException)
+                catch (FacetNotExistException)
                 {
                 }
             }
@@ -2975,7 +2975,7 @@ namespace Ice
         public static ObjectPrx checkedCast(ObjectPrx b, string f, Dictionary<string, string> ctx)
         {
             ObjectPrx d = null;
-            if(b != null)
+            if (b != null)
             {
                 try
                 {
@@ -2986,7 +2986,7 @@ namespace Ice
                     h.iceCopyFrom(bb);
                     d = h;
                 }
-                catch(FacetNotExistException)
+                catch (FacetNotExistException)
                 {
                 }
             }
@@ -3014,7 +3014,7 @@ namespace Ice
         public static ObjectPrx uncheckedCast(ObjectPrx b, string f)
         {
             ObjectPrx d = null;
-            if(b != null)
+            if (b != null)
             {
                 var bb = b.ice_facet(f);
                 var h = new ObjectPrxHelper();

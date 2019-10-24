@@ -11,10 +11,10 @@ namespace IceInternal
 
     internal static class SafeNativeMethods
     {
-        [DllImport("bzip2.dll", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr windowsBZ2_bzlibVersion();
 
-        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
         internal static extern int windowsBZ2_bzBuffToBuffCompress(byte[] dest,
                                                                    ref int destLen,
                                                                    byte[] source,
@@ -23,7 +23,7 @@ namespace IceInternal
                                                                    int verbosity,
                                                                    int workFactor);
 
-        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
         internal static extern int windowsBZ2_bzBuffToBuffDecompress(byte[] dest,
                                                                      ref int destLen,
                                                                      byte[] source,
@@ -31,10 +31,10 @@ namespace IceInternal
                                                                      int small,
                                                                      int verbosity);
 
-        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
+        [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr unixBZ2_1_bzlibVersion();
 
-        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
+        [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
         internal static extern int unixBZ2_1_bzBuffToBuffCompress(byte[] dest,
                                                                   ref int destLen,
                                                                   byte[] source,
@@ -43,7 +43,7 @@ namespace IceInternal
                                                                   int verbosity,
                                                                   int workFactor);
 
-        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
+        [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
         internal static extern int unixBZ2_1_bzBuffToBuffDecompress(byte[] dest,
                                                                     ref int destLen,
                                                                     byte[] source,
@@ -51,10 +51,10 @@ namespace IceInternal
                                                                     int small,
                                                                     int verbosity);
 
-        [DllImport("libbz2.so.1.0", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
+        [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr unixBZ2_10_bzlibVersion();
 
-        [DllImport("libbz2.so.1.0", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
+        [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
         internal static extern int unixBZ2_10_bzBuffToBuffCompress(byte[] dest,
                                                                    ref int destLen,
                                                                    byte[] source,
@@ -63,7 +63,7 @@ namespace IceInternal
                                                                    int verbosity,
                                                                    int workFactor);
 
-        [DllImport("libbz2.so.1.0", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
+        [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
         internal static extern int unixBZ2_10_bzBuffToBuffDecompress(byte[] dest,
                                                                      ref int destLen,
                                                                      byte[] source,
@@ -71,10 +71,10 @@ namespace IceInternal
                                                                      int small,
                                                                      int verbosity);
 
-        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
+        [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr macOSBZ2_bzlibVersion();
 
-        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
+        [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffCompress", ExactSpelling = true)]
         internal static extern int macOSBZ2_bzBuffToBuffCompress(byte[] dest,
                                                                  ref int destLen,
                                                                  byte[] source,
@@ -83,7 +83,7 @@ namespace IceInternal
                                                                  int verbosity,
                                                                  int workFactor);
 
-        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
+        [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
         internal static extern int macOSBZ2_bzBuffToBuffDecompress(byte[] dest,
                                                                    ref int destLen,
                                                                    byte[] source,
@@ -92,20 +92,20 @@ namespace IceInternal
                                                                    int verbosity);
     }
 
-    delegate int CompressBuffer(byte[] dest,
-                                ref int destLen,
-                                byte[] source,
-                                int sourceLen,
-                                int blockSize100k,
-                                int verbosity,
-                                int workFactor);
+    internal delegate int CompressBuffer(byte[] dest,
+                                         ref int destLen,
+                                         byte[] source,
+                                         int sourceLen,
+                                         int blockSize100k,
+                                         int verbosity,
+                                         int workFactor);
 
-    delegate int DecompressBuffer(byte[] dest,
-                                  ref int destLen,
-                                  byte[] source,
-                                  int sourceLen,
-                                  int small,
-                                  int verbosity);
+    internal delegate int DecompressBuffer(byte[] dest,
+                                           ref int destLen,
+                                           byte[] source,
+                                           int sourceLen,
+                                           int small,
+                                           int verbosity);
     public class BZip2
     {
         static BZip2()
@@ -115,15 +115,15 @@ namespace IceInternal
             // library. If we get an exception, the library is not available.
             //
             _bzlibInstalled = false;
-            _bzlibName = "";
+            _bzlibName = string.Empty;
             try
             {
-                if(AssemblyUtil.isWindows)
+                if (AssemblyUtil.isWindows)
                 {
                     _bzlibName = "bzip2.dll";
                     SafeNativeMethods.windowsBZ2_bzlibVersion();
                 }
-                else if(AssemblyUtil.isMacOS)
+                else if (AssemblyUtil.isMacOS)
                 {
                     _bzlibName = "libbz2.dylib";
                     SafeNativeMethods.macOSBZ2_bzlibVersion();
@@ -135,7 +135,7 @@ namespace IceInternal
                         _bzlibName = "libbz2.so.1.0";
                         SafeNativeMethods.unixBZ2_10_bzlibVersion();
                     }
-                    catch(TypeLoadException)
+                    catch (TypeLoadException)
                     {
                         _bzlibName = "libbz2.so.1";
                         SafeNativeMethods.unixBZ2_1_bzlibVersion();
@@ -143,30 +143,30 @@ namespace IceInternal
                 }
                 _bzlibInstalled = true;
             }
-            catch(EntryPointNotFoundException)
+            catch (EntryPointNotFoundException)
             {
                 Console.Error.WriteLine("warning: found " + _bzlibName + " but entry point BZ2_bzlibVersion is missing.");
             }
-            catch(TypeLoadException)
+            catch (TypeLoadException)
             {
                 // Expected -- bzip2 lib not installed or not in PATH.
             }
-            catch(BadImageFormatException ex)
+            catch (BadImageFormatException ex)
             {
                 string lib = _bzlibName;
-                if(!String.IsNullOrEmpty(ex.FileName))
+                if (!string.IsNullOrEmpty(ex.FileName))
                 {
                     lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
                 }
                 Console.Error.Write("warning: " + lib + " could not be loaded (likely due to 32/64-bit mismatch).");
-                if(IntPtr.Size == 8)
+                if (IntPtr.Size == 8)
                 {
                     Console.Error.Write(" Make sure the directory containing the 64-bit " + lib + " is in your PATH.");
                 }
                 Console.Error.WriteLine();
             }
 
-            if(AssemblyUtil.isWindows)
+            if (AssemblyUtil.isWindows)
             {
                 _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
                                    int verbosity, int workFactor) =>
@@ -182,7 +182,7 @@ namespace IceInternal
                                                                                    small, verbosity);
                     };
             }
-            else if(AssemblyUtil.isMacOS)
+            else if (AssemblyUtil.isMacOS)
             {
                 _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
                                    int verbosity, int workFactor) =>
@@ -200,7 +200,7 @@ namespace IceInternal
             }
             else
             {
-                if(_bzlibName == "libbz2.so.1.0")
+                if (_bzlibName == "libbz2.so.1.0")
                 {
                     _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
                                        int verbosity, int workFactor) =>
@@ -237,62 +237,62 @@ namespace IceInternal
             }
         }
 
-        static string getBZ2Error(int error)
+        private static string getBZ2Error(int error)
         {
             string rc;
 
-            switch(error)
+            switch (error)
             {
                 case BZ_SEQUENCE_ERROR:
-                {
-                    rc = "BZ_SEQUENCE_ERROR";
-                    break;
-                }
+                    {
+                        rc = "BZ_SEQUENCE_ERROR";
+                        break;
+                    }
                 case BZ_PARAM_ERROR:
-                {
-                    rc = "BZ_PARAM_ERROR";
-                    break;
-                }
+                    {
+                        rc = "BZ_PARAM_ERROR";
+                        break;
+                    }
                 case BZ_MEM_ERROR:
-                {
-                    rc = "BZ_MEM_ERROR";
-                    break;
-                }
+                    {
+                        rc = "BZ_MEM_ERROR";
+                        break;
+                    }
                 case BZ_DATA_ERROR:
-                {
-                    rc = "BZ_DATA_ERROR";
-                    break;
-                }
+                    {
+                        rc = "BZ_DATA_ERROR";
+                        break;
+                    }
                 case BZ_DATA_ERROR_MAGIC:
-                {
-                    rc = "BZ_DATA_ERROR_MAGIC";
-                    break;
-                }
+                    {
+                        rc = "BZ_DATA_ERROR_MAGIC";
+                        break;
+                    }
                 case BZ_IO_ERROR:
-                {
-                    rc = "BZ_IO_ERROR";
-                    break;
-                }
+                    {
+                        rc = "BZ_IO_ERROR";
+                        break;
+                    }
                 case BZ_UNEXPECTED_EOF:
-                {
-                    rc = "BZ_UNEXPECTED_EOF";
-                    break;
-                }
+                    {
+                        rc = "BZ_UNEXPECTED_EOF";
+                        break;
+                    }
                 case BZ_OUTBUFF_FULL:
-                {
-                    rc = "BZ_OUTBUFF_FULL";
-                    break;
-                }
+                    {
+                        rc = "BZ_OUTBUFF_FULL";
+                        break;
+                    }
                 case BZ_CONFIG_ERROR:
-                {
-                    rc = "BZ_CONFIG_ERROR";
-                    break;
-                }
+                    {
+                        rc = "BZ_CONFIG_ERROR";
+                        break;
+                    }
                 default:
-                {
-                    rc = "Unknown bzip2 error: " + error;
-                    break;
-                }
+                    {
+                        rc = "Unknown bzip2 error: " + error;
+                        break;
+                    }
             }
             return rc;
         }
@@ -314,11 +314,11 @@ namespace IceInternal
             byte[] compressed = new byte[compressedLen];
 
             int rc = _compressBuffer(compressed, ref compressedLen, data, uncompressedLen, compressionLevel, 0, 0);
-            if(rc == BZ_OUTBUFF_FULL)
+            if (rc == BZ_OUTBUFF_FULL)
             {
                 return null;
             }
-            else if(rc < 0)
+            else if (rc < 0)
             {
                 Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffCompress failed");
                 ex.reason = getBZ2Error(rc);
@@ -329,7 +329,7 @@ namespace IceInternal
             // Don't bother if the compressed data is larger than the
             // uncompressed data.
             //
-            if(compressedLen >= uncompressedLen)
+            if (compressedLen >= uncompressedLen)
             {
                 return null;
             }
@@ -364,11 +364,11 @@ namespace IceInternal
 
             buf.b.position(headerSize);
             int uncompressedSize = buf.b.getInt();
-            if(uncompressedSize <= headerSize)
+            if (uncompressedSize <= headerSize)
             {
                 throw new Ice.IllegalMessageSizeException("compressed size <= header size");
             }
-            if(uncompressedSize > messageSizeMax)
+            if (uncompressedSize > messageSizeMax)
             {
                 IceInternal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
             }
@@ -379,7 +379,7 @@ namespace IceInternal
 
             byte[] uncompressed = new byte[uncompressedLen];
             int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
-            if(rc < 0)
+            if (rc < 0)
             {
                 Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffDecompress failed");
                 ex.reason = getBZ2Error(rc);
@@ -405,15 +405,15 @@ namespace IceInternal
         private static CompressBuffer _compressBuffer;
         private static DecompressBuffer _decompressBuffer;
 
-        const int BZ_SEQUENCE_ERROR = -1;
-        const int BZ_PARAM_ERROR = -2;
-        const int BZ_MEM_ERROR = -3;
-        const int BZ_DATA_ERROR = -4;
-        const int BZ_DATA_ERROR_MAGIC = -5;
-        const int BZ_IO_ERROR = -6;
-        const int BZ_UNEXPECTED_EOF = -7;
-        const int BZ_OUTBUFF_FULL = -8;
-        const int BZ_CONFIG_ERROR = -9;
+        private const int BZ_SEQUENCE_ERROR = -1;
+        private const int BZ_PARAM_ERROR = -2;
+        private const int BZ_MEM_ERROR = -3;
+        private const int BZ_DATA_ERROR = -4;
+        private const int BZ_DATA_ERROR_MAGIC = -5;
+        private const int BZ_IO_ERROR = -6;
+        private const int BZ_UNEXPECTED_EOF = -7;
+        private const int BZ_OUTBUFF_FULL = -8;
+        private const int BZ_CONFIG_ERROR = -9;
     }
 
 }

@@ -6,7 +6,7 @@ namespace IceInternal
 {
     using System.Net;
 
-    sealed class TcpConnector : Connector
+    internal sealed class TcpConnector : Connector
     {
         public Transceiver connect()
         {
@@ -33,7 +33,7 @@ namespace IceInternal
 
             _hashCode = 5381;
             HashUtil.hashAdd(ref _hashCode, _addr);
-            if(_sourceAddr != null)
+            if (_sourceAddr != null)
             {
                 HashUtil.hashAdd(ref _hashCode, _sourceAddr);
             }
@@ -43,28 +43,28 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(!(obj is TcpConnector))
+            if (!(obj is TcpConnector))
             {
                 return false;
             }
 
-            if(this == obj)
+            if (this == obj)
             {
                 return true;
             }
 
             TcpConnector p = (TcpConnector)obj;
-            if(_timeout != p._timeout)
+            if (_timeout != p._timeout)
             {
                 return false;
             }
 
-            if(!Network.addressEquals(_sourceAddr, p._sourceAddr))
+            if (!Network.addressEquals(_sourceAddr, p._sourceAddr))
             {
                 return false;
             }
 
-            if(!_connectionId.Equals(p._connectionId))
+            if (!_connectionId.Equals(p._connectionId))
             {
                 return false;
             }

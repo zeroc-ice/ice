@@ -23,7 +23,7 @@ public abstract class BasePluginFail : Ice.Plugin
 
     protected static void test(bool b)
     {
-        if(!b)
+        if (!b)
         {
             throw new System.Exception();
         }

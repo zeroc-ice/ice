@@ -27,7 +27,7 @@ public class Server : Test.TestHelper
         {
             initData.dispatcher = new Dispatcher().dispatch;
 
-            using(var communicator = initialize(initData))
+            using (var communicator = initialize(initData))
             {
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                 communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

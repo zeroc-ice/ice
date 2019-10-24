@@ -17,15 +17,15 @@ namespace Ice
                 string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
                 string name = System.Guid.NewGuid().ToString();
-                if(timeout >= 0)
+                if (timeout >= 0)
                 {
                     properties.setProperty(name + ".ACM.Timeout", timeout.ToString());
                 }
-                if(close >= 0)
+                if (close >= 0)
                 {
                     properties.setProperty(name + ".ACM.Close", close.ToString());
                 }
-                if(heartbeat >= 0)
+                if (heartbeat >= 0)
                 {
                     properties.setProperty(name + ".ACM.Heartbeat", heartbeat.ToString());
                 }
@@ -72,7 +72,7 @@ namespace Ice
                 {
                     _adapter.destroy();
                 }
-                catch(Ice.ObjectAdapterDeactivatedException)
+                catch (Ice.ObjectAdapterDeactivatedException)
                 {
                 }
             }
@@ -85,7 +85,7 @@ namespace Ice
         {
             public override void sleep(int delay, Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     System.Threading.Monitor.Wait(this, delay * 1000);
                 }
@@ -93,7 +93,7 @@ namespace Ice
 
             public override void sleepAndHold(int delay, Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     current.adapter.hold();
                     System.Threading.Monitor.Wait(this, delay * 1000);
@@ -102,7 +102,7 @@ namespace Ice
 
             public override void interruptSleep(Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     System.Threading.Monitor.PulseAll(this);
                 }
@@ -112,7 +112,7 @@ namespace Ice
             {
                 public void heartbeat(Ice.Connection c)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         ++_count;
                         System.Threading.Monitor.PulseAll(this);
@@ -121,9 +121,9 @@ namespace Ice
 
                 public void waitForCount(int count)
                 {
-                    lock(this)
+                    lock (this)
                     {
-                        while(_count < count)
+                        while (_count < count)
                         {
                             System.Threading.Monitor.Wait(this);
                         }

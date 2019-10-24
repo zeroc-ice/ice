@@ -22,7 +22,7 @@ public class Collocated : Test.TestHelper
             initData.properties.setProperty("Ice.Warn.AMICallback", "0");
             initData.dispatcher = new Dispatcher().dispatch;
 
-            using(var communicator = initialize(initData))
+            using (var communicator = initialize(initData))
             {
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                 communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));

@@ -12,13 +12,13 @@ namespace Ice
             createObjectAdapter(string name, string endpts, Ice.Current current)
             {
                 int retry = 5;
-                while(true)
+                while (true)
                 {
                     try
                     {
                         Ice.Communicator communicator = current.adapter.getCommunicator();
                         string endpoints = endpts;
-                        if(endpoints.IndexOf("-p") < 0)
+                        if (endpoints.IndexOf("-p") < 0)
                         {
                             endpoints = global::Test.TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpoints);
                         }
@@ -28,9 +28,9 @@ namespace Ice
                         return Test.RemoteObjectAdapterPrxHelper.uncheckedCast(
                             current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
                     }
-                    catch(Ice.SocketException)
+                    catch (Ice.SocketException)
                     {
-                        if(--retry == 0)
+                        if (--retry == 0)
                         {
                             throw;
                         }

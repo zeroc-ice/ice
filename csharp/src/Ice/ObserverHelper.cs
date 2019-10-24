@@ -9,13 +9,13 @@ namespace IceInternal
 
     public sealed class ObserverHelper
     {
-        static public InvocationObserver get(Instance instance, string op)
+        public static InvocationObserver get(Instance instance, string op)
         {
             CommunicatorObserver obsv = instance.initializationData().observer;
-            if(obsv != null)
+            if (obsv != null)
             {
                 InvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
-                if(observer != null)
+                if (observer != null)
                 {
                     observer.attach();
                 }
@@ -24,19 +24,19 @@ namespace IceInternal
             return null;
         }
 
-        static public InvocationObserver get(Ice.ObjectPrx proxy, string op)
+        public static InvocationObserver get(Ice.ObjectPrx proxy, string op)
         {
             return get(proxy, op, null);
         }
 
-        static public InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
+        public static InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
         {
             CommunicatorObserver obsv =
                 ((Ice.ObjectPrxHelperBase)proxy).iceReference().getInstance().initializationData().observer;
-            if(obsv != null)
+            if (obsv != null)
             {
                 InvocationObserver observer;
-                if(context == null)
+                if (context == null)
                 {
                     observer = obsv.getInvocationObserver(proxy, op, _emptyContext);
                 }
@@ -44,7 +44,7 @@ namespace IceInternal
                 {
                     observer = obsv.getInvocationObserver(proxy, op, context);
                 }
-                if(observer != null)
+                if (observer != null)
                 {
                     observer.attach();
                 }

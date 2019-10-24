@@ -49,17 +49,17 @@ namespace IceInternal
                 _endpoint = e;
             }
 
-            override public short type()
+            public override short type()
             {
                 return _endpoint.type();
             }
 
-            override public bool datagram()
+            public override bool datagram()
             {
                 return _endpoint.datagram();
             }
 
-            override public bool secure()
+            public override bool secure()
             {
                 return _endpoint.secure();
             }
@@ -96,7 +96,7 @@ namespace IceInternal
 
         public override EndpointI connectionId(string connectionId)
         {
-            if(connectionId.Equals(connectionId_))
+            if (connectionId.Equals(connectionId_))
             {
                 return this;
             }
@@ -115,13 +115,13 @@ namespace IceInternal
         {
             List<EndpointI> endps = new List<EndpointI>();
             List<string> hosts = Network.getHostsForEndpointExpand(host_, instance_.protocolSupport(), false);
-            if(hosts == null || hosts.Count == 0)
+            if (hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);
             }
             else
             {
-                foreach(string h in hosts)
+                foreach (string h in hosts)
                 {
                     endps.Add(createEndpoint(h, port_, connectionId_));
                 }
@@ -136,7 +136,7 @@ namespace IceInternal
             // this endpoint.
             //
             var endpoints = new List<EndpointI>();
-            if(host_.Length == 0)
+            if (host_.Length == 0)
             {
                 publish = null;
                 endpoints.Add(this);
@@ -157,13 +157,13 @@ namespace IceInternal
                                                             instance_.preferIPv6(),
                                                             true);
 
-            if(addresses.Count == 1)
+            if (addresses.Count == 1)
             {
                 endpoints.Add(this);
             }
             else
             {
-                foreach(EndPoint addr in addresses)
+                foreach (EndPoint addr in addresses)
                 {
                     endpoints.Add(createEndpoint(Network.endpointAddressToString(addr),
                                                  Network.endpointPort(addr),
@@ -175,7 +175,7 @@ namespace IceInternal
 
         public override bool equivalent(EndpointI endpoint)
         {
-            if(!(endpoint is IPEndpointI))
+            if (!(endpoint is IPEndpointI))
             {
                 return false;
             }
@@ -187,7 +187,7 @@ namespace IceInternal
         public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
         {
             List<Connector> connectors = new List<Connector>();
-            foreach(EndPoint p in addresses)
+            foreach (EndPoint p in addresses)
             {
                 connectors.Add(createConnector(p, proxy));
             }
@@ -205,16 +205,16 @@ namespace IceInternal
             //
             string s = "";
 
-            if(host_ != null && host_.Length > 0)
+            if (host_ != null && host_.Length > 0)
             {
                 s += " -h ";
                 bool addQuote = host_.IndexOf(':') != -1;
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
                 s += host_;
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
@@ -222,17 +222,17 @@ namespace IceInternal
 
             s += " -p " + port_;
 
-            if(sourceAddr_ != null)
+            if (sourceAddr_ != null)
             {
                 string sourceAddr = Network.endpointAddressToString(sourceAddr_);
                 bool addQuote = sourceAddr.IndexOf(':') != -1;
                 s += " --sourceAddress ";
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
                 s += sourceAddr;
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
@@ -243,7 +243,7 @@ namespace IceInternal
 
         public override int GetHashCode()
         {
-            if(!_hashInitialized)
+            if (!_hashInitialized)
             {
                 _hashValue = 5381;
                 HashUtil.hashAdd(ref _hashValue, type());
@@ -255,35 +255,35 @@ namespace IceInternal
 
         public override int CompareTo(EndpointI obj)
         {
-            if(!(obj is IPEndpointI))
+            if (!(obj is IPEndpointI))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
             IPEndpointI p = (IPEndpointI)obj;
-            if(this == p)
+            if (this == p)
             {
                 return 0;
             }
 
             int v = string.Compare(host_, p.host_, StringComparison.Ordinal);
-            if(v != 0)
+            if (v != 0)
             {
                 return v;
             }
 
-            if(port_ < p.port_)
+            if (port_ < p.port_)
             {
                 return -1;
             }
-            else if(p.port_ < port_)
+            else if (p.port_ < port_)
             {
                 return 1;
             }
 
             int rc = string.Compare(Network.endpointAddressToString(sourceAddr_),
                                     Network.endpointAddressToString(p.sourceAddr_), StringComparison.Ordinal);
-            if(rc != 0)
+            if (rc != 0)
             {
                 return rc;
             }
@@ -301,7 +301,7 @@ namespace IceInternal
         {
             HashUtil.hashAdd(ref h, host_);
             HashUtil.hashAdd(ref h, port_);
-            if(sourceAddr_ != null)
+            if (sourceAddr_ != null)
             {
                 HashUtil.hashAdd(ref h, sourceAddr_);
             }
@@ -319,13 +319,13 @@ namespace IceInternal
         {
             base.initWithOptions(args);
 
-            if(host_ == null || host_.Length == 0)
+            if (host_ == null || host_.Length == 0)
             {
                 host_ = instance_.defaultHost();
             }
-            else if(host_.Equals("*"))
+            else if (host_.Equals("*"))
             {
-                if(oaEndpoint)
+                if (oaEndpoint)
                 {
                     host_ = "";
                 }
@@ -335,20 +335,20 @@ namespace IceInternal
                 }
             }
 
-            if(host_ == null)
+            if (host_ == null)
             {
                 host_ = "";
             }
 
-            if(sourceAddr_ != null)
+            if (sourceAddr_ != null)
             {
-                if(oaEndpoint)
+                if (oaEndpoint)
                 {
                     throw new Ice.EndpointParseException("`--sourceAddress' not valid for object adapter endpoint `" +
                                                          ToString() + "'");
                 }
             }
-            else if(!oaEndpoint)
+            else if (!oaEndpoint)
             {
                 sourceAddr_ = instance_.defaultSourceAddress();
             }
@@ -356,18 +356,18 @@ namespace IceInternal
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            if(option.Equals("-h"))
+            if (option.Equals("-h"))
             {
-                if(argument == null)
+                if (argument == null)
                 {
                     throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " +
                                                          endpoint);
                 }
                 host_ = argument;
             }
-            else if(option.Equals("-p"))
+            else if (option.Equals("-p"))
             {
-                if(argument == null)
+                if (argument == null)
                 {
                     throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " +
                                                          endpoint);
@@ -377,28 +377,28 @@ namespace IceInternal
                 {
                     port_ = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
-                catch(FormatException ex)
+                catch (FormatException ex)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
                     e.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
                     throw e;
                 }
 
-                if(port_ < 0 || port_ > 65535)
+                if (port_ < 0 || port_ > 65535)
                 {
                     throw new Ice.EndpointParseException("port value `" + argument +
                                                          "' out of range in endpoint " + endpoint);
                 }
             }
-            else if(option.Equals("--sourceAddress"))
+            else if (option.Equals("--sourceAddress"))
             {
-                if(argument == null)
+                if (argument == null)
                 {
                     throw new Ice.EndpointParseException("no argument provided for --sourceAddress option in endpoint " +
                                                          endpoint);
                 }
                 sourceAddr_ = Network.getNumericAddress(argument);
-                if(sourceAddr_ == null)
+                if (sourceAddr_ == null)
                 {
                     throw new Ice.EndpointParseException(
                         "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);

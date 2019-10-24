@@ -10,7 +10,7 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                using(var communicator = initialize(ref args))
+                using (var communicator = initialize(ref args))
                 {
                     var output = getWriter();
                     output.Write("testing server priority... ");

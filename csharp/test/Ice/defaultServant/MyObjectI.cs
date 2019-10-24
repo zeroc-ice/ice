@@ -13,11 +13,11 @@ namespace Ice
             {
                 string name = current.id.name;
 
-                if(name == "ObjectNotExist")
+                if (name == "ObjectNotExist")
                 {
                     throw new Ice.ObjectNotExistException();
                 }
-                else if(name == "FacetNotExist")
+                else if (name == "FacetNotExist")
                 {
                     throw new Ice.FacetNotExistException();
                 }
@@ -28,11 +28,11 @@ namespace Ice
             {
                 string name = current.id.name;
 
-                if(name == "ObjectNotExist")
+                if (name == "ObjectNotExist")
                 {
                     throw new Ice.ObjectNotExistException();
                 }
-                else if(name == "FacetNotExist")
+                else if (name == "FacetNotExist")
                 {
                     throw new Ice.FacetNotExistException();
                 }

@@ -53,7 +53,7 @@ namespace Ice
             public override void holdAdapter(int to, Ice.Current current)
             {
                 _adapter.hold();
-                if(to >= 0)
+                if (to >= 0)
                 {
                     ActivateAdapterThread act = new ActivateAdapterThread(_adapter, to);
                     Thread thread = new Thread(new ThreadStart(act.run));

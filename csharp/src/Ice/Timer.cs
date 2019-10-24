@@ -23,9 +23,9 @@ namespace IceInternal
     {
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     return;
                 }
@@ -42,9 +42,9 @@ namespace IceInternal
 
         public void schedule(TimerTask task, long delay)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
@@ -56,12 +56,12 @@ namespace IceInternal
                     _tasks.Add(task, token);
                     _tokens.Add(token, null);
                 }
-                catch(System.ArgumentException)
+                catch (System.ArgumentException)
                 {
                     Debug.Assert(false);
                 }
 
-                if(token.scheduledTime < _wakeUpTime)
+                if (token.scheduledTime < _wakeUpTime)
                 {
                     Monitor.Pulse(this);
                 }
@@ -70,9 +70,9 @@ namespace IceInternal
 
         public void scheduleRepeated(TimerTask task, long period)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
@@ -84,12 +84,12 @@ namespace IceInternal
                     _tasks.Add(task, token);
                     _tokens.Add(token, null);
                 }
-                catch(System.ArgumentException)
+                catch (System.ArgumentException)
                 {
                     Debug.Assert(false);
                 }
 
-                if(token.scheduledTime < _wakeUpTime)
+                if (token.scheduledTime < _wakeUpTime)
                 {
                     Monitor.Pulse(this);
                 }
@@ -98,15 +98,15 @@ namespace IceInternal
 
         public bool cancel(TimerTask task)
         {
-            lock(this)
+            lock (this)
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     return false;
                 }
 
                 Token token;
-                if(!_tasks.TryGetValue(task, out token))
+                if (!_tasks.TryGetValue(task, out token))
                 {
                     return false;
                 }
@@ -124,12 +124,12 @@ namespace IceInternal
             init(instance, priority, true);
         }
 
-        internal void init(Instance instance, ThreadPriority priority,  bool hasPriority)
+        internal void init(Instance instance, ThreadPriority priority, bool hasPriority)
         {
             _instance = instance;
 
             string threadName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
-            if(threadName.Length > 0)
+            if (threadName.Length > 0)
             {
                 threadName += "-";
             }
@@ -137,7 +137,7 @@ namespace IceInternal
             _thread = new Thread(new ThreadStart(Run));
             _thread.IsBackground = true;
             _thread.Name = threadName + "Ice.Timer";
-            if(hasPriority)
+            if (hasPriority)
             {
                 _thread.Priority = priority;
             }
@@ -146,14 +146,14 @@ namespace IceInternal
 
         internal void updateObserver(Ice.Instrumentation.CommunicatorObserver obsv)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(obsv != null);
                 _observer = obsv.getThreadObserver("Communicator",
                                                    _thread.Name,
                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.attach();
                 }
@@ -163,19 +163,19 @@ namespace IceInternal
         public void Run()
         {
             Token token = null;
-            while(true)
+            while (true)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_instance != null)
+                    if (_instance != null)
                     {
                         //
                         // If the task we just ran is a repeated task, schedule it
                         // again for execution if it wasn't canceled.
                         //
-                        if(token != null && token.delay > 0)
+                        if (token != null && token.delay > 0)
                         {
-                            if(_tasks.ContainsKey(token.task))
+                            if (_tasks.ContainsKey(token.task))
                             {
                                 token.scheduledTime = Time.currentMonotonicTimeMillis() + token.delay;
                                 _tokens.Add(token, null);
@@ -184,39 +184,39 @@ namespace IceInternal
                     }
                     token = null;
 
-                    if(_instance == null)
+                    if (_instance == null)
                     {
                         break;
                     }
 
-                    if(_tokens.Count == 0)
+                    if (_tokens.Count == 0)
                     {
                         _wakeUpTime = long.MaxValue;
                         Monitor.Wait(this);
                     }
 
-                    if(_instance == null)
+                    if (_instance == null)
                     {
                         break;
                     }
 
-                    while(_tokens.Count > 0 && _instance != null)
+                    while (_tokens.Count > 0 && _instance != null)
                     {
                         long now = Time.currentMonotonicTimeMillis();
 
                         Token first = null;
-                        foreach(Token t in _tokens.Keys)
+                        foreach (Token t in _tokens.Keys)
                         {
                             first = t;
                             break;
                         }
                         Debug.Assert(first != null);
 
-                        if(first.scheduledTime <= now)
+                        if (first.scheduledTime <= now)
                         {
                             _tokens.Remove(first);
                             token = first;
-                            if(token.delay == 0)
+                            if (token.delay == 0)
                             {
                                 _tasks.Remove(token.task);
                             }
@@ -227,18 +227,18 @@ namespace IceInternal
                         Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
 
-                    if(_instance == null)
+                    if (_instance == null)
                     {
                         break;
                     }
                 }
 
-                if(token != null)
+                if (token != null)
                 {
                     try
                     {
                         Ice.Instrumentation.ThreadObserver threadObserver = _observer;
-                        if(threadObserver != null)
+                        if (threadObserver != null)
                         {
                             threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                         Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
@@ -257,11 +257,11 @@ namespace IceInternal
                             token.task.runTimerTask();
                         }
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
-                        lock(this)
+                        lock (this)
                         {
-                            if(_instance != null)
+                            if (_instance != null)
                             {
                                 string s = "unexpected exception from task run method in timer thread:\n" + ex;
                                 _instance.initializationData().logger.error(s);
@@ -289,20 +289,20 @@ namespace IceInternal
                 // Token are sorted by scheduled time and token id.
                 //
                 Token r = (Token)o;
-                if(scheduledTime < r.scheduledTime)
+                if (scheduledTime < r.scheduledTime)
                 {
                     return -1;
                 }
-                else if(scheduledTime > r.scheduledTime)
+                else if (scheduledTime > r.scheduledTime)
                 {
                     return 1;
                 }
 
-                if(id < r.id)
+                if (id < r.id)
                 {
                     return -1;
                 }
-                else if(id > r.id)
+                else if (id > r.id)
                 {
                     return 1;
                 }
@@ -312,7 +312,7 @@ namespace IceInternal
 
             public override bool Equals(object o)
             {
-                if(ReferenceEquals(this, o))
+                if (ReferenceEquals(this, o))
                 {
                     return true;
                 }
@@ -347,6 +347,6 @@ namespace IceInternal
         // also doesn't need to be synchronized.
         //
         private volatile Ice.Instrumentation.ThreadObserver _observer;
-}
+    }
 
 }

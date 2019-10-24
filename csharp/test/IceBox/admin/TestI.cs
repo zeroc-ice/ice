@@ -19,7 +19,7 @@ public class TestFacetI : TestFacetDisp_
 
     public void updated(Dictionary<string, string> changes)
     {
-        lock(this)
+        lock (this)
         {
             _changes = changes;
         }

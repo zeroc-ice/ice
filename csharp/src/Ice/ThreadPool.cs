@@ -17,7 +17,7 @@ namespace IceInternal
     // continuations from awaited methods continue executing on the thread pool
     // and not on the thread that notifies the awaited task.
     //
-    sealed class ThreadPoolSynchronizationContext : SynchronizationContext
+    internal sealed class ThreadPoolSynchronizationContext : SynchronizationContext
     {
         public ThreadPoolSynchronizationContext(ThreadPool threadPool)
         {
@@ -36,7 +36,7 @@ namespace IceInternal
             // context to execute continuations).
             //
             var ctx = Current as ThreadPoolSynchronizationContext;
-            if(ctx != this)
+            if (ctx != this)
             {
                 _threadPool.dispatch(() => { d(state); }, null, false);
             }
@@ -72,9 +72,9 @@ namespace IceInternal
 
         public void finishIOScope(ref ThreadPoolCurrent current)
         {
-            if(_finishWithIO)
+            if (_finishWithIO)
             {
-                lock(_mutex)
+                lock (_mutex)
                 {
                     current.finishMessage(true);
                 }
@@ -89,7 +89,7 @@ namespace IceInternal
             // the message (it will be called from destroy below).
             //
             Debug.Assert(_finishWithIO);
-            if(current.ioCompleted())
+            if (current.ioCompleted())
             {
                 _finishWithIO = false;
                 _finish = true;
@@ -98,14 +98,14 @@ namespace IceInternal
 
         public void destroy(ref ThreadPoolCurrent current)
         {
-            if(_finish)
+            if (_finish)
             {
                 //
                 // A ThreadPoolMessage instance must be created outside the synchronization
                 // of the event handler. We need to lock the event handler here to call
                 // finishMessage.
                 //
-                lock(_mutex)
+                lock (_mutex)
                 {
                     current.finishMessage(false);
                     Debug.Assert(!current.completedSynchronously);
@@ -166,7 +166,7 @@ namespace IceInternal
             _serverIdleTime = timeout;
 
             string programName = properties.getProperty("Ice.ProgramName");
-            if(programName.Length > 0)
+            if (programName.Length > 0)
             {
                 _threadPrefix = programName + "-" + _prefix;
             }
@@ -181,7 +181,7 @@ namespace IceInternal
             // doesn't require to make the servants thread safe.
             //
             int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
-            if(size < 1)
+            if (size < 1)
             {
                 string s = _prefix + ".Size < 1; Size adjusted to 1";
                 _instance.initializationData().logger.warning(s);
@@ -189,7 +189,7 @@ namespace IceInternal
             }
 
             int sizeMax = properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
-            if(sizeMax < size)
+            if (sizeMax < size)
             {
                 string s = _prefix + ".SizeMax < " + _prefix + ".Size; SizeMax adjusted to Size (" + size + ")";
                 _instance.initializationData().logger.warning(s);
@@ -197,13 +197,13 @@ namespace IceInternal
             }
 
             int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
-            if(sizeWarn != 0 && sizeWarn < size)
+            if (sizeWarn != 0 && sizeWarn < size)
             {
                 string s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
                 _instance.initializationData().logger.warning(s);
                 sizeWarn = size;
             }
-            else if(sizeWarn > sizeMax)
+            else if (sizeWarn > sizeMax)
             {
                 string s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax ("
                     + sizeMax + ")";
@@ -212,7 +212,7 @@ namespace IceInternal
             }
 
             int threadIdleTime = properties.getPropertyAsIntWithDefault(_prefix + ".ThreadIdleTime", 60);
-            if(threadIdleTime < 0)
+            if (threadIdleTime < 0)
             {
                 string s = _prefix + ".ThreadIdleTime < 0; ThreadIdleTime adjusted to 0";
                 _instance.initializationData().logger.warning(s);
@@ -225,7 +225,7 @@ namespace IceInternal
             _threadIdleTime = threadIdleTime;
 
             int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
-            if(stackSize < 0)
+            if (stackSize < 0)
             {
                 string s = _prefix + ".StackSize < 0; Size adjusted to OS default";
                 _instance.initializationData().logger.warning(s);
@@ -237,7 +237,7 @@ namespace IceInternal
                 Util.stringToThreadPriority(properties.getProperty(_prefix + ".ThreadPriority")) :
                 Util.stringToThreadPriority(properties.getProperty("Ice.ThreadPriority"));
 
-            if(_instance.traceLevels().threadPool >= 1)
+            if (_instance.traceLevels().threadPool >= 1)
             {
                 string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
                            _sizeWarn;
@@ -249,14 +249,14 @@ namespace IceInternal
             try
             {
                 _threads = new List<WorkerThread>();
-                for(int i = 0; i < _size; ++i)
+                for (int i = 0; i < _size; ++i)
                 {
                     WorkerThread thread = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
                     thread.start(_priority);
                     _threads.Add(thread);
                 }
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 string s = "cannot create thread for `" + _prefix + "':\n" + ex;
                 _instance.initializationData().logger.error(s);
@@ -269,9 +269,9 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
-                if(_destroyed)
+                if (_destroyed)
                 {
                     return;
                 }
@@ -282,9 +282,9 @@ namespace IceInternal
 
         public void updateObservers()
         {
-            lock(this)
+            lock (this)
             {
-                foreach(WorkerThread t in _threads)
+                foreach (WorkerThread t in _threads)
                 {
                     t.updateObserver();
                 }
@@ -308,7 +308,7 @@ namespace IceInternal
 
         public void update(EventHandler handler, int remove, int add)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
 
@@ -318,7 +318,7 @@ namespace IceInternal
                 // Don't remove/add if already un-registered or registered
                 remove &= handler._registered;
                 add &= ~handler._registered;
-                if(remove == add)
+                if (remove == add)
                 {
                     return;
                 }
@@ -326,7 +326,7 @@ namespace IceInternal
                 handler._registered &= ~remove;
                 handler._registered |= add;
 
-                if((add & SocketOperation.Read) != 0 && (handler._pending & SocketOperation.Read) == 0)
+                if ((add & SocketOperation.Read) != 0 && (handler._pending & SocketOperation.Read) == 0)
                 {
                     handler._pending |= SocketOperation.Read;
                     executeNonBlocking(() =>
@@ -334,7 +334,7 @@ namespace IceInternal
                             messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Read));
                         });
                 }
-                else if((add & SocketOperation.Write) != 0 && (handler._pending & SocketOperation.Write) == 0)
+                else if ((add & SocketOperation.Write) != 0 && (handler._pending & SocketOperation.Write) == 0)
                 {
                     handler._pending |= SocketOperation.Write;
                     executeNonBlocking(() =>
@@ -352,7 +352,7 @@ namespace IceInternal
 
         public void finish(EventHandler handler)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
 
@@ -361,7 +361,7 @@ namespace IceInternal
                 //
                 // If there are no pending asynchronous operations, we can call finish on the handler now.
                 //
-                if(handler._pending == 0)
+                if (handler._pending == 0)
                 {
                     executeNonBlocking(() =>
                        {
@@ -378,15 +378,15 @@ namespace IceInternal
 
         public void dispatchFromThisThread(System.Action call, Ice.Connection con)
         {
-            if(_dispatcher != null)
+            if (_dispatcher != null)
             {
                 try
                 {
                     _dispatcher(call, con);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
-                    if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
+                    if (_instance.initializationData().properties.getPropertyAsIntWithDefault(
                            "Ice.Warn.Dispatch", 1) > 1)
                     {
                         _instance.initializationData().logger.warning("dispatch exception:\n" + ex);
@@ -401,14 +401,14 @@ namespace IceInternal
 
         public void dispatch(System.Action call, Ice.Connection con, bool useDispatcher = true)
         {
-            lock(this)
+            lock (this)
             {
-                if(_destroyed)
+                if (_destroyed)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if(useDispatcher)
+                if (useDispatcher)
                 {
                     _workItems.Enqueue(() => { dispatchFromThisThread(call, con); });
                 }
@@ -423,11 +423,11 @@ namespace IceInternal
                 // currently busy dispatching or about to dispatch, we spawn a new thread to
                 // execute this new work item right away.
                 //
-                if(_threads.Count < _sizeMax &&
+                if (_threads.Count < _sizeMax &&
                    (_inUse + _workItems.Count) > _threads.Count &&
                    !_destroyed)
                 {
-                    if(_instance.traceLevels().threadPool >= 1)
+                    if (_instance.traceLevels().threadPool >= 1)
                     {
                         string s = "growing " + _prefix + ": Size = " + (_threads.Count + 1);
                         _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
@@ -439,7 +439,7 @@ namespace IceInternal
                         t.start(_priority);
                         _threads.Add(t);
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         string s = "cannot create thread for `" + _prefix + "':\n" + ex;
                         _instance.initializationData().logger.error(s);
@@ -450,7 +450,7 @@ namespace IceInternal
 
         public void executeNonBlocking(ThreadPoolWorkItem workItem)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
                 _instance.asyncIOThread().queue(workItem);
@@ -466,7 +466,7 @@ namespace IceInternal
             // other threads would never terminate.)
             //
             Debug.Assert(_destroyed);
-            foreach(WorkerThread thread in _threads)
+            foreach (WorkerThread thread in _threads)
             {
                 thread.join();
             }
@@ -482,14 +482,14 @@ namespace IceInternal
             return _serialize;
         }
 
-        protected sealed override void QueueTask(System.Threading.Tasks.Task task)
+        protected sealed override void QueueTask(Task task)
         {
             dispatch(() => { TryExecuteTask(task); }, null, _dispatcher != null);
         }
 
-        protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
+        protected sealed override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
         {
-            if(!taskWasPreviouslyQueued)
+            if (!taskWasPreviouslyQueued)
             {
                 dispatchFromThisThread(() => { TryExecuteTask(task); }, null);
                 return true;
@@ -497,28 +497,28 @@ namespace IceInternal
             return false;
         }
 
-        protected sealed override bool TryDequeue(System.Threading.Tasks.Task task)
+        protected sealed override bool TryDequeue(Task task)
         {
             return false;
         }
 
-        protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks()
+        protected sealed override IEnumerable<Task> GetScheduledTasks()
         {
-            return new System.Threading.Tasks.Task[0];
+            return System.Array.Empty<Task>();
         }
 
         private void run(WorkerThread thread)
         {
             ThreadPoolWorkItem workItem = null;
-            while(true)
+            while (true)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(workItem != null)
+                    if (workItem != null)
                     {
                         Debug.Assert(_inUse > 0);
                         --_inUse;
-                        if(_workItems.Count == 0)
+                        if (_workItems.Count == 0)
                         {
                             thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         }
@@ -526,22 +526,22 @@ namespace IceInternal
 
                     workItem = null;
 
-                    while(_workItems.Count == 0)
+                    while (_workItems.Count == 0)
                     {
-                        if(_destroyed)
+                        if (_destroyed)
                         {
                             return;
                         }
 
-                        if(_threadIdleTime > 0)
+                        if (_threadIdleTime > 0)
                         {
-                            if(!Monitor.Wait(this, _threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
+                            if (!Monitor.Wait(this, _threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
                             {
-                                if(_destroyed)
+                                if (_destroyed)
                                 {
                                     return;
                                 }
-                                else if(_serverIdleTime == 0 || _threads.Count > 1)
+                                else if (_serverIdleTime == 0 || _threads.Count > 1)
                                 {
                                     //
                                     // If not the last thread or if server idle time isn't configured,
@@ -550,7 +550,7 @@ namespace IceInternal
                                     // by the .NET thread pool threads. Instead, we'll just spawn a
                                     // new thread when needed (i.e.: when a new work item is queued).
                                     //
-                                    if(_instance.traceLevels().threadPool >= 1)
+                                    if (_instance.traceLevels().threadPool >= 1)
                                     {
                                         string s = "shrinking " + _prefix + ": Size=" + (_threads.Count - 1);
                                         _instance.initializationData().logger.trace(
@@ -567,10 +567,10 @@ namespace IceInternal
                                 else
                                 {
                                     Debug.Assert(_serverIdleTime > 0 && _inUse == 0 && _threads.Count == 1);
-                                    if(!Monitor.Wait(this, _serverIdleTime * 1000)  &&
+                                    if (!Monitor.Wait(this, _serverIdleTime * 1000) &&
                                        _workItems.Count == 0)
                                     {
-                                        if(!_destroyed)
+                                        if (!_destroyed)
                                         {
                                             _workItems.Enqueue(() =>
                                                {
@@ -578,7 +578,7 @@ namespace IceInternal
                                                    {
                                                        _instance.objectAdapterFactory().shutdown();
                                                    }
-                                                   catch(Ice.CommunicatorDestroyedException)
+                                                   catch (Ice.CommunicatorDestroyedException)
                                                    {
                                                    }
                                                });
@@ -601,7 +601,7 @@ namespace IceInternal
 
                     thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
 
-                    if(_sizeMax > 1 && _inUse == _sizeWarn)
+                    if (_sizeMax > 1 && _inUse == _sizeWarn)
                     {
                         string s = "thread pool `" + _prefix + "' is running low on threads\n"
                             + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
@@ -613,7 +613,7 @@ namespace IceInternal
                 {
                     workItem();
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     string s = "exception in `" + _prefix + "' while calling on work item:\n" + ex + '\n';
                     _instance.initializationData().logger.error(s);
@@ -625,30 +625,30 @@ namespace IceInternal
         {
             Debug.Assert((current._handler._pending & current.operation) != 0);
 
-            if((current._handler._started & current.operation) != 0)
+            if ((current._handler._started & current.operation) != 0)
             {
                 Debug.Assert((current._handler._ready & current.operation) == 0);
                 current._handler._ready |= current.operation;
                 current._handler._started &= ~current.operation;
-                if(!current._handler.finishAsync(current.operation)) // Returns false if the handler is finished.
+                if (!current._handler.finishAsync(current.operation)) // Returns false if the handler is finished.
                 {
                     current._handler._pending &= ~current.operation;
-                    if(current._handler._pending == 0 && current._handler._finish)
+                    if (current._handler._pending == 0 && current._handler._finish)
                     {
                         finish(current._handler);
                     }
                     return false;
                 }
             }
-            else if((current._handler._ready & current.operation) == 0 &&
+            else if ((current._handler._ready & current.operation) == 0 &&
                     (current._handler._registered & current.operation) != 0)
             {
                 Debug.Assert((current._handler._started & current.operation) == 0);
                 bool completed = false;
-                if(!current._handler.startAsync(current.operation, getCallback(current.operation), ref completed))
+                if (!current._handler.startAsync(current.operation, getCallback(current.operation), ref completed))
                 {
                     current._handler._pending &= ~current.operation;
-                    if(current._handler._pending == 0 && current._handler._finish)
+                    if (current._handler._pending == 0 && current._handler._finish)
                     {
                         finish(current._handler);
                     }
@@ -662,7 +662,7 @@ namespace IceInternal
                 }
             }
 
-            if((current._handler._registered & current.operation) != 0)
+            if ((current._handler._registered & current.operation) != 0)
             {
                 Debug.Assert((current._handler._ready & current.operation) != 0);
                 current._handler._ready &= ~current.operation;
@@ -671,7 +671,7 @@ namespace IceInternal
             else
             {
                 current._handler._pending &= ~current.operation;
-                if(current._handler._pending == 0 && current._handler._finish)
+                if (current._handler._pending == 0 && current._handler._finish)
                 {
                     finish(current._handler);
                 }
@@ -681,13 +681,13 @@ namespace IceInternal
 
         public void finishMessage(ref ThreadPoolCurrent current, bool fromIOThread)
         {
-            if((current._handler._registered & current.operation) != 0)
+            if ((current._handler._registered & current.operation) != 0)
             {
-                if(fromIOThread)
+                if (fromIOThread)
                 {
                     Debug.Assert((current._handler._ready & current.operation) == 0);
                     bool completed = false;
-                    if(!current._handler.startAsync(current.operation, getCallback(current.operation), ref completed))
+                    if (!current._handler.startAsync(current.operation, getCallback(current.operation), ref completed))
                     {
                         current._handler._pending &= ~current.operation;
                     }
@@ -712,7 +712,7 @@ namespace IceInternal
                 current._handler._pending &= ~current.operation;
             }
 
-            if(current._handler._pending == 0 && current._handler._finish)
+            if (current._handler._pending == 0 && current._handler._finish)
             {
                 // There are no more pending async operations, it's time to call finish.
                 finish(current._handler);
@@ -738,9 +738,9 @@ namespace IceInternal
                     current.completedSynchronously = false;
                     current._handler.message(ref current);
                 }
-                while(current.completedSynchronously);
+                while (current.completedSynchronously);
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current._handler.ToString();
                 _instance.initializationData().logger.error(s);
@@ -749,15 +749,15 @@ namespace IceInternal
 
         private AsyncCallback getCallback(int operation)
         {
-            switch(operation)
+            switch (operation)
             {
-            case SocketOperation.Read:
-                return asyncReadCallback;
-            case SocketOperation.Write:
-                return asyncWriteCallback;
-            default:
-                Debug.Assert(false);
-                return null;
+                case SocketOperation.Read:
+                    return asyncReadCallback;
+                case SocketOperation.Write:
+                    return asyncWriteCallback;
+                default:
+                    Debug.Assert(false);
+                    return null;
             }
         }
 
@@ -785,10 +785,10 @@ namespace IceInternal
             {
                 // Must be called with the thread pool mutex locked
                 Ice.Instrumentation.CommunicatorObserver obsv = _threadPool._instance.initializationData().observer;
-                if(obsv != null)
+                if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);
-                    if(_observer != null)
+                    if (_observer != null)
                     {
                         _observer.attach();
                     }
@@ -798,9 +798,9 @@ namespace IceInternal
             public void setState(Ice.Instrumentation.ThreadState s)
             {
                 // Must be called with the thread pool mutex locked
-                if(_observer != null)
+                if (_observer != null)
                 {
-                    if(_state != s)
+                    if (_state != s)
                     {
                         _observer.stateChanged(_state, s);
                     }
@@ -820,7 +820,7 @@ namespace IceInternal
 
             public void start(ThreadPriority priority)
             {
-                if(_threadPool._stackSize == 0)
+                if (_threadPool._stackSize == 0)
                 {
                     _thread = new Thread(new ThreadStart(Run));
                 }
@@ -842,13 +842,13 @@ namespace IceInternal
                 //
                 SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
 
-                if(_threadPool._instance.initializationData().threadStart != null)
+                if (_threadPool._instance.initializationData().threadStart != null)
                 {
                     try
                     {
                         _threadPool._instance.initializationData().threadStart();
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         string s = "thread hook start() method raised an unexpected exception in `";
                         s += _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
@@ -860,24 +860,24 @@ namespace IceInternal
                 {
                     _threadPool.run(this);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
                     _threadPool._instance.initializationData().logger.error(s);
                 }
 
-                if(_observer != null)
+                if (_observer != null)
                 {
                     _observer.detach();
                 }
 
-                if(_threadPool._instance.initializationData().threadStop != null)
+                if (_threadPool._instance.initializationData().threadStop != null)
                 {
                     try
                     {
                         _threadPool._instance.initializationData().threadStop();
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         string s = "thread hook stop() method raised an unexpected exception in `";
                         s += _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;

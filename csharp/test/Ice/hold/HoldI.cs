@@ -10,7 +10,7 @@ namespace Ice
         {
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.Exception();
                 }
@@ -25,11 +25,11 @@ namespace Ice
             public override void
             putOnHold(int milliSeconds, Ice.Current current)
             {
-                if(milliSeconds < 0)
+                if (milliSeconds < 0)
                 {
                     _adapter.hold();
                 }
-                else if(milliSeconds == 0)
+                else if (milliSeconds == 0)
                 {
                     _adapter.hold();
                     _adapter.activate();
@@ -42,7 +42,7 @@ namespace Ice
                         {
                             putOnHold(0, null);
                         }
-                        catch(Ice.ObjectAdapterDeactivatedException)
+                        catch (Ice.ObjectAdapterDeactivatedException)
                         {
                         }
                     }, milliSeconds);
@@ -59,13 +59,13 @@ namespace Ice
                         current.adapter.waitForHold();
                         current.adapter.activate();
                     }
-                    catch(Ice.ObjectAdapterDeactivatedException)
+                    catch (Ice.ObjectAdapterDeactivatedException)
                     {
-                            //
-                            // This shouldn't occur. The test ensures all the waitForHold timers are
-                            // finished before shutting down the communicator.
-                            //
-                            test(false);
+                        //
+                        // This shouldn't occur. The test ensures all the waitForHold timers are
+                        // finished before shutting down the communicator.
+                        //
+                        test(false);
                     }
                 }, 0);
             }
@@ -75,7 +75,7 @@ namespace Ice
             {
                 System.Threading.Thread.Sleep(delay);
 
-                lock(this)
+                lock (this)
                 {
                     int tmp = _last;
                     _last = value;
@@ -86,7 +86,7 @@ namespace Ice
             public override void
             setOneway(int value, int expected, Ice.Current current)
             {
-                lock(this)
+                lock (this)
                 {
                     test(_last == expected);
                     _last = value;

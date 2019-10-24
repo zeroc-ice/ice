@@ -32,7 +32,7 @@ public class PasswordCallbackI : IceSSL.PasswordCallback
     private static SecureString createSecureString(string s)
     {
         SecureString result = new SecureString();
-        foreach(char ch in s)
+        foreach (char ch in s)
         {
             result.AppendChar(ch);
         }

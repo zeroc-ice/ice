@@ -22,38 +22,38 @@ namespace Ice
             //
             private static bool Compare(ICollection c1, ICollection c2)
             {
-                if(c1 == null)
+                if (c1 == null)
                 {
                     return c2 == null;
                 }
-                if(c2 == null)
+                if (c2 == null)
                 {
                     return false;
                 }
-                if(!c1.GetType().Equals(c2.GetType()))
+                if (!c1.GetType().Equals(c2.GetType()))
                 {
                     return false;
                 }
 
-                if(c1.Count != c2.Count)
+                if (c1.Count != c2.Count)
                 {
                     return false;
                 }
 
                 IEnumerator i1 = c1.GetEnumerator();
                 IEnumerator i2 = c2.GetEnumerator();
-                while(i1.MoveNext())
+                while (i1.MoveNext())
                 {
                     i2.MoveNext();
-                    if(i1.Current is ICollection)
+                    if (i1.Current is ICollection)
                     {
                         Debug.Assert(i2.Current is ICollection);
-                        if(!Compare((ICollection)i1.Current,(ICollection)i2.Current))
+                        if (!Compare((ICollection)i1.Current, (ICollection)i2.Current))
                         {
                             return false;
                         }
                     }
-                    else if(!i1.Current.Equals(i2.Current))
+                    else if (!i1.Current.Equals(i2.Current))
                     {
                         return false;
                     }
@@ -169,11 +169,11 @@ namespace Ice
             {
                 BinaryFormatter bin = new BinaryFormatter(null,
                     new StreamingContext(StreamingContextStates.All, communicator));
-                using(MemoryStream mem = new MemoryStream())
+                using (MemoryStream mem = new MemoryStream())
                 {
                     bin.Serialize(mem, o);
                     mem.Seek(0, 0);
-                    return(T)bin.Deserialize(mem);
+                    return (T)bin.Deserialize(mem);
                 }
             }
         }

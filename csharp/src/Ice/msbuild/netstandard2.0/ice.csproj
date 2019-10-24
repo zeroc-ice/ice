@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../msbuild/ice.common.props" />
+  <Import Project="../../../../msbuild/ice.props" />
   <PropertyGroup>
     <AssemblyName>Ice</AssemblyName>
     <Version>$(IceVersion)</Version>
@@ -10,10 +10,6 @@
   <ItemGroup>
     <SliceCompile Include="../../../../../slice/Ice/*.ice" />
     <Compile Include="../../*.cs" />
-  </ItemGroup>
-  <ItemGroup>
-      <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" PrivateAssets="All"/>
-      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)../../../../msbuild/ice.sign.targets"/>
 </Project>

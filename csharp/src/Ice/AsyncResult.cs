@@ -80,7 +80,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Threading;
 
-    abstract public class AsyncResultI : Ice.AsyncResult
+    public abstract class AsyncResultI : Ice.AsyncResult
     {
         public virtual void cancel()
         {
@@ -105,7 +105,7 @@ namespace IceInternal
 
         public bool isCompleted_()
         {
-            lock(this)
+            lock (this)
             {
                 return (state_ & StateDone) != 0;
             }
@@ -113,9 +113,9 @@ namespace IceInternal
 
         public void waitForCompleted()
         {
-            lock(this)
+            lock (this)
             {
-                while((state_ & StateDone) == 0)
+                while ((state_ & StateDone) == 0)
                 {
                     Monitor.Wait(this);
                 }
@@ -124,7 +124,7 @@ namespace IceInternal
 
         public bool isSent()
         {
-            lock(this)
+            lock (this)
             {
                 return (state_ & StateSent) != 0;
             }
@@ -132,9 +132,9 @@ namespace IceInternal
 
         public void waitForSent()
         {
-            lock(this)
+            lock (this)
             {
-                while((state_ & StateSent) == 0 && exception_ == null)
+                while ((state_ & StateSent) == 0 && exception_ == null)
                 {
                     Monitor.Wait(this);
                 }
@@ -143,9 +143,9 @@ namespace IceInternal
 
         public void throwLocalException()
         {
-            lock(this)
+            lock (this)
             {
-                if(exception_ != null)
+                if (exception_ != null)
                 {
                     throw exception_;
                 }
@@ -155,7 +155,7 @@ namespace IceInternal
         public bool sentSynchronously()
         {
             Debug.Assert(outgoing_ != null);
-            return  outgoing_.sentSynchronously(); // No lock needed
+            return outgoing_.sentSynchronously(); // No lock needed
         }
 
         //
@@ -174,7 +174,7 @@ namespace IceInternal
             get
             {
                 Debug.Assert(outgoing_ != null);
-                if(getProxy() != null && getProxy().ice_isTwoway())
+                if (getProxy() != null && getProxy().ice_isTwoway())
                 {
                     return false;
                 }
@@ -194,13 +194,13 @@ namespace IceInternal
         {
             get
             {
-                lock(this)
+                lock (this)
                 {
-                    if(waitHandle_ == null)
+                    if (waitHandle_ == null)
                     {
                         waitHandle_ = new EventWaitHandle(false, EventResetMode.ManualReset);
                     }
-                    if((state_ & StateDone) != 0)
+                    if ((state_ & StateDone) != 0)
                     {
                         waitHandle_.Set();
                     }
@@ -219,30 +219,30 @@ namespace IceInternal
 
         public Ice.AsyncResult whenSent(Ice.AsyncCallback cb)
         {
-            lock(this)
+            lock (this)
             {
-                if(cb == null)
+                if (cb == null)
                 {
                     throw new System.ArgumentException("callback is null");
                 }
-                if(sentCallback_ != null)
+                if (sentCallback_ != null)
                 {
                     throw new System.ArgumentException("sent callback already set");
                 }
                 sentCallback_ = cb;
-                if((state_ & StateSent) == 0)
+                if ((state_ & StateSent) == 0)
                 {
                     return this;
                 }
             }
 
-            if(outgoing_.sentSynchronously())
+            if (outgoing_.sentSynchronously())
             {
                 try
                 {
                     sentCallback_(this);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     warning(ex);
                 }
@@ -255,7 +255,7 @@ namespace IceInternal
                     {
                         sentCallback_(this);
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         warning(ex);
                     }
@@ -266,13 +266,13 @@ namespace IceInternal
 
         public Ice.AsyncResult whenSent(Ice.SentCallback cb)
         {
-            lock(this)
+            lock (this)
             {
-                if(cb == null)
+                if (cb == null)
                 {
                     throw new System.ArgumentException("callback is null");
                 }
-                if(sentCallback_ != null)
+                if (sentCallback_ != null)
                 {
                     throw new System.ArgumentException("sent callback already set");
                 }
@@ -280,19 +280,19 @@ namespace IceInternal
                     {
                         cb(r.sentSynchronously());
                     };
-                if((state_ & StateSent) == 0)
+                if ((state_ & StateSent) == 0)
                 {
                     return this;
                 }
             }
 
-            if(outgoing_.sentSynchronously())
+            if (outgoing_.sentSynchronously())
             {
                 try
                 {
                     cb(true);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     warning(ex);
                 }
@@ -305,7 +305,7 @@ namespace IceInternal
                     {
                         cb(false);
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         warning(ex);
                     }
@@ -316,13 +316,13 @@ namespace IceInternal
 
         public Ice.AsyncResult whenCompleted(Ice.ExceptionCallback cb)
         {
-            if(cb == null)
+            if (cb == null)
             {
                 throw new System.ArgumentException("callback is null");
             }
-            lock(this)
+            lock (this)
             {
-                if(exceptionCallback_ != null)
+                if (exceptionCallback_ != null)
                 {
                     throw new System.ArgumentException("callback already set");
                 }
@@ -339,18 +339,18 @@ namespace IceInternal
 
         public bool wait()
         {
-            lock(this)
+            lock (this)
             {
-                if((state_ & StateEndCalled) != 0)
+                if ((state_ & StateEndCalled) != 0)
                 {
                     throw new System.ArgumentException("end_ method called more than once");
                 }
                 state_ |= StateEndCalled;
-                while((state_ & StateDone) == 0)
+                while ((state_ & StateDone) == 0)
                 {
                     Monitor.Wait(this);
                 }
-                if(exception_ != null)
+                if (exception_ != null)
                 {
                     throw exception_;
                 }
@@ -376,22 +376,22 @@ namespace IceInternal
 
         protected void setCompletedCallback(Ice.AsyncCallback cb)
         {
-            lock(this)
+            lock (this)
             {
-                if(cb == null)
+                if (cb == null)
                 {
                     throw new System.ArgumentException("callback is null");
                 }
-                if(completedCallback_ != null)
+                if (completedCallback_ != null)
                 {
                     throw new System.ArgumentException("callback already set");
                 }
                 completedCallback_ = cb;
-                if((state_ & StateDone) == 0)
+                if ((state_ & StateDone) == 0)
                 {
                     return;
                 }
-                else if((getProxy() == null || !getProxy().ice_isTwoway()) && exception_ == null)
+                else if ((getProxy() == null || !getProxy().ice_isTwoway()) && exception_ == null)
                 {
                     return;
                 }
@@ -405,23 +405,23 @@ namespace IceInternal
                     {
                         cb(this);
                     }
-                    catch(System.AggregateException ex)
+                    catch (System.AggregateException ex)
                     {
                         throw ex.InnerException;
                     }
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     warning(ex);
                 }
             }, cachedConnection_);
         }
 
-        abstract protected Ice.AsyncCallback getCompletedCallback();
+        protected abstract Ice.AsyncCallback getCompletedCallback();
 
         public static AsyncResultI check(Ice.AsyncResult r, Ice.ObjectPrx prx, string operation)
         {
-            if(r != null && r.getProxy() != prx)
+            if (r != null && r.getProxy() != prx)
             {
                 throw new System.ArgumentException("Proxy for call to end_" + operation +
                                                    " does not match proxy that was used to call corresponding begin_" +
@@ -432,16 +432,16 @@ namespace IceInternal
 
         public static AsyncResultI check(Ice.AsyncResult r, string operation)
         {
-            if(r == null)
+            if (r == null)
             {
                 throw new System.ArgumentException("AsyncResult == null");
             }
-            if(r.getOperation() != operation)
+            if (r.getOperation() != operation)
             {
                 throw new System.ArgumentException("Incorrect operation for end_" + operation + " method: " +
                                                    r.getOperation());
             }
-            if(!(r is AsyncResultI))
+            if (!(r is AsyncResultI))
             {
                 throw new System.ArgumentException("Incorrect AsyncResult object for end_" + operation + " method");
             }
@@ -450,7 +450,7 @@ namespace IceInternal
 
         protected void warning(System.Exception ex)
         {
-            if(instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+            if (instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
             {
                 instance_.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
             }

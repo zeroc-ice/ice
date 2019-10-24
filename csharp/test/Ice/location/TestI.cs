@@ -42,7 +42,7 @@ namespace Ice
                 {
                     _registry.addObject(_adapter2.add(_adapter1.remove(id), id));
                 }
-                catch(Ice.NotRegisteredException)
+                catch (Ice.NotRegisteredException)
                 {
                     _registry.addObject(_adapter1.add(_adapter2.remove(id), id));
                 }

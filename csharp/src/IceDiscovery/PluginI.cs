@@ -31,7 +31,7 @@ namespace IceDiscovery
             bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
             bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
             string address;
-            if(ipv4 && !preferIPv6)
+            if (ipv4 && !preferIPv6)
             {
                 address = properties.getPropertyWithDefault("IceDiscovery.Address", "239.255.0.1");
             }
@@ -42,11 +42,11 @@ namespace IceDiscovery
             int port = properties.getPropertyAsIntWithDefault("IceDiscovery.Port", 4061);
             string intf = properties.getProperty("IceDiscovery.Interface");
 
-            if(properties.getProperty("IceDiscovery.Multicast.Endpoints").Length == 0)
+            if (properties.getProperty("IceDiscovery.Multicast.Endpoints").Length == 0)
             {
                 StringBuilder s = new StringBuilder();
                 s.Append("udp -h \"").Append(address).Append("\" -p ").Append(port);
-                if(intf.Length != 0)
+                if (intf.Length != 0)
                 {
                     s.Append(" --interface \"").Append(intf).Append("\"");
                 }
@@ -54,13 +54,13 @@ namespace IceDiscovery
             }
 
             string lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
-            if(lookupEndpoints.Length == 0)
+            if (lookupEndpoints.Length == 0)
             {
                 int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
                 var interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
-                foreach(string p in interfaces)
+                foreach (string p in interfaces)
                 {
-                    if(p != interfaces[0])
+                    if (p != interfaces[0])
                     {
                         lookupEndpoints += ":";
                     }
@@ -68,13 +68,13 @@ namespace IceDiscovery
                 }
             }
 
-            if(properties.getProperty("IceDiscovery.Reply.Endpoints").Length == 0)
+            if (properties.getProperty("IceDiscovery.Reply.Endpoints").Length == 0)
             {
                 properties.setProperty("IceDiscovery.Reply.Endpoints",
                                        "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
             }
 
-            if(properties.getProperty("IceDiscovery.Locator.Endpoints").Length == 0)
+            if (properties.getProperty("IceDiscovery.Locator.Endpoints").Length == 0)
             {
                 properties.setProperty("IceDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
             }
@@ -121,19 +121,19 @@ namespace IceDiscovery
 
         public void destroy()
         {
-            if(_multicastAdapter != null)
+            if (_multicastAdapter != null)
             {
                 _multicastAdapter.destroy();
             }
-            if(_replyAdapter != null)
+            if (_replyAdapter != null)
             {
                 _replyAdapter.destroy();
             }
-            if(_locatorAdapter != null)
+            if (_locatorAdapter != null)
             {
                 _locatorAdapter.destroy();
             }
-            if(_communicator.getDefaultLocator().Equals(_locator))
+            if (_communicator.getDefaultLocator().Equals(_locator))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
                 _communicator.setDefaultLocator(_defaultLocator);

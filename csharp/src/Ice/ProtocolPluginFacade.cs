@@ -66,7 +66,7 @@ namespace IceInternal
         //
         public System.Type findType(string name)
         {
-            return AssemblyUtil.findType(_instance, name);
+            return AssemblyUtil.findType(name);
         }
 
         private Instance _instance;

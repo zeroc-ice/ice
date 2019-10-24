@@ -28,7 +28,7 @@ namespace Ice
                 //
                 output.Write("testing checksums... ");
                 output.Flush();
-                foreach(KeyValuePair<string, string> entry in Ice.SliceChecksums.checksums)
+                foreach (KeyValuePair<string, string> entry in Ice.SliceChecksums.checksums)
                 {
                     string key = entry.Key;
                     int pos = key.IndexOf("Local");
@@ -46,14 +46,14 @@ namespace Ice
                 // change for N > 1.
                 //
                 char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-                foreach(KeyValuePair<string, string> entry in d)
+                foreach (KeyValuePair<string, string> entry in d)
                 {
                     string key = entry.Key;
                     int start = key.IndexOfAny(digits);
-                    if(start != -1)
+                    if (start != -1)
                     {
                         int end = start;
-                        while(end < key.Length && char.IsDigit(key[end]))
+                        while (end < key.Length && char.IsDigit(key[end]))
                         {
                             end++;
                         }
@@ -62,7 +62,7 @@ namespace Ice
                         string value = Ice.SliceChecksums.checksums[key];
                         test(value != null);
 
-                        if(n <= 1)
+                        if (n <= 1)
                         {
                             test(value.Equals(entry.Value));
                         }

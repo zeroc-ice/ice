@@ -17,22 +17,22 @@ namespace Ice
                                             System.Collections.ICollection c2,
                                             out bool result)
         {
-            if(ReferenceEquals(c1, c2))
+            if (ReferenceEquals(c1, c2))
             {
                 result = true;
                 return true; // Equal references means the collections are equal.
             }
-            if(c1 == null || c2 == null)
+            if (c1 == null || c2 == null)
             {
                 result = false;
                 return true; // The references are not equal and one of them is null, so c1 and c2 are not equal.
             }
-            if(c1.Count != c2.Count)
+            if (c1.Count != c2.Count)
             {
                 result = false;
                 return true; // Different number of elements, so c1 and c2 are not equal.
             }
-            if(c1.Count == 0)
+            if (c1.Count == 0)
             {
                 result = true;
                 return true; // Same number of elements, both zero, so c1 and c2 are equal.
@@ -50,28 +50,28 @@ namespace Ice
             try
             {
                 bool result;
-                if(cheapComparison(d1, d2, out result))
+                if (cheapComparison(d1, d2, out result))
                 {
                     return result;
                 }
 
                 System.Collections.ICollection keys1 = d1.Keys;
-                foreach(object k in keys1)
+                foreach (object k in keys1)
                 {
-                    if(d2.Contains(k))
+                    if (d2.Contains(k))
                     {
                         object v1 = d1[k];
                         object v2 = d2[k];
-                        if(v1 == null)
+                        if (v1 == null)
                         {
-                            if(v2 != null)
+                            if (v2 != null)
                             {
                                 return false;
                             }
                         }
                         else
                         {
-                            if(!v1.Equals(v2))
+                            if (!v1.Equals(v2))
                             {
                                 return false;
                             }
@@ -83,7 +83,7 @@ namespace Ice
                     }
                 }
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 return false;
             }
@@ -100,23 +100,23 @@ namespace Ice
             try
             {
                 bool result;
-                if(cheapComparison(c1, c2, out result))
+                if (cheapComparison(c1, c2, out result))
                 {
                     return result;
                 }
 
                 System.Collections.IEnumerator e = c2.GetEnumerator();
-                foreach(object o in c1)
+                foreach (object o in c1)
                 {
                     e.MoveNext();
-                    if(!Equals(o, e.Current))
+                    if (!Equals(o, e.Current))
                     {
                         return false;
                     }
                 }
                 return true;
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 return false;
             }
@@ -130,45 +130,45 @@ namespace Ice
         {
             try
             {
-                if(ReferenceEquals(c1, c2))
+                if (ReferenceEquals(c1, c2))
                 {
                     return true; // Equal references means the collections are equal.
                 }
-                if(c1 == null || c2 == null)
+                if (c1 == null || c2 == null)
                 {
                     return false; // The references are not equal and one of them is null, so c1 and c2 are not equal.
                 }
 
                 System.Collections.IEnumerator e1 = c1.GetEnumerator();
                 System.Collections.IEnumerator e2 = c2.GetEnumerator();
-                while(e1.MoveNext())
+                while (e1.MoveNext())
                 {
-                    if(!e2.MoveNext())
+                    if (!e2.MoveNext())
                     {
                         return false; // c2 has fewer elements than c1.
                     }
-                    if(e1.Current == null)
+                    if (e1.Current == null)
                     {
-                        if(e2.Current != null)
+                        if (e2.Current != null)
                         {
                             return false;
                         }
                     }
                     else
                     {
-                        if(!e1.Current.Equals(e2.Current))
+                        if (!e1.Current.Equals(e2.Current))
                         {
                             return false;
                         }
                     }
                 }
-                if(e2.MoveNext())
+                if (e2.MoveNext())
                 {
                     return false; // c2 has more elements than c1.
                 }
                 return true;
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 return false;
             }

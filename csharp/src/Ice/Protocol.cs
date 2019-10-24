@@ -36,15 +36,15 @@ namespace IceInternal
         internal const byte encodingMajor = 1;
         internal const byte encodingMinor = 1;
 
-        public const byte OPTIONAL_END_MARKER           = 0xFF;
+        public const byte OPTIONAL_END_MARKER = 0xFF;
 
-        public const byte FLAG_HAS_TYPE_ID_STRING       = (1<<0);
-        public const byte FLAG_HAS_TYPE_ID_INDEX        = (1<<1);
-        public const byte FLAG_HAS_TYPE_ID_COMPACT      = (1<<1 | 1<<0);
-        public const byte FLAG_HAS_OPTIONAL_MEMBERS     = (1<<2);
-        public const byte FLAG_HAS_INDIRECTION_TABLE    = (1<<3);
-        public const byte FLAG_HAS_SLICE_SIZE           = (1<<4);
-        public const byte FLAG_IS_LAST_SLICE            = (1<<5);
+        public const byte FLAG_HAS_TYPE_ID_STRING = (1 << 0);
+        public const byte FLAG_HAS_TYPE_ID_INDEX = (1 << 1);
+        public const byte FLAG_HAS_TYPE_ID_COMPACT = (1 << 1 | 1 << 0);
+        public const byte FLAG_HAS_OPTIONAL_MEMBERS = (1 << 2);
+        public const byte FLAG_HAS_INDIRECTION_TABLE = (1 << 3);
+        public const byte FLAG_HAS_SLICE_SIZE = (1 << 4);
+        public const byte FLAG_IS_LAST_SLICE = (1 << 5);
 
         //
         // The Ice protocol message types
@@ -90,7 +90,7 @@ namespace IceInternal
         internal static void
         checkSupportedProtocol(Ice.ProtocolVersion v)
         {
-            if(v.major != protocolMajor || v.minor > protocolMinor)
+            if (v.major != protocolMajor || v.minor > protocolMinor)
             {
                 throw new Ice.UnsupportedProtocolException("", v, Ice.Util.currentProtocol);
             }
@@ -99,7 +99,7 @@ namespace IceInternal
         public static void
         checkSupportedProtocolEncoding(Ice.EncodingVersion v)
         {
-            if(v.major != protocolEncodingMajor || v.minor > protocolEncodingMinor)
+            if (v.major != protocolEncodingMajor || v.minor > protocolEncodingMinor)
             {
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentProtocolEncoding);
             }
@@ -108,7 +108,7 @@ namespace IceInternal
         internal static void
         checkSupportedEncoding(Ice.EncodingVersion v)
         {
-            if(v.major != encodingMajor || v.minor > encodingMinor)
+            if (v.major != encodingMajor || v.minor > encodingMinor)
             {
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentEncoding);
             }
@@ -121,11 +121,11 @@ namespace IceInternal
         internal static Ice.ProtocolVersion
         getCompatibleProtocol(Ice.ProtocolVersion v)
         {
-            if(v.major != Ice.Util.currentProtocol.major)
+            if (v.major != Ice.Util.currentProtocol.major)
             {
                 return v; // Unsupported protocol, return as is.
             }
-            else if(v.minor < Ice.Util.currentProtocol.minor)
+            else if (v.minor < Ice.Util.currentProtocol.minor)
             {
                 return v; // Supported protocol.
             }
@@ -146,11 +146,11 @@ namespace IceInternal
         internal static Ice.EncodingVersion
         getCompatibleEncoding(Ice.EncodingVersion v)
         {
-            if(v.major != Ice.Util.currentEncoding.major)
+            if (v.major != Ice.Util.currentEncoding.major)
             {
                 return v; // Unsupported encoding, return as is.
             }
-            else if(v.minor < Ice.Util.currentEncoding.minor)
+            else if (v.minor < Ice.Util.currentEncoding.minor)
             {
                 return v; // Supported encoding.
             }

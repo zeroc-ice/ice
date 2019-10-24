@@ -23,16 +23,16 @@ namespace IceInternal
         public void
         updateObserver()
         {
-            lock(this)
+            lock (this)
             {
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
-                if(obsv != null)
+                if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
                                                        _thread.getName(),
                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                        _observer);
-                    if(_observer != null)
+                    if (_observer != null)
                     {
                         _observer.attach();
                     }
@@ -42,7 +42,7 @@ namespace IceInternal
 
         public void queue(ThreadPoolWorkItem callback)
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
                 _queue.AddLast(callback);
@@ -52,7 +52,7 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
@@ -62,7 +62,7 @@ namespace IceInternal
 
         public void joinWithThread()
         {
-            if(_thread != null)
+            if (_thread != null)
             {
                 _thread.Join();
             }
@@ -72,23 +72,23 @@ namespace IceInternal
         {
             LinkedList<ThreadPoolWorkItem> queue = new LinkedList<ThreadPoolWorkItem>();
             bool inUse = false;
-            while(true)
+            while (true)
             {
-                lock(this)
+                lock (this)
                 {
-                    if(_observer != null && inUse)
+                    if (_observer != null && inUse)
                     {
                         _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO,
                                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         inUse = false;
                     }
 
-                    if(_destroyed && _queue.Count == 0)
+                    if (_destroyed && _queue.Count == 0)
                     {
                         break;
                     }
 
-                    while(!_destroyed && _queue.Count == 0)
+                    while (!_destroyed && _queue.Count == 0)
                     {
                         Monitor.Wait(this);
                     }
@@ -97,7 +97,7 @@ namespace IceInternal
                     queue = _queue;
                     _queue = tmp;
 
-                    if(_observer != null)
+                    if (_observer != null)
                     {
                         _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
@@ -105,18 +105,18 @@ namespace IceInternal
                     }
                 }
 
-                foreach(ThreadPoolWorkItem cb in queue)
+                foreach (ThreadPoolWorkItem cb in queue)
                 {
                     try
                     {
                         cb();
                     }
-                    catch(Ice.LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         string s = "exception in asynchronous IO thread:\n" + ex;
                         _instance.initializationData().logger.error(s);
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         string s = "unknown exception in asynchronous IO thread:\n" + ex;
                         _instance.initializationData().logger.error(s);
@@ -125,7 +125,7 @@ namespace IceInternal
                 queue.Clear();
             }
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.detach();
             }
@@ -142,7 +142,7 @@ namespace IceInternal
             {
                 _asyncIOThread = asyncIOThread;
                 _name = _asyncIOThread._instance.initializationData().properties.getProperty("Ice.ProgramName");
-                if(_name.Length > 0)
+                if (_name.Length > 0)
                 {
                     _name += "-";
                 }

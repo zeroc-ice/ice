@@ -25,7 +25,7 @@ public class Server : Test.TestHelper
         properties.setProperty("Ice.MessageSizeMax", "50000");
         properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

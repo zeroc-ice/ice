@@ -28,7 +28,7 @@ public class Client : Test.TestHelper
         string assembly =
             String.Format("{0}/core.dll",
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {
@@ -36,7 +36,7 @@ public class Client : Test.TestHelper
                     }) == null);
         }
         properties.setProperty("Ice.PreloadAssemblies", "1");
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {

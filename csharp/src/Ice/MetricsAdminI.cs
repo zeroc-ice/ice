@@ -18,17 +18,17 @@ namespace IceInternal
         Dictionary<string, string> getProperties();
     }
 
-    interface ISubMap
+    internal interface ISubMap
     {
         void addSubMapToMetrics(IceMX.Metrics metrics);
     }
 
-    interface ISubMapCloneFactory
+    internal interface ISubMapCloneFactory
     {
         ISubMap create();
     }
 
-    interface ISubMapFactory
+    internal interface ISubMapFactory
     {
         ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties);
     }
@@ -59,14 +59,14 @@ namespace IceInternal
             {
                 _field.SetValue(metrics, _map.getMetrics());
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Debug.Assert(false);
             }
         }
 
-        readonly private MetricsMap<S> _map;
-        readonly private System.Reflection.FieldInfo _field;
+        private readonly MetricsMap<S> _map;
+        private readonly System.Reflection.FieldInfo _field;
     }
 
     internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : IceMX.Metrics, new()
@@ -82,11 +82,11 @@ namespace IceInternal
             return new SubMap<S>(new MetricsMap<S>(_map), _field);
         }
 
-        readonly private MetricsMap<S> _map;
-        readonly private System.Reflection.FieldInfo _field;
+        private readonly MetricsMap<S> _map;
+        private readonly System.Reflection.FieldInfo _field;
     }
 
-    class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
+    internal class SubMapFactory<S> : ISubMapFactory where S : IceMX.Metrics, new()
     {
         internal SubMapFactory(System.Reflection.FieldInfo field)
         {
@@ -98,7 +98,7 @@ namespace IceInternal
             return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
         }
 
-        readonly private System.Reflection.FieldInfo _field;
+        private readonly System.Reflection.FieldInfo _field;
     }
 
     public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
@@ -113,15 +113,15 @@ namespace IceInternal
 
             public void failed(string exceptionName)
             {
-                lock(_map)
+                lock (_map)
                 {
                     ++_object.failures;
                     int count;
-                    if(_failures == null)
+                    if (_failures == null)
                     {
                         _failures = new Dictionary<string, int>();
                     }
-                    if(_failures.TryGetValue(exceptionName, out count))
+                    if (_failures.TryGetValue(exceptionName, out count))
                     {
                         _failures[exceptionName] = count + 1;
                     }
@@ -136,16 +136,16 @@ namespace IceInternal
                 where S : IceMX.Metrics, new()
             {
                 ISubMap m;
-                lock(_map)
+                lock (_map)
                 {
-                    if(_subMaps == null || !_subMaps.TryGetValue(mapName, out m))
+                    if (_subMaps == null || !_subMaps.TryGetValue(mapName, out m))
                     {
                         m = _map.createSubMap(mapName);
-                        if(m == null)
+                        if (m == null)
                         {
                             return null;
                         }
-                        if(_subMaps == null)
+                        if (_subMaps == null)
                         {
                             _subMaps = new Dictionary<string, ISubMap>();
                         }
@@ -157,10 +157,10 @@ namespace IceInternal
 
             public void detach(long lifetime)
             {
-                lock(_map)
+                lock (_map)
                 {
                     _object.totalLifetime += lifetime;
-                    if(--_object.current == 0)
+                    if (--_object.current == 0)
                     {
                         _map.detached(this);
                     }
@@ -169,7 +169,7 @@ namespace IceInternal
 
             public void execute(IceMX.Observer<T>.MetricsUpdate func)
             {
-                lock(_map)
+                lock (_map)
                 {
                     func(_object);
                 }
@@ -182,7 +182,7 @@ namespace IceInternal
 
             internal IceMX.MetricsFailures getFailures()
             {
-                if(_failures == null)
+                if (_failures == null)
                 {
                     return null;
                 }
@@ -207,9 +207,9 @@ namespace IceInternal
             internal IceMX.Metrics clone()
             {
                 T metrics = (T)_object.Clone();
-                if(_subMaps != null)
+                if (_subMaps != null)
                 {
-                    foreach(ISubMap s in _subMaps.Values)
+                    foreach (ISubMap s in _subMaps.Values)
                     {
                         s.addSubMapToMetrics(metrics);
                     }
@@ -240,25 +240,25 @@ namespace IceInternal
             _groupBySeparators = new List<string>();
 
             string groupBy = props.getPropertyWithDefault(mapPrefix + "GroupBy", "id");
-            if(groupBy.Length > 0)
+            if (groupBy.Length > 0)
             {
                 string v = "";
                 bool attribute = char.IsLetter(groupBy[0]) || char.IsDigit(groupBy[0]);
-                if(!attribute)
+                if (!attribute)
                 {
                     _groupByAttributes.Add("");
                 }
 
-                foreach(char p in groupBy)
+                foreach (char p in groupBy)
                 {
                     bool isAlphaNum = char.IsLetter(p) || char.IsDigit(p) || p == '.';
-                    if(attribute && !isAlphaNum)
+                    if (attribute && !isAlphaNum)
                     {
                         _groupByAttributes.Add(v);
                         v = "" + p;
                         attribute = false;
                     }
-                    else if(!attribute && isAlphaNum)
+                    else if (!attribute && isAlphaNum)
                     {
                         _groupBySeparators.Add(v);
                         v = "" + p;
@@ -270,7 +270,7 @@ namespace IceInternal
                     }
                 }
 
-                if(attribute)
+                if (attribute)
                 {
                     _groupByAttributes.Add(v);
                 }
@@ -280,19 +280,19 @@ namespace IceInternal
                 }
             }
 
-            if(subMaps != null && subMaps.Count > 0)
+            if (subMaps != null && subMaps.Count > 0)
             {
                 _subMaps = new Dictionary<string, ISubMapCloneFactory>();
 
                 List<string> subMapNames = new List<string>();
-                foreach(KeyValuePair<string, ISubMapFactory> e in subMaps)
+                foreach (KeyValuePair<string, ISubMapFactory> e in subMaps)
                 {
                     subMapNames.Add(e.Key);
                     string subMapsPrefix = mapPrefix + "Map.";
                     string subMapPrefix = subMapsPrefix + e.Key + '.';
-                    if(props.getPropertiesForPrefix(subMapPrefix).Count == 0)
+                    if (props.getPropertiesForPrefix(subMapPrefix).Count == 0)
                     {
-                        if(props.getPropertiesForPrefix(subMapsPrefix).Count == 0)
+                        if (props.getPropertiesForPrefix(subMapsPrefix).Count == 0)
                         {
                             subMapPrefix = mapPrefix;
                         }
@@ -329,11 +329,11 @@ namespace IceInternal
 
         public IceMX.Metrics[] getMetrics()
         {
-            lock(this)
+            lock (this)
             {
                 IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.Count];
                 int i = 0;
-                foreach(Entry e in _objects.Values)
+                foreach (Entry e in _objects.Values)
                 {
                     metrics[i++] = e.clone();
                 }
@@ -343,13 +343,13 @@ namespace IceInternal
 
         public IceMX.MetricsFailures[] getFailures()
         {
-            lock(this)
+            lock (this)
             {
                 List<IceMX.MetricsFailures> failures = new List<IceMX.MetricsFailures>();
-                foreach(Entry e in _objects.Values)
+                foreach (Entry e in _objects.Values)
                 {
                     IceMX.MetricsFailures f = e.getFailures();
-                    if(f != null)
+                    if (f != null)
                     {
                         failures.Add(f);
                     }
@@ -360,10 +360,10 @@ namespace IceInternal
 
         public IceMX.MetricsFailures getFailures(string id)
         {
-            lock(this)
+            lock (this)
             {
                 Entry e;
-                if(_objects.TryGetValue(id, out e))
+                if (_objects.TryGetValue(id, out e))
                 {
                     return e.getFailures();
                 }
@@ -371,14 +371,14 @@ namespace IceInternal
             }
         }
 
-        ISubMap createSubMap(string subMapName)
+        internal ISubMap createSubMap(string subMapName)
         {
-            if(_subMaps == null)
+            if (_subMaps == null)
             {
                 return null;
             }
             ISubMapCloneFactory factory;
-            if(_subMaps.TryGetValue(subMapName, out factory))
+            if (_subMaps.TryGetValue(subMapName, out factory))
             {
                 return factory.create();
             }
@@ -390,17 +390,17 @@ namespace IceInternal
             //
             // Check the accept and reject filters.
             //
-            foreach(KeyValuePair<string, Regex> e in _accept)
+            foreach (KeyValuePair<string, Regex> e in _accept)
             {
-                if(!match(e.Key, e.Value, helper, false))
+                if (!match(e.Key, e.Value, helper, false))
                 {
                     return null;
                 }
             }
 
-            foreach(KeyValuePair<string, Regex> e in _reject)
+            foreach (KeyValuePair<string, Regex> e in _reject)
             {
-                if(match(e.Key, e.Value, helper, true))
+                if (match(e.Key, e.Value, helper, true))
                 {
                     return null;
                 }
@@ -412,7 +412,7 @@ namespace IceInternal
             string key;
             try
             {
-                if(_groupByAttributes.Count == 1)
+                if (_groupByAttributes.Count == 1)
                 {
                     key = helper.resolve(_groupByAttributes[0]);
                 }
@@ -420,10 +420,10 @@ namespace IceInternal
                 {
                     StringBuilder os = new StringBuilder();
                     IEnumerator<string> q = _groupBySeparators.GetEnumerator();
-                    foreach(string p in _groupByAttributes)
+                    foreach (string p in _groupByAttributes)
                     {
                         os.Append(helper.resolve(p));
-                        if(q.MoveNext())
+                        if (q.MoveNext())
                         {
                             os.Append(q.Current);
                         }
@@ -431,7 +431,7 @@ namespace IceInternal
                     key = os.ToString();
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return null;
             }
@@ -439,16 +439,16 @@ namespace IceInternal
             //
             // Lookup the metrics object.
             //
-            lock(this)
+            lock (this)
             {
-                if(previous != null && previous.getId().Equals(key))
+                if (previous != null && previous.getId().Equals(key))
                 {
                     Debug.Assert(_objects[key] == previous);
                     return previous;
                 }
 
                 Entry e;
-                if(!_objects.TryGetValue(key, out e))
+                if (!_objects.TryGetValue(key, out e))
                 {
                     try
                     {
@@ -457,7 +457,7 @@ namespace IceInternal
                         e = new Entry(this, t);
                         _objects.Add(key, e);
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         Debug.Assert(false);
                     }
@@ -469,12 +469,12 @@ namespace IceInternal
 
         private void detached(Entry entry)
         {
-            if(_retain == 0)
+            if (_retain == 0)
             {
                 return;
             }
 
-            if(_detachedQueue == null)
+            if (_detachedQueue == null)
             {
                 _detachedQueue = new LinkedList<Entry>();
             }
@@ -482,10 +482,10 @@ namespace IceInternal
 
             // Compress the queue by removing entries which are no longer detached.
             LinkedListNode<Entry> p = _detachedQueue.First;
-            while(p != null)
+            while (p != null)
             {
                 LinkedListNode<Entry> next = p.Next;
-                if(p.Value == entry || !p.Value.isDetached())
+                if (p.Value == entry || !p.Value.isDetached())
                 {
                     _detachedQueue.Remove(p);
                 }
@@ -493,7 +493,7 @@ namespace IceInternal
             }
 
             // If there's still no room, remove the oldest entry (at the front).
-            if(_detachedQueue.Count == _retain)
+            if (_detachedQueue.Count == _retain)
             {
                 _objects.Remove(_detachedQueue.First.Value.getId());
                 _detachedQueue.RemoveFirst();
@@ -507,7 +507,7 @@ namespace IceInternal
         {
             Dictionary<string, Regex> pats = new Dictionary<string, Regex>();
             Dictionary<string, string> rules = properties.getPropertiesForPrefix(name + '.');
-            foreach(KeyValuePair<string, string> e in rules)
+            foreach (KeyValuePair<string, string> e in rules)
             {
                 pats.Add(e.Key.Substring(name.Length + 1), new Regex(e.Value));
             }
@@ -521,22 +521,22 @@ namespace IceInternal
             {
                 value = helper.resolve(attribute);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return !reject;
             }
             return regex.IsMatch(value);
         }
 
-        readonly private Dictionary<string, string> _properties;
-        readonly private List<string> _groupByAttributes;
-        readonly private List<string> _groupBySeparators;
-        readonly private int _retain;
-        readonly private Dictionary<string, Regex> _accept;
-        readonly private Dictionary<string, Regex> _reject;
+        private readonly Dictionary<string, string> _properties;
+        private readonly List<string> _groupByAttributes;
+        private readonly List<string> _groupBySeparators;
+        private readonly int _retain;
+        private readonly Dictionary<string, Regex> _accept;
+        private readonly Dictionary<string, Regex> _reject;
 
-        readonly private Dictionary<string, Entry> _objects = new Dictionary<string, Entry>();
-        readonly private Dictionary<string, ISubMapCloneFactory> _subMaps;
+        private readonly Dictionary<string, Entry> _objects = new Dictionary<string, Entry>();
+        private readonly Dictionary<string, ISubMapCloneFactory> _subMaps;
         private LinkedList<Entry> _detachedQueue;
     }
 
@@ -559,11 +559,11 @@ namespace IceInternal
 
             string mapPrefix;
             Dictionary<string, string> mapProps = new Dictionary<string, string>();
-            if(mapsProps.Count > 0)
+            if (mapsProps.Count > 0)
             {
                 mapPrefix = mapsPrefix + mapName + ".";
                 mapProps = properties.getPropertiesForPrefix(mapPrefix);
-                if(mapProps.Count == 0)
+                if (mapProps.Count == 0)
                 {
                     // This map isn't configured for this view.
                     return _maps.Remove(mapName);
@@ -575,14 +575,14 @@ namespace IceInternal
                 mapProps = properties.getPropertiesForPrefix(mapPrefix);
             }
 
-            if(properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
+            if (properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
             {
                 // This map is disabled for this view.
                 return _maps.Remove(mapName);
             }
 
             IMetricsMap m;
-            if(_maps.TryGetValue(mapName, out m) &&
+            if (_maps.TryGetValue(mapName, out m) &&
                IceUtilInternal.Collections.DictionaryEquals(m.getProperties(), mapProps))
             {
                 return false; // The map configuration didn't change, no need to re-create.
@@ -592,7 +592,7 @@ namespace IceInternal
             {
                 _maps[mapName] = factory.create(mapPrefix, properties);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.warning("unexpected exception while creating metrics map:\n" + ex);
                 _maps.Remove(mapName);
@@ -608,10 +608,10 @@ namespace IceInternal
         internal Dictionary<string, IceMX.Metrics[]> getMetrics()
         {
             Dictionary<string, IceMX.Metrics[]> metrics = new Dictionary<string, IceMX.Metrics[]>();
-            foreach(KeyValuePair<string, IMetricsMap> e in _maps)
+            foreach (KeyValuePair<string, IMetricsMap> e in _maps)
             {
                 IceMX.Metrics[] m = e.Value.getMetrics();
-                if(m != null)
+                if (m != null)
                 {
                     metrics.Add(e.Key, m);
                 }
@@ -622,7 +622,7 @@ namespace IceInternal
         internal IceMX.MetricsFailures[] getFailures(string mapName)
         {
             IMetricsMap m;
-            if(_maps.TryGetValue(mapName, out m))
+            if (_maps.TryGetValue(mapName, out m))
             {
                 return m.getFailures();
             }
@@ -632,7 +632,7 @@ namespace IceInternal
         internal IceMX.MetricsFailures getFailures(string mapName, string id)
         {
             IMetricsMap m;
-            if(_maps.TryGetValue(mapName, out m))
+            if (_maps.TryGetValue(mapName, out m))
             {
                 return m.getFailures(id);
             }
@@ -647,20 +647,20 @@ namespace IceInternal
         internal MetricsMap<T> getMap<T>(string mapName) where T : IceMX.Metrics, new()
         {
             IMetricsMap m;
-            if(_maps.TryGetValue(mapName, out m))
+            if (_maps.TryGetValue(mapName, out m))
             {
                 return (MetricsMap<T>)m;
             }
             return null;
         }
 
-        readonly private string _name;
-        readonly private Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
+        private readonly string _name;
+        private readonly Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
     }
 
     public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
     {
-        readonly static private string[] suffixes =
+        private static readonly string[] suffixes =
             {
                 "Disabled",
                 "GroupBy",
@@ -674,30 +674,30 @@ namespace IceInternal
         {
             Dictionary<string, string> props = properties.getPropertiesForPrefix(prefix);
             List<string> unknownProps = new List<string>();
-            foreach(string prop in props.Keys)
+            foreach (string prop in props.Keys)
             {
                 bool valid = false;
-                foreach(string suffix in suffixes)
+                foreach (string suffix in suffixes)
                 {
-                    if(IceUtilInternal.StringUtil.match(prop, prefix + suffix, false))
+                    if (IceUtilInternal.StringUtil.match(prop, prefix + suffix, false))
                     {
                         valid = true;
                         break;
                     }
                 }
 
-                if(!valid)
+                if (!valid)
                 {
                     unknownProps.Add(prop);
                 }
             }
 
-            if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+            if (unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
             {
                 StringBuilder message = new StringBuilder("found unknown IceMX properties for `");
                 message.Append(prefix.Substring(0, prefix.Length - 1));
                 message.Append("':");
-                foreach(string p in unknownProps)
+                foreach (string p in unknownProps)
                 {
                     message.Append("\n    ");
                     message.Append(p);
@@ -706,7 +706,7 @@ namespace IceInternal
             }
         }
 
-        class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
+        private class MetricsMapFactory<T> : IMetricsMapFactory where T : IceMX.Metrics, new()
         {
             public MetricsMapFactory(Action updater)
             {
@@ -730,8 +730,8 @@ namespace IceInternal
                 _subMaps.Add(subMap, new SubMapFactory<S>(field));
             }
 
-            readonly private Action _updater;
-            readonly private Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
+            private readonly Action _updater;
+            private readonly Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
         }
 
         public MetricsAdminI(Ice.Properties properties, Ice.Logger logger)
@@ -744,29 +744,29 @@ namespace IceInternal
         public void updateViews()
         {
             HashSet<IMetricsMapFactory> updatedMaps = new HashSet<IMetricsMapFactory>();
-            lock(this)
+            lock (this)
             {
                 string viewsPrefix = "IceMX.Metrics.";
                 Dictionary<string, string> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
                 Dictionary<string, MetricsViewI> views = new Dictionary<string, MetricsViewI>();
                 _disabledViews.Clear();
-                foreach(KeyValuePair<string, string> e in viewsProps)
+                foreach (KeyValuePair<string, string> e in viewsProps)
                 {
                     string viewName = e.Key.Substring(viewsPrefix.Length);
                     int dotPos = viewName.IndexOf('.');
-                    if(dotPos > 0)
+                    if (dotPos > 0)
                     {
                         viewName = viewName.Substring(0, dotPos);
                     }
 
-                    if(views.ContainsKey(viewName) || _disabledViews.Contains(viewName))
+                    if (views.ContainsKey(viewName) || _disabledViews.Contains(viewName))
                     {
                         continue; // View already configured.
                     }
 
                     validateProperties(viewsPrefix + viewName + ".", _properties);
 
-                    if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
+                    if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                     {
                         _disabledViews.Add(viewName);
                         continue; // The view is disabled
@@ -776,15 +776,15 @@ namespace IceInternal
                     // Create the view or update it.
                     //
                     MetricsViewI v;
-                    if(!_views.TryGetValue(viewName, out v))
+                    if (!_views.TryGetValue(viewName, out v))
                     {
                         v = new MetricsViewI(viewName);
                     }
                     views[viewName] = v;
 
-                    foreach(KeyValuePair<string, IMetricsMapFactory> f in _factories)
+                    foreach (KeyValuePair<string, IMetricsMapFactory> f in _factories)
                     {
-                        if(v.addOrUpdateMap(_properties, f.Key, f.Value, _logger))
+                        if (v.addOrUpdateMap(_properties, f.Key, f.Value, _logger))
                         {
                             updatedMaps.Add(f.Value);
                         }
@@ -798,11 +798,11 @@ namespace IceInternal
                 //
                 // Go through removed views to collect maps to update.
                 //
-                foreach(KeyValuePair<string, MetricsViewI> v in views)
+                foreach (KeyValuePair<string, MetricsViewI> v in views)
                 {
-                    if(!_views.ContainsKey(v.Key))
+                    if (!_views.ContainsKey(v.Key))
                     {
-                        foreach(string n in v.Value.getMaps())
+                        foreach (string n in v.Value.getMaps())
                         {
                             updatedMaps.Add(_factories[n]);
                         }
@@ -813,24 +813,24 @@ namespace IceInternal
             //
             // Call the updaters to update the maps.
             //
-            foreach(IMetricsMapFactory f in updatedMaps)
+            foreach (IMetricsMapFactory f in updatedMaps)
             {
                 f.update();
             }
         }
 
-        override public string[] getMetricsViewNames(out string[] disabledViews, Ice.Current current)
+        public override string[] getMetricsViewNames(out string[] disabledViews, Ice.Current current)
         {
-            lock(this)
+            lock (this)
             {
                 disabledViews = _disabledViews.ToArray();
-                return new List<String>(_views.Keys).ToArray();
+                return new List<string>(_views.Keys).ToArray();
             }
         }
 
-        override public void enableMetricsView(string name, Ice.Current current)
+        public override void enableMetricsView(string name, Ice.Current current)
         {
-            lock(this)
+            lock (this)
             {
                 getMetricsView(name); // Throws if unknown view.
                 _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "0");
@@ -838,9 +838,9 @@ namespace IceInternal
             updateViews();
         }
 
-        override public void disableMetricsView(string name, Ice.Current current)
+        public override void disableMetricsView(string name, Ice.Current current)
         {
-            lock(this)
+            lock (this)
             {
                 getMetricsView(name); // Throws if unknown view.
                 _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "1");
@@ -848,14 +848,14 @@ namespace IceInternal
             updateViews();
         }
 
-        override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp,
+        public override Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp,
                                                                            Ice.Current current)
         {
-            lock(this)
+            lock (this)
             {
                 MetricsViewI view = getMetricsView(viewName);
                 timestamp = Time.currentMonotonicTimeMillis();
-                if(view != null)
+                if (view != null)
                 {
                     return view.getMetrics();
                 }
@@ -863,26 +863,26 @@ namespace IceInternal
             }
         }
 
-        override public IceMX.MetricsFailures[] getMapMetricsFailures(string viewName, string mapName, Ice.Current c)
+        public override IceMX.MetricsFailures[] getMapMetricsFailures(string viewName, string mapName, Ice.Current c)
         {
-            lock(this)
+            lock (this)
             {
                 MetricsViewI view = getMetricsView(viewName);
-                if(view != null)
+                if (view != null)
                 {
                     return view.getFailures(mapName);
                 }
-                return new IceMX.MetricsFailures[0];
+                return Array.Empty<IceMX.MetricsFailures>();
             }
         }
 
-        override public IceMX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id,
+        public override IceMX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id,
                                                                  Ice.Current c)
         {
-            lock(this)
+            lock (this)
             {
                 MetricsViewI view = getMetricsView(viewName);
-                if(view != null)
+                if (view != null)
                 {
                     return view.getFailures(mapName, id);
                 }
@@ -895,13 +895,13 @@ namespace IceInternal
         {
             bool updated;
             MetricsMapFactory<T> factory;
-            lock(this)
+            lock (this)
             {
                 factory = new MetricsMapFactory<T>(updater);
                 _factories.Add(map, factory);
                 updated = addOrUpdateMap(map, factory);
             }
-            if(updated)
+            if (updated)
             {
                 factory.update();
             }
@@ -912,9 +912,9 @@ namespace IceInternal
         {
             bool updated;
             IMetricsMapFactory factory;
-            lock(this)
+            lock (this)
             {
-                if(!_factories.TryGetValue(map, out factory))
+                if (!_factories.TryGetValue(map, out factory))
                 {
                     return;
                 }
@@ -922,7 +922,7 @@ namespace IceInternal
                 removeMap(map);
                 updated = addOrUpdateMap(map, factory);
             }
-            if(updated)
+            if (updated)
             {
                 factory.update();
             }
@@ -932,16 +932,16 @@ namespace IceInternal
         {
             bool updated;
             IMetricsMapFactory factory;
-            lock(this)
+            lock (this)
             {
-                if(!_factories.TryGetValue(mapName, out factory))
+                if (!_factories.TryGetValue(mapName, out factory))
                 {
                     return;
                 }
                 _factories.Remove(mapName);
                 updated = removeMap(mapName);
             }
-            if(updated)
+            if (updated)
             {
                 factory.update();
             }
@@ -950,10 +950,10 @@ namespace IceInternal
         public List<MetricsMap<T>> getMaps<T>(string mapName) where T : IceMX.Metrics, new()
         {
             List<MetricsMap<T>> maps = new List<MetricsMap<T>>();
-            foreach(MetricsViewI v in _views.Values)
+            foreach (MetricsViewI v in _views.Values)
             {
                 MetricsMap<T> map = v.getMap<T>(mapName);
-                if(map != null)
+                if (map != null)
                 {
                     maps.Add(map);
                 }
@@ -968,16 +968,16 @@ namespace IceInternal
 
         public void updated(Dictionary<string, string> props)
         {
-            foreach(KeyValuePair<string, string> e in props)
+            foreach (KeyValuePair<string, string> e in props)
             {
-                if(e.Key.IndexOf("IceMX.") == 0)
+                if (e.Key.IndexOf("IceMX.") == 0)
                 {
                     // Udpate the metrics views using the new configuration.
                     try
                     {
                         updateViews();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         _logger.warning("unexpected exception while updating metrics view configuration:\n" +
                                         ex.ToString());
@@ -990,9 +990,9 @@ namespace IceInternal
         private MetricsViewI getMetricsView(string name)
         {
             MetricsViewI view;
-            if(!_views.TryGetValue(name, out view))
+            if (!_views.TryGetValue(name, out view))
             {
-                if(!_disabledViews.Contains(name))
+                if (!_disabledViews.Contains(name))
                 {
                     throw new IceMX.UnknownMetricsView();
                 }
@@ -1004,7 +1004,7 @@ namespace IceInternal
         private bool addOrUpdateMap(string mapName, IMetricsMapFactory factory)
         {
             bool updated = false;
-            foreach(MetricsViewI v in _views.Values)
+            foreach (MetricsViewI v in _views.Values)
             {
                 updated |= v.addOrUpdateMap(_properties, mapName, factory, _logger);
             }
@@ -1014,7 +1014,7 @@ namespace IceInternal
         private bool removeMap(string mapName)
         {
             bool updated = false;
-            foreach(MetricsViewI v in _views.Values)
+            foreach (MetricsViewI v in _views.Values)
             {
                 updated |= v.removeMap(mapName);
             }
@@ -1022,8 +1022,8 @@ namespace IceInternal
         }
 
         private Ice.Properties _properties;
-        readonly private Ice.Logger _logger;
-        readonly private Dictionary<string, IMetricsMapFactory> _factories =
+        private readonly Ice.Logger _logger;
+        private readonly Dictionary<string, IMetricsMapFactory> _factories =
             new Dictionary<string, IMetricsMapFactory>();
         private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();
         private List<string> _disabledViews = new List<string>();

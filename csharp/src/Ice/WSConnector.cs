@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    sealed class WSConnector : IceInternal.Connector
+    internal sealed class WSConnector : IceInternal.Connector
     {
         public IceInternal.Transceiver connect()
         {
@@ -26,23 +26,23 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(!(obj is WSConnector))
+            if (!(obj is WSConnector))
             {
                 return false;
             }
 
-            if(this == obj)
+            if (this == obj)
             {
                 return true;
             }
 
             WSConnector p = (WSConnector)obj;
-            if(!_delegate.Equals(p._delegate))
+            if (!_delegate.Equals(p._delegate))
             {
                 return false;
             }
 
-            if(!_resource.Equals(p._resource))
+            if (!_resource.Equals(p._resource))
             {
                 return false;
             }

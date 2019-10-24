@@ -6,7 +6,7 @@ namespace IceSSL
 {
     using System.Collections.Generic;
 
-    sealed class EndpointI : IceInternal.EndpointI
+    internal sealed class EndpointI : IceInternal.EndpointI
     {
         internal EndpointI(Instance instance, IceInternal.EndpointI del)
         {
@@ -26,17 +26,17 @@ namespace IceSSL
                 _endpoint = e;
             }
 
-            override public short type()
+            public override short type()
             {
                 return _endpoint.type();
             }
 
-            override public bool datagram()
+            public override bool datagram()
             {
                 return _endpoint.datagram();
             }
 
-            override public bool secure()
+            public override bool secure()
             {
                 return _endpoint.secure();
             }
@@ -70,7 +70,7 @@ namespace IceSSL
 
         public override IceInternal.EndpointI timeout(int timeout)
         {
-            if(timeout == _delegate.timeout())
+            if (timeout == _delegate.timeout())
             {
                 return this;
             }
@@ -87,7 +87,7 @@ namespace IceSSL
 
         public override IceInternal.EndpointI connectionId(string connectionId)
         {
-            if(connectionId.Equals(_delegate.connectionId()))
+            if (connectionId.Equals(_delegate.connectionId()))
             {
                 return this;
             }
@@ -104,7 +104,7 @@ namespace IceSSL
 
         public override IceInternal.EndpointI compress(bool compress)
         {
-            if(compress == _delegate.compress())
+            if (compress == _delegate.compress())
             {
                 return this;
             }
@@ -141,7 +141,7 @@ namespace IceSSL
             public void connectors(List<IceInternal.Connector> connectors)
             {
                 List<IceInternal.Connector> l = new List<IceInternal.Connector>();
-                foreach(IceInternal.Connector c in connectors)
+                foreach (IceInternal.Connector c in connectors)
                 {
                     l.Add(new ConnectorI(_instance, c, _host));
                 }
@@ -162,9 +162,9 @@ namespace IceSSL
                                               IceInternal.EndpointI_connectors callback)
         {
             string host = "";
-            for(Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
             {
-                if(p is Ice.IPEndpointInfo)
+                if (p is Ice.IPEndpointInfo)
                 {
                     host = ((Ice.IPEndpointInfo)p).host;
                     break;
@@ -180,7 +180,7 @@ namespace IceSSL
 
         public EndpointI endpoint(IceInternal.EndpointI del)
         {
-            if(del == _delegate)
+            if (del == _delegate)
             {
                 return this;
             }
@@ -193,7 +193,7 @@ namespace IceSSL
         public override List<IceInternal.EndpointI> expandIfWildcard()
         {
             List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
-            foreach(IceInternal.EndpointI e in _delegate.expandIfWildcard())
+            foreach (IceInternal.EndpointI e in _delegate.expandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new EndpointI(_instance, e));
             }
@@ -203,11 +203,11 @@ namespace IceSSL
         public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
         {
             List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
-            foreach(IceInternal.EndpointI e in _delegate.expandHost(out publish))
+            foreach (IceInternal.EndpointI e in _delegate.expandHost(out publish))
             {
                 l.Add(e == _delegate ? this : new EndpointI(_instance, e));
             }
-            if(publish != null)
+            if (publish != null)
             {
                 publish = publish == _delegate ? this : new EndpointI(_instance, publish);
             }
@@ -216,7 +216,7 @@ namespace IceSSL
 
         public override bool equivalent(IceInternal.EndpointI endpoint)
         {
-            if(!(endpoint is EndpointI))
+            if (!(endpoint is EndpointI))
             {
                 return false;
             }
@@ -234,13 +234,13 @@ namespace IceSSL
         //
         public override int CompareTo(IceInternal.EndpointI obj)
         {
-            if(!(obj is EndpointI))
+            if (!(obj is EndpointI))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
             EndpointI p = (EndpointI)obj;
-            if(this == p)
+            if (this == p)
             {
                 return 0;
             }
@@ -269,19 +269,19 @@ namespace IceSSL
             _instance = instance;
         }
 
-        override public IceInternal.EndpointFactory
+        public override IceInternal.EndpointFactory
         cloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying)
         {
             return new EndpointFactoryI(new Instance(_instance.engine(), inst.type(), inst.protocol()), underlying);
         }
 
-        override protected IceInternal.EndpointI
+        protected override IceInternal.EndpointI
         createWithUnderlying(IceInternal.EndpointI underlying, List<string> args, bool oaEndpoint)
         {
             return new EndpointI(_instance, underlying);
         }
 
-        override protected IceInternal.EndpointI
+        protected override IceInternal.EndpointI
         readWithUnderlying(IceInternal.EndpointI underlying, Ice.InputStream s)
         {
             return new EndpointI(_instance, underlying);

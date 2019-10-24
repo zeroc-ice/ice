@@ -18,14 +18,14 @@ public class Client : Test.TestHelper
     {
         Console.Out.Write("testing Ice.LogFile... ");
         Console.Out.Flush();
-        if(File.Exists("log.txt"))
+        if (File.Exists("log.txt"))
         {
             File.Delete("log.txt");
         }
         var initData = new Ice.InitializationData();
         initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.LogFile", "log.txt");
-        using(var communicator = initialize(initData))
+        using (var communicator = initialize(initData))
         {
             communicator.getLogger().trace("info", "my logger");
         }

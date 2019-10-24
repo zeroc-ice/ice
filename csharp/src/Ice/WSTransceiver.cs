@@ -10,7 +10,7 @@ namespace IceInternal
     using System.Security.Cryptography;
     using System.Text;
 
-    sealed class WSTransceiver : Transceiver
+    internal sealed class WSTransceiver : Transceiver
     {
         public Socket fd()
         {
@@ -22,10 +22,10 @@ namespace IceInternal
             //
             // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
             //
-            if(_state == StateInitializeDelegate)
+            if (_state == StateInitializeDelegate)
             {
                 int op = _delegate.initialize(readBuffer, writeBuffer, ref hasMoreData);
-                if(op != 0)
+                if (op != 0)
                 {
                     return op;
                 }
@@ -34,7 +34,7 @@ namespace IceInternal
 
             try
             {
-                if(_state == StateConnected)
+                if (_state == StateConnected)
                 {
                     //
                     // We don't know how much we'll need to read.
@@ -48,7 +48,7 @@ namespace IceInternal
                     // client sends the upgrade request.
                     //
                     _state = StateUpgradeRequestPending;
-                    if(!_incoming)
+                    if (!_incoming)
                     {
                         //
                         // Compose the upgrade request.
@@ -82,12 +82,12 @@ namespace IceInternal
                 //
                 // Try to write the client's upgrade request.
                 //
-                if(_state == StateUpgradeRequestPending && !_incoming)
+                if (_state == StateUpgradeRequestPending && !_incoming)
                 {
-                    if(_writeBuffer.b.hasRemaining())
+                    if (_writeBuffer.b.hasRemaining())
                     {
                         int s = _delegate.write(_writeBuffer);
-                        if(s != 0)
+                        if (s != 0)
                         {
                             return s;
                         }
@@ -96,12 +96,12 @@ namespace IceInternal
                     _state = StateUpgradeResponsePending;
                 }
 
-                while(true)
+                while (true)
                 {
-                    if(_readBuffer.b.hasRemaining())
+                    if (_readBuffer.b.hasRemaining())
                     {
                         int s = _delegate.read(_readBuffer, ref hasMoreData);
-                        if(s == SocketOperation.Write || _readBuffer.b.position() == 0)
+                        if (s == SocketOperation.Write || _readBuffer.b.position() == 0)
                         {
                             return s;
                         }
@@ -110,16 +110,16 @@ namespace IceInternal
                     //
                     // Try to read the client's upgrade request or the server's response.
                     //
-                    if((_state == StateUpgradeRequestPending && _incoming) ||
+                    if ((_state == StateUpgradeRequestPending && _incoming) ||
                        (_state == StateUpgradeResponsePending && !_incoming))
                     {
                         //
                         // Check if we have enough data for a complete message.
                         //
                         int p = _parser.isCompleteMessage(_readBuffer.b, 0, _readBuffer.b.position());
-                        if(p == -1)
+                        if (p == -1)
                         {
-                            if(_readBuffer.b.hasRemaining())
+                            if (_readBuffer.b.hasRemaining())
                             {
                                 return SocketOperation.Read;
                             }
@@ -128,7 +128,7 @@ namespace IceInternal
                             // Enlarge the buffer and try to read more.
                             //
                             int oldSize = _readBuffer.b.position();
-                            if(oldSize + 1024 > _instance.messageSizeMax())
+                            if (oldSize + 1024 > _instance.messageSizeMax())
                             {
                                 throw new Ice.MemoryLimitException();
                             }
@@ -154,9 +154,9 @@ namespace IceInternal
                     //
                     // Parse the client's upgrade request.
                     //
-                    if(_state == StateUpgradeRequestPending && _incoming)
+                    if (_state == StateUpgradeRequestPending && _incoming)
                     {
-                        if(_parser.parse(_readBuffer.b, 0, _readBufferPos))
+                        if (_parser.parse(_readBuffer.b, 0, _readBufferPos))
                         {
                             handleRequest(_writeBuffer);
                             _state = StateUpgradeResponsePending;
@@ -167,14 +167,14 @@ namespace IceInternal
                         }
                     }
 
-                    if(_state == StateUpgradeResponsePending)
+                    if (_state == StateUpgradeResponsePending)
                     {
-                        if(_incoming)
+                        if (_incoming)
                         {
-                            if(_writeBuffer.b.hasRemaining())
+                            if (_writeBuffer.b.hasRemaining())
                             {
                                 int s = _delegate.write(_writeBuffer);
-                                if(s != 0)
+                                if (s != 0)
                                 {
                                     return s;
                                 }
@@ -185,7 +185,7 @@ namespace IceInternal
                             //
                             // Parse the server's response
                             //
-                            if(_parser.parse(_readBuffer.b, 0, _readBufferPos))
+                            if (_parser.parse(_readBuffer.b, 0, _readBufferPos))
                             {
                                 handleResponse();
                             }
@@ -196,7 +196,7 @@ namespace IceInternal
                         }
                     }
                 }
-                catch(WebSocketException ex)
+                catch (WebSocketException ex)
                 {
                     throw new Ice.ProtocolException(ex.Message);
                 }
@@ -206,9 +206,9 @@ namespace IceInternal
 
                 hasMoreData = _readBufferPos < _readBuffer.b.position();
             }
-            catch(Ice.LocalException ex)
+            catch (Ice.LocalException ex)
             {
-                if(_instance.traceLevel() >= 2)
+                if (_instance.traceLevel() >= 2)
                 {
                     _instance.logger().trace(_instance.traceCategory(),
                         protocol() + " connection HTTP upgrade request failed\n" + ToString() + "\n" + ex);
@@ -216,9 +216,9 @@ namespace IceInternal
                 throw;
             }
 
-            if(_instance.traceLevel() >= 1)
+            if (_instance.traceLevel() >= 1)
             {
-                if(_incoming)
+                if (_incoming)
                 {
                     _instance.logger().trace(_instance.traceCategory(),
                         "accepted " + protocol() + " connection HTTP upgrade request\n" + ToString());
@@ -235,7 +235,7 @@ namespace IceInternal
 
         public int closing(bool initiator, Ice.LocalException reason)
         {
-            if(_instance.traceLevel() >= 1)
+            if (_instance.traceLevel() >= 1)
             {
                 _instance.logger().trace(_instance.traceCategory(),
                     "gracefully closing " + protocol() + " connection\n" + ToString());
@@ -243,7 +243,7 @@ namespace IceInternal
 
             int s = _nextState == StateOpened ? _state : _nextState;
 
-            if(s == StateClosingRequestPending && _closingInitiator)
+            if (s == StateClosingRequestPending && _closingInitiator)
             {
                 //
                 // If we initiated a close connection but also received a
@@ -257,31 +257,31 @@ namespace IceInternal
                 _closingInitiator = false;
                 return SocketOperation.Write;
             }
-            else if(s >= StateClosingRequestPending)
+            else if (s >= StateClosingRequestPending)
             {
                 return SocketOperation.None;
             }
 
             _closingInitiator = initiator;
-            if(reason is Ice.CloseConnectionException)
+            if (reason is Ice.CloseConnectionException)
             {
                 _closingReason = CLOSURE_NORMAL;
             }
-            else if(reason is Ice.ObjectAdapterDeactivatedException ||
+            else if (reason is Ice.ObjectAdapterDeactivatedException ||
                     reason is Ice.CommunicatorDestroyedException)
             {
                 _closingReason = CLOSURE_SHUTDOWN;
             }
-            else if(reason is Ice.ProtocolException)
+            else if (reason is Ice.ProtocolException)
             {
-                _closingReason  = CLOSURE_PROTOCOL_ERROR;
+                _closingReason = CLOSURE_PROTOCOL_ERROR;
             }
-            else if(reason is Ice.MemoryLimitException)
+            else if (reason is Ice.MemoryLimitException)
             {
                 _closingReason = CLOSURE_TOO_BIG;
             }
 
-            if(_state == StateOpened)
+            if (_state == StateOpened)
             {
                 _state = StateClosingRequestPending;
                 return initiator ? SocketOperation.Read : SocketOperation.Write;
@@ -301,11 +301,11 @@ namespace IceInternal
             //
             // Clear the buffers now instead of waiting for destruction.
             //
-            if(!_readPending)
+            if (!_readPending)
             {
                 _readBuffer.clear();
             }
-            if(!_writePending)
+            if (!_writePending)
             {
                 _writeBuffer.clear();
             }
@@ -324,14 +324,14 @@ namespace IceInternal
 
         public int write(Buffer buf)
         {
-            if(_writePending)
+            if (_writePending)
             {
                 return SocketOperation.Write;
             }
 
-            if(_state < StateOpened)
+            if (_state < StateOpened)
             {
-                if(_state < StateConnected)
+                if (_state < StateConnected)
                 {
                     return _delegate.write(buf);
                 }
@@ -344,9 +344,9 @@ namespace IceInternal
             int s = SocketOperation.None;
             do
             {
-                if(preWrite(buf))
+                if (preWrite(buf))
                 {
-                    if(_writeState == WriteStateFlush)
+                    if (_writeState == WriteStateFlush)
                     {
                         //
                         // Invoke write() even though there's nothing to write.
@@ -355,23 +355,23 @@ namespace IceInternal
                         s = _delegate.write(buf);
                     }
 
-                    if(s == SocketOperation.None && _writeBuffer.b.hasRemaining())
+                    if (s == SocketOperation.None && _writeBuffer.b.hasRemaining())
                     {
                         s = _delegate.write(_writeBuffer);
                     }
-                    else if(s == SocketOperation.None && _incoming && !buf.empty() && _writeState == WriteStatePayload)
+                    else if (s == SocketOperation.None && _incoming && !buf.empty() && _writeState == WriteStatePayload)
                     {
                         s = _delegate.write(buf);
                     }
                 }
             }
-            while(postWrite(buf, s));
+            while (postWrite(buf, s));
 
-            if(s != SocketOperation.None)
+            if (s != SocketOperation.None)
             {
                 return s;
             }
-            if(_state == StateClosingResponsePending && !_closingInitiator)
+            if (_state == StateClosingResponsePending && !_closingInitiator)
             {
                 return SocketOperation.Read;
             }
@@ -380,20 +380,20 @@ namespace IceInternal
 
         public int read(Buffer buf, ref bool hasMoreData)
         {
-            if(_readPending)
+            if (_readPending)
             {
                 return SocketOperation.Read;
             }
 
-            if(_state < StateOpened)
+            if (_state < StateOpened)
             {
-                if(_state < StateConnected)
+                if (_state < StateConnected)
                 {
                     return _delegate.read(buf, ref hasMoreData);
                 }
                 else
                 {
-                    if(_delegate.read(_readBuffer, ref hasMoreData) == SocketOperation.Write)
+                    if (_delegate.read(_readBuffer, ref hasMoreData) == SocketOperation.Write)
                     {
                         return SocketOperation.Write;
                     }
@@ -404,7 +404,7 @@ namespace IceInternal
                 }
             }
 
-            if(!buf.b.hasRemaining())
+            if (!buf.b.hasRemaining())
             {
                 hasMoreData |= _readBufferPos < _readBuffer.b.position();
                 return SocketOperation.None;
@@ -413,9 +413,9 @@ namespace IceInternal
             int s = SocketOperation.None;
             do
             {
-                if(preRead(buf))
+                if (preRead(buf))
                 {
-                    if(_readState == ReadStatePayload)
+                    if (_readState == ReadStatePayload)
                     {
                         //
                         // If the payload length is smaller than what remains to be read, we read
@@ -423,7 +423,7 @@ namespace IceInternal
                         // sent over in another frame.
                         //
                         int readSz = _readPayloadLength - (buf.b.position() - _readStart);
-                        if(buf.b.remaining() > readSz)
+                        if (buf.b.remaining() > readSz)
                         {
                             int size = buf.size();
                             buf.resize(buf.b.position() + readSz, true);
@@ -440,16 +440,16 @@ namespace IceInternal
                         s = _delegate.read(_readBuffer, ref hasMoreData);
                     }
 
-                    if(s == SocketOperation.Write)
+                    if (s == SocketOperation.Write)
                     {
                         postRead(buf);
                         return s;
                     }
                 }
             }
-            while(postRead(buf));
+            while (postRead(buf));
 
-            if(!buf.b.hasRemaining())
+            if (!buf.b.hasRemaining())
             {
                 hasMoreData |= _readBufferPos < _readBuffer.b.position();
                 s = SocketOperation.None;
@@ -460,7 +460,7 @@ namespace IceInternal
                 s = SocketOperation.Read;
             }
 
-            if(((_state == StateClosingRequestPending && !_closingInitiator) ||
+            if (((_state == StateClosingRequestPending && !_closingInitiator) ||
                 (_state == StateClosingResponsePending && _closingInitiator) ||
                 _state == StatePingPending ||
                 _state == StatePongPending) &&
@@ -476,10 +476,10 @@ namespace IceInternal
         public bool startRead(Buffer buf, AsyncCallback callback, object state)
         {
             _readPending = true;
-            if(_state < StateOpened)
+            if (_state < StateOpened)
             {
                 _finishRead = true;
-                if(_state < StateConnected)
+                if (_state < StateConnected)
                 {
                     return _delegate.startRead(buf, callback, state);
                 }
@@ -489,18 +489,18 @@ namespace IceInternal
                 }
             }
 
-            if(preRead(buf))
+            if (preRead(buf))
             {
                 _finishRead = true;
-                if(_readState == ReadStatePayload)
+                if (_readState == ReadStatePayload)
                 {
                     //
                     // If the payload length is smaller than what remains to be read, we read
                     // no more than the payload length. The remaining of the buffer will be
                     // sent over in another frame.
                     //
-                    int readSz = _readPayloadLength  - (buf.b.position() - _readStart);
-                    if(buf.b.remaining() > readSz)
+                    int readSz = _readPayloadLength - (buf.b.position() - _readStart);
+                    if (buf.b.remaining() > readSz)
                     {
                         int size = buf.size();
                         buf.resize(buf.b.position() + readSz, true);
@@ -529,11 +529,11 @@ namespace IceInternal
             Debug.Assert(_readPending);
             _readPending = false;
 
-            if(_state < StateOpened)
+            if (_state < StateOpened)
             {
                 Debug.Assert(_finishRead);
                 _finishRead = false;
-                if(_state < StateConnected)
+                if (_state < StateConnected)
                 {
                     _delegate.finishRead(buf);
                 }
@@ -544,11 +544,11 @@ namespace IceInternal
                 return;
             }
 
-            if(!_finishRead)
+            if (!_finishRead)
             {
                 // Nothing to do.
             }
-            else if(_readState == ReadStatePayload)
+            else if (_readState == ReadStatePayload)
             {
                 Debug.Assert(_finishRead);
                 _finishRead = false;
@@ -561,7 +561,7 @@ namespace IceInternal
                 _delegate.finishRead(_readBuffer);
             }
 
-            if(_state == StateClosed)
+            if (_state == StateClosed)
             {
                 _readBuffer.clear();
                 return;
@@ -574,9 +574,9 @@ namespace IceInternal
                                out bool completed)
         {
             _writePending = true;
-            if(_state < StateOpened)
+            if (_state < StateOpened)
             {
-                if(_state < StateConnected)
+                if (_state < StateConnected)
                 {
                     return _delegate.startWrite(buf, callback, state, out completed);
                 }
@@ -586,9 +586,9 @@ namespace IceInternal
                 }
             }
 
-            if(preWrite(buf))
+            if (preWrite(buf))
             {
-                if(_writeBuffer.b.hasRemaining())
+                if (_writeBuffer.b.hasRemaining())
                 {
                     return _delegate.startWrite(_writeBuffer, callback, state, out completed);
                 }
@@ -609,9 +609,9 @@ namespace IceInternal
         {
             _writePending = false;
 
-            if(_state < StateOpened)
+            if (_state < StateOpened)
             {
-                if(_state < StateConnected)
+                if (_state < StateConnected)
                 {
                     _delegate.finishWrite(buf);
                 }
@@ -622,17 +622,17 @@ namespace IceInternal
                 return;
             }
 
-            if(_writeBuffer.b.hasRemaining())
+            if (_writeBuffer.b.hasRemaining())
             {
                 _delegate.finishWrite(_writeBuffer);
             }
-            else if(!buf.empty() && buf.b.hasRemaining())
+            else if (!buf.empty() && buf.b.hasRemaining())
             {
                 Debug.Assert(_incoming);
                 _delegate.finishWrite(buf);
             }
 
-            if(_state == StateClosed)
+            if (_state == StateClosed)
             {
                 _writeBuffer.clear();
                 return;
@@ -734,7 +734,7 @@ namespace IceInternal
             _readMask = new byte[4];
             _writeMask = new byte[4];
             _key = "";
-            _pingPayload = new byte[0];
+            _pingPayload = Array.Empty<byte>();
             _rand = new Random();
         }
 
@@ -743,7 +743,7 @@ namespace IceInternal
             //
             // HTTP/1.1
             //
-            if(_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
+            if (_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
             {
                 throw new WebSocketException("unsupported HTTP version");
             }
@@ -753,11 +753,11 @@ namespace IceInternal
             //  treated as an ASCII case-insensitive value."
             //
             string val = _parser.getHeader("Upgrade", true);
-            if(val == null)
+            if (val == null)
             {
                 throw new WebSocketException("missing value for Upgrade field");
             }
-            else if(!val.Equals("websocket"))
+            else if (!val.Equals("websocket"))
             {
                 throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
             }
@@ -767,11 +767,11 @@ namespace IceInternal
             //  treated as an ASCII case-insensitive value.
             //
             val = _parser.getHeader("Connection", true);
-            if(val == null)
+            if (val == null)
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if(val.IndexOf("upgrade") == -1)
+            else if (val.IndexOf("upgrade") == -1)
             {
                 throw new WebSocketException("invalid value `" + val + "' for Connection field");
             }
@@ -780,11 +780,11 @@ namespace IceInternal
             // "A |Sec-WebSocket-Version| header field, with a value of 13."
             //
             val = _parser.getHeader("Sec-WebSocket-Version", false);
-            if(val == null)
+            if (val == null)
             {
                 throw new WebSocketException("missing value for WebSocket version");
             }
-            else if(!val.Equals("13"))
+            else if (!val.Equals("13"))
             {
                 throw new WebSocketException("unsupported WebSocket version `" + val + "'");
             }
@@ -796,16 +796,16 @@ namespace IceInternal
             //
             bool addProtocol = false;
             val = _parser.getHeader("Sec-WebSocket-Protocol", true);
-            if(val != null)
+            if (val != null)
             {
                 string[] protocols = IceUtilInternal.StringUtil.splitString(val, ",");
-                if(protocols == null)
+                if (protocols == null)
                 {
                     throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
                 }
-                foreach(string p in protocols)
+                foreach (string p in protocols)
                 {
-                    if(!p.Trim().Equals(_iceProtocol))
+                    if (!p.Trim().Equals(_iceProtocol))
                     {
                         throw new WebSocketException("unknown value `" + p + "' for WebSocket protocol");
                     }
@@ -818,13 +818,13 @@ namespace IceInternal
             //  value that, when decoded, is 16 bytes in length."
             //
             string key = _parser.getHeader("Sec-WebSocket-Key", false);
-            if(key == null)
+            if (key == null)
             {
                 throw new WebSocketException("missing value for WebSocket key");
             }
 
             byte[] decodedKey = Convert.FromBase64String(key);
-            if(decodedKey.Length != 16)
+            if (decodedKey.Length != 16)
             {
                 throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
             }
@@ -841,7 +841,7 @@ namespace IceInternal
             @out.Append("HTTP/1.1 101 Switching Protocols\r\n");
             @out.Append("Upgrade: websocket\r\n");
             @out.Append("Connection: Upgrade\r\n");
-            if(addProtocol)
+            if (addProtocol)
             {
                 @out.Append("Sec-WebSocket-Protocol: " + _iceProtocol + "\r\n");
             }
@@ -858,7 +858,9 @@ namespace IceInternal
             //
             @out.Append("Sec-WebSocket-Accept: ");
             string input = key + _wsUUID;
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
+#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
             @out.Append(Convert.ToBase64String(hash) + "\r\n" + "\r\n"); // EOM
 
             byte[] bytes = _utf8.GetBytes(@out.ToString());
@@ -876,7 +878,7 @@ namespace IceInternal
             //
             // HTTP/1.1
             //
-            if(_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
+            if (_parser.versionMajor() != 1 || _parser.versionMinor() != 1)
             {
                 throw new WebSocketException("unsupported HTTP version");
             }
@@ -889,10 +891,10 @@ namespace IceInternal
             //  using a 3xx status code (but clients are not required to follow
             //  them), etc."
             //
-            if(_parser.status() != 101)
+            if (_parser.status() != 101)
             {
                 StringBuilder @out = new StringBuilder("unexpected status value " + _parser.status());
-                if(_parser.reason().Length > 0)
+                if (_parser.reason().Length > 0)
                 {
                     @out.Append(":\n" + _parser.reason());
                 }
@@ -906,11 +908,11 @@ namespace IceInternal
             //  _Fail the WebSocket Connection_."
             //
             val = _parser.getHeader("Upgrade", true);
-            if(val == null)
+            if (val == null)
             {
                 throw new WebSocketException("missing value for Upgrade field");
             }
-            else if(!val.Equals("websocket"))
+            else if (!val.Equals("websocket"))
             {
                 throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
             }
@@ -922,11 +924,11 @@ namespace IceInternal
             //  MUST _Fail the WebSocket Connection_."
             //
             val = _parser.getHeader("Connection", true);
-            if(val == null)
+            if (val == null)
             {
                 throw new WebSocketException("missing value for Connection field");
             }
-            else if(val.IndexOf("upgrade") == -1)
+            else if (val.IndexOf("upgrade") == -1)
             {
                 throw new WebSocketException("invalid value `" + val + "' for Connection field");
             }
@@ -939,7 +941,7 @@ namespace IceInternal
             //  the WebSocket Connection_."
             //
             val = _parser.getHeader("Sec-WebSocket-Protocol", true);
-            if(val != null && !val.Equals(_iceProtocol))
+            if (val != null && !val.Equals(_iceProtocol))
             {
                 throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
             }
@@ -954,14 +956,16 @@ namespace IceInternal
             //  Connection_."
             //
             val = _parser.getHeader("Sec-WebSocket-Accept", false);
-            if(val == null)
+            if (val == null)
             {
                 throw new WebSocketException("missing value for Sec-WebSocket-Accept");
             }
 
             string input = _key + _wsUUID;
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
             byte[] hash = SHA1.Create().ComputeHash(_utf8.GetBytes(input));
-            if(!val.Equals(Convert.ToBase64String(hash)))
+#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
+            if (!val.Equals(Convert.ToBase64String(hash)))
             {
                 throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
             }
@@ -969,14 +973,14 @@ namespace IceInternal
 
         private bool preRead(Buffer buf)
         {
-            while(true)
+            while (true)
             {
-                if(_readState == ReadStateOpcode)
+                if (_readState == ReadStateOpcode)
                 {
                     //
                     // Is there enough data available to read the opcode?
                     //
-                    if(!readBuffered(2))
+                    if (!readBuffered(2))
                     {
                         return true;
                     }
@@ -994,17 +998,17 @@ namespace IceInternal
                     // continuation frame, this is only for protocol
                     // correctness checking purpose.
                     //
-                    if(_readOpCode == OP_DATA)
+                    if (_readOpCode == OP_DATA)
                     {
-                        if(!_readLastFrame)
+                        if (!_readLastFrame)
                         {
                             throw new Ice.ProtocolException("invalid data frame, no FIN on previous frame");
                         }
                         _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                     }
-                    else if(_readOpCode == OP_CONT)
+                    else if (_readOpCode == OP_CONT)
                     {
-                        if(_readLastFrame)
+                        if (_readLastFrame)
                         {
                             throw new Ice.ProtocolException("invalid continuation frame, previous frame FIN set");
                         }
@@ -1018,7 +1022,7 @@ namespace IceInternal
                     // messages sent by a server must not be masked.
                     //
                     bool masked = (ch & FLAG_MASKED) == FLAG_MASKED;
-                    if(masked != _incoming)
+                    if (masked != _incoming)
                     {
                         throw new Ice.ProtocolException("invalid masking");
                     }
@@ -1031,11 +1035,11 @@ namespace IceInternal
                     // 127:   The subsequent eight bytes contain the payload length
                     //
                     _readPayloadLength = (ch & 0x7f);
-                    if(_readPayloadLength < 126)
+                    if (_readPayloadLength < 126)
                     {
                         _readHeaderLength = 0;
                     }
-                    else if(_readPayloadLength == 126)
+                    else if (_readPayloadLength == 126)
                     {
                         _readHeaderLength = 2; // Need to read a 16-bit payload length.
                     }
@@ -1043,7 +1047,7 @@ namespace IceInternal
                     {
                         _readHeaderLength = 8; // Need to read a 64-bit payload length.
                     }
-                    if(masked)
+                    if (masked)
                     {
                         _readHeaderLength += 4; // Need to read a 32-bit mask.
                     }
@@ -1051,30 +1055,30 @@ namespace IceInternal
                     _readState = ReadStateHeader;
                 }
 
-                if(_readState == ReadStateHeader)
+                if (_readState == ReadStateHeader)
                 {
                     //
                     // Is there enough data available to read the header?
                     //
-                    if(_readHeaderLength > 0 && !readBuffered(_readHeaderLength))
+                    if (_readHeaderLength > 0 && !readBuffered(_readHeaderLength))
                     {
                         return true;
                     }
 
-                    if(_readPayloadLength == 126)
+                    if (_readPayloadLength == 126)
                     {
                         _readPayloadLength = _readBuffer.b.getShort(_readBufferPos); // Uses network byte order.
-                        if(_readPayloadLength < 0)
+                        if (_readPayloadLength < 0)
                         {
                             _readPayloadLength += 65536;
                         }
                         _readBufferPos += 2;
                     }
-                    else if(_readPayloadLength == 127)
+                    else if (_readPayloadLength == 127)
                     {
                         long l = _readBuffer.b.getLong(_readBufferPos); // Uses network byte order.
                         _readBufferPos += 8;
-                        if(l < 0 || l > Int32.MaxValue)
+                        if (l < 0 || l > int.MaxValue)
                         {
                             throw new Ice.ProtocolException("invalid WebSocket payload length: " + l);
                         }
@@ -1084,115 +1088,115 @@ namespace IceInternal
                     //
                     // Read the mask if this is an incoming connection.
                     //
-                    if(_incoming)
+                    if (_incoming)
                     {
                         //
                         // We must have needed to read the mask.
                         //
                         Debug.Assert(_readBuffer.b.position() - _readBufferPos >= 4);
-                        for(int i = 0; i < 4; ++i)
+                        for (int i = 0; i < 4; ++i)
                         {
                             _readMask[i] = _readBuffer.b.get(_readBufferPos++); // Copy the mask.
                         }
                     }
 
-                    switch(_readOpCode)
+                    switch (_readOpCode)
                     {
-                    case OP_TEXT: // Text frame
-                    {
-                        throw new Ice.ProtocolException("text frames not supported");
-                    }
-                    case OP_DATA: // Data frame
-                    case OP_CONT: // Continuation frame
-                    {
-                        if(_instance.traceLevel() >= 2)
-                        {
-                            _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
-                                                     (_readOpCode == OP_DATA ? " data" : " continuation") +
-                                                     " frame with payload length of " + _readPayloadLength +
-                                                     " bytes\n" + ToString());
-                        }
+                        case OP_TEXT: // Text frame
+                            {
+                                throw new Ice.ProtocolException("text frames not supported");
+                            }
+                        case OP_DATA: // Data frame
+                        case OP_CONT: // Continuation frame
+                            {
+                                if (_instance.traceLevel() >= 2)
+                                {
+                                    _instance.logger().trace(_instance.traceCategory(), "received " + protocol() +
+                                                             (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                                             " frame with payload length of " + _readPayloadLength +
+                                                             " bytes\n" + ToString());
+                                }
 
-                        if(_readPayloadLength <= 0)
-                        {
-                            throw new Ice.ProtocolException("payload length is 0");
-                        }
-                        _readState = ReadStatePayload;
-                        Debug.Assert(buf.b.hasRemaining());
-                        _readFrameStart = buf.b.position();
-                        break;
-                    }
-                    case OP_CLOSE: // Connection close
-                    {
-                        if(_instance.traceLevel() >= 2)
-                        {
-                            _instance.logger().trace(_instance.traceCategory(),
-                                "received " + protocol() + " connection close frame\n" + ToString());
-                        }
+                                if (_readPayloadLength <= 0)
+                                {
+                                    throw new Ice.ProtocolException("payload length is 0");
+                                }
+                                _readState = ReadStatePayload;
+                                Debug.Assert(buf.b.hasRemaining());
+                                _readFrameStart = buf.b.position();
+                                break;
+                            }
+                        case OP_CLOSE: // Connection close
+                            {
+                                if (_instance.traceLevel() >= 2)
+                                {
+                                    _instance.logger().trace(_instance.traceCategory(),
+                                        "received " + protocol() + " connection close frame\n" + ToString());
+                                }
 
-                        _readState = ReadStateControlFrame;
-                        int s = _nextState == StateOpened ? _state : _nextState;
-                        if(s == StateClosingRequestPending)
-                        {
-                            //
-                            // If we receive a close frame while we were actually
-                            // waiting to send one, change the role and send a
-                            // close frame response.
-                            //
-                            if(!_closingInitiator)
-                            {
-                                _closingInitiator = true;
+                                _readState = ReadStateControlFrame;
+                                int s = _nextState == StateOpened ? _state : _nextState;
+                                if (s == StateClosingRequestPending)
+                                {
+                                    //
+                                    // If we receive a close frame while we were actually
+                                    // waiting to send one, change the role and send a
+                                    // close frame response.
+                                    //
+                                    if (!_closingInitiator)
+                                    {
+                                        _closingInitiator = true;
+                                    }
+                                    if (_state == StateClosingRequestPending)
+                                    {
+                                        _state = StateClosingResponsePending;
+                                    }
+                                    else
+                                    {
+                                        _nextState = StateClosingResponsePending;
+                                    }
+                                    return false; // No longer interested in reading
+                                }
+                                else
+                                {
+                                    throw new Ice.ConnectionLostException();
+                                }
                             }
-                            if(_state == StateClosingRequestPending)
+                        case OP_PING:
                             {
-                                _state = StateClosingResponsePending;
+                                if (_instance.traceLevel() >= 2)
+                                {
+                                    _instance.logger().trace(_instance.traceCategory(),
+                                        "received " + protocol() + " connection ping frame\n" + ToString());
+                                }
+                                _readState = ReadStateControlFrame;
+                                break;
                             }
-                            else
+                        case OP_PONG: // Pong
                             {
-                                _nextState = StateClosingResponsePending;
+                                if (_instance.traceLevel() >= 2)
+                                {
+                                    _instance.logger().trace(_instance.traceCategory(),
+                                        "received " + protocol() + " connection pong frame\n" + ToString());
+                                }
+                                _readState = ReadStateControlFrame;
+                                break;
                             }
-                            return false; // No longer interested in reading
-                        }
-                        else
-                        {
-                            throw new Ice.ConnectionLostException();
-                        }
-                    }
-                    case OP_PING:
-                    {
-                        if(_instance.traceLevel() >= 2)
-                        {
-                            _instance.logger().trace(_instance.traceCategory(),
-                                "received " + protocol() + " connection ping frame\n" + ToString());
-                        }
-                        _readState = ReadStateControlFrame;
-                        break;
-                    }
-                    case OP_PONG: // Pong
-                    {
-                        if(_instance.traceLevel() >= 2)
-                        {
-                            _instance.logger().trace(_instance.traceCategory(),
-                                "received " + protocol() + " connection pong frame\n" + ToString());
-                        }
-                        _readState = ReadStateControlFrame;
-                        break;
-                    }
-                    default:
-                    {
-                        throw new Ice.ProtocolException("unsupported opcode: " + _readOpCode);
-                    }
+                        default:
+                            {
+                                throw new Ice.ProtocolException("unsupported opcode: " + _readOpCode);
+                            }
                     }
                 }
 
-                if(_readState == ReadStateControlFrame)
+                if (_readState == ReadStateControlFrame)
                 {
-                    if(_readPayloadLength > 0 && !readBuffered(_readPayloadLength))
+                    if (_readPayloadLength > 0 && !readBuffered(_readPayloadLength))
                     {
                         return true;
                     }
 
-                    if(_readPayloadLength > 0 && _readOpCode == OP_PING)
+                    if (_readPayloadLength > 0 && _readOpCode == OP_PING)
                     {
                         _pingPayload = new byte[_readPayloadLength];
                         System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, _pingPayload, 0,
@@ -1202,13 +1206,13 @@ namespace IceInternal
                     _readBufferPos += _readPayloadLength;
                     _readPayloadLength = 0;
 
-                    if(_readOpCode == OP_PING)
+                    if (_readOpCode == OP_PING)
                     {
-                        if(_state == StateOpened)
+                        if (_state == StateOpened)
                         {
                             _state = StatePongPending; // Send pong frame now
                         }
-                        else if(_nextState < StatePongPending)
+                        else if (_nextState < StatePongPending)
                         {
                             _nextState = StatePongPending; // Send pong frame next
                         }
@@ -1221,7 +1225,7 @@ namespace IceInternal
                     _readState = ReadStateOpcode;
                 }
 
-                if(_readState == ReadStatePayload)
+                if (_readState == ReadStatePayload)
                 {
                     //
                     // This must be assigned before the check for the buffer. If the buffer is empty
@@ -1229,17 +1233,17 @@ namespace IceInternal
                     //
                     _readStart = buf.b.position();
 
-                    if(buf.empty() || !buf.b.hasRemaining())
+                    if (buf.empty() || !buf.b.hasRemaining())
                     {
                         return false;
                     }
 
                     int n = Math.Min(_readBuffer.b.position() - _readBufferPos, buf.b.remaining());
-                    if(n > _readPayloadLength)
+                    if (n > _readPayloadLength)
                     {
                         n = _readPayloadLength;
                     }
-                    if(n > 0)
+                    if (n > 0)
                     {
                         System.Buffer.BlockCopy(_readBuffer.b.rawBytes(), _readBufferPos, buf.b.rawBytes(),
                                                 buf.b.position(), n);
@@ -1258,25 +1262,25 @@ namespace IceInternal
 
         private bool postRead(Buffer buf)
         {
-            if(_readState != ReadStatePayload)
+            if (_readState != ReadStatePayload)
             {
                 return _readStart < _readBuffer.b.position(); // Returns true if data was read.
             }
 
-            if(_readStart == buf.b.position())
+            if (_readStart == buf.b.position())
             {
                 return false; // Nothing was read or nothing to read.
             }
             Debug.Assert(_readStart < buf.b.position());
 
-            if(_incoming)
+            if (_incoming)
             {
                 //
                 // Unmask the data we just read.
                 //
                 int pos = buf.b.position();
                 byte[] arr = buf.b.rawBytes();
-                for(int n = _readStart; n < pos; ++n)
+                for (int n = _readStart; n < pos; ++n)
                 {
                     arr[n] = (byte)(arr[n] ^ _readMask[(n - _readFrameStart) % 4]);
                 }
@@ -1284,7 +1288,7 @@ namespace IceInternal
 
             _readPayloadLength -= buf.b.position() - _readStart;
             _readStart = buf.b.position();
-            if(_readPayloadLength == 0)
+            if (_readPayloadLength == 0)
             {
                 //
                 // We've read the complete payload, we're ready to read a new frame.
@@ -1296,11 +1300,11 @@ namespace IceInternal
 
         private bool preWrite(Buffer buf)
         {
-            if(_writeState == WriteStateHeader)
+            if (_writeState == WriteStateHeader)
             {
-                if(_state == StateOpened)
+                if (_state == StateOpened)
                 {
-                    if(buf.empty() || !buf.b.hasRemaining())
+                    if (buf.empty() || !buf.b.hasRemaining())
                     {
                         return false;
                     }
@@ -1310,29 +1314,29 @@ namespace IceInternal
 
                     _writeState = WriteStatePayload;
                 }
-                else if(_state == StatePingPending)
+                else if (_state == StatePingPending)
                 {
                     prepareWriteHeader((byte)OP_PING, 0); // Don't send any payload
 
                     _writeState = WriteStateControlFrame;
                     _writeBuffer.b.flip();
                 }
-                else if(_state == StatePongPending)
+                else if (_state == StatePongPending)
                 {
                     prepareWriteHeader((byte)OP_PONG, _pingPayload.Length);
-                    if(_pingPayload.Length > _writeBuffer.b.remaining())
+                    if (_pingPayload.Length > _writeBuffer.b.remaining())
                     {
                         int pos = _writeBuffer.b.position();
                         _writeBuffer.resize(pos + _pingPayload.Length, false);
                         _writeBuffer.b.position(pos);
                     }
                     _writeBuffer.b.put(_pingPayload);
-                    _pingPayload = new byte[0];
+                    _pingPayload = Array.Empty<byte>();
 
                     _writeState = WriteStateControlFrame;
                     _writeBuffer.b.flip();
                 }
-                else if((_state == StateClosingRequestPending && !_closingInitiator) ||
+                else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
                         (_state == StateClosingResponsePending && _closingInitiator))
                 {
                     prepareWriteHeader((byte)OP_CLOSE, 2);
@@ -1340,7 +1344,7 @@ namespace IceInternal
                     // Write closing reason
                     _writeBuffer.b.putShort((short)_closingReason);
 
-                    if(!_incoming)
+                    if (!_incoming)
                     {
                         byte b;
                         int pos = _writeBuffer.b.position() - 2;
@@ -1363,7 +1367,7 @@ namespace IceInternal
                 _writePayloadLength = 0;
             }
 
-            if(_writeState == WriteStatePayload)
+            if (_writeState == WriteStatePayload)
             {
                 //
                 // For an outgoing connection, each message must be masked with a random
@@ -1373,9 +1377,9 @@ namespace IceInternal
                 // larger, the reminder is sent directly from the message buffer to avoid
                 // copying.
                 //
-                if(!_incoming && (_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining()))
+                if (!_incoming && (_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining()))
                 {
-                    if(!_writeBuffer.b.hasRemaining())
+                    if (!_writeBuffer.b.hasRemaining())
                     {
                         _writeBuffer.b.position(0);
                     }
@@ -1386,7 +1390,7 @@ namespace IceInternal
                     int count = Math.Min(sz - n, _writeBuffer.b.remaining());
                     byte[] src = buf.b.rawBytes();
                     byte[] dest = _writeBuffer.b.rawBytes();
-                    for(int i = 0; i < count; ++i, ++n, ++pos)
+                    for (int i = 0; i < count; ++i, ++n, ++pos)
                     {
                         dest[pos] = (byte)(src[n] ^ _writeMask[n % 4]);
                     }
@@ -1395,10 +1399,10 @@ namespace IceInternal
 
                     _writeBuffer.b.flip();
                 }
-                else if(_writePayloadLength == 0)
+                else if (_writePayloadLength == 0)
                 {
                     Debug.Assert(_incoming);
-                    if(_writeBuffer.b.hasRemaining())
+                    if (_writeBuffer.b.hasRemaining())
                     {
                         Debug.Assert(buf.b.position() == 0);
                         int n = Math.Min(_writeBuffer.b.remaining(), buf.b.remaining());
@@ -1406,12 +1410,12 @@ namespace IceInternal
                         System.Buffer.BlockCopy(buf.b.rawBytes(), 0, _writeBuffer.b.rawBytes(), pos, n);
                         _writeBuffer.b.position(pos + n);
                         _writePayloadLength = n;
-                   }
+                    }
                     _writeBuffer.b.flip();
                 }
                 return true;
             }
-            else if(_writeState == WriteStateControlFrame)
+            else if (_writeState == WriteStateControlFrame)
             {
                 return _writeBuffer.b.hasRemaining();
             }
@@ -1424,36 +1428,36 @@ namespace IceInternal
 
         private bool postWrite(Buffer buf, int status)
         {
-            if(_state > StateOpened && _writeState == WriteStateControlFrame)
+            if (_state > StateOpened && _writeState == WriteStateControlFrame)
             {
-                if(!_writeBuffer.b.hasRemaining())
+                if (!_writeBuffer.b.hasRemaining())
                 {
-                    if(_state == StatePingPending)
+                    if (_state == StatePingPending)
                     {
-                        if(_instance.traceLevel() >= 2)
+                        if (_instance.traceLevel() >= 2)
                         {
                             _instance.logger().trace(_instance.traceCategory(),
                                 "sent " + protocol() + " connection ping frame\n" + ToString());
                         }
                     }
-                    else if(_state == StatePongPending)
+                    else if (_state == StatePongPending)
                     {
-                        if(_instance.traceLevel() >= 2)
+                        if (_instance.traceLevel() >= 2)
                         {
                             _instance.logger().trace(_instance.traceCategory(),
                                 "sent " + protocol() + " connection pong frame\n" + ToString());
                         }
                     }
-                    else if((_state == StateClosingRequestPending && !_closingInitiator) ||
+                    else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
                             (_state == StateClosingResponsePending && _closingInitiator))
                     {
-                        if(_instance.traceLevel() >= 2)
+                        if (_instance.traceLevel() >= 2)
                         {
                             _instance.logger().trace(_instance.traceCategory(),
                                 "sent " + protocol() + " connection close frame\n" + ToString());
                         }
 
-                        if(_state == StateClosingRequestPending && !_closingInitiator)
+                        if (_state == StateClosingRequestPending && !_closingInitiator)
                         {
                             _writeState = WriteStateHeader;
                             _state = StateClosingResponsePending;
@@ -1464,7 +1468,7 @@ namespace IceInternal
                             throw new Ice.ConnectionLostException();
                         }
                     }
-                    else if(_state == StateClosed)
+                    else if (_state == StateClosed)
                     {
                         return false;
                     }
@@ -1479,15 +1483,15 @@ namespace IceInternal
                 }
             }
 
-            if((!_incoming || buf.b.position() == 0) && _writePayloadLength > 0)
+            if ((!_incoming || buf.b.position() == 0) && _writePayloadLength > 0)
             {
-                if(!_writeBuffer.b.hasRemaining())
+                if (!_writeBuffer.b.hasRemaining())
                 {
                     buf.b.position(_writePayloadLength);
                 }
             }
 
-            if(status == SocketOperation.Write && !buf.b.hasRemaining() && !_writeBuffer.b.hasRemaining())
+            if (status == SocketOperation.Write && !buf.b.hasRemaining() && !_writeBuffer.b.hasRemaining())
             {
                 //
                 // Our buffers are empty but the delegate needs another call to write().
@@ -1495,10 +1499,10 @@ namespace IceInternal
                 _writeState = WriteStateFlush;
                 return false;
             }
-            else if(!buf.b.hasRemaining())
+            else if (!buf.b.hasRemaining())
             {
                 _writeState = WriteStateHeader;
-                if(_state == StatePingPending ||
+                if (_state == StatePingPending ||
                    _state == StatePongPending ||
                    (_state == StateClosingRequestPending && !_closingInitiator) ||
                    (_state == StateClosingResponsePending && _closingInitiator))
@@ -1506,7 +1510,7 @@ namespace IceInternal
                     return true;
                 }
             }
-            else if(_state == StateOpened)
+            else if (_state == StateOpened)
             {
                 return status == SocketOperation.None;
             }
@@ -1516,7 +1520,7 @@ namespace IceInternal
 
         private bool readBuffered(int sz)
         {
-            if(_readBufferPos == _readBuffer.b.position())
+            if (_readBufferPos == _readBuffer.b.position())
             {
                 _readBuffer.resize(_readBufferSize, true);
                 _readBufferPos = 0;
@@ -1525,9 +1529,9 @@ namespace IceInternal
             else
             {
                 int available = _readBuffer.b.position() - _readBufferPos;
-                if(available < sz)
+                if (available < sz)
                 {
-                    if(_readBufferPos > 0)
+                    if (_readBufferPos > 0)
                     {
                         _readBuffer.b.limit(_readBuffer.b.position());
                         _readBuffer.b.position(_readBufferPos);
@@ -1541,7 +1545,7 @@ namespace IceInternal
             }
 
             _readStart = _readBuffer.b.position();
-            if(_readBufferPos + sz > _readBuffer.b.position())
+            if (_readBufferPos + sz > _readBuffer.b.position())
             {
                 return false; // Not enough read.
             }
@@ -1566,11 +1570,11 @@ namespace IceInternal
             //
             // Set the payload length.
             //
-            if(payloadLength <= 125)
+            if (payloadLength <= 125)
             {
                 _writeBuffer.b.put((byte)payloadLength);
             }
-            else if(payloadLength > 125 && payloadLength <= 65535)
+            else if (payloadLength > 125 && payloadLength <= 65535)
             {
                 //
                 // Use an extra 16 bits to encode the payload length.
@@ -1578,7 +1582,7 @@ namespace IceInternal
                 _writeBuffer.b.put(126);
                 _writeBuffer.b.putShort((short)payloadLength);
             }
-            else if(payloadLength > 65535)
+            else if (payloadLength > 65535)
             {
                 //
                 // Use an extra 64 bits to encode the payload length.
@@ -1587,7 +1591,7 @@ namespace IceInternal
                 _writeBuffer.b.putLong(payloadLength);
             }
 
-            if(!_incoming)
+            if (!_incoming)
             {
                 //
                 // Add a random 32-bit mask to every outgoing frame, copy the payload data,
@@ -1665,29 +1669,29 @@ namespace IceInternal
         //
         // WebSocket opcodes
         //
-        private const int OP_CONT     = 0x0;    // Continuation frame
-        private const int OP_TEXT     = 0x1;    // Text frame
-        private const int OP_DATA     = 0x2;    // Data frame
-        private const int OP_RES_0x3  = 0x3;    // Reserved
-        private const int OP_RES_0x4  = 0x4;    // Reserved
-        private const int OP_RES_0x5  = 0x5;    // Reserved
-        private const int OP_RES_0x6  = 0x6;    // Reserved
-        private const int OP_RES_0x7  = 0x7;    // Reserved
-        private const int OP_CLOSE    = 0x8;    // Connection close
-        private const int OP_PING     = 0x9;    // Ping
-        private const int OP_PONG     = 0xA;    // Pong
-        private const int OP_RES_0xB  = 0xB;    // Reserved
-        private const int OP_RES_0xC  = 0xC;    // Reserved
-        private const int OP_RES_0xD  = 0xD;    // Reserved
-        private const int OP_RES_0xE  = 0xE;    // Reserved
-        private const int OP_RES_0xF  = 0xF;    // Reserved
-        private const int FLAG_FINAL  = 0x80;   // Last frame
+        private const int OP_CONT = 0x0;    // Continuation frame
+        private const int OP_TEXT = 0x1;    // Text frame
+        private const int OP_DATA = 0x2;    // Data frame
+        // private const int OP_RES_0x3 = 0x3;    // Reserved
+        // private const int OP_RES_0x4 = 0x4;    // Reserved
+        // private const int OP_RES_0x5 = 0x5;    // Reserved
+        // private const int OP_RES_0x6 = 0x6;    // Reserved
+        // private const int OP_RES_0x7 = 0x7;    // Reserved
+        private const int OP_CLOSE = 0x8;    // Connection close
+        private const int OP_PING = 0x9;    // Ping
+        private const int OP_PONG = 0xA;    // Pong
+        // private const int OP_RES_0xB = 0xB;    // Reserved
+        // private const int OP_RES_0xC = 0xC;    // Reserved
+        // private const int OP_RES_0xD = 0xD;    // Reserved
+        // private const int OP_RES_0xE = 0xE;    // Reserved
+        // private const int OP_RES_0xF = 0xF;    // Reserved
+        private const int FLAG_FINAL = 0x80;   // Last frame
         private const int FLAG_MASKED = 0x80;   // Payload is masked
 
-        private const int CLOSURE_NORMAL         = 1000;
-        private const int CLOSURE_SHUTDOWN       = 1001;
+        private const int CLOSURE_NORMAL = 1000;
+        private const int CLOSURE_SHUTDOWN = 1001;
         private const int CLOSURE_PROTOCOL_ERROR = 1002;
-        private const int CLOSURE_TOO_BIG        = 1009;
+        private const int CLOSURE_TOO_BIG = 1009;
 
         private const string _iceProtocol = "ice.zeroc.com";
         private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";

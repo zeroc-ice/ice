@@ -30,9 +30,9 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
-                _clientEndpoints = new EndpointI[0];
+                _clientEndpoints = System.Array.Empty<EndpointI>();
                 _adapter = null;
                 _identities.Clear();
             }
@@ -40,7 +40,7 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
             {
                 return true;
             }
@@ -64,9 +64,9 @@ namespace IceInternal
 
         public EndpointI[] getClientEndpoints()
         {
-            lock(this)
+            lock (this)
             {
-                if(_clientEndpoints != null) // Lazy initialization.
+                if (_clientEndpoints != null) // Lazy initialization.
                 {
                     return _clientEndpoints;
                 }
@@ -80,12 +80,12 @@ namespace IceInternal
         public void getClientEndpoints(GetClientEndpointsCallback callback)
         {
             EndpointI[] clientEndpoints = null;
-            lock(this)
+            lock (this)
             {
                 clientEndpoints = _clientEndpoints;
             }
 
-            if(clientEndpoints != null) // Lazy initialization.
+            if (clientEndpoints != null) // Lazy initialization.
             {
                 callback.setEndpoints(clientEndpoints);
                 return;
@@ -100,18 +100,19 @@ namespace IceInternal
                         callback.setEndpoints(setClientEndpoints(r.returnValue,
                                                     r.hasRoutingTable.HasValue ? r.hasRoutingTable.Value : true));
                     }
-                    catch(System.AggregateException ae)
+                    catch (System.AggregateException ae)
                     {
                         Debug.Assert(ae.InnerException is Ice.LocalException);
                         callback.setException((Ice.LocalException)ae.InnerException);
                     }
-                });
+                },
+                System.Threading.Tasks.TaskScheduler.Current);
         }
 
         public EndpointI[] getServerEndpoints()
         {
             Ice.ObjectPrx serverProxy = _router.getServerProxy();
-            if(serverProxy == null)
+            if (serverProxy == null)
             {
                 throw new Ice.NoEndpointException();
             }
@@ -123,9 +124,9 @@ namespace IceInternal
         public void addProxy(Ice.ObjectPrx proxy)
         {
             Debug.Assert(proxy != null);
-            lock(this)
+            lock (this)
             {
-                if(_identities.Contains(proxy.ice_getIdentity()))
+                if (_identities.Contains(proxy.ice_getIdentity()))
                 {
                     //
                     // Only add the proxy to the router if it's not already in our local map.
@@ -140,13 +141,13 @@ namespace IceInternal
         public bool addProxy(Ice.ObjectPrx proxy, AddProxyCallback callback)
         {
             Debug.Assert(proxy != null);
-            lock(this)
+            lock (this)
             {
-                if(!_hasRoutingTable)
+                if (!_hasRoutingTable)
                 {
                     return true; // The router implementation doesn't maintain a routing table.
                 }
-                if(_identities.Contains(proxy.ice_getIdentity()))
+                if (_identities.Contains(proxy.ice_getIdentity()))
                 {
                     //
                     // Only add the proxy to the router if it's not already in our local map.
@@ -163,18 +164,19 @@ namespace IceInternal
                         addAndEvictProxies(proxy, t.Result);
                         callback.addedProxy();
                     }
-                    catch(System.AggregateException ae)
+                    catch (System.AggregateException ae)
                     {
                         Debug.Assert(ae.InnerException is Ice.LocalException);
                         callback.setException((Ice.LocalException)ae.InnerException);
                     }
-                });
+                },
+                System.Threading.Tasks.TaskScheduler.Current);
             return false;
         }
 
         public void setAdapter(Ice.ObjectAdapter adapter)
         {
-            lock(this)
+            lock (this)
             {
                 _adapter = adapter;
             }
@@ -182,7 +184,7 @@ namespace IceInternal
 
         public Ice.ObjectAdapter getAdapter()
         {
-            lock(this)
+            lock (this)
             {
                 return _adapter;
             }
@@ -190,7 +192,7 @@ namespace IceInternal
 
         public void clearCache(Reference @ref)
         {
-            lock(this)
+            lock (this)
             {
                 _identities.Remove(@ref.getIdentity());
             }
@@ -198,12 +200,12 @@ namespace IceInternal
 
         private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy, bool hasRoutingTable)
         {
-            lock(this)
+            lock (this)
             {
-                if(_clientEndpoints == null)
+                if (_clientEndpoints == null)
                 {
                     _hasRoutingTable = hasRoutingTable;
-                    if(clientProxy == null)
+                    if (clientProxy == null)
                     {
                         //
                         // If getClientProxy() return nil, use router endpoints.
@@ -219,7 +221,7 @@ namespace IceInternal
                         // router, we must use the same timeout as the already
                         // existing connection.
                         //
-                        if(_router.ice_getConnection() != null)
+                        if (_router.ice_getConnection() != null)
                         {
                             clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                         }
@@ -233,7 +235,7 @@ namespace IceInternal
 
         private void addAndEvictProxies(Ice.ObjectPrx proxy, Ice.ObjectPrx[] evictedProxies)
         {
-            lock(this)
+            lock (this)
             {
                 //
                 // Check if the proxy hasn't already been evicted by a
@@ -241,7 +243,7 @@ namespace IceInternal
                 // add it to our local map.
                 //
                 int index = _evictedIdentities.IndexOf(proxy.ice_getIdentity());
-                if(index >= 0)
+                if (index >= 0)
                 {
                     _evictedIdentities.RemoveAt(index);
                 }
@@ -257,9 +259,9 @@ namespace IceInternal
                 //
                 // We also must remove whatever proxies the router evicted.
                 //
-                for(int i = 0; i < evictedProxies.Length; ++i)
+                for (int i = 0; i < evictedProxies.Length; ++i)
                 {
-                    if(!_identities.Remove(evictedProxies[i].ice_getIdentity()))
+                    if (!_identities.Remove(evictedProxies[i].ice_getIdentity()))
                     {
                         //
                         // It's possible for the proxy to not have been
@@ -289,9 +291,9 @@ namespace IceInternal
 
         internal void destroy()
         {
-            lock(this)
+            lock (this)
             {
-                foreach(RouterInfo i in _table.Values)
+                foreach (RouterInfo i in _table.Values)
                 {
                     i.destroy();
                 }
@@ -305,7 +307,7 @@ namespace IceInternal
         //
         public RouterInfo get(Ice.RouterPrx rtr)
         {
-            if(rtr == null)
+            if (rtr == null)
             {
                 return null;
             }
@@ -315,10 +317,10 @@ namespace IceInternal
             //
             Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
-            lock(this)
+            lock (this)
             {
                 RouterInfo info = null;
-                if(!_table.TryGetValue(router, out info))
+                if (!_table.TryGetValue(router, out info))
                 {
                     info = new RouterInfo(router);
                     _table.Add(router, info);
@@ -335,16 +337,16 @@ namespace IceInternal
         public RouterInfo erase(Ice.RouterPrx rtr)
         {
             RouterInfo info = null;
-            if(rtr != null)
+            if (rtr != null)
             {
                 //
                 // The router cannot be routed.
                 //
                 Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
-                lock(this)
+                lock (this)
                 {
-                    if(_table.TryGetValue(router, out info))
+                    if (_table.TryGetValue(router, out info))
                     {
                         _table.Remove(router);
                     }

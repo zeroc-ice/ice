@@ -30,14 +30,14 @@ namespace Ice
             {
                 return dispatch(inc);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 //
                 // If the input parameters weren't read, make sure we skip them here. It's needed to read the
                 // encoding version used by the client to eventually marshal the user exception. It's also needed
                 // if we dispatch a batch oneway request to read the next batch request.
                 //
-                if(current.encoding == null || (current.encoding.major == 0 && current.encoding.minor == 0))
+                if (current.encoding == null || (current.encoding.major == 0 && current.encoding.minor == 0))
                 {
                     inc.skipReadParams();
                 }

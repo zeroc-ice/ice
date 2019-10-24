@@ -12,7 +12,7 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                using(var communicator = initialize(ref args))
+                using (var communicator = initialize(ref args))
                 {
                     var g = AllTests.allTests(this);
                     g.shutdown();

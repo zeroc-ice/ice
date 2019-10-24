@@ -179,7 +179,7 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args, InitializationData initData)
         {
-            if(initData == null)
+            if (initData == null)
             {
                 initData = new InitializationData();
             }
@@ -207,7 +207,7 @@ namespace Ice
         public static Communicator initialize(ref string[] args, string configFile)
         {
             InitializationData initData = null;
-            if(configFile != null)
+            if (configFile != null)
             {
                 initData = new InitializationData();
                 initData.properties = Util.createProperties();
@@ -223,7 +223,7 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(InitializationData initData)
         {
-            if(initData == null)
+            if (initData == null)
             {
                 initData = new InitializationData();
             }
@@ -233,7 +233,7 @@ namespace Ice
             }
 
             CommunicatorI result = new CommunicatorI(initData);
-            string[] args = new string[0];
+            string[] args = Array.Empty<string>();
             result.finishSetup(ref args);
             return result;
         }
@@ -247,7 +247,7 @@ namespace Ice
         public static Communicator initialize(string configFile)
         {
             InitializationData initData = null;
-            if(configFile != null)
+            if (configFile != null)
             {
                 initData = new InitializationData();
                 initData.properties = Util.createProperties();
@@ -278,10 +278,10 @@ namespace Ice
             // backslash before the separator.
             //
             int slash = -1, pos = 0;
-            while((pos = s.IndexOf((System.Char) '/', pos)) != -1)
+            while ((pos = s.IndexOf((char)'/', pos)) != -1)
             {
                 int escapes = 0;
-                while(pos - escapes > 0 && s[pos - escapes - 1] == '\\')
+                while (pos - escapes > 0 && s[pos - escapes - 1] == '\\')
                 {
                     escapes++;
                 }
@@ -289,9 +289,9 @@ namespace Ice
                 //
                 // We ignore escaped escapes
                 //
-                if(escapes % 2 == 0)
+                if (escapes % 2 == 0)
                 {
-                    if(slash == -1)
+                    if (slash == -1)
                     {
                         slash = pos;
                     }
@@ -308,14 +308,14 @@ namespace Ice
                 pos++;
             }
 
-            if(slash == -1)
+            if (slash == -1)
             {
                 ident.category = "";
                 try
                 {
                     ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
                 }
-                catch(ArgumentException e)
+                catch (ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid identity name `" + s + "': " + e.Message;
@@ -328,19 +328,19 @@ namespace Ice
                 {
                     ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
                 }
-                catch(ArgumentException e)
+                catch (ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid category in identity `" + s + "': " + e.Message;
                     throw ex;
                 }
-                if(slash + 1 < s.Length)
+                if (slash + 1 < s.Length)
                 {
                     try
                     {
                         ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
                     }
-                    catch(ArgumentException e)
+                    catch (ArgumentException e)
                     {
                         IdentityParseException ex = new IdentityParseException();
                         ex.str = "invalid name in identity `" + s + "': " + e.Message;
@@ -364,7 +364,7 @@ namespace Ice
         /// <returns>The string representation of the object identity.</returns>
         public static string identityToString(Identity ident, ToStringMode toStringMode = ToStringMode.Unicode)
         {
-            if(ident.category == null || ident.category.Length == 0)
+            if (ident.category == null || ident.category.Length == 0)
             {
                 return IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
             }
@@ -394,15 +394,15 @@ namespace Ice
         /// compare equal; 1, otherwise.</returns>
         public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
         {
-            if(lhs == null && rhs == null)
+            if (lhs == null && rhs == null)
             {
                 return 0;
             }
-            else if(lhs == null && rhs != null)
+            else if (lhs == null && rhs != null)
             {
                 return -1;
             }
-            else if(lhs != null && rhs == null)
+            else if (lhs != null && rhs == null)
             {
                 return 1;
             }
@@ -412,7 +412,7 @@ namespace Ice
                 Identity rhsIdentity = rhs.ice_getIdentity();
                 int n;
                 n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
-                if(n != 0)
+                if (n != 0)
                 {
                     return n;
                 }
@@ -430,17 +430,17 @@ namespace Ice
         /// and facets compare equal; 1, otherwise.</returns>
         public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
         {
-            if(lhs == null && rhs == null)
+            if (lhs == null && rhs == null)
             {
                 return 0;
             }
-            else if(lhs == null && rhs != null)
+            else if (lhs == null && rhs != null)
             {
                 return -1;
             }
-            else if(lhs != null && rhs == null)
+            else if (lhs != null && rhs == null)
             {
-                    return 1;
+                return 1;
             }
             else
             {
@@ -448,27 +448,27 @@ namespace Ice
                 Identity rhsIdentity = rhs.ice_getIdentity();
                 int n;
                 n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
-                if(n != 0)
+                if (n != 0)
                 {
                     return n;
                 }
                 n = string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
-                if(n != 0)
+                if (n != 0)
                 {
                     return n;
                 }
 
                 string lhsFacet = lhs.ice_getFacet();
                 string rhsFacet = rhs.ice_getFacet();
-                if(lhsFacet == null && rhsFacet == null)
+                if (lhsFacet == null && rhsFacet == null)
                 {
                     return 0;
                 }
-                else if(lhsFacet == null)
+                else if (lhsFacet == null)
                 {
                     return -1;
                 }
-                else if(rhsFacet == null)
+                else if (rhsFacet == null)
                 {
                     return 1;
                 }
@@ -485,9 +485,9 @@ namespace Ice
         /// <returns>The process-wide logger.</returns>
         public static Logger getProcessLogger()
         {
-            lock(_processLoggerMutex)
+            lock (_processLoggerMutex)
             {
-                if(_processLogger == null)
+                if (_processLogger == null)
                 {
                     _processLogger = new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
                 }
@@ -501,7 +501,7 @@ namespace Ice
         /// <param name="logger">The new process-wide logger.</param>
         public static void setProcessLogger(Logger logger)
         {
-            lock(_processLoggerMutex)
+            lock (_processLoggerMutex)
             {
                 _processLogger = logger;
             }
@@ -573,10 +573,10 @@ namespace Ice
             return majorMinorToString(v.major, v.minor);
         }
 
-        static private void stringToMajorMinor(string str, out byte major, out byte minor)
+        private static void stringToMajorMinor(string str, out byte major, out byte minor)
         {
             int pos = str.IndexOf('.');
-            if(pos == -1)
+            if (pos == -1)
             {
                 throw new VersionParseException("malformed version value `" + str + "'");
             }
@@ -590,12 +590,12 @@ namespace Ice
                 majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
                 minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
             }
-            catch(FormatException)
+            catch (FormatException)
             {
                 throw new VersionParseException("invalid version value `" + str + "'");
             }
 
-            if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+            if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
             {
                 throw new VersionParseException("range error in version `" + str + "'");
             }
@@ -604,7 +604,7 @@ namespace Ice
             minor = (byte)minVersion;
         }
 
-        static private string majorMinorToString(byte major, byte minor)
+        private static string majorMinorToString(byte major, byte minor)
         {
             return string.Format("{0}.{1}", major, minor);
         }
@@ -677,7 +677,7 @@ namespace IceInternal
 
         public static void hashAdd(ref int hashCode, object value)
         {
-            if(value != null)
+            if (value != null)
             {
                 hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
             }
@@ -685,7 +685,7 @@ namespace IceInternal
 
         public static void hashAdd(ref int hashCode, object[] arr)
         {
-            if(arr != null)
+            if (arr != null)
             {
                 hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
             }
@@ -693,7 +693,7 @@ namespace IceInternal
 
         public static void hashAdd(ref int hashCode, Array arr)
         {
-            if(arr != null)
+            if (arr != null)
             {
                 hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
             }
@@ -701,7 +701,7 @@ namespace IceInternal
 
         public static void hashAdd(ref int hashCode, IEnumerable s)
         {
-            if(s != null)
+            if (s != null)
             {
                 hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.SequenceGetHashCode(s));
             }
@@ -709,7 +709,7 @@ namespace IceInternal
 
         public static void hashAdd(ref int hashCode, IDictionary d)
         {
-            if(d != null)
+            if (d != null)
             {
                 hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.DictionaryGetHashCode(d));
             }
@@ -720,7 +720,7 @@ namespace IceInternal
     {
         public static Instance getInstance(Ice.Communicator communicator)
         {
-            Ice.CommunicatorI p = (Ice.CommunicatorI) communicator;
+            Ice.CommunicatorI p = (Ice.CommunicatorI)communicator;
             return p.getInstance();
         }
 
@@ -731,31 +731,31 @@ namespace IceInternal
 
         public static ThreadPriority stringToThreadPriority(string s)
         {
-            if(string.IsNullOrEmpty(s))
+            if (string.IsNullOrEmpty(s))
             {
                 return ThreadPriority.Normal;
             }
-            if(s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
+            if (s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
             {
                 s = s.Substring("ThreadPriority.".Length, s.Length);
             }
-            if(s.Equals("Lowest"))
+            if (s.Equals("Lowest"))
             {
                 return ThreadPriority.Lowest;
             }
-            else if(s.Equals("BelowNormal"))
+            else if (s.Equals("BelowNormal"))
             {
                 return ThreadPriority.BelowNormal;
             }
-            else if(s.Equals("Normal"))
+            else if (s.Equals("Normal"))
             {
                 return ThreadPriority.Normal;
             }
-            else if(s.Equals("AboveNormal"))
+            else if (s.Equals("AboveNormal"))
             {
                 return ThreadPriority.AboveNormal;
             }
-            else if(s.Equals("Highest"))
+            else if (s.Equals("Highest"))
             {
                 return ThreadPriority.Highest;
             }

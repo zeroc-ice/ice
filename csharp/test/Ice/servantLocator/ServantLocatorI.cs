@@ -19,7 +19,7 @@ namespace Ice
 
             ~ServantLocatorI()
             {
-                lock(this)
+                lock (this)
                 {
                     test(_deactivated);
                 }
@@ -27,7 +27,7 @@ namespace Ice
 
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.Exception();
                 }
@@ -35,27 +35,27 @@ namespace Ice
 
             public Ice.Object locate(Ice.Current current, out object cookie)
             {
-                lock(this)
+                lock (this)
                 {
                     test(!_deactivated);
                 }
 
                 test(current.id.category.Equals(_category) || _category.Length == 0);
 
-                if(current.id.name.Equals("unknown"))
+                if (current.id.name.Equals("unknown"))
                 {
                     cookie = null;
                     return null;
                 }
 
-                if(current.id.name.Equals("invalidReturnValue") || current.id.name.Equals("invalidReturnType"))
+                if (current.id.name.Equals("invalidReturnValue") || current.id.name.Equals("invalidReturnType"))
                 {
                     cookie = null;
                     return null;
                 }
 
                 test(current.id.name.Equals("locate") || current.id.name.Equals("finished"));
-                if(current.id.name.Equals("locate"))
+                if (current.id.name.Equals("locate"))
                 {
                     exception(current);
                 }
@@ -73,7 +73,7 @@ namespace Ice
 
             public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
             {
-                lock(this)
+                lock (this)
                 {
                     test(!_deactivated);
                 }
@@ -87,18 +87,18 @@ namespace Ice
                 test(current.id.category.Equals(_category) || _category.Length == 0);
                 test(current.id.name.Equals("locate") || current.id.name.Equals("finished"));
 
-                if(current.id.name.Equals("finished"))
+                if (current.id.name.Equals("finished"))
                 {
                     exception(current);
                 }
 
-                var co =(Test.Cookie)cookie;
+                var co = (Test.Cookie)cookie;
                 test(co.message().Equals("blahblah"));
             }
 
             public void deactivate(string category)
             {
-                lock(this)
+                lock (this)
                 {
                     test(!_deactivated);
 
@@ -108,63 +108,63 @@ namespace Ice
 
             private void exception(Ice.Current current)
             {
-                if(current.operation.Equals("ice_ids"))
+                if (current.operation.Equals("ice_ids"))
                 {
                     throw new Test.TestIntfUserException();
                 }
-                else if(current.operation.Equals("requestFailedException"))
+                else if (current.operation.Equals("requestFailedException"))
                 {
                     throw new Ice.ObjectNotExistException();
                 }
-                else if(current.operation.Equals("unknownUserException"))
+                else if (current.operation.Equals("unknownUserException"))
                 {
                     var ex = new Ice.UnknownUserException();
                     ex.unknown = "reason";
                     throw ex;
                 }
-                else if(current.operation.Equals("unknownLocalException"))
+                else if (current.operation.Equals("unknownLocalException"))
                 {
                     var ex = new Ice.UnknownLocalException();
                     ex.unknown = "reason";
                     throw ex;
                 }
-                else if(current.operation.Equals("unknownException"))
+                else if (current.operation.Equals("unknownException"))
                 {
                     var ex = new Ice.UnknownException();
                     ex.unknown = "reason";
                     throw ex;
                 }
-                else if(current.operation.Equals("userException"))
+                else if (current.operation.Equals("userException"))
                 {
                     throw new Test.TestIntfUserException();
                 }
-                else if(current.operation.Equals("localException"))
+                else if (current.operation.Equals("localException"))
                 {
                     var ex = new Ice.SocketException();
                     ex.error = 0;
                     throw ex;
                 }
-                else if(current.operation.Equals("csException"))
+                else if (current.operation.Equals("csException"))
                 {
                     throw new System.Exception("message");
                 }
-                else if(current.operation.Equals("unknownExceptionWithServantException"))
+                else if (current.operation.Equals("unknownExceptionWithServantException"))
                 {
                     throw new Ice.UnknownException("reason");
                 }
-                else if(current.operation.Equals("impossibleException"))
+                else if (current.operation.Equals("impossibleException"))
                 {
                     throw new Test.TestIntfUserException(); // Yes, it really is meant to be TestIntfException.
                 }
-                else if(current.operation.Equals("intfUserException"))
+                else if (current.operation.Equals("intfUserException"))
                 {
                     throw new Test.TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
                 }
-                else if(current.operation.Equals("asyncResponse"))
+                else if (current.operation.Equals("asyncResponse"))
                 {
                     throw new Test.TestImpossibleException();
                 }
-                else if(current.operation.Equals("asyncException"))
+                else if (current.operation.Equals("asyncException"))
                 {
                     throw new Test.TestImpossibleException();
                 }

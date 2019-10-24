@@ -18,7 +18,7 @@ public class Client : TestHelper
         //
         C def_cls = new C(5);
         S1 def_s = new S1("name");
-        string[] def_ss = new string[]{ "one", "two", "three" };
+        string[] def_ss = new string[] { "one", "two", "three" };
         int[] def_il = new int[3];
         def_il[0] = 1;
         def_il[1] = 2;
@@ -137,7 +137,7 @@ public class Client : TestHelper
             test(v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();
-            v1.il = new int[3] { 0, 0, 0};
+            v1.il = new int[3] { 0, 0, 0 };
             test(!v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();
@@ -256,7 +256,7 @@ public class Client : TestHelper
 
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
             allTests(communicator);
         }

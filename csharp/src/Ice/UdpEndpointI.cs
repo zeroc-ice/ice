@@ -4,14 +4,12 @@
 
 namespace IceInternal
 {
-    using System.Diagnostics;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Net;
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
+    using System.Net;
 
-    sealed class UdpEndpointI : IPEndpointI
+    internal sealed class UdpEndpointI : IPEndpointI
     {
         public UdpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, string mcastInterface,
                             int mttl, bool conn, string conId, bool co) :
@@ -33,7 +31,7 @@ namespace IceInternal
         public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            if(s.getEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 s.readByte();
                 s.readByte();
@@ -53,17 +51,17 @@ namespace IceInternal
                 _endpoint = e;
             }
 
-            override public short type()
+            public override short type()
             {
                 return _endpoint.type();
             }
 
-            override public bool datagram()
+            public override bool datagram()
             {
                 return _endpoint.datagram();
             }
 
-            override public bool secure()
+            public override bool secure()
             {
                 return _endpoint.secure();
             }
@@ -116,7 +114,7 @@ namespace IceInternal
         //
         public override EndpointI compress(bool compress)
         {
-            if(compress == _compress)
+            if (compress == _compress)
             {
                 return this;
             }
@@ -157,9 +155,9 @@ namespace IceInternal
         {
             base.initWithOptions(args, oaEndpoint);
 
-            if(_mcastInterface.Equals("*"))
+            if (_mcastInterface.Equals("*"))
             {
-                if(oaEndpoint)
+                if (oaEndpoint)
                 {
                     _mcastInterface = "";
                 }
@@ -174,7 +172,7 @@ namespace IceInternal
         public UdpEndpointI endpoint(UdpTransceiver transceiver)
         {
             int port = transceiver.effectivePort();
-            if(port == port_)
+            if (port == port_)
             {
                 return this;
             }
@@ -196,32 +194,32 @@ namespace IceInternal
             //
             string s = base.options();
 
-            if(_mcastInterface.Length != 0)
+            if (_mcastInterface.Length != 0)
             {
                 bool addQuote = _mcastInterface.IndexOf(':') != -1;
                 s += " --interface ";
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
                 s += _mcastInterface;
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
             }
 
-            if(_mcastTtl != -1)
+            if (_mcastTtl != -1)
             {
                 s += " --ttl " + _mcastTtl;
             }
 
-            if(_connect)
+            if (_connect)
             {
                 s += " -c";
             }
 
-            if(_compress)
+            if (_compress)
             {
                 s += " -z";
             }
@@ -234,46 +232,46 @@ namespace IceInternal
         //
         public override int CompareTo(EndpointI obj)
         {
-            if(!(obj is UdpEndpointI))
+            if (!(obj is UdpEndpointI))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
             UdpEndpointI p = (UdpEndpointI)obj;
-            if(this == p)
+            if (this == p)
             {
                 return 0;
             }
 
-            if(!_connect && p._connect)
+            if (!_connect && p._connect)
             {
                 return -1;
             }
-            else if(!p._connect && _connect)
+            else if (!p._connect && _connect)
             {
                 return 1;
             }
 
-            if(!_compress && p._compress)
+            if (!_compress && p._compress)
             {
                 return -1;
             }
-            else if(!p._compress && _compress)
+            else if (!p._compress && _compress)
             {
                 return 1;
             }
 
             int rc = string.Compare(_mcastInterface, p._mcastInterface, StringComparison.Ordinal);
-            if(rc != 0)
+            if (rc != 0)
             {
                 return rc;
             }
 
-            if(_mcastTtl < p._mcastTtl)
+            if (_mcastTtl < p._mcastTtl)
             {
                 return -1;
             }
-            else if(p._mcastTtl < _mcastTtl)
+            else if (p._mcastTtl < _mcastTtl)
             {
                 return 1;
             }
@@ -287,7 +285,7 @@ namespace IceInternal
         public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
-            if(s.getEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 Ice.Util.Protocol_1_0.ice_writeMembers(s);
                 Ice.Util.Encoding_1_0.ice_writeMembers(s);
@@ -309,7 +307,7 @@ namespace IceInternal
         public override void fillEndpointInfo(Ice.IPEndpointInfo info)
         {
             base.fillEndpointInfo(info);
-            if(info is Ice.UDPEndpointInfo)
+            if (info is Ice.UDPEndpointInfo)
             {
                 Ice.UDPEndpointInfo udpInfo = (Ice.UDPEndpointInfo)info;
                 udpInfo.timeout = -1;
@@ -321,14 +319,14 @@ namespace IceInternal
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            if(base.checkOption(option, argument, endpoint))
+            if (base.checkOption(option, argument, endpoint))
             {
                 return true;
             }
 
-            if(option.Equals("-c"))
+            if (option.Equals("-c"))
             {
-                if(argument != null)
+                if (argument != null)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "unexpected argument `" + argument + "' provided for -c option in " + endpoint;
@@ -337,9 +335,9 @@ namespace IceInternal
 
                 _connect = true;
             }
-            else if(option.Equals("-z"))
+            else if (option.Equals("-z"))
             {
-                if(argument != null)
+                if (argument != null)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
@@ -348,9 +346,9 @@ namespace IceInternal
 
                 _compress = true;
             }
-            else if(option.Equals("-v") || option.Equals("-e"))
+            else if (option.Equals("-v") || option.Equals("-e"))
             {
-                if(argument == null)
+                if (argument == null)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "no argument provided for " + option + " option in endpoint " + endpoint;
@@ -360,21 +358,21 @@ namespace IceInternal
                 try
                 {
                     Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
-                    if(v.major != 1 || v.minor != 0)
+                    if (v.major != 1 || v.minor != 0)
                     {
                         instance_.logger().warning("deprecated udp endpoint option: " + option);
                     }
                 }
-                catch(Ice.VersionParseException ex)
+                catch (Ice.VersionParseException ex)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str;
                     throw e;
                 }
             }
-            else if(option.Equals("--ttl"))
+            else if (option.Equals("--ttl"))
             {
-                if(argument == null)
+                if (argument == null)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "no argument provided for --ttl option in endpoint " + endpoint;
@@ -385,23 +383,23 @@ namespace IceInternal
                 {
                     _mcastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
-                catch(FormatException ex)
+                catch (FormatException ex)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
                     e.str = "invalid TTL value `" + argument + "' in endpoint " + endpoint;
                     throw e;
                 }
 
-                if(_mcastTtl < 0)
+                if (_mcastTtl < 0)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "TTL value `" + argument + "' out of range in endpoint " + endpoint;
                     throw e;
                 }
             }
-            else if(option.Equals("--interface"))
+            else if (option.Equals("--interface"))
             {
-                if(argument == null)
+                if (argument == null)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "no argument provided for --interface option in endpoint " + endpoint;
@@ -434,7 +432,7 @@ namespace IceInternal
         private bool _compress;
     }
 
-    sealed class UdpEndpointFactory : EndpointFactory
+    internal sealed class UdpEndpointFactory : EndpointFactory
     {
         internal UdpEndpointFactory(ProtocolInstance instance)
         {

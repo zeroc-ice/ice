@@ -25,7 +25,7 @@ public class Client : Test.TestHelper
         // ConnectionLostException.
         //
         properties.setProperty("Ice.Warn.Connections", "0");
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             Ice.ObjectPrx routerBase;
             {
@@ -86,11 +86,11 @@ public class Client : Test.TestHelper
                     @base.ice_ping();
                     test(false);
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch(Ice.SocketException)
+                catch (Ice.SocketException)
                 {
                     test(false);
                 }
@@ -104,11 +104,11 @@ public class Client : Test.TestHelper
                     router.createSession("userid", "xxx");
                     test(false);
                 }
-                catch(Glacier2.PermissionDeniedException)
+                catch (Glacier2.PermissionDeniedException)
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch(Glacier2.CannotCreateSessionException)
+                catch (Glacier2.CannotCreateSessionException)
                 {
                     test(false);
                 }
@@ -122,7 +122,7 @@ public class Client : Test.TestHelper
                     router.destroySession();
                     test(false);
                 }
-                catch(Glacier2.SessionNotExistException)
+                catch (Glacier2.SessionNotExistException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -135,11 +135,11 @@ public class Client : Test.TestHelper
                 {
                     router.createSession("userid", "abc123");
                 }
-                catch(Glacier2.PermissionDeniedException)
+                catch (Glacier2.PermissionDeniedException)
                 {
                     test(false);
                 }
-                catch(Glacier2.CannotCreateSessionException)
+                catch (Glacier2.CannotCreateSessionException)
                 {
                     test(false);
                 }
@@ -154,11 +154,11 @@ public class Client : Test.TestHelper
                     router.createSession("userid", "abc123");
                     test(false);
                 }
-                catch(Glacier2.PermissionDeniedException)
+                catch (Glacier2.PermissionDeniedException)
                 {
                     test(false);
                 }
-                catch(Glacier2.CannotCreateSessionException)
+                catch (Glacier2.CannotCreateSessionException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -178,7 +178,7 @@ public class Client : Test.TestHelper
                 {
                     baseC.ice_ping();
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -242,7 +242,7 @@ public class Client : Test.TestHelper
                 CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
                 CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
                 Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] =  "o";
+                context["_fwd"] = "o";
                 oneway.initiateCallback(onewayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -268,7 +268,7 @@ public class Client : Test.TestHelper
                     twoway.initiateCallbackEx(twowayR, context);
                     test(false);
                 }
-                catch(CallbackException ex)
+                catch (CallbackException ex)
                 {
                     test(ex.someValue == 3.14);
                     test(ex.someString.Equals("3.14"));
@@ -287,7 +287,7 @@ public class Client : Test.TestHelper
                     twoway.initiateCallback(fakeTwowayR, context);
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -297,7 +297,7 @@ public class Client : Test.TestHelper
                 Console.Out.Write("testing whether other allowed category is accepted... ");
                 Console.Out.Flush();
                 Dictionary<string, string> context = new Dictionary<string, string>();
-                context["_fwd"] =  "t";
+                context["_fwd"] = "t";
                 CallbackPrx otherCategoryTwoway =
                     CallbackPrxHelper.uncheckedCast(twoway.ice_identity(Ice.Util.stringToIdentity("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
@@ -317,7 +317,7 @@ public class Client : Test.TestHelper
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
-                catch(Ice.ObjectNotExistException)
+                catch (Ice.ObjectNotExistException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -335,7 +335,7 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            if(args.Length >= 1 && args[0].Equals("--shutdown"))
+            if (args.Length >= 1 && args[0].Equals("--shutdown"))
             {
                 Console.Out.Write("testing server shutdown... ");
                 Console.Out.Flush();
@@ -365,7 +365,7 @@ public class Client : Test.TestHelper
                 {
                     router.destroySession();
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     test(false);
                 }
@@ -381,17 +381,17 @@ public class Client : Test.TestHelper
                     @base.ice_ping();
                     test(false);
                 }
-                catch(Ice.ConnectionLostException)
+                catch (Ice.ConnectionLostException)
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch(Ice.SocketException)
+                catch (Ice.SocketException)
                 {
                     test(false);
                 }
             }
 
-            if(args.Length >= 1 && args[0].Equals("--shutdown"))
+            if (args.Length >= 1 && args[0].Equals("--shutdown"))
             {
                 {
                     Console.Out.Write("uninstalling router with communicator... ");
@@ -432,7 +432,7 @@ public class Client : Test.TestHelper
                     process.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     Console.Out.WriteLine("ok");
                 }

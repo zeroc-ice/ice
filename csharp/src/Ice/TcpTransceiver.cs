@@ -5,11 +5,10 @@
 namespace IceInternal
 {
     using System.Diagnostics;
-    using System.Collections.Generic;
     using System.Net;
     using System.Net.Sockets;
 
-    sealed class TcpTransceiver : Transceiver
+    internal sealed class TcpTransceiver : Transceiver
     {
         public Socket fd()
         {
@@ -82,7 +81,7 @@ namespace IceInternal
         public Ice.ConnectionInfo getInfo()
         {
             Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
-            if(_stream.fd() != null)
+            if (_stream.fd() != null)
             {
                 EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
                 info.localAddress = Network.endpointAddressToString(localEndpoint);

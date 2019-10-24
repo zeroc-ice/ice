@@ -56,7 +56,7 @@ public class AllTests : Test.AllTests
                 session.getAdmin().addObjectWithType(@base, "::Test");
                 session.destroy();
             }
-            catch(Ice.UserException)
+            catch (Ice.UserException)
             {
                 test(false);
             }
@@ -74,7 +74,7 @@ public class AllTests : Test.AllTests
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
-            Ice.Communicator com =  Ice.Util.initialize(initData);
+            Ice.Communicator com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             com.stringToProxy("test @ TestAdapter").ice_ping();
             com.stringToProxy("test").ice_ping();
@@ -101,14 +101,14 @@ public class AllTests : Test.AllTests
             {
                 com.stringToProxy("test @ TestAdapter").ice_ping();
             }
-            catch(Ice.NoEndpointException)
+            catch (Ice.NoEndpointException)
             {
             }
             try
             {
                 com.stringToProxy("test").ice_ping();
             }
-            catch(Ice.NoEndpointException)
+            catch (Ice.NoEndpointException)
             {
             }
             test(com.getDefaultLocator().getRegistry() == null);
@@ -117,7 +117,7 @@ public class AllTests : Test.AllTests
             {
                 IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry();
             }
-            catch(Ice.OperationNotExistException)
+            catch (Ice.OperationNotExistException)
             {
             }
 
@@ -128,7 +128,7 @@ public class AllTests : Test.AllTests
             com.destroy();
 
             string multicast;
-            if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            if (communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
             {
                 multicast = "\"ff15::1\"";
             }
@@ -153,7 +153,7 @@ public class AllTests : Test.AllTests
                 com.stringToProxy("test @ TestAdapter").ice_ping();
                 test(false);
             }
-            catch(Ice.NoEndpointException)
+            catch (Ice.NoEndpointException)
             {
             }
             com.destroy();
@@ -172,7 +172,7 @@ public class AllTests : Test.AllTests
                 com.stringToProxy("test @ TestAdapter").ice_ping();
                 test(false);
             }
-            catch(Ice.NoEndpointException)
+            catch (Ice.NoEndpointException)
             {
             }
             com.destroy();
@@ -184,7 +184,7 @@ public class AllTests : Test.AllTests
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             {
                 string intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
-                if(!intf.Equals(""))
+                if (!intf.Equals(""))
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
@@ -199,7 +199,7 @@ public class AllTests : Test.AllTests
             {
                 com.stringToProxy("test @ TestAdapter").ice_ping();
             }
-            catch(Ice.NoEndpointException)
+            catch (Ice.NoEndpointException)
             {
                 test(false);
             }
@@ -252,7 +252,7 @@ public class AllTests : Test.AllTests
             base10.ice_ping();
             test(false);
         }
-        catch(Ice.NoEndpointException)
+        catch (Ice.NoEndpointException)
         {
         }
         try
@@ -260,7 +260,7 @@ public class AllTests : Test.AllTests
             base102.ice_ping();
             test(false);
         }
-        catch(Ice.NoEndpointException)
+        catch (Ice.NoEndpointException)
         {
         }
         base10 = base10.ice_encodingVersion(Ice.Util.Encoding_1_0);
@@ -276,7 +276,7 @@ public class AllTests : Test.AllTests
             communicator.stringToProxy("unknown/unknown").ice_ping();
             test(false);
         }
-        catch(Ice.NotRegisteredException ex)
+        catch (Ice.NotRegisteredException ex)
         {
             test(ex.kindOfObject.Equals("object"));
             test(ex.id.Equals("unknown/unknown"));
@@ -290,7 +290,7 @@ public class AllTests : Test.AllTests
             communicator.stringToProxy("test @ TestAdapterUnknown").ice_ping();
             test(false);
         }
-        catch(Ice.NotRegisteredException ex)
+        catch (Ice.NotRegisteredException ex)
         {
             test(ex.kindOfObject.Equals("object adapter"));
             test(ex.id.Equals("TestAdapterUnknown"));
@@ -305,7 +305,7 @@ public class AllTests : Test.AllTests
         {
             session = registry.createAdminSession("foo", "bar");
         }
-        catch(IceGrid.PermissionDeniedException)
+        catch (IceGrid.PermissionDeniedException)
         {
             test(false);
         }
@@ -322,15 +322,15 @@ public class AllTests : Test.AllTests
             admin.enableServer("server", false);
             admin.stopServer("server");
         }
-        catch(IceGrid.ServerNotExistException)
+        catch (IceGrid.ServerNotExistException)
         {
             test(false);
         }
-        catch(IceGrid.ServerStopException)
+        catch (IceGrid.ServerStopException)
         {
             test(false);
         }
-        catch(IceGrid.NodeUnreachableException)
+        catch (IceGrid.NodeUnreachableException)
         {
             test(false);
         }
@@ -342,7 +342,7 @@ public class AllTests : Test.AllTests
             obj = TestIntfPrxHelper.checkedCast(@base);
             test(false);
         }
-        catch(Ice.NoEndpointException)
+        catch (Ice.NoEndpointException)
         {
         }
         try
@@ -350,7 +350,7 @@ public class AllTests : Test.AllTests
             obj2 = TestIntfPrxHelper.checkedCast(@base2);
             test(false);
         }
-        catch(Ice.NoEndpointException)
+        catch (Ice.NoEndpointException)
         {
         }
 
@@ -358,11 +358,11 @@ public class AllTests : Test.AllTests
         {
             admin.enableServer("server", true);
         }
-        catch(IceGrid.ServerNotExistException)
+        catch (IceGrid.ServerNotExistException)
         {
             test(false);
         }
-        catch(IceGrid.NodeUnreachableException)
+        catch (IceGrid.NodeUnreachableException)
         {
             test(false);
         }
@@ -371,7 +371,7 @@ public class AllTests : Test.AllTests
         {
             obj = TestIntfPrxHelper.checkedCast(@base);
         }
-        catch(Ice.NoEndpointException)
+        catch (Ice.NoEndpointException)
         {
             test(false);
         }
@@ -379,7 +379,7 @@ public class AllTests : Test.AllTests
         {
             obj2 = TestIntfPrxHelper.checkedCast(@base2);
         }
-        catch(Ice.NoEndpointException)
+        catch (Ice.NoEndpointException)
         {
             test(false);
         }
@@ -389,15 +389,15 @@ public class AllTests : Test.AllTests
         {
             admin.stopServer("server");
         }
-        catch(IceGrid.ServerNotExistException)
+        catch (IceGrid.ServerNotExistException)
         {
             test(false);
         }
-        catch(IceGrid.ServerStopException)
+        catch (IceGrid.ServerStopException)
         {
             test(false);
         }
-        catch(IceGrid.NodeUnreachableException)
+        catch (IceGrid.NodeUnreachableException)
         {
             test(false);
         }

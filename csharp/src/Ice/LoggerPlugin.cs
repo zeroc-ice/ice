@@ -19,14 +19,14 @@ namespace Ice
         public
         LoggerPlugin(Communicator communicator, Logger logger)
         {
-            if(communicator == null)
+            if (communicator == null)
             {
                 PluginInitializationException ex = new PluginInitializationException();
                 ex.reason = "Communicator cannot be null";
                 throw ex;
             }
 
-            if(logger == null)
+            if (logger == null)
             {
                 PluginInitializationException ex = new PluginInitializationException();
                 ex.reason = "Logger cannot be null";

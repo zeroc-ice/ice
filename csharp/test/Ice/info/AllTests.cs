@@ -12,9 +12,9 @@ namespace Ice
         {
             private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)
             {
-                for(; info != null; info = info.underlying)
+                for (; info != null; info = info.underlying)
                 {
-                    if(info is Ice.TCPEndpointInfo)
+                    if (info is Ice.TCPEndpointInfo)
                     {
                         return info as Ice.TCPEndpointInfo;
                     }
@@ -24,9 +24,9 @@ namespace Ice
 
             private static Ice.TCPConnectionInfo getTCPConnectionInfo(Ice.ConnectionInfo info)
             {
-                for(; info != null; info = info.underlying)
+                for (; info != null; info = info.underlying)
                 {
-                    if(info is Ice.TCPConnectionInfo)
+                    if (info is Ice.TCPConnectionInfo)
                     {
                         return info as Ice.TCPConnectionInfo;
                     }
@@ -66,7 +66,7 @@ namespace Ice
                          tcpEndpoint.type() == Ice.WSEndpointType.value && info is Ice.WSEndpointInfo ||
                          tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo);
 
-                    Ice.UDPEndpointInfo udpEndpoint =(Ice.UDPEndpointInfo)endps[1].getInfo();
+                    Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
                     test(udpEndpoint.host.Equals("udphost"));
                     test(udpEndpoint.port == 10001);
                     test(udpEndpoint.mcastInterface.Equals("eth0"));
@@ -78,7 +78,7 @@ namespace Ice
                     test(udpEndpoint.datagram());
                     test(udpEndpoint.type() == 3);
 
-                    Ice.OpaqueEndpointInfo opaqueEndpoint =(Ice.OpaqueEndpointInfo)endps[2].getInfo();
+                    Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
                     test(opaqueEndpoint.rawBytes.Length > 0);
                     test(opaqueEndpoint.rawEncoding.Equals(new Ice.EncodingVersion(1, 8)));
                 }
@@ -108,7 +108,7 @@ namespace Ice
                     test(tcpEndpoint.port > 0);
                     test(tcpEndpoint.timeout == 15000);
 
-                    Ice.UDPEndpointInfo udpEndpoint =(Ice.UDPEndpointInfo)endpoints[1].getInfo();
+                    Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
                     test(udpEndpoint.host.Equals(host));
                     test(udpEndpoint.datagram());
                     test(udpEndpoint.port > 0);
@@ -131,7 +131,7 @@ namespace Ice
                     publishedEndpoints = adapter.getPublishedEndpoints();
                     test(publishedEndpoints.Length == 1);
 
-                    foreach(Ice.Endpoint endpoint in endpoints)
+                    foreach (Ice.Endpoint endpoint in endpoints)
                     {
                         tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
                         test(tcpEndpoint.port == port);
@@ -170,7 +170,7 @@ namespace Ice
                     test(port > 0);
 
                     info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
-                    Ice.UDPEndpointInfo udp =(Ice.UDPEndpointInfo)info;
+                    Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)info;
                     test(udp.port == endpointPort);
                     test(udp.host.Equals(defaultHost));
                 }
@@ -188,7 +188,7 @@ namespace Ice
                     test(info.adapterName.Length == 0);
                     test(ipInfo.remotePort == endpointPort);
                     test(ipInfo.localPort > 0);
-                    if(defaultHost.Equals("127.0.0.1"))
+                    if (defaultHost.Equals("127.0.0.1"))
                     {
                         test(ipInfo.localAddress.Equals(defaultHost));
                         test(ipInfo.remoteAddress.Equals(defaultHost));
@@ -204,9 +204,9 @@ namespace Ice
                     test(ctx["remotePort"].Equals(ipInfo.localPort.ToString()));
                     test(ctx["localPort"].Equals(ipInfo.remotePort.ToString()));
 
-                    if(@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
+                    if (@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
                     {
-                        Dictionary<string, string> headers =((Ice.WSConnectionInfo)info).headers;
+                        Dictionary<string, string> headers = ((Ice.WSConnectionInfo)info).headers;
                         test(headers["Upgrade"].Equals("websocket"));
                         test(headers["Connection"].Equals("Upgrade"));
                         test(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
@@ -222,13 +222,13 @@ namespace Ice
                     connection = @base.ice_datagram().ice_getConnection();
                     connection.setBufferSize(2048, 1024);
 
-                    Ice.UDPConnectionInfo udpInfo =(Ice.UDPConnectionInfo)connection.getInfo();
+                    Ice.UDPConnectionInfo udpInfo = (Ice.UDPConnectionInfo)connection.getInfo();
                     test(!udpInfo.incoming);
                     test(udpInfo.adapterName.Length == 0);
                     test(udpInfo.localPort > 0);
                     test(udpInfo.remotePort == endpointPort);
 
-                    if(defaultHost.Equals("127.0.0.1"))
+                    if (defaultHost.Equals("127.0.0.1"))
                     {
                         test(udpInfo.remoteAddress.Equals(defaultHost));
                         test(udpInfo.localAddress.Equals(defaultHost));

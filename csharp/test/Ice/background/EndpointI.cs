@@ -49,7 +49,7 @@ internal class EndpointI : IceInternal.EndpointI
     public override IceInternal.EndpointI timeout(int timeout)
     {
         IceInternal.EndpointI endpoint = _endpoint.timeout(timeout);
-        if(endpoint == _endpoint)
+        if (endpoint == _endpoint)
         {
             return this;
         }
@@ -67,7 +67,7 @@ internal class EndpointI : IceInternal.EndpointI
     public override IceInternal.EndpointI connectionId(string connectionId)
     {
         IceInternal.EndpointI endpoint = _endpoint.connectionId(connectionId);
-        if(endpoint == _endpoint)
+        if (endpoint == _endpoint)
         {
             return this;
         }
@@ -85,7 +85,7 @@ internal class EndpointI : IceInternal.EndpointI
     public override IceInternal.EndpointI compress(bool compress)
     {
         IceInternal.EndpointI endpoint = _endpoint.compress(compress);
-        if(endpoint == _endpoint)
+        if (endpoint == _endpoint)
         {
             return this;
         }
@@ -108,7 +108,7 @@ internal class EndpointI : IceInternal.EndpointI
     public override IceInternal.Transceiver transceiver()
     {
         IceInternal.Transceiver transceiver = _endpoint.transceiver();
-        if(transceiver != null)
+        if (transceiver != null)
         {
             return new Transceiver(transceiver);
         }
@@ -128,7 +128,7 @@ internal class EndpointI : IceInternal.EndpointI
         public void connectors(List<IceInternal.Connector> cons)
         {
             List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
-            foreach(IceInternal.Connector connector in cons)
+            foreach (IceInternal.Connector connector in cons)
             {
                 connectors.Add(new Connector(connector));
             }
@@ -150,7 +150,7 @@ internal class EndpointI : IceInternal.EndpointI
             _configuration.checkConnectorsException();
             _endpoint.connectors_async(selType, new ConnectorsCallback(cb));
         }
-        catch(Ice.LocalException ex)
+        catch (Ice.LocalException ex)
         {
             cb.exception(ex);
         }
@@ -163,7 +163,7 @@ internal class EndpointI : IceInternal.EndpointI
 
     public EndpointI endpoint(IceInternal.EndpointI delEndp)
     {
-        if(delEndp == _endpoint)
+        if (delEndp == _endpoint)
         {
             return this;
         }
@@ -176,7 +176,7 @@ internal class EndpointI : IceInternal.EndpointI
     public override List<IceInternal.EndpointI> expandIfWildcard()
     {
         List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach(IceInternal.EndpointI endpt in _endpoint.expandIfWildcard())
+        foreach (IceInternal.EndpointI endpt in _endpoint.expandIfWildcard())
         {
             endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
         }
@@ -186,11 +186,11 @@ internal class EndpointI : IceInternal.EndpointI
     public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
     {
         List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach(IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
+        foreach (IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
         {
             endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
         }
-        if(publish != null)
+        if (publish != null)
         {
             publish = publish == _endpoint ? this : new EndpointI(publish);
         }
@@ -204,7 +204,7 @@ internal class EndpointI : IceInternal.EndpointI
         {
             testEndpoint = (EndpointI)endpoint;
         }
-        catch(System.InvalidCastException)
+        catch (System.InvalidCastException)
         {
             return false;
         }
@@ -229,19 +229,19 @@ internal class EndpointI : IceInternal.EndpointI
         {
             p = (EndpointI)obj;
         }
-        catch(System.InvalidCastException)
+        catch (System.InvalidCastException)
         {
             try
             {
                 return type() < obj.type() ? -1 : 1;
             }
-            catch(System.InvalidCastException)
+            catch (System.InvalidCastException)
             {
                 Debug.Assert(false);
             }
         }
 
-        if(this == p)
+        if (this == p)
         {
             return 0;
         }

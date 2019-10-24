@@ -18,14 +18,14 @@ public class Server : Test.TestHelper
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.ServerIdleTime", "120");
         int port = 0;
-        for(int i = 0; i < args.Length; i++)
+        for (int i = 0; i < args.Length; i++)
         {
-            if(args[i][0] == '-')
+            if (args[i][0] == '-')
             {
                 throw new ArgumentException("Server: unknown option `" + args[i] + "'");
             }
 
-            if(port != 0)
+            if (port != 0)
             {
                 throw new ArgumentException("Server: only one port can be specified");
             }
@@ -34,18 +34,18 @@ public class Server : Test.TestHelper
             {
                 port = int.Parse(args[i]);
             }
-            catch(FormatException)
+            catch (FormatException)
             {
                 throw new ArgumentException("Server: invalid port");
             }
         }
 
-        if(port <= 0)
+        if (port <= 0)
         {
             throw new ArgumentException("Server: no port specified");
         }
 
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

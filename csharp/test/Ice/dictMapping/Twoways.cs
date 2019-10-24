@@ -12,7 +12,7 @@ namespace Ice
         {
             private static void test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.Exception();
                 }
@@ -58,7 +58,7 @@ namespace Ice
                     Dictionary<string, Dictionary<int, int>> r;
                     r = p.opNDV(i, out o);
 
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -77,7 +77,7 @@ namespace Ice
                     Dictionary<string, Dictionary<string, string>> r;
                     r = p.opNDR(i, out o);
 
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -94,7 +94,7 @@ namespace Ice
                     Dictionary<string, int[]> r;
                     r = p.opNDAIS(i, out o);
 
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -113,7 +113,7 @@ namespace Ice
                     Dictionary<string, List<int>> r;
                     r = p.opNDGIS(i, out o);
 
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -130,7 +130,7 @@ namespace Ice
                     Dictionary<string, string[]> r;
                     r = p.opNDASS(i, out o);
 
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));
@@ -149,7 +149,7 @@ namespace Ice
                     Dictionary<string, List<string>> r;
                     r = p.opNDGSS(i, out o);
 
-                    foreach(string key in i.Keys)
+                    foreach (string key in i.Keys)
                     {
                         test(Ice.CollectionComparer.Equals(i[key], o[key]));
                         test(Ice.CollectionComparer.Equals(i[key], r[key]));

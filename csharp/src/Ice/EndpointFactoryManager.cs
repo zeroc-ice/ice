@@ -17,7 +17,7 @@ namespace IceInternal
 
         public void initialize()
         {
-            foreach(EndpointFactory f in _factories)
+            foreach (EndpointFactory f in _factories)
             {
                 f.initialize();
             }
@@ -25,11 +25,11 @@ namespace IceInternal
 
         public void add(EndpointFactory factory)
         {
-            lock(this)
+            lock (this)
             {
-                foreach(EndpointFactory f in _factories)
+                foreach (EndpointFactory f in _factories)
                 {
-                    if(f.type() == factory.type())
+                    if (f.type() == factory.type())
                     {
                         Debug.Assert(false);
                     }
@@ -40,11 +40,11 @@ namespace IceInternal
 
         public EndpointFactory get(short type)
         {
-            lock(this)
+            lock (this)
             {
-                foreach(EndpointFactory f in _factories)
+                foreach (EndpointFactory f in _factories)
                 {
-                    if(f.type() == type)
+                    if (f.type() == type)
                     {
                         return f;
                     }
@@ -56,14 +56,14 @@ namespace IceInternal
         public EndpointI create(string str, bool oaEndpoint)
         {
             string[] arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
-            if(arr == null)
+            if (arr == null)
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
                 e.str = "mismatched quote";
                 throw e;
             }
 
-            if(arr.Length == 0)
+            if (arr.Length == 0)
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
                 e.str = "value has no non-whitespace characters";
@@ -74,29 +74,29 @@ namespace IceInternal
             string protocol = v[0];
             v.RemoveAt(0);
 
-            if(protocol.Equals("default"))
+            if (protocol.Equals("default"))
             {
                 protocol = _instance.defaultsAndOverrides().defaultProtocol;
             }
 
             EndpointFactory factory = null;
 
-            lock(this)
+            lock (this)
             {
-                for(int i = 0; i < _factories.Count; i++)
+                for (int i = 0; i < _factories.Count; i++)
                 {
                     EndpointFactory f = _factories[i];
-                    if(f.protocol().Equals(protocol))
+                    if (f.protocol().Equals(protocol))
                     {
                         factory = f;
                     }
                 }
             }
 
-            if(factory != null)
+            if (factory != null)
             {
                 EndpointI e = factory.create(v, oaEndpoint);
-                if(v.Count > 0)
+                if (v.Count > 0)
                 {
                     Ice.EndpointParseException ex = new Ice.EndpointParseException();
                     ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
@@ -124,17 +124,17 @@ namespace IceInternal
             // If the stringified endpoint is opaque, create an unknown endpoint,
             // then see whether the type matches one of the known endpoints.
             //
-            if(protocol.Equals("opaque"))
+            if (protocol.Equals("opaque"))
             {
                 EndpointI ue = new OpaqueEndpointI(v);
-                if(v.Count > 0)
+                if (v.Count > 0)
                 {
                     Ice.EndpointParseException ex = new Ice.EndpointParseException();
                     ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
                     throw ex;
                 }
                 factory = get(ue.type());
-                if(factory != null)
+                if (factory != null)
                 {
                     //
                     // Make a temporary stream, write the opaque endpoint data into the stream,
@@ -161,7 +161,7 @@ namespace IceInternal
 
         public EndpointI read(Ice.InputStream s)
         {
-            lock(this)
+            lock (this)
             {
                 short type = s.readShort();
 
@@ -170,7 +170,7 @@ namespace IceInternal
 
                 s.startEncapsulation();
 
-                if(factory != null)
+                if (factory != null)
                 {
                     e = factory.read(s);
                 }
@@ -180,7 +180,7 @@ namespace IceInternal
                 // isn't available. In this case, the factory needs to make sure the stream position
                 // is preserved for reading the opaque endpoint.
                 //
-                if(e == null)
+                if (e == null)
                 {
                     e = new OpaqueEndpointI(type, s);
                 }
@@ -193,7 +193,7 @@ namespace IceInternal
 
         internal void destroy()
         {
-            foreach(EndpointFactory f in _factories)
+            foreach (EndpointFactory f in _factories)
             {
                 f.destroy();
             }

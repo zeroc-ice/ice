@@ -18,7 +18,7 @@ namespace IceInternal
         EndpointFactory clone(ProtocolInstance instance);
     }
 
-    abstract public class EndpointFactoryWithUnderlying : EndpointFactory
+    public abstract class EndpointFactoryWithUnderlying : EndpointFactory
     {
         public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
         {
@@ -33,7 +33,7 @@ namespace IceInternal
             // our protocol instance.
             //
             EndpointFactory factory = instance_.getEndpointFactory(_type);
-            if(factory != null)
+            if (factory != null)
             {
                 _underlying = factory.clone(instance_);
                 _underlying.initialize();
@@ -52,7 +52,7 @@ namespace IceInternal
 
         public EndpointI create(List<string> args, bool oaEndpoint)
         {
-            if(_underlying == null)
+            if (_underlying == null)
             {
                 return null; // Can't create an endpoint without underlying factory.
             }
@@ -61,7 +61,7 @@ namespace IceInternal
 
         public EndpointI read(Ice.InputStream s)
         {
-            if(_underlying == null)
+            if (_underlying == null)
             {
                 return null; // Can't create an endpoint without underlying factory.
             }
@@ -70,7 +70,7 @@ namespace IceInternal
 
         public void destroy()
         {
-            if(_underlying != null)
+            if (_underlying != null)
             {
                 _underlying.destroy();
             }
@@ -82,10 +82,10 @@ namespace IceInternal
             return cloneWithUnderlying(instance, _type);
         }
 
-        abstract public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
+        public abstract EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short type);
 
-        abstract protected EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint);
-        abstract protected EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s);
+        protected abstract EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint);
+        protected abstract EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s);
 
         protected ProtocolInstance instance_;
 

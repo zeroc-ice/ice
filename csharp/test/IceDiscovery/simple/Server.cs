@@ -15,14 +15,14 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
             int num = 0;
             try
             {
-                num =  Int32.Parse(args[0]);
+                num = Int32.Parse(args[0]);
             }
-            catch(FormatException)
+            catch (FormatException)
             {
             }
 

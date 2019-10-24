@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace IceInternal
 {
-    sealed class BatchRequestI : Ice.BatchRequest
+    public sealed class BatchRequestI : Ice.BatchRequest
     {
         public BatchRequestI(BatchRequestQueue queue)
         {
@@ -60,11 +60,11 @@ namespace IceInternal
             _request = new BatchRequestI(this);
 
             _maxSize = instance.batchAutoFlushSize();
-            if(_maxSize > 0 && datagram)
+            if (_maxSize > 0 && datagram)
             {
                 int udpSndSize = initData.properties.getPropertyAsIntWithDefault("Ice.UDP.SndSize",
                                                                                  65535 - _udpOverhead);
-                if(udpSndSize < _maxSize)
+                if (udpSndSize < _maxSize)
                 {
                     _maxSize = udpSndSize;
                 }
@@ -74,9 +74,9 @@ namespace IceInternal
         public void
         prepareBatchRequest(Ice.OutputStream os)
         {
-            lock(this)
+            lock (this)
             {
-                if(_exception != null)
+                if (_exception != null)
                 {
                     throw _exception;
                 }
@@ -100,13 +100,13 @@ namespace IceInternal
             {
                 _batchStreamCanFlush = true; // Allow flush to proceed even if the stream is marked in use.
 
-                if(_maxSize > 0 && _batchStream.size() >= _maxSize)
+                if (_maxSize > 0 && _batchStream.size() >= _maxSize)
                 {
                     proxy.begin_ice_flushBatchRequests(); // Auto flush
                 }
 
                 Debug.Assert(_batchMarker < _batchStream.size());
-                if(_interceptor != null)
+                if (_interceptor != null)
                 {
                     _request.reset(proxy, operation, _batchStream.size() - _batchMarker);
                     _interceptor(_request, _batchRequestNum, _batchMarker);
@@ -114,7 +114,7 @@ namespace IceInternal
                 else
                 {
                     bool compress;
-                    if(((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
+                    if (((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
                     {
                         _batchCompress |= compress;
                     }
@@ -124,7 +124,7 @@ namespace IceInternal
             }
             finally
             {
-                lock(this)
+                lock (this)
                 {
                     _batchStream.resize(_batchMarker);
                     _batchStreamInUse = false;
@@ -137,9 +137,9 @@ namespace IceInternal
         public void
         abortBatchRequest(Ice.OutputStream os)
         {
-            lock(this)
+            lock (this)
             {
-                if(_batchStreamInUse)
+                if (_batchStreamInUse)
                 {
                     _batchStream.swap(os);
                     _batchStream.resize(_batchMarker);
@@ -152,9 +152,9 @@ namespace IceInternal
         public int
         swap(Ice.OutputStream os, out bool compress)
         {
-            lock(this)
+            lock (this)
             {
-                if(_batchRequestNum == 0)
+                if (_batchRequestNum == 0)
                 {
                     compress = false;
                     return 0;
@@ -163,7 +163,7 @@ namespace IceInternal
                 waitStreamInUse(true);
 
                 byte[] lastRequest = null;
-                if(_batchMarker < _batchStream.size())
+                if (_batchMarker < _batchStream.size())
                 {
                     lastRequest = new byte[_batchStream.size() - _batchMarker];
                     Buffer buffer = _batchStream.getBuffer();
@@ -183,7 +183,7 @@ namespace IceInternal
                 _batchCompress = false;
                 _batchStream.writeBlob(Protocol.requestBatchHdr);
                 _batchMarker = _batchStream.size();
-                if(lastRequest != null)
+                if (lastRequest != null)
                 {
                     _batchStream.writeBlob(lastRequest);
                 }
@@ -194,7 +194,7 @@ namespace IceInternal
         public void
         destroy(Ice.LocalException ex)
         {
-            lock(this)
+            lock (this)
             {
                 _exception = ex;
             }
@@ -203,7 +203,7 @@ namespace IceInternal
         public bool
         isEmpty()
         {
-            lock(this)
+            lock (this)
             {
                 return _batchStream.size() == Protocol.requestBatchHdr.Length;
             }
@@ -218,7 +218,7 @@ namespace IceInternal
             // to be interrupted. Instead the interrupted status is saved and
             // restored.
             //
-            while(_batchStreamInUse && !(flush && _batchStreamCanFlush))
+            while (_batchStreamInUse && !(flush && _batchStreamCanFlush))
             {
                 System.Threading.Monitor.Wait(this);
             }
@@ -228,7 +228,7 @@ namespace IceInternal
         {
             Debug.Assert(_batchMarker < _batchStream.size());
             bool compress;
-            if(((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
+            if (((Ice.ObjectPrxHelperBase)proxy).iceReference().getCompressOverride(out compress))
             {
                 _batchCompress |= compress;
             }

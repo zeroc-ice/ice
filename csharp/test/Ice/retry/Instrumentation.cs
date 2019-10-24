@@ -23,7 +23,7 @@ namespace Ice
                 public void
                 detach()
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
                         ++nInvocation;
                     }
@@ -32,7 +32,7 @@ namespace Ice
                 public void
                 failed(string msg)
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
                         ++nFailure;
                     }
@@ -41,7 +41,7 @@ namespace Ice
                 public void
                 retried()
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
                         ++nRetry;
                     }
@@ -128,25 +128,25 @@ namespace Ice
             static private void
             testEqual(ref int value, int expected)
             {
-                if(expected < 0)
+                if (expected < 0)
                 {
                     value = 0;
                     return;
                 }
 
                 int retry = 0;
-                while(++retry < 100)
+                while (++retry < 100)
                 {
-                    lock(mutex)
+                    lock (mutex)
                     {
-                        if(value == expected)
+                        if (value == expected)
                         {
                             break;
                         }
                     }
                     System.Threading.Thread.Sleep(10);
                 }
-                if(value != expected)
+                if (value != expected)
                 {
                     System.Console.Error.WriteLine("value = " + value + ", expected = " + expected);
                     System.Diagnostics.Debug.Assert(false);

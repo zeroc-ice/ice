@@ -8,7 +8,7 @@ namespace IceInternal
     using System.Net;
     using System.Globalization;
 
-    sealed class TcpEndpointI : IPEndpointI
+    internal sealed class TcpEndpointI : IPEndpointI
     {
         public TcpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId,
                             bool co) :
@@ -78,7 +78,7 @@ namespace IceInternal
 
         public override EndpointI timeout(int timeout)
         {
-            if(timeout == _timeout)
+            if (timeout == _timeout)
             {
                 return this;
             }
@@ -95,7 +95,7 @@ namespace IceInternal
 
         public override EndpointI compress(bool compress)
         {
-            if(compress == _compress)
+            if (compress == _compress)
             {
                 return this;
             }
@@ -123,7 +123,7 @@ namespace IceInternal
         public TcpEndpointI endpoint(TcpAcceptor acceptor)
         {
             int port = acceptor.effectivePort();
-            if(port == port_)
+            if (port == port_)
             {
                 return this;
             }
@@ -144,7 +144,7 @@ namespace IceInternal
             //
             string s = base.options();
 
-            if(_timeout == -1)
+            if (_timeout == -1)
             {
                 s += " -t infinite";
             }
@@ -153,7 +153,7 @@ namespace IceInternal
                 s += " -t " + _timeout;
             }
 
-            if(_compress)
+            if (_compress)
             {
                 s += " -z";
             }
@@ -163,31 +163,31 @@ namespace IceInternal
 
         public override int CompareTo(EndpointI obj)
         {
-            if(!(obj is TcpEndpointI))
+            if (!(obj is TcpEndpointI))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
             TcpEndpointI p = (TcpEndpointI)obj;
-            if(this == p)
+            if (this == p)
             {
                 return 0;
             }
 
-            if(_timeout < p._timeout)
+            if (_timeout < p._timeout)
             {
                 return -1;
             }
-            else if(p._timeout < _timeout)
+            else if (p._timeout < _timeout)
             {
                 return 1;
             }
 
-            if(!_compress && p._compress)
+            if (!_compress && p._compress)
             {
                 return -1;
             }
-            else if(!p._compress && _compress)
+            else if (!p._compress && _compress)
             {
                 return 1;
             }
@@ -211,65 +211,65 @@ namespace IceInternal
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            if(base.checkOption(option, argument, endpoint))
+            if (base.checkOption(option, argument, endpoint))
             {
                 return true;
             }
 
-            switch(option[1])
+            switch (option[1])
             {
                 case 't':
-                {
-                    if(argument == null)
                     {
-                        throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " +
-                                                             endpoint);
-                    }
-
-                    if(argument.Equals("infinite"))
-                    {
-                        _timeout = -1;
-                    }
-                    else
-                    {
-                        try
+                        if (argument == null)
                         {
-                            _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
-                            if(_timeout < 1)
+                            throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " +
+                                                                 endpoint);
+                        }
+
+                        if (argument.Equals("infinite"))
+                        {
+                            _timeout = -1;
+                        }
+                        else
+                        {
+                            try
                             {
-                                Ice.EndpointParseException e = new Ice.EndpointParseException();
+                                _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
+                                if (_timeout < 1)
+                                {
+                                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                                    e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+                                    throw e;
+                                }
+                            }
+                            catch (System.FormatException ex)
+                            {
+                                Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
                                 e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
                                 throw e;
                             }
                         }
-                        catch(System.FormatException ex)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                            throw e;
-                        }
-                    }
 
-                    return true;
-                }
+                        return true;
+                    }
 
                 case 'z':
-                {
-                    if(argument != null)
                     {
-                        throw new Ice.EndpointParseException("unexpected argument `" + argument +
-                                                             "' provided for -z option in " + endpoint);
+                        if (argument != null)
+                        {
+                            throw new Ice.EndpointParseException("unexpected argument `" + argument +
+                                                                 "' provided for -z option in " + endpoint);
+                        }
+
+                        _compress = true;
+
+                        return true;
                     }
 
-                    _compress = true;
-
-                    return true;
-                }
-
                 default:
-                {
-                    return false;
-                }
+                    {
+                        return false;
+                    }
             }
         }
 
@@ -287,7 +287,7 @@ namespace IceInternal
         private bool _compress;
     }
 
-    sealed class TcpEndpointFactory : EndpointFactory
+    internal sealed class TcpEndpointFactory : EndpointFactory
     {
         internal TcpEndpointFactory(ProtocolInstance instance)
         {

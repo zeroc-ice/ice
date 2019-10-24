@@ -6,7 +6,7 @@ namespace IceInternal
 {
     using System.Net;
 
-    sealed class UdpConnector : Connector
+    internal sealed class UdpConnector : Connector
     {
         public Transceiver connect()
         {
@@ -33,7 +33,7 @@ namespace IceInternal
 
             _hashCode = 5381;
             HashUtil.hashAdd(ref _hashCode, _addr);
-            if(sourceAddr != null)
+            if (sourceAddr != null)
             {
                 HashUtil.hashAdd(ref _hashCode, _sourceAddr);
             }
@@ -44,33 +44,33 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(!(obj is UdpConnector))
+            if (!(obj is UdpConnector))
             {
                 return false;
             }
 
-            if(this == obj)
+            if (this == obj)
             {
                 return true;
             }
 
             UdpConnector p = (UdpConnector)obj;
-            if(!_connectionId.Equals(p._connectionId))
+            if (!_connectionId.Equals(p._connectionId))
             {
                 return false;
             }
 
-            if(!_mcastInterface.Equals(p._mcastInterface))
+            if (!_mcastInterface.Equals(p._mcastInterface))
             {
                 return false;
             }
 
-            if(_mcastTtl != p._mcastTtl)
+            if (_mcastTtl != p._mcastTtl)
             {
                 return false;
             }
 
-            if(!Network.addressEquals(_sourceAddr, p._sourceAddr))
+            if (!Network.addressEquals(_sourceAddr, p._sourceAddr))
             {
                 return false;
             }

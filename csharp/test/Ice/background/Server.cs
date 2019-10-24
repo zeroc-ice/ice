@@ -18,7 +18,7 @@ public class Server : Test.TestHelper
     internal class LocatorI : Ice.LocatorDisp_
     {
         public override Task<Ice.ObjectPrx>
-        findAdapterByIdAsync(string adapter,  Ice.Current current)
+        findAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
             Ice.Communicator communicator = current.adapter.getCommunicator();
@@ -26,7 +26,7 @@ public class Server : Test.TestHelper
         }
 
         public override Task<Ice.ObjectPrx>
-        findObjectByIdAsync(Ice.Identity id,  Ice.Current current)
+        findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             _controller.checkCallPause(current);
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
@@ -93,7 +93,7 @@ public class Server : Test.TestHelper
         properties.setProperty("Ice.Default.Protocol",
                                "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
 
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             PluginI plugin = new PluginI(communicator);
             plugin.initialize();
@@ -104,12 +104,12 @@ public class Server : Test.TestHelper
             // overridden by configuration. If it isn't then we assume
             // defaults.
             //
-            if(communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
+            if (communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
             {
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             }
 
-            if(communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
+            if (communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
             {
                 communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
                 communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");

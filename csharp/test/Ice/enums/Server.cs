@@ -14,7 +14,7 @@ namespace Ice
             {
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ServerIdleTime", "30");
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

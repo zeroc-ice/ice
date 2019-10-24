@@ -16,7 +16,7 @@ namespace Ice
             static void
             testFacets(Ice.Communicator com, bool builtInFacets)
             {
-                if(builtInFacets)
+                if (builtInFacets)
                 {
                     test(com.findAdminFacet("Properties") != null);
                     test(com.findAdminFacet("Process") != null);
@@ -38,7 +38,7 @@ namespace Ice
                 test(com.findAdminFacet("Bogus") == null);
 
                 Dictionary<string, Ice.Object> facetMap = com.findAllAdminFacets();
-                if(builtInFacets)
+                if (builtInFacets)
                 {
                     test(facetMap.Count == 7);
                     test(facetMap.ContainsKey("Properties"));
@@ -59,7 +59,7 @@ namespace Ice
                     com.addAdminFacet(f1, "Facet1");
                     test(false);
                 }
-                catch(Ice.AlreadyRegisteredException)
+                catch (Ice.AlreadyRegisteredException)
                 {
                     // Expected
                 }
@@ -69,7 +69,7 @@ namespace Ice
                     com.removeAdminFacet("Bogus");
                     test(false);
                 }
-                catch(Ice.NotRegisteredException)
+                catch (Ice.NotRegisteredException)
                 {
                     // Expected
                 }
@@ -83,7 +83,7 @@ namespace Ice
                     com.removeAdminFacet("Facet1");
                     test(false);
                 }
-                catch(Ice.NotRegisteredException)
+                catch (Ice.NotRegisteredException)
                 {
                     // Expected
                 }
@@ -143,7 +143,7 @@ namespace Ice
                         com.createAdmin(null, id);
                         test(false);
                     }
-                    catch(Ice.InitializationException)
+                    catch (Ice.InitializationException)
                     {
                     }
 
@@ -305,7 +305,7 @@ namespace Ice
                     test(logMessages.Length == 4);
                     test(prefix.Equals("NullLogger"));
 
-                    foreach(var msg in logMessages)
+                    foreach (var msg in logMessages)
                     {
                         test(msg.type == Ice.LogMessageType.ErrorMessage ||
                              msg.type == Ice.LogMessageType.WarningMessage);
@@ -327,7 +327,7 @@ namespace Ice
                     test(logMessages.Length == 5);
                     test(prefix.Equals("NullLogger"));
 
-                    foreach(var msg in logMessages)
+                    foreach (var msg in logMessages)
                     {
                         test(msg.type == Ice.LogMessageType.ErrorMessage ||
                             (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory.Equals("testCat")));
@@ -366,7 +366,7 @@ namespace Ice
                     logger.attachRemoteLogger(myProxy, null, null, -1);
                     remoteLogger.wait(1);
 
-                    foreach(var m in logMessages)
+                    foreach (var m in logMessages)
                     {
                         remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
                     }
@@ -395,7 +395,7 @@ namespace Ice
                     logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
                     remoteLogger.wait(1);
 
-                    foreach(var m in logMessages)
+                    foreach (var m in logMessages)
                     {
                         remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
                     }
@@ -420,7 +420,7 @@ namespace Ice
                                                   messageTypes, categories, 4);
                         test(false);
                     }
-                    catch(Ice.RemoteLoggerAlreadyAttachedException)
+                    catch (Ice.RemoteLoggerAlreadyAttachedException)
                     {
                         // expected
                     }
@@ -547,10 +547,10 @@ namespace Ice
             {
                 override public void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         _prefix = prefix;
-                        foreach(var message in messages)
+                        foreach (var message in messages)
                         {
                             _initMessages.Enqueue(message);
                         }
@@ -561,7 +561,7 @@ namespace Ice
 
                 override public void log(Ice.LogMessage message, Ice.Current current)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         _logMessages.Enqueue(message);
                         _receivedCalls++;
@@ -571,7 +571,7 @@ namespace Ice
 
                 internal void checkNextInit(string prefix, Ice.LogMessageType type, string message, string category)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         test(_prefix.Equals(prefix));
                         test(_initMessages.Count > 0);
@@ -584,7 +584,7 @@ namespace Ice
 
                 internal void checkNextLog(Ice.LogMessageType type, string message, string category)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         test(_logMessages.Count > 0);
                         var logMessage = _logMessages.Dequeue();
@@ -596,11 +596,11 @@ namespace Ice
 
                 internal void wait(int calls)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         _receivedCalls -= calls;
 
-                        while(_receivedCalls < 0)
+                        while (_receivedCalls < 0)
                         {
                             Monitor.Wait(this);
                         }

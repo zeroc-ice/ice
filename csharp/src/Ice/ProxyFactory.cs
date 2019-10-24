@@ -18,9 +18,9 @@ namespace IceInternal
 
         public string proxyToString(Ice.ObjectPrx proxy)
         {
-            if(proxy != null)
+            if (proxy != null)
             {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
+                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
                 return h.iceReference().ToString();
             }
             else
@@ -38,9 +38,9 @@ namespace IceInternal
 
         public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
         {
-            if(proxy != null)
+            if (proxy != null)
             {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
+                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
                 return h.iceReference().toProperty(prefix);
             }
             else
@@ -60,7 +60,7 @@ namespace IceInternal
 
         public Ice.ObjectPrx referenceToProxy(Reference r)
         {
-            if(r != null)
+            if (r != null)
             {
                 Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
                 proxy.setup(r);
@@ -82,15 +82,15 @@ namespace IceInternal
             // the all the requests batched with the connection to be aborted and we
             // want the application to be notified.
             //
-            if(@ref.getMode() == Reference.Mode.ModeBatchOneway || @ref.getMode() == Reference.Mode.ModeBatchDatagram)
+            if (@ref.getMode() == Reference.Mode.ModeBatchOneway || @ref.getMode() == Reference.Mode.ModeBatchDatagram)
             {
                 throw ex;
             }
 
             Ice.ObjectNotExistException one = ex as Ice.ObjectNotExistException;
-            if(one != null)
+            if (one != null)
             {
-                if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
+                if (@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
                 {
                     //
                     // If we have a router, an ObjectNotExistException with an
@@ -103,24 +103,24 @@ namespace IceInternal
 
                     @ref.getRouterInfo().clearCache(@ref);
 
-                    if(traceLevels.retry >= 1)
+                    if (traceLevels.retry >= 1)
                     {
                         string s = "retrying operation call to add proxy to router\n" + ex;
                         logger.trace(traceLevels.retryCat, s);
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
                 }
-                else if(@ref.isIndirect())
+                else if (@ref.isIndirect())
                 {
                     //
                     // We retry ObjectNotExistException if the reference is
                     // indirect.
                     //
 
-                    if(@ref.isWellKnown())
+                    if (@ref.isWellKnown())
                     {
                         LocatorInfo li = @ref.getLocatorInfo();
-                        if(li != null)
+                        if (li != null)
                         {
                             li.clearCache(@ref);
                         }
@@ -134,7 +134,7 @@ namespace IceInternal
                     throw ex;
                 }
             }
-            else if(ex is Ice.RequestFailedException)
+            else if (ex is Ice.RequestFailedException)
             {
                 throw ex;
             }
@@ -160,7 +160,7 @@ namespace IceInternal
             // of the batched requests were accepted, when in reality only the
             // last few are actually sent.
             //
-            if(ex is Ice.MarshalException)
+            if (ex is Ice.MarshalException)
             {
                 throw ex;
             }
@@ -169,7 +169,7 @@ namespace IceInternal
             // Don't retry if the communicator is destroyed, object adapter is deactivated,
             // or connection is manually closed.
             //
-            if(ex is Ice.CommunicatorDestroyedException ||
+            if (ex is Ice.CommunicatorDestroyedException ||
                ex is Ice.ObjectAdapterDeactivatedException ||
                ex is Ice.ConnectionManuallyClosedException)
             {
@@ -179,7 +179,7 @@ namespace IceInternal
             //
             // Don't retry invocation timeouts.
             //
-            if(ex is Ice.InvocationTimeoutException || ex is Ice.InvocationCanceledException)
+            if (ex is Ice.InvocationTimeoutException || ex is Ice.InvocationCanceledException)
             {
                 throw ex;
             }
@@ -188,7 +188,7 @@ namespace IceInternal
             Debug.Assert(cnt > 0);
 
             int interval;
-            if(cnt == (_retryIntervals.Length + 1) && ex is Ice.CloseConnectionException)
+            if (cnt == (_retryIntervals.Length + 1) && ex is Ice.CloseConnectionException)
             {
                 //
                 // A close connection exception is always retried at least once, even if the retry
@@ -196,9 +196,9 @@ namespace IceInternal
                 //
                 interval = 0;
             }
-            else if(cnt > _retryIntervals.Length)
+            else if (cnt > _retryIntervals.Length)
             {
-                if(traceLevels.retry >= 1)
+                if (traceLevels.retry >= 1)
                 {
                     string s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
                     logger.trace(traceLevels.retryCat, s);
@@ -210,10 +210,10 @@ namespace IceInternal
                 interval = _retryIntervals[cnt - 1];
             }
 
-            if(traceLevels.retry >= 1)
+            if (traceLevels.retry >= 1)
             {
                 string s = "retrying operation call";
-                if(interval > 0)
+                if (interval > 0)
                 {
                     s += " in " + interval + "ms";
                 }
@@ -233,7 +233,7 @@ namespace IceInternal
 
             string[] arr = _instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
-            if(arr.Length > 0)
+            if (arr.Length > 0)
             {
                 _retryIntervals = new int[arr.Length];
 
@@ -245,7 +245,7 @@ namespace IceInternal
                     {
                         v = int.Parse(arr[i], CultureInfo.InvariantCulture);
                     }
-                    catch(System.FormatException)
+                    catch (System.FormatException)
                     {
                         v = 0;
                     }
@@ -253,13 +253,13 @@ namespace IceInternal
                     //
                     // If -1 is the first value, no retry and wait intervals.
                     //
-                    if(i == 0 && v == -1)
+                    if (i == 0 && v == -1)
                     {
-                        _retryIntervals = new int[0];
+                        _retryIntervals = System.Array.Empty<int>();
                         break;
                     }
 
-                    _retryIntervals[i] = v > 0?v:0;
+                    _retryIntervals[i] = v > 0 ? v : 0;
                 }
             }
             else

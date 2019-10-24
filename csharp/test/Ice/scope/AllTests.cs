@@ -72,7 +72,7 @@ namespace Ice
                     var obj = communicator.stringToProxy("i1:" + helper.getTestEndpoint());
                     var i = Test.IPrxHelper.checkedCast(obj);
 
-                    Task.Run(async() =>
+                    Task.Run(async () =>
                         {
                             var s1 = new Test.S(0);
                             var opSResult = await i.opSAsync(s1);
@@ -164,7 +164,7 @@ namespace Ice
                     var obj = communicator.stringToProxy("i2:" + helper.getTestEndpoint());
                     Test.Inner.IPrx i = Test.Inner.IPrxHelper.checkedCast(obj);
 
-                    Task.Run(async() =>
+                    Task.Run(async () =>
                         {
                             Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
                             Test.Inner.I_OpSResult opSResult = await i.opSAsync(s1);
@@ -247,7 +247,7 @@ namespace Ice
                     var obj = communicator.stringToProxy("i3:" + helper.getTestEndpoint());
                     Test.Inner.Inner2.IPrx i = Test.Inner.Inner2.IPrxHelper.checkedCast(obj);
 
-                    Task.Run(async() =>
+                    Task.Run(async () =>
                         {
                             Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
                             Test.Inner.Inner2.I_OpSResult opSResult = await i.opSAsync(s1);
@@ -330,7 +330,7 @@ namespace Ice
                     var obj = communicator.stringToProxy("i4:" + helper.getTestEndpoint());
                     Inner.Test.Inner2.IPrx i = Inner.Test.Inner2.IPrxHelper.checkedCast(obj);
 
-                    Task.Run(async() =>
+                    Task.Run(async () =>
                         {
                             Test.S s1 = new Test.S(0);
                             Inner.Test.Inner2.I_OpSResult opSResult = await i.opSAsync(s1);

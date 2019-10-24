@@ -38,7 +38,7 @@ namespace Ice
                         communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                         test(false);
                     }
-                    catch(Ice.AlreadyRegisteredException)
+                    catch (Ice.AlreadyRegisteredException)
                     {
                     }
                     adapter.destroy();
@@ -60,7 +60,7 @@ namespace Ice
                 {
                     output.Write("testing connection closure... ");
                     output.Flush();
-                    for(int i = 0; i < 10; ++i)
+                    for (int i = 0; i < 10; ++i)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
@@ -99,7 +99,7 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                if(obj.ice_getConnection() != null)
+                if (obj.ice_getConnection() != null)
                 {
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
@@ -112,7 +112,7 @@ namespace Ice
                         obj.ice_getConnection().setAdapter(adapter);
                         test(false);
                     }
-                    catch(Ice.ObjectAdapterDeactivatedException)
+                    catch (Ice.ObjectAdapterDeactivatedException)
                     {
                     }
                     output.WriteLine("ok");
@@ -136,7 +136,7 @@ namespace Ice
                         adapter.setPublishedEndpoints(router.ice_getEndpoints());
                         test(false);
                     }
-                    catch(ArgumentException)
+                    catch (ArgumentException)
                     {
                         // Expected.
                     }
@@ -149,7 +149,7 @@ namespace Ice
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);
                     }
-                    catch(Ice.OperationNotExistException)
+                    catch (Ice.OperationNotExistException)
                     {
                         // Expected: the "test" object doesn't implement Ice::Router!
                     }
@@ -161,7 +161,7 @@ namespace Ice
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);
                     }
-                    catch(Ice.ConnectFailedException)
+                    catch (Ice.ConnectFailedException)
                     {
                     }
                 }
@@ -176,7 +176,7 @@ namespace Ice
                         communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                         test(false);
                     }
-                    catch(Ice.LocalException)
+                    catch (Ice.LocalException)
                     {
                         // Expected can't re-use the same endpoint.
                     }
@@ -196,7 +196,7 @@ namespace Ice
                     obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     output.WriteLine("ok");
                 }

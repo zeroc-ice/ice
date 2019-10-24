@@ -18,7 +18,7 @@ namespace IceInternal
             // value factory, in this case raise a NoValueFactoryException
             // instead.
             //
-            if(v is Ice.UnknownSlicedValue)
+            if (v is Ice.UnknownSlicedValue)
             {
                 Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
                 throw new Ice.NoValueFactoryException("", usv.ice_id());
@@ -30,7 +30,7 @@ namespace IceInternal
             {
                 expected = (string)expectedType.GetMethod("ice_staticId").Invoke(null, null);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 expected = "";
                 Debug.Assert(false);
@@ -68,21 +68,21 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized exception.
         /// </summary>
-        public Exception() {}
+        public Exception() { }
 
         /// <summary>
         /// Creates a default-initialized exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public Exception(System.Exception ex) : base("", ex) {}
+        public Exception(System.Exception ex) : base("", ex) { }
 
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) {}
+        protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <summary>
         /// ice_name() is deprecated, use ice_id() instead.
@@ -125,11 +125,11 @@ namespace Ice
             sw.Write(StackTrace);
 
             System.Exception curr = InnerException;
-            while(curr != null)
+            while (curr != null)
             {
                 sw.Write("\nCaused by: ");
                 sw.Write(curr.GetType().FullName);
-                if(!(curr is Ice.Exception))
+                if (!(curr is Ice.Exception))
                 {
                     sw.Write(": ");
                     sw.Write(curr.Message);
@@ -152,21 +152,21 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized Ice run-time exception.
         /// </summary>
-        public LocalException() {}
+        public LocalException() { }
 
         /// <summary>
         /// Creates a default-initialized Ice run-time exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public LocalException(System.Exception ex) : base(ex) {}
+        public LocalException(System.Exception ex) : base(ex) { }
 
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+        protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
     /// <summary>
@@ -179,21 +179,21 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized system exception.
         /// </summary>
-        public SystemException() {}
+        public SystemException() { }
 
         /// <summary>
         /// Creates a default-initialized system exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public SystemException(System.Exception ex) : base(ex) {}
+        public SystemException(System.Exception ex) : base(ex) { }
 
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected SystemException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+        protected SystemException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
     /// <summary>
@@ -205,21 +205,21 @@ namespace Ice
         /// <summary>
         /// Creates a default-initialized user exception.
         /// </summary>
-        public UserException() {}
+        public UserException() { }
 
         /// <summary>
         /// Creates a default-initialized user exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
-        public UserException(System.Exception ex) : base(ex) {}
+        public UserException(System.Exception ex) : base(ex) { }
 
         /// <summary>
         /// Initializes a new instance of the exception with serialized data.
         /// </summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+        protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <summary>
         /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during

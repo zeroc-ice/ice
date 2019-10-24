@@ -25,11 +25,11 @@ namespace Ice
 
                 public int CompareTo(Entry e)
                 {
-                    if(when < e.when)
+                    if (when < e.when)
                     {
                         return -1;
                     }
-                    else if(when == e.when)
+                    else if (when == e.when)
                     {
                         return 0;
                     }
@@ -48,7 +48,7 @@ namespace Ice
 
             public void schedule(Task task, int milliseconds)
             {
-                lock(this)
+                lock (this)
                 {
                     Entry e = new Entry();
                     e.task = task;
@@ -61,7 +61,7 @@ namespace Ice
 
             public void shutdown()
             {
-                lock(this)
+                lock (this)
                 {
                     Entry e = new Entry();
                     e.task = null;
@@ -79,30 +79,30 @@ namespace Ice
 
             private void run()
             {
-                while(true)
+                while (true)
                 {
                     Entry e;
-                    lock(this)
+                    lock (this)
                     {
-                        while(true)
+                        while (true)
                         {
-                            while(_tasks.Count == 0)
+                            while (_tasks.Count == 0)
                             {
                                 Monitor.Wait(this);
                             }
 
                             e = _tasks[0];
-                            if(e.task == null)
+                            if (e.task == null)
                             {
                                 return;
                             }
                             long now = currentMonotonicTimeMillis();
-                            if(now >= e.when)
+                            if (now >= e.when)
                             {
                                 _tasks.RemoveAt(0);
                                 break;
                             }
-                            Monitor.Wait(this,(int)(e.when - now));
+                            Monitor.Wait(this, (int)(e.when - now));
                         }
                     }
                     e.task();

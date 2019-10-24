@@ -23,9 +23,9 @@ namespace IceInternal
         public static readonly bool isLinux = false;
         public static readonly bool isMono = false;
 #endif
-        public static Type findType(Instance instance, string csharpId)
+        public static Type findType(string csharpId)
         {
-            lock(_mutex)
+            lock (_mutex)
             {
                 Type t;
                 if (_typeTable.TryGetValue(csharpId, out t))
@@ -36,7 +36,7 @@ namespace IceInternal
                 loadAssemblies(); // Lazy initialization
                 foreach (Assembly a in _loadedAssemblies.Values)
                 {
-                    if((t = a.GetType(csharpId)) != null)
+                    if ((t = a.GetType(csharpId)) != null)
                     {
                         _typeTable[csharpId] = t;
                         return t;
@@ -50,23 +50,23 @@ namespace IceInternal
         {
             LinkedList<Type> l = new LinkedList<Type>();
 
-            lock(_mutex)
+            lock (_mutex)
             {
                 loadAssemblies(); // Lazy initialization
-                foreach(Assembly a in _loadedAssemblies.Values)
+                foreach (Assembly a in _loadedAssemblies.Values)
                 {
                     try
                     {
                         Type[] types = a.GetTypes();
-                        foreach(Type t in types)
+                        foreach (Type t in types)
                         {
-                            if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                            if (t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
                             {
                                 l.AddLast(t);
                             }
                         }
                     }
-                    catch(ReflectionTypeLoadException)
+                    catch (ReflectionTypeLoadException)
                     {
                         // Failed to load types from the assembly, ignore and continue
                     }
@@ -74,7 +74,7 @@ namespace IceInternal
             }
 
             Type[] result = new Type[l.Count];
-            if(l.Count > 0)
+            if (l.Count > 0)
             {
                 l.CopyTo(result, 0);
             }
@@ -87,7 +87,7 @@ namespace IceInternal
             {
                 return Activator.CreateInstance(t);
             }
-            catch(MemberAccessException)
+            catch (MemberAccessException)
             {
                 return null;
             }
@@ -95,7 +95,7 @@ namespace IceInternal
 
         public static void preloadAssemblies()
         {
-            lock(_mutex)
+            lock (_mutex)
             {
                 loadAssemblies(); // Lazy initialization
             }
@@ -114,11 +114,11 @@ namespace IceInternal
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             List<Assembly> newAssemblies = null;
-            foreach(Assembly a in assemblies)
+            foreach (Assembly a in assemblies)
             {
-                if(!_loadedAssemblies.Contains(a.FullName))
+                if (!_loadedAssemblies.Contains(a.FullName))
                 {
-                    if(newAssemblies == null)
+                    if (newAssemblies == null)
                     {
                         newAssemblies = new List<Assembly>();
                     }
@@ -126,9 +126,9 @@ namespace IceInternal
                     _loadedAssemblies[a.FullName] = a;
                 }
             }
-            if(newAssemblies != null)
+            if (newAssemblies != null)
             {
-                foreach(Assembly a in newAssemblies)
+                foreach (Assembly a in newAssemblies)
                 {
                     loadReferencedAssemblies(a);
                 }
@@ -140,9 +140,9 @@ namespace IceInternal
             try
             {
                 AssemblyName[] names = a.GetReferencedAssemblies();
-                foreach(AssemblyName name in names)
+                foreach (AssemblyName name in names)
                 {
-                    if(!_loadedAssemblies.ContainsKey(name.FullName))
+                    if (!_loadedAssemblies.ContainsKey(name.FullName))
                     {
                         try
                         {
@@ -155,14 +155,14 @@ namespace IceInternal
                             _loadedAssemblies[ra.FullName] = ra;
                             loadReferencedAssemblies(ra);
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
                             // Ignore assemblies that cannot be loaded.
                         }
                     }
                 }
             }
-            catch(PlatformNotSupportedException)
+            catch (PlatformNotSupportedException)
             {
                 // Some platforms like UWP do not support using GetReferencedAssemblies
             }

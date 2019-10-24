@@ -14,7 +14,7 @@ namespace Ice
             {
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     AllTests.allTests(this);
                 }

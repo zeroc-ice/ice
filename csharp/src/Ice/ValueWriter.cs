@@ -19,7 +19,7 @@ namespace IceInternal
 
         private static void writeValue(string name, object val, Dictionary<Ice.Object, object> objectTable, OutputBase output)
         {
-            if(val == null)
+            if (val == null)
             {
                 writeName(name, output);
                 output.print("(null)");
@@ -27,59 +27,59 @@ namespace IceInternal
             else
             {
                 System.Type c = val.GetType();
-                if(c.Equals(typeof(byte)) || c.Equals(typeof(short)) || c.Equals(typeof(int)) ||
+                if (c.Equals(typeof(byte)) || c.Equals(typeof(short)) || c.Equals(typeof(int)) ||
                    c.Equals(typeof(long)) || c.Equals(typeof(double)) || c.Equals(typeof(float)) ||
                    c.Equals(typeof(bool)))
                 {
                     writeName(name, output);
                     output.print(val.ToString());
                 }
-                else if(c.Equals(typeof(string)))
+                else if (c.Equals(typeof(string)))
                 {
                     writeName(name, output);
                     output.print("\"");
                     output.print(val.ToString());
                     output.print("\"");
                 }
-                else if(val is IList)
+                else if (val is IList)
                 {
                     int n = 0;
                     IEnumerator i = ((IList)val).GetEnumerator();
-                    while(i.MoveNext())
+                    while (i.MoveNext())
                     {
                         string elem = (name != null ? name : "");
                         elem += "[" + n++ + "]";
                         writeValue(elem, i.Current, objectTable, output);
                     }
                 }
-                else if(val is IDictionary)
+                else if (val is IDictionary)
                 {
-                    foreach(DictionaryEntry entry in (IDictionary)val)
+                    foreach (DictionaryEntry entry in (IDictionary)val)
                     {
                         string elem = name != null ? name + "." : "";
                         writeValue(elem + "key", entry.Key, objectTable, output);
                         writeValue(elem + "value", entry.Value, objectTable, output);
                     }
                 }
-                else if(val is Ice.ObjectPrxHelperBase)
+                else if (val is Ice.ObjectPrxHelperBase)
                 {
                     writeName(name, output);
                     Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
                     output.print(proxy.iceReference().ToString());
                 }
-                else if(val is Ice.Object)
+                else if (val is Ice.Object)
                 {
                     //
                     // Check for recursion.
                     //
-                    if(objectTable != null && objectTable.ContainsKey((Ice.Object)val))
+                    if (objectTable != null && objectTable.ContainsKey((Ice.Object)val))
                     {
                         writeName(name, output);
                         output.print("(recursive)");
                     }
                     else
                     {
-                        if(objectTable == null)
+                        if (objectTable == null)
                         {
                             objectTable = new Dictionary<Ice.Object, object>();
                         }
@@ -87,7 +87,7 @@ namespace IceInternal
                         writeFields(name, val, c, objectTable, output);
                     }
                 }
-                else if(c.IsEnum)
+                else if (c.IsEnum)
                 {
                     writeName(name, output);
                     output.print(val.ToString());
@@ -105,7 +105,7 @@ namespace IceInternal
         private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.Object, object> objectTable,
                                         OutputBase output)
         {
-            if(!c.Equals(typeof(object)))
+            if (!c.Equals(typeof(object)))
             {
                 //
                 // Write the superclass first.
@@ -118,7 +118,7 @@ namespace IceInternal
                 FieldInfo[] fields =
                     c.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public);
 
-                for(int i = 0; i < fields.Length; i++)
+                for (int i = 0; i < fields.Length; i++)
                 {
                     string fieldName = (name != null ? name + '.' + fields[i].Name : fields[i].Name);
 
@@ -127,7 +127,7 @@ namespace IceInternal
                         object val = fields[i].GetValue(obj);
                         writeValue(fieldName, val, objectTable, output);
                     }
-                    catch(System.UnauthorizedAccessException)
+                    catch (System.UnauthorizedAccessException)
                     {
                         Debug.Assert(false);
                     }
@@ -137,7 +137,7 @@ namespace IceInternal
 
         private static void writeName(string name, OutputBase output)
         {
-            if(name != null)
+            if (name != null)
             {
                 output.nl();
                 output.print(name + " = ");

@@ -10,11 +10,11 @@ namespace IceInternal
         {
             try
             {
-                if(previousHandler == this)
+                if (previousHandler == this)
                 {
                     return newHandler;
                 }
-                else if(previousHandler.getConnection() == _connection)
+                else if (previousHandler.getConnection() == _connection)
                 {
                     //
                     // If both request handlers point to the same connection, we also
@@ -24,7 +24,7 @@ namespace IceInternal
                     return newHandler;
                 }
             }
-            catch(Ice.Exception)
+            catch (Ice.Exception)
             {
                 // Ignore
             }

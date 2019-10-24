@@ -16,10 +16,10 @@ internal class Transceiver : IceInternal.Transceiver
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
     {
         _configuration.checkInitializeException();
-        if(!_initialized)
+        if (!_initialized)
         {
             int status = _transceiver.initialize(readBuffer, writeBuffer, ref hasMoreData);
-            if(status != IceInternal.SocketOperation.None)
+            if (status != IceInternal.SocketOperation.None)
             {
                 return status;
             }
@@ -45,7 +45,7 @@ internal class Transceiver : IceInternal.Transceiver
 
     public int write(IceInternal.Buffer buf)
     {
-        if(!_configuration.writeReady() && buf.b.hasRemaining())
+        if (!_configuration.writeReady() && buf.b.hasRemaining())
         {
             return IceInternal.SocketOperation.Write;
         }
@@ -56,23 +56,23 @@ internal class Transceiver : IceInternal.Transceiver
 
     public int read(IceInternal.Buffer buf, ref bool hasMoreData)
     {
-        if(!_configuration.readReady() && buf.b.hasRemaining())
+        if (!_configuration.readReady() && buf.b.hasRemaining())
         {
             return IceInternal.SocketOperation.Read;
         }
 
         _configuration.checkReadException();
 
-        if(_buffered)
+        if (_buffered)
         {
-            while(buf.b.hasRemaining())
+            while (buf.b.hasRemaining())
             {
-                if(_readBufferPos == _readBuffer.b.position())
+                if (_readBufferPos == _readBuffer.b.position())
                 {
                     _readBufferPos = 0;
                     _readBuffer.b.position(0);
                     _transceiver.read(_readBuffer, ref hasMoreData);
-                    if(_readBufferPos == _readBuffer.b.position())
+                    if (_readBufferPos == _readBuffer.b.position())
                     {
                         hasMoreData = false;
                         return IceInternal.SocketOperation.Read;
@@ -84,7 +84,7 @@ internal class Transceiver : IceInternal.Transceiver
                 int requested = buf.b.remaining();
                 int available = pos - _readBufferPos;
                 Debug.Assert(available > 0);
-                if(available >= requested)
+                if (available >= requested)
                 {
                     available = requested;
                 }
@@ -107,18 +107,18 @@ internal class Transceiver : IceInternal.Transceiver
 
     public bool startRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
     {
-        if(_configuration.readReady())
+        if (_configuration.readReady())
         {
             _configuration.checkReadException(); // Only raise if we're configured to read now.
         }
-        if(_buffered)
+        if (_buffered)
         {
             int pos = _readBuffer.b.position();
             int available = pos - _readBufferPos;
-            if(available > 0)
+            if (available > 0)
             {
                 int requested = buf.b.remaining();
-                if(available >= requested)
+                if (available >= requested)
                 {
                     available = requested;
                 }
@@ -131,7 +131,7 @@ internal class Transceiver : IceInternal.Transceiver
                 _readBuffer.b.position(pos);
             }
 
-            if(_readBufferPos == _readBuffer.b.position() && buf.b.hasRemaining())
+            if (_readBufferPos == _readBuffer.b.position() && buf.b.hasRemaining())
             {
                 _readBufferPos = 0;
                 _readBuffer.b.position(0);
@@ -152,18 +152,18 @@ internal class Transceiver : IceInternal.Transceiver
     public void finishRead(IceInternal.Buffer buf)
     {
         _configuration.checkReadException();
-        if(_buffered)
+        if (_buffered)
         {
-            if(buf.b.hasRemaining())
+            if (buf.b.hasRemaining())
             {
                 _transceiver.finishRead(_readBuffer);
 
                 int pos = _readBuffer.b.position();
                 int requested = buf.b.remaining();
                 int available = pos - _readBufferPos;
-                if(available > 0)
+                if (available > 0)
                 {
-                    if(available >= requested)
+                    if (available >= requested)
                     {
                         available = requested;
                     }
@@ -215,7 +215,7 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.toDetailedString();
     }
 
-    public void checkSendSize(IceInternal.Buffer buf )
+    public void checkSendSize(IceInternal.Buffer buf)
     {
         _transceiver.checkSendSize(buf);
     }

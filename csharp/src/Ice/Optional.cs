@@ -53,7 +53,7 @@ namespace Ice
         public Optional(SerializationInfo info, StreamingContext context)
         {
             _isSet = info.GetBoolean("isSet");
-            if(_isSet)
+            if (_isSet)
             {
                 _value = (T)info.GetValue("value", typeof(T));
             }
@@ -99,7 +99,7 @@ namespace Ice
         {
             get
             {
-                if(!_isSet)
+                if (!_isSet)
                 {
                     throw new InvalidOperationException();
                 }
@@ -121,11 +121,11 @@ namespace Ice
 
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }
-            if(other == null)
+            if (other == null)
             {
                 return false;
             }
@@ -134,11 +134,11 @@ namespace Ice
             {
                 Optional<T> o2 = (Optional<T>)other;
 
-                if(_isSet != o2._isSet)
+                if (_isSet != o2._isSet)
                 {
                     return false;
                 }
-                else if(_isSet)
+                else if (_isSet)
                 {
                     EqualityComparer<T> comparer = EqualityComparer<T>.Default;
                     return comparer.Equals(_value, o2._value);
@@ -146,7 +146,7 @@ namespace Ice
 
                 return true;
             }
-            catch(System.Exception)
+            catch (System.Exception)
             {
                 return false;
             }
@@ -154,7 +154,7 @@ namespace Ice
 
         public override int GetHashCode()
         {
-            if(!_isSet)
+            if (!_isSet)
             {
                 return base.GetHashCode();
             }
@@ -172,7 +172,7 @@ namespace Ice
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("isSet", _isSet);
-            if(_isSet)
+            if (_isSet)
             {
                 info.AddValue("value", _value, typeof(T));
             }

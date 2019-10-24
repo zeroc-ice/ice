@@ -26,7 +26,7 @@ public class Client : Test.TestHelper
         public void
         connected(Glacier2.SessionHelper session)
         {
-             test(false);
+            test(false);
         }
 
         public void
@@ -42,12 +42,12 @@ public class Client : Test.TestHelper
             {
                 throw exception;
             }
-            catch(Glacier2.PermissionDeniedException)
+            catch (Glacier2.PermissionDeniedException)
             {
                 Console.Out.WriteLine("ok");
                 _app.wakeUp();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -111,7 +111,7 @@ public class Client : Test.TestHelper
         public void
         connected(Glacier2.SessionHelper session)
         {
-             test(false);
+            test(false);
         }
 
         public void
@@ -127,12 +127,12 @@ public class Client : Test.TestHelper
             {
                 throw exception;
             }
-            catch(Ice.ConnectionRefusedException)
+            catch (Ice.ConnectionRefusedException)
             {
                 Console.Out.WriteLine("ok");
                 _app.wakeUp();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -158,7 +158,7 @@ public class Client : Test.TestHelper
         public void
         connected(Glacier2.SessionHelper session)
         {
-             test(false);
+            test(false);
         }
 
         public void
@@ -174,12 +174,12 @@ public class Client : Test.TestHelper
             {
                 throw exception;
             }
-            catch(Ice.CommunicatorDestroyedException)
+            catch (Ice.CommunicatorDestroyedException)
             {
                 Console.Out.WriteLine("ok");
                 _app.wakeUp();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -201,12 +201,12 @@ public class Client : Test.TestHelper
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Default.Router",
                                         "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
-        initData.dispatcher = delegate(Action action, Ice.Connection connection)
+        initData.dispatcher = delegate (Action action, Ice.Connection connection)
             {
                 action();
             };
 
-        using(var communicator = initialize(initData))
+        using (var communicator = initialize(initData))
         {
             string protocol = getTestProtocol();
             string host = getTestHost();
@@ -217,21 +217,21 @@ public class Client : Test.TestHelper
             //
             // Test to create a session with wrong userid/password
             //
-            lock(this)
+            lock (this)
             {
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
 
                 factory.setProtocol(protocol);
-                session  = factory.connect("userid", "xxx");
-                while(true)
+                session = factory.connect("userid", "xxx");
+                while (true)
                 {
                     try
                     {
                         Monitor.Wait(this, 30000);
                         break;
                     }
-                    catch(ThreadInterruptedException)
+                    catch (ThreadInterruptedException)
                     {
                     }
                 }
@@ -240,7 +240,7 @@ public class Client : Test.TestHelper
 
             initData.properties.setProperty("Ice.Default.Router", "");
             factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback4(this));
-            lock(this)
+            lock (this)
             {
                 Console.Out.Write("testing SessionHelper connect interrupt... ");
                 Console.Out.Flush();
@@ -252,14 +252,14 @@ public class Client : Test.TestHelper
                 Thread.Sleep(100);
                 session.destroy();
 
-                while(true)
+                while (true)
                 {
                     try
                     {
                         Monitor.Wait(this, 30000);
                         break;
                     }
-                    catch(ThreadInterruptedException)
+                    catch (ThreadInterruptedException)
                     {
                     }
                 }
@@ -267,7 +267,7 @@ public class Client : Test.TestHelper
             }
 
             factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback2(this));
-            lock(this)
+            lock (this)
             {
                 Console.Out.Write("testing SessionHelper connect... ");
                 Console.Out.Flush();
@@ -275,14 +275,14 @@ public class Client : Test.TestHelper
                 factory.setPort(getTestPort(50));
                 factory.setProtocol(protocol);
                 session = factory.connect("userid", "abc123");
-                while(true)
+                while (true)
                 {
                     try
                     {
                         Monitor.Wait(this, 30000);
                         break;
                     }
-                    catch(ThreadInterruptedException)
+                    catch (ThreadInterruptedException)
                     {
                     }
                 }
@@ -298,7 +298,7 @@ public class Client : Test.TestHelper
                 {
                     test(!session.categoryForClient().Equals(""));
                 }
-                catch(Glacier2.SessionNotExistException)
+                catch (Glacier2.SessionNotExistException)
                 {
                     test(false);
                 }
@@ -331,14 +331,14 @@ public class Client : Test.TestHelper
                 Console.Out.Write("testing SessionHelper destroy... ");
                 Console.Out.Flush();
                 session.destroy();
-                while(true)
+                while (true)
                 {
                     try
                     {
                         Monitor.Wait(this);
                         break;
                     }
-                    catch(ThreadInterruptedException)
+                    catch (ThreadInterruptedException)
                     {
                     }
                 }
@@ -355,7 +355,7 @@ public class Client : Test.TestHelper
                     test(!session.categoryForClient().Equals(""));
                     test(false);
                 }
-                catch(Glacier2.SessionNotExistException)
+                catch (Glacier2.SessionNotExistException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -372,7 +372,7 @@ public class Client : Test.TestHelper
                     session.communicator().stringToProxy("dummy");
                     test(false);
                 }
-                catch(Ice.CommunicatorDestroyedException)
+                catch (Ice.CommunicatorDestroyedException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -404,14 +404,14 @@ public class Client : Test.TestHelper
                     process.ice_ping();
                     test(false);
                 }
-                catch(Ice.LocalException)
+                catch (Ice.LocalException)
                 {
                     Console.Out.WriteLine("ok");
                 }
             }
 
             factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback3(this));
-            lock(this)
+            lock (this)
             {
                 Console.Out.Write("testing SessionHelper connect after router shutdown... ");
                 Console.Out.Flush();
@@ -420,14 +420,14 @@ public class Client : Test.TestHelper
                 factory.setPort(getTestPort(50));
                 factory.setProtocol(protocol);
                 session = factory.connect("userid", "abc123");
-                while(true)
+                while (true)
                 {
                     try
                     {
                         Monitor.Wait(this);
                         break;
                     }
-                    catch(ThreadInterruptedException)
+                    catch (ThreadInterruptedException)
                     {
                     }
                 }
@@ -445,7 +445,7 @@ public class Client : Test.TestHelper
                     session.communicator().stringToProxy("dummy");
                     test(false);
                 }
-                catch(Ice.CommunicatorDestroyedException)
+                catch (Ice.CommunicatorDestroyedException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -461,7 +461,7 @@ public class Client : Test.TestHelper
     public void
     wakeUp()
     {
-        lock(this)
+        lock (this)
         {
             Monitor.Pulse(this);
         }

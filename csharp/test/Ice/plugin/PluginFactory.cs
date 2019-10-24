@@ -34,11 +34,11 @@ public class PluginFactory : Ice.PluginFactory
 
         ~Plugin()
         {
-            if(!_initialized)
+            if (!_initialized)
             {
                 Console.WriteLine("Plugin not initialized");
             }
-            if(!_destroyed)
+            if (!_destroyed)
             {
                 Console.WriteLine("Plugin not destroyed");
             }
@@ -46,7 +46,7 @@ public class PluginFactory : Ice.PluginFactory
 
         private static void test(bool b)
         {
-            if(!b)
+            if (!b)
             {
                 throw new System.Exception();
             }

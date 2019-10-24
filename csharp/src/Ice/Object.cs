@@ -213,29 +213,29 @@ namespace Ice
         public virtual Task<OutputStream> iceDispatch(IceInternal.Incoming inc, Current current)
         {
             int pos = Array.BinarySearch(_all, current.operation);
-            if(pos < 0)
+            if (pos < 0)
             {
                 throw new OperationNotExistException(current.id, current.facet, current.operation);
             }
 
-            switch(pos)
+            switch (pos)
             {
                 case 0:
-                {
-                    return iceD_ice_id(this, inc, current);
-                }
+                    {
+                        return iceD_ice_id(this, inc, current);
+                    }
                 case 1:
-                {
-                    return iceD_ice_ids(this, inc, current);
-                }
+                    {
+                        return iceD_ice_ids(this, inc, current);
+                    }
                 case 2:
-                {
-                    return iceD_ice_isA(this, inc, current);
-                }
+                    {
+                        return iceD_ice_isA(this, inc, current);
+                    }
                 case 3:
-                {
-                    return iceD_ice_ping(this, inc, current);
-                }
+                    {
+                        return iceD_ice_ping(this, inc, current);
+                    }
             }
 
             Debug.Assert(false);
@@ -244,16 +244,16 @@ namespace Ice
 
         private static string operationModeToString(OperationMode mode)
         {
-            if(mode == OperationMode.Normal)
+            if (mode == OperationMode.Normal)
             {
                 return "::Ice::Normal";
             }
-            if(mode == OperationMode.Nonmutating)
+            if (mode == OperationMode.Nonmutating)
             {
                 return "::Ice::Nonmutating";
             }
 
-            if(mode == OperationMode.Idempotent)
+            if (mode == OperationMode.Idempotent)
             {
                 return "::Ice::Idempotent";
             }
@@ -263,9 +263,9 @@ namespace Ice
 
         public static void iceCheckMode(OperationMode expected, OperationMode received)
         {
-            if(expected != received)
+            if (expected != received)
             {
-                if(expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
+                if (expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
                 {
                     //
                     // Fine: typically an old client still using the
@@ -329,7 +329,8 @@ namespace Ice
             {
                 var ret = t.GetAwaiter().GetResult();
                 return Task.FromResult(inS.writeParamEncaps(cached, ret.outEncaps, ret.returnValue));
-            }).Unwrap();
+            },
+            TaskScheduler.Current).Unwrap();
         }
     }
 }

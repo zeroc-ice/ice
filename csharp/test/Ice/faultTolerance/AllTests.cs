@@ -19,9 +19,9 @@ public class AllTests : Test.AllTests
 
         public virtual void check()
         {
-            lock(this)
+            lock (this)
             {
-                while(!_called)
+                while (!_called)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -32,7 +32,7 @@ public class AllTests : Test.AllTests
 
         public virtual void called()
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_called);
                 _called = true;
@@ -49,16 +49,16 @@ public class AllTests : Test.AllTests
         {
             throw ex;
         }
-        catch(Ice.ConnectionLostException )
+        catch (Ice.ConnectionLostException)
         {
         }
-        catch(Ice.ConnectFailedException)
+        catch (Ice.ConnectFailedException)
         {
         }
-        catch(Ice.SocketException)
+        catch (Ice.SocketException)
         {
         }
-        catch(Exception)
+        catch (Exception)
         {
             output.WriteLine(ex.ToString());
             test(false);
@@ -72,7 +72,7 @@ public class AllTests : Test.AllTests
         output.Write("testing stringToProxy... ");
         output.Flush();
         string refString = "test";
-        for(int i = 0; i < ports.Count; i++)
+        for (int i = 0; i < ports.Count; i++)
         {
             refString += ":" + helper.getTestEndpoint(ports[i]);
         }
@@ -89,15 +89,15 @@ public class AllTests : Test.AllTests
 
         int oldPid = 0;
         bool ami = false;
-        for(int i = 1, j = 0; i <= ports.Count; ++i, ++j)
+        for (int i = 1, j = 0; i <= ports.Count; ++i, ++j)
         {
-            if(j > 3)
+            if (j > 3)
             {
                 j = 0;
                 ami = !ami;
             }
 
-            if(!ami)
+            if (!ami)
             {
                 output.Write("testing server #" + i + "... ");
                 output.Flush();
@@ -129,9 +129,9 @@ public class AllTests : Test.AllTests
                 oldPid = pid;
             }
 
-            if(j == 0)
+            if (j == 0)
             {
-                if(!ami)
+                if (!ami)
                 {
                     output.Write("shutting down server #" + i + "... ");
                     output.Flush();
@@ -156,9 +156,9 @@ public class AllTests : Test.AllTests
                     output.WriteLine("ok");
                 }
             }
-            else if(j == 1 || i + 1 > ports.Count)
+            else if (j == 1 || i + 1 > ports.Count)
             {
-                if(!ami)
+                if (!ami)
                 {
                     output.Write("aborting server #" + i + "... ");
                     output.Flush();
@@ -167,15 +167,15 @@ public class AllTests : Test.AllTests
                         obj.abort();
                         test(false);
                     }
-                    catch(Ice.ConnectionLostException)
+                    catch (Ice.ConnectionLostException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch(Ice.ConnectFailedException)
+                    catch (Ice.ConnectFailedException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch(Ice.SocketException)
+                    catch (Ice.SocketException)
                     {
                         output.WriteLine("ok");
                     }
@@ -199,9 +199,9 @@ public class AllTests : Test.AllTests
                     output.WriteLine("ok");
                 }
             }
-            else if(j == 2 || j == 3)
+            else if (j == 2 || j == 3)
             {
-                if(!ami)
+                if (!ami)
                 {
                     output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
                     output.Flush();
@@ -210,15 +210,15 @@ public class AllTests : Test.AllTests
                         obj.idempotentAbort();
                         test(false);
                     }
-                    catch(Ice.ConnectionLostException)
+                    catch (Ice.ConnectionLostException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch(Ice.ConnectFailedException)
+                    catch (Ice.ConnectFailedException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch(Ice.SocketException)
+                    catch (Ice.SocketException)
                     {
                         output.WriteLine("ok");
                     }
@@ -256,7 +256,7 @@ public class AllTests : Test.AllTests
             obj.ice_ping();
             test(false);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
             output.WriteLine("ok");
         }

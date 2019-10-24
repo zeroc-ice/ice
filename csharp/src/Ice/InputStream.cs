@@ -275,7 +275,7 @@ namespace Ice
         /// </summary>
         public void clear()
         {
-            if(_encapsStack != null)
+            if (_encapsStack != null)
             {
                 Debug.Assert(_encapsStack.next == null);
                 _encapsStack.next = _encapsCache;
@@ -361,7 +361,7 @@ namespace Ice
         /// <param name="classGraphDepthMax">The maximum depth.</param>
         public void setClassGraphDepthMax(int classGraphDepthMax)
         {
-            if(classGraphDepthMax < 1)
+            if (classGraphDepthMax < 1)
             {
                 _classGraphDepthMax = 0x7fffffff;
             }
@@ -529,7 +529,7 @@ namespace Ice
         public EncodingVersion startEncapsulation()
         {
             Encaps curr = _encapsCache;
-            if(curr != null)
+            if (curr != null)
             {
                 curr.reset();
                 _encapsCache = _encapsCache.next;
@@ -549,11 +549,11 @@ namespace Ice
             // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
             //
             int sz = readInt();
-            if(sz < 6)
+            if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
-            if(sz - 4 > _buf.b.remaining())
+            if (sz - 4 > _buf.b.remaining())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -574,17 +574,17 @@ namespace Ice
         {
             Debug.Assert(_encapsStack != null);
 
-            if(!_encapsStack.encoding_1_0)
+            if (!_encapsStack.encoding_1_0)
             {
                 skipOptionals();
-                if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
                 {
                     throw new EncapsulationException();
                 }
             }
-            else if(_buf.b.position() != _encapsStack.start + _encapsStack.sz)
+            else if (_buf.b.position() != _encapsStack.start + _encapsStack.sz)
             {
-                if(_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() + 1 != _encapsStack.start + _encapsStack.sz)
                 {
                     throw new EncapsulationException();
                 }
@@ -599,7 +599,7 @@ namespace Ice
                 {
                     _buf.b.get();
                 }
-                catch(InvalidOperationException ex)
+                catch (InvalidOperationException ex)
                 {
                     throw new UnmarshalOutOfBoundsException(ex);
                 }
@@ -619,11 +619,11 @@ namespace Ice
         public EncodingVersion skipEmptyEncapsulation()
         {
             int sz = readInt();
-            if(sz < 6)
+            if (sz < 6)
             {
                 throw new EncapsulationException();
             }
-            if(sz - 4 > _buf.b.remaining())
+            if (sz - 4 > _buf.b.remaining())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -632,9 +632,9 @@ namespace Ice
             encoding.ice_readMembers(this);
             Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
 
-            if(encoding.Equals(Util.Encoding_1_0))
+            if (encoding.Equals(Util.Encoding_1_0))
             {
-                if(sz != 6)
+                if (sz != 6)
                 {
                     throw new EncapsulationException();
                 }
@@ -657,12 +657,12 @@ namespace Ice
         public byte[] readEncapsulation(out EncodingVersion encoding)
         {
             int sz = readInt();
-            if(sz < 6)
+            if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
 
-            if(sz - 4 > _buf.b.remaining())
+            if (sz - 4 > _buf.b.remaining())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -677,7 +677,7 @@ namespace Ice
                 _buf.b.get(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -709,7 +709,7 @@ namespace Ice
         public EncodingVersion skipEncapsulation()
         {
             int sz = readInt();
-            if(sz < 6)
+            if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -719,7 +719,7 @@ namespace Ice
             {
                 _buf.b.position(_buf.b.position() + sz - 6);
             }
-            catch(ArgumentOutOfRangeException ex)
+            catch (ArgumentOutOfRangeException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -762,11 +762,11 @@ namespace Ice
         /// </summary>
         public void readPendingValues()
         {
-            if(_encapsStack != null && _encapsStack.decoder != null)
+            if (_encapsStack != null && _encapsStack.decoder != null)
             {
                 _encapsStack.decoder.readPendingValues();
             }
-            else if(_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0))
+            else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0))
             {
                 //
                 // If using the 1.0 encoding and no instances were read, we
@@ -790,10 +790,10 @@ namespace Ice
             try
             {
                 byte b = _buf.b.get();
-                if(b == 255)
+                if (b == 255)
                 {
                     int v = _buf.b.getInt();
-                    if(v < 0)
+                    if (v < 0)
                     {
                         throw new UnmarshalOutOfBoundsException();
                     }
@@ -804,7 +804,7 @@ namespace Ice
                     return b; // byte is unsigned
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -818,7 +818,7 @@ namespace Ice
         {
             int sz = readSize();
 
-            if(sz == 0)
+            if (sz == 0)
             {
                 return 0;
             }
@@ -840,7 +840,7 @@ namespace Ice
             // the estimated remaining buffer size. This estimatation is based on
             // the minimum size of the enclosing sequences, it's _minSeqSize.
             //
-            if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
+            if (_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
             {
                 _startSeq = _buf.b.position();
                 _minSeqSize = sz * minSize;
@@ -855,7 +855,7 @@ namespace Ice
             // possibly enclosed sequences), something is wrong with the marshalled
             // data: it's claiming having more data that what is possible to read.
             //
-            if(_startSeq + _minSeqSize > _buf.size())
+            if (_startSeq + _minSeqSize > _buf.size())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -873,7 +873,7 @@ namespace Ice
             {
                 _buf.b.get(v);
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -886,7 +886,7 @@ namespace Ice
         /// <returns>The requested bytes as a byte array.</returns>
         public byte[] readBlob(int sz)
         {
-            if(_buf.b.remaining() < sz)
+            if (_buf.b.remaining() < sz)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -896,7 +896,7 @@ namespace Ice
                 _buf.b.get(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -911,7 +911,7 @@ namespace Ice
         public bool readOptional(int tag, OptionalFormat expectedFormat)
         {
             Debug.Assert(_encapsStack != null);
-            if(_encapsStack.decoder != null)
+            if (_encapsStack.decoder != null)
             {
                 return _encapsStack.decoder.readOptional(tag, expectedFormat);
             }
@@ -931,7 +931,7 @@ namespace Ice
             {
                 return _buf.b.get();
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -944,7 +944,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<byte> readByte(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F1))
+            if (readOptional(tag, OptionalFormat.F1))
             {
                 return new Optional<byte>(readByte());
             }
@@ -962,7 +962,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readByte(int tag, out bool isset, out byte v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F1))
+            if (isset = readOptional(tag, OptionalFormat.F1))
             {
                 v = readByte();
             }
@@ -985,7 +985,7 @@ namespace Ice
                 _buf.b.get(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1055,7 +1055,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<byte[]> readByteSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 return new Optional<byte[]>(readByteSeq());
             }
@@ -1073,7 +1073,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readByteSeq(int tag, out bool isset, out byte[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 v = readByteSeq();
             }
@@ -1090,7 +1090,7 @@ namespace Ice
         public object readSerializable()
         {
             int sz = readAndCheckSeqSize(1);
-            if(sz == 0)
+            if (sz == 0)
             {
                 return null;
             }
@@ -1099,7 +1099,7 @@ namespace Ice
                 var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _instance));
                 return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 throw new MarshalException("cannot deserialize object:", ex);
             }
@@ -1115,7 +1115,7 @@ namespace Ice
             {
                 return _buf.b.get() == 1;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1128,7 +1128,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<bool> readBool(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F1))
+            if (readOptional(tag, OptionalFormat.F1))
             {
                 return new Optional<bool>(readBool());
             }
@@ -1146,7 +1146,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readBool(int tag, out bool isset, out bool v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F1))
+            if (isset = readOptional(tag, OptionalFormat.F1))
             {
                 v = readBool();
             }
@@ -1169,7 +1169,7 @@ namespace Ice
                 _buf.b.getBoolSeq(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1239,7 +1239,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<bool[]> readBoolSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 return new Optional<bool[]>(readBoolSeq());
             }
@@ -1257,7 +1257,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readBoolSeq(int tag, out bool isset, out bool[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 v = readBoolSeq();
             }
@@ -1277,7 +1277,7 @@ namespace Ice
             {
                 return _buf.b.getShort();
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1290,7 +1290,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<short> readShort(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F2))
+            if (readOptional(tag, OptionalFormat.F2))
             {
                 return new Optional<short>(readShort());
             }
@@ -1308,7 +1308,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readShort(int tag, out bool isset, out short v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F2))
+            if (isset = readOptional(tag, OptionalFormat.F2))
             {
                 v = readShort();
             }
@@ -1331,7 +1331,7 @@ namespace Ice
                 _buf.b.getShortSeq(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1401,7 +1401,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<short[]> readShortSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 return new Optional<short[]>(readShortSeq());
@@ -1420,7 +1420,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readShortSeq(int tag, out bool isset, out short[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 v = readShortSeq();
@@ -1441,7 +1441,7 @@ namespace Ice
             {
                 return _buf.b.getInt();
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1454,7 +1454,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<int> readInt(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F4))
+            if (readOptional(tag, OptionalFormat.F4))
             {
                 return new Optional<int>(readInt());
             }
@@ -1472,7 +1472,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readInt(int tag, out bool isset, out int v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F4))
+            if (isset = readOptional(tag, OptionalFormat.F4))
             {
                 v = readInt();
             }
@@ -1495,7 +1495,7 @@ namespace Ice
                 _buf.b.getIntSeq(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1525,12 +1525,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<int>();
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.AddLast(_buf.b.getInt());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1552,12 +1552,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new Queue<int>(sz);
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.Enqueue(_buf.b.getInt());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1585,7 +1585,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<int[]> readIntSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 return new Optional<int[]>(readIntSeq());
@@ -1604,7 +1604,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readIntSeq(int tag, out bool isset, out int[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 v = readIntSeq();
@@ -1625,7 +1625,7 @@ namespace Ice
             {
                 return _buf.b.getLong();
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1638,7 +1638,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<long> readLong(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F8))
+            if (readOptional(tag, OptionalFormat.F8))
             {
                 return new Optional<long>(readLong());
             }
@@ -1656,7 +1656,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readLong(int tag, out bool isset, out long v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F8))
+            if (isset = readOptional(tag, OptionalFormat.F8))
             {
                 v = readLong();
             }
@@ -1679,7 +1679,7 @@ namespace Ice
                 _buf.b.getLongSeq(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1709,12 +1709,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<long>();
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.AddLast(_buf.b.getLong());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1736,12 +1736,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new Queue<long>(sz);
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.Enqueue(_buf.b.getLong());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1769,7 +1769,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<long[]> readLongSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 return new Optional<long[]>(readLongSeq());
@@ -1788,7 +1788,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readLongSeq(int tag, out bool isset, out long[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 v = readLongSeq();
@@ -1809,7 +1809,7 @@ namespace Ice
             {
                 return _buf.b.getFloat();
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1822,7 +1822,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<float> readFloat(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F4))
+            if (readOptional(tag, OptionalFormat.F4))
             {
                 return new Optional<float>(readFloat());
             }
@@ -1840,7 +1840,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readFloat(int tag, out bool isset, out float v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F4))
+            if (isset = readOptional(tag, OptionalFormat.F4))
             {
                 v = readFloat();
             }
@@ -1863,7 +1863,7 @@ namespace Ice
                 _buf.b.getFloatSeq(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1893,12 +1893,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<float>();
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.AddLast(_buf.b.getFloat());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1920,12 +1920,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new Queue<float>(sz);
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.Enqueue(_buf.b.getFloat());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -1953,7 +1953,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<float[]> readFloatSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 return new Optional<float[]>(readFloatSeq());
@@ -1972,7 +1972,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readFloatSeq(int tag, out bool isset, out float[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 v = readFloatSeq();
@@ -1993,7 +1993,7 @@ namespace Ice
             {
                 return _buf.b.getDouble();
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -2006,7 +2006,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<double> readDouble(int tag)
         {
-            if(readOptional(tag, OptionalFormat.F8))
+            if (readOptional(tag, OptionalFormat.F8))
             {
                 return new Optional<double>(readDouble());
             }
@@ -2024,7 +2024,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readDouble(int tag, out bool isset, out double v)
         {
-            if(isset = readOptional(tag, OptionalFormat.F8))
+            if (isset = readOptional(tag, OptionalFormat.F8))
             {
                 v = readDouble();
             }
@@ -2047,7 +2047,7 @@ namespace Ice
                 _buf.b.getDoubleSeq(v);
                 return v;
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -2077,12 +2077,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<double>();
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.AddLast(_buf.b.getDouble());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -2104,12 +2104,12 @@ namespace Ice
             {
                 int sz = readAndCheckSeqSize(4);
                 l = new Queue<double>(sz);
-                for(int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     l.Enqueue(_buf.b.getDouble());
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
@@ -2137,7 +2137,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<double[]> readDoubleSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 return new Optional<double[]>(readDoubleSeq());
@@ -2156,7 +2156,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readDoubleSeq(int tag, out bool isset, out double[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
                 v = readDoubleSeq();
@@ -2177,7 +2177,7 @@ namespace Ice
         {
             int len = readSize();
 
-            if(len == 0)
+            if (len == 0)
             {
                 return "";
             }
@@ -2185,7 +2185,7 @@ namespace Ice
             //
             // Check the buffer has enough bytes to read.
             //
-            if(_buf.b.remaining() < len)
+            if (_buf.b.remaining() < len)
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -2196,18 +2196,18 @@ namespace Ice
                 // We reuse the _stringBytes array to avoid creating
                 // excessive garbage
                 //
-                if(_stringBytes == null || len > _stringBytes.Length)
+                if (_stringBytes == null || len > _stringBytes.Length)
                 {
                     _stringBytes = new byte[len];
                 }
                 _buf.b.get(_stringBytes, 0, len);
                 return utf8.GetString(_stringBytes, 0, len);
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 throw new UnmarshalOutOfBoundsException(ex);
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 throw new MarshalException("Invalid UTF8 string", ex);
             }
@@ -2220,7 +2220,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<string> readString(int tag)
         {
-            if(readOptional(tag, OptionalFormat.VSize))
+            if (readOptional(tag, OptionalFormat.VSize))
             {
                 return new Optional<string>(readString());
             }
@@ -2238,7 +2238,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readString(int tag, out bool isset, out string v)
         {
-            if(isset = readOptional(tag, OptionalFormat.VSize))
+            if (isset = readOptional(tag, OptionalFormat.VSize))
             {
                 v = readString();
             }
@@ -2256,7 +2256,7 @@ namespace Ice
         {
             int sz = readAndCheckSeqSize(1);
             string[] v = new string[sz];
-            for(int i = 0; i < sz; i++)
+            for (int i = 0; i < sz; i++)
             {
                 v[i] = readString();
             }
@@ -2276,7 +2276,7 @@ namespace Ice
             //
             int sz = readAndCheckSeqSize(1);
             l = new List<string>(sz);
-            for(int i = 0; i < sz; ++i)
+            for (int i = 0; i < sz; ++i)
             {
                 l.Add(readString());
             }
@@ -2295,7 +2295,7 @@ namespace Ice
             //
             int sz = readAndCheckSeqSize(1);
             l = new LinkedList<string>();
-            for(int i = 0; i < sz; ++i)
+            for (int i = 0; i < sz; ++i)
             {
                 l.AddLast(readString());
             }
@@ -2314,7 +2314,7 @@ namespace Ice
             //
             int sz = readAndCheckSeqSize(1);
             l = new Queue<string>();
-            for(int i = 0; i < sz; ++i)
+            for (int i = 0; i < sz; ++i)
             {
                 l.Enqueue(readString());
             }
@@ -2342,7 +2342,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<string[]> readStringSeq(int tag)
         {
-            if(readOptional(tag, OptionalFormat.FSize))
+            if (readOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
                 return new Optional<string[]>(readStringSeq());
@@ -2361,7 +2361,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readStringSeq(int tag, out bool isset, out string[] v)
         {
-            if(isset = readOptional(tag, OptionalFormat.FSize))
+            if (isset = readOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
                 v = readStringSeq();
@@ -2388,7 +2388,7 @@ namespace Ice
         /// <returns>The optional value.</returns>
         public Optional<ObjectPrx> readProxy(int tag)
         {
-            if(readOptional(tag, OptionalFormat.FSize))
+            if (readOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
                 return new Optional<ObjectPrx>(readProxy());
@@ -2407,7 +2407,7 @@ namespace Ice
         /// <param name="v">The optional value.</param>
         public void readProxy(int tag, out bool isset, out ObjectPrx v)
         {
-            if(isset = readOptional(tag, OptionalFormat.FSize))
+            if (isset = readOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
                 v = readProxy();
@@ -2425,13 +2425,13 @@ namespace Ice
         /// <returns>The enumerator.</returns>
         public int readEnum(int maxValue)
         {
-            if(getEncoding().Equals(Util.Encoding_1_0))
+            if (getEncoding().Equals(Util.Encoding_1_0))
             {
-                if(maxValue < 127)
+                if (maxValue < 127)
                 {
                     return readByte();
                 }
-                else if(maxValue < 32767)
+                else if (maxValue < 32767)
                 {
                     return readShort();
                 }
@@ -2454,8 +2454,9 @@ namespace Ice
         /// corresponding instance has been fully unmarshaled.</param>
         public void readValue<T>(System.Action<T> cb) where T : Value
         {
-            readValue(v => {
-                if(v == null || v is T)
+            readValue(v =>
+            {
+                if (v == null || v is T)
                 {
                     cb((T)v);
                 }
@@ -2487,8 +2488,9 @@ namespace Ice
         /// corresponding instance has been fully unmarshaled.</param>
         public void readValue<T>(int tag, System.Action<T> cb) where T : Value
         {
-            readValue(tag, v => {
-                if(v == null || v is T)
+            readValue(tag, v =>
+            {
+                if (v == null || v is T)
                 {
                     cb((T)v);
                 }
@@ -2508,7 +2510,7 @@ namespace Ice
         /// corresponding instance has been fully unmarshaled.</param>
         public void readValue(int tag, System.Action<Value> cb)
         {
-            if(readOptional(tag, OptionalFormat.Class))
+            if (readOptional(tag, OptionalFormat.Class))
             {
                 readValue(cb);
             }
@@ -2538,7 +2540,7 @@ namespace Ice
         /// <param name="size">The number of bytes to skip</param>
         public void skip(int size)
         {
-            if(size < 0 || size > _buf.b.remaining())
+            if (size < 0 || size > _buf.b.remaining())
             {
                 throw new UnmarshalOutOfBoundsException();
             }
@@ -2551,7 +2553,7 @@ namespace Ice
         public void skipSize()
         {
             byte b = readByte();
-            if(b == 255)
+            if (b == 255)
             {
                 skip(4);
             }
@@ -2595,20 +2597,20 @@ namespace Ice
 
         private bool readOptImpl(int readTag, OptionalFormat expectedFormat)
         {
-            if(isEncoding_1_0())
+            if (isEncoding_1_0())
             {
                 return false; // Optional members aren't supported with the 1.0 encoding.
             }
 
-            while(true)
+            while (true)
             {
-                if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
 
                 int v = readByte();
-                if(v == Protocol.OPTIONAL_END_MARKER)
+                if (v == Protocol.OPTIONAL_END_MARKER)
                 {
                     _buf.b.position(_buf.b.position() - 1); // Rewind.
                     return false;
@@ -2616,24 +2618,24 @@ namespace Ice
 
                 OptionalFormat format = (OptionalFormat)(v & 0x07); // First 3 bits.
                 int tag = v >> 3;
-                if(tag == 30)
+                if (tag == 30)
                 {
                     tag = readSize();
                 }
 
-                if(tag > readTag)
+                if (tag > readTag)
                 {
                     int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
                     _buf.b.position(_buf.b.position() - offset);
                     return false; // No optional data members with the requested tag.
                 }
-                else if(tag < readTag)
+                else if (tag < readTag)
                 {
                     skipOptional(format); // Skip optional data members
                 }
                 else
                 {
-                    if(format != expectedFormat)
+                    if (format != expectedFormat)
                     {
                         throw new MarshalException("invalid optional data member `" + tag + "': unexpected format");
                     }
@@ -2644,48 +2646,48 @@ namespace Ice
 
         private void skipOptional(OptionalFormat format)
         {
-            switch(format)
+            switch (format)
             {
-            case OptionalFormat.F1:
-            {
-                skip(1);
-                break;
-            }
-            case OptionalFormat.F2:
-            {
-                skip(2);
-                break;
-            }
-            case OptionalFormat.F4:
-            {
-                skip(4);
-                break;
-            }
-            case OptionalFormat.F8:
-            {
-                skip(8);
-                break;
-            }
-            case OptionalFormat.Size:
-            {
-                skipSize();
-                break;
-            }
-            case OptionalFormat.VSize:
-            {
-                skip(readSize());
-                break;
-            }
-            case OptionalFormat.FSize:
-            {
-                skip(readInt());
-                break;
-            }
-            case OptionalFormat.Class:
-            {
-                readValue(null);
-                break;
-            }
+                case OptionalFormat.F1:
+                    {
+                        skip(1);
+                        break;
+                    }
+                case OptionalFormat.F2:
+                    {
+                        skip(2);
+                        break;
+                    }
+                case OptionalFormat.F4:
+                    {
+                        skip(4);
+                        break;
+                    }
+                case OptionalFormat.F8:
+                    {
+                        skip(8);
+                        break;
+                    }
+                case OptionalFormat.Size:
+                    {
+                        skipSize();
+                        break;
+                    }
+                case OptionalFormat.VSize:
+                    {
+                        skip(readSize());
+                        break;
+                    }
+                case OptionalFormat.FSize:
+                    {
+                        skip(readInt());
+                        break;
+                    }
+                case OptionalFormat.Class:
+                    {
+                        readValue(null);
+                        break;
+                    }
             }
         }
 
@@ -2694,21 +2696,21 @@ namespace Ice
             //
             // Skip remaining un-read optional members.
             //
-            while(true)
+            while (true)
             {
-                if(_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
+                if (_buf.b.position() >= _encapsStack.start + _encapsStack.sz)
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
 
                 int v = readByte();
-                if(v == Protocol.OPTIONAL_END_MARKER)
+                if (v == Protocol.OPTIONAL_END_MARKER)
                 {
                     return true;
                 }
 
                 OptionalFormat format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
-                if((v >> 3) == 30)
+                if ((v >> 3) == 30)
                 {
                     skipSize();
                 }
@@ -2722,17 +2724,17 @@ namespace Ice
 
             try
             {
-                if(_classResolver != null)
+                if (_classResolver != null)
                 {
                     Type c = _classResolver(id);
-                    if(c != null)
+                    if (c != null)
                     {
                         Debug.Assert(!c.IsAbstract && !c.IsInterface);
                         userEx = (UserException)IceInternal.AssemblyUtil.createInstance(c);
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new MarshalException(ex);
             }
@@ -2747,7 +2749,7 @@ namespace Ice
 
         private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
 
-        abstract private class EncapsDecoder
+        private abstract class EncapsDecoder
         {
             protected struct PatchEntry
             {
@@ -2796,16 +2798,16 @@ namespace Ice
 
             protected string readTypeId(bool isIndex)
             {
-                if(_typeIdMap == null)
+                if (_typeIdMap == null)
                 {
                     _typeIdMap = new Dictionary<int, string>();
                 }
 
-                if(isIndex)
+                if (isIndex)
                 {
                     int index = _stream.readSize();
                     string typeId;
-                    if(!_typeIdMap.TryGetValue(index, out typeId))
+                    if (!_typeIdMap.TryGetValue(index, out typeId))
                     {
                         throw new UnmarshalOutOfBoundsException();
                     }
@@ -2822,7 +2824,7 @@ namespace Ice
             protected Type resolveClass(string typeId)
             {
                 Type cls = null;
-                if(_typeIdCache == null)
+                if (_typeIdCache == null)
                 {
                     _typeIdCache = new Dictionary<string, Type>(); // Lazy initialization.
                 }
@@ -2831,21 +2833,21 @@ namespace Ice
                     _typeIdCache.TryGetValue(typeId, out cls);
                 }
 
-                if(cls == typeof(EncapsDecoder)) // Marker for non-existent class.
+                if (cls == typeof(EncapsDecoder)) // Marker for non-existent class.
                 {
                     cls = null;
                 }
-                else if(cls == null)
+                else if (cls == null)
                 {
                     try
                     {
-                        if(_classResolver != null)
+                        if (_classResolver != null)
                         {
                             cls = _classResolver(typeId);
                             _typeIdCache.Add(typeId, cls != null ? cls : typeof(EncapsDecoder));
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         throw new NoValueFactoryException("no value factory", typeId, ex);
                     }
@@ -2861,7 +2863,7 @@ namespace Ice
                 //
                 var userFactory = _valueFactoryManager.find(typeId);
                 Value v = null;
-                if(userFactory != null)
+                if (userFactory != null)
                 {
                     v = userFactory(typeId);
                 }
@@ -2870,10 +2872,10 @@ namespace Ice
                 // If that fails, invoke the default factory if one has been
                 // registered.
                 //
-                if(v == null)
+                if (v == null)
                 {
                     userFactory = _valueFactoryManager.find("");
-                    if(userFactory != null)
+                    if (userFactory != null)
                     {
                         v = userFactory(typeId);
                     }
@@ -2882,18 +2884,18 @@ namespace Ice
                 //
                 // Last chance: try to instantiate the class dynamically.
                 //
-                if(v == null)
+                if (v == null)
                 {
                     Type cls = resolveClass(typeId);
 
-                    if(cls != null)
+                    if (cls != null)
                     {
                         try
                         {
                             Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
                             v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             throw new NoValueFactoryException("no value factory", typeId, ex);
                         }
@@ -2912,13 +2914,13 @@ namespace Ice
                 // just call the callback and we're done.
                 //
                 Value obj;
-                if(_unmarshaledMap.TryGetValue(index, out obj))
+                if (_unmarshaledMap.TryGetValue(index, out obj))
                 {
                     cb(obj);
                     return;
                 }
 
-                if(_patchMap == null)
+                if (_patchMap == null)
                 {
                     _patchMap = new Dictionary<int, LinkedList<PatchEntry>>();
                 }
@@ -2929,7 +2931,7 @@ namespace Ice
                 // unmarshaled.
                 //
                 LinkedList<PatchEntry> l;
-                if(!_patchMap.TryGetValue(index, out l))
+                if (!_patchMap.TryGetValue(index, out l))
                 {
                     //
                     // We have no outstanding instances to be patched for this
@@ -2958,20 +2960,20 @@ namespace Ice
                 //
                 v.iceRead(_stream);
 
-                if(_patchMap != null)
+                if (_patchMap != null)
                 {
                     //
                     // Patch all instances now that the instance is unmarshaled.
                     //
                     LinkedList<PatchEntry> l;
-                    if(_patchMap.TryGetValue(index, out l))
+                    if (_patchMap.TryGetValue(index, out l))
                     {
                         Debug.Assert(l.Count > 0);
 
                         //
                         // Patch all pointers that refer to the instance.
                         //
-                        foreach(PatchEntry entry in l)
+                        foreach (PatchEntry entry in l)
                         {
                             entry.cb(v);
                         }
@@ -2984,13 +2986,13 @@ namespace Ice
                     }
                 }
 
-                if((_patchMap == null || _patchMap.Count == 0) && _valueList == null)
+                if ((_patchMap == null || _patchMap.Count == 0) && _valueList == null)
                 {
                     try
                     {
                         v.ice_postUnmarshal();
                     }
-                    catch(System.Exception ex)
+                    catch (System.Exception ex)
                     {
                         string s = "exception raised by ice_postUnmarshal:\n" + ex;
                         _stream.instance().initializationData().logger.warning(s);
@@ -2998,13 +3000,13 @@ namespace Ice
                 }
                 else
                 {
-                    if(_valueList == null)
+                    if (_valueList == null)
                     {
                         _valueList = new List<Value>();
                     }
                     _valueList.Add(v);
 
-                    if(_patchMap == null || _patchMap.Count == 0)
+                    if (_patchMap == null || _patchMap.Count == 0)
                     {
                         //
                         // Iterate over the instance list and invoke ice_postUnmarshal on
@@ -3012,13 +3014,13 @@ namespace Ice
                         // unmarshaled in order to ensure that any instance data members
                         // have been properly patched.
                         //
-                        foreach(var p in _valueList)
+                        foreach (var p in _valueList)
                         {
                             try
                             {
                                 p.ice_postUnmarshal();
                             }
-                            catch(System.Exception ex)
+                            catch (System.Exception ex)
                             {
                                 string s = "exception raised by ice_postUnmarshal:\n" + ex;
                                 _stream.instance().initializationData().logger.warning(s);
@@ -3065,13 +3067,13 @@ namespace Ice
                 // Object references are encoded as a negative integer in 1.0.
                 //
                 int index = _stream.readInt();
-                if(index > 0)
+                if (index > 0)
                 {
                     throw new MarshalException("invalid object id");
                 }
                 index = -index;
 
-                if(index == 0)
+                if (index == 0)
                 {
                     cb(null);
                 }
@@ -3102,26 +3104,26 @@ namespace Ice
                 //
                 startSlice();
                 string mostDerivedId = _typeId;
-                while(true)
+                while (true)
                 {
                     UserException userEx = null;
 
                     //
                     // Use a factory if one was provided.
                     //
-                    if(factory != null)
+                    if (factory != null)
                     {
                         try
                         {
                             factory(_typeId);
                         }
-                        catch(UserException ex)
+                        catch (UserException ex)
                         {
                             userEx = ex;
                         }
                     }
 
-                    if(userEx == null)
+                    if (userEx == null)
                     {
                         userEx = _stream.createUserException(_typeId);
                     }
@@ -3129,10 +3131,10 @@ namespace Ice
                     //
                     // We found the exception.
                     //
-                    if(userEx != null)
+                    if (userEx != null)
                     {
                         userEx.iceRead(_stream);
-                        if(usesClasses)
+                        if (usesClasses)
                         {
                             readPendingValues();
                         }
@@ -3149,7 +3151,7 @@ namespace Ice
                     {
                         startSlice();
                     }
-                    catch(UnmarshalOutOfBoundsException ex)
+                    catch (UnmarshalOutOfBoundsException ex)
                     {
                         //
                         // An oversight in the 1.0 encoding means there is no marker to indicate
@@ -3176,11 +3178,11 @@ namespace Ice
                 //
                 // Read the Ice::Object slice.
                 //
-                if(_sliceType == SliceType.ValueSlice)
+                if (_sliceType == SliceType.ValueSlice)
                 {
                     startSlice();
                     int sz = _stream.readSize(); // For compatibility with the old AFM.
-                    if(sz != 0)
+                    if (sz != 0)
                     {
                         throw new MarshalException("invalid Object slice");
                     }
@@ -3197,7 +3199,7 @@ namespace Ice
                 // If first slice, don't read the header, it was already read in
                 // readInstance or throwException to find the factory.
                 //
-                if(_skipFirstSlice)
+                if (_skipFirstSlice)
                 {
                     _skipFirstSlice = false;
                     return _typeId;
@@ -3209,7 +3211,7 @@ namespace Ice
                 // index. For exceptions, the type ID is always encoded as a
                 // string.
                 //
-                if(_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
+                if (_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
                 {
                     bool isIndex = _stream.readBool();
                     _typeId = readTypeId(isIndex);
@@ -3220,7 +3222,7 @@ namespace Ice
                 }
 
                 _sliceSize = _stream.readInt();
-                if(_sliceSize < 4)
+                if (_sliceSize < 4)
                 {
                     throw new UnmarshalOutOfBoundsException();
                 }
@@ -3234,11 +3236,11 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if(_stream.instance().traceLevels().slicing > 0)
+                if (_stream.instance().traceLevels().slicing > 0)
                 {
                     Logger logger = _stream.instance().initializationData().logger;
                     string slicingCat = _stream.instance().traceLevels().slicingCat;
-                    if(_sliceType == SliceType.ValueSlice)
+                    if (_sliceType == SliceType.ValueSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
                     }
@@ -3258,14 +3260,14 @@ namespace Ice
                 do
                 {
                     num = _stream.readSize();
-                    for(int k = num; k > 0; --k)
+                    for (int k = num; k > 0; --k)
                     {
                         readInstance();
                     }
                 }
-                while(num > 0);
+                while (num > 0);
 
-                if(_patchMap != null && _patchMap.Count > 0)
+                if (_patchMap != null && _patchMap.Count > 0)
                 {
                     //
                     // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
@@ -3279,7 +3281,7 @@ namespace Ice
             {
                 int index = _stream.readInt();
 
-                if(index <= 0)
+                if (index <= 0)
                 {
                     throw new MarshalException("invalid object id");
                 }
@@ -3293,13 +3295,13 @@ namespace Ice
                 startSlice();
                 string mostDerivedId = _typeId;
                 Value v = null;
-                while(true)
+                while (true)
                 {
                     //
                     // For the 1.0 encoding, the type ID for the base Object class
                     // marks the last slice.
                     //
-                    if(_typeId.Equals(Value.ice_staticId()))
+                    if (_typeId.Equals(Value.ice_staticId()))
                     {
                         throw new NoValueFactoryException("", mostDerivedId);
                     }
@@ -3309,7 +3311,7 @@ namespace Ice
                     //
                     // We found a factory, we get out of this loop.
                     //
-                    if(v != null)
+                    if (v != null)
                     {
                         break;
                     }
@@ -3317,7 +3319,7 @@ namespace Ice
                     //
                     // If slicing is disabled, stop unmarshaling.
                     //
-                    if(!_sliceValues)
+                    if (!_sliceValues)
                     {
                         throw new NoValueFactoryException("no value factory found and slicing is disabled", _typeId);
                     }
@@ -3336,19 +3338,19 @@ namespace Ice
                 //
                 _classGraphDepth = 0;
                 LinkedList<PatchEntry> l;
-                if(_patchMap != null && _patchMap.TryGetValue(index, out l))
+                if (_patchMap != null && _patchMap.TryGetValue(index, out l))
                 {
                     Debug.Assert(l.Count > 0);
-                    foreach(PatchEntry entry in l)
+                    foreach (PatchEntry entry in l)
                     {
-                        if(entry.classGraphDepth > _classGraphDepth)
+                        if (entry.classGraphDepth > _classGraphDepth)
                         {
                             _classGraphDepth = entry.classGraphDepth;
                         }
                     }
                 }
 
-                if(++_classGraphDepth > _classGraphDepthMax)
+                if (++_classGraphDepth > _classGraphDepthMax)
                 {
                     throw new MarshalException("maximum class graph depth reached");
                 }
@@ -3382,18 +3384,18 @@ namespace Ice
             internal override void readValue(System.Action<Value> cb)
             {
                 int index = _stream.readSize();
-                if(index < 0)
+                if (index < 0)
                 {
                     throw new MarshalException("invalid object id");
                 }
-                else if(index == 0)
+                else if (index == 0)
                 {
-                    if(cb != null)
+                    if (cb != null)
                     {
                         cb(null);
                     }
                 }
-                else if(_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
                     //
                     // When reading an instance within a slice and there's an
@@ -3406,9 +3408,9 @@ namespace Ice
                     // derive an index into the indirection table that we'll read
                     // at the end of the slice.
                     //
-                    if(cb != null)
+                    if (cb != null)
                     {
-                        if(_current.indirectPatchList == null)
+                        if (_current.indirectPatchList == null)
                         {
                             _current.indirectPatchList = new Stack<IndirectPatchEntry>();
                         }
@@ -3435,26 +3437,26 @@ namespace Ice
                 //
                 startSlice();
                 string mostDerivedId = _current.typeId;
-                while(true)
+                while (true)
                 {
                     UserException userEx = null;
 
                     //
                     // Use a factory if one was provided.
                     //
-                    if(factory != null)
+                    if (factory != null)
                     {
                         try
                         {
                             factory(_current.typeId);
                         }
-                        catch(UserException ex)
+                        catch (UserException ex)
                         {
                             userEx = ex;
                         }
                     }
 
-                    if(userEx == null)
+                    if (userEx == null)
                     {
                         userEx = _stream.createUserException(_current.typeId);
                     }
@@ -3462,7 +3464,7 @@ namespace Ice
                     //
                     // We found the exception.
                     //
-                    if(userEx != null)
+                    if (userEx != null)
                     {
                         userEx.iceRead(_stream);
                         throw userEx;
@@ -3475,9 +3477,9 @@ namespace Ice
                     //
                     skipSlice();
 
-                    if((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                    if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                     {
-                        if(mostDerivedId.StartsWith("::", StringComparison.Ordinal))
+                        if (mostDerivedId.StartsWith("::", StringComparison.Ordinal))
                         {
                             throw new UnknownUserException(mostDerivedId.Substring(2));
                         }
@@ -3500,11 +3502,11 @@ namespace Ice
             internal override SlicedData endInstance(bool preserve)
             {
                 SlicedData slicedData = null;
-                if(preserve)
+                if (preserve)
                 {
                     slicedData = readSlicedData();
                 }
-                if(_current.slices != null)
+                if (_current.slices != null)
                 {
                     _current.slices.Clear();
                     _current.indirectionTables.Clear();
@@ -3519,7 +3521,7 @@ namespace Ice
                 // If first slice, don't read the header, it was already read in
                 // readInstance or throwException to find the factory.
                 //
-                if(_current.skipFirstSlice)
+                if (_current.skipFirstSlice)
                 {
                     _current.skipFirstSlice = false;
                     return _current.typeId;
@@ -3532,17 +3534,17 @@ namespace Ice
                 // string or as an index, for exceptions it's always encoded as a
                 // string.
                 //
-                if(_current.sliceType == SliceType.ValueSlice)
+                if (_current.sliceType == SliceType.ValueSlice)
                 {
                     //
                     // Must be checked first!
                     //
-                    if((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
+                    if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                     {
                         _current.typeId = "";
                         _current.compactId = _stream.readSize();
                     }
-                    else if((_current.sliceFlags &
+                    else if ((_current.sliceFlags &
                             (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
                     {
                         _current.typeId = readTypeId((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
@@ -3564,10 +3566,10 @@ namespace Ice
                 //
                 // Read the slice size if necessary.
                 //
-                if((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
                 {
                     _current.sliceSize = _stream.readInt();
-                    if(_current.sliceSize < 4)
+                    if (_current.sliceSize < 4)
                     {
                         throw new UnmarshalOutOfBoundsException();
                     }
@@ -3582,7 +3584,7 @@ namespace Ice
 
             internal override void endSlice()
             {
-                if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
                 {
                     _stream.skipOptionals();
                 }
@@ -3591,13 +3593,13 @@ namespace Ice
                 // Read the indirection table if one is present and transform the
                 // indirect patch list into patch entries with direct references.
                 //
-                if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
                     //
                     // The table is written as a sequence<size> to conserve space.
                     //
                     int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
-                    for(int i = 0; i < indirectionTable.Length; ++i)
+                    for (int i = 0; i < indirectionTable.Length; ++i)
                     {
                         indirectionTable[i] = readInstance(_stream.readSize(), null);
                     }
@@ -3607,11 +3609,11 @@ namespace Ice
                     // that not all instance references were read if they are from
                     // unknown optional data members.
                     //
-                    if(indirectionTable.Length == 0)
+                    if (indirectionTable.Length == 0)
                     {
                         throw new MarshalException("empty indirection table");
                     }
-                    if((_current.indirectPatchList == null || _current.indirectPatchList.Count == 0) &&
+                    if ((_current.indirectPatchList == null || _current.indirectPatchList.Count == 0) &&
                        (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0)
                     {
                         throw new MarshalException("no references to indirection table");
@@ -3620,12 +3622,12 @@ namespace Ice
                     //
                     // Convert indirect references into direct references.
                     //
-                    if(_current.indirectPatchList != null)
+                    if (_current.indirectPatchList != null)
                     {
-                        foreach(IndirectPatchEntry e in _current.indirectPatchList)
+                        foreach (IndirectPatchEntry e in _current.indirectPatchList)
                         {
                             Debug.Assert(e.index >= 0);
-                            if(e.index >= indirectionTable.Length)
+                            if (e.index >= indirectionTable.Length)
                             {
                                 throw new MarshalException("indirection out of range");
                             }
@@ -3638,11 +3640,11 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if(_stream.instance().traceLevels().slicing > 0)
+                if (_stream.instance().traceLevels().slicing > 0)
                 {
                     Logger logger = _stream.instance().initializationData().logger;
                     string slicingCat = _stream.instance().traceLevels().slicingCat;
-                    if(_current.sliceType == SliceType.ExceptionSlice)
+                    if (_current.sliceType == SliceType.ExceptionSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
                     }
@@ -3654,14 +3656,14 @@ namespace Ice
 
                 int start = _stream.pos();
 
-                if((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
                 {
                     Debug.Assert(_current.sliceSize >= 4);
                     _stream.skip(_current.sliceSize - 4);
                 }
                 else
                 {
-                    if(_current.sliceType == SliceType.ValueSlice)
+                    if (_current.sliceType == SliceType.ValueSlice)
                     {
                         throw new NoValueFactoryException("no value factory found and compact format prevents " +
                                                           "slicing (the sender should use the sliced format " +
@@ -3669,7 +3671,7 @@ namespace Ice
                     }
                     else
                     {
-                        if(_current.typeId.StartsWith("::", StringComparison.Ordinal))
+                        if (_current.typeId.StartsWith("::", StringComparison.Ordinal))
                         {
                             throw new UnknownUserException(_current.typeId.Substring(2));
                         }
@@ -3691,7 +3693,7 @@ namespace Ice
                 IceInternal.ByteBuffer b = _stream.getBuffer().b;
                 int end = b.position();
                 int dataEnd = end;
-                if(info.hasOptionalMembers)
+                if (info.hasOptionalMembers)
                 {
                     //
                     // Don't include the optional member end marker. It will be re-written by
@@ -3704,7 +3706,7 @@ namespace Ice
                 b.get(info.bytes);
                 b.position(end);
 
-                if(_current.slices == null)
+                if (_current.slices == null)
                 {
                     _current.slices = new List<SliceInfo>();
                     _current.indirectionTables = new List<int[]>();
@@ -3715,10 +3717,10 @@ namespace Ice
                 // IDs if the instance is a reference to an already unmarshaled
                 // instance.
                 //
-                if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
                     int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
-                    for(int i = 0; i < indirectionTable.Length; ++i)
+                    for (int i = 0; i < indirectionTable.Length; ++i)
                     {
                         indirectionTable[i] = readInstance(_stream.readSize(), null);
                     }
@@ -3734,11 +3736,11 @@ namespace Ice
 
             internal override bool readOptional(int readTag, OptionalFormat expectedFormat)
             {
-                if(_current == null)
+                if (_current == null)
                 {
                     return _stream.readOptImpl(readTag, expectedFormat);
                 }
-                else if((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+                else if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0)
                 {
                     return _stream.readOptImpl(readTag, expectedFormat);
                 }
@@ -3749,9 +3751,9 @@ namespace Ice
             {
                 Debug.Assert(index > 0);
 
-                if(index > 1)
+                if (index > 1)
                 {
-                    if(cb != null)
+                    if (cb != null)
                     {
                         addPatchEntry(index, cb);
                     }
@@ -3773,18 +3775,18 @@ namespace Ice
                 startSlice();
                 string mostDerivedId = _current.typeId;
                 Value v = null;
-                while(true)
+                while (true)
                 {
                     bool updateCache = false;
 
-                    if(_current.compactId >= 0)
+                    if (_current.compactId >= 0)
                     {
                         updateCache = true;
 
                         //
                         // Translate a compact (numeric) type ID into a class.
                         //
-                        if(_compactIdCache == null)
+                        if (_compactIdCache == null)
                         {
                             _compactIdCache = new Dictionary<int, Type>(); // Lazy initialization.
                         }
@@ -3795,7 +3797,7 @@ namespace Ice
                             //
                             Type cls = null;
                             _compactIdCache.TryGetValue(_current.compactId, out cls);
-                            if(cls != null)
+                            if (cls != null)
                             {
                                 try
                                 {
@@ -3803,7 +3805,7 @@ namespace Ice
                                     v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
                                     updateCache = false;
                                 }
-                                catch(Exception ex)
+                                catch (Exception ex)
                                 {
                                     throw new NoValueFactoryException("no value factory", "compact ID " +
                                                                       _current.compactId, ex);
@@ -3815,41 +3817,41 @@ namespace Ice
                         // If we haven't already cached a class for the compact ID, then try to translate the
                         // compact ID into a type ID.
                         //
-                        if(v == null)
+                        if (v == null)
                         {
                             _current.typeId = "";
-                            if(_compactIdResolver != null)
+                            if (_compactIdResolver != null)
                             {
                                 try
                                 {
                                     _current.typeId = _compactIdResolver(_current.compactId);
                                 }
-                                catch(LocalException)
+                                catch (LocalException)
                                 {
                                     throw;
                                 }
-                                catch(System.Exception ex)
+                                catch (System.Exception ex)
                                 {
                                     throw new MarshalException("exception in CompactIdResolver for ID " +
                                                                    _current.compactId, ex);
                                 }
                             }
 
-                            if(_current.typeId.Length == 0)
+                            if (_current.typeId.Length == 0)
                             {
                                 _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
                             }
                         }
                     }
 
-                    if(v == null && _current.typeId.Length > 0)
+                    if (v == null && _current.typeId.Length > 0)
                     {
                         v = newInstance(_current.typeId);
                     }
 
-                    if(v != null)
+                    if (v != null)
                     {
-                        if(updateCache)
+                        if (updateCache)
                         {
                             Debug.Assert(_current.compactId >= 0);
                             _compactIdCache.Add(_current.compactId, v.GetType());
@@ -3864,7 +3866,7 @@ namespace Ice
                     //
                     // If slicing is disabled, stop unmarshaling.
                     //
-                    if(!_sliceValues)
+                    if (!_sliceValues)
                     {
                         throw new NoValueFactoryException("no value factory found and slicing is disabled",
                                                           _current.typeId);
@@ -3879,7 +3881,7 @@ namespace Ice
                     // If this is the last slice, keep the instance as an opaque
                     // UnknownSlicedValue object.
                     //
-                    if((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
+                    if ((_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0)
                     {
                         //
                         // Provide a factory with an opportunity to supply the instance.
@@ -3887,7 +3889,7 @@ namespace Ice
                         // last chance to preserve the instance.
                         //
                         v = newInstance(Value.ice_staticId());
-                        if(v == null)
+                        if (v == null)
                         {
                             v = new UnknownSlicedValue(mostDerivedId);
                         }
@@ -3898,7 +3900,7 @@ namespace Ice
                     startSlice(); // Read next Slice header for next iteration.
                 }
 
-                if(++_classGraphDepth > _classGraphDepthMax)
+                if (++_classGraphDepth > _classGraphDepthMax)
                 {
                     throw new MarshalException("maximum class graph depth reached");
                 }
@@ -3910,7 +3912,7 @@ namespace Ice
 
                 --_classGraphDepth;
 
-                if(_current == null && _patchMap != null && _patchMap.Count > 0)
+                if (_current == null && _patchMap != null && _patchMap.Count > 0)
                 {
                     //
                     // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
@@ -3919,7 +3921,7 @@ namespace Ice
                     throw new MarshalException("index for class received, but no instance");
                 }
 
-                if(cb != null)
+                if (cb != null)
                 {
                     cb(v);
                 }
@@ -3928,7 +3930,7 @@ namespace Ice
 
             private SlicedData readSlicedData()
             {
-                if(_current.slices == null) // No preserved slices.
+                if (_current.slices == null) // No preserved slices.
                 {
                     return null;
                 }
@@ -3938,7 +3940,7 @@ namespace Ice
                 // in _slices.
                 //
                 Debug.Assert(_current.slices.Count == _current.indirectionTables.Count);
-                for(int n = 0; n < _current.slices.Count; ++n)
+                for (int n = 0; n < _current.slices.Count; ++n)
                 {
                     //
                     // We use the "instances" list in SliceInfo to hold references
@@ -3949,7 +3951,7 @@ namespace Ice
                     int[] table = _current.indirectionTables[n];
                     SliceInfo info = _current.slices[n];
                     info.instances = new Value[table != null ? table.Length : 0];
-                    for(int j = 0; j < info.instances.Length; ++j)
+                    for (int j = 0; j < info.instances.Length; ++j)
                     {
                         var cj = j;
                         addPatchEntry(table[j], (Ice.Value v) => info.instances[cj] = v);
@@ -3961,7 +3963,7 @@ namespace Ice
 
             private void push(SliceType sliceType)
             {
-                if(_current == null)
+                if (_current == null)
                 {
                     _current = new InstanceData(null);
                 }
@@ -3983,7 +3985,7 @@ namespace Ice
             {
                 internal InstanceData(InstanceData previous)
                 {
-                    if(previous != null)
+                    if (previous != null)
                     {
                         previous.next = this;
                     }
@@ -4053,10 +4055,10 @@ namespace Ice
 
         private void initEncaps()
         {
-            if(_encapsStack == null) // Lazy initialization
+            if (_encapsStack == null) // Lazy initialization
             {
                 _encapsStack = _encapsCache;
-                if(_encapsStack != null)
+                if (_encapsStack != null)
                 {
                     _encapsCache = _encapsCache.next;
                 }
@@ -4068,9 +4070,9 @@ namespace Ice
                 _encapsStack.sz = _buf.b.limit();
             }
 
-            if(_encapsStack.decoder == null) // Lazy initialization.
+            if (_encapsStack.decoder == null) // Lazy initialization.
             {
-                if(_encapsStack.encoding_1_0)
+                if (_encapsStack.encoding_1_0)
                 {
                     _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _classGraphDepthMax,
                                                                _valueFactoryManager, _classResolver);

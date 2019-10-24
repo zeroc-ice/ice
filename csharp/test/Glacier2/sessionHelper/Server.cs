@@ -15,7 +15,7 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
             communicator.getProperties().setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
             communicator.createObjectAdapter("DeactivatedAdapter");

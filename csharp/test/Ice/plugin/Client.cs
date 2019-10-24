@@ -31,7 +31,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.Plugin.Test",
                 pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
                 "'C:\\Program Files\\Application\\db'");
-            using(var communicator = initialize(properties))
+            using (var communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -47,7 +47,7 @@ public class Client : Test.TestHelper
                 initialize(properties);
                 test(false);
             }
-            catch(Ice.PluginInitializationException ex)
+            catch (Ice.PluginInitializationException ex)
             {
                 test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
             }
@@ -62,7 +62,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
             properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
             properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            using(var communicator = initialize(properties))
+            using (var communicator = initialize(properties))
             {
             }
             Console.WriteLine("ok");
@@ -80,7 +80,7 @@ public class Client : Test.TestHelper
             properties.setProperty("Ice.InitPlugins", "0");
 
             MyPlugin p4 = null;
-            using(var communicator = initialize(properties))
+            using (var communicator = initialize(properties))
             {
                 Ice.PluginManager pm = communicator.getPluginManager();
                 test(pm.getPlugin("PluginOne") != null);
@@ -111,7 +111,7 @@ public class Client : Test.TestHelper
                 properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
                 initialize(properties);
             }
-            catch(Ice.PluginInitializationException ex)
+            catch (Ice.PluginInitializationException ex)
             {
                 test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
             }

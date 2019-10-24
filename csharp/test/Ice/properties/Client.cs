@@ -33,7 +33,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing using Ice.Config with multiple config files... ");
             Console.Out.Flush();
-            string[] args1 = new string[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
+            string[] args1 = new string[] { "--Ice.Config=config/config.1, config/config.2, config/config.3" };
             Ice.Properties properties = Ice.Util.createProperties(ref args1);
             test(properties.getProperty("Config1").Equals("Config1"));
             test(properties.getProperty("Config2").Equals("Config2"));
@@ -44,7 +44,7 @@ public class Client : Test.TestHelper
         {
             Console.Out.Write("testing configuration file escapes... ");
             Console.Out.Flush();
-            string[] args1 = new string[]{"--Ice.Config=config/escapes.cfg"};
+            string[] args1 = new string[] { "--Ice.Config=config/escapes.cfg" };
             Ice.Properties properties = Ice.Util.createProperties(ref args1);
 
             string[] props = new string[]{"Foo\tBar", "3",
@@ -70,7 +70,7 @@ public class Client : Test.TestHelper
                                           "BServer", "\\server\\dir",
                                           ""};
 
-            for(int i = 0; props[i].Length > 0; i += 2)
+            for (int i = 0; props[i].Length > 0; i += 2)
             {
                 test(properties.getProperty(props[i]).Equals(props[i + 1]));
             }

@@ -20,7 +20,7 @@ namespace Ice
 
                 public override bool Equals(object obj)
                 {
-                    if(obj is SerializableClass)
+                    if (obj is SerializableClass)
                     {
                         return _v == (obj as SerializableClass)._v;
                     }

@@ -37,7 +37,7 @@ public class Client : Test.TestHelper
         properties.setProperty("Ice.Default.Protocol",
                                "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
 
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             PluginI plugin = new PluginI(communicator);
             plugin.initialize();

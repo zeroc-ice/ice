@@ -30,25 +30,25 @@ namespace IceInternal
             // entry and the thread will take care of getting the endpoint addresses.
             //
             NetworkProxy networkProxy = _instance.networkProxy();
-            if(networkProxy == null)
+            if (networkProxy == null)
             {
                 try
                 {
                     List<EndPoint> addrs = Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
-                    if(addrs.Count > 0)
+                    if (addrs.Count > 0)
                     {
                         callback.connectors(endpoint.connectors(addrs, null));
                         return;
                     }
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
                     callback.exception(ex);
                     return;
                 }
             }
 
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
 
@@ -60,10 +60,10 @@ namespace IceInternal
                 entry.callback = callback;
 
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
-                if(obsv != null)
+                if (obsv != null)
                 {
                     entry.observer = obsv.getEndpointLookupObserver(endpoint);
-                    if(entry.observer != null)
+                    if (entry.observer != null)
                     {
                         entry.observer.attach();
                     }
@@ -76,7 +76,7 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            lock (this)
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
@@ -86,7 +86,7 @@ namespace IceInternal
 
         public void joinWithThread()
         {
-            if(_thread != null)
+            if (_thread != null)
             {
                 _thread.Join();
             }
@@ -94,19 +94,19 @@ namespace IceInternal
 
         public void run()
         {
-            while(true)
+            while (true)
             {
                 ResolveEntry r;
                 Ice.Instrumentation.ThreadObserver threadObserver;
 
-                lock(this)
+                lock (this)
                 {
-                    while(!_destroyed && _queue.Count == 0)
+                    while (!_destroyed && _queue.Count == 0)
                     {
                         Monitor.Wait(this);
                     }
 
-                    if(_destroyed)
+                    if (_destroyed)
                     {
                         break;
                     }
@@ -116,7 +116,7 @@ namespace IceInternal
                     threadObserver = _observer;
                 }
 
-                if(threadObserver != null)
+                if (threadObserver != null)
                 {
                     threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                 Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
@@ -127,17 +127,17 @@ namespace IceInternal
 
                     NetworkProxy networkProxy = _instance.networkProxy();
                     int protocol = _protocol;
-                    if(networkProxy != null)
+                    if (networkProxy != null)
                     {
                         networkProxy = networkProxy.resolveHost(protocol);
-                        if(networkProxy != null)
+                        if (networkProxy != null)
                         {
                             protocol = networkProxy.getProtocolSupport();
                         }
                     }
 
                     List<EndPoint> addrs = Network.getAddresses(r.host, r.port, protocol, r.selType, _preferIPv6, true);
-                    if(r.observer != null)
+                    if (r.observer != null)
                     {
                         r.observer.detach();
                         r.observer = null;
@@ -145,9 +145,9 @@ namespace IceInternal
 
                     r.callback.connectors(r.endpoint.connectors(addrs, networkProxy));
                 }
-                catch(Ice.LocalException ex)
+                catch (Ice.LocalException ex)
                 {
-                    if(r.observer != null)
+                    if (r.observer != null)
                     {
                         r.observer.failed(ex.ice_id());
                         r.observer.detach();
@@ -156,7 +156,7 @@ namespace IceInternal
                 }
                 finally
                 {
-                    if(threadObserver != null)
+                    if (threadObserver != null)
                     {
                         threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                     Ice.Instrumentation.ThreadState.ThreadStateIdle);
@@ -164,10 +164,10 @@ namespace IceInternal
                 }
             }
 
-            foreach(ResolveEntry entry in _queue)
+            foreach (ResolveEntry entry in _queue)
             {
                 Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
-                if(entry.observer != null)
+                if (entry.observer != null)
                 {
                     entry.observer.failed(ex.ice_id());
                     entry.observer.detach();
@@ -176,7 +176,7 @@ namespace IceInternal
             }
             _queue.Clear();
 
-            if(_observer != null)
+            if (_observer != null)
             {
                 _observer.detach();
             }
@@ -185,16 +185,16 @@ namespace IceInternal
         public void
         updateObserver()
         {
-            lock(this)
+            lock (this)
             {
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
-                if(obsv != null)
+                if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
                                                        _thread.getName(),
                                                        Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                        _observer);
-                    if(_observer != null)
+                    if (_observer != null)
                     {
                         _observer.attach();
                     }
@@ -225,7 +225,7 @@ namespace IceInternal
             {
                 _resolver = resolver;
                 _name = _resolver._instance.initializationData().properties.getProperty("Ice.ProgramName");
-                if(_name.Length > 0)
+                if (_name.Length > 0)
                 {
                     _name += "-";
                 }
@@ -252,7 +252,7 @@ namespace IceInternal
                 {
                     _resolver.run();
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     string s = "exception in endpoint host resolver thread " + _name + ":\n" + ex;
                     _resolver._instance.initializationData().logger.error(s);

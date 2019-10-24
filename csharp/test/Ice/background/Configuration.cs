@@ -6,7 +6,7 @@ internal class Configuration
 {
     public void connectorsException(Ice.LocalException ex)
     {
-        lock(this)
+        lock (this)
         {
             _connectorsException = ex;
         }
@@ -14,9 +14,9 @@ internal class Configuration
 
     public void checkConnectorsException()
     {
-        lock(this)
+        lock (this)
         {
-            if(_connectorsException != null)
+            if (_connectorsException != null)
             {
                 throw _connectorsException;
             }
@@ -25,7 +25,7 @@ internal class Configuration
 
     public void connectException(Ice.LocalException ex)
     {
-        lock(this)
+        lock (this)
         {
             _connectException = ex;
         }
@@ -33,9 +33,9 @@ internal class Configuration
 
     public void checkConnectException()
     {
-        lock(this)
+        lock (this)
         {
-            if(_connectException != null)
+            if (_connectException != null)
             {
                 throw _connectException;
             }
@@ -44,7 +44,7 @@ internal class Configuration
 
     public void initializeException(Ice.LocalException ex)
     {
-        lock(this)
+        lock (this)
         {
             _initializeException = ex;
         }
@@ -52,9 +52,9 @@ internal class Configuration
 
     public void checkInitializeException()
     {
-        lock(this)
+        lock (this)
         {
-            if(_initializeException != null)
+            if (_initializeException != null)
             {
                 throw _initializeException;
             }
@@ -63,7 +63,7 @@ internal class Configuration
 
     public void readReady(bool ready)
     {
-        lock(this)
+        lock (this)
         {
             _readReadyCount = ready ? 0 : 10;
         }
@@ -71,7 +71,7 @@ internal class Configuration
 
     public void readException(Ice.LocalException ex)
     {
-        lock(this)
+        lock (this)
         {
             _readException = ex;
         }
@@ -79,9 +79,9 @@ internal class Configuration
 
     public bool readReady()
     {
-        lock(this)
+        lock (this)
         {
-            if(_readReadyCount == 0)
+            if (_readReadyCount == 0)
             {
                 return true;
             }
@@ -92,9 +92,9 @@ internal class Configuration
 
     public void checkReadException()
     {
-        lock(this)
+        lock (this)
         {
-            if(_readException != null)
+            if (_readException != null)
             {
                 throw _readException;
             }
@@ -103,7 +103,7 @@ internal class Configuration
 
     public void writeReady(bool ready)
     {
-        lock(this)
+        lock (this)
         {
             _writeReadyCount = ready ? 0 : 10;
         }
@@ -111,7 +111,7 @@ internal class Configuration
 
     public void writeException(Ice.LocalException ex)
     {
-        lock(this)
+        lock (this)
         {
             _writeException = ex;
         }
@@ -119,9 +119,9 @@ internal class Configuration
 
     public bool writeReady()
     {
-        lock(this)
+        lock (this)
         {
-            if(_writeReadyCount == 0)
+            if (_writeReadyCount == 0)
             {
                 return true;
             }
@@ -132,9 +132,9 @@ internal class Configuration
 
     public void checkWriteException()
     {
-        lock(this)
+        lock (this)
         {
-            if(_writeException != null)
+            if (_writeException != null)
             {
                 throw _writeException;
             }

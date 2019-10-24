@@ -19,7 +19,7 @@ namespace Ice
             protected static void
             test(bool b)
             {
-                if(!b)
+                if (!b)
                 {
                     throw new System.Exception();
                 }
@@ -31,17 +31,17 @@ namespace Ice
                 Ice.Current current = request.getCurrent();
 
                 string context;
-                if(current.ctx.TryGetValue("raiseBeforeDispatch", out context))
+                if (current.ctx.TryGetValue("raiseBeforeDispatch", out context))
                 {
-                    if(context.Equals("user"))
+                    if (context.Equals("user"))
                     {
                         throw new Test.InvalidInputException();
                     }
-                    else if(context.Equals("notExist"))
+                    else if (context.Equals("notExist"))
                     {
                         throw new Ice.ObjectNotExistException();
                     }
-                    else if(context.Equals("system"))
+                    else if (context.Equals("system"))
                     {
                         throw new MySystemException();
                     }
@@ -49,14 +49,14 @@ namespace Ice
 
                 lastOperation_ = current.operation;
 
-                if(lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
+                if (lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
                 {
-                    for(int i = 0; i < 10; ++i)
+                    for (int i = 0; i < 10; ++i)
                     {
                         try
                         {
                             var t = servant_.ice_dispatch(request);
-                            if(t != null && t.IsFaulted)
+                            if (t != null && t.IsFaulted)
                             {
                                 throw t.Exception.InnerException;
                             }
@@ -65,7 +65,7 @@ namespace Ice
                                 test(false);
                             }
                         }
-                        catch(Test.RetryException)
+                        catch (Test.RetryException)
                         {
                             //
                             // Expected, retry
@@ -75,7 +75,7 @@ namespace Ice
 
                     current.ctx["retry"] = "no";
                 }
-                else if(current.ctx.TryGetValue("retry", out context) && context.Equals("yes"))
+                else if (current.ctx.TryGetValue("retry", out context) && context.Equals("yes"))
                 {
                     //
                     // Retry the dispatch to ensure that abandoning the result of the dispatch
@@ -88,17 +88,17 @@ namespace Ice
                 var task = servant_.ice_dispatch(request);
                 lastStatus_ = task != null;
 
-                if(current.ctx.TryGetValue("raiseAfterDispatch", out context))
+                if (current.ctx.TryGetValue("raiseAfterDispatch", out context))
                 {
-                    if(context.Equals("user"))
+                    if (context.Equals("user"))
                     {
                         throw new Test.InvalidInputException();
                     }
-                    else if(context.Equals("notExist"))
+                    else if (context.Equals("notExist"))
                     {
                         throw new Ice.ObjectNotExistException();
                     }
-                    else if(context.Equals("system"))
+                    else if (context.Equals("system"))
                     {
                         throw new MySystemException();
                     }

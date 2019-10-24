@@ -7,7 +7,7 @@ namespace IceDiscovery
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    class LocatorRegistryI : Ice.LocatorRegistryDisp_
+    internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     {
         public
         LocatorRegistryI(Ice.Communicator com)
@@ -18,9 +18,9 @@ namespace IceDiscovery
         public override Task
         setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
         {
-            lock(this)
+            lock (this)
             {
-                if(proxy != null)
+                if (proxy != null)
                 {
                     _adapters.Add(adapterId, proxy);
                 }
@@ -36,13 +36,13 @@ namespace IceDiscovery
         setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.ObjectPrx proxy,
                                              Ice.Current current)
         {
-            lock(this)
+            lock (this)
             {
-                if(proxy != null)
+                if (proxy != null)
                 {
                     _adapters.Add(adapterId, proxy);
                     HashSet<string> adapterIds;
-                    if(!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                    if (!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
                     {
                         adapterIds = new HashSet<string>();
                         _replicaGroups.Add(replicaGroupId, adapterIds);
@@ -53,10 +53,10 @@ namespace IceDiscovery
                 {
                     _adapters.Remove(adapterId);
                     HashSet<string> adapterIds;
-                    if(_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                    if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
                     {
                         adapterIds.Remove(adapterId);
-                        if(adapterIds.Count == 0)
+                        if (adapterIds.Count == 0)
                         {
                             _replicaGroups.Remove(replicaGroupId);
                         }
@@ -74,9 +74,9 @@ namespace IceDiscovery
 
         internal Ice.ObjectPrx findObject(Ice.Identity id)
         {
-            lock(this)
+            lock (this)
             {
-                if(id.name.Length == 0)
+                if (id.name.Length == 0)
                 {
                     return null;
                 }
@@ -84,33 +84,33 @@ namespace IceDiscovery
                 Ice.ObjectPrx prx = _wellKnownProxy.ice_identity(id);
 
                 List<string> adapterIds = new List<string>();
-                foreach(KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
+                foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
                 {
                     try
                     {
                         prx.ice_adapterId(entry.Key).ice_ping();
                         adapterIds.Add(entry.Key);
                     }
-                    catch(Ice.Exception)
+                    catch (Ice.Exception)
                     {
                     }
                 }
-                if(adapterIds.Count == 0)
+                if (adapterIds.Count == 0)
                 {
-                    foreach(KeyValuePair<string, Ice.ObjectPrx> entry in _adapters)
+                    foreach (KeyValuePair<string, Ice.ObjectPrx> entry in _adapters)
                     {
                         try
                         {
                             prx.ice_adapterId(entry.Key).ice_ping();
                             adapterIds.Add(entry.Key);
                         }
-                        catch(Ice.Exception)
+                        catch (Ice.Exception)
                         {
                         }
                     }
                 }
 
-                if(adapterIds.Count == 0)
+                if (adapterIds.Count == 0)
                 {
                     return null;
                 }
@@ -121,28 +121,28 @@ namespace IceDiscovery
 
         internal Ice.ObjectPrx findAdapter(string adapterId, out bool isReplicaGroup)
         {
-            lock(this)
+            lock (this)
             {
                 Ice.ObjectPrx result = null;
-                if(_adapters.TryGetValue(adapterId, out result))
+                if (_adapters.TryGetValue(adapterId, out result))
                 {
                     isReplicaGroup = false;
                     return result;
                 }
 
                 HashSet<string> adapterIds;
-                if(_replicaGroups.TryGetValue(adapterId, out adapterIds))
+                if (_replicaGroups.TryGetValue(adapterId, out adapterIds))
                 {
                     List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
-                    foreach(string a in adapterIds)
+                    foreach (string a in adapterIds)
                     {
                         Ice.ObjectPrx proxy;
-                        if(!_adapters.TryGetValue(a, out proxy))
+                        if (!_adapters.TryGetValue(a, out proxy))
                         {
                             continue; // TODO: Inconsistency
                         }
 
-                        if(result == null)
+                        if (result == null)
                         {
                             result = proxy;
                         }
@@ -150,7 +150,7 @@ namespace IceDiscovery
                         endpoints.AddRange(proxy.ice_getEndpoints());
                     }
 
-                    if(result != null)
+                    if (result != null)
                     {
                         isReplicaGroup = true;
                         return result.ice_endpoints(endpoints.ToArray());
@@ -167,7 +167,7 @@ namespace IceDiscovery
         private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
     };
 
-    class LocatorI : Ice.LocatorDisp_
+    internal class LocatorI : Ice.LocatorDisp_
     {
         public LocatorI(LookupI lookup, Ice.LocatorRegistryPrx registry)
         {
@@ -194,5 +194,5 @@ namespace IceDiscovery
 
         private LookupI _lookup;
         private Ice.LocatorRegistryPrx _registry;
-   };
+    };
 }

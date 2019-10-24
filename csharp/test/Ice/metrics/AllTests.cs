@@ -20,7 +20,7 @@ public class AllTests : Test.AllTests
             long timestamp;
             s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
             int nRetry = 30;
-            while(s.sentBytes != expected && nRetry-- > 0)
+            while (s.sentBytes != expected && nRetry-- > 0)
             {
                 // On some platforms, it's necessary to wait a little before obtaining the server metrics
                 // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
@@ -31,7 +31,7 @@ public class AllTests : Test.AllTests
             }
             return s;
         }
-        catch(IceMX.UnknownMetricsView)
+        catch (IceMX.UnknownMetricsView)
         {
             Debug.Assert(false);
             return null;
@@ -47,7 +47,7 @@ public class AllTests : Test.AllTests
 
         public void response()
         {
-            lock(this)
+            lock (this)
             {
                 _wait = false;
                 Monitor.Pulse(this);
@@ -61,9 +61,9 @@ public class AllTests : Test.AllTests
 
         public void waitForResponse()
         {
-            lock(this)
+            lock (this)
             {
-                while(_wait)
+                while (_wait)
                 {
                     Monitor.Wait(this);
                 }
@@ -84,16 +84,16 @@ public class AllTests : Test.AllTests
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");
-        foreach(string e in new List<string>(props.Keys))
+        foreach (string e in new List<string>(props.Keys))
         {
             props[e] = "";
         }
-        foreach(KeyValuePair<string, string> e in orig)
+        foreach (KeyValuePair<string, string> e in orig)
         {
             props[e.Key] = e.Value;
         }
         string map = "";
-        if(m.Length > 0)
+        if (m.Length > 0)
         {
             map += "Map." + m + '.';
         }
@@ -104,19 +104,19 @@ public class AllTests : Test.AllTests
     }
 
     static private Dictionary<string, string>
-    getServerProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig , string m)
+    getServerProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");
-        foreach(string e in new List<string>(props.Keys))
+        foreach (string e in new List<string>(props.Keys))
         {
             props[e] = "";
         }
-        foreach(KeyValuePair<string, string> e in orig)
+        foreach (KeyValuePair<string, string> e in orig)
         {
             props[e.Key] = e.Value;
         }
         string map = "";
-        if(m.Length > 0)
+        if (m.Length > 0)
         {
             map += "Map." + m + '.';
         }
@@ -136,9 +136,9 @@ public class AllTests : Test.AllTests
         public void
         waitForUpdate()
         {
-            lock(this)
+            lock (this)
             {
-                while(!_updated)
+                while (!_updated)
                 {
                     Monitor.Wait(this);
                 }
@@ -150,7 +150,7 @@ public class AllTests : Test.AllTests
             // completed.
             _serverProps.setProperties(new Dictionary<string, string>());
 
-            lock(this)
+            lock (this)
             {
                 _updated = false;
             }
@@ -159,7 +159,7 @@ public class AllTests : Test.AllTests
         public void
         updated(Dictionary<string, string> dict)
         {
-            lock(this)
+            lock (this)
             {
                 _updated = true;
                 Monitor.Pulse(this);
@@ -173,21 +173,21 @@ public class AllTests : Test.AllTests
     static void
     waitForCurrent(IceMX.MetricsAdminPrx metrics, string viewName, string map, int value)
     {
-        while(true)
+        while (true)
         {
             long timestamp;
             Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView(viewName, out timestamp);
             test(view.ContainsKey(map));
             bool ok = true;
-            foreach(IceMX.Metrics m in view[map])
+            foreach (IceMX.Metrics m in view[map])
             {
-                if(m.current != value)
+                if (m.current != value)
                 {
                     ok = false;
                     break;
                 }
             }
-            if(ok)
+            if (ok)
             {
                 break;
             }
@@ -198,9 +198,9 @@ public class AllTests : Test.AllTests
     static void
     waitForObserverCurrent(ObserverI observer, int value)
     {
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
-            if(observer.getCurrent() > 0)
+            if (observer.getCurrent() > 0)
             {
                 Thread.Sleep(10);
             }
@@ -223,7 +223,7 @@ public class AllTests : Test.AllTests
     {
         Dictionary<string, string> dict = new Dictionary<string, string>();
         dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
-        if(props.ice_getIdentity().category.Equals("client"))
+        if (props.ice_getIdentity().category.Equals("client"))
         {
             props.setProperties(getClientProps(props, dict, map));
             update.waitForUpdate();
@@ -237,22 +237,22 @@ public class AllTests : Test.AllTests
         func();
         long timestamp;
         Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
-        if(!view.ContainsKey(map) || view[map].Length == 0)
+        if (!view.ContainsKey(map) || view[map].Length == 0)
         {
-            if(value.Length > 0)
+            if (value.Length > 0)
             {
                 output.WriteLine("no map `" + map + "' for group by = `" + attr + "'");
                 test(false);
             }
         }
-        else if(!view[map][0].id.Equals(value))
+        else if (!view[map][0].id.Equals(value))
         {
             output.WriteLine("invalid attribute value: " + attr + " = " + value + " got " + view[map][0].id);
             test(false);
         }
 
         dict.Clear();
-        if(props.ice_getIdentity().category.Equals("client"))
+        if (props.ice_getIdentity().category.Equals("client"))
         {
             props.setProperties(getClientProps(props, dict, map));
             update.waitForUpdate();
@@ -266,7 +266,7 @@ public class AllTests : Test.AllTests
 
     static void connect(Ice.ObjectPrx proxy)
     {
-        if(proxy.ice_getCachedConnection() != null)
+        if (proxy.ice_getCachedConnection() != null)
         {
             proxy.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         }
@@ -275,11 +275,11 @@ public class AllTests : Test.AllTests
         {
             proxy.ice_ping();
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
         }
 
-        if(proxy.ice_getCachedConnection() != null)
+        if (proxy.ice_getCachedConnection() != null)
         {
             proxy.ice_getCachedConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         }
@@ -302,7 +302,7 @@ public class AllTests : Test.AllTests
                   string value,
                   TextWriter output)
     {
-        testAttribute(metrics, props, update, map, attr, value, ()=> {}, output);
+        testAttribute(metrics, props, update, map, attr, value, () => { }, output);
     }
 
     static void
@@ -312,7 +312,7 @@ public class AllTests : Test.AllTests
                 Dictionary<string, string> props,
                 string map)
     {
-        if(sprops.ice_getConnection() != null)
+        if (sprops.ice_getConnection() != null)
         {
             cprops.setProperties(getClientProps(cprops, props, map));
             sprops.setProperties(getServerProps(sprops, props, map));
@@ -321,9 +321,9 @@ public class AllTests : Test.AllTests
         {
             Dictionary<string, string> clientProps = getClientProps(cprops, props, map);
             Dictionary<string, string> serverProps = getClientProps(sprops, props, map);
-            foreach(KeyValuePair<string, string> p in clientProps)
+            foreach (KeyValuePair<string, string> p in clientProps)
             {
-                if(!serverProps.ContainsKey(p.Key))
+                if (!serverProps.ContainsKey(p.Key))
                 {
                     serverProps.Add(p.Key, p.Value);
                 }
@@ -363,12 +363,12 @@ public class AllTests : Test.AllTests
     checkFailure(IceMX.MetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
     {
         IceMX.MetricsFailures f = m.getMetricsFailures("View", map, id);
-        if(!f.failures.ContainsKey(failure))
+        if (!f.failures.ContainsKey(failure))
         {
             output.WriteLine("couldn't find failure `" + failure + "' for `" + id + "'");
             test(false);
         }
-        if(count > 0 && f.failures[failure] != count)
+        if (count > 0 && f.failures[failure] != count)
         {
             output.Write("count for failure `" + failure + "' of `" + id + "' is different from expected: ");
             output.WriteLine(count + " != " + f.failures[failure]);
@@ -380,7 +380,7 @@ public class AllTests : Test.AllTests
     toMap(IceMX.Metrics[] mmap)
     {
         Dictionary<string, IceMX.Metrics> m = new Dictionary<string, IceMX.Metrics>();
-        foreach(IceMX.Metrics e in mmap)
+        foreach (IceMX.Metrics e in mmap)
         {
             m.Add(e.id, e);
         }
@@ -427,7 +427,7 @@ public class AllTests : Test.AllTests
         updateProps(clientProps, serverProps, update, props, "");
         long timestamp;
         Dictionary<string, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", out timestamp);
-        if(!collocated)
+        if (!collocated)
         {
             test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
                  view["Connection"][0].total == 1);
@@ -452,7 +452,7 @@ public class AllTests : Test.AllTests
 
         view = clientMetrics.getMetricsView("View", out timestamp);
         test(view["Thread"].Length == 5);
-        if(!collocated)
+        if (!collocated)
         {
             test(view["Connection"].Length == 2);
         }
@@ -461,7 +461,7 @@ public class AllTests : Test.AllTests
         IceMX.InvocationMetrics invoke = (IceMX.InvocationMetrics)view["Invocation"][0];
 
         test(invoke.id.IndexOf("[ice_ping]") > 0 && invoke.current == 0 && invoke.total == 5);
-        if(!collocated)
+        if (!collocated)
         {
             test(invoke.remotes.Length == 2);
             test(invoke.remotes[0].total >= 2 && invoke.remotes[1].total >= 2);
@@ -476,7 +476,7 @@ public class AllTests : Test.AllTests
         view = serverMetrics.getMetricsView("View", out timestamp);
         // With Ice for .NET, a new dispatching thread isn't necessarily created.
         //test(view["Thread"].Length > 5);
-        if(!collocated)
+        if (!collocated)
         {
             test(view["Connection"].Length == 2);
         }
@@ -484,7 +484,7 @@ public class AllTests : Test.AllTests
         test(view["Dispatch"][0].current == 0 && view["Dispatch"][0].total == 5);
         test(view["Dispatch"][0].id.IndexOf("[ice_ping]") > 0);
 
-        if(!collocated)
+        if (!collocated)
         {
             metrics.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             metrics.ice_connectionId("Con1").ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
@@ -499,16 +499,16 @@ public class AllTests : Test.AllTests
 
         string type = "";
         string isSecure = "";
-        if(!collocated)
+        if (!collocated)
         {
             Ice.EndpointInfo endpointInfo = metrics.ice_getConnection().getEndpoint().getInfo();
             type = endpointInfo.type().ToString();
-            isSecure = endpointInfo.secure() ? "True": "False";
+            isSecure = endpointInfo.secure() ? "True" : "False";
         }
 
         Dictionary<string, IceMX.Metrics> map;
 
-        if(!collocated)
+        if (!collocated)
         {
             output.Write("testing connection metrics... ");
             output.Flush();
@@ -614,16 +614,16 @@ public class AllTests : Test.AllTests
                 ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[10000000]);
                 test(false);
             }
-            catch(Ice.TimeoutException)
+            catch (Ice.TimeoutException)
             {
             }
             controller.resume();
 
             cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
-            while(true)
+            while (true)
             {
                 sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
-                if(sm1.failures >= 2)
+                if (sm1.failures >= 2)
                 {
                     break;
                 }
@@ -688,10 +688,10 @@ public class AllTests : Test.AllTests
                 communicator.stringToProxy("test:tcp -h 127.0.0.1 -p " + port).ice_timeout(10).ice_ping();
                 test(false);
             }
-            catch(Ice.ConnectTimeoutException)
+            catch (Ice.ConnectTimeoutException)
             {
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 test(false);
             }
@@ -735,7 +735,7 @@ public class AllTests : Test.AllTests
                 prx.ice_ping();
                 prx.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
             }
 
@@ -749,23 +749,23 @@ public class AllTests : Test.AllTests
                 communicator.stringToProxy("test:tcp -t 500 -h unknownfoo.zeroc.com -p " + port).ice_ping();
                 test(false);
             }
-            catch(Ice.DNSException)
+            catch (Ice.DNSException)
             {
                 dnsException = true;
             }
-            catch(Ice.LocalException)
+            catch (Ice.LocalException)
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-            if(!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
+            if (!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
             {
                 m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
             }
             test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.total == 2 &&
                  (!dnsException || m1.failures == 2));
-            if(dnsException)
+            if (dnsException)
             {
                 checkFailure(clientMetrics, "EndpointLookup", m1.id, "::Ice::DNSException", 2, output);
             }
@@ -801,7 +801,7 @@ public class AllTests : Test.AllTests
             metrics.opWithUserException();
             test(false);
         }
-        catch(UserEx)
+        catch (UserEx)
         {
         }
         try
@@ -809,7 +809,7 @@ public class AllTests : Test.AllTests
             metrics.opWithRequestFailedException();
             test(false);
         }
-        catch(Ice.RequestFailedException)
+        catch (Ice.RequestFailedException)
         {
         }
         try
@@ -817,7 +817,7 @@ public class AllTests : Test.AllTests
             metrics.opWithLocalException();
             test(false);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
         }
         try
@@ -825,17 +825,17 @@ public class AllTests : Test.AllTests
             metrics.opWithUnknownException();
             test(false);
         }
-        catch(Ice.UnknownException)
+        catch (Ice.UnknownException)
         {
         }
-        if(!collocated)
+        if (!collocated)
         {
             try
             {
                 metrics.fail();
                 test(false);
             }
-            catch(Ice.ConnectionLostException)
+            catch (Ice.ConnectionLostException)
             {
             }
         }
@@ -871,7 +871,7 @@ public class AllTests : Test.AllTests
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, output);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op, output);
 
-        if(!collocated)
+        if (!collocated)
         {
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
                           endpoint + " -t 60000", op, output);
@@ -931,7 +931,7 @@ public class AllTests : Test.AllTests
             metrics.opWithUserException();
             test(false);
         }
-        catch(UserEx)
+        catch (UserEx)
         {
         }
         try
@@ -939,7 +939,7 @@ public class AllTests : Test.AllTests
             metrics.end_opWithUserException(metrics.begin_opWithUserException());
             test(false);
         }
-        catch(UserEx)
+        catch (UserEx)
         {
         }
         metrics.begin_opWithUserException().whenCompleted(cb.response, cb.exception);
@@ -950,7 +950,7 @@ public class AllTests : Test.AllTests
             metrics.opWithRequestFailedException();
             test(false);
         }
-        catch(Ice.RequestFailedException)
+        catch (Ice.RequestFailedException)
         {
         }
         try
@@ -958,7 +958,7 @@ public class AllTests : Test.AllTests
             metrics.end_opWithRequestFailedException(metrics.begin_opWithRequestFailedException());
             test(false);
         }
-        catch(Ice.RequestFailedException)
+        catch (Ice.RequestFailedException)
         {
         }
         metrics.begin_opWithRequestFailedException().whenCompleted(cb.response, cb.exception);
@@ -969,7 +969,7 @@ public class AllTests : Test.AllTests
             metrics.opWithLocalException();
             test(false);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
         }
         try
@@ -977,7 +977,7 @@ public class AllTests : Test.AllTests
             metrics.end_opWithLocalException(metrics.begin_opWithLocalException());
             test(false);
         }
-        catch(Ice.LocalException)
+        catch (Ice.LocalException)
         {
         }
         metrics.begin_opWithLocalException().whenCompleted(cb.response, cb.exception);
@@ -988,7 +988,7 @@ public class AllTests : Test.AllTests
             metrics.opWithUnknownException();
             test(false);
         }
-        catch(Ice.UnknownException)
+        catch (Ice.UnknownException)
         {
         }
         try
@@ -996,20 +996,20 @@ public class AllTests : Test.AllTests
             metrics.end_opWithUnknownException(metrics.begin_opWithUnknownException());
             test(false);
         }
-        catch(Ice.UnknownException)
+        catch (Ice.UnknownException)
         {
         }
         metrics.begin_opWithUnknownException().whenCompleted(cb.response, cb.exception);
         cb.waitForResponse();
 
-        if(!collocated)
+        if (!collocated)
         {
             try
             {
                 metrics.fail();
                 test(false);
             }
-            catch(Ice.ConnectionLostException)
+            catch (Ice.ConnectionLostException)
             {
             }
             try
@@ -1017,7 +1017,7 @@ public class AllTests : Test.AllTests
                 metrics.end_fail(metrics.begin_fail());
                 test(false);
             }
-            catch(Ice.ConnectionLostException)
+            catch (Ice.ConnectionLostException)
             {
             }
             metrics.begin_fail().whenCompleted(cb.response, cb.exception);
@@ -1068,7 +1068,7 @@ public class AllTests : Test.AllTests
         test(rim1.size == 123 && rim1.replySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownException", 3, output);
 
-        if(!collocated)
+        if (!collocated)
         {
             im1 = (IceMX.InvocationMetrics)map["fail"];
             test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 1);
@@ -1160,12 +1160,12 @@ public class AllTests : Test.AllTests
 
         im1 = (IceMX.InvocationMetrics)map["ice_flushBatchRequests"];
         test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(im1.remotes.Length == 1); // The first operation got sent over a connection
         }
 
-        if(!collocated)
+        if (!collocated)
         {
             clearView(clientProps, serverProps, update);
 
@@ -1225,7 +1225,7 @@ public class AllTests : Test.AllTests
         {
             clientMetrics.enableMetricsView("UnknownView");
         }
-        catch(IceMX.UnknownMetricsView)
+        catch (IceMX.UnknownMetricsView)
         {
         }
 
@@ -1235,7 +1235,7 @@ public class AllTests : Test.AllTests
         output.Flush();
 
         test(obsv.threadObserver.getTotal() > 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.connectionObserver.getTotal() > 0);
             test(obsv.connectionEstablishmentObserver.getTotal() > 0);
@@ -1251,7 +1251,7 @@ public class AllTests : Test.AllTests
         test(obsv.invocationObserver.getTotal() > 0);
 
         test(obsv.threadObserver.getCurrent() > 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.connectionObserver.getCurrent() > 0);
             test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
@@ -1270,7 +1270,7 @@ public class AllTests : Test.AllTests
         test(obsv.invocationObserver.getCurrent() == 0);
 
         test(obsv.threadObserver.getFailedCount() == 0);
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.connectionObserver.getFailedCount() > 0);
             test(obsv.connectionEstablishmentObserver.getFailedCount() > 0);
@@ -1280,7 +1280,7 @@ public class AllTests : Test.AllTests
         //test(obsv.dispatchObserver.getFailedCount() > 0);
         test(obsv.invocationObserver.getFailedCount() > 0);
 
-        if(!collocated)
+        if (!collocated)
         {
             test(obsv.threadObserver.states > 0);
             test(obsv.connectionObserver.received > 0 && obsv.connectionObserver.sent > 0);

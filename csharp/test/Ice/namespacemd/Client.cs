@@ -14,7 +14,7 @@ namespace Ice
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Dispatch", "0");
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     var initial = AllTests.allTests(this);
                     initial.shutdown();

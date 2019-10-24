@@ -29,11 +29,11 @@ public class PluginThreeFailFactory : Ice.PluginFactory
 
         ~PluginThreeFail()
         {
-            if(_initialized)
+            if (_initialized)
             {
                 Console.WriteLine("PluginThreeFail was initialized");
             }
-            if(_destroyed)
+            if (_destroyed)
             {
                 Console.WriteLine("PluginThreeFail was destroyed");
             }

@@ -15,7 +15,7 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
             communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -25,7 +25,7 @@ public class Server : Test.TestHelper
             {
                 adapter.activate();
             }
-            catch(Ice.ObjectAdapterDeactivatedException)
+            catch (Ice.ObjectAdapterDeactivatedException)
             {
             }
             communicator.waitForShutdown();

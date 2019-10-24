@@ -5,10 +5,9 @@
 namespace IceInternal
 {
     using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
 
-    sealed class WSEndpoint : EndpointI
+    internal sealed class WSEndpoint : EndpointI
     {
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, string res)
         {
@@ -24,7 +23,7 @@ namespace IceInternal
 
             initWithOptions(args);
 
-            if(_resource == null)
+            if (_resource == null)
             {
                 _resource = "/";
             }
@@ -45,17 +44,17 @@ namespace IceInternal
                 _endpoint = e;
             }
 
-            override public short type()
+            public override short type()
             {
                 return _endpoint.type();
             }
 
-            override public bool datagram()
+            public override bool datagram()
             {
                 return _endpoint.datagram();
             }
 
-            override public bool secure()
+            public override bool secure()
             {
                 return _endpoint.secure();
             }
@@ -96,7 +95,7 @@ namespace IceInternal
 
         public override EndpointI timeout(int timeout)
         {
-            if(timeout == _delegate.timeout())
+            if (timeout == _delegate.timeout())
             {
                 return this;
             }
@@ -113,7 +112,7 @@ namespace IceInternal
 
         public override EndpointI connectionId(string connectionId)
         {
-            if(connectionId.Equals(_delegate.connectionId()))
+            if (connectionId.Equals(_delegate.connectionId()))
             {
                 return this;
             }
@@ -130,7 +129,7 @@ namespace IceInternal
 
         public override EndpointI compress(bool compress)
         {
-            if(compress == _delegate.compress())
+            if (compress == _delegate.compress())
             {
                 return this;
             }
@@ -168,7 +167,7 @@ namespace IceInternal
             public void connectors(List<Connector> connectors)
             {
                 List<Connector> l = new List<Connector>();
-                foreach(Connector c in connectors)
+                foreach (Connector c in connectors)
                 {
                     l.Add(new WSConnector(_instance, c, _host, _resource));
                 }
@@ -189,9 +188,9 @@ namespace IceInternal
         public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
         {
             string host = "";
-            for(Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
             {
-                if(p is Ice.IPEndpointInfo)
+                if (p is Ice.IPEndpointInfo)
                 {
                     Ice.IPEndpointInfo ipInfo = (Ice.IPEndpointInfo)p;
                     host = ipInfo.host + ":" + ipInfo.port;
@@ -207,7 +206,7 @@ namespace IceInternal
 
         public WSEndpoint endpoint(EndpointI delEndp)
         {
-            if(delEndp == _delegate)
+            if (delEndp == _delegate)
             {
                 return this;
             }
@@ -220,7 +219,7 @@ namespace IceInternal
         public override List<EndpointI> expandIfWildcard()
         {
             List<EndpointI> l = new List<EndpointI>();
-            foreach(EndpointI e in _delegate.expandIfWildcard())
+            foreach (EndpointI e in _delegate.expandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
             }
@@ -230,11 +229,11 @@ namespace IceInternal
         public override List<EndpointI> expandHost(out EndpointI publish)
         {
             List<EndpointI> l = new List<EndpointI>();
-            foreach(EndpointI e in _delegate.expandHost(out publish))
+            foreach (EndpointI e in _delegate.expandHost(out publish))
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
             }
-            if(publish != null)
+            if (publish != null)
             {
                 publish = publish == _delegate ? this : new WSEndpoint(_instance, publish, _resource);
             }
@@ -243,7 +242,7 @@ namespace IceInternal
 
         public override bool equivalent(EndpointI endpoint)
         {
-            if(!(endpoint is WSEndpoint))
+            if (!(endpoint is WSEndpoint))
             {
                 return false;
             }
@@ -262,16 +261,16 @@ namespace IceInternal
             //
             string s = _delegate.options();
 
-            if(_resource != null && _resource.Length > 0)
+            if (_resource != null && _resource.Length > 0)
             {
                 s += " -r ";
                 bool addQuote = _resource.IndexOf(':') != -1;
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
                 s += _resource;
-                if(addQuote)
+                if (addQuote)
                 {
                     s += "\"";
                 }
@@ -289,19 +288,19 @@ namespace IceInternal
 
         public override int CompareTo(EndpointI obj)
         {
-            if(!(obj is WSEndpoint))
+            if (!(obj is WSEndpoint))
             {
                 return type() < obj.type() ? -1 : 1;
             }
 
             WSEndpoint p = (WSEndpoint)obj;
-            if(this == p)
+            if (this == p)
             {
                 return 0;
             }
 
             int v = string.Compare(_resource, p._resource, StringComparison.Ordinal);
-            if(v != 0)
+            if (v != 0)
             {
                 return v;
             }
@@ -311,24 +310,24 @@ namespace IceInternal
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            switch(option[1])
+            switch (option[1])
             {
-            case 'r':
-            {
-                if(argument == null)
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for -r option in endpoint " + endpoint + _delegate.options();
-                    throw e;
-                }
-                _resource = argument;
-                return true;
-            }
+                case 'r':
+                    {
+                        if (argument == null)
+                        {
+                            Ice.EndpointParseException e = new Ice.EndpointParseException();
+                            e.str = "no argument provided for -r option in endpoint " + endpoint + _delegate.options();
+                            throw e;
+                        }
+                        _resource = argument;
+                        return true;
+                    }
 
-            default:
-            {
-                return false;
-            }
+                default:
+                    {
+                        return false;
+                    }
             }
         }
 
@@ -343,17 +342,17 @@ namespace IceInternal
         {
         }
 
-        override public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
+        public override EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
         {
             return new WSEndpointFactory(instance, underlying);
         }
 
-        override protected EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
+        protected override EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
         {
             return new WSEndpoint(instance_, underlying, args);
         }
 
-        override protected EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
+        protected override EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
         {
             return new WSEndpoint(instance_, underlying, s);
         }

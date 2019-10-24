@@ -20,7 +20,7 @@ namespace Ice
                 public void
                 set(bool value)
                 {
-                    lock(this)
+                    lock (this)
                     {
                         _value = value;
                     }
@@ -29,7 +29,7 @@ namespace Ice
                 public bool
                 value()
                 {
-                    lock(this)
+                    lock (this)
                     {
                         return _value;
                     }
@@ -50,7 +50,7 @@ namespace Ice
                 public void
                 response(int value)
                 {
-                    if(value != _expected)
+                    if (value != _expected)
                     {
                         _condition.set(false);
                     }
@@ -93,19 +93,19 @@ namespace Ice
 
                 output.Write("changing state between active and hold rapidly... ");
                 output.Flush();
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     hold.putOnHold(0);
                 }
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     holdOneway.putOnHold(0);
                 }
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     holdSerialized.putOnHold(0);
                 }
-                for(int i = 0; i < 100; ++i)
+                for (int i = 0; i < 100; ++i)
                 {
                     holdSerializedOneway.putOnHold(0);
                 }
@@ -118,17 +118,17 @@ namespace Ice
                     Condition cond = new Condition(true);
                     int value = 0;
                     Ice.AsyncResult result = null;
-                    while(cond.value())
+                    while (cond.value())
                     {
                         SetCB cb = new SetCB(cond, value);
                         result = hold.begin_set(++value, value < 500 ? rand.Next(5) : 0).whenCompleted(cb.response,
                                                                                                        cb.exception);
-                        if(value % 100 == 0)
+                        if (value % 100 == 0)
                         {
                             result.waitForSent();
                         }
 
-                        if(value > 100000)
+                        if (value > 100000)
                         {
                             // Don't continue, it's possible that out-of-order dispatch doesn't occur
                             // after 100000 iterations and we don't want the test to last for too long
@@ -147,11 +147,11 @@ namespace Ice
                     Condition cond = new Condition(true);
                     int value = 0;
                     Ice.AsyncResult result = null;
-                    while(value < 3000 && cond.value())
+                    while (value < 3000 && cond.value())
                     {
                         SetCB cb = new SetCB(cond, value);
                         result = holdSerialized.begin_set(++value, 0).whenCompleted(cb.response, cb.exception);
-                        if(value % 100 == 0)
+                        if (value % 100 == 0)
                         {
                             result.waitForSent();
                         }
@@ -159,11 +159,11 @@ namespace Ice
                     result.waitForCompleted();
                     test(cond.value());
 
-                    for(int i = 0; i < 10000; ++i)
+                    for (int i = 0; i < 10000; ++i)
                     {
                         holdSerializedOneway.setOneway(value + 1, value);
                         ++value;
-                        if((i % 100) == 0)
+                        if ((i % 100) == 0)
                         {
                             holdSerializedOneway.putOnHold(1);
                         }
@@ -177,12 +177,12 @@ namespace Ice
                     int value = 0;
                     holdSerialized.set(value, 0);
                     Ice.AsyncResult result = null;
-                    for(int i = 0; i < 10000; ++i)
+                    for (int i = 0; i < 10000; ++i)
                     {
                         // Create a new proxy for each request
-                        result =((Test.HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);
+                        result = ((Test.HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);
                         ++value;
-                        if((i % 100) == 0)
+                        if ((i % 100) == 0)
                         {
                             result.waitForSent();
                             holdSerialized.ice_ping(); // Ensure everything's dispatched.
@@ -198,10 +198,10 @@ namespace Ice
                 {
                     hold.waitForHold();
                     hold.waitForHold();
-                    for(int i = 0; i < 1000; ++i)
+                    for (int i = 0; i < 1000; ++i)
                     {
                         holdOneway.ice_ping();
-                        if((i % 20) == 0)
+                        if ((i % 20) == 0)
                         {
                             hold.putOnHold(0);
                         }

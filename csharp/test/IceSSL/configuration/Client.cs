@@ -15,9 +15,9 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using(var communicator = initialize(ref args))
+        using (var communicator = initialize(ref args))
         {
-            if(args.Length < 1)
+            if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: client testdir");
             }

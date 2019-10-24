@@ -15,7 +15,7 @@ namespace Ice
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.ACM.Timeout", "1");
-                using(var communicator = initialize(properties))
+                using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     communicator.getProperties().setProperty("TestAdapter.ACM.Timeout", "0");

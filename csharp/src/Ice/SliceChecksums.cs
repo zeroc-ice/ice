@@ -15,11 +15,11 @@ namespace Ice
         static SliceChecksums()
         {
             Type[] types = IceInternal.AssemblyUtil.findTypesWithPrefix("IceInternal.SliceChecksums");
-            foreach(Type t in types)
+            foreach (Type t in types)
             {
                 FieldInfo f = t.GetField("map", BindingFlags.Public | BindingFlags.Static);
                 Hashtable map = (Hashtable)f.GetValue(null);
-                foreach(DictionaryEntry entry in map)
+                foreach (DictionaryEntry entry in map)
                 {
                     checksums.Add((string)entry.Key, (string)entry.Value);
                 }
