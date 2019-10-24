@@ -2322,12 +2322,6 @@ class RemoteProcessController(ProcessController):
             self.controllerApps = []
         if self.adapter:
             self.adapter.destroy()
-        if self.future:
-            try:
-                self.future.result()
-            except Exception as ex:
-                print(ex)
-                pass
 
 class AndroidProcessController(RemoteProcessController):
 
