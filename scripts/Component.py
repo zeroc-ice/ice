@@ -174,7 +174,7 @@ class Ice(Component):
         if parent not in ["Ice", "IceBox", "IceGrid", "Glacier2", "IceStorm", "IceDiscovery", "IceBridge"]:
             return None
 
-        if isinstance(testcase, CollocatedTestCase):
+        if not isinstance(testcase, ClientServerTestCase):
             return None
 
         # Define here Ice tests which are slow to execute and for which it's not useful to test different options

@@ -2252,6 +2252,14 @@ class RemoteProcessController(ProcessController):
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
 
+            # If the controller isn't up after 30s, we restart it. With the iOS simulator,
+            # it's not uncommon to get Springoard crashes when starting the controller.
+            if nRetry == 6:
+                sys.stdout.write("controller application unreachable, restarting... ")
+                sys.stdout.flush()
+                self.restartControllerApp(current, ident)
+                print("ok")
+
         raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
     def setProcessController(self, proxy):
