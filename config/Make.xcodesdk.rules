@@ -51,7 +51,19 @@ endef
 #
 define make-xcode-project-with-config
 
-$1[$2-$3]: $$($1_dependencies)
+$1/.translator.dep: $$($$($1_slicecompiler)_path)
+	$(Q)if [ -f $1/.translator.dep ]; \
+	then \
+	    xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(V),,-quiet) SYMROOT=./build-$2-$3 OBJROOT=./objs-$2-$3 \
+		   clean; \
+	fi
+	touch $1/.translator.dep
+
+$1[$2-$3]: $$($1_dependencies) $1/.translator.dep
 	$(E) "Running xcodebuild for $1 scheme=\"$$(call $1_scheme,$2,$3)\""
 	$(Q)xcodebuild -sdk $2 \
 	           -project "$1/$$(call $1_project,$2,$3)" \
@@ -60,7 +72,7 @@ $1[$2-$3]: $$($1_dependencies)
 		   $(if $(ICE_BIN_DIST),HEADER_SEARCH_PATHS=../../Ice\ ../../include\ $(sdkdir)/$2.sdk/usr/include \
                    LIBRARY_SEARCH_PATHS=$(sdkdir)/$2.sdk/usr/lib) \
 		   $(if $(V),,-quiet) SYMROOT=./build-$2-$3 OBJROOT=./objs-$2-$3 \
-		   clean build
+		   build
 
 $1[$2-$3]_clean:
 	$(E) "Cleaning $1"
