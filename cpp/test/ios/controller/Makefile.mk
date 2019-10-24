@@ -9,6 +9,7 @@ $(project)_dependencies         = $(tests)
 $(project)_project              = C++ Test Controller.xcodeproj
 $(project)_scheme               = $(if $(filter cpp11-xcodesdk,$2),C++11 Test Controller,C++98 Test Controller)
 $(project)_configuration        = $(if $(filter $(OPTIMIZE),yes),Release,Debug)
+$(project)_slicecompiler        = slice2cpp
 
 projects += $(project)
 tests:: $(project)
