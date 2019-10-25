@@ -50,17 +50,17 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int SHUTDOWN_NODE = 16;
     public static final int SHUTDOWN_REGISTRY = 17;
 
-    public static final int ADD_OBJECT = 19;
+    public static final int ADD_OBJECT = 18;
 
-    public static final int OPEN_DEFINITION = 20;
+    public static final int OPEN_DEFINITION = 19;
 
-    public static final int ENABLE_METRICS_VIEW = 21;
-    public static final int DISABLE_METRICS_VIEW = 22;
+    public static final int ENABLE_METRICS_VIEW = 20;
+    public static final int DISABLE_METRICS_VIEW = 21;
 
-    public static final int START_ALL_SERVERS = 23;
-    public static final int STOP_ALL_SERVERS = 24;
+    public static final int START_ALL_SERVERS = 22;
+    public static final int STOP_ALL_SERVERS = 23;
 
-    public static final int ACTION_COUNT = 25;
+    public static final int ACTION_COUNT = 24;
 
     public boolean[] getAvailableActions()
     {
