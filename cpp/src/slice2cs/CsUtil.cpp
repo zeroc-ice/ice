@@ -2315,6 +2315,10 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
                 }
                 break;
             }
+            case Builtin::KindLocalObject:
+            {
+                assert(false);
+            }
         }
         return;
     }
