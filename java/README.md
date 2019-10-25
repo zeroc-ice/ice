@@ -176,7 +176,6 @@ icediscovery-3.7.3.jar
 icegrid-3.7.3.jar
 icegridgui.jar
 icelocatordiscovery-3.7.3.jar
-icepatch2-3.7.3.jar
 icessl-3.7.3.jar
 icestorm-3.7.3.jar
 ```

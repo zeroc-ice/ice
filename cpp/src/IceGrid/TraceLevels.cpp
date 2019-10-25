@@ -26,8 +26,6 @@ TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string&
     objectCat("Object"),
     activator(0),
     activatorCat("Activator"),
-    patch(0),
-    patchCat("Patch"),
     locator(0),
     locatorCat("Locator"),
     session(0),
@@ -47,7 +45,6 @@ TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string&
     const_cast<int&>(adapter) = properties->getPropertyAsInt(keyBase + adapterCat);
     const_cast<int&>(object) = properties->getPropertyAsInt(keyBase + objectCat);
     const_cast<int&>(activator) = properties->getPropertyAsInt(keyBase + activatorCat);
-    const_cast<int&>(patch) = properties->getPropertyAsInt(keyBase + patchCat);
     const_cast<int&>(locator) = properties->getPropertyAsInt(keyBase + locatorCat);
     const_cast<int&>(session) = properties->getPropertyAsInt(keyBase + sessionCat);
     const_cast<int&>(discovery) = properties->getPropertyAsInt(keyBase + discoveryCat);

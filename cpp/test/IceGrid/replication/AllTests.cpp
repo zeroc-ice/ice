@@ -957,7 +957,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
@@ -1193,7 +1192,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
@@ -1333,7 +1331,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
@@ -1389,7 +1386,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server1";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";

@@ -12,8 +12,6 @@
 #include <IceGrid/Util.h>
 #include <IceGrid/ServerI.h>
 
-#include <IcePatch2Lib/Util.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -375,7 +373,7 @@ Activator::activate(const string& name,
         throw invalid_argument("The server executable path is empty.");
     }
 
-    string pwd = IcePatch2Internal::simplify(pwdPath);
+    string pwd = simplify(pwdPath);
 #ifdef _WIN32
     if(!IceUtilInternal::isAbsolutePath(path))
     {

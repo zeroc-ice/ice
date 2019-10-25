@@ -6,7 +6,6 @@
 #define ICE_GRID_NODE_I_H
 
 #include <IceUtil/Timer.h>
-#include <IcePatch2/FileServer.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/UserAccountMapper.h>
@@ -85,9 +84,6 @@ public:
                                                    const std::string&,
                                                    const Ice::Current&);
 
-    virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&,
-                             const std::string&, const InternalDistributionDescriptorPtr&, bool, const Ice::Current&);
-
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
 
     virtual void replicaInit(const InternalRegistryPrxSeq&, const Ice::Current&);
@@ -143,7 +139,6 @@ public:
 private:
 
     std::vector<ServerCommandPtr> checkConsistencyNoSync(const Ice::StringSeq&);
-    void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
 
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
     std::string getFilePath(const std::string&) const;
@@ -187,7 +182,6 @@ private:
 
     IceUtil::Mutex _serversLock;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
-    std::set<std::string> _patchInProgress;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 

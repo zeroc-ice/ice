@@ -19,7 +19,6 @@
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/Util.h>
-#include <IcePatch2Lib/Util.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -360,33 +359,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             dataPath += "/";
         }
-
-        IcePatch2Internal::createDirectory(dataPath + "servers");
-        IcePatch2Internal::createDirectory(dataPath + "tmp");
-        IcePatch2Internal::createDirectory(dataPath + "distrib");
-
-#ifdef _WIN32
-        //
-        // Make sure these directories are not indexed by the Windows
-        // indexing service (which can cause random "Access Denied"
-        // errors if indexing runs at the same time as the node is
-        // creating/deleting files).
-        //
-        try
-        {
-            setNoIndexingAttribute(dataPath + "servers");
-            setNoIndexingAttribute(dataPath + "tmp");
-            setNoIndexingAttribute(dataPath + "distrib");
-        }
-        catch(const FileException& ex)
-        {
-            if(!nowarn)
-            {
-                Warning out(communicator()->getLogger());
-                out << "couldn't disable file indexing:\n" << ex;
-            }
-        }
-#endif
     }
 
     //

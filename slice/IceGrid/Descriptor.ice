@@ -313,22 +313,6 @@ class CommunicatorDescriptor
 
 /**
  *
- * A distribution descriptor defines an IcePatch2 server and the
- * directories to retrieve from the patch server.
- *
- **/
-["cpp:comparable"]
-struct DistributionDescriptor
-{
-    /** The proxy of the IcePatch2 server. */
-    string icepatch;
-
-    /** The source directories. */
-    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
-}
-
-/**
- *
  * An Ice server descriptor.
  *
  **/
@@ -403,21 +387,6 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     string deactivationTimeout;
-
-    /**
-     *
-     * Specifies if the server depends on the application
-     * distribution.
-     *
-     **/
-    bool applicationDistrib;
-
-    /**
-     *
-     * The distribution descriptor.
-     *
-     **/
-    DistributionDescriptor distrib;
 
     /**
      *
@@ -838,13 +807,6 @@ struct ApplicationDescriptor
 
     /**
      *
-     * The application distribution.
-     *
-     **/
-    DistributionDescriptor distrib;
-
-    /**
-     *
      * The description of this application.
      *
      **/
@@ -966,17 +928,6 @@ struct NodeUpdateDescriptor
 
 /**
  *
- * A "boxed" distribution descriptor.
- *
- **/
-class BoxedDistributionDescriptor
-{
-    /** The value of the boxed distribution descriptor. */
-    DistributionDescriptor value;
-}
-
-/**
- *
  * An application update descriptor to describe the updates to apply
  * to a deployed application.
  *
@@ -997,13 +948,6 @@ struct ApplicationUpdateDescriptor
      *
      **/
     BoxedString description;
-
-    /**
-     *
-     * The updated distribution application descriptor.
-     *
-     **/
-    BoxedDistributionDescriptor distrib;
 
     /**
      *

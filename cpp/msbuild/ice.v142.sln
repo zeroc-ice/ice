@@ -81,11 +81,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icestorm++11", "..\src\IceS
 		{3AB9772C-6113-4F1C-90FB-5368E7486C11} = {3AB9772C-6113-4F1C-90FB-5368E7486C11}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2", "..\src\IcePatch2Lib\msbuild\icepatch2.vcxproj", "{994ADD25-20A0-4715-A3EC-9F86AFD481D0}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6485EC94-6B47-428D-B42D-AAA11F08DB59} = {6485EC94-6B47-428D-B42D-AAA11F08DB59}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icegrid", "..\src\IceGridLib\msbuild\icegrid\icegrid.vcxproj", "{18BF13D3-85D3-43A5-8C96-E52EB0672F72}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6485EC94-6B47-428D-B42D-AAA11F08DB59} = {6485EC94-6B47-428D-B42D-AAA11F08DB59}
@@ -142,21 +137,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iceboxadmin", "..\src\IceBox\msbuild\iceboxadmin\iceboxadmin.vcxproj", "{1B745EA3-C97A-41BB-8E6F-64AAE992BE55}"
 	ProjectSection(ProjectDependencies) = postProject
 		{588F90CA-62AC-4101-83FC-19AB9DB6B509} = {588F90CA-62AC-4101-83FC-19AB9DB6B509}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2server", "..\src\IcePatch2\msbuild\icepatch2server\icepatch2server.vcxproj", "{7E1D6372-D417-4143-A7AF-BE3E77550238}"
-	ProjectSection(ProjectDependencies) = postProject
-		{994ADD25-20A0-4715-A3EC-9F86AFD481D0} = {994ADD25-20A0-4715-A3EC-9F86AFD481D0}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2client", "..\src\IcePatch2\msbuild\icepatch2client\icepatch2client.vcxproj", "{43D54B43-526E-40CE-9945-81420C54A415}"
-	ProjectSection(ProjectDependencies) = postProject
-		{994ADD25-20A0-4715-A3EC-9F86AFD481D0} = {994ADD25-20A0-4715-A3EC-9F86AFD481D0}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2calc", "..\src\IcePatch2\msbuild\icepatch2calc\icepatch2calc.vcxproj", "{8BCB4793-C004-459D-9605-272470D53A40}"
-	ProjectSection(ProjectDependencies) = postProject
-		{994ADD25-20A0-4715-A3EC-9F86AFD481D0} = {994ADD25-20A0-4715-A3EC-9F86AFD481D0}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iceserviceinstall", "..\src\iceserviceinstall\msbuild\iceserviceinstall.vcxproj", "{0E22B627-F1A6-4771-89DE-9E45FD51F124}"

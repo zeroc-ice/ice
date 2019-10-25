@@ -180,7 +180,6 @@ allTests(Test::TestHelper* helper)
         server->id = "Server";
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         server->activation = "on-demand";
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
@@ -227,7 +226,6 @@ allTests(Test::TestHelper* helper)
         server->id = "${name}";
         server->exe = "${server.dir}/server";
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         server->activation = "on-demand";
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
@@ -544,7 +542,6 @@ allTests(Test::TestHelper* helper)
         icebox->id = "IceBox";
         icebox->exe = properties->getProperty("IceBoxExe");
         icebox->activation = "on-demand";
-        icebox->applicationDistrib = false;
         icebox->allocatable = false;
         addProperty(icebox, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         icebox->services.resize(3);

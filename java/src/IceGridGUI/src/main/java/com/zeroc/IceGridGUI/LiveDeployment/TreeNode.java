@@ -50,8 +50,6 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int SHUTDOWN_NODE = 16;
     public static final int SHUTDOWN_REGISTRY = 17;
 
-    public static final int PATCH_SERVER = 18;
-
     public static final int ADD_OBJECT = 19;
 
     public static final int OPEN_DEFINITION = 20;
@@ -110,10 +108,6 @@ public abstract class TreeNode extends TreeNodeBase
         assert false;
     }
     public void shutdownRegistry()
-    {
-        assert false;
-    }
-    public void patchServer()
     {
         assert false;
     }
@@ -187,21 +181,6 @@ public abstract class TreeNode extends TreeNodeBase
         else if(e instanceof com.zeroc.IceGrid.ApplicationNotExistException)
         {
             amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
-        }
-        else if(e instanceof com.zeroc.IceGrid.PatchException)
-        {
-            com.zeroc.IceGrid.PatchException pe = (com.zeroc.IceGrid.PatchException)e;
-
-            String message = "";
-            for(String s : pe.reasons)
-            {
-                if(message.length() > 0)
-                {
-                    message += "\n";
-                }
-                message += s;
-            }
-            amiFailure(prefix, title, message);
         }
         else if(e instanceof com.zeroc.IceGrid.NodeNotExistException)
         {

@@ -30,8 +30,6 @@ class StopCommand;
 typedef IceUtil::Handle<StopCommand> StopCommandPtr;
 class StartCommand;
 typedef IceUtil::Handle<StartCommand> StartCommandPtr;
-class PatchCommand;
-typedef IceUtil::Handle<PatchCommand> PatchCommandPtr;
 class LoadCommand;
 typedef IceUtil::Handle<LoadCommand> LoadCommandPtr;
 
@@ -46,7 +44,6 @@ public:
     enum InternalServerState
     {
         Loading,
-        Patching,
         Inactive,
         Activating,
         WaitForActivation,
@@ -92,17 +89,12 @@ public:
 
     bool isAdapterActivatable(const std::string&) const;
     const std::string& getId() const;
-    InternalDistributionDescriptorPtr getDistribution() const;
-    bool dependsOnApplicationDistrib() const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     ServerCommandPtr load(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&, bool);
     bool checkUpdate(const InternalServerDescriptorPtr&, bool, const Ice::Current&);
     void checkRemove(bool, const Ice::Current&);
     ServerCommandPtr destroy(const AMD_Node_destroyServerPtr&, const std::string&, int, const std::string&, bool);
-    bool startPatch(bool);
-    bool waitForPatch();
-    void finishPatch();
 
     void adapterActivated(const std::string&);
     void adapterDeactivated(const std::string&);
@@ -179,7 +171,6 @@ private:
     DestroyCommandPtr _destroy;
     StopCommandPtr _stop;
     LoadCommandPtr _load;
-    PatchCommandPtr _patch;
     StartCommandPtr _start;
 
     int _pid;
@@ -283,26 +274,6 @@ public:
 private:
 
     std::vector<AMD_Server_startPtr> _startCB;
-};
-
-class PatchCommand : public ServerCommand, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    PatchCommand(const ServerIPtr&);
-
-    bool canExecute(ServerI::InternalServerState);
-    ServerI::InternalServerState nextState();
-    void execute();
-
-    bool waitForPatch();
-    void destroyed();
-    void finished();
-
-private:
-
-    bool _notified;
-    bool _destroyed;
 };
 
 class LoadCommand : public ServerCommand

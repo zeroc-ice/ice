@@ -547,20 +547,6 @@ generated from the section label.
         <property name="Registry.UserAccounts" />
     </section>
 
-    <section name="IcePatch2">
-        <property class="objectadapter" />
-        <property name="Directory" />
-        <property name="InstanceName" />
-    </section>
-
-    <section name="IcePatch2Client">
-        <property name="ChunkSize" />
-        <property name="Directory" />
-        <property name="Proxy" />
-        <property name="Remove" />
-        <property name="Thorough" />
-    </section>
-
     <section name="IceSSL">
         <property name="Alias" />
         <property name="CAs"/>

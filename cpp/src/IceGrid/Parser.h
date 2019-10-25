@@ -66,7 +66,6 @@ public:
     void describeApplication(const std::list<std::string>&);
     void diffApplication(const std::list<std::string>&);
     void updateApplication(const std::list<std::string>&);
-    void patchApplication(const std::list<std::string>&);
     void listAllApplications(const std::list<std::string>&);
 
     void describeServerTemplate(const std::list<std::string>&);
@@ -88,7 +87,6 @@ public:
     void removeServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void stopServer(const std::list<std::string>&);
-    void patchServer(const std::list<std::string>&);
     void signalServer(const std::list<std::string>&);
     void writeMessage(const std::list<std::string>&, int fd);
     void describeServer(const std::list<std::string>&);
@@ -136,7 +134,6 @@ public:
 
     void invalidCommand(const std::list<std::string>&);
 
-    std::string patchFailed(const Ice::StringSeq&);
     void error(const char*);
     void error(const std::string&);
 

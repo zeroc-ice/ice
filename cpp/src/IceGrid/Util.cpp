@@ -7,9 +7,50 @@
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
 
+#include <IceUtil/FileUtil.h>
+#ifdef _WIN32
+#   include <direct.h>
+#else
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
+
+namespace
+{
+
+bool
+isRoot(const string& pa)
+{
+    string path = simplify(pa);
+#ifdef _WIN32
+    return path == "/" || path.size() == 3 && IceUtilInternal::isAlpha(path[0]) && path[1] == ':' &&
+           path[2] == '/';
+#else
+    return path == "/";
+#endif
+}
+
+string
+getDirname(const string& pa)
+{
+    const string path = simplify(pa);
+
+    string::size_type pos = path.rfind('/');
+    if(pos == string::npos)
+    {
+        return string();
+    }
+    else
+    {
+        return path.substr(0, pos);
+    }
+}
+
+}
 
 string
 IceGrid::toString(const vector<string>& v, const string& sep)
@@ -323,4 +364,274 @@ IceGrid::getMMVersion(const string& o)
     //     }
 
     return ver;
+}
+
+string
+IceGrid::simplify(const string& path)
+{
+    string result = path;
+
+    string::size_type pos;
+
+#ifdef _WIN32
+    pos = 0;
+    if(result.find("\\\\") == 0)
+    {
+        pos = 2;
+    }
+
+    for(; pos < result.size(); ++pos)
+    {
+        if(result[pos] == '\\')
+        {
+            result[pos] = '/';
+        }
+    }
+#endif
+
+    pos = 0;
+    while((pos = result.find("//", pos)) != string::npos)
+    {
+        result.erase(pos, 1);
+    }
+
+    pos = 0;
+    while((pos = result.find("/./", pos)) != string::npos)
+    {
+        result.erase(pos, 2);
+    }
+
+    while(result.substr(0, 4) == "/../")
+    {
+        result.erase(0, 3);
+    }
+
+    if(result.substr(0, 2) == "./")
+    {
+        result.erase(0, 2);
+    }
+
+    if(result == "/." ||
+       (result.size() == 4 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' &&
+        result[2] == '/' && result[3] == '.'))
+    {
+       return result.substr(0, result.size() - 1);
+    }
+
+    if(result.size() >= 2 && result.substr(result.size() - 2, 2) == "/.")
+    {
+        result.erase(result.size() - 2, 2);
+    }
+
+    if(result == "/" || (result.size() == 3 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' &&
+                         result[2] == '/'))
+    {
+        return result;
+    }
+
+    if(result.size() >= 1 && result[result.size() - 1] == '/')
+    {
+        result.erase(result.size() - 1);
+    }
+
+    if(result == "/..")
+    {
+        result = "/";
+    }
+
+    return result;
+}
+
+void
+IceGrid::remove(const string& pa)
+{
+    const string path = simplify(pa);
+
+    IceUtilInternal::structstat buf;
+    if(IceUtilInternal::stat(path, &buf) == -1)
+    {
+        throw runtime_error("cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+    }
+
+    if(S_ISDIR(buf.st_mode))
+    {
+        if(IceUtilInternal::rmdir(path) == -1)
+        {
+            if(errno == EACCES)
+            {
+                assert(false);
+            }
+            throw runtime_error("cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        }
+    }
+    else
+    {
+        if(IceUtilInternal::remove(path) == -1)
+        {
+            throw runtime_error("cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        }
+    }
+}
+
+void
+IceGrid::removeRecursive(const string& pa)
+{
+    const string path = simplify(pa);
+
+    IceUtilInternal::structstat buf;
+    if(IceUtilInternal::stat(path, &buf) == -1)
+    {
+        throw runtime_error("cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+    }
+
+    if(S_ISDIR(buf.st_mode))
+    {
+        StringSeq paths = readDirectory(path);
+        for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
+        {
+            removeRecursive(path + '/' + *p);
+        }
+
+        if(!isRoot(path))
+        {
+            if(IceUtilInternal::rmdir(path) == -1)
+            {
+                throw runtime_error("cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            }
+        }
+    }
+    else
+    {
+        if(IceUtilInternal::remove(path) == -1)
+        {
+            throw runtime_error("cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        }
+    }
+}
+
+StringSeq
+IceGrid::readDirectory(const string& pa)
+{
+    const string path = simplify(pa);
+
+#ifdef _WIN32
+
+    //
+    // IceGrid doesn't support to use string converters, so don't need to use
+    // any string converter in stringToWstring or wstringToString conversions.
+    //
+    StringSeq result;
+    const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
+
+    struct _wfinddata_t data;
+    intptr_t h = _wfindfirst(fs.c_str(), &data);
+    if(h == -1)
+    {
+        throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+    }
+
+    while(true)
+    {
+        string name = wstringToString(data.name);
+        assert(!name.empty());
+
+        if(name != ".." && name != ".")
+        {
+            result.push_back(name);
+        }
+
+        if(_wfindnext(h, &data) == -1)
+        {
+            if(errno == ENOENT)
+            {
+                break;
+            }
+            string reason = "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
+            _findclose(h);
+            throw runtime_error(reason);
+        }
+    }
+
+    _findclose(h);
+
+    sort(result.begin(), result.end());
+    return result;
+
+#else
+
+    struct dirent **namelist;
+    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+
+    if(n < 0)
+    {
+        throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+    }
+
+    StringSeq result;
+    assert(n >= 2);
+    result.reserve(static_cast<size_t>(n - 2));
+
+    for(int i = 0; i < n; ++i)
+    {
+        string name = namelist[i]->d_name;
+        assert(!name.empty());
+
+        free(namelist[i]);
+
+        if(name != ".." && name != ".")
+        {
+            result.push_back(name);
+        }
+    }
+
+    free(namelist);
+    return result;
+
+#endif
+}
+
+void
+IceGrid::createDirectory(const string& pa)
+{
+    const string path = simplify(pa);
+
+    if(IceUtilInternal::mkdir(path, 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            throw runtime_error("cannot create directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+        }
+    }
+}
+
+void
+IceGrid::createDirectoryRecursive(const string& pa)
+{
+    const string path = simplify(pa);
+
+    string dir = getDirname(path);
+    if(!dir.empty())
+    {
+        createDirectoryRecursive(dir);
+    }
+
+    if(!isRoot(path + "/"))
+    {
+        IceUtilInternal::structstat buf;
+        if(IceUtilInternal::stat(path, &buf) != -1)
+        {
+            if(S_ISDIR(buf.st_mode))
+            {
+                return;
+            }
+        }
+
+        if(IceUtilInternal::mkdir(path, 0777) == -1)
+        {
+            if(errno != EEXIST)
+            {
+                throw runtime_error("cannot create directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
+            }
+        }
+    }
 }

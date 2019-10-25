@@ -27,8 +27,6 @@ class PlainServer extends Communicator implements Server
 
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
 
-        copy.distrib = copy.distrib.clone();
-
         if(copy instanceof IceBoxDescriptor)
         {
             IceBoxDescriptor ib = (IceBoxDescriptor)copy;
@@ -52,9 +50,6 @@ class PlainServer extends Communicator implements Server
         into.activation = from.activation;
         into.activationTimeout = from.activationTimeout;
         into.deactivationTimeout = from.deactivationTimeout;
-        into.applicationDistrib = from.applicationDistrib;
-        into.distrib.icepatch = from.distrib.icepatch;
-        into.distrib.directories = from.distrib.directories;
     }
 
     static public ServerDescriptor newServerDescriptor()
@@ -74,8 +69,6 @@ class PlainServer extends Communicator implements Server
             "manual",
             "",
             "",
-            true,
-            new DistributionDescriptor("", new java.util.LinkedList<String>()),
             false, // Allocatable
             "");
     }
@@ -97,8 +90,6 @@ class PlainServer extends Communicator implements Server
             "manual",
             "",
             "",
-            true,
-            new DistributionDescriptor("", new java.util.LinkedList<String>()),
             false, // Allocatable
             "",
             new java.util.LinkedList<ServiceInstanceDescriptor>()
@@ -239,7 +230,6 @@ class PlainServer extends Communicator implements Server
     public Object saveDescriptor()
     {
         ServerDescriptor clone = _descriptor.clone();
-        clone.distrib = clone.distrib.clone();
         return clone;
     }
 
@@ -288,10 +278,6 @@ class PlainServer extends Communicator implements Server
         if(descriptor.activationTimeout.length() > 0)
         {
             attributes.add(createAttribute("activation-timeout", descriptor.activationTimeout));
-        }
-        if(!descriptor.applicationDistrib)
-        {
-            attributes.add(createAttribute("application-distrib", "false"));
         }
         if(descriptor.deactivationTimeout.length() > 0)
         {
@@ -350,7 +336,6 @@ class PlainServer extends Communicator implements Server
 
                 writePropertySet(writer, "", "", _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
                 writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
-                writeDistribution(writer, _descriptor.distrib);
 
                 _adapters.write(writer, _descriptor.propertySet.properties);
                 _services.write(writer);
@@ -370,7 +355,6 @@ class PlainServer extends Communicator implements Server
 
                 writePropertySet(writer, _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
                 writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
-                writeDistribution(writer, _descriptor.distrib);
 
                 _adapters.write(writer, _descriptor.propertySet.properties);
                 _dbEnvs.write(writer);

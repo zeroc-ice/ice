@@ -5,8 +5,6 @@
 #include <IceUtil/Timer.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
-#include <IcePatch2Lib/Util.h>
-#include <IcePatch2/ClientUtil.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/ServerI.h>
@@ -16,173 +14,10 @@
 #include <IceGrid/NodeSessionManager.h>
 
 using namespace std;
-using namespace IcePatch2;
-using namespace IcePatch2Internal;
 using namespace IceGrid;
 
 namespace
 {
-
-class LogPatcherFeedback : public IcePatch2::PatcherFeedback
-{
-public:
-
-    LogPatcherFeedback(const TraceLevelsPtr& traceLevels, const string& dest) :
-        _traceLevels(traceLevels),
-        _startedPatch(false),
-        _lastProgress(0),
-        _dest(dest)
-    {
-    }
-
-    void
-    setPatchingPath(const string& path)
-    {
-        _path = path;
-        _startedPatch = false;
-        _lastProgress = 0;
-    }
-
-    virtual bool
-    noFileSummary(const string& reason)
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": can't load summary file (will perform a thorough patch):\n" << reason;
-        }
-        return true;
-    }
-
-    virtual bool
-    checksumStart()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": started checksum calculation";
-        }
-        return true;
-    }
-
-    virtual bool
-    checksumProgress(const string& path)
-    {
-        if(_traceLevels->patch > 2)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": calculating checksum for " << getBasename(path);
-        }
-        return true;
-    }
-
-    virtual bool
-    checksumEnd()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": finished checksum calculation";
-        }
-        return true;
-    }
-
-    virtual bool
-    fileListStart()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": getting list of file to patch";
-        }
-        return true;
-    }
-
-    virtual bool
-    fileListProgress(Ice::Int /*percent*/)
-    {
-        return true;
-    }
-
-    virtual bool
-    fileListEnd()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": getting list of file to patch completed";
-        }
-        return true;
-    }
-
-    virtual bool
-    patchStart(const string& /*path*/, Ice::Long /*size*/, Ice::Long totalProgress, Ice::Long totalSize)
-    {
-        if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
-        {
-            int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
-            progress /= 5;
-            progress *= 5;
-            if(progress != _lastProgress)
-            {
-                _lastProgress = progress;
-                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-                out << _dest << ": downloaded " << progress << "% (" << totalProgress << '/' << totalSize << ')';
-                if(!_path.empty())
-                {
-                    out << " of " << _path;
-                }
-            }
-        }
-        else if(_traceLevels->patch > 0)
-        {
-            if(!_startedPatch)
-            {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-                int roundedSize = static_cast<int>(static_cast<double>(totalSize) / 1024);
-                if(roundedSize == 0 && totalSize > 0)
-                {
-                    roundedSize = 1;
-                }
-                out << _dest << ": downloading " << (_path.empty() ? string("") : (_path + " ")) << roundedSize
-                    << "KB ";
-                _startedPatch = true;
-            }
-        }
-
-        return true;
-    }
-
-    virtual bool
-    patchProgress(Ice::Long /*progress*/, Ice::Long /*size*/, Ice::Long /*totalProgress*/, Ice::Long /*totalSize*/)
-    {
-        return true;
-    }
-
-    virtual bool
-    patchEnd()
-    {
-        return true;
-    }
-
-    void
-    finishPatch()
-    {
-        if(_traceLevels->patch > 0)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-            out << _dest << ": downloading completed";
-        }
-    }
-
-private:
-
-    const TraceLevelsPtr _traceLevels;
-    bool _startedPatch;
-    int _lastProgress;
-    string _path;
-    string _dest;
-};
 
 class NodeUp : public NodeI::Update
 {
@@ -465,202 +300,6 @@ NodeI::destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRest
         const AMD_Node_destroyServerWithoutRestartPtr _cb;
     };
     destroyServer(new DestroyServerCB(amdCB), serverId, uuid, revision, replicaName, true, current);
-}
-
-void
-NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
-                   const PatcherFeedbackPrx& feedback,
-                   const string& application,
-                   const string& server,
-                   const InternalDistributionDescriptorPtr& appDistrib,
-                   bool shutdown,
-                   const Ice::Current&)
-{
-    amdCB->ice_response();
-
-    {
-        Lock sync(*this);
-        while(_patchInProgress.find(application) != _patchInProgress.end())
-        {
-            wait();
-        }
-        _patchInProgress.insert(application);
-    }
-
-    set<ServerIPtr> servers;
-    bool patchApplication = !appDistrib->icepatch.empty();
-    if(server.empty())
-    {
-        //
-        // Patch all the servers from the application.
-        //
-        servers = getApplicationServers(application);
-    }
-    else
-    {
-        ServerIPtr svr;
-        try
-        {
-            svr = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(server)));
-        }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
-        {
-        }
-
-        if(svr)
-        {
-            if(appDistrib->icepatch.empty() || !svr->dependsOnApplicationDistrib())
-            {
-                //
-                // Don't patch the application if the server doesn't
-                // depend on it.
-                //
-                patchApplication = false;
-                servers.insert(svr);
-            }
-            else
-            {
-                //
-                // If the server to patch depends on the application,
-                // we need to shutdown all the application servers
-                // that depend on the application.
-                //
-                servers = getApplicationServers(application);
-            }
-        }
-    }
-
-    for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end();)
-    {
-        if(!appDistrib->icepatch.empty() && (*s)->dependsOnApplicationDistrib())
-        {
-            ++s;
-        }
-        else if((*s)->getDistribution() && (server.empty() || server == (*s)->getId()))
-        {
-            ++s;
-        }
-        else
-        {
-            //
-            // Exclude servers which don't depend on the application distribution
-            // or don't have a distribution.
-            //
-            servers.erase(s++);
-        }
-    }
-
-    string failure;
-    if(!servers.empty())
-    {
-        try
-        {
-            vector<string> running;
-            for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end();)
-            {
-                try
-                {
-                    if(!(*s)->startPatch(shutdown))
-                    {
-                        running.push_back((*s)->getId());
-                        servers.erase(s++);
-                    }
-                    else
-                    {
-                        ++s;
-                    }
-                }
-                catch(const Ice::ObjectNotExistException&)
-                {
-                    servers.erase(s++);
-                }
-            }
-
-            if(!running.empty())
-            {
-                if(running.size() == 1)
-                {
-                    throw runtime_error("server `" + toString(running) + "' is active");
-                }
-                else
-                {
-                    throw runtime_error("servers `" + toString(running, ", ") + "' are active");
-                }
-            }
-
-            for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end(); ++s)
-            {
-                (*s)->waitForPatch();
-            }
-
-            //
-            // Patch the application.
-            //
-            FileServerPrx icepatch;
-            if(patchApplication)
-            {
-                assert(!appDistrib->icepatch.empty());
-                icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
-                if(!icepatch)
-                {
-                    throw runtime_error("proxy `" + appDistrib->icepatch + "' is not a file server.");
-                }
-                patch(icepatch, "distrib/" + application, appDistrib->directories);
-            }
-
-            //
-            // Patch the server(s).
-            //
-            for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end(); ++s)
-            {
-                InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
-                if(dist && (server.empty() || (*s)->getId() == server))
-                {
-                    icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
-                    if(!icepatch)
-                    {
-                        throw runtime_error("proxy `" + dist->icepatch + "' is not a file server.");
-                    }
-                    patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
-
-                    if(!server.empty())
-                    {
-                        break; // No need to continue.
-                    }
-                }
-            }
-        }
-        catch(const exception& ex)
-        {
-            failure = ex.what();
-        }
-
-        for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
-        {
-            (*s)->finishPatch();
-        }
-    }
-
-    {
-        Lock sync(*this);
-        _patchInProgress.erase(application);
-        notifyAll();
-    }
-
-    try
-    {
-        if(failure.empty())
-        {
-            feedback->finished();
-        }
-        else
-        {
-            feedback->failed(failure);
-        }
-    }
-    catch(const Ice::LocalException&)
-    {
-    }
 }
 
 void
@@ -1054,20 +693,6 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application)
         if(p->second.empty())
         {
             _serversByApplication.erase(p);
-
-            string appDir = _dataDir + "/distrib/" + application;
-            if(IceUtilInternal::directoryExists(appDir))
-            {
-                try
-                {
-                    IcePatch2Internal::removeRecursive(appDir);
-                }
-                catch(const exception& ex)
-                {
-                    Ice::Warning out(_traceLevels->logger);
-                    out << "removing application directory `" << appDir << "' failed:\n" << ex.what();
-                }
-            }
         }
     }
 }
@@ -1203,7 +828,6 @@ NodeI::canRemoveServerDirectory(const string& name)
     set<string> contents(c.begin(), c.end());
     contents.erase("dbs");
     contents.erase("config");
-    contents.erase("distrib");
     contents.erase("revision");
     contents.erase("data");
     Ice::StringSeq serviceDataDirs;
@@ -1274,44 +898,6 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
     return true;
-}
-
-void
-NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<string>& directories)
-{
-    IcePatch2::PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, dest);
-    IcePatch2Internal::createDirectory(_dataDir + "/" + dest);
-    PatcherPtr patcher = PatcherFactory::create(icepatch, feedback, _dataDir + "/" + dest, false, 100, 1);
-    bool aborted = !patcher->prepare();
-    if(!aborted)
-    {
-        if(directories.empty())
-        {
-            aborted = !patcher->patch("");
-            dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
-        }
-        else
-        {
-            for(vector<string>::const_iterator p = directories.begin(); p != directories.end(); ++p)
-            {
-                dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
-                if(!patcher->patch(*p))
-                {
-                    aborted = true;
-                    break;
-                }
-                dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
-            }
-        }
-    }
-    if(!aborted)
-    {
-        patcher->finish();
-    }
-
-    //
-    // Update the files owner/group
-    //
 }
 
 set<ServerIPtr>
