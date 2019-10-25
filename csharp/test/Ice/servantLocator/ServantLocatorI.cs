@@ -66,7 +66,7 @@ namespace Ice
                 test(_requestId == -1);
                 _requestId = current.requestId;
 
-                cookie = new CookieI();
+                cookie = new Cookie();
 
                 return new TestI();
             }
@@ -92,7 +92,7 @@ namespace Ice
                     exception(current);
                 }
 
-                var co = (Test.Cookie)cookie;
+                var co = (Cookie)cookie;
                 test(co.message().Equals("blahblah"));
             }
 

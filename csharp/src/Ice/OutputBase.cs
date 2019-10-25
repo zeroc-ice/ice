@@ -6,8 +6,8 @@ namespace IceUtilInternal
 {
 
     using System.Collections.Generic;
-    using System.IO;
     using System.Diagnostics;
+    using System.IO;
 
     public class OutputBase
     {

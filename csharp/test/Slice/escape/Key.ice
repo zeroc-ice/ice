@@ -110,13 +110,6 @@ exception BaseMethods
     int ToString;
 }
 
-local interface implicit
-{
-    as in(break internal, delegate is, explicit lock, case* namespace, decimal* new, delegate null,
-          explicit* operator, int override, int params, int private)
-        throws fixed, foreach;
-}
-
 const int protected = 0;
 const int public = 0;
 

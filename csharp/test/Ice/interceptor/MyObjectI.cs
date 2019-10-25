@@ -49,7 +49,7 @@ namespace Ice
                 {
                     return x + y;
                 }
-                throw new Test.RetryException();
+                throw new RetryException();
             }
 
             public override int
@@ -90,7 +90,7 @@ namespace Ice
                 }
                 else
                 {
-                    throw new Test.RetryException();
+                    throw new RetryException();
                 }
             }
 

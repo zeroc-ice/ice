@@ -4,8 +4,8 @@
 
 namespace IceInternal
 {
-    using System.Diagnostics;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public sealed class ACMConfig : System.ICloneable
     {

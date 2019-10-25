@@ -8,9 +8,9 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class CookieI : Test.Cookie
+            public class Cookie
             {
-                public override string message()
+                public string message()
                 {
                     return "blahblah";
                 }

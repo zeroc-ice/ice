@@ -65,7 +65,7 @@ namespace Ice
                                 test(false);
                             }
                         }
-                        catch (Test.RetryException)
+                        catch (RetryException)
                         {
                             //
                             // Expected, retry

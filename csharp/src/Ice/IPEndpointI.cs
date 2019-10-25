@@ -5,10 +5,10 @@
 namespace IceInternal
 {
 
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Net;
-    using System;
 
     public abstract class IPEndpointI : EndpointI
     {

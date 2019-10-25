@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-
     public interface PropertiesAdminUpdateCallback
     {
         void updated(Dictionary<string, string> changes);

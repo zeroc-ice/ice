@@ -4,10 +4,10 @@
 
 namespace IceMX
 {
-    using IceInternal;
     using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using IceInternal;
 
     public class MetricsHelper<T> where T : Metrics
     {

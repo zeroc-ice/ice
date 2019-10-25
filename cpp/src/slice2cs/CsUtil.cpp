@@ -294,14 +294,14 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         {
             return prefix + ".FSize";
         }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
         case Builtin::KindValue:
         {
             return prefix + ".Class";
+        }
+        default:
+        {
+            assert(false);
+            break;
         }
         }
     }
@@ -385,8 +385,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional, bool local,
-                                 const StringList& metaData)
+Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional)
 {
     if(!type)
     {
@@ -395,7 +394,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 
     if(optional)
     {
-        return getUnqualified("Ice.Optional", package) + "<" + typeToString(type, package, false, local) + ">";
+        return getUnqualified("Ice.Optional", package) + "<" + typeToString(type, package) + ">";
     }
 
     static const char* builtinTable[] =
@@ -414,23 +413,10 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "Ice.Value"
     };
 
-    if(local)
-    {
-        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
-        {
-            const string clrType = "cs:type:";
-            const string meta = *i;
-            if(meta.find(clrType) == 0)
-            {
-                return meta.substr(clrType.size());
-            }
-        }
-    }
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(!local && builtin->kind() == Builtin::KindObject)
+        if(builtin->kind() == Builtin::KindObject)
         {
             return getUnqualified(builtinTable[Builtin::KindValue], package, true);
         }
@@ -443,7 +429,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface() && !local)
+        if(cl->isInterface())
         {
             return getUnqualified("Ice.Value", package);
         }
@@ -478,11 +464,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             if(customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
                 return "global::System.Collections.Generic." + customType + "<" +
-                    typeToString(seq->type(), package, optional, local) + ">";
+                    typeToString(seq->type(), package, optional) + ">";
             }
             else
             {
-                return "global::" + customType + "<" + typeToString(seq->type(), package, optional, local) + ">";
+                return "global::" + customType + "<" + typeToString(seq->type(), package, optional) + ">";
             }
         }
 
@@ -493,7 +479,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             return "global::" + customType;
         }
 
-        return typeToString(seq->type(), package, optional, local) + "[]";
+        return typeToString(seq->type(), package, optional) + "[]";
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
@@ -511,8 +497,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             typeName = "Dictionary";
         }
         return "global::System.Collections.Generic." + typeName + "<" +
-            typeToString(d->keyType(), package, optional, local) + ", " +
-            typeToString(d->valueType(), package, optional, local) + ">";
+            typeToString(d->keyType(), package, optional) + ", " +
+            typeToString(d->valueType(), package, optional) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -551,7 +537,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
     {
         if(outParams.empty())
         {
-            t = typeToString(op->returnType(), package, op->returnIsOptional(), cl->isLocal());
+            t = typeToString(op->returnType(), package, op->returnIsOptional());
         }
         else if(op->returnType() || outParams.size() > 1)
         {
@@ -559,10 +545,9 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
         }
         else
         {
-            t = typeToString(outParams.front()->type(), package, outParams.front()->optional(), cl->isLocal());
+            t = typeToString(outParams.front()->type(), package, outParams.front()->optional());
         }
     }
-
     return t;
 }
 
@@ -602,7 +587,6 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
             case Builtin::KindString:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return false;
@@ -780,7 +764,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 break;
             }
-            case Builtin::KindLocalObject:
+            default:
             {
                 assert(false);
                 break;
@@ -1076,7 +1060,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 }
                 break;
             }
-            case Builtin::KindLocalObject:
+            default:
             {
                 assert(false);
                 break;
@@ -2086,7 +2070,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             break;
         }
 
-        case Builtin::KindLocalObject:
+        default:
             assert(false);
         }
 
@@ -2304,7 +2288,6 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
             }
             case Builtin::KindValue:
             case Builtin::KindObject:
-            case Builtin::KindLocalObject:
             {
                 const string typeName = typeToString(type, scope, false);
                 if(serialize)
@@ -2713,20 +2696,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         newLocalMetaData.push_back(s);
                         continue;
                     }
-                }
-            }
-            else if(DataMemberPtr::dynamicCast(cont))
-            {
-                DataMemberPtr dataMember = DataMemberPtr::dynamicCast(cont);
-                StructPtr st = StructPtr::dynamicCast(dataMember->container());
-                ExceptionPtr ex = ExceptionPtr::dynamicCast(dataMember->container());
-                ClassDefPtr cl = ClassDefPtr::dynamicCast(dataMember->container());
-                bool isLocal = (st && st->isLocal()) || (ex && ex->isLocal()) || (cl && cl->isLocal());
-                static const string csTypePrefix = csPrefix + "type:";
-                if(isLocal && s.find(csTypePrefix) == 0)
-                {
-                    newLocalMetaData.push_back(s);
-                    continue;
                 }
             }
             else if(ModulePtr::dynamicCast(cont))

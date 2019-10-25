@@ -6,9 +6,9 @@ namespace Ice
 {
     namespace adapterDeactivation
     {
-        public sealed class CookieI : Test.Cookie
+        public sealed class Cookie
         {
-            public override string message()
+            public string message()
             {
                 return "blahblah";
             }

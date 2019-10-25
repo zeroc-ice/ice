@@ -82,14 +82,11 @@ public:
     Gen(const std::string&,
         const std::vector<std::string>&,
         const std::string&,
-        bool,
-        bool,
         bool);
     ~Gen();
 
     void generate(const UnitPtr&);
     void generateImpl(const UnitPtr&);
-    void generateImplTie(const UnitPtr&);
     void generateChecksums(const UnitPtr&);
     void closeOutput();
 
@@ -98,7 +95,6 @@ private:
     IceUtilInternal::Output _out;
     IceUtilInternal::Output _impl;
     std::vector<std::string> _includePaths;
-    bool _tie;
 
     void printHeader();
 
@@ -144,7 +140,6 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
@@ -230,7 +225,7 @@ private:
     {
     public:
 
-        DispatcherVisitor(::IceUtilInternal::Output&, bool);
+        DispatcherVisitor(::IceUtilInternal::Output&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -240,9 +235,6 @@ private:
     private:
 
         typedef std::set<std::string> NameSet;
-        void writeTieOperations(const ClassDefPtr&, NameSet* = 0);
-
-        bool _tie;
     };
 
     class BaseImplVisitor : public CsVisitor
@@ -253,7 +245,7 @@ private:
 
     protected:
 
-        void writeOperation(const OperationPtr&, bool, bool);
+        void writeOperation(const OperationPtr&, bool);
     };
 
     class ImplVisitor : public BaseImplVisitor
@@ -266,17 +258,6 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-    };
-
-    class ImplTieVisitor : public BaseImplVisitor
-    {
-    public:
-
-        ImplTieVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 };
 

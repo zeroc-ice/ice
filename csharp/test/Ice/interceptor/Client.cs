@@ -10,6 +10,9 @@ namespace Ice
 {
     namespace interceptor
     {
+        public class RetryException : System.Exception
+        {
+        }
         public class Client : TestHelper
         {
             private void runTest(Test.MyObjectPrx prx, InterceptorI interceptor)

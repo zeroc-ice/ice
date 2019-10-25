@@ -5,8 +5,8 @@
 namespace IceInternal
 {
     using System.Collections.Generic;
-    using System.Net;
     using System.Globalization;
+    using System.Net;
 
     internal sealed class TcpEndpointI : IPEndpointI
     {

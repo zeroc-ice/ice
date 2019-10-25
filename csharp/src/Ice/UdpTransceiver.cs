@@ -6,7 +6,6 @@ namespace IceInternal
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;

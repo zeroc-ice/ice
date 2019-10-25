@@ -22,7 +22,7 @@ public class Server : Test.TestHelper
         // scheduling so we supress this warning.
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        using(var communicator = initialize(properties))
+        using (var communicator = initialize(properties))
         {
             //
             // We don't want connection warnings because of the timeout test.

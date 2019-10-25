@@ -8,6 +8,14 @@ namespace Ice
 {
     namespace adapterDeactivation
     {
+        public class Cookie
+        {
+            public string message()
+            {
+                return "blahblah";
+            }
+        }
+
         public class RouterI : Ice.RouterDisp_
         {
             public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
@@ -72,12 +80,12 @@ namespace Ice
                 test(current.id.category.Length == 0);
                 test(current.id.name.Equals("test"));
 
-                cookie = new CookieI();
+                cookie = new Cookie();
 
                 return new TestI();
             }
 
-            public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+            public void finished(Current current, Object servant, object cookie)
             {
                 lock (this)
                 {
@@ -89,7 +97,7 @@ namespace Ice
                     return;
                 }
 
-                Test.Cookie co = (Test.Cookie)cookie;
+                var co = (Cookie)cookie;
                 test(co.message().Equals("blahblah"));
             }
 

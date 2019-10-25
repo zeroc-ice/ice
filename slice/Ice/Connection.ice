@@ -497,7 +497,7 @@ local class UDPConnectionInfo extends IPConnectionInfo
 }
 
 /** A collection of HTTP headers. */
-dictionary<string, string> HeaderDict;
+local dictionary<string, string> HeaderDict;
 
 /**
  *

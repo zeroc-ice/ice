@@ -13,7 +13,6 @@
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../TestI.cs" />
     <Compile Include="../../../Server.cs" />
-    <Compile Include="../../../CookieI.cs" />
     <Compile Include="../../../ServantLocatorI.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>

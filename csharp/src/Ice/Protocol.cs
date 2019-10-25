@@ -63,7 +63,7 @@ namespace IceInternal
             requestMsg,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
-            0, 0, 0, 0  // Request ID (placeholder).
+            0, 0, 0, 0 // Request ID (placeholder).
         };
 
         internal static readonly byte[] requestBatchHdr = new byte[]
@@ -74,7 +74,7 @@ namespace IceInternal
             requestBatchMsg,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
-            0, 0, 0, 0  // Number of requests in batch (placeholder).
+            0, 0, 0, 0 // Number of requests in batch (placeholder).
         };
 
         internal static readonly byte[] replyHdr = new byte[]

@@ -12,7 +12,6 @@
     <Compile Include="../../../AllTests.cs" />
     <Compile Include="../../../Client.cs" />
     <Compile Include="../../../Collocated.cs" />
-    <Compile Include="../../../CookieI.cs" />
     <Compile Include="../../../ServantLocatorI.cs" />
     <Compile Include="../../../TestI.cs" />
     <Compile Include="../../../Server.cs" />

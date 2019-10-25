@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;

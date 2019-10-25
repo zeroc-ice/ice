@@ -38,16 +38,6 @@ public class Client : Test.TestHelper
         }
     }
 
-    public sealed class implicitI : @abstract.@implicit
-    {
-        public @abstract.@as @in(@abstract.@break @internal, @abstract.@delegate @is, @abstract.@explicit @lock,
-                                 @abstract.casePrx @namespace, @abstract.decimalPrx @new, @abstract.@delegate @null,
-                                 @abstract.explicitPrx @operator, int @override, int @params, int @private)
-        {
-            return @abstract.@as.@base;
-        }
-    }
-
     public sealed class Test1I : @abstract.System.TestDisp_
     {
         public override void op(Ice.Current c)
@@ -108,10 +98,8 @@ public class Client : Test.TestHelper
         i.@goto = 1;
         i.@if = 2;
         test(i != null);
-        @abstract.@implicit j = new implicitI();
-        test(j != null);
-        int k = @abstract.@protected.value;
-        test(k == 0);
+        int j = @abstract.@protected.value;
+        test(j == 0);
     }
 
     public override void run(string[] args)

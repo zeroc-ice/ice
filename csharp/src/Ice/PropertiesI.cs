@@ -3,12 +3,10 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Globalization;
-using Microsoft.Win32;
+using System.Text.RegularExpressions;
 
 namespace Ice
 {

@@ -4,10 +4,6 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Diagnostics;
-    using System.Security.Cryptography.X509Certificates;
-
     public sealed class Util
     {
         public static void

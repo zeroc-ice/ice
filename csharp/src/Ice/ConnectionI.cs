@@ -7,13 +7,12 @@ namespace Ice
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Linq;
-
-    using Instrumentation;
     using IceInternal;
+    using Instrumentation;
 
     public sealed class ConnectionI : IceInternal.EventHandler, ResponseHandler, CancellationHandler, Connection
     {

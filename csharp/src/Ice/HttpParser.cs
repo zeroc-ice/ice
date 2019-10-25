@@ -4,8 +4,8 @@
 
 namespace IceInternal
 {
-    using System.Diagnostics;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Text;
 
     public sealed class WebSocketException : System.Exception

@@ -2,9 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
-using Ice.Instrumentation;
-
 namespace IceInternal
 {
     public interface ResponseHandler

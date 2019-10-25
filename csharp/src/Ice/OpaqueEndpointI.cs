@@ -5,8 +5,8 @@
 namespace IceInternal
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Diagnostics;
+    using System.Globalization;
 
     internal sealed class OpaqueEndpointI : EndpointI
     {

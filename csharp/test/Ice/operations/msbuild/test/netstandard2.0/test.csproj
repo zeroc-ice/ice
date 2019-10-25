@@ -20,14 +20,9 @@
     <Compile Include="../../../Twoways.cs" />
     <Compile Include="../../../TwowaysAMI.cs" />
     <Compile Include="../../../MyDerivedClassI.cs" />
-    <Compile Include="../../../MyDerivedClassTieI.cs" />
     <Compile Include="../../../MyDerivedClassAMDI.cs" />
-    <Compile Include="../../../MyDerivedClassAMDTieI.cs" />
-
     <Compile Include="../../../Server.cs" />
     <Compile Include="../../../ServerAMD.cs" />
-    <Compile Include="../../../ServerAMDTie.cs" />
-    <Compile Include="../../../ServerTie.cs" />
 
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>

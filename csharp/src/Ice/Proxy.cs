@@ -4,14 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
-
-using IceUtilInternal;
 using IceInternal;
+using IceUtilInternal;
 
 namespace Ice
 {

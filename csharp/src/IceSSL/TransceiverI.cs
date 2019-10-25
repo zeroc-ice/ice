@@ -6,13 +6,11 @@ namespace IceSSL
 {
     using System;
     using System.Diagnostics;
-    using System.Collections.Generic;
     using System.IO;
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
-    using System.Text;
 
     internal sealed class TransceiverI : IceInternal.Transceiver
     {
@@ -743,7 +741,6 @@ namespace IceSSL
                     }
                 }
 
-#if NETSTANDARD2_0
                 try
                 {
                     chain.Dispose();
@@ -751,7 +748,6 @@ namespace IceSSL
                 catch (Exception)
                 {
                 }
-#endif
             }
         }
 

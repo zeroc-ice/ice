@@ -4,12 +4,11 @@
 
 namespace IceInternal
 {
-    using System.Collections;
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
-    using System;
 
     public sealed class BufSizeWarnInfo
     {

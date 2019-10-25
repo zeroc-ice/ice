@@ -35,7 +35,7 @@ public class SignTask : Task
     {
         CommandLineBuilder builder = new CommandLineBuilder(false);
         builder.AppendSwitch("sign");
-        if(AdditionalOptions != null)
+        if (AdditionalOptions != null)
         {
             builder.AppendTextUnquoted(" ");
             builder.AppendTextUnquoted(AdditionalOptions);
@@ -51,12 +51,12 @@ public class SignTask : Task
         string output = "";
         string error = "";
         int nRetries = 0;
-        while(nRetries++ < 10)
+        while (nRetries++ < 10)
         {
             output = "";
             error = "";
             status = RunCommand(WorkingDirectory, "signtool.exe", commandLineCommands, ref output, ref error);
-            if(status != 0 && error.IndexOf("timestamp server") != -1)
+            if (status != 0 && error.IndexOf("timestamp server") != -1)
             {
                 Thread.Sleep(10);
                 continue;
@@ -64,7 +64,7 @@ public class SignTask : Task
             break;
         }
 
-        if(status == 0)
+        if (status == 0)
         {
             Log.LogMessage(MessageImportance.High, output.Trim());
         }
@@ -84,7 +84,7 @@ public class SignTask : Task
 
         public void ouput(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            if(outLine.Data != null)
+            if (outLine.Data != null)
             {
                 Output += outLine.Data + "\n";
             }
@@ -92,7 +92,7 @@ public class SignTask : Task
 
         public void error(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            if(outLine.Data != null)
+            if (outLine.Data != null)
             {
                 Error += outLine.Data + "\n";
             }
@@ -124,7 +124,7 @@ public class SignTask : Task
             output = streamReader.Output;
             return process.ExitCode;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             error = ex.ToString();
             return 1;

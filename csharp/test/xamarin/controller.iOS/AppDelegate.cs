@@ -16,7 +16,7 @@ namespace controller.iOS
     {
         public string processControllerIdentity()
         {
-            if(isEmulator())
+            if (isEmulator())
             {
                 return "iPhoneSimulator/com.zeroc.Xamarin-Test-Controller";
             }

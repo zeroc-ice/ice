@@ -17,8 +17,8 @@ namespace IceInternal
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Globalization;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -239,7 +239,7 @@ namespace IceInternal
                         },
                         CancellationToken.None,
                         TaskContinuationOptions.ExecuteSynchronously,
-                        scheduler:TaskScheduler.Current);
+                        scheduler: TaskScheduler.Current);
                     }
                 }
             }

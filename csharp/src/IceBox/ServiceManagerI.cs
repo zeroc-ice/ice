@@ -5,12 +5,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace IceBox
 {
-
     //
     // NOTE: the class isn't final on purpose to allow users to extend it.
     //

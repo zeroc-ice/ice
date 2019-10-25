@@ -12,7 +12,6 @@
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../TestI.cs" />
-    <Compile Include="../../../CookieI.cs" />
     <Compile Include="../../../ServantLocatorI.cs" />
     <Compile Include="../../../AllTests.cs" />
     <Compile Include="../../../Collocated.cs" />
