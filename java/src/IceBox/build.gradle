@@ -8,7 +8,6 @@ project.ext.description = "IceBox is an easy-to-use framework for Ice applicatio
 
 slice {
     java {
-        args = "--checksum com.zeroc.IceBox.SliceChecksums"
         files = fileTree(dir: "$project.ext.topSrcDir/slice/IceBox", includes:['*.ice'], excludes:["*F.ice"])
     }
 }

@@ -75,7 +75,6 @@ usage(const string& n)
         "--tie                    Generate tie classes. (Java Compat Only)\n"
         "--impl                   Generate sample implementations.\n"
         "--impl-tie               Generate sample tie implementations. (Java Compat Only)\n"
-        "--checksum CLASS         Generate checksums for Slice definitions into CLASS.\n"
         "--meta META              Define global metadata directive META.\n"
         "--list-generated         Emit list of generated files in XML format.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
@@ -107,7 +106,6 @@ compile(const vector<string>& argv)
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
-    opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "compat");
 
@@ -178,8 +176,6 @@ compile(const vector<string>& argv)
 
     bool underscore = opts.isSet("underscore");
 
-    string checksumClass = opts.optArg("checksum");
-
     bool listGenerated = opts.isSet("list-generated");
 
     StringList globalMetadata;
@@ -234,8 +230,6 @@ compile(const vector<string>& argv)
     }
 
     int status = EXIT_SUCCESS;
-
-    ChecksumMap checksums;
 
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
@@ -366,15 +360,6 @@ compile(const vector<string>& argv)
                                 gen.generateImpl(p);
                             }
                         }
-
-                        if(!checksumClass.empty())
-                        {
-                            //
-                            // Calculate checksums for the Slice definitions in the unit.
-                            //
-                            ChecksumMap m = createChecksums(p);
-                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
-                        }
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -415,23 +400,6 @@ compile(const vector<string>& argv)
     if(depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
-    }
-
-    if(status == EXIT_SUCCESS && !checksumClass.empty() && !dependxml)
-    {
-        try
-        {
-            Gen::writeChecksumClass(checksumClass, output, checksums);
-        }
-        catch(const Slice::FileException& ex)
-        {
-            //
-            // If a file could not be created, then cleanup any created files.
-            //
-            FileTracker::instance()->cleanup();
-            consoleErr << argv[0] << ": error: " << ex.reason() << endl;
-            return EXIT_FAILURE;
-        }
     }
 
     if(listGenerated)

@@ -3,7 +3,6 @@
 //
 
 #include <Gen.h>
-#include <Slice/Checksum.h>
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
@@ -2275,63 +2274,6 @@ Slice::Gen::generateImpl(const UnitPtr& p)
 {
     ImplVisitor implVisitor(_dir);
     p->visit(&implVisitor, false);
-}
-
-void
-Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m)
-{
-    //
-    // Attempt to open the source file for the checksum class.
-    //
-    JavaOutput out;
-    out.openClass(checksumClass, dir);
-
-    //
-    // Get the class name.
-    //
-    string className;
-    string::size_type pos = checksumClass.rfind('.');
-    if(pos == string::npos)
-    {
-        className = checksumClass;
-    }
-    else
-    {
-        className = checksumClass.substr(pos + 1);
-    }
-
-    //
-    // Emit the class.
-    //
-    out << sp;
-    out << nl << "/** @hidden */";
-    out << nl << "public class " << className;
-    out << sb;
-
-    //
-    // Use a static initializer to populate the checksum map.
-    //
-    out << sp << nl << "public static final java.util.Map<String, String> checksums;";
-    out << sp << nl << "static";
-    out << sb;
-    out << nl << "java.util.Map<String, String> map = new java.util.HashMap<>();";
-    for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
-    {
-        out << nl << "map.put(\"" << p->first << "\", \"";
-        ostringstream str;
-        str.flags(ios_base::hex);
-        str.fill('0');
-        for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-        {
-            str << static_cast<int>(*q);
-        }
-        out << str.str() << "\");";
-    }
-    out << nl << "checksums = java.util.Collections.unmodifiableMap(map);";
-
-    out << eb;
-    out << eb;
-    out << nl;
 }
 
 Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) :

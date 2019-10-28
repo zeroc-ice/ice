@@ -50,12 +50,6 @@ public class ServiceManagerI implements ServiceManager
     }
 
     @Override
-    public java.util.Map<String, String> getSliceChecksums(Current current)
-    {
-        return SliceChecksums.checksums;
-    }
-
-    @Override
     public void
     startService(String name, Current current)
         throws AlreadyStartedException, NoSuchServiceException
