@@ -236,14 +236,6 @@ namespace controller
             {
                 return new Ice.operations.AMD.Server();
             }
-            else if (type.Equals("Ice.operations.Serveramdtie"))
-            {
-                return new Ice.operations.AMD.tie.Server();
-            }
-            else if (type.Equals("Ice.operations.Servertie"))
-            {
-                return new Ice.operations.tie.Server();
-            }
 
             else if (type.Equals("Ice.optional.Client"))
             {

@@ -30,6 +30,6 @@
         <Copy SourceFiles="@(Pdbs)" DestinationFolder="$(PackageDirectory)\lib\netstandard2.0"/>
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
         <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
-        <Copy SourceFiles="@(IceBox)" DestinationFolder="$(PackageDirectory)\tools\%(NetStandardIceBox.RecursiveDir)\.."/>
+        <Copy SourceFiles="@(IceBox)" DestinationFolder="$(PackageDirectory)\tools\%(IceBox.RecursiveDir)\.."/>
     </Target>
 </Project>
