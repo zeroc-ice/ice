@@ -42,6 +42,17 @@ class InternalAdapterDescriptor
 }
 sequence<InternalAdapterDescriptor> InternalAdapterDescriptorSeq;
 
+// This class is no longer used. We keep it only for interop with IceGrid 3.7.
+//
+class InternalDistributionDescriptor
+{
+    /** The proxy of the IcePatch2 server. */
+    string icepatch;
+
+    /** The source directories. */
+    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
+}
+
 dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;
 
 class InternalServerDescriptor
@@ -78,6 +89,12 @@ class InternalServerDescriptor
 
     /** The server deactivation timeout. */
     string deactivationTimeout;
+
+    // Not used, always false. Kept only for interop with IceGrid 3.7.
+    bool applicationDistrib = false;
+
+    // Not used, always nil. Kept only for interop with IceGrid 3.7.
+    InternalDistributionDescriptor distrib;
 
     /** Specifies if a process object is registered. */
     bool processRegistered;
