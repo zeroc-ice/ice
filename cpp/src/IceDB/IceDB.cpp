@@ -223,7 +223,9 @@ Env::menv() const
     return _menv;
 }
 
-Txn::Txn(const Env& env, unsigned int flags)
+Txn::Txn(const Env& env, unsigned int flags) :
+    _mtxn(0),
+    _readOnly(flags == MDB_RDONLY)
 {
     const int rc = mdb_txn_begin(env.menv(), 0, flags, &_mtxn);
     if(rc != MDB_SUCCESS)
@@ -266,7 +268,6 @@ Txn::mtxn() const
 
 ReadOnlyTxn::~ReadOnlyTxn()
 {
-    // Out of line to avoid weak vtable
 }
 
 ReadOnlyTxn::ReadOnlyTxn(const Env& env) :
@@ -292,7 +293,6 @@ ReadOnlyTxn::renew()
 
 ReadWriteTxn::~ReadWriteTxn()
 {
-    // Out of line to avoid weak vtable
 }
 
 ReadWriteTxn::ReadWriteTxn(const Env& env) :
@@ -387,8 +387,8 @@ DbiBase::del(const ReadWriteTxn& txn, MDB_val* key, MDB_val* data)
     return rc == MDB_SUCCESS;
 }
 
-CursorBase::CursorBase(MDB_dbi dbi, const Txn& txn, bool readOnly) :
-    _readOnly(readOnly)
+CursorBase::CursorBase(MDB_dbi dbi, const Txn& txn) :
+    _readOnly(txn.isReadOnly())
 {
     const int rc = mdb_cursor_open(txn.mtxn(), dbi, &_mcursor);
     if(rc != MDB_SUCCESS)
