@@ -740,11 +740,6 @@ IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 IcePy._t_LocalObject = IcePy.declareValue('::Ice::LocalObject')
 
 #
-# Slice checksum dictionary.
-#
-sliceChecksums = {}
-
-#
 # Import generated Ice modules.
 #
 import Ice.BuiltinSequences_ice

@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\cpp98\src\Slice\Checksum.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\FileTracker.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Grammar.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\MD5.cpp" />

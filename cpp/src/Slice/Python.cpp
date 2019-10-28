@@ -453,7 +453,6 @@ usage(const string& n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
         "--prefix PREFIX          Prepend filenames of Python modules with PREFIX.\n"
         ;
 }
@@ -480,7 +479,6 @@ Slice::Python::compile(const vector<string>& argv)
     opts.addOpt("", "all");
     opts.addOpt("", "no-package");
     opts.addOpt("", "build-package");
-    opts.addOpt("", "checksum");
     opts.addOpt("", "prefix", IceUtilInternal::Options::NeedArg);
 
     vector<string> args;
@@ -547,8 +545,6 @@ Slice::Python::compile(const vector<string>& argv)
     bool noPackage = opts.isSet("no-package");
 
     bool buildPackage = opts.isSet("build-package");
-
-    bool checksum = opts.isSet("checksum");
 
     string prefix = opts.optArg("prefix");
 
@@ -761,7 +757,7 @@ Slice::Python::compile(const vector<string>& argv)
                             //
                             // Generate Python code.
                             //
-                            generate(u, all, checksum, includePaths, out);
+                            generate(u, all, includePaths, out);
 
                             out.close();
                         }
