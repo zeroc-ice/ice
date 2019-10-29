@@ -481,7 +481,7 @@ struct ReadBoolHelper
 {
     static bool* read(pair<const bool*, const bool*>& v, Int sz, InputStream::Container::iterator& i)
     {
-        bool* array = new bool[sz];
+        bool* array = new bool[static_cast<size_t>(sz)];
         for(int idx = 0; idx < sz; ++idx)
         {
             array[idx] = static_cast<bool>(*(i + idx));
