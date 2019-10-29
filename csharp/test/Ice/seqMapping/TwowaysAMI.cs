@@ -336,6 +336,14 @@ namespace Ice
                 }
 
                 {
+                    var i = new Queue<ObjectPrx>(Enumerable.Range(0, Length).Select(
+                        x => communicator.stringToProxy(x.ToString())).ToArray());
+                    var r = p.opQObjectPrxSAsync(i).Result;
+                    test(r.o.SequenceEqual(i));
+                    test(r.returnValue.SequenceEqual(i));
+                }
+
+                {
                     var i = new Stack<ObjectPrx>(Enumerable.Range(0, Length).Select(
                         x => communicator.stringToProxy(x.ToString())).ToArray());
                     var r = p.opSObjectPrxSAsync(i).Result;
@@ -598,7 +606,7 @@ namespace Ice
 
         class ValueComparer<T> : IEqualityComparer<T>
         {
-            public bool Equals([AllowNull] T x, [AllowNull] T y)
+            public bool Equals(T x, T y)
             {
                 if (ReferenceEquals(x, y))
                 {

@@ -4,7 +4,6 @@
 
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -12,40 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            private class Callback
-            {
-                internal Callback()
-                {
-                    _called = false;
-                }
-
-                public virtual void check()
-                {
-                    lock (this)
-                    {
-                        while (!_called)
-                        {
-                            Monitor.Wait(this);
-                        }
-
-                        _called = false;
-                    }
-                }
-
-                public virtual void called()
-                {
-                    lock (this)
-                    {
-                        Debug.Assert(!_called);
-                        _called = true;
-                        Monitor.Pulse(this);
-                    }
-                }
-
-                private bool _called;
-            }
-
-            private static Ice.Connection connect(Ice.ObjectPrx prx)
+            private static Connection connect(Ice.ObjectPrx prx)
             {
                 int nRetry = 10;
                 while (--nRetry > 0)
@@ -55,7 +21,7 @@ namespace Ice
                         prx.ice_getConnection();
                         break;
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                         // Can sporadically occur with slow machines
                     }
@@ -108,7 +74,7 @@ namespace Ice
                         to.op();
                         test(false);
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                         // Expected.
                     }
@@ -166,7 +132,7 @@ namespace Ice
                     {
                         to.sendData(new byte[1000000]);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (TimeoutException)
                     {
                         test(false);
                     }
@@ -194,7 +160,7 @@ namespace Ice
                     {
                         to.sleep(100);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                         test(false);
                     }
@@ -260,7 +226,7 @@ namespace Ice
                             con.getInfo();
                             test(false);
                         }
-                        catch (Ice.TimeoutException)
+                        catch (TimeoutException)
                         {
                             // Connection got closed as well.
                         }
@@ -280,10 +246,11 @@ namespace Ice
                     {
                         connection.getInfo(); // getInfo() doesn't throw in the closing state.
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                         test(false);
                     }
+
                     while (true)
                     {
                         try
@@ -291,7 +258,7 @@ namespace Ice
                             connection.getInfo();
                             Thread.Sleep(10);
                         }
-                        catch (Ice.ConnectionManuallyClosedException ex)
+                        catch (ConnectionManuallyClosedException ex)
                         {
                             // Expected.
                             test(ex.graceful);
@@ -323,7 +290,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (TimeoutException)
                     {
                         // Expected.
                     }
@@ -341,7 +308,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (TimeoutException)
                     {
                         // Expected.
                     }
@@ -353,7 +320,7 @@ namespace Ice
                     //
                     // Test Ice.Override.ConnectTimeout.
                     //
-                    var initData = new Ice.InitializationData();
+                    var initData = new InitializationData();
                     initData.properties = communicator.getProperties().ice_clone_();
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
                     var comm = helper.initialize(initData);
@@ -364,7 +331,7 @@ namespace Ice
                         to.op();
                         test(false);
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                         // Expected.
                     }
@@ -381,7 +348,7 @@ namespace Ice
                         to.op();
                         test(false);
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                         // Expected.
                     }
@@ -399,7 +366,7 @@ namespace Ice
                         to.sendData(seq);
                         test(false);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (TimeoutException)
                     {
                         // Expected.
                     }
@@ -411,7 +378,7 @@ namespace Ice
                     //
                     // Test Ice.Override.CloseTimeout.
                     //
-                    var initData = new Ice.InitializationData();
+                    var initData = new InitializationData();
                     initData.properties = communicator.getProperties().ice_clone_();
                     initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
                     var comm = helper.initialize(initData);
@@ -448,9 +415,8 @@ namespace Ice
                         proxy.sleepAsync(500).Wait();
                         test(false);
                     }
-                    catch (System.AggregateException ex)
+                    catch (System.AggregateException ex) when (ex.InnerException is InvocationTimeoutException)
                     {
-                        test(ex.InnerException is InvocationTimeoutException);
                     }
 
                     try
@@ -475,9 +441,8 @@ namespace Ice
                         batchTimeout.ice_flushBatchRequestsAsync().Wait();
                         test(false);
                     }
-                    catch (System.AggregateException ex)
+                    catch (System.AggregateException ex) when (ex.InnerException is InvocationTimeoutException)
                     {
-                        test(ex.InnerException is InvocationTimeoutException);
                     }
 
                     adapter.destroy();

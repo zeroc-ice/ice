@@ -3,9 +3,9 @@
 //
 
 using System;
-using System.IO;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -107,7 +107,7 @@ namespace Ice
                 return "";
             }
 
-            public Ice.Logger cloneWithPrefix(string prefix)
+            public Logger cloneWithPrefix(string prefix)
             {
                 return this;
             }
@@ -156,7 +156,7 @@ namespace Ice
             {
                 _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
-                Ice.InitializationData initData = new Ice.InitializationData();
+                var initData = new InitializationData();
                 initData.properties = _com.ice_getCommunicator().getProperties().ice_clone_();
                 initData.logger = _logger;
                 initData.properties.setProperty("Ice.ACM.Timeout", "2");
@@ -335,7 +335,6 @@ namespace Ice
                     {
                         adapter.activate();
                         proxy.interruptSleep();
-
                         waitForClosed();
                     }
                 }
