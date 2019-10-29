@@ -233,7 +233,7 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
     for(auto& p : _queue)
     {
         auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
-        send(outgoing, inParams, p.response, p.error, p.current);
+        send(_outgoing, inParams, p.response, p.error, p.current);
     }
     _queue.clear();
 }
