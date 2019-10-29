@@ -11,7 +11,7 @@
 // COMPILERFIX: G++ false positive "maybe-uninitialized" warnings when using
 // string_view with Ice::optional in C++17 mode.
 //
-#if defined(__GNUC__) && ICE_CPLUSPLUS >= 201703L
+#if defined(__GNUC__) && !defined(__clang__) && ICE_CPLUSPLUS >= 201703L
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -190,7 +190,7 @@ struct StreamHelper<Util::string_view, StreamHelperCategoryBuiltin>
 
 }
 
-#if defined(__GNUC__) && ICE_CPLUSPLUS >= 201703L
+#if defined(__GNUC__) && !defined(__clang__) && ICE_CPLUSPLUS >= 201703L
 #   pragma GCC diagnostic pop
 #endif
 
