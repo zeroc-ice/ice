@@ -13,124 +13,49 @@ using namespace Ice;
 
 namespace
 {
-
 //
-// Represents a pending invocation.
-//
-class Invocation : public IceUtil::Shared
-{
-public:
-
-    Invocation(const AMD_Object_ice_invokePtr& cb) :
-        _cb(cb)
-    {
-    }
-
-    void success(bool ok, const pair<const Byte*, const Byte*>& results)
-    {
-        _cb->ice_response(ok, results);
-    }
-
-    void exception(const Exception& ex)
-    {
-        _cb->ice_exception(ex);
-    }
-
-    void sent(bool)
-    {
-        _cb->ice_response(true, vector<Byte>()); // For oneway invocations
-    }
-
-private:
-
-    const AMD_Object_ice_invokePtr _cb;
-};
-typedef IceUtil::Handle<Invocation> InvocationPtr;
-
-//
-// Holds information about an incoming invocation that's been queued until an outgoing connection has
+// Holds information about an incoming dispatch that's been queued until an outgoing connection has
 // been established.
 //
-struct QueuedInvocation : public IceUtil::Shared
+struct QueuedDispatch final
 {
     //
-    // The pointers in paramData refer to the Ice marshaling buffer and won't remain valid after
-    // ice_invoke_async completes, so we have to make a copy of the parameter data.
+    // The pointers in p refer to the Ice marshaling buffer and won't remain valid after
+    // ice_invokeAsync completes, so we have to make a copy of the in parameters
     //
-    QueuedInvocation(const AMD_Object_ice_invokePtr& c, const pair<const Byte*, const Byte*>& p, const Current& curr) :
-        cb(c), paramData(p.first, p.second), current(curr)
+    QueuedDispatch(pair<const Byte*, const Byte*> p,
+                   function<void(bool, const pair<const Byte*, const Byte*>&)>&& r,
+                   function<void(exception_ptr)>&& e,
+                   const Current& c) :
+        inParams(p.first, p.second), response(r), error(e), current(c)
     {
     }
 
-    const AMD_Object_ice_invokePtr cb;
-    const vector<Byte> paramData;
+    QueuedDispatch(QueuedDispatch&&) = default;
+
+    // Make sure we don't copy this struct by accident
+    QueuedDispatch(const QueuedDispatch&) = delete;
+
+    const vector<Byte> inParams;
+    const function<void(bool, const pair<const Byte*, const Byte*>&)> response;
+    const function<void(exception_ptr)> error;
     const Current current;
-};
-typedef IceUtil::Handle<QueuedInvocation> QueuedInvocationPtr;
-
-//
-// Relays heartbeat messages.
-//
-class HeartbeatCallbackI : public HeartbeatCallback
-{
-public:
-
-    HeartbeatCallbackI(const ConnectionPtr&);
-
-    virtual void heartbeat(const ConnectionPtr&);
-
-private:
-
-    const ConnectionPtr _connection;
-};
-
-class BridgeI;
-typedef IceUtil::Handle<BridgeI> BridgeIPtr;
-
-class BridgeConnection;
-typedef IceUtil::Handle<BridgeConnection> BridgeConnectionPtr;
-
-class CloseCallbackI : public CloseCallback
-{
-public:
-
-    CloseCallbackI(const BridgeIPtr&);
-
-    virtual void closed(const ConnectionPtr&);
-
-private:
-
-    const BridgeIPtr _bridge;
-};
-
-class GetConnectionCallback : public IceUtil::Shared
-{
-public:
-
-    GetConnectionCallback(const BridgeIPtr&, const BridgeConnectionPtr&);
-    void success(const ConnectionPtr&);
-    void exception(const Exception&);
-
-private:
-
-    const BridgeIPtr _bridge;
-    const BridgeConnectionPtr _bc;
 };
 
 //
 // Allows the bridge to be used as an Ice router.
 //
-class RouterI : public Router
+class RouterI final : public Router
 {
 public:
 
-    virtual ObjectPrx getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Current&) const
+    virtual shared_ptr<ObjectPrx> getClientProxy(Ice::optional<bool>& hasRoutingTable, const Current&) const override
     {
         hasRoutingTable = false; // We don't maintain a routing table, no need to call addProxies on this impl.
-        return 0;
+        return nullptr;
     }
 
-    virtual ObjectPrx getServerProxy(const Current& current) const
+    virtual shared_ptr<ObjectPrx> getServerProxy(const Current& current) const override
     {
         //
         // We return a non-nil dummy proxy here so that a client is able to configure its
@@ -139,107 +64,107 @@ public:
         return current.adapter->getCommunicator()->stringToProxy("dummy");
     }
 
-    virtual ObjectProxySeq addProxies(const ObjectProxySeq&, const Current&)
+    virtual ObjectProxySeq addProxies(ObjectProxySeq, const Current&) override
     {
         return ObjectProxySeq();
     }
 };
 
-class FinderI : public RouterFinder
+class FinderI final : public RouterFinder
 {
 public:
 
-    FinderI(const RouterPrx& router) :
-        _router(router)
+    FinderI(shared_ptr<RouterPrx> router) :
+        _router(move(router))
     {
     }
 
-    virtual RouterPrx getRouter(const Current&)
+    virtual shared_ptr<RouterPrx> getRouter(const Current&) override
     {
         return _router;
     }
 
 private:
 
-    const RouterPrx _router;
+    const shared_ptr<RouterPrx> _router;
 };
 
 //
-// Represents a pair of bridged connections.
+// Represents a pair of connections (shared object)
 //
-class BridgeConnection : public IceUtil::Shared
+class BridgeConnection final
 {
 public:
 
-    BridgeConnection(const ObjectAdapterPtr&, const ObjectPrx&, const ConnectionPtr&);
+    BridgeConnection(shared_ptr<ObjectAdapter>, shared_ptr<ObjectPrx>, shared_ptr<Connection>);
 
-    void outgoingSuccess(const ConnectionPtr&);
-    void outgoingException(const Exception&);
+    void outgoingSuccess(shared_ptr<Connection>);
+    void outgoingException(exception_ptr);
 
-    void closed(const ConnectionPtr&);
-    void dispatch(const AMD_Object_ice_invokePtr&, const pair<const Byte*, const Byte*>&, const Current&);
-
+    void closed(const shared_ptr<Connection>&);
+    void dispatch(pair<const Byte*, const Byte*>,
+                  function<void(bool, const pair<const Byte*, const Byte*>&)>,
+                  function<void(exception_ptr)>,
+                  const Current&);
 private:
 
-    void send(const ConnectionPtr&,
-              const AMD_Object_ice_invokePtr&,
-              const pair<const Byte*, const Byte*>&,
-              const Current&);
+    void send(const shared_ptr<Connection>&,
+              pair<const Byte*, const Byte*>,
+              function<void(bool, const pair<const Byte*, const Byte*>&)>,
+              function<void(exception_ptr)>,
+              const Current& current);
 
-    const ObjectAdapterPtr _adapter;
-    const ObjectPrx _target;
-    const ConnectionPtr _incoming;
+    shared_ptr<ObjectAdapter> _adapter;
+    shared_ptr<ObjectPrx> _target;
+    shared_ptr<Connection> _incoming;
 
-    IceUtil::Mutex _lock;
-    ConnectionPtr _outgoing;
-    IceInternal::UniquePtr<Exception> _exception;
+    std::mutex _lock;
+    shared_ptr<Connection> _outgoing;
+    exception_ptr _exception;
 
     //
-    // We maintain our own queue for invocations that arrive on the incoming connection before the outgoing
+    // We maintain our own queue for dispatches that arrive on the incoming connection before the outgoing
     // connection has been established. We don't want to forward these to proxies and let the proxies handle
     // the queuing because then the invocations could be sent out of order (e.g., when invocations are split
     // among twoway/oneway/datagram proxies).
     //
-    vector<QueuedInvocationPtr> _queue;
+    vector<QueuedDispatch> _queue;
 };
 
 //
 // The main bridge servant.
 //
-class BridgeI : public Ice::BlobjectArrayAsync
+class BridgeI final : public Ice::BlobjectArrayAsync, public enable_shared_from_this<BridgeI>
 {
 public:
 
-    BridgeI(const ObjectAdapterPtr& adapter, const ObjectPrx& target);
+    BridgeI(shared_ptr<ObjectAdapter> adapter, shared_ptr<ObjectPrx> target);
 
-    virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Byte*, const Byte*>&,
-                                  const Current&);
+    virtual void ice_invokeAsync(pair<const Byte*, const Byte*> inEncaps,
+                                 function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                                 function<void(exception_ptr)> error,
+                                 const Current& current) override;
 
-    void closed(const ConnectionPtr&);
-    void outgoingSuccess(const BridgeConnectionPtr&, const ConnectionPtr&);
-    void outgoingException(const BridgeConnectionPtr&, const Exception&);
+    void closed(const shared_ptr<Connection>&);
+    void outgoingSuccess(shared_ptr<BridgeConnection>, shared_ptr<Connection>);
+    void outgoingException(shared_ptr<BridgeConnection>, exception_ptr);
 
 private:
 
-    const ObjectAdapterPtr _adapter;
-    const ObjectPrx _target;
+    const shared_ptr<ObjectAdapter> _adapter;
+    const shared_ptr<ObjectPrx> _target;
 
-    IceUtil::Mutex _lock;
-    map<ConnectionPtr, BridgeConnectionPtr> _connections;
+    std::mutex _lock;
+    map<shared_ptr<Connection>, shared_ptr<BridgeConnection>> _connections;
 };
 
-class BridgeService : public Service
+class BridgeService final : public Service
 {
-public:
-
-    BridgeService();
-
 protected:
 
-    virtual bool start(int, char*[], int&);
-    virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
+    virtual bool start(int, char*[], int&) override;
+    virtual bool stop() override;
+    virtual shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
 private:
 
@@ -248,63 +173,17 @@ private:
 
 }
 
-HeartbeatCallbackI::HeartbeatCallbackI(const ConnectionPtr& con) :
-    _connection(con)
+BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter,
+                                   shared_ptr<ObjectPrx> target,
+                                   shared_ptr<Connection> inc) :
+    _adapter(move(adapter)), _target(move(target)), _incoming(move(inc))
 {
 }
 
 void
-HeartbeatCallbackI::heartbeat(const ConnectionPtr&)
+BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
 {
-    //
-    // When a connection receives a heartbeat message, we send one over its corresponding connection.
-    //
-    try
-    {
-        _connection->begin_heartbeat();
-    }
-    catch(...)
-    {
-    }
-}
-
-CloseCallbackI::CloseCallbackI(const BridgeIPtr& bridge) :
-    _bridge(bridge)
-{
-}
-
-void
-CloseCallbackI::closed(const ConnectionPtr& con)
-{
-    _bridge->closed(con);
-}
-
-GetConnectionCallback::GetConnectionCallback(const BridgeIPtr& bridge, const BridgeConnectionPtr& bc) :
-    _bridge(bridge), _bc(bc)
-{
-}
-
-void
-GetConnectionCallback::success(const ConnectionPtr& outgoing)
-{
-    _bridge->outgoingSuccess(_bc, outgoing);
-}
-
-void
-GetConnectionCallback::exception(const Exception& ex)
-{
-    _bridge->outgoingException(_bc, ex);
-}
-
-BridgeConnection::BridgeConnection(const ObjectAdapterPtr& adapter, const ObjectPrx& target, const ConnectionPtr& inc) :
-    _adapter(adapter), _target(target), _incoming(inc)
-{
-}
-
-void
-BridgeConnection::outgoingSuccess(const ConnectionPtr& outgoing)
-{
-    IceUtil::Mutex::Lock lock(_lock);
+    lock_guard<mutex> lg(_lock);
     assert(!_outgoing && outgoing);
     if(_exception)
     {
@@ -312,17 +191,36 @@ BridgeConnection::outgoingSuccess(const ConnectionPtr& outgoing)
         // The incoming connection is already closed. There's no point in leaving the outgoing
         // connection open.
         //
-        outgoing->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+        outgoing->close(ConnectionClose::Gracefully);
         return;
     }
 
-    _outgoing = outgoing;
+    _outgoing = move(outgoing);
 
     //
     // Register hearbeat callbacks on both connections.
     //
-    _incoming->setHeartbeatCallback(new HeartbeatCallbackI(_outgoing));
-    _outgoing->setHeartbeatCallback(new HeartbeatCallbackI(_incoming));
+    _incoming->setHeartbeatCallback([con = _outgoing](const shared_ptr<Connection>&)
+                                    {
+                                        try
+                                        {
+                                            con->heartbeatAsync(nullptr);
+                                        }
+                                        catch(...)
+                                        {
+                                        }
+                                    });
+
+    _outgoing->setHeartbeatCallback([con = _incoming](const shared_ptr<Connection>&)
+                                    {
+                                        try
+                                        {
+                                            con->heartbeatAsync(nullptr);
+                                        }
+                                        catch(...)
+                                        {
+                                        }
+                                    });
 
     //
     // Configure the outgoing connection for bidirectional requests.
@@ -330,90 +228,92 @@ BridgeConnection::outgoingSuccess(const ConnectionPtr& outgoing)
     _outgoing->setAdapter(_adapter);
 
     //
-    // Flush any queued invocations.
+    // Flush any queued dispatches
     //
-    for(vector<QueuedInvocationPtr>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
+    for(auto& p : _queue)
     {
-        pair<const Byte*, const Byte*> paramData(&(*p)->paramData[0], &(*p)->paramData[0] + (*p)->paramData.size());
-        send(outgoing, (*p)->cb, paramData, (*p)->current);
+        auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
+        send(outgoing, inParams, p.response, p.error, p.current);
     }
     _queue.clear();
 }
 
 void
-BridgeConnection::outgoingException(const Exception& ex)
+BridgeConnection::outgoingException(exception_ptr ex)
 {
-    IceUtil::Mutex::Lock lock(_lock);
+    lock_guard<mutex> lg(_lock);
     if(_exception)
     {
         return;
     }
-    _exception.reset(ex.ice_clone());
+    _exception = ex;
 
     //
     // The outgoing connection failed so we close the incoming connection. closed() will eventually
     // be called for it when the connection's dispatch count reaches zero.
     //
-    _incoming->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+    _incoming->close(ConnectionClose::Gracefully);
 
     //
-    // Complete the queued incoming invocations, otherwise the incoming connection will never
+    // Complete the queued incoming dispatch, otherwise the incoming connection will never
     // complete its graceful closure. This is only necessary on the server side.
     //
     // The client will receive an UnknownLocalException whose reason member contains information
     // about the failure.
     //
-    for(vector<QueuedInvocationPtr>::iterator p = _queue.begin(); p != _queue.end(); ++p)
+    for(auto& p : _queue)
     {
-        (*p)->cb->ice_exception(ex);
+        p.error(ex);
     }
     _queue.clear();
 }
 
 void
-BridgeConnection::closed(const ConnectionPtr& con)
+BridgeConnection::closed(const shared_ptr<Connection>& con)
 {
-    IceUtil::Mutex::Lock lock(_lock);
+    lock_guard<mutex> lg(_lock);
     if(_exception)
     {
         return; // Nothing to do if the exception is already set, both connections have been closed already.
     }
 
-    ConnectionPtr toBeClosed = con == _incoming ? _outgoing : _incoming;
+    auto toBeClosed = con == _incoming ? _outgoing : _incoming;
     try
     {
         con->throwException();
     }
-    catch(const Ice::CloseConnectionException& ex)
+    catch(const Ice::CloseConnectionException&)
     {
-        _exception.reset(ex.ice_clone());
+        _exception = current_exception();
         if(toBeClosed)
         {
-            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+            toBeClosed->close(ConnectionClose::Gracefully);
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const std::exception&)
     {
-        _exception.reset(ex.ice_clone());
+        _exception = current_exception();
         if(toBeClosed)
         {
-            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+            toBeClosed->close(ConnectionClose::Forcefully);
         }
     }
 
     //
-    // Even though the connection is already closed, we still need to "complete" the pending invocations so
+    // Even though the connection is already closed, we still need to "complete" the pending dispatches so
     // that the connection's dispatch count is updated correctly.
     //
-    for(vector<QueuedInvocationPtr>::iterator p = _queue.begin(); p != _queue.end(); ++p)
+    for(auto& p : _queue)
     {
-        (*p)->cb->ice_exception(*_exception.get());
+        p.error(_exception);
     }
     _queue.clear();
 }
 
 void
-BridgeConnection::dispatch(const AMD_Object_ice_invokePtr& cb, const pair<const Byte*, const Byte*>& paramData,
+BridgeConnection::dispatch(pair<const Byte*, const Byte*> inParams,
+                           function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                           function<void(exception_ptr)> error,
                            const Current& current)
 {
     //
@@ -421,10 +321,10 @@ BridgeConnection::dispatch(const AMD_Object_ice_invokePtr& cb, const pair<const 
     // the server via the outgoing (bidirectional) connection. The current.con member tells us
     // the connection over which the request arrived.
     //
-    IceUtil::Mutex::Lock lock(_lock);
+    lock_guard<mutex> lg(_lock);
     if(_exception)
     {
-        cb->ice_exception(*_exception.get());
+        error(_exception);
     }
     else if(!_outgoing)
     {
@@ -432,18 +332,19 @@ BridgeConnection::dispatch(const AMD_Object_ice_invokePtr& cb, const pair<const 
         // Queue the invocation until the outgoing connection is established.
         //
         assert(current.con == _incoming);
-        _queue.push_back(new QueuedInvocation(cb, paramData, current));
+        _queue.emplace_back(inParams, move(response), move(error), current);
     }
     else
     {
-        send(current.con == _incoming ? _outgoing : _incoming, cb, paramData, current);
+        send(current.con == _incoming ? _outgoing : _incoming, inParams, response, error, current);
     }
 }
 
 void
-BridgeConnection::send(const ConnectionPtr& dest,
-                       const AMD_Object_ice_invokePtr& cb,
-                       const pair<const Byte*, const Byte*>& paramData,
+BridgeConnection::send(const shared_ptr<Connection>& dest,
+                       pair<const Byte*, const Byte*> inParams,
+                       function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                       function<void(exception_ptr)> error,
                        const Current& current)
 {
     try
@@ -451,60 +352,57 @@ BridgeConnection::send(const ConnectionPtr& dest,
         //
         // Create a proxy having the same identity as the request.
         //
-        ObjectPrx prx = dest->createProxy(current.id);
+        auto prx = dest->createProxy(current.id);
 
-        //
-        // Examine the request to determine whether it should be forwarded as a oneway or a twoway.
-        //
-        Callback_Object_ice_invokePtr d;
         if(!current.requestId)
         {
+            // Oneway request
             if(prx->ice_isTwoway())
             {
                 prx = prx->ice_oneway();
             }
-            d = newCallback_Object_ice_invoke(new Invocation(cb), &Invocation::exception, &Invocation::sent);
+            prx->ice_invokeAsync(current.operation, current.mode, inParams,
+                                 nullptr, error, [response](bool){ response(true, make_pair(nullptr, nullptr)); }, current.ctx);
         }
         else
         {
-            d = newCallback_Object_ice_invoke(new Invocation(cb), &Invocation::success, &Invocation::exception);
+            // Twoway request
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, response, error, nullptr, current.ctx);
         }
-        prx->begin_ice_invoke(current.operation, current.mode, paramData, current.ctx, d);
     }
     catch(const std::exception& ex)
     {
-        cb->ice_exception(ex);
+        error(current_exception());
     }
 }
 
-BridgeI::BridgeI(const ObjectAdapterPtr& adapter, const ObjectPrx& target) :
-    _adapter(adapter), _target(target)
+BridgeI::BridgeI(shared_ptr<ObjectAdapter> adapter, shared_ptr<ObjectPrx> target) :
+    _adapter(move(adapter)), _target(move(target))
 {
 }
 
 void
-BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                          const std::pair<const Byte*, const Byte*>& paramData,
-                          const Current& current)
+BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
+                         function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                         function<void(exception_ptr)> error,
+                         const Current& current)
 {
-    BridgeConnectionPtr bc;
-
+    shared_ptr<BridgeConnection> bc;
     {
-        IceUtil::Mutex::Lock lock(_lock);
+        lock_guard<mutex> lg(_lock);
 
-        map<ConnectionPtr, BridgeConnectionPtr>::iterator p = _connections.find(current.con);
+        auto p = _connections.find(current.con);
         if(p == _connections.end())
         {
             //
             // The connection is unknown to us, it must be a new incoming connection.
             //
-
-            EndpointInfoPtr info = current.con->getEndpoint()->getInfo();
+            auto info = current.con->getEndpoint()->getInfo();
 
             //
             // Create a target proxy that matches the configuration of the incoming connection.
             //
-            ObjectPrx target;
+            shared_ptr<ObjectPrx> target;
             if(info->datagram())
             {
                 target = _target->ice_datagram();
@@ -523,12 +421,14 @@ BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
             //
             target = target->ice_connectionId(Ice::generateUUID());
 
-            bc = new BridgeConnection(_adapter, target, current.con);
-            _connections.insert(make_pair(current.con, bc));
-            current.con->setCloseCallback(new CloseCallbackI(this));
+            bc = make_shared<BridgeConnection>(_adapter, target, current.con);
+            _connections.emplace(make_pair(current.con, bc));
+
+            auto self = shared_from_this();
+            current.con->setCloseCallback([self](auto con) { self->closed(con); });
 
             //
-            // Try to establish the outgoing connection.
+            // Try to establish the outgoing connection asynchronously
             //
             try
             {
@@ -536,15 +436,13 @@ BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
                 // Begin the connection establishment process asynchronously. This can take a while to complete,
                 // especially when using Bluetooth.
                 //
-                Callback_Object_ice_getConnectionPtr d =
-                    newCallback_Object_ice_getConnection(new GetConnectionCallback(this, bc),
-                                                         &GetConnectionCallback::success,
-                                                         &GetConnectionCallback::exception);
-                target->begin_ice_getConnection(d);
+                target->ice_getConnectionAsync(
+                    [self, bc](auto outgoing) { self->outgoingSuccess(move(bc), move(outgoing)); },
+                    [self, bc](auto ex) { self->outgoingException(move(bc), ex); });
             }
-            catch(const Exception& ex)
+            catch(const std::exception ex)
             {
-                cb->ice_exception(ex);
+                error(current_exception());
                 return;
             }
         }
@@ -557,19 +455,19 @@ BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
     //
     // Delegate the invocation to the BridgeConnection object.
     //
-    bc->dispatch(cb, paramData, current);
+    bc->dispatch(inParams, response, error, current);
 }
 
 void
-BridgeI::closed(const ConnectionPtr& con)
+BridgeI::closed(const shared_ptr<Connection>& con)
 {
     //
     // Notify the BridgeConnection that a connection has closed. We also need to remove it from our map.
     //
-    BridgeConnectionPtr bc;
+    shared_ptr<BridgeConnection> bc;
     {
-        IceUtil::Mutex::Lock lock(_lock);
-        map<ConnectionPtr, BridgeConnectionPtr>::iterator p = _connections.find(con);
+        lock_guard<mutex> lg(_lock);
+        auto p = _connections.find(con);
         assert(p != _connections.end());
         bc = p->second;
         _connections.erase(p);
@@ -579,30 +477,27 @@ BridgeI::closed(const ConnectionPtr& con)
 }
 
 void
-BridgeI::outgoingSuccess(const BridgeConnectionPtr& bc, const ConnectionPtr& outgoing)
+BridgeI::outgoingSuccess(shared_ptr<BridgeConnection> bc, shared_ptr<Connection> outgoing)
 {
     //
     // An outgoing connection was established. Notify the BridgeConnection object.
     //
     {
-        IceUtil::Mutex::Lock lock(_lock);
+        lock_guard<mutex> lg(_lock);
         _connections.insert(make_pair(outgoing, bc));
-        outgoing->setCloseCallback(new CloseCallbackI(this));
+        auto self = shared_from_this(); // TODO: update to C++14
+        outgoing->setCloseCallback([self](const shared_ptr<Connection>& con) { self->closed(con); });
     }
-    bc->outgoingSuccess(outgoing);
+    bc->outgoingSuccess(move(outgoing));
 }
 
 void
-BridgeI::outgoingException(const BridgeConnectionPtr& bc, const Exception& ex)
+BridgeI::outgoingException(shared_ptr<BridgeConnection> bc, exception_ptr ex)
 {
     //
     // An outgoing connection attempt failed. Notify the BridgeConnection object.
     //
     bc->outgoingException(ex);
-}
-
-BridgeService::BridgeService()
-{
 }
 
 bool
@@ -644,7 +539,7 @@ BridgeService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
+    auto properties = communicator()->getProperties();
 
     const string targetProperty = "IceBridge.Target.Endpoints";
     const string targetEndpoints = properties->getProperty(targetProperty);
@@ -654,7 +549,7 @@ BridgeService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    Ice::ObjectPrx target;
+    shared_ptr<Ice::ObjectPrx> target;
 
     try
     {
@@ -677,13 +572,14 @@ BridgeService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IceBridge.Source");
+    auto adapter = communicator()->createObjectAdapter("IceBridge.Source");
 
-    adapter->addDefaultServant(new BridgeI(adapter, target), "");
+    adapter->addDefaultServant(make_shared<BridgeI>(adapter, move(target)), "");
 
     string instanceName = properties->getPropertyWithDefault("IceBridge.InstanceName", "IceBridge");
-    RouterPrx router = RouterPrx::uncheckedCast(adapter->add(new RouterI, stringToIdentity(instanceName + "/router")));
-    adapter->add(new FinderI(router), stringToIdentity("Ice/RouterFinder"));
+    auto router = uncheckedCast<RouterPrx>(adapter->add(make_shared<RouterI>(),
+                                                        stringToIdentity(instanceName + "/router")));
+    adapter->add(make_shared<FinderI>(router), stringToIdentity("Ice/RouterFinder"));
 
     try
     {
@@ -709,7 +605,7 @@ BridgeService::stop()
     return true;
 }
 
-CommunicatorPtr
+shared_ptr<Communicator>
 BridgeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData,
                                       int version)
 {
@@ -750,15 +646,11 @@ BridgeService::usage(const string& appName)
 }
 
 #ifdef _WIN32
-
 int
 wmain(int argc, wchar_t* argv[])
-
 #else
-
 int
 main(int argc, char* argv[])
-
 #endif
 {
     BridgeService svc;
