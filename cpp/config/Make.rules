@@ -9,7 +9,7 @@
 #
 # Supported configurations
 #
-supported-configs = shared static cpp11-shared cpp11-static
+supported-configs = cpp98-shared cpp98-static cpp11-shared cpp11-static
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
@@ -57,6 +57,12 @@ static_projects         = test/Common \
                           test/IceGrid/simple
 
 static_excludes         = test/Ice/library test/Ice/plugin
+
+#
+# Components and projects which are built with C++98
+#
+cpp98_projects          = %
+cpp98_excludes          = icebridge
 
 #
 # Components and projects which are built with C++11
