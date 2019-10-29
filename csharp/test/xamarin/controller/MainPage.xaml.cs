@@ -78,15 +78,6 @@ namespace controller
                 return new Ice.binding.Client();
             }
 
-            else if (type.Equals("Ice.checksum.Server"))
-            {
-                return new Ice.checksum.Server();
-            }
-            else if (type.Equals("Ice.checksum.Client"))
-            {
-                return new Ice.checksum.Client();
-            }
-
             else if (type.Equals("Ice.defaultServant.Client"))
             {
                 return new Ice.defaultServant.Client();

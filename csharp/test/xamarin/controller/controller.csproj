@@ -60,7 +60,6 @@
     <ProjectReference Include="..\..\Ice\admin\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\ami\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\binding\msbuild\test\netstandard2.0\test.csproj" />
-    <ProjectReference Include="..\..\Ice\checksum\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\defaultServant\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\defaultValue\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\dictMapping\msbuild\test\netstandard2.0\test.csproj" />
