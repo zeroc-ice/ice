@@ -121,29 +121,6 @@ namespace Glacier2
         }
 
         /// <summary>
-        /// Sets whether to connect with the Glacier2 router securely.
-        /// </summary>
-        /// <param name="secure">If true, the client connects to the router
-        /// via SSL; otherwise, the client connects via TCP.</param>
-        [Obsolete("This method is deprecated. Use SessionFactoryHelper.setProtocol instead.")]
-        public void
-        setSecure(bool secure)
-        {
-            setProtocol(secure ? "ssl" : "tcp");
-        }
-
-        /// <summary>
-        /// Returns whether the session factory will establish a secure connection to the Glacier2 router.
-        /// </summary>
-        /// <returns>The secure flag.</returns>
-        [Obsolete("This method is deprecated. Use SessionFactoryHelper.getProtocol instead.")]
-        public bool
-        getSecure()
-        {
-            return getProtocol().Equals("ssl");
-        }
-
-        /// <summary>
         /// Sets the protocol that will be used by the session factory to establish the connection..
         /// </summary>
         /// <param name="protocol">The protocol.</param>
@@ -158,9 +135,9 @@ namespace Glacier2
                 }
 
                 if (!protocol.Equals("tcp") &&
-                   !protocol.Equals("ssl") &&
-                   !protocol.Equals("wss") &&
-                   !protocol.Equals("ws"))
+                    !protocol.Equals("ssl") &&
+                    !protocol.Equals("wss") &&
+                    !protocol.Equals("ws"))
                 {
                     throw new ArgumentException("Unknown protocol `" + protocol + "'");
                 }

@@ -14,29 +14,7 @@ namespace Ice
         {
             private static string getAdapterNameWithAMI(Test.TestIntfPrx testIntf)
             {
-                object m = new object();
-                string result = null;
-                testIntf.begin_getAdapterName().whenCompleted(
-                   (string name) =>
-                    {
-                        lock (m)
-                        {
-                            result = name;
-                            System.Threading.Monitor.Pulse(m);
-                        }
-                    },
-                   (Ice.Exception ex) =>
-                    {
-                        test(false);
-                    });
-                lock (m)
-                {
-                    while (result == null)
-                    {
-                        System.Threading.Monitor.Wait(m);
-                    }
-                    return result;
-                }
+                return testIntf.getAdapterNameAsync().Result;
             }
 
             private static void shuffle(ref List<Test.RemoteObjectAdapterPrx> array)
@@ -56,13 +34,13 @@ namespace Ice
 
             private static Test.TestIntfPrx createTestIntfPrx(List<Test.RemoteObjectAdapterPrx> adapters)
             {
-                List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+                List<Endpoint> endpoints = new List<Endpoint>();
                 Test.TestIntfPrx obj = null;
                 IEnumerator<Test.RemoteObjectAdapterPrx> p = adapters.GetEnumerator();
                 while (p.MoveNext())
                 {
                     obj = p.Current.getTestIntf();
-                    foreach (Ice.Endpoint e in obj.ice_getEndpoints())
+                    foreach (Endpoint e in obj.ice_getEndpoints())
                     {
                         endpoints.Add(e);
                     }
@@ -89,7 +67,7 @@ namespace Ice
 
             public static void allTests(global::Test.TestHelper helper)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 string @ref = "communicator:" + helper.getTestEndpoint(0);
                 Test.RemoteCommunicatorPrx com = Test.RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
@@ -119,10 +97,10 @@ namespace Ice
                         test3.ice_ping();
                         test(false);
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
                 }
@@ -158,7 +136,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(test1.getAdapterName());
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -180,7 +158,7 @@ namespace Ice
 
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            adpt.getTestIntf().ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                         }
                     }
 
@@ -205,7 +183,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(test1.getAdapterName());
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -259,7 +237,7 @@ namespace Ice
 
                         for (i = 0; i < proxies.Length; i++)
                         {
-                            proxies[i].begin_getAdapterName();
+                            proxies[i].getAdapterNameAsync();
                         }
                         for (i = 0; i < proxies.Length; i++)
                         {
@@ -267,12 +245,12 @@ namespace Ice
                             {
                                 proxies[i].ice_ping();
                             }
-                            catch (Ice.LocalException)
+                            catch (LocalException)
                             {
                             }
                         }
 
-                        List<Ice.Connection> connections = new List<Ice.Connection>();
+                        List<Connection> connections = new List<Connection>();
                         for (i = 0; i < proxies.Length; i++)
                         {
                             if (proxies[i].ice_getCachedConnection() != null)
@@ -289,9 +267,9 @@ namespace Ice
                         {
                             try
                             {
-                                a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                                a.getTestIntf().ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                             }
-                            catch (Ice.LocalException)
+                            catch (LocalException)
                             {
                                 // Expected if adapter is down.
                             }
@@ -330,7 +308,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(getAdapterNameWithAMI(test1));
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -352,7 +330,7 @@ namespace Ice
 
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            adpt.getTestIntf().ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                         }
                     }
 
@@ -377,7 +355,7 @@ namespace Ice
                         test(test2.ice_getConnection() == test3.ice_getConnection());
 
                         names.Remove(getAdapterNameWithAMI(test1));
-                        test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -401,7 +379,7 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter23", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
+                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Random);
 
                     var names = new List<string>();
                     names.Add("Adapter21");
@@ -410,11 +388,11 @@ namespace Ice
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
-                        obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
-                    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
+                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Random));
+                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Random);
 
                     names.Add("Adapter21");
                     names.Add("Adapter22");
@@ -422,7 +400,7 @@ namespace Ice
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
-                        obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                        obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     deactivate(com, adapters);
@@ -438,8 +416,8 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter33", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
-                    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Ordered));
+                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Ordered);
                     int nRetry = 3;
                     int i;
 
@@ -461,14 +439,14 @@ namespace Ice
                     {
                         obj.getAdapterName();
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
 
-                    Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.ice_getEndpoints();
 
                     adapters.Clear();
 
@@ -479,11 +457,11 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++) ;
                     test(i == nRetry);
-                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++) ;
                     test(i == nRetry);
-                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                     adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++) ;
                     test(i == nRetry);
@@ -514,10 +492,10 @@ namespace Ice
                         test(test3.ice_getConnection() == test1.ice_getConnection());
                         test(false);
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
                 }
@@ -606,8 +584,8 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter63", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
-                    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Ordered));
+                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Ordered);
                     obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
                     test(!obj.ice_isConnectionCached());
                     int nRetry = 3;
@@ -631,14 +609,14 @@ namespace Ice
                     {
                         obj.getAdapterName();
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
 
-                    Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.ice_getEndpoints();
 
                     adapters.Clear();
 
@@ -669,8 +647,8 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("AdapterAMI63", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
-                    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Ordered));
+                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Ordered);
                     obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
                     test(!obj.ice_isConnectionCached());
                     int nRetry = 3;
@@ -694,14 +672,14 @@ namespace Ice
                     {
                         obj.getAdapterName();
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
 
-                    Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.ice_getEndpoints();
 
                     adapters.Clear();
 
@@ -739,12 +717,12 @@ namespace Ice
                     {
                         testUDP.getAdapterName();
                     }
-                    catch (Ice.TwowayOnlyException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }
                 output.WriteLine("ok");
-                if (communicator.getProperties().getProperty("Ice.Plugin.IceSSL").Length > 0)
+                if (communicator.getProperties().getProperty("Plugin.IceSSL").Length > 0)
                 {
                     output.Write("testing unsecure vs. secure endpoints... ");
                     output.Flush();
@@ -758,7 +736,7 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName().Equals("Adapter82"));
-                            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                         }
 
                         var testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
@@ -774,7 +752,7 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName().Equals("Adapter81"));
-                            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                         }
 
                         com.createObjectAdapter("Adapter83", (obj.ice_getEndpoints()[1]).ToString()); // Reactive tcp OA.
@@ -782,7 +760,7 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName().Equals("Adapter83"));
-                            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                         }
 
                         com.deactivateObjectAdapter(adapters[0]);
@@ -791,10 +769,10 @@ namespace Ice
                             testSecure.ice_ping();
                             test(false);
                         }
-                        catch (Ice.ConnectFailedException)
+                        catch (ConnectFailedException)
                         {
                         }
-                        catch (Ice.ConnectTimeoutException)
+                        catch (ConnectTimeoutException)
                         {
                         }
 
@@ -807,29 +785,29 @@ namespace Ice
                     output.Write("testing ipv4 & ipv6 connections... ");
                     output.Flush();
 
-                    Ice.Properties ipv4 = Ice.Util.createProperties();
-                    ipv4.setProperty("Ice.IPv4", "1");
-                    ipv4.setProperty("Ice.IPv6", "0");
+                    Properties ipv4 = Util.createProperties();
+                    ipv4.setProperty("IPv4", "1");
+                    ipv4.setProperty("IPv6", "0");
                     ipv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties ipv6 = Ice.Util.createProperties();
-                    ipv6.setProperty("Ice.IPv4", "0");
-                    ipv6.setProperty("Ice.IPv6", "1");
+                    Properties ipv6 = Util.createProperties();
+                    ipv6.setProperty("IPv4", "0");
+                    ipv6.setProperty("IPv6", "1");
                     ipv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties bothPreferIPv4 = Ice.Util.createProperties();
-                    bothPreferIPv4.setProperty("Ice.IPv4", "1");
-                    bothPreferIPv4.setProperty("Ice.IPv6", "1");
-                    bothPreferIPv4.setProperty("Ice.PreferIPv6Address", "0");
+                    Properties bothPreferIPv4 = Util.createProperties();
+                    bothPreferIPv4.setProperty("IPv4", "1");
+                    bothPreferIPv4.setProperty("IPv6", "1");
+                    bothPreferIPv4.setProperty("PreferIPv6Address", "0");
                     bothPreferIPv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties bothPreferIPv6 = Ice.Util.createProperties();
-                    bothPreferIPv6.setProperty("Ice.IPv4", "1");
-                    bothPreferIPv6.setProperty("Ice.IPv6", "1");
-                    bothPreferIPv6.setProperty("Ice.PreferIPv6Address", "1");
+                    Properties bothPreferIPv6 = Util.createProperties();
+                    bothPreferIPv6.setProperty("IPv4", "1");
+                    bothPreferIPv6.setProperty("IPv6", "1");
+                    bothPreferIPv6.setProperty("PreferIPv6Address", "1");
                     bothPreferIPv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    List<Ice.Properties> clientProps = new List<Ice.Properties>();
+                    List<Properties> clientProps = new List<Properties>();
                     clientProps.Add(ipv4);
                     clientProps.Add(ipv6);
                     clientProps.Add(bothPreferIPv4);
@@ -837,27 +815,27 @@ namespace Ice
 
                     string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
 
-                    Ice.Properties anyipv4 = ipv4.ice_clone_();
+                    Properties anyipv4 = ipv4.ice_clone_();
                     anyipv4.setProperty("Adapter.Endpoints", endpoint);
                     anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
-                    Ice.Properties anyipv6 = ipv6.ice_clone_();
+                    Properties anyipv6 = ipv6.ice_clone_();
                     anyipv6.setProperty("Adapter.Endpoints", endpoint);
                     anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
-                    Ice.Properties anyboth = Ice.Util.createProperties();
-                    anyboth.setProperty("Ice.IPv4", "1");
-                    anyboth.setProperty("Ice.IPv6", "1");
+                    Properties anyboth = Util.createProperties();
+                    anyboth.setProperty("IPv4", "1");
+                    anyboth.setProperty("IPv6", "1");
                     anyboth.setProperty("Adapter.Endpoints", endpoint);
                     anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
-                    Ice.Properties localipv4 = ipv4.ice_clone_();
+                    Properties localipv4 = ipv4.ice_clone_();
                     localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
 
-                    Ice.Properties localipv6 = ipv6.ice_clone_();
+                    Properties localipv6 = ipv6.ice_clone_();
                     localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
 
-                    List<Ice.Properties> serverProps = new List<Ice.Properties>(clientProps);
+                    List<Properties> serverProps = new List<Properties>(clientProps);
                     serverProps.Add(anyipv4);
                     serverProps.Add(anyipv6);
                     serverProps.Add(anyboth);
@@ -865,23 +843,23 @@ namespace Ice
                     serverProps.Add(localipv6);
 
                     bool ipv6NotSupported = false;
-                    foreach (Ice.Properties p in serverProps)
+                    foreach (Properties p in serverProps)
                     {
-                        Ice.InitializationData serverInitData = new Ice.InitializationData();
+                        InitializationData serverInitData = new InitializationData();
                         serverInitData.properties = p;
-                        Ice.Communicator serverCommunicator = Ice.Util.initialize(serverInitData);
-                        Ice.ObjectAdapter oa;
+                        Communicator serverCommunicator = Util.initialize(serverInitData);
+                        ObjectAdapter oa;
                         try
                         {
                             oa = serverCommunicator.createObjectAdapter("Adapter");
                             oa.activate();
                         }
-                        catch (Ice.DNSException)
+                        catch (DNSException)
                         {
                             serverCommunicator.destroy();
                             continue; // IP version not supported.
                         }
-                        catch (Ice.SocketException)
+                        catch (SocketException)
                         {
                             if (p == ipv6)
                             {
@@ -891,34 +869,34 @@ namespace Ice
                             continue; // IP version not supported.
                         }
 
-                        Ice.ObjectPrx prx = oa.createProxy(Ice.Util.stringToIdentity("dummy"));
+                        ObjectPrx prx = oa.createProxy(Util.stringToIdentity("dummy"));
                         try
                         {
                             prx.ice_collocationOptimized(false).ice_ping();
                         }
-                        catch (Ice.LocalException)
+                        catch (LocalException)
                         {
                             serverCommunicator.destroy();
                             continue; // IP version not supported.
                         }
 
                         string strPrx = prx.ToString();
-                        foreach (Ice.Properties q in clientProps)
+                        foreach (Properties q in clientProps)
                         {
-                            Ice.InitializationData clientInitData = new Ice.InitializationData();
+                            InitializationData clientInitData = new InitializationData();
                             clientInitData.properties = q;
-                            Ice.Communicator clientCommunicator = Ice.Util.initialize(clientInitData);
+                            Communicator clientCommunicator = Util.initialize(clientInitData);
                             prx = clientCommunicator.stringToProxy(strPrx);
                             try
                             {
                                 prx.ice_ping();
                                 test(false);
                             }
-                            catch (Ice.ObjectNotExistException)
+                            catch (ObjectNotExistException)
                             {
                                 // Expected, no object registered.
                             }
-                            catch (Ice.DNSException)
+                            catch (DNSException)
                             {
                                 // Expected if no IPv4 or IPv6 address is
                                 // associated to localhost or if trying to connect
@@ -926,7 +904,7 @@ namespace Ice
                                 // e.g.: resolving an IPv4 address when only IPv6
                                 // is enabled fails with a DNS exception.
                             }
-                            catch (Ice.SocketException)
+                            catch (SocketException)
                             {
                                 test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
                                     (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||

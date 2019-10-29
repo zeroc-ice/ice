@@ -115,66 +115,20 @@ public class AllTests : Test.AllTests
 
         Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
 
-        output.Write("testing dispatcher... ");
-        output.Flush();
-        {
-            p.op();
-
-            Callback cb = new Callback(output);
-            p.begin_op().whenCompleted(cb.response, cb.exception);
-            cb.check();
-
-            TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
-            i.begin_op().whenCompleted(cb.exception);
-            cb.check();
-
-            //
-            // Expect InvocationTimeoutException.
-            //
-            {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
-                to.begin_sleep(500).whenCompleted(
-                    () =>
-                    {
-                        test(false);
-                    },
-                    (Ice.Exception ex) =>
-                    {
-                        test(ex is Ice.InvocationTimeoutException);
-                        test(Dispatcher.isDispatcherThread());
-                        cb.called();
-                    });
-                cb.check();
-            }
-
-            testController.holdAdapter();
-            Test.Callback_TestIntf_opWithPayload resp = cb.payload;
-            Ice.ExceptionCallback excb = cb.ignoreEx;
-            Ice.SentCallback scb = cb.sent;
-
-            byte[] seq = new byte[10 * 1024];
-            (new System.Random()).NextBytes(seq);
-            Ice.AsyncResult r;
-            while ((r = p.begin_opWithPayload(seq).whenCompleted(resp, excb).whenSent(scb)).sentSynchronously()) ;
-            testController.resumeAdapter();
-            r.waitForCompleted();
-        }
-        output.WriteLine("ok");
-
         output.Write("testing dispatcher with continuations... ");
         output.Flush();
         {
             p.op();
 
             Callback cb = new Callback(output);
-            System.Action<Task> continuation = (Task previous) =>
+            Action<Task> continuation = (Task previous) =>
             {
                 try
                 {
                     previous.Wait();
                     cb.response();
                 }
-                catch (System.AggregateException ex)
+                catch (AggregateException ex)
                 {
                     cb.exception((Ice.Exception)ex.InnerException);
                 }
@@ -201,7 +155,7 @@ public class AllTests : Test.AllTests
                 // The continuation might be (rarely) executed on the current thread if the setup of the
                 // continuation occurs after the invocation timeout.
                 var thread = Thread.CurrentThread;
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(20));
+                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(20));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -210,7 +164,7 @@ public class AllTests : Test.AllTests
                             previous.Wait();
                             test(false);
                         }
-                        catch (System.AggregateException ex)
+                        catch (AggregateException ex)
                         {
                             test(ex.InnerException is Ice.InvocationTimeoutException);
                             test(Dispatcher.isDispatcherThread() || thread == Thread.CurrentThread);
@@ -234,7 +188,7 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -243,7 +197,7 @@ public class AllTests : Test.AllTests
                             previous.Wait();
                             test(false);
                         }
-                        catch (System.AggregateException ex)
+                        catch (AggregateException ex)
                         {
                             test(ex.InnerException is Ice.InvocationTimeoutException);
                             test(Dispatcher.isDispatcherThread());
@@ -256,22 +210,22 @@ public class AllTests : Test.AllTests
             // Also disable collocation optimization on p
             //
             testController.holdAdapter();
-            var p2 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_collocationOptimized(false));
-            System.Action<Task> continuation2 = (Task previous) =>
+            var p2 = TestIntfPrxHelper.uncheckedCast(p.ice_collocationOptimized(false));
+            Action<Task> continuation2 = (Task previous) =>
             {
                 test(Dispatcher.isDispatcherThread());
                 try
                 {
                     previous.Wait();
                 }
-                catch (System.AggregateException ex)
+                catch (AggregateException ex)
                 {
                     test(ex.InnerException is Ice.CommunicatorDestroyedException);
                 }
             };
 
             byte[] seq = new byte[10 * 1024];
-            (new System.Random()).NextBytes(seq);
+            (new Random()).NextBytes(seq);
             Progress sentSynchronously;
             do
             {
@@ -308,7 +262,7 @@ public class AllTests : Test.AllTests
                         test(Dispatcher.isDispatcherThread());
                     }
 
-                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                    TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                     try
                     {
                         await to.sleepAsync(500);

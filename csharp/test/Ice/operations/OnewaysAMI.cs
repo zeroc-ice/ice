@@ -64,7 +64,7 @@ namespace Ice
                     called();
                 }
 
-                public void noException(Ice.Exception ex)
+                public void noException(Exception ex)
                 {
                     test(false);
                 }
@@ -72,7 +72,7 @@ namespace Ice
 
             internal static void onewaysAMI(global::Test.TestHelper helper, Test.MyClassPrx proxy)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
 
                 {
@@ -86,44 +86,12 @@ namespace Ice
                 }
 
                 {
-                    Callback cb = new Callback();
-                    p.begin_ice_ping().whenCompleted(cb.noException).whenSent(cb.sent);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_ping().whenCompleted(
-                        (Ice.Exception ex) =>
-                        {
-                            cb.noException(ex);
-                        }
-                    ).whenSent(
-                        (bool sentSynchronously) =>
-                        {
-                            cb.sent(sentSynchronously);
-                        });
-                    cb.check();
-                }
-
-                {
                     try
                     {
                         p.ice_isAAsync("::Test::MyClass");
                         test(false);
                     }
-                    catch (Ice.TwowayOnlyException)
-                    {
-                    }
-                }
-
-                {
-                    try
-                    {
-                        p.begin_ice_isA("::Test::MyClass");
-                        test(false);
-                    }
-                    catch (System.ArgumentException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }
@@ -134,18 +102,7 @@ namespace Ice
                         p.ice_idAsync();
                         test(false);
                     }
-                    catch (Ice.TwowayOnlyException)
-                    {
-                    }
-                }
-
-                {
-                    try
-                    {
-                        p.begin_ice_id();
-                        test(false);
-                    }
-                    catch (ArgumentException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }
@@ -156,18 +113,7 @@ namespace Ice
                         p.ice_idsAsync();
                         test(false);
                     }
-                    catch (Ice.TwowayOnlyException)
-                    {
-                    }
-                }
-
-                {
-                    try
-                    {
-                        p.begin_ice_ids();
-                        test(false);
-                    }
-                    catch (ArgumentException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }
@@ -184,53 +130,11 @@ namespace Ice
 
                 {
                     Callback cb = new Callback();
-                    p.begin_opVoid().whenCompleted(cb.noException).whenSent(cb.sent);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opVoid().whenCompleted(
-                        (Ice.Exception ex) =>
-                        {
-                            cb.noException(ex);
-                        }
-                    ).whenSent(
-                        (bool sentSynchronously) =>
-                        {
-                            cb.sent(sentSynchronously);
-                        });
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
                     p.opIdempotentAsync(progress: new Progress<bool>(
                         sentSynchronously =>
                         {
                             cb.sent(sentSynchronously);
                         }));
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opIdempotent().whenCompleted(cb.noException).whenSent(cb.sent);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opIdempotent().whenCompleted(
-                        (Ice.Exception ex) =>
-                        {
-                            cb.noException(ex);
-                        }
-                    ).whenSent(
-                        (bool sentSynchronously) =>
-                        {
-                            cb.sent(sentSynchronously);
-                        });
                     cb.check();
                 }
 
@@ -245,44 +149,12 @@ namespace Ice
                 }
 
                 {
-                    Callback cb = new Callback();
-                    p.begin_opNonmutating().whenCompleted(cb.noException).whenSent(cb.sent);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opNonmutating().whenCompleted(
-                        (Ice.Exception ex) =>
-                        {
-                            cb.noException(ex);
-                        }
-                    ).whenSent(
-                        (bool sentSynchronously) =>
-                        {
-                            cb.sent(sentSynchronously);
-                        });
-                    cb.check();
-                }
-
-                {
                     try
                     {
                         p.opByteAsync(0xff, 0x0f);
                         test(false);
                     }
-                    catch (Ice.TwowayOnlyException)
-                    {
-                    }
-                }
-
-                {
-                    try
-                    {
-                        p.begin_opByte(0xff, 0x0f);
-                        test(false);
-                    }
-                    catch (ArgumentException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }

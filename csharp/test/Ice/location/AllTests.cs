@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -13,7 +14,7 @@ namespace Ice
         {
             public static void allTests(global::Test.TestHelper helper)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 var manager = Test.ServerManagerPrxHelper.checkedCast(
                                                 communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
                 test(manager != null);
@@ -25,42 +26,42 @@ namespace Ice
                 var output = helper.getWriter();
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
-                Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
-                Ice.ObjectPrx base3 = communicator.stringToProxy("test");
-                Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
-                Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
-                Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
+                ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
+                ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
+                ObjectPrx base3 = communicator.stringToProxy("test");
+                ObjectPrx base4 = communicator.stringToProxy("ServerManager");
+                ObjectPrx base5 = communicator.stringToProxy("test2");
+                ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
                 output.WriteLine("ok");
 
                 output.Write("testing ice_locator and ice_getLocator... ");
-                test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
-                Ice.LocatorPrx anotherLocator =
-                    Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+                test(Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+                LocatorPrx anotherLocator =
+                    LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
                 @base = @base.ice_locator(anotherLocator);
-                test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
+                test(Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
                 communicator.setDefaultLocator(null);
                 @base = communicator.stringToProxy("test @ TestAdapter");
                 test(@base.ice_getLocator() == null);
                 @base = @base.ice_locator(anotherLocator);
-                test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
+                test(Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
                 communicator.setDefaultLocator(locator);
                 @base = communicator.stringToProxy("test @ TestAdapter");
-                test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+                test(Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
 
                 //
                 // We also test ice_router/ice_getRouter(perhaps we should add a
                 // test/Ice/router test?)
                 //
                 test(@base.ice_getRouter() == null);
-                Ice.RouterPrx anotherRouter =
-                    Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+                RouterPrx anotherRouter =
+                    RouterPrxHelper.uncheckedCast(communicator.stringToProxy("anotherRouter"));
                 @base = @base.ice_router(anotherRouter);
-                test(Ice.Util.proxyIdentityCompare(@base.ice_getRouter(), anotherRouter) == 0);
-                Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+                test(Util.proxyIdentityCompare(@base.ice_getRouter(), anotherRouter) == 0);
+                RouterPrx router = RouterPrxHelper.uncheckedCast(communicator.stringToProxy("dummyrouter"));
                 communicator.setDefaultRouter(router);
                 @base = communicator.stringToProxy("test @ TestAdapter");
-                test(Ice.Util.proxyIdentityCompare(@base.ice_getRouter(), communicator.getDefaultRouter()) == 0);
+                test(Util.proxyIdentityCompare(@base.ice_getRouter(), communicator.getDefaultRouter()) == 0);
                 communicator.setDefaultRouter(null);
                 @base = communicator.stringToProxy("test @ TestAdapter");
                 test(@base.ice_getRouter() == null);
@@ -95,7 +96,7 @@ namespace Ice
                 {
                     obj2.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -109,7 +110,7 @@ namespace Ice
                 {
                     obj6.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -123,7 +124,7 @@ namespace Ice
                 {
                     obj3.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -131,7 +132,7 @@ namespace Ice
                 {
                     obj2.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -141,7 +142,7 @@ namespace Ice
                 {
                     obj2.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -149,7 +150,7 @@ namespace Ice
                 {
                     obj3.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -159,7 +160,7 @@ namespace Ice
                 {
                     obj2.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -169,7 +170,7 @@ namespace Ice
                 {
                     obj3.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -180,7 +181,7 @@ namespace Ice
                     obj5 = Test.TestIntfPrxHelper.checkedCast(base5);
                     obj5.ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -194,7 +195,7 @@ namespace Ice
                     @base.ice_ping();
                     test(false);
                 }
-                catch (Ice.NotRegisteredException ex)
+                catch (NotRegisteredException ex)
                 {
                     test(ex.kindOfObject.Equals("object"));
                     test(ex.id.Equals("unknown/unknown"));
@@ -209,7 +210,7 @@ namespace Ice
                     @base.ice_ping();
                     test(false);
                 }
-                catch (Ice.NotRegisteredException ex)
+                catch (NotRegisteredException ex)
                 {
                     test(ex.kindOfObject.Equals("object adapter"));
                     test(ex.id.Equals("TestAdapterUnknown"));
@@ -219,7 +220,7 @@ namespace Ice
                 output.Write("testing locator cache timeout... ");
                 output.Flush();
 
-                Ice.ObjectPrx basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
+                ObjectPrx basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
                 int count = locator.getRequestCount();
                 basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
                 test(++count == locator.getRequestCount());
@@ -271,25 +272,12 @@ namespace Ice
                 count = locator.getRequestCount();
                 hello.ice_ping();
                 test(++count == locator.getRequestCount());
-                List<Ice.AsyncResult<Test.Callback_Hello_sayHello>> results =
-                    new List<Ice.AsyncResult<Test.Callback_Hello_sayHello>>();
+                List<Task> results = new List<Task>();
                 for (int i = 0; i < 1000; i++)
                 {
-                    Ice.AsyncResult<Test.Callback_Hello_sayHello> result = hello.begin_sayHello().
-                        whenCompleted(
-                           () =>
-                            {
-                            },
-                           (Ice.Exception ex) =>
-                            {
-                                test(false);
-                            });
-                    results.Add(result);
+                    results.Add(hello.sayHelloAsync());
                 }
-                foreach (Ice.AsyncResult<Test.Callback_Hello_sayHello> result in results)
-                {
-                    result.waitForCompleted();
-                }
+                Task.WaitAll(results.ToArray());
                 results.Clear();
                 test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
                 if (locator.getRequestCount() > count + 800)
@@ -300,22 +288,17 @@ namespace Ice
                 hello = (Test.HelloPrx)hello.ice_adapterId("unknown");
                 for (int i = 0; i < 1000; i++)
                 {
-                    Ice.AsyncResult<Test.Callback_Hello_sayHello> result = hello.begin_sayHello().
-                        whenCompleted(
-                           () =>
-                            {
-                                test(false);
-                            },
-                           (Ice.Exception ex) =>
-                            {
-                                test(ex is Ice.NotRegisteredException);
-                            });
-                    results.Add(result);
+                    results.Add(hello.sayHelloAsync().ContinueWith((Task t) => {
+                                try
+                                {
+                                    t.Wait();
+                                }
+                                catch(AggregateException ex) when (ex.InnerException is Ice.NotRegisteredException)
+                                {
+                                }
+                            }));
                 }
-                foreach (Ice.AsyncResult<Test.Callback_Hello_sayHello> result in results)
-                {
-                    result.waitForCompleted();
-                }
+                Task.WaitAll(results.ToArray());
                 results.Clear();
                 // XXX:
                 // Take into account the retries.
@@ -333,7 +316,7 @@ namespace Ice
                     communicator.stringToProxy("test@TestAdapter3").ice_ping();
                     test(false);
                 }
-                catch (Ice.NotRegisteredException ex)
+                catch (NotRegisteredException ex)
                 {
                     test(ex.kindOfObject == "object adapter");
                     test(ex.id.Equals("TestAdapter3"));
@@ -346,7 +329,7 @@ namespace Ice
                                                    communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
                     communicator.stringToProxy("test@TestAdapter3").ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -356,7 +339,7 @@ namespace Ice
                     communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 try
@@ -364,7 +347,7 @@ namespace Ice
                     communicator.stringToProxy("test@TestAdapter3").ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
@@ -372,7 +355,7 @@ namespace Ice
                 {
                     communicator.stringToProxy("test@TestAdapter3").ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -386,7 +369,7 @@ namespace Ice
                     communicator.stringToProxy("test3").ice_ping();
                     test(false);
                 }
-                catch (Ice.NotRegisteredException ex)
+                catch (NotRegisteredException ex)
                 {
                     test(ex.kindOfObject == "object adapter");
                     test(ex.id.Equals("TestUnknown"));
@@ -399,7 +382,7 @@ namespace Ice
                     communicator.stringToProxy("test3").ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
@@ -407,7 +390,7 @@ namespace Ice
                 {
                     communicator.stringToProxy("test3").ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -418,7 +401,7 @@ namespace Ice
                 {
                     communicator.stringToProxy("test3").ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -428,7 +411,7 @@ namespace Ice
                     communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 try
@@ -436,7 +419,7 @@ namespace Ice
                     communicator.stringToProxy("test@TestAdapter4").ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 try
@@ -444,7 +427,7 @@ namespace Ice
                     communicator.stringToProxy("test3").ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -452,7 +435,7 @@ namespace Ice
                 {
                     communicator.stringToProxy("test3").ice_ping();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     test(false);
                 }
@@ -463,7 +446,7 @@ namespace Ice
                     communicator.stringToProxy("test4").ice_ping();
                     test(false);
                 }
-                catch (Ice.NoEndpointException)
+                catch (NoEndpointException)
                 {
                 }
                 output.WriteLine("ok");
@@ -471,10 +454,10 @@ namespace Ice
                 output.Write("testing locator cache background updates... ");
                 output.Flush();
                 {
-                    Ice.InitializationData initData = new Ice.InitializationData();
+                    InitializationData initData = new InitializationData();
                     initData.properties = communicator.getProperties().ice_clone_();
                     initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-                    Ice.Communicator ic = helper.initialize(initData);
+                    Communicator ic = helper.initialize(initData);
 
                     registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
                     registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -505,7 +488,7 @@ namespace Ice
                             System.Threading.Thread.Sleep(10);
                         }
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                         // Expected to fail once they endpoints have been updated in the background.
                     }
@@ -517,7 +500,7 @@ namespace Ice
                             System.Threading.Thread.Sleep(10);
                         }
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                         // Expected to fail once they endpoints have been updated in the background.
                     }
@@ -537,7 +520,7 @@ namespace Ice
                 output.Flush();
                 hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
                 obj.migrateHello();
-                hello.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                hello.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                 hello.sayHello();
                 obj.migrateHello();
                 hello.sayHello();
@@ -549,9 +532,9 @@ namespace Ice
                 output.Flush();
                 hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
                 count = locator.getRequestCount();
-                communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Util.Encoding_1_1).ice_ping();
+                communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Util.Encoding_1_1).ice_ping();
                 test(count == locator.getRequestCount());
-                communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+                communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Util.Encoding_1_0).ice_ping();
                 test(++count == locator.getRequestCount());
                 communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
                 test(++count == locator.getRequestCount());
@@ -569,7 +552,7 @@ namespace Ice
                     obj2.ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 try
@@ -577,7 +560,7 @@ namespace Ice
                     obj3.ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 try
@@ -585,7 +568,7 @@ namespace Ice
                     obj5.ice_ping();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 output.WriteLine("ok");
@@ -594,9 +577,9 @@ namespace Ice
                 output.Flush();
 
                 communicator.getProperties().setProperty("Hello.AdapterId", Guid.NewGuid().ToString());
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+                ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
 
-                Ice.Identity id = new Ice.Identity();
+                Identity id = new Identity();
                 id.name = Guid.NewGuid().ToString();
                 adapter.add(new HelloI(), id);
                 adapter.activate();

@@ -73,11 +73,6 @@ namespace Ice
             return _instance.proxyFactory().proxyToProperty(proxy, prefix);
         }
 
-        public Identity stringToIdentity(string s)
-        {
-            return Util.stringToIdentity(s);
-        }
-
         public string identityToString(Identity ident)
         {
             return Util.identityToString(ident, _instance.toStringMode());
@@ -116,16 +111,6 @@ namespace Ice
             }
 
             return _instance.objectAdapterFactory().createObjectAdapter(name, router);
-        }
-
-        public void addObjectFactory(ObjectFactory factory, string id)
-        {
-            _instance.addObjectFactory(factory, id);
-        }
-
-        public ObjectFactory findObjectFactory(string id)
-        {
-            return _instance.findObjectFactory(id);
         }
 
         public ValueFactoryManager getValueFactoryManager()
@@ -203,66 +188,7 @@ namespace Ice
             return completed.Task;
         }
 
-        public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch)
-        {
-            return begin_flushBatchRequests(compressBatch, null, null);
-        }
-
         private const string _flushBatchRequests_name = "flushBatchRequests";
-
-        private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
-        {
-            public CommunicatorFlushBatchCompletionCallback(Communicator communicator,
-                                                            Instance instance,
-                                                            string op,
-                                                            object cookie,
-                                                            AsyncCallback callback)
-                : base(communicator, instance, op, cookie, callback)
-            {
-            }
-
-            protected override AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-        };
-
-        public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch, AsyncCallback cb, object cookie)
-        {
-            var result = new CommunicatorFlushBatchCompletionCallback(this,
-                                                                      _instance,
-                                                                      _flushBatchRequests_name,
-                                                                      cookie,
-                                                                      cb);
-            var outgoing = new CommunicatorFlushBatchAsync(_instance, result);
-            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
-            return result;
-        }
-
-        public void end_flushBatchRequests(AsyncResult result)
-        {
-            if (result != null && result.getCommunicator() != this)
-            {
-                const string msg = "Communicator for call to end_" + _flushBatchRequests_name +
-                                   " does not match communicator that was used to call corresponding begin_" +
-                                   _flushBatchRequests_name + " method";
-                throw new ArgumentException(msg);
-            }
-            AsyncResultI.check(result, _flushBatchRequests_name).wait();
-        }
 
         public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
@@ -303,24 +229,6 @@ namespace Ice
         {
             _instance = new Instance(this, initData);
         }
-
-        /*
-        ~CommunicatorI()
-        {
-            if(!destroyed_)
-            {
-                if(!System.Environment.HasShutdownStarted)
-                {
-                    _instance.initializationData().logger.warning(
-                            "Ice::Communicator::destroy() has not been called");
-                }
-                else
-                {
-                    System.Console.Error.WriteLine("Ice::Communicator::destroy() has not been called");
-                }
-            }
-        }
-        */
 
         //
         // Certain initialization tasks need to be completed after the

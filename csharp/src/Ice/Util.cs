@@ -63,12 +63,6 @@ namespace Ice
         public Instrumentation.CommunicatorObserver observer;
 
         /// <summary>
-        /// The thread hook for the communicator.
-        /// </summary>
-        [Obsolete("This data member is deprecated. Use threadStart or threadStop instead.")]
-        public ThreadNotification threadHook;
-
-        /// <summary>
         /// The thread start hook for the communicator. The Ice run time
         /// calls this hook for each new thread it creates. The call is
         /// made by the newly-started thread.
@@ -373,15 +367,6 @@ namespace Ice
                 return IceUtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
                     IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
             }
-        }
-
-        /// <summary>
-        /// This method is deprecated. Use System.Guid instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use System.Guid instead.")]
-        public static string generateUUID()
-        {
-            return Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         /// <summary>

@@ -994,17 +994,6 @@ namespace IceInternal
                 {
                     AssemblyUtil.preloadAssemblies();
                 }
-
-#pragma warning disable 618
-                if (_initData.threadStart == null && _initData.threadHook != null)
-                {
-                    _initData.threadStart = _initData.threadHook.start;
-                }
-                if (_initData.threadStop == null && _initData.threadHook != null)
-                {
-                    _initData.threadStop = _initData.threadHook.stop;
-                }
-#pragma warning restore 618
             }
             catch (Ice.LocalException)
             {
@@ -1101,7 +1090,10 @@ namespace IceInternal
                     //
                     if (propsAdmin != null)
                     {
-                        propsAdmin.addUpdateCallback(observer.getFacet());
+                        propsAdmin.addUpdateCallback((Dictionary<string, string> updates) =>
+                                                     {
+                                                         observer.getFacet().updated(updates);
+                                                     });
                     }
                 }
             }
@@ -1317,15 +1309,6 @@ namespace IceInternal
                 _endpointHostResolver.joinWithThread();
             }
 
-            foreach (Ice.ObjectFactory factory in _objectFactoryMap.Values)
-            {
-                // Disable Obsolete warning/error
-#pragma warning disable 612, 618
-                factory.destroy();
-#pragma warning restore 612, 618
-            }
-            _objectFactoryMap.Clear();
-
             if (_routerManager != null)
             {
                 _routerManager.destroy();
@@ -1441,32 +1424,6 @@ namespace IceInternal
                 info.rcvWarn = true;
                 info.rcvSize = size;
                 _setBufSizeWarn[type] = info;
-            }
-        }
-
-        public void addObjectFactory(Ice.ObjectFactory factory, string id)
-        {
-            lock (this)
-            {
-                //
-                // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
-                // with the value factory manager. This may raise AlreadyRegisteredException.
-                //
-                // Disable Obsolete warning/error
-#pragma warning disable 612, 618
-                _initData.valueFactoryManager.add((string type) => { return factory.create(type); }, id);
-#pragma warning restore 612, 618
-                _objectFactoryMap.Add(id, factory);
-            }
-        }
-
-        public Ice.ObjectFactory findObjectFactory(string id)
-        {
-            lock (this)
-            {
-                Ice.ObjectFactory factory = null;
-                _objectFactoryMap.TryGetValue(id, out factory);
-                return factory;
             }
         }
 
@@ -1651,7 +1608,6 @@ namespace IceInternal
         private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
         private static bool _printProcessIdDone = false;
         private static bool _oneOffDone = false;
-        private Dictionary<string, Ice.ObjectFactory> _objectFactoryMap = new Dictionary<string, Ice.ObjectFactory>();
         private static object _staticLock = new object();
     }
 }

@@ -919,12 +919,8 @@ public class AllTests : Test.AllTests
         updateProps(clientProps, serverProps, update, props, "Invocation");
         test(serverMetrics.getMetricsView("View", out timestamp)["Invocation"].Length == 0);
 
-        Callback cb = new Callback();
-
         metrics.op();
-        metrics.end_op(metrics.begin_op());
-        metrics.begin_op().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
+        metrics.opAsync().Wait();
 
         try
         {
@@ -934,16 +930,16 @@ public class AllTests : Test.AllTests
         catch (UserEx)
         {
         }
+
         try
         {
-            metrics.end_opWithUserException(metrics.begin_opWithUserException());
+            metrics.opWithUserExceptionAsync().Wait();
             test(false);
         }
-        catch (UserEx)
+        catch (System.AggregateException ex)
         {
+            test(ex.InnerException is UserEx);
         }
-        metrics.begin_opWithUserException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
 
         try
         {
@@ -953,16 +949,16 @@ public class AllTests : Test.AllTests
         catch (Ice.RequestFailedException)
         {
         }
+
         try
         {
-            metrics.end_opWithRequestFailedException(metrics.begin_opWithRequestFailedException());
+            metrics.opWithRequestFailedExceptionAsync().Wait();
             test(false);
         }
-        catch (Ice.RequestFailedException)
+        catch (System.AggregateException ex)
         {
+            test(ex.InnerException is Ice.RequestFailedException);
         }
-        metrics.begin_opWithRequestFailedException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
 
         try
         {
@@ -974,14 +970,13 @@ public class AllTests : Test.AllTests
         }
         try
         {
-            metrics.end_opWithLocalException(metrics.begin_opWithLocalException());
+            metrics.opWithLocalExceptionAsync().Wait();
             test(false);
         }
-        catch (Ice.LocalException)
+        catch (System.AggregateException ex)
         {
+            test(ex.InnerException is Ice.LocalException);
         }
-        metrics.begin_opWithLocalException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
 
         try
         {
@@ -991,16 +986,16 @@ public class AllTests : Test.AllTests
         catch (Ice.UnknownException)
         {
         }
+
         try
         {
-            metrics.end_opWithUnknownException(metrics.begin_opWithUnknownException());
+            metrics.opWithUnknownExceptionAsync().Wait();
             test(false);
         }
-        catch (Ice.UnknownException)
+        catch (System.AggregateException ex)
         {
+            test(ex.InnerException is Ice.UnknownException);
         }
-        metrics.begin_opWithUnknownException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
 
         if (!collocated)
         {
@@ -1012,16 +1007,16 @@ public class AllTests : Test.AllTests
             catch (Ice.ConnectionLostException)
             {
             }
+
             try
             {
-                metrics.end_fail(metrics.begin_fail());
+                metrics.failAsync().Wait();
                 test(false);
             }
-            catch (Ice.ConnectionLostException)
+            catch (System.AggregateException ex)
             {
+                test(ex.InnerException is Ice.ConnectionLostException);
             }
-            metrics.begin_fail().whenCompleted(cb.response, cb.exception);
-            cb.waitForResponse();
         }
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
@@ -1030,53 +1025,53 @@ public class AllTests : Test.AllTests
         IceMX.InvocationMetrics im1;
         IceMX.ChildInvocationMetrics rim1;
         im1 = (IceMX.InvocationMetrics)map["op"];
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-        test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
-        test(rim1.size == 63 && rim1.replySize == 21);
+        test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
+        test(rim1.size == 42 && rim1.replySize == 14);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUserException"];
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-        test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
-        test(rim1.size == 114 && rim1.replySize == 69);
-        test(im1.userException == 3);
+        test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
+        test(rim1.size == 76 && rim1.replySize == 46);
+        test(im1.userException == 2);
 
         im1 = (IceMX.InvocationMetrics)map["opWithLocalException"];
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0);
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-        test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
-        test(rim1.size == 117 && rim1.replySize > 7);
-        checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownLocalException", 3, output);
+        test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
+        test(rim1.size == 78 && rim1.replySize > 7);
+        checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownLocalException", 2, output);
 
         im1 = (IceMX.InvocationMetrics)map["opWithRequestFailedException"];
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0);
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-        test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
-        test(rim1.size == 141 && rim1.replySize == 120);
-        checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ObjectNotExistException", 3, output);
+        test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
+        test(rim1.size == 94 && rim1.replySize == 80);
+        checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ObjectNotExistException", 2, output);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUnknownException"];
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0);
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 0);
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-        test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
-        test(rim1.size == 123 && rim1.replySize > 7);
-        checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownException", 3, output);
+        test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
+        test(rim1.size == 82 && rim1.replySize > 7);
+        checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::UnknownException", 2, output);
 
         if (!collocated)
         {
             im1 = (IceMX.InvocationMetrics)map["fail"];
-            test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 1);
+            test(im1.current <= 1 && im1.total == 2 && im1.failures == 2 && im1.retry == 2 && im1.remotes.Length == 1);
             rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
             test(rim1.current == 0);
-            test(rim1.total == 6);
-            test(rim1.failures == 6);
-            checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 3, output);
+            test(rim1.total == 4);
+            test(rim1.failures == 4);
+            checkFailure(clientMetrics, "Invocation", im1.id, "::Ice::ConnectionLostException", 2, output);
         }
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
@@ -1104,18 +1099,17 @@ public class AllTests : Test.AllTests
 
         MetricsPrx metricsOneway = (MetricsPrx)metrics.ice_oneway();
         metricsOneway.op();
-        metricsOneway.end_op(metricsOneway.begin_op());
-        metricsOneway.begin_op().whenCompleted(cb.response, cb.exception).waitForSent();
+        metricsOneway.opAsync().Wait();
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);
 
         im1 = (IceMX.InvocationMetrics)map["op"];
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(collocated ? (im1.collocated.Length == 1) : (im1.remotes.Length == 1));
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
-        test(rim1.current <= 1 && rim1.total == 3 && rim1.failures == 0);
-        test(rim1.size == 63 && rim1.replySize == 0);
+        test(rim1.current <= 1 && rim1.total == 2 && rim1.failures == 0);
+        test(rim1.size == 42 && rim1.replySize == 0);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
                       () => { invokeOp(metricsOneway); }, output);
@@ -1129,14 +1123,13 @@ public class AllTests : Test.AllTests
 
         MetricsPrx metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
         metricsBatchOneway.op();
-        metricsBatchOneway.end_op(metricsBatchOneway.begin_op());
-        metricsBatchOneway.begin_op().whenCompleted(cb.response, cb.exception);
+        metricsBatchOneway.opAsync().Wait();
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);
 
         im1 = (IceMX.InvocationMetrics)map["op"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.Length == 0);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",

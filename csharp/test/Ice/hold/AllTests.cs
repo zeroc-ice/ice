@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -117,15 +118,27 @@ namespace Ice
                 {
                     Condition cond = new Condition(true);
                     int value = 0;
-                    Ice.AsyncResult result = null;
+                    Task result = null;
                     while (cond.value())
                     {
-                        SetCB cb = new SetCB(cond, value);
-                        result = hold.begin_set(++value, value < 500 ? rand.Next(5) : 0).whenCompleted(cb.response,
-                                                                                                       cb.exception);
+                        var expected = value;
+                        result = hold.setAsync(++value, value < 500 ? rand.Next(5) : 0).ContinueWith(
+                            (Task<int> t) =>
+                            {
+                                try
+                                {
+                                    if (t.Result != expected)
+                                    {
+                                        cond.set(false);
+                                    }
+                                }
+                                catch(Exception )
+                                {
+                                }
+                            });
                         if (value % 100 == 0)
                         {
-                            result.waitForSent();
+                            result.Wait();
                         }
 
                         if (value > 100000)
@@ -137,7 +150,7 @@ namespace Ice
                         }
                     }
                     test(value > 100000 || !cond.value());
-                    result.waitForSent();
+                    result.Wait();
                 }
                 output.WriteLine("ok");
 
@@ -146,17 +159,30 @@ namespace Ice
                 {
                     Condition cond = new Condition(true);
                     int value = 0;
-                    Ice.AsyncResult result = null;
+                    Task result = null;
                     while (value < 3000 && cond.value())
                     {
-                        SetCB cb = new SetCB(cond, value);
-                        result = holdSerialized.begin_set(++value, 0).whenCompleted(cb.response, cb.exception);
+                        var expected = value;
+                        result = holdSerialized.setAsync(++value, 0).ContinueWith(
+                            (Task<int> p) =>
+                            {
+                                try
+                                {
+                                    if (p.Result != expected)
+                                    {
+                                        cond.set(false);
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                }
+                            });
                         if (value % 100 == 0)
                         {
-                            result.waitForSent();
+                            result.Wait();
                         }
                     }
-                    result.waitForCompleted();
+                    result.Wait();
                     test(cond.value());
 
                     for (int i = 0; i < 10000; ++i)
@@ -176,20 +202,20 @@ namespace Ice
                 {
                     int value = 0;
                     holdSerialized.set(value, 0);
-                    Ice.AsyncResult result = null;
+                    Task result = null;
                     for (int i = 0; i < 10000; ++i)
                     {
                         // Create a new proxy for each request
-                        result = ((Test.HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);
+                        result = ((Test.HoldPrx)holdSerialized.ice_oneway()).setOnewayAsync(value + 1, value);
                         ++value;
                         if ((i % 100) == 0)
                         {
-                            result.waitForSent();
+                            result.Wait();
                             holdSerialized.ice_ping(); // Ensure everything's dispatched.
                             holdSerialized.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         }
                     }
-                    result.waitForCompleted();
+                    result.Wait();
                 }
                 output.WriteLine("ok");
 

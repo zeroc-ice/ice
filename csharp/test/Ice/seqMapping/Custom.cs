@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Ice
@@ -11,7 +11,16 @@ namespace Ice
     {
         public class Custom<T> : IEnumerable<T>
         {
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            public Custom(List<T> list)
+            {
+                _list = list;
+            }
+
+            public Custom()
+            {
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
             {
                 return _list.GetEnumerator();
             }

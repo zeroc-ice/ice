@@ -658,7 +658,7 @@ namespace IceInternal
         private readonly Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
     }
 
-    public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
+    public class MetricsAdminI : IceMX.MetricsAdminDisp_
     {
         private static readonly string[] suffixes =
             {

@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace IceInternal
 {
@@ -192,8 +193,18 @@ namespace IceInternal
             {
                 try
                 {
-                    _locatorInfo.getLocator().begin_findObjectById(_ref.getIdentity()).whenCompleted(
-                        this.response, this.exception);
+                    _locatorInfo.getLocator().findObjectByIdAsync(_ref.getIdentity()).ContinueWith(
+                        (Task<Ice.ObjectPrx> p) =>
+                        {
+                            try
+                            {
+                                response(p.Result);
+                            }
+                            catch (System.AggregateException ex)
+                            {
+                                exception(ex.InnerException as Ice.Exception);
+                            }
+                        });
                 }
                 catch (Ice.Exception ex)
                 {
@@ -213,8 +224,18 @@ namespace IceInternal
             {
                 try
                 {
-                    _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId()).whenCompleted(
-                        response, exception);
+                    _locatorInfo.getLocator().findAdapterByIdAsync(_ref.getAdapterId()).ContinueWith(
+                        (Task<Ice.ObjectPrx> p) =>
+                        {
+                            try
+                            {
+                                response(p.Result);
+                            }
+                            catch (System.AggregateException ex)
+                            {
+                                exception(ex.InnerException as Ice.Exception);
+                            }
+                        });
                 }
                 catch (Ice.Exception ex)
                 {

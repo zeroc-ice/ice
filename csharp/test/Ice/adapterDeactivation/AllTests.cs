@@ -54,7 +54,7 @@ namespace Ice
                 output.Write("creating/activating/deactivating object adapter in one operation... ");
                 output.Flush();
                 obj.transient();
-                obj.end_transient(obj.begin_transient());
+                obj.transientAsync().Wait();
                 output.WriteLine("ok");
 
                 {
@@ -65,7 +65,7 @@ namespace Ice
                         Ice.InitializationData initData = new Ice.InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
                         Ice.Communicator comm = Ice.Util.initialize(initData);
-                        comm.stringToProxy("test:" + helper.getTestEndpoint(0)).begin_ice_ping();
+                        comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
                         comm.destroy();
                     }
                     output.WriteLine("ok");

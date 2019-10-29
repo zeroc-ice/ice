@@ -102,7 +102,7 @@ namespace IceInternal
 
                 if (_maxSize > 0 && _batchStream.size() >= _maxSize)
                 {
-                    proxy.begin_ice_flushBatchRequests(); // Auto flush
+                    proxy.ice_flushBatchRequestsAsync(); // Auto flush
                 }
 
                 Debug.Assert(_batchMarker < _batchStream.size());

@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -204,18 +205,13 @@ namespace Ice
                     // Expect InvocationTimeoutException.
                     //
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
-                    Callback cb = new Callback();
-                    to.begin_sleep(1000).whenCompleted(
-                       () =>
-                        {
-                            test(false);
-                        },
-                       (Ice.Exception ex) =>
-                        {
-                            test(ex is Ice.InvocationTimeoutException);
-                            cb.called();
-                        });
-                    cb.check();
+                    try
+                    {
+                        to.sleepAsync(1000).Wait();
+                    }
+                    catch (System.AggregateException ex) when (ex.InnerException is InvocationTimeoutException)
+                    {
+                    }
                     obj.ice_ping();
                 }
                 {
@@ -223,38 +219,28 @@ namespace Ice
                     // Expect success.
                     //
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(1000));
-                    Callback cb = new Callback();
-                    to.begin_sleep(100).whenCompleted(
-                       () =>
-                        {
-                            cb.called();
-
-                        },
-                       (Ice.Exception ex) =>
-                        {
-                            test(false);
-                        });
-                    cb.check();
+                    to.sleepAsync(100).Wait();
                 }
                 {
                     //
                     // Backward compatible connection timeouts
                     //
-                    Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
+                    Test.TimeoutPrx to =
+                        Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(-2).ice_timeout(250));
                     var con = connect(to);
                     try
                     {
                         to.sleep(750);
                         test(false);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (TimeoutException)
                     {
                         try
                         {
                             con.getInfo();
                             test(false);
                         }
-                        catch (Ice.TimeoutException)
+                        catch (TimeoutException)
                         {
                             // Connection got closed as well.
                         }
@@ -264,10 +250,10 @@ namespace Ice
                     try
                     {
                         con = connect(to);
-                        to.end_sleep(to.begin_sleep(750));
+                        to.sleepAsync(750).Wait();
                         test(false);
                     }
-                    catch (Ice.TimeoutException)
+                    catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
                     {
                         try
                         {
@@ -453,25 +439,26 @@ namespace Ice
                         proxy.sleep(500);
                         test(false);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                     }
 
                     try
                     {
-                        proxy.end_sleep(proxy.begin_sleep(500));
+                        proxy.sleepAsync(500).Wait();
                         test(false);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (System.AggregateException ex)
                     {
+                        test(ex.InnerException is InvocationTimeoutException);
                     }
 
                     try
                     {
                         ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_ping();
-                        ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).begin_ice_ping().waitForCompleted();
+                        ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_pingAsync().Wait();
                     }
-                    catch (Ice.Exception)
+                    catch (System.Exception)
                     {
                         test(false);
                     }
@@ -481,14 +468,16 @@ namespace Ice
                     batchTimeout.ice_ping();
                     batchTimeout.ice_ping();
 
-                    ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(500); // Keep the server thread pool busy.
+                    // Keep the server thread pool busy.
+                    ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).sleepAsync(500);
                     try
                     {
-                        batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());
+                        batchTimeout.ice_flushBatchRequestsAsync().Wait();
                         test(false);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (System.AggregateException ex)
                     {
+                        test(ex.InnerException is InvocationTimeoutException);
                     }
 
                     adapter.destroy();

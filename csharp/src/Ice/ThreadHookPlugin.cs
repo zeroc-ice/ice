@@ -15,18 +15,6 @@ namespace Ice
     public class ThreadHookPlugin : Plugin
     {
         /// <summary>
-        /// Installs a thread hook for a communicator.
-        /// </summary>
-        /// <param name="communicator">The communicator using the thread notification hook.</param>
-        /// <param name="threadHook">The thread notification hook for the communicator.</param>
-        [Obsolete("This constructor is deprecated. Use the constructur with threadStart and threadStop parameters instead.")]
-        public
-        ThreadHookPlugin(Communicator communicator, ThreadNotification threadHook) :
-            this(communicator, threadHook.start, threadHook.stop)
-        {
-        }
-
-        /// <summary>
         /// Installs thread hooks for a communicator.
         /// </summary>
         /// <param name="communicator">The communicator using the thread notification hook.</param>
