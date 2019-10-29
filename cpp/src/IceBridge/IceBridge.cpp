@@ -200,7 +200,7 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
     //
     // Register hearbeat callbacks on both connections.
     //
-    _incoming->setHeartbeatCallback([con = _outgoing](const shared_ptr<Connection>&)
+    _incoming->setHeartbeatCallback([con = _outgoing](const auto&)
                                     {
                                         try
                                         {
@@ -211,7 +211,7 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
                                         }
                                     });
 
-    _outgoing->setHeartbeatCallback([con = _incoming](const shared_ptr<Connection>&)
+    _outgoing->setHeartbeatCallback([con = _incoming](const auto&)
                                     {
                                         try
                                         {
@@ -361,8 +361,9 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
             {
                 prx = prx->ice_oneway();
             }
-            prx->ice_invokeAsync(current.operation, current.mode, inParams,
-                                 nullptr, error, [response](bool){ response(true, make_pair(nullptr, nullptr)); }, current.ctx);
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, error,
+                                 [response = move(response)](bool){ response(true, make_pair(nullptr, nullptr)); },
+                                 current.ctx);
         }
         else
         {
@@ -370,7 +371,7 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
             prx->ice_invokeAsync(current.operation, current.mode, inParams, response, error, nullptr, current.ctx);
         }
     }
-    catch(const std::exception& ex)
+    catch(const std::exception&)
     {
         error(current_exception());
     }
@@ -425,7 +426,7 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
             _connections.emplace(make_pair(current.con, bc));
 
             auto self = shared_from_this();
-            current.con->setCloseCallback([self](auto con) { self->closed(con); });
+            current.con->setCloseCallback([self](const auto& con) { self->closed(con); });
 
             //
             // Try to establish the outgoing connection asynchronously
@@ -440,7 +441,7 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
                     [self, bc](auto outgoing) { self->outgoingSuccess(move(bc), move(outgoing)); },
                     [self, bc](auto ex) { self->outgoingException(move(bc), ex); });
             }
-            catch(const std::exception ex)
+            catch(const std::exception&)
             {
                 error(current_exception());
                 return;
@@ -485,8 +486,7 @@ BridgeI::outgoingSuccess(shared_ptr<BridgeConnection> bc, shared_ptr<Connection>
     {
         lock_guard<mutex> lg(_lock);
         _connections.insert(make_pair(outgoing, bc));
-        auto self = shared_from_this(); // TODO: update to C++14
-        outgoing->setCloseCallback([self](const shared_ptr<Connection>& con) { self->closed(con); });
+        outgoing->setCloseCallback([self = shared_from_this()](const auto& con) { self->closed(con); });
     }
     bc->outgoingSuccess(move(outgoing));
 }
