@@ -10,8 +10,6 @@
 
 #include <Ice/Ice.h>
 
-#include <Ice/SliceChecksums.h>
-
 #include <functional>
 
 using namespace IceStorm;
@@ -105,11 +103,6 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&) const
     }
 
     return all;
-}
-Ice::SliceChecksumDict
-TransientTopicManagerImpl::getSliceChecksums(const Ice::Current&) const
-{
-    return Ice::sliceChecksums();
 }
 
 IceStormElection::NodePrx
