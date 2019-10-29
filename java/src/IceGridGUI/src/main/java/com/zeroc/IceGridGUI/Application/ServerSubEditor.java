@@ -90,31 +90,6 @@ class ServerSubEditor extends CommunicatorSubEditor
                              "<html>Check this box to ensure that the well-known objects<br>"
                              + "of this server can only be allocated by one session at a time.</html>");
         _allocatable = new JCheckBox(allocatable);
-
-        Action appDistrib = new AbstractAction("Depends on the application distribution")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    _mainEditor.updated();
-                }
-            };
-        appDistrib.putValue(Action.SHORT_DESCRIPTION,
-                            "<html>Check this box if this server needs to be restarted<br>"
-                            + "each time the distribution for your application is refreshed.</html>");
-
-        _applicationDistrib = new JCheckBox(appDistrib);
-
-        _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
-        _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
-
-        JTextField distribTextField = (JTextField)_distrib.getEditor().getEditorComponent();
-        distribTextField.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
-
-        _distribDirs.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
-        _distribDirs.setToolTipText(
-            "<html>Include only these directories when patching.<br>"
-            + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
     }
 
     ServerDescriptor getServerDescriptor()
@@ -175,18 +150,6 @@ class ServerSubEditor extends CommunicatorSubEditor
         builder.nextLine();
         builder.append("", _allocatable);
         builder.nextLine();
-
-        JComponent c = builder.appendSeparator("Distribution");
-        c.setToolTipText("Files specific to this server");
-
-        builder.append("", _applicationDistrib);
-        builder.nextLine();
-        builder.append("IcePatch2 Proxy");
-        builder.append(_distrib, 3);
-        builder.nextLine();
-        builder.append("Directories");
-        builder.append(_distribDirs, 3);
-        builder.nextLine();
     }
 
     void writeDescriptor()
@@ -211,18 +174,6 @@ class ServerSubEditor extends CommunicatorSubEditor
         descriptor.deactivationTimeout = _deactivationTimeout.getText().trim();
 
         descriptor.allocatable = _allocatable.isSelected();
-
-        descriptor.applicationDistrib = _applicationDistrib.isSelected();
-
-        if(_distrib.getSelectedItem() == NO_DISTRIB)
-        {
-            descriptor.distrib.icepatch = "";
-        }
-        else
-        {
-            descriptor.distrib.icepatch = _distrib.getSelectedItem().toString().trim();
-        }
-        descriptor.distrib.directories = _distribDirs.getList();
 
         super.writeDescriptor(descriptor);
     }
@@ -321,26 +272,6 @@ class ServerSubEditor extends CommunicatorSubEditor
         _allocatable.setSelected(descriptor.allocatable);
         _allocatable.setEnabled(isEditable);
 
-        _applicationDistrib.setSelected(descriptor.applicationDistrib);
-        _applicationDistrib.setEnabled(isEditable);
-
-        _distrib.setEnabled(true);
-        _distrib.setEditable(true);
-        String icepatch = Utils.substitute(descriptor.distrib.icepatch, detailResolver);
-        if(icepatch.equals(""))
-        {
-            _distrib.setSelectedItem(NO_DISTRIB);
-        }
-        else
-        {
-            _distrib.setSelectedItem(icepatch);
-        }
-        _distrib.setEnabled(isEditable);
-        _distrib.setEditable(isEditable);
-
-        _distribDirs.setList(descriptor.distrib.directories, detailResolver);
-        _distribDirs.setEditable(isEditable);
-
         show(descriptor, isEditable);
     }
 
@@ -348,17 +279,6 @@ class ServerSubEditor extends CommunicatorSubEditor
     static private final String MANUAL = "manual";
     static private final String ON_DEMAND = "on-demand";
     static private final String SESSION = "session";
-
-    static private final Object NO_DISTRIB = new Object()
-        {
-            @Override
-            public String toString()
-            {
-                return "None selected";
-            }
-        };
-
-    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
 
     private JTextField _id = new JTextField(20);
     private JTextField _exe = new JTextField(20);
@@ -372,7 +292,4 @@ class ServerSubEditor extends CommunicatorSubEditor
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
     private JCheckBox _allocatable;
-    private JCheckBox _applicationDistrib;
-    private JComboBox _distrib;
-    private ListTextField _distribDirs = new ListTextField(20);
 }

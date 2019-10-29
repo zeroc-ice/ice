@@ -30,8 +30,7 @@ coreandstub_components  = IceUtil \
                           Glacier2 \
                           IceStorm \
                           IceGrid \
-                          IceBox \
-                          IcePatch2
+                          IceBox
 
 # Add the Bluetooth transport if Bluetooth system libraries are available
 ifneq ($(IceBT_system_libs),)
@@ -80,8 +79,7 @@ cpp11_projects          = test/Common \
                           test/Glacier2/sessionHelper \
                           test/IceGrid/simple
 
-cpp11_excludes          = IcePatch2 \
-                          test/Ice/gc
+cpp11_excludes          = test/Ice/gc
 
 #
 # If building on a Linux multilib platform, we restrict what we build for

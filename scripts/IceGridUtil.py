@@ -6,7 +6,6 @@ import sys, os
 from Util import *
 from IceBoxUtil import *
 from Glacier2Util import *
-from IcePatch2Util import *
 
 class IceGridProcess:
 
@@ -241,7 +240,6 @@ class IceGridTestCase(TestCase):
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),
                 "glacier2router.exe" : Glacier2Router().getCommandLine(current),
-                "icepatch2server.exe" : IcePatch2Server().getCommandLine(current),
                 "icegridregistry.exe" : IceGridRegistryMaster().getCommandLine(current),
                 "properties-override" : self.icegridnode[0].getPropertiesOverride(current),
             }
@@ -259,7 +257,7 @@ class IceGridTestCase(TestCase):
             application = self.application
             if isinstance(self.mapping, CSharpMapping):
                 application = application.replace(".xml", ".netcoreapp.xml")
-            self.runadmin(current, "application add -n {0} {1} {2}".format(application, varStr, targets))
+            self.runadmin(current, "application add {0} {1} {2}".format(application, varStr, targets))
 
     def teardownClientSide(self, current, success):
         if self.application:

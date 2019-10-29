@@ -37,8 +37,6 @@ public:
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&,
                                    const Ice::Current&);
-    virtual void patchApplication_async(const AMD_Admin_patchApplicationPtr&, const std::string&, bool,
-                                        const Ice::Current&);
     virtual ApplicationInfo getApplicationInfo(const ::std::string&, const Ice::Current&) const;
     virtual ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
@@ -50,7 +48,6 @@ public:
     virtual Ice::ObjectPrx getServerAdmin(const std::string&, const Ice::Current&) const;
     virtual void startServer_async(const AMD_Admin_startServerPtr&, const ::std::string&, const Ice::Current&);
     virtual void stopServer_async(const AMD_Admin_stopServerPtr&, const ::std::string&, const Ice::Current&);
-    virtual void patchServer_async(const AMD_Admin_patchServerPtr&, const ::std::string&, bool, const Ice::Current&);
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllServerIds(const Ice::Current&) const;
     virtual void enableServer(const ::std::string&, bool, const Ice::Current&);

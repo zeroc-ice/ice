@@ -4,7 +4,6 @@
 
 #include <Ice/Ice.h>
 #include <IceXML/Parser.h>
-#include <IcePatch2Lib/Util.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/DescriptorBuilder.h>
@@ -70,7 +69,6 @@ private:
     bool _inAdapter;
     bool _inReplicaGroup;
     bool _inDbEnv;
-    bool _inDistrib;
 };
 
 }
@@ -407,24 +405,6 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
             }
             _currentCommunicator->addAllocatable(attributes);
         }
-        else if(name == "distrib")
-        {
-            if(!_currentApplication.get() ||
-               ((_currentNode.get() || _currentTemplate.get()) && !_currentServer.get()) ||
-               _currentServer.get() != _currentCommunicator)
-            {
-                error("the <distrib> element can only be a child of an <application>, <server> or <icebox> element");
-            }
-            if(!_currentServer.get())
-            {
-                _currentApplication->addDistribution(attributes);
-            }
-            else
-            {
-                _currentServer->addDistribution(attributes);
-            }
-            _inDistrib = true;
-        }
         else if(name == "dbenv")
         {
             if(!_currentCommunicator)
@@ -450,7 +430,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
             }
             _currentCommunicator->addDbEnvProperty(attributes);
         }
-        else if(name == "description" || name == "option" || name == "env" || name == "directory")
+        else if(name == "description" || name == "option" || name == "env")
         {
             //
             // Nothing to do.
@@ -648,21 +628,6 @@ DescriptorHandler::endElement(const string& name, int line, int column)
             }
             _currentServer->addEnv(elementValue());
         }
-        else if(name == "directory")
-        {
-            if(!_inDistrib)
-            {
-                error("the <directory> element can only be a child of a <distrib> element");
-            }
-            if(!_currentServer.get())
-            {
-                _currentApplication->addDistributionDirectory(elementValue());
-            }
-            else
-            {
-                _currentServer->addDistributionDirectory(elementValue());
-            }
-        }
         else if(name == "adapter")
         {
             _inAdapter = false;
@@ -675,10 +640,6 @@ DescriptorHandler::endElement(const string& name, int line, int column)
         else if(name == "dbenv")
         {
             _inDbEnv = false;
-        }
-        else if(name == "distrib")
-        {
-            _inDistrib = false;
         }
     }
     catch(const exception& ex)
@@ -857,7 +818,7 @@ DescriptorParser::parseDescriptor(const string& descriptor,
                                   const Ice::CommunicatorPtr& communicator,
                                   const IceGrid::AdminPrx& admin)
 {
-    string filename = IcePatch2Internal::simplify(descriptor);
+    string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
     handler.setAdmin(admin);
     handler.setVariables(variables, targets);
@@ -868,7 +829,7 @@ DescriptorParser::parseDescriptor(const string& descriptor,
 ApplicationDescriptor
 DescriptorParser::parseDescriptor(const string& descriptor, const Ice::CommunicatorPtr& communicator)
 {
-    string filename = IcePatch2Internal::simplify(descriptor);
+    string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
     IceXML::Parser::parse(filename, handler);
     return handler.getApplicationDescriptor();

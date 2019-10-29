@@ -43,7 +43,6 @@
                                ..\..\slice\Ice\Metrics.ice;
                                ..\..\slice\IceBox\*.ice;
                                ..\..\slice\IceGrid\*.ice;
-                               ..\..\slice\IcePatch2\*.ice;
                                ..\..\slice\IceStorm\*.ice"/>
         <PythonGenerated Include="$(MSBuildThisFileDirectory)\..\python\**\*_ice.py"/>
     </ItemGroup>

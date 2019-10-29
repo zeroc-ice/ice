@@ -281,21 +281,6 @@ exception BadSignalException
 
 /**
  *
- * This exception is raised if a patch failed.
- *
- **/
-exception PatchException
-{
-    /**
-     *
-     * The reasons why the patch failed.
-     *
-     **/
-    Ice::StringSeq reasons;
-}
-
-/**
- *
  * This exception is raised if a registry lock wasn't
   * acquired or is already held by a session.
  *

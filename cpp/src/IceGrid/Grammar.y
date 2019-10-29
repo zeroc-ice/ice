@@ -69,7 +69,6 @@ yyerror(const char* s)
 %token ICE_GRID_STRING
 %token ICE_GRID_START
 %token ICE_GRID_STOP
-%token ICE_GRID_PATCH
 %token ICE_GRID_SIGNAL
 %token ICE_GRID_STDOUT
 %token ICE_GRID_STDERR
@@ -174,14 +173,6 @@ command
 | ICE_GRID_APPLICATION ICE_GRID_DESCRIBE ICE_GRID_HELP ';'
 {
     parser->usage("application", "describe");
-}
-| ICE_GRID_APPLICATION ICE_GRID_PATCH strings ';'
-{
-    parser->patchApplication($3);
-}
-| ICE_GRID_APPLICATION ICE_GRID_PATCH ICE_GRID_HELP ';'
-{
-    parser->usage("application", "patch");
 }
 | ICE_GRID_APPLICATION ICE_GRID_LIST strings ';'
 {
@@ -350,14 +341,6 @@ command
 | ICE_GRID_SERVER ICE_GRID_STOP ICE_GRID_HELP ';'
 {
     parser->usage("server", "stop");
-}
-| ICE_GRID_SERVER ICE_GRID_PATCH strings ';'
-{
-    parser->patchServer($3);
-}
-| ICE_GRID_SERVER ICE_GRID_PATCH ICE_GRID_HELP ';'
-{
-    parser->usage("server", "patch");
 }
 | ICE_GRID_SERVER ICE_GRID_SIGNAL strings ';'
 {
@@ -722,9 +705,6 @@ keyword
 {
 }
 | ICE_GRID_STOP
-{
-}
-| ICE_GRID_PATCH
 {
 }
 | ICE_GRID_SIGNAL

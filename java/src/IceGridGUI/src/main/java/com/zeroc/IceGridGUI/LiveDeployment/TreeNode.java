@@ -50,19 +50,17 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int SHUTDOWN_NODE = 16;
     public static final int SHUTDOWN_REGISTRY = 17;
 
-    public static final int PATCH_SERVER = 18;
+    public static final int ADD_OBJECT = 18;
 
-    public static final int ADD_OBJECT = 19;
+    public static final int OPEN_DEFINITION = 19;
 
-    public static final int OPEN_DEFINITION = 20;
+    public static final int ENABLE_METRICS_VIEW = 20;
+    public static final int DISABLE_METRICS_VIEW = 21;
 
-    public static final int ENABLE_METRICS_VIEW = 21;
-    public static final int DISABLE_METRICS_VIEW = 22;
+    public static final int START_ALL_SERVERS = 22;
+    public static final int STOP_ALL_SERVERS = 23;
 
-    public static final int START_ALL_SERVERS = 23;
-    public static final int STOP_ALL_SERVERS = 24;
-
-    public static final int ACTION_COUNT = 25;
+    public static final int ACTION_COUNT = 24;
 
     public boolean[] getAvailableActions()
     {
@@ -110,10 +108,6 @@ public abstract class TreeNode extends TreeNodeBase
         assert false;
     }
     public void shutdownRegistry()
-    {
-        assert false;
-    }
-    public void patchServer()
     {
         assert false;
     }
@@ -187,21 +181,6 @@ public abstract class TreeNode extends TreeNodeBase
         else if(e instanceof com.zeroc.IceGrid.ApplicationNotExistException)
         {
             amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
-        }
-        else if(e instanceof com.zeroc.IceGrid.PatchException)
-        {
-            com.zeroc.IceGrid.PatchException pe = (com.zeroc.IceGrid.PatchException)e;
-
-            String message = "";
-            for(String s : pe.reasons)
-            {
-                if(message.length() > 0)
-                {
-                    message += "\n";
-                }
-                message += s;
-            }
-            amiFailure(prefix, title, message);
         }
         else if(e instanceof com.zeroc.IceGrid.NodeNotExistException)
         {

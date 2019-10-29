@@ -37,7 +37,7 @@ namespace
 
 const char* _commandsHelp[][3] = {
 { "application", "add",
-"application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+"application add DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 "                          Add application described in DESC. If specified\n"
 "                          the optional targets TARGET will be deployed.\n"
 },
@@ -59,12 +59,6 @@ const char* _commandsHelp[][3] = {
 "                          Update the application described in DESC. If -n or\n"
 "                          --no-restart is specified, the update will fail if\n"
 "                          it is necessary to stop some servers.\n"
-},
-{ "application", "patch",
-"application patch [-f | --force] NAME\n"
-"                          Patch the given application data. If -f or --force is\n"
-"                          specified, the servers depending on the data to patch\n"
-"                          will be stopped if necessary.\n"
 },
 { "application", "list",
 "application list          List all deployed applications.\n"
@@ -154,9 +148,6 @@ const char* _commandsHelp[][3] = {
 },
 { "server", "stop",
 "server stop ID            Stop server ID.\n"
-},
-{ "server", "patch",
-"server patch ID           Patch server ID.\n"
 },
 { "server", "signal",
 "server signal ID SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
@@ -508,7 +499,6 @@ Parser::addApplication(const list<string>& origArgs)
     copyArgs.push_front("icegridadmin");
 
     IceUtilInternal::Options opts;
-    opts.addOpt("n", "no-patch");
     vector<string> args;
     try
     {
@@ -556,21 +546,6 @@ Parser::addApplication(const list<string>& origArgs)
         //
         ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
         _admin->addApplication(app);
-
-        if(!opts.isSet("no-patch"))
-        {
-            //
-            // Patch the application.
-            //
-            try
-            {
-                _admin->patchApplication(app.name, true);
-            }
-            catch(const PatchException& ex)
-            {
-                warning(patchFailed(ex.reasons));
-            }
-        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -808,47 +783,6 @@ Parser::updateApplication(const list<string>& origArgs)
     catch(const Ice::OperationNotExistException&)
     {
         error("registry doesn't support updates without restart");
-    }
-    catch(const Ice::Exception& ex)
-    {
-        exception(ex);
-    }
-}
-
-void
-Parser::patchApplication(const list<string>& origArgs)
-{
-    list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
-
-    IceUtilInternal::Options opts;
-    opts.addOpt("f", "force");
-    vector<string> args;
-    try
-    {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
-        {
-            args.push_back(*p);
-        }
-        args = opts.parse(args);
-    }
-    catch(const IceUtilInternal::BadOptException& e)
-    {
-        error(e.reason);
-        return;
-    }
-
-    if(args.size() != 1)
-    {
-        invalidCommand("application patch", "requires exactly one argument");
-        return;
-    }
-
-    try
-    {
-        vector<string>::const_iterator p = args.begin();
-        string name = *p++;
-        _admin->patchApplication(name, opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
@@ -1371,45 +1305,6 @@ Parser::stopServer(const list<string>& args)
     catch(const ServerStopException& ex)
     {
         error("the server didn't stop successfully:\n" + ex.reason);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        exception(ex);
-    }
-}
-
-void
-Parser::patchServer(const list<string>& origArgs)
-{
-    list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
-
-    IceUtilInternal::Options opts;
-    opts.addOpt("f", "force");
-    vector<string> args;
-    try
-    {
-        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
-        {
-            args.push_back(*p);
-        }
-        args = opts.parse(args);
-    }
-    catch(const IceUtilInternal::BadOptException& e)
-    {
-        error(e.reason);
-        return;
-    }
-
-    if(args.size() != 1)
-    {
-        invalidCommand("server patch", "requires exactly one argument");
-        return;
-    }
-
-    try
-    {
-        _admin->patchServer(args.front(), opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
@@ -2717,53 +2612,6 @@ Parser::invalidCommand(const list<string>& s)
     }
 }
 
-string
-Parser::patchFailed(const Ice::StringSeq& reasons)
-{
-    if(reasons.size() == 1)
-    {
-        ostringstream s;
-        s << "the patch failed:\n" << reasons[0];
-        return s.str();
-    }
-    else
-    {
-        ostringstream os;
-        IceUtilInternal::Output out(os);
-        out.setIndent(2);
-        out << "the patch failed on some nodes:\n";
-        for(Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)
-        {
-            string reason = *p;
-            string::size_type beg = 0;
-            string::size_type end = reason.find_first_of("\n");
-            if(end == string::npos)
-            {
-                end = reason.size();
-            }
-            out << "- " << reason.substr(beg, end - beg);
-            out.inc();
-            while(end < reason.size())
-            {
-                beg = end + 1;
-                end = reason.find_first_of("\n", beg);
-                if(end == string::npos)
-                {
-                    end = reason.size();
-                }
-                out.newline();
-                out << reason.substr(beg, end - beg);
-            }
-            out.dec();
-            if(p + 1 != reasons.end())
-            {
-                out.newline();
-            }
-        }
-        return os.str();
-    }
-}
-
 void
 Parser::error(const char* s)
 {
@@ -2906,10 +2754,6 @@ Parser::exception(const Ice::Exception& pex)
         ostringstream s;
         s << ex << ":\n" << ex.reason;
         error(s.str());
-    }
-    catch(const PatchException& ex)
-    {
-        error(patchFailed(ex.reasons));
     }
     catch(const BadSignalException& ex)
     {

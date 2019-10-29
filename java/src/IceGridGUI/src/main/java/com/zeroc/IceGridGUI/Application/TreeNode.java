@@ -225,30 +225,6 @@ public abstract class TreeNode extends TreeNodeBase
         return null;
     }
 
-    static void writeDistribution(XMLWriter writer, DistributionDescriptor descriptor)
-        throws java.io.IOException
-    {
-        if(descriptor.icepatch.length() > 0)
-        {
-            java.util.List<String[]> attributes = new java.util.LinkedList<>();
-            attributes.add(createAttribute("icepatch", descriptor.icepatch));
-
-            if(descriptor.directories.isEmpty())
-            {
-                writer.writeElement("distrib", attributes);
-            }
-            else
-            {
-                writer.writeStartTag("distrib", attributes);
-                for(String p : descriptor.directories)
-                {
-                    writer.writeElement("directory", p);
-                }
-                writer.writeEndTag("distrib");
-            }
-        }
-    }
-
     static void writeObjects(String elt, XMLWriter writer, java.util.List<ObjectDescriptor> objects,
                              java.util.List<PropertyDescriptor> properties)
         throws java.io.IOException

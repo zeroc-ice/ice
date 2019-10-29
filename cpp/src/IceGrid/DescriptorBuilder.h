@@ -115,9 +115,6 @@ public:
     void addServiceTemplate(const std::string&, const TemplateDescriptor&);
     void addPropertySet(const std::string&, const PropertySetDescriptor&);
 
-    void addDistribution(const XmlAttributesHelper&);
-    void addDistributionDirectory(const std::string&);
-
     bool isOverride(const std::string&);
 
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
@@ -267,8 +264,6 @@ public:
     virtual void addEnv(const std::string&);
     virtual void addService(const ServiceDescriptorPtr&);
     virtual void addServiceInstance(const ServiceInstanceDescriptor&);
-    virtual void addDistribution(const XmlAttributesHelper&);
-    virtual void addDistributionDirectory(const std::string&);
 
     const ServerDescriptorPtr& getDescriptor() const { return _descriptor; }
 

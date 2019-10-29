@@ -17,36 +17,6 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class PatcherFeedbackAggregator : public IceUtil::Mutex, public IceUtil::Shared
-{
-public:
-
-    PatcherFeedbackAggregator(Ice::Identity, const TraceLevelsPtr&, const std::string&, const std::string&, int);
-    virtual ~PatcherFeedbackAggregator();
-
-    void finished(const std::string&);
-    void failed(const std::string&, const std::string&);
-
-protected:
-
-    virtual void exception(const Ice::Exception&) = 0;
-    virtual void response() = 0;
-
-private:
-
-    void checkIfDone();
-
-    const Ice::Identity _id;
-    const TraceLevelsPtr _traceLevels;
-    const std::string _type;
-    const std::string _name;
-    const int _count;
-    std::set<std::string> _successes;
-    std::set<std::string> _failures;
-    Ice::StringSeq _reasons;
-};
-typedef IceUtil::Handle<PatcherFeedbackAggregator> PatcherFeedbackAggregatorPtr;
-
 class NodeSessionI : public NodeSession, public IceUtil::Mutex
 {
 public:
@@ -65,8 +35,6 @@ public:
 
     virtual IceUtil::Time timestamp() const;
     virtual void shutdown();
-    void patch(const PatcherFeedbackAggregatorPtr&, const std::string&,  const std::string&,
-               const InternalDistributionDescriptorPtr&, bool);
 
     const NodePrx& getNode() const;
     const InternalNodeInfoPtr& getInfo() const;
@@ -74,7 +42,6 @@ public:
     NodeSessionPrx getProxy() const;
 
     bool isDestroyed() const;
-    void removeFeedback(const PatcherFeedbackPtr&, const Ice::Identity&);
 
 private:
 
@@ -91,7 +58,6 @@ private:
     IceUtil::Time _timestamp;
     LoadInfo _load;
     bool _destroy;
-    std::set<PatcherFeedbackPtr> _feedbacks;
 };
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 

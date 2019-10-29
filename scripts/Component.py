@@ -226,7 +226,6 @@ component = Ice()
 from Glacier2Util import *
 from IceBoxUtil import *
 from IceBridgeUtil import *
-from IcePatch2Util import *
 from IceGridUtil import *
 from IceStormUtil import *
 

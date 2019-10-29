@@ -39,7 +39,7 @@ $(call make-projects,$(projects))
 
 install:: | $(DESTDIR)$(install_phpdir)
 	$(E) "Installing generated code"
-	$(Q)$(INSTALL) -m 644 lib/Glacier2.php  lib/IceBox.php  lib/IceGrid.php lib/IcePatch2.php lib/IceStorm.php $(DESTDIR)$(install_phpdir)
+	$(Q)$(INSTALL) -m 644 lib/Glacier2.php lib/IceBox.php lib/IceGrid.php lib/IceStorm.php $(DESTDIR)$(install_phpdir)
 ifeq ($(USE_NAMESPACES),no)
 	$(Q)$(INSTALL) -m 644 lib/Ice_no_ns.php $(DESTDIR)$(install_phpdir)/Ice.php
 else
@@ -50,7 +50,6 @@ $(eval $(call make-php-package,$(slicedir),lib,Ice))
 $(eval $(call make-php-package,$(slicedir),lib,Glacier2))
 $(eval $(call make-php-package,$(slicedir),lib,IceBox))
 $(eval $(call make-php-package,$(slicedir),lib,IceGrid))
-$(eval $(call make-php-package,$(slicedir),lib,IcePatch2))
 $(eval $(call make-php-package,$(slicedir),lib,IceStorm))
 
 endif
