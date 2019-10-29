@@ -621,7 +621,7 @@ namespace Ice
                 return x.Equals(y);
             }
 
-            public int GetHashCode([DisallowNull] T obj)
+            public int GetHashCode(T obj)
             {
                 return obj.GetHashCode();
             }
@@ -629,7 +629,7 @@ namespace Ice
 
         class CVComparer : IEqualityComparer<Value>
         {
-            public bool Equals([AllowNull] Value x, [AllowNull] Value y)
+            public bool Equals(Value x, Value y)
             {
                 if (x == y)
                 {
@@ -643,7 +643,7 @@ namespace Ice
                 return (x as Test.CV).i == (y as Test.CV).i;
             }
 
-            public int GetHashCode([DisallowNull] Value obj)
+            public int GetHashCode(Value obj)
             {
                 return obj.GetHashCode();
             }
@@ -651,7 +651,7 @@ namespace Ice
 
         class CRComparer : IEqualityComparer<Test.CR>
         {
-            public bool Equals([AllowNull] Test.CR x, [AllowNull] Test.CR y)
+            public bool Equals(Test.CR x, Test.CR y)
             {
                 if (x == y)
                 {
@@ -665,7 +665,7 @@ namespace Ice
                 return x.v.i == y.v.i;
             }
 
-            public int GetHashCode([DisallowNull] Test.CR obj)
+            public int GetHashCode(Test.CR obj)
             {
                 return obj.GetHashCode();
             }
