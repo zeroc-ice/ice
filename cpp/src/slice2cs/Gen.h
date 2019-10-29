@@ -87,7 +87,6 @@ public:
 
     void generate(const UnitPtr&);
     void generateImpl(const UnitPtr&);
-    void generateChecksums(const UnitPtr&);
     void closeOutput();
 
 private:

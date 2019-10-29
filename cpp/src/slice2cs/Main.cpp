@@ -70,7 +70,6 @@ usage(const string& n)
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
         "--impl                   Generate sample implementations.\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore             Allow underscores in Slice identifiers\n"
@@ -97,7 +96,6 @@ compile(const vector<string>& argv)
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
-    opts.addOpt("", "checksum");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
@@ -163,8 +161,6 @@ compile(const vector<string>& argv)
     bool ice = opts.isSet("ice");
 
     bool underscore = opts.isSet("underscore");
-
-    bool checksum = opts.isSet("checksum");
 
     if(args.empty())
     {
@@ -291,10 +287,6 @@ compile(const vector<string>& argv)
                         if(impl)
                         {
                             gen.generateImpl(p);
-                        }
-                        if(checksum)
-                        {
-                            gen.generateChecksums(p);
                         }
                     }
                     catch(const Slice::FileException& ex)
