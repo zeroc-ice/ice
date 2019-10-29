@@ -516,7 +516,7 @@ class Windows(Platform):
 
     def getDotNetExe(self):
         try:
-            return run("where dotnet").strip()
+            return run("where dotnet").split("\n")[0].strip()
         except:
             return None
 
@@ -3144,7 +3144,11 @@ class CppMapping(Mapping):
             print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
+
             Mapping.Config.__init__(self, options)
+
+            if self.buildConfig == platform.getDefaultBuildConfig():
+                self.buildConfig = "cpp98-shared"
 
             # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
             # tests on the cpp11 value in the testcase options specification

@@ -7,19 +7,8 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    public interface PropertiesAdminUpdateCallback
-    {
-        void updated(Dictionary<string, string> changes);
-    }
-
     public interface NativePropertiesAdmin
     {
-        [Obsolete("This method is deprecated. Use addUpdateCallback(System.Action<Dictionary<string, string>> callback) instead.")]
-        void addUpdateCallback(PropertiesAdminUpdateCallback callback);
-
-        [Obsolete("This method is deprecated. Use removeUpdateCallback(System.Action<Dictionary<string, string>> callback) instead.")]
-        void removeUpdateCallback(PropertiesAdminUpdateCallback callback);
-
         void addUpdateCallback(System.Action<Dictionary<string, string>> callback);
 
         void removeUpdateCallback(System.Action<Dictionary<string, string>> callback);
@@ -178,7 +167,7 @@ namespace IceInternal
                     _properties.setProperty(e.Key, "");
                 }
 
-                if (_deprecatedUpdateCallbacks.Count > 0 || _updateCallbacks.Count > 0)
+                if (_updateCallbacks.Count > 0)
                 {
                     Dictionary<string, string> changes = new Dictionary<string, string>(added);
                     foreach (KeyValuePair<string, string> e in changed)
@@ -190,21 +179,6 @@ namespace IceInternal
                         changes.Add(e.Key, e.Value);
                     }
 
-                    // Copy callbacks to allow callbacks to update callbacks
-                    foreach (var callback in new List<Ice.PropertiesAdminUpdateCallback>(_deprecatedUpdateCallbacks))
-                    {
-                        try
-                        {
-                            callback.updated(changes);
-                        }
-                        catch (Exception ex)
-                        {
-                            if (_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-                            {
-                                _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
-                            }
-                        }
-                    }
                     // Copy callbacks to allow callbacks to update callbacks
                     foreach (var callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
                     {
@@ -221,22 +195,6 @@ namespace IceInternal
                         }
                     }
                 }
-            }
-        }
-
-        public void addUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
-        {
-            lock (this)
-            {
-                _deprecatedUpdateCallbacks.Add(cb);
-            }
-        }
-
-        public void removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
-        {
-            lock (this)
-            {
-                _deprecatedUpdateCallbacks.Remove(cb);
             }
         }
 
@@ -258,8 +216,6 @@ namespace IceInternal
 
         private readonly Ice.Properties _properties;
         private readonly Ice.Logger _logger;
-        private List<Ice.PropertiesAdminUpdateCallback> _deprecatedUpdateCallbacks =
-            new List<Ice.PropertiesAdminUpdateCallback>();
         private List<Action<Dictionary<string, string>>> _updateCallbacks =
             new List<Action<Dictionary<string, string>>>();
 

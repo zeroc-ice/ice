@@ -32,7 +32,7 @@ namespace Ice
 
                     if (_size + request.getSize() > 25000)
                     {
-                        request.getProxy().begin_ice_flushBatchRequests();
+                        request.getProxy().ice_flushBatchRequestsAsync();
                         _size = 18; // header
                     }
 

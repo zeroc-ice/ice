@@ -42,6 +42,8 @@ class InternalAdapterDescriptor
 }
 sequence<InternalAdapterDescriptor> InternalAdapterDescriptorSeq;
 
+// This class is no longer used. We keep it only for interop with IceGrid 3.7.
+//
 class InternalDistributionDescriptor
 {
     /** The proxy of the IcePatch2 server. */
@@ -88,10 +90,10 @@ class InternalServerDescriptor
     /** The server deactivation timeout. */
     string deactivationTimeout;
 
-    /** Specifies if the server depends on the application distrib. */
-    bool applicationDistrib;
+    // Not used, always false. Kept only for interop with IceGrid 3.7.
+    bool applicationDistrib = false;
 
-    /** The distribution descriptor of this server. */
+    // Not used, always nil. Kept only for interop with IceGrid 3.7.
     InternalDistributionDescriptor distrib;
 
     /** Specifies if a process object is registered. */
@@ -329,23 +331,6 @@ interface ReplicaObserver
     void replicaRemoved(InternalRegistry* replica);
 }
 
-interface PatcherFeedback
-{
-    /**
-     *
-     * The patch completed successfully.
-     *
-     **/
-    void finished();
-
-    /**
-     *
-     * The patch on the given node failed for the given reason.
-     *
-     **/
-    void failed(string reason);
-}
-
 interface Node extends FileReader, ReplicaObserver
 {
     /**
@@ -393,20 +378,6 @@ interface Node extends FileReader, ReplicaObserver
      **/
     ["amd"] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
         throws DeploymentException;
-
-    /**
-     *
-     * Patch application and server distributions. If some servers
-     * using a distribution directory to patch are active, this method
-     * will raise a PatchException unless shutdown is set to true. In
-     * which case the servers will be shutdown.
-     *
-     **/
-    ["amd"] idempotent void patch(PatcherFeedback* feedback,
-                                  string application,
-                                  string server,
-                                  InternalDistributionDescriptor appDistrib,
-                                  bool shutdown);
 
     /**
      *

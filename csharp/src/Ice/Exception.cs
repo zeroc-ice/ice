@@ -85,17 +85,6 @@ namespace Ice
         protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <summary>
-        /// ice_name() is deprecated, use ice_id() instead.
-        /// Returns the name of this exception.
-        /// </summary>
-        /// <returns>The name of this exception.</returns>
-        [Obsolete("ice_name() is deprecated, use ice_id() instead.")]
-        public string ice_name()
-        {
-            return ice_id().Substring(2);
-        }
-
-        /// <summary>
         /// Returns the type id of this exception.
         /// </summary>
         /// <returns>The type id of this exception.</returns>

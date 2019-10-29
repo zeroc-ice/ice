@@ -57,9 +57,6 @@ class ServerEditor extends CommunicatorEditor
         _user.setEditable(false);
 
         _allocatable.setEnabled(false);
-        _applicationDistrib.setEnabled(false);
-        _icepatch.setEditable(false);
-        _directories.setEditable(false);
 
         Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
             {
@@ -145,21 +142,6 @@ class ServerEditor extends CommunicatorEditor
         _deactivationTimeout.setText(resolver.substitute(descriptor.deactivationTimeout));
 
         _allocatable.setSelected(descriptor.allocatable);
-
-        _applicationDistrib.setSelected(descriptor.applicationDistrib);
-        _icepatch.setText(resolver.substitute(resolver.substitute(descriptor.distrib.icepatch)));
-
-        r = Utils.stringify(descriptor.distrib.directories, stringifier, ", ");
-        _directories.setText(r.returnValue);
-
-        String toolTip = "<html>Include only these directories";
-
-        if(r.toolTip != null)
-        {
-            toolTip += ":<br>" + r.toolTip;
-        }
-        toolTip += "</html>";
-        _directories.setToolTipText(toolTip);
     }
 
     @Override
@@ -227,18 +209,6 @@ class ServerEditor extends CommunicatorEditor
         builder.nextLine();
         builder.append("", _allocatable);
         builder.nextLine();
-
-        JComponent c = builder.appendSeparator("Distribution");
-        c.setToolTipText("Files specific to this server");
-
-        builder.append("", _applicationDistrib);
-        builder.nextLine();
-        builder.append("IcePatch2 Proxy");
-        builder.append(_icepatch, 3);
-        builder.nextLine();
-        builder.append("Directories");
-        builder.append(_directories, 3);
-        builder.nextLine();
     }
 
     @Override
@@ -289,10 +259,6 @@ class ServerEditor extends CommunicatorEditor
     private TableField _envs = new TableField("Name", "Value");
 
     private JTextField _options = new JTextField(20);
-    private JCheckBox _applicationDistrib = new JCheckBox("Depends on the application distribution");
-
-    private JTextField _icepatch = new JTextField(20);
-    private JTextField _directories = new JTextField(20);
 
     private JToolBar _toolBar;
 }

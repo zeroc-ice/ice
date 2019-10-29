@@ -61,20 +61,6 @@ class RegistryEditor extends CommunicatorEditor
                 }
             };
 
-        final Action patch = new AbstractAction("Patch distribution")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    int selectedRow = _applications.getSelectedRow();
-                    if(selectedRow != -1)
-                    {
-                        String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        ((Root)_target).patch(appName);
-                    }
-                }
-            };
-
         Action removeApplication = new AbstractAction("Remove from registry")
             {
                 @Override
@@ -108,8 +94,6 @@ class RegistryEditor extends CommunicatorEditor
         final JPopupMenu appPopup = new JPopupMenu();
         appPopup.add(openDefinition);
         appPopup.add(showDetails);
-        appPopup.addSeparator();
-        appPopup.add(patch);
         appPopup.addSeparator();
         appPopup.add(removeApplication);
 
@@ -148,7 +132,6 @@ class RegistryEditor extends CommunicatorEditor
                     {
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
                         ApplicationDescriptor desc = ((Root)_target).getApplicationDescriptor(appName);
-                        patch.setEnabled(desc != null && desc.distrib.icepatch.length() > 0);
                         appPopup.show(_applications, e.getX(), e.getY());
                     }
                 }

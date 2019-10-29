@@ -60,7 +60,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
         ":icebox",
         ":icebt",
         ":icegrid",
-        ":icepatch2",
         ":icessl",
         ":icestorm"
     ]
@@ -105,7 +104,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
     dist.dependsOn(project(":icebt").assemble)
     dist.dependsOn(project(":icediscovery").assemble)
     dist.dependsOn(project(":icelocatordiscovery").assemble)
-    dist.dependsOn(project(":icepatch2").assemble)
     dist.dependsOn(project(":icestorm").assemble)
     dist.dependsOn(project(":IceGridGUI").assemble)
 }

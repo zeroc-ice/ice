@@ -482,45 +482,6 @@ namespace Ice
             }
         }
 
-        private class ConnectionFlushBatchCompletionCallback : AsyncResultCompletionCallback
-        {
-            public ConnectionFlushBatchCompletionCallback(Connection connection,
-                                                          Communicator communicator,
-                                                          Instance instance,
-                                                          string op,
-                                                          object cookie,
-                                                          AsyncCallback callback)
-                : base(communicator, instance, op, cookie, callback)
-            {
-                _connection = connection;
-            }
-
-            public override Connection getConnection()
-            {
-                return _connection;
-            }
-
-            protected override AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-
-            private Connection _connection;
-        }
-
         public Task flushBatchRequestsAsync(CompressBatch compressBatch,
                                             IProgress<bool> progress = null,
                                             CancellationToken cancel = new CancellationToken())
@@ -529,29 +490,6 @@ namespace Ice
             var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
             outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
             return completed.Task;
-        }
-
-        public AsyncResult begin_flushBatchRequests(CompressBatch compressBatch,
-                                                    AsyncCallback cb = null,
-                                                    object cookie = null)
-        {
-            var result = new ConnectionFlushBatchCompletionCallback(this, _communicator, _instance,
-                                                                    _flushBatchRequests_name, cookie, cb);
-            var outgoing = new ConnectionFlushBatchAsync(this, _instance, result);
-            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
-            return result;
-        }
-
-        public void end_flushBatchRequests(AsyncResult r)
-        {
-            if (r != null && r.getConnection() != this)
-            {
-                const string msg = "Connection for call to end_" + _flushBatchRequests_name +
-                                   " does not match connection that was used to call corresponding begin_" +
-                                   _flushBatchRequests_name + " method";
-                throw new ArgumentException(msg);
-            }
-            AsyncResultI.check(r, _flushBatchRequests_name).wait();
         }
 
         private const string _flushBatchRequests_name = "flushBatchRequests";
@@ -599,44 +537,6 @@ namespace Ice
         public void heartbeat()
         {
             heartbeatAsync().Wait();
-        }
-
-        private class HeartbeatCompletionCallback : AsyncResultCompletionCallback
-        {
-            public HeartbeatCompletionCallback(Ice.Connection connection,
-                                               Ice.Communicator communicator,
-                                               Instance instance,
-                                               object cookie,
-                                               Ice.AsyncCallback callback)
-                : base(communicator, instance, "heartbeat", cookie, callback)
-            {
-                _connection = connection;
-            }
-
-            public override Ice.Connection getConnection()
-            {
-                return _connection;
-            }
-
-            protected override Ice.AsyncCallback getCompletedCallback()
-            {
-                return (Ice.AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch (Ice.Exception ex)
-                    {
-                        if (exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-
-            private Ice.Connection _connection;
         }
 
         private class HeartbeatTaskCompletionCallback : TaskCompletionCallback<object>
@@ -717,25 +617,6 @@ namespace Ice
             var outgoing = new HeartbeatAsync(this, _instance, completed);
             outgoing.invoke();
             return completed.Task;
-        }
-
-        public AsyncResult begin_heartbeat(AsyncCallback cb = null, object cookie = null)
-        {
-            var result = new HeartbeatCompletionCallback(this, _communicator, _instance, cookie, cb);
-            var outgoing = new HeartbeatAsync(this, _instance, result);
-            outgoing.invoke();
-            return result;
-        }
-
-        public void end_heartbeat(AsyncResult r)
-        {
-            if (r != null && r.getConnection() != this)
-            {
-                const string msg = "Connection for call to end_heartbeat does not match connection that was used " +
-                    "to call corresponding begin_heartbeat method";
-                throw new ArgumentException(msg);
-            }
-            AsyncResultI.check(r, "heartbeat").wait();
         }
 
         public void setACM(Optional<int> timeout, Optional<ACMClose> close, Optional<ACMHeartbeat> heartbeat)

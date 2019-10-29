@@ -555,24 +555,6 @@ interface Admin
 
     /**
      *
-     * Patch the given application data.
-     *
-     * @param name The application name.
-     *
-     * @param shutdown If true, the servers depending on the data to
-     * patch will be shut down if necessary.
-     *
-     * @throws ApplicationNotExistException Raised if the application
-     * doesn't exist.
-     *
-     * @throws PatchException Raised if the patch failed.
-     *
-     **/
-    ["amd"] void patchApplication(string name, bool shutdown)
-        throws ApplicationNotExistException, PatchException;
-
-    /**
-     *
      * Get an application descriptor.
      *
      * @param name The application name.
@@ -783,30 +765,6 @@ interface Admin
      **/
     ["amd"] void stopServer(string id)
         throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
-
-    /**
-     *
-     * Patch a server.
-     *
-     * @param id The server id.
-     *
-     * @param shutdown If true, servers depending on the data to patch
-     * will be shut down if necessary.
-     *
-     * @throws ServerNotExistException Raised if the server doesn't
-     * exist.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
-     *
-     * @throws DeploymentException Raised if the server couldn't be
-     * deployed on the node.
-     *
-     * @throws PatchException Raised if the patch failed.
-     *
-     **/
-    ["amd"] void patchServer(string id, bool shutdown)
-        throws ServerNotExistException, NodeUnreachableException, DeploymentException, PatchException;
 
     /**
      *

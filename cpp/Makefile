@@ -13,7 +13,7 @@ include $(lang_srcdir)/config/Make.rules
 # that other projects might depend on so it's important to parse them first for the
 # generated headers variable to be defined when we load other projects.
 #
-load_first = Ice IceSSL IceBox IcePatch2Lib Glacier2Lib IceGridLib IceStormLib
+load_first = Ice IceSSL IceBox Glacier2Lib IceGridLib IceStormLib
 
 #
 # Create projects for all the Slice translators from src/slice2* and load source projects.

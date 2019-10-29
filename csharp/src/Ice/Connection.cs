@@ -200,8 +200,6 @@ namespace Ice
         /// should be compressed before being sent over the wire.</param>
         void flushBatchRequests(CompressBatch compress);
         global::System.Threading.Tasks.Task flushBatchRequestsAsync(CompressBatch compress, global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
-        AsyncResult begin_flushBatchRequests(CompressBatch compress, AsyncCallback callback = null, object cookie = null);
-        void end_flushBatchRequests(AsyncResult asyncResult);
 
         /// <summary>
         /// Set a close callback on the connection.
@@ -229,10 +227,8 @@ namespace Ice
         /// </summary>
         void heartbeat();
 
-        global::System.Threading.Tasks.Task heartbeatAsync(global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
-
-        AsyncResult begin_heartbeat(AsyncCallback callback = null, object cookie = null);
-        void end_heartbeat(AsyncResult asyncResult);
+        System.Threading.Tasks.Task heartbeatAsync(System.IProgress<bool> progress = null,
+                                                   System.Threading.CancellationToken cancel = new System.Threading.CancellationToken());
 
         /// <summary>
         /// Set the active connection management parameters.

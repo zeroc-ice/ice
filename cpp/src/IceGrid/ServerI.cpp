@@ -12,8 +12,6 @@
 #include <IceGrid/Util.h>
 #include <IceGrid/ServerAdapterI.h>
 #include <IceGrid/DescriptorHelper.h>
-
-#include <IcePatch2Lib/Util.h>
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
@@ -120,26 +118,12 @@ descriptorUpdated(const InternalServerDescriptorPtr& lhs, const InternalServerDe
        lhs->activation != rhs->activation ||
        lhs->activationTimeout != rhs->activationTimeout ||
        lhs->deactivationTimeout != rhs->deactivationTimeout ||
-       lhs->applicationDistrib != rhs->applicationDistrib ||
        lhs->processRegistered != rhs->processRegistered ||
        lhs->options != rhs->options ||
        lhs->envs != rhs->envs ||
        lhs->logs != rhs->logs)
     {
         return true;
-    }
-
-    if((!lhs->distrib && rhs->distrib) || (lhs->distrib && !rhs->distrib))
-    {
-        return true;
-    }
-    else if(lhs->distrib && rhs->distrib)
-    {
-        if(lhs->distrib->icepatch != rhs->distrib->icepatch ||
-           lhs->distrib->directories != rhs->distrib->directories)
-        {
-            return true;
-        }
     }
 
     if(lhs->adapters.size() != rhs->adapters.size())
@@ -633,57 +617,6 @@ DestroyCommand::clearDir() const
     return _clearDir;
 }
 
-PatchCommand::PatchCommand(const ServerIPtr& server) :
-    ServerCommand(server),
-    _notified(false),
-    _destroyed(false)
-{
-}
-
-bool
-PatchCommand::canExecute(ServerI::InternalServerState state)
-{
-    return state == ServerI::Inactive;
-}
-
-ServerI::InternalServerState
-PatchCommand::nextState()
-{
-    return ServerI::Patching;
-}
-
-void
-PatchCommand::execute()
-{
-    Lock sync(*this);
-    _notified = true;
-    notifyAll();
-}
-
-bool
-PatchCommand::waitForPatch()
-{
-    Lock sync(*this);
-    while(!_notified && !_destroyed)
-    {
-        wait();
-    }
-    return _destroyed;
-}
-
-void
-PatchCommand::destroyed()
-{
-    Lock sync(*this);
-    _destroyed = true;
-    notifyAll();
-}
-
-void
-PatchCommand::finished()
-{
-}
-
 StartCommand::StartCommand(const ServerIPtr& server, const IceUtil::TimerPtr& timer, int timeout) :
     TimedServerCommand(server, timer, timeout)
 {
@@ -751,7 +684,7 @@ StopCommand::StopCommand(const ServerIPtr& server, const IceUtil::TimerPtr& time
 bool
 StopCommand::isStopped(ServerI::InternalServerState state)
 {
-    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading ||
+    return state == ServerI::Inactive || state == ServerI::Loading ||
         state >= ServerI::Destroying;
 }
 
@@ -1100,20 +1033,6 @@ ServerI::getId() const
     return _id;
 }
 
-InternalDistributionDescriptorPtr
-ServerI::getDistribution() const
-{
-    Lock sync(*this);
-    return _desc ? _desc->distrib : InternalDistributionDescriptorPtr();
-}
-
-bool
-ServerI::dependsOnApplicationDistrib() const
-{
-    Lock sync(*this);
-    return _desc ? _desc->applicationDistrib : false;
-}
-
 void
 ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 {
@@ -1404,72 +1323,6 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
         _destroy->addCallback(amdCB);
     }
     return nextCommand();
-}
-
-bool
-ServerI::startPatch(bool shutdown)
-{
-    ServerCommandPtr command;
-    {
-        Lock sync(*this);
-        checkDestroyed();
-        if(!StopCommand::isStopped(_state))
-        {
-            if(!shutdown)
-            {
-                return false;
-            }
-            else if(!_stop)
-            {
-                _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
-            }
-        }
-        if(!_patch)
-        {
-            _patch = new PatchCommand(this);
-        }
-        command = nextCommand();
-    }
-    if(command)
-    {
-        command->execute();
-    }
-    return true;
-}
-
-bool
-ServerI::waitForPatch()
-{
-    PatchCommandPtr patch;
-    {
-        Lock sync(*this);
-        if(!_patch)
-        {
-            return true;
-        }
-        patch = _patch;
-    }
-    return patch->waitForPatch();
-}
-
-void
-ServerI::finishPatch()
-{
-#ifndef _WIN32
-    {
-        Lock sync(*this);
-        try
-        {
-            chownRecursive(_serverDir + "/distrib", _uid, _gid);
-        }
-        catch(const exception& ex)
-        {
-            Ice::Warning out(_node->getTraceLevels()->logger);
-            out << ex.what();
-        }
-    }
-#endif
-    setState(ServerI::Inactive);
 }
 
 void
@@ -1869,7 +1722,7 @@ ServerI::destroy()
     {
         try
         {
-            IcePatch2Internal::removeRecursive(_serverDir);
+            removeRecursive(_serverDir);
         }
         catch(const exception& ex)
         {
@@ -2000,7 +1853,6 @@ ServerI::shutdown()
     assert(!_destroy);
     assert(!_stop);
     assert(!_load);
-    assert(!_patch);
     assert(!_start);
     _timerTask = 0;
 }
@@ -2029,7 +1881,7 @@ ServerI::update()
                 //
                 try
                 {
-                    IcePatch2Internal::removeRecursive(_serverDir);
+                    removeRecursive(_serverDir);
                 }
                 catch(const exception&)
                 {
@@ -2235,7 +2087,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     //
     for(Ice::StringSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
     {
-        string path = IcePatch2Internal::simplify(*p);
+        string path = simplify(*p);
         if(IceUtilInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
@@ -2270,11 +2122,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     //
     // Create or update the server directories exists.
     //
-    IcePatch2Internal::createDirectory(_serverDir);
-    IcePatch2Internal::createDirectory(_serverDir + "/config");
-    IcePatch2Internal::createDirectory(_serverDir + "/dbs");
-    IcePatch2Internal::createDirectory(_serverDir + "/distrib");
-    IcePatch2Internal::createDirectory(_serverDir + "/data");
+    createDirectory(_serverDir);
+    createDirectory(_serverDir + "/config");
+    createDirectory(_serverDir + "/dbs");
+    createDirectory(_serverDir + "/data");
 
     //
     // Create the configuration files, remove the old ones.
@@ -2314,7 +2165,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         //
         // Remove old configuration files.
         //
-        Ice::StringSeq files = IcePatch2Internal::readDirectory(_serverDir + "/config");
+        Ice::StringSeq files = readDirectory(_serverDir + "/config");
         Ice::StringSeq toDel;
         set_difference(files.begin(), files.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
         for(Ice::StringSeq::const_iterator q = toDel.begin(); q != toDel.end(); ++q)
@@ -2323,7 +2174,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 try
                 {
-                    IcePatch2Internal::remove(_serverDir + "/config/" + *q);
+                    remove(_serverDir + "/config/" + *q);
                 }
                 catch(const exception& ex)
                 {
@@ -2343,14 +2194,14 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         for(Ice::StringSeq::const_iterator q = _desc->services->begin(); q != _desc->services->end(); ++q)
         {
             knownDirs.push_back("data_" + *q);
-            IcePatch2Internal::createDirectory(_serverDir + "/data_" + *q);
+            createDirectory(_serverDir + "/data_" + *q);
         }
         sort(knownDirs.begin(), knownDirs.end());
 
         //
         // Remove old directories
         //
-        Ice::StringSeq dirs = IcePatch2Internal::readDirectory(_serverDir);
+        Ice::StringSeq dirs = readDirectory(_serverDir);
         Ice::StringSeq svcDirs;
         for(Ice::StringSeq::const_iterator p = dirs.begin(); p != dirs.end(); ++p)
         {
@@ -2365,7 +2216,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         {
             try
             {
-                IcePatch2Internal::removeRecursive(_serverDir + "/" + *p);
+                removeRecursive(_serverDir + "/" + *p);
             }
             catch(const exception& ex)
             {
@@ -2386,7 +2237,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             knownDbEnvs.push_back((*q)->name);
 
             string dbEnvHome = _serverDir + "/dbs/" + (*q)->name;
-            IcePatch2Internal::createDirectory(dbEnvHome);
+            createDirectory(dbEnvHome);
 
             if(!(*q)->properties.empty())
             {
@@ -2419,14 +2270,14 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         //
         // Remove old database environments.
         //
-        Ice::StringSeq dbEnvs = IcePatch2Internal::readDirectory(_serverDir + "/dbs");
+        Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
         Ice::StringSeq toDel;
         set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
         for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
         {
             try
             {
-                IcePatch2Internal::removeRecursive(_serverDir + "/dbs/" + *p);
+                removeRecursive(_serverDir + "/dbs/" + *p);
             }
             catch(const exception& ex)
             {
@@ -2764,10 +2615,6 @@ ServerI::nextCommand()
     {
         command = _load;
     }
-    else if(_patch && _patch->canExecute(_state))
-    {
-        command = _patch;
-    }
     else if(_start && _start->canExecute(_state))
     {
         command = _start;
@@ -2788,9 +2635,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     switch(st)
     {
     case Inactive:
-        break;
-    case Patching:
-        assert(_patch && _patch->canExecute(_state));
         break;
     case Loading:
         assert(_load && _load->canExecute(_state));
@@ -2838,10 +2682,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         {
             _load = 0;
         }
-        if(previous == Patching)
-        {
-            _patch = 0;
-        }
         if(_stop)
         {
             _stop->finished();
@@ -2871,11 +2711,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         break;
     case Destroying:
         loadFailure = _destroy->loadFailure();
-        if(_patch)
-        {
-            _patch->destroyed();
-            _patch = 0;
-        }
         if(_load)
         {
             _load->failed(DeploymentException("The server is being destroyed."));
@@ -3005,7 +2840,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         }
         else if(_state == ServerI::Inactive)
         {
-            if(_node->getTraceLevels()->server > 2 || (previous != ServerI::Loading && previous != ServerI::Patching))
+            if(_node->getTraceLevels()->server > 2 || (previous != ServerI::Loading))
             {
                 out << "changed server `" << _id << "' state to `Inactive'";
             }
@@ -3044,10 +2879,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             {
                 out << "changed server `" << _id << "' state to `Loading'";
             }
-            else if(_state == ServerI::Patching)
-            {
-                out << "changed server `" << _id << "' state to `Patching'";
-            }
         }
         if(!reason.empty())
         {
@@ -3063,7 +2894,6 @@ ServerI::toServerState(InternalServerState st) const
     {
     case ServerI::Inactive:
     case ServerI::Activating:
-    case ServerI::Patching:
     case ServerI::Loading:
         return IceGrid::Inactive;
     case ServerI::WaitForActivation:
@@ -3150,7 +2980,7 @@ ServerI::getFilePath(const string& filename) const
     }
     else if(!filename.empty() && filename[0] == '#')
     {
-        string path = IcePatch2Internal::simplify(filename.substr(1));
+        string path = simplify(filename.substr(1));
         if(!IceUtilInternal::isAbsolutePath(path))
         {
             path = _node->getPlatformInfo().getCwd() + "/" + path;

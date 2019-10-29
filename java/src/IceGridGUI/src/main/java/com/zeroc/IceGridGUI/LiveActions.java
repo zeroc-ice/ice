@@ -176,15 +176,6 @@ public class LiveActions
                 }
             };
 
-        _array[TreeNode.PATCH_SERVER] = new AbstractAction("Patch Distribution")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    _target.patchServer();
-                }
-            };
-
         _array[TreeNode.ADD_OBJECT] = new AbstractAction("Add Well-known Object")
             {
                 @Override

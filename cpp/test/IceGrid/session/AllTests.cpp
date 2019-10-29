@@ -1808,7 +1808,6 @@ allTests(Test::TestHelper* helper)
         server->exe = properties->getProperty("IceGridNodeExe");
         server->options.push_back("--nowarn");
         server->pwd = ".";
-        server->applicationDistrib = false;
         server->allocatable = false;
         addProperty(server, "IceGrid.Node.Name", "node-1");
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
@@ -1860,7 +1859,6 @@ allTests(Test::TestHelper* helper)
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = properties->getProperty("TestDir");
 
-        server->applicationDistrib = false;
         server->allocatable = false;
         AdapterDescriptor adapter;
         adapter.name = "Server";

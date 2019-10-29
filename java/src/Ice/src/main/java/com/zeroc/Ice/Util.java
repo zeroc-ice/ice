@@ -780,7 +780,6 @@ public final class Util
         "::IceGrid::",
         "::IceLocatorDiscovery::",
         "::IceMX::",
-        "::IcePatch2::",
         "::IceStorm::"
     };
 }

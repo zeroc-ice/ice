@@ -38,6 +38,13 @@ void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0
 
 int getMMVersion(const std::string&);
 
+std::string simplify(const std::string&);
+void remove(const std::string&);
+void removeRecursive(const std::string&);
+Ice::StringSeq readDirectory(const std::string&);
+void createDirectory(const std::string&);
+void createDirectoryRecursive(const std::string&);
+
 template<class Function>
 struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
 {

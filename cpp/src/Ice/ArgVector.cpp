@@ -47,7 +47,7 @@ void
 IceInternal::ArgVector::setupArgcArgv()
 {
     argc = static_cast<int>(_args.size());
-    if((argv = new char*[argc + 1]) == 0)
+    if((argv = new char*[static_cast<size_t>(argc + 1)]) == 0)
     {
         throw ::std::bad_alloc();
     }

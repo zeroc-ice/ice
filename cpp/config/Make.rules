@@ -9,7 +9,7 @@
 #
 # Supported configurations
 #
-supported-configs = shared static cpp11-shared cpp11-static
+supported-configs = cpp98-shared cpp98-static cpp11-shared cpp11-static
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
@@ -30,8 +30,7 @@ coreandstub_components  = IceUtil \
                           Glacier2 \
                           IceStorm \
                           IceGrid \
-                          IceBox \
-                          IcePatch2
+                          IceBox
 
 # Add the Bluetooth transport if Bluetooth system libraries are available
 ifneq ($(IceBT_system_libs),)
@@ -59,6 +58,12 @@ static_projects         = test/Common \
 static_excludes         = test/Ice/library test/Ice/plugin
 
 #
+# Components and projects which are built with C++98
+#
+cpp98_projects          = %
+#cpp98_excludes          = icebridge
+
+#
 # Components and projects which are built with C++11
 #
 cpp11_components        = $(coreandstub_components) icebox
@@ -74,8 +79,7 @@ cpp11_projects          = test/Common \
                           test/Glacier2/sessionHelper \
                           test/IceGrid/simple
 
-cpp11_excludes          = IcePatch2 \
-                          test/Ice/gc
+cpp11_excludes          = test/Ice/gc
 
 #
 # If building on a Linux multilib platform, we restrict what we build for

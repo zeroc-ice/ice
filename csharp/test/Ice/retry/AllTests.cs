@@ -105,52 +105,32 @@ namespace Ice
                 Instrumentation.testRetryCount(0);
                 output.WriteLine("ok");
 
-                Callback cb = new Callback();
-
                 output.Write("calling regular AMI operation with first proxy... ");
-                retry1.begin_op(false).whenCompleted(
-                   () =>
-                    {
-                        cb.called();
-                    },
-                   (Ice.Exception ex) =>
-                    {
-                        test(false);
-                    });
-                cb.check();
+                retry1.opAsync(false).Wait();
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
                 Instrumentation.testRetryCount(0);
                 output.WriteLine("ok");
 
                 output.Write("calling AMI operation to kill connection with second proxy... ");
-                retry2.begin_op(true).whenCompleted(
-                   () =>
-                    {
-                        test(false);
-                    },
-                   (Ice.Exception ex) =>
-                    {
-                        test(ex is Ice.ConnectionLostException || ex is Ice.UnknownLocalException);
-                        cb.called();
-                    });
-                cb.check();
+                try
+                {
+                    retry2.opAsync(true).Wait();
+                    test(false);
+                }
+                catch(System.AggregateException ex)
+                {
+                    test(ex.InnerException is ConnectionLostException ||
+                         ex.InnerException is UnknownLocalException);
+                }
+
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(1);
                 Instrumentation.testRetryCount(0);
                 output.WriteLine("ok");
 
                 output.Write("calling regular AMI operation with first proxy again... ");
-                retry1.begin_op(false).whenCompleted(
-                   () =>
-                    {
-                        cb.called();
-                    },
-                   (Ice.Exception ex) =>
-                    {
-                        test(false);
-                    });
-                cb.check();
+                retry1.opAsync(false).Wait();
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
                 Instrumentation.testRetryCount(0);
@@ -161,7 +141,7 @@ namespace Ice
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
                 Instrumentation.testRetryCount(4);
-                test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 4);
+                test(retry1.opIdempotentAsync(4).Result == 4);
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
                 Instrumentation.testRetryCount(4);
@@ -181,11 +161,12 @@ namespace Ice
                 Instrumentation.testRetryCount(0);
                 try
                 {
-                    retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent());
+                    retry1.opNotIdempotentAsync().Wait();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (System.AggregateException ex)
                 {
+                    test(ex.InnerException is LocalException);
                 }
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(1);
@@ -210,11 +191,12 @@ namespace Ice
                     Instrumentation.testRetryCount(0);
                     try
                     {
-                        retry1.end_opSystemException(retry1.begin_opSystemException());
+                        retry1.opSystemExceptionAsync().Wait();
                         test(false);
                     }
-                    catch (SystemFailure)
+                    catch (System.AggregateException ex)
                     {
+                        test(ex.InnerException is SystemFailure);
                     }
                     Instrumentation.testInvocationCount(1);
                     Instrumentation.testFailureCount(1);
@@ -233,7 +215,7 @@ namespace Ice
                         ((Test.RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
                         test(false);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (InvocationTimeoutException)
                     {
                         Instrumentation.testRetryCount(2);
                         retry2.opIdempotent(-1); // Reset the counter
@@ -243,11 +225,12 @@ namespace Ice
                     {
                         // No more than 2 retries before timeout kicks-in
                         Test.RetryPrx prx = (Test.RetryPrx)retry2.ice_invocationTimeout(500);
-                        prx.end_opIdempotent(prx.begin_opIdempotent(4));
+                        prx.opIdempotentAsync(4).Wait();
                         test(false);
                     }
-                    catch (Ice.InvocationTimeoutException)
+                    catch (System.AggregateException ex)
                     {
+                        test(ex.InnerException is InvocationTimeoutException);
                         Instrumentation.testRetryCount(2);
                         retry2.opIdempotent(-1); // Reset the counter
                         Instrumentation.testRetryCount(-1);

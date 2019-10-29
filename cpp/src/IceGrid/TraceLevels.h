@@ -43,9 +43,6 @@ public:
     const int activator;
     const char* activatorCat;
 
-    const int patch;
-    const char* patchCat;
-
     const int locator;
     const char* locatorCat;
 

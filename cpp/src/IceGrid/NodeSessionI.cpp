@@ -11,121 +11,6 @@
 using namespace std;
 using namespace IceGrid;
 
-namespace IceGrid
-{
-
-class PatcherFeedbackI : public PatcherFeedback
-{
-public:
-
-    PatcherFeedbackI(const string& node,
-                     const NodeSessionIPtr& session,
-                     const Ice::Identity id,
-                     const PatcherFeedbackAggregatorPtr& aggregator) :
-        _node(node),
-        _session(session),
-        _id(id),
-        _aggregator(aggregator)
-    {
-    }
-
-    void finished(const Ice::Current&)
-    {
-        _aggregator->finished(_node);
-        _session->removeFeedback(this, _id);
-    }
-
-    virtual void failed(const string& reason, const Ice::Current& = Ice::Current())
-    {
-        _aggregator->failed(_node, reason);
-        _session->removeFeedback(this, _id);
-    }
-
-private:
-
-    const std::string _node;
-    const NodeSessionIPtr _session;
-    const Ice::Identity _id;
-    const PatcherFeedbackAggregatorPtr _aggregator;
-};
-
-};
-
-PatcherFeedbackAggregator::PatcherFeedbackAggregator(Ice::Identity id,
-                                                     const TraceLevelsPtr& traceLevels,
-                                                     const string& type,
-                                                     const string& name,
-                                                     int nodeCount) :
-    _id(id),
-    _traceLevels(traceLevels),
-    _type(type),
-    _name(name),
-    _count(nodeCount)
-{
-}
-
-PatcherFeedbackAggregator::~PatcherFeedbackAggregator()
-{
-}
-
-void
-PatcherFeedbackAggregator::finished(const string& node)
-{
-    Lock sync(*this);
-    if(_successes.find(node) != _successes.end() || _failures.find(node) != _failures.end())
-    {
-        return;
-    }
-
-    if(_traceLevels->patch > 0)
-    {
-        Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-        out << "finished patching of " << _type << " `" << _name << "' on node `" << node << "'";
-    }
-
-    _successes.insert(node);
-    checkIfDone();
-}
-
-void
-PatcherFeedbackAggregator::failed(const string& node, const string& failure)
-{
-    Lock sync(*this);
-    if(_successes.find(node) != _successes.end() || _failures.find(node) != _failures.end())
-    {
-        return;
-    }
-
-    if(_traceLevels->patch > 0)
-    {
-        Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-        out << "patching of " << _type << " `" << _name << "' on node `" << node <<"' failed:\n" << failure;
-    }
-
-    _failures.insert(node);
-    _reasons.push_back("patch on node `" + node + "' failed:\n" + failure);
-    checkIfDone();
-}
-
-void
-PatcherFeedbackAggregator::checkIfDone()
-{
-    if(static_cast<int>(_successes.size() + _failures.size()) == _count)
-    {
-        if(!_failures.empty())
-        {
-            sort(_reasons.begin(), _reasons.end());
-            PatchException ex;
-            ex.reasons = _reasons;
-            exception(ex);
-        }
-        else
-        {
-            response();
-        }
-    }
-}
-
 NodeSessionI::NodeSessionI(const DatabasePtr& database,
                            const NodePrx& node,
                            const InternalNodeInfoPtr& info,
@@ -291,38 +176,6 @@ NodeSessionI::shutdown()
     destroyImpl(true);
 }
 
-void
-NodeSessionI::patch(const PatcherFeedbackAggregatorPtr& aggregator,
-                    const string& application,
-                    const string& server,
-                    const InternalDistributionDescriptorPtr& dist,
-                    bool shutdown)
-{
-    Ice::Identity id;
-    id.category = _database->getInstanceName();
-    id.name = Ice::generateUUID();
-
-    PatcherFeedbackPtr obj = new PatcherFeedbackI(_info->name, this, id, aggregator);
-    try
-    {
-        PatcherFeedbackPrx feedback = PatcherFeedbackPrx::uncheckedCast(_database->getInternalAdapter()->add(obj, id));
-        _node->patch(feedback, application, server, dist, shutdown);
-
-        Lock sync(*this);
-        if(_destroy)
-        {
-            throw NodeUnreachableException(_info->name, "node is down");
-        }
-        _feedbacks.insert(obj);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        ostringstream os;
-        os << "node unreachable:\n" << ex;
-        obj->failed(os.str());
-    }
-}
-
 const NodePrx&
 NodeSessionI::getNode() const
 {
@@ -400,17 +253,6 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     _database->getNode(_info->name)->setSession(0);
 
-    //
-    // Clean up the patcher feedback servants (this will call back
-    // removeFeedback so we need to use a temporary set).
-    //
-    set<PatcherFeedbackPtr> feedbacks;
-    _feedbacks.swap(feedbacks);
-    for(set<PatcherFeedbackPtr>::const_iterator p = feedbacks.begin(); p != feedbacks.end(); ++p)
-    {
-        (*p)->failed("node is down");
-    }
-
     if(!shutdown)
     {
         try
@@ -420,21 +262,5 @@ NodeSessionI::destroyImpl(bool shutdown)
         catch(const Ice::ObjectAdapterDeactivatedException&)
         {
         }
-    }
-}
-
-void
-NodeSessionI::removeFeedback(const PatcherFeedbackPtr& feedback, const Ice::Identity& id)
-{
-    try
-    {
-        _database->getInternalAdapter()->remove(id);
-    }
-    catch(const Ice::LocalException&)
-    {
-    }
-    {
-        Lock sync(*this);
-        _feedbacks.erase(feedback);
     }
 }

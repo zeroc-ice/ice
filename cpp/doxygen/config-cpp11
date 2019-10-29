@@ -894,7 +894,6 @@ EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        = IceInternal \
                          IceUtilInternal \
                          Glacier2Internal \
-                         IcePatch2 \
                          std
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories

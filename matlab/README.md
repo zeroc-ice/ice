@@ -23,7 +23,7 @@ and a Perl installation.
 
 ### Build Instructions
 
-Open a Visual Studio x64 command prompt, `VS2015 x64 Native Tools Command
+Open a Visual Studio x64 command prompt, `VS2017 x64 Native Tools Command
 Prompt`. In this Command Prompt, change to the `matlab` subdirectory:
 ```
 cd matlab

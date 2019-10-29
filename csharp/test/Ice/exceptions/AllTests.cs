@@ -12,51 +12,18 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            private class Callback
-            {
-                internal Callback()
-                {
-                    _called = false;
-                }
-
-                public virtual void check()
-                {
-                    lock (this)
-                    {
-                        while (!_called)
-                        {
-                            Monitor.Wait(this);
-                        }
-
-                        _called = false;
-                    }
-                }
-
-                public virtual void called()
-                {
-                    lock (this)
-                    {
-                        Debug.Assert(!_called);
-                        _called = true;
-                        Monitor.Pulse(this);
-                    }
-                }
-
-                private bool _called;
-            }
-
             public static Test.ThrowerPrx allTests(global::Test.TestHelper helper)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
                 {
                     output.Write("testing object adapter registration exceptions... ");
-                    Ice.ObjectAdapter first;
+                    ObjectAdapter first;
                     try
                     {
                         first = communicator.createObjectAdapter("TestAdapter0");
                     }
-                    catch (Ice.InitializationException)
+                    catch (InitializationException)
                     {
                         // Expected
                     }
@@ -68,14 +35,14 @@ namespace Ice
                         communicator.createObjectAdapter("TestAdapter0");
                         test(false);
                     }
-                    catch (Ice.AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                         // Expected.
                     }
 
                     try
                     {
-                        Ice.ObjectAdapter second =
+                        ObjectAdapter second =
                             communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                         test(false);
 
@@ -84,7 +51,7 @@ namespace Ice
                         //
                         second.deactivate();
                     }
-                    catch (Ice.AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                         // Expected
                     }
@@ -95,44 +62,44 @@ namespace Ice
                 {
                     output.Write("testing servant registration exceptions... ");
                     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *");
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
-                    Ice.Object obj = new EmptyI();
-                    adapter.add(obj, Ice.Util.stringToIdentity("x"));
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
+                    Object obj = new EmptyI();
+                    adapter.add(obj, Util.stringToIdentity("x"));
                     try
                     {
-                        adapter.add(obj, Ice.Util.stringToIdentity("x"));
+                        adapter.add(obj, Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch (Ice.AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                     }
 
                     try
                     {
-                        adapter.add(obj, Ice.Util.stringToIdentity(""));
+                        adapter.add(obj, Util.stringToIdentity(""));
                         test(false);
                     }
-                    catch (Ice.IllegalIdentityException e)
+                    catch (IllegalIdentityException e)
                     {
                         test(e.id.name.Equals(""));
                     }
 
                     try
                     {
-                        adapter.add(null, Ice.Util.stringToIdentity("x"));
+                        adapter.add(null, Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch (Ice.IllegalServantException)
+                    catch (IllegalServantException)
                     {
                     }
 
-                    adapter.remove(Ice.Util.stringToIdentity("x"));
+                    adapter.remove(Util.stringToIdentity("x"));
                     try
                     {
-                        adapter.remove(Ice.Util.stringToIdentity("x"));
+                        adapter.remove(Util.stringToIdentity("x"));
                         test(false);
                     }
-                    catch (Ice.NotRegisteredException)
+                    catch (NotRegisteredException)
                     {
                     }
                     adapter.deactivate();
@@ -142,15 +109,15 @@ namespace Ice
                 {
                     output.Write("testing servant locator registration exceptions... ");
                     communicator.getProperties().setProperty("TestAdapter2.Endpoints", "tcp -h *");
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
-                    Ice.ServantLocator loc = new ServantLocatorI();
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
+                    ServantLocator loc = new ServantLocatorI();
                     adapter.addServantLocator(loc, "x");
                     try
                     {
                         adapter.addServantLocator(loc, "x");
                         test(false);
                     }
-                    catch (Ice.AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                     }
 
@@ -166,7 +133,7 @@ namespace Ice
                         communicator.getValueFactoryManager().add(_ => { return null; }, "::x");
                         test(false);
                     }
-                    catch (Ice.AlreadyRegisteredException)
+                    catch (AlreadyRegisteredException)
                     {
                     }
                     output.WriteLine("ok");
@@ -175,7 +142,7 @@ namespace Ice
                 output.Write("testing stringToProxy... ");
                 output.Flush();
                 String @ref = "thrower:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
+                ObjectPrx @base = communicator.stringToProxy(@ref);
                 test(@base != null);
                 output.WriteLine("ok");
 
@@ -362,7 +329,7 @@ namespace Ice
                         thrower.throwUndeclaredA(1);
                         test(false);
                     }
-                    catch (Ice.UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
                     catch (Exception)
@@ -375,7 +342,7 @@ namespace Ice
                         thrower.throwUndeclaredB(1, 2);
                         test(false);
                     }
-                    catch (Ice.UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
                     catch (Exception)
@@ -388,7 +355,7 @@ namespace Ice
                         thrower.throwUndeclaredC(1, 2, 3);
                         test(false);
                     }
-                    catch (Ice.UnknownUserException)
+                    catch (UnknownUserException)
                     {
                     }
                     catch (Exception)
@@ -408,7 +375,7 @@ namespace Ice
                         thrower.throwMemoryLimitException(null);
                         test(false);
                     }
-                    catch (Ice.MemoryLimitException)
+                    catch (MemoryLimitException)
                     {
                     }
                     catch (Exception)
@@ -421,10 +388,10 @@ namespace Ice
                         thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
                         test(false);
                     }
-                    catch (Ice.ConnectionLostException)
+                    catch (ConnectionLostException)
                     {
                     }
-                    catch (Ice.UnknownLocalException)
+                    catch (UnknownLocalException)
                     {
                         // Expected with JS bidir server
                     }
@@ -441,7 +408,7 @@ namespace Ice
                         {
                             thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                         }
-                        catch (Ice.MemoryLimitException)
+                        catch (MemoryLimitException)
                         {
                         }
                         var thrower3 = Test.ThrowerPrxHelper.uncheckedCast(
@@ -451,11 +418,11 @@ namespace Ice
                             thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
                             test(false);
                         }
-                        catch (Ice.ConnectionLostException)
+                        catch (ConnectionLostException)
                         {
                         }
                     }
-                    catch (Ice.ConnectionRefusedException)
+                    catch (ConnectionRefusedException)
                     {
                         // Expected with JS bidir server
                     }
@@ -467,14 +434,14 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+                    Identity id = Util.stringToIdentity("does not exist");
                     try
                     {
                         var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
                         thrower2.ice_ping();
                         test(false);
                     }
-                    catch (Ice.ObjectNotExistException ex)
+                    catch (ObjectNotExistException ex)
                     {
                         test(ex.id.Equals(id));
                     }
@@ -497,7 +464,7 @@ namespace Ice
                         thrower2.ice_ping();
                         test(false);
                     }
-                    catch (Ice.FacetNotExistException ex)
+                    catch (FacetNotExistException ex)
                     {
                         test(ex.facet.Equals("no such facet"));
                     }
@@ -518,7 +485,7 @@ namespace Ice
                     thrower2.noSuchOperation();
                     test(false);
                 }
-                catch (Ice.OperationNotExistException ex)
+                catch (OperationNotExistException ex)
                 {
                     test(ex.operation.Equals("noSuchOperation"));
                 }
@@ -537,7 +504,7 @@ namespace Ice
                     thrower.throwLocalException();
                     test(false);
                 }
-                catch (Ice.UnknownLocalException)
+                catch (UnknownLocalException)
                 {
                 }
                 catch (Exception)
@@ -549,10 +516,10 @@ namespace Ice
                     thrower.throwLocalExceptionIdempotent();
                     test(false);
                 }
-                catch (Ice.UnknownLocalException)
+                catch (UnknownLocalException)
                 {
                 }
-                catch (Ice.OperationNotExistException)
+                catch (OperationNotExistException)
                 {
                 }
                 catch (Exception)
@@ -570,7 +537,7 @@ namespace Ice
                     thrower.throwNonIceException();
                     test(false);
                 }
-                catch (Ice.UnknownException)
+                catch (UnknownException)
                 {
                 }
                 catch (Exception)
@@ -611,135 +578,119 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwAasA(1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwAasAAsync(1).Wait();
+                    }
+                    catch(AggregateException exc)
+                    {
+                        test(exc.InnerException is Test.A);
+                        var ex = exc.InnerException as Test.A;
+                        test(ex.aMem == 1);
+                    }
+                }
+
+                {
+                    try
+                    {
+                        thrower.throwAorDasAorDAsync(1).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
                         {
-                            test(false);
-                        },
-                       (Ice.Exception exc) =>
+                            throw exc.InnerException;
+                        }
+                        catch (Test.A ex)
                         {
-                            test(exc is Test.A);
-                            var ex = exc as Test.A;
                             test(ex.aMem == 1);
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                        catch (Test.D ex)
+                        {
+                            test(ex.dMem == -1);
+                        }
+                        catch (Exception)
+                        {
+                            test(false);
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwAorDasAorD(1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwAorDasAorDAsync(-1).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (Test.A ex)
+                        {
+                            test(ex.aMem == 1);
+                        }
+                        catch (Test.D ex)
+                        {
+                            test(ex.dMem == -1);
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.A ex)
-                            {
-                                test(ex.aMem == 1);
-                            }
-                            catch (Test.D ex)
-                            {
-                                test(ex.dMem == -1);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwAorDasAorD(-1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwBasBAsync(1, 2).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (Test.B ex)
+                        {
+                            test(ex.aMem == 1);
+                            test(ex.bMem == 2);
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.A ex)
-                            {
-                                test(ex.aMem == 1);
-                            }
-                            catch (Test.D ex)
-                            {
-                                test(ex.dMem == -1);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwBasB(1, 2).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwCasCAsync(1, 2, 3).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (Test.C ex)
+                        {
+                            test(ex.aMem == 1);
+                            test(ex.bMem == 2);
+                            test(ex.cMem == 3);
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.B ex)
-                            {
-                                test(ex.aMem == 1);
-                                test(ex.bMem == 2);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    thrower.begin_throwCasC(1, 2, 3).whenCompleted(
-                       () =>
-                        {
-                            test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.C ex)
-                            {
-                                test(ex.aMem == 1);
-                                test(ex.bMem == 2);
-                                test(ex.cMem == 3);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -748,86 +699,76 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwBasA(1, 2).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwBasAAsync(1, 2).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (Test.B ex)
+                        {
+                            test(ex.aMem == 1);
+                            test(ex.bMem == 2);
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.B ex)
-                            {
-                                test(ex.aMem == 1);
-                                test(ex.bMem == 2);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwCasA(1, 2, 3).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwCasAAsync(1, 2, 3).Wait();
+                    }
+                    catch (AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (Test.C ex)
+                        {
+                            test(ex.aMem == 1);
+                            test(ex.bMem == 2);
+                            test(ex.cMem == 3);
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.C ex)
-                            {
-                                test(ex.aMem == 1);
-                                test(ex.bMem == 2);
-                                test(ex.cMem == 3);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwCasB(1, 2, 3).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwCasBAsync(1, 2, 3).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (Test.C ex)
+                        {
+                            test(ex.aMem == 1);
+                            test(ex.bMem == 2);
+                            test(ex.cMem == 3);
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Test.C ex)
-                            {
-                                test(ex.aMem == 1);
-                                test(ex.bMem == 2);
-                                test(ex.cMem == 3);
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -838,78 +779,69 @@ namespace Ice
                     output.Flush();
 
                     {
-                        Callback cb = new Callback();
-                        thrower.begin_throwUndeclaredA(1).whenCompleted(
-                           () =>
+                        try
+                        {
+                            thrower.throwUndeclaredAAsync(1).Wait();
+                            test(false);
+                        }
+                        catch(AggregateException exc)
+                        {
+                            try
+                            {
+                                throw exc.InnerException;
+                            }
+                            catch (UnknownUserException)
+                            {
+                            }
+                            catch (Exception)
                             {
                                 test(false);
-                            },
-                           (Ice.Exception exc) =>
-                            {
-                                try
-                                {
-                                    throw exc;
-                                }
-                                catch (Ice.UnknownUserException)
-                                {
-                                }
-                                catch (Exception)
-                                {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
-                        cb.check();
+                            }
+                        }
                     }
 
                     {
-                        Callback cb = new Callback();
-                        thrower.begin_throwUndeclaredB(1, 2).whenCompleted(
-                           () =>
+                        try
+                        {
+                            thrower.throwUndeclaredBAsync(1, 2).Wait();
+                            test(false);
+                        }
+                        catch(AggregateException exc)
+                        {
+                            try
+                            {
+                                throw exc.InnerException;
+                            }
+                            catch (UnknownUserException)
+                            {
+                            }
+                            catch (Exception)
                             {
                                 test(false);
-                            },
-                           (Ice.Exception exc) =>
-                            {
-                                try
-                                {
-                                    throw exc;
-                                }
-                                catch (Ice.UnknownUserException)
-                                {
-                                }
-                                catch (Exception)
-                                {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
-                        cb.check();
+                            }
+                        }
                     }
 
                     {
-                        Callback cb = new Callback();
-                        thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(
-                           () =>
+                        try
+                        {
+                            thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
+                            test(false);
+                        }
+                        catch(AggregateException exc)
+                        {
+                            try
+                            {
+                                throw exc.InnerException;
+                            }
+                            catch (UnknownUserException)
+                            {
+                            }
+                            catch (Exception)
                             {
                                 test(false);
-                            },
-                           (Ice.Exception exc) =>
-                            {
-                                try
-                                {
-                                    throw exc;
-                                }
-                                catch (Ice.UnknownUserException)
-                                {
-                                }
-                                catch (Exception)
-                                {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
-                        cb.check();
+                            }
+                        }
                     }
 
                     output.WriteLine("ok");
@@ -919,31 +851,28 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+                    Identity id = Util.stringToIdentity("does not exist");
                     var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-                    Callback cb = new Callback();
-                    thrower2.begin_throwAasA(1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower2.throwAasAAsync(1).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (ObjectNotExistException ex)
+                        {
+                            test(ex.id.Equals(id));
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.ObjectNotExistException ex)
-                            {
-                                test(ex.id.Equals(id));
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -953,29 +882,26 @@ namespace Ice
 
                 {
                     var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-                    Callback cb = new Callback();
-                    thrower2.begin_throwAasA(1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower2.throwAasAAsync(1).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (FacetNotExistException ex)
+                        {
+                            test(ex.facet.Equals("no such facet"));
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.FacetNotExistException ex)
-                            {
-                                test(ex.facet.Equals("no such facet"));
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -984,30 +910,27 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
-                    thrower4.begin_noSuchOperation().whenCompleted(
-                       () =>
+                    try
+                    {
+                        var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+                        thrower4.noSuchOperationAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (OperationNotExistException ex)
+                        {
+                            test(ex.operation.Equals("noSuchOperation"));
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.OperationNotExistException ex)
-                            {
-                                test(ex.operation.Equals("noSuchOperation"));
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1016,59 +939,53 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwLocalException().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwLocalExceptionAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (UnknownLocalException)
+                        {
+                        }
+                        catch (OperationNotExistException)
+                        {
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.UnknownLocalException)
-                            {
-                            }
-                            catch (Ice.OperationNotExistException)
-                            {
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwLocalExceptionIdempotent().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwLocalExceptionIdempotentAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (UnknownLocalException)
+                        {
+                        }
+                        catch (OperationNotExistException)
+                        {
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.UnknownLocalException)
-                            {
-                            }
-                            catch (Ice.OperationNotExistException)
-                            {
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1077,28 +994,25 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwNonIceException().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwNonIceExceptionAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (UnknownException)
+                        {
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.UnknownException)
-                            {
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1109,78 +1023,69 @@ namespace Ice
                     output.Flush();
 
                     {
-                        Callback cb = new Callback();
-                        thrower.begin_throwUndeclaredA(1).whenCompleted(
-                           () =>
+                        try
+                        {
+                            thrower.throwUndeclaredAAsync(1).Wait();
+                            test(false);
+                        }
+                        catch(AggregateException exc)
+                        {
+                            try
+                            {
+                                throw exc.InnerException;
+                            }
+                            catch (UnknownUserException)
+                            {
+                            }
+                            catch (Exception)
                             {
                                 test(false);
-                            },
-                           (Ice.Exception exc) =>
-                            {
-                                try
-                                {
-                                    throw exc;
-                                }
-                                catch (Ice.UnknownUserException)
-                                {
-                                }
-                                catch (Exception)
-                                {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
-                        cb.check();
+                            }
+                        }
                     }
 
                     {
-                        Callback cb = new Callback();
-                        thrower.begin_throwUndeclaredB(1, 2).whenCompleted(
-                           () =>
+                        try
+                        {
+                            thrower.throwUndeclaredBAsync(1, 2).Wait();
+                            test(false);
+                        }
+                        catch(AggregateException exc)
+                        {
+                            try
+                            {
+                                throw exc.InnerException;
+                            }
+                            catch (UnknownUserException)
+                            {
+                            }
+                            catch (Exception)
                             {
                                 test(false);
-                            },
-                           (Ice.Exception exc) =>
-                            {
-                                try
-                                {
-                                    throw exc;
-                                }
-                                catch (Ice.UnknownUserException)
-                                {
-                                }
-                                catch (Exception)
-                                {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
-                        cb.check();
+                            }
+                        }
                     }
 
                     {
-                        Callback cb = new Callback();
-                        thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(
-                           () =>
+                        try
+                        {
+                            thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
+                            test(false);
+                        }
+                        catch(AggregateException exc)
+                        {
+                            try
+                            {
+                                throw exc.InnerException;
+                            }
+                            catch (UnknownUserException)
+                            {
+                            }
+                            catch (Exception)
                             {
                                 test(false);
-                            },
-                           (Ice.Exception exc) =>
-                            {
-                                try
-                                {
-                                    throw exc;
-                                }
-                                catch (Ice.UnknownUserException)
-                                {
-                                }
-                                catch (Exception)
-                                {
-                                    test(false);
-                                }
-                                cb.called();
-                            });
-                        cb.check();
+                            }
+                        }
                     }
 
                     output.WriteLine("ok");
@@ -1190,31 +1095,28 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+                    Identity id = Util.stringToIdentity("does not exist");
                     var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-                    Callback cb = new Callback();
-                    thrower2.begin_throwAasA(1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower2.throwAasAAsync(1).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (ObjectNotExistException ex)
+                        {
+                            test(ex.id.Equals(id));
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.ObjectNotExistException ex)
-                            {
-                                test(ex.id.Equals(id));
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1224,29 +1126,26 @@ namespace Ice
 
                 {
                     var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-                    Callback cb = new Callback();
-                    thrower2.begin_throwAasA(1).whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower2.throwAasAAsync(1).Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (FacetNotExistException ex)
+                        {
+                            test(ex.facet.Equals("no such facet"));
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.FacetNotExistException ex)
-                            {
-                                test(ex.facet.Equals("no such facet"));
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1255,30 +1154,27 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
                     var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
-                    thrower4.begin_noSuchOperation().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower4.noSuchOperationAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (OperationNotExistException ex)
+                        {
+                            test(ex.operation.Equals("noSuchOperation"));
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.OperationNotExistException ex)
-                            {
-                                test(ex.operation.Equals("noSuchOperation"));
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1287,59 +1183,53 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwLocalException().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwLocalExceptionAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (UnknownLocalException)
+                        {
+                        }
+                        catch (OperationNotExistException)
+                        {
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.UnknownLocalException)
-                            {
-                            }
-                            catch (Ice.OperationNotExistException)
-                            {
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwLocalExceptionIdempotent().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwLocalExceptionIdempotentAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (UnknownLocalException)
+                        {
+                        }
+                        catch (OperationNotExistException)
+                        {
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.UnknownLocalException)
-                            {
-                            }
-                            catch (Ice.OperationNotExistException)
-                            {
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");
@@ -1348,28 +1238,25 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Callback cb = new Callback();
-                    thrower.begin_throwNonIceException().whenCompleted(
-                       () =>
+                    try
+                    {
+                        thrower.throwNonIceExceptionAsync().Wait();
+                        test(false);
+                    }
+                    catch(AggregateException exc)
+                    {
+                        try
+                        {
+                            throw exc.InnerException;
+                        }
+                        catch (UnknownException)
+                        {
+                        }
+                        catch (Exception)
                         {
                             test(false);
-                        },
-                       (Ice.Exception exc) =>
-                        {
-                            try
-                            {
-                                throw exc;
-                            }
-                            catch (Ice.UnknownException)
-                            {
-                            }
-                            catch (Exception)
-                            {
-                                test(false);
-                            }
-                            cb.called();
-                        });
-                    cb.check();
+                        }
+                    }
                 }
 
                 output.WriteLine("ok");

@@ -20,7 +20,6 @@ $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Glacier2,--n
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceBox))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceMX))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceGrid))
-$(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IcePatch2))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceStorm))
 
 # Generate these two files individually without the --no-package option to ensure the
