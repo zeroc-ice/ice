@@ -128,14 +128,18 @@ class Ice(Component):
                 if testId == "IceStorm/repgrid":
                     return False
 
-        # No C++11 tests for IceStorm, IceGrid, etc
+        # No C++11 tests for IceStorm etc
         if isinstance(mapping, CppMapping) and current.config.cpp11:
-            if parent in ["IceStorm", "IceBridge"]:
+            if parent in ["IceStorm"]:
                 return False
             elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
                 return False
             elif parent in ["Glacier2"] and testId not in ["Glacier2/sessionHelper"]:
                 return False
+
+        # No C++98 tests for IceBridge
+        if isinstance(mapping, CppMapping) and not current.config.cpp11 and parent in ["IceBridge"]:
+            return False
 
         if current.config.xamarin and not current.config.uwp:
             #

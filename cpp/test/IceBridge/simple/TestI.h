@@ -7,45 +7,51 @@
 
 #include <Test.h>
 
-class MyClassI : public Test::MyClass
+class MyClassI final : public Test::MyClass, public std::enable_shared_from_this<MyClassI>
 {
 public:
 
-    MyClassI();
+    virtual void callCallbackAsync(std::function<void()>,
+                                   std::function<void(std::exception_ptr)>,
+                                   const Ice::Current&) override;
 
-    virtual void callCallback_async(const Test::AMD_MyClass_callCallbackPtr&, const Ice::Current&);
-    virtual void getCallbackCount_async(const Test::AMD_MyClass_getCallbackCountPtr&, const Ice::Current&);
+    virtual void getCallbackCountAsync(std::function<void(int)>,
+                                       std::function<void(std::exception_ptr)>,
+                                       const Ice::Current& current) override;
 
-    virtual void incCounter(int, const Ice::Current&);
-    virtual void waitCounter(int, const Ice::Current&);
+    virtual void incCounter(int, const Ice::Current&) override;
+    virtual void waitCounter(int, const Ice::Current&) override;
 
-    virtual int getConnectionCount(const Ice::Current&);
-    virtual std::string getConnectionInfo(const Ice::Current&);
-    virtual void closeConnection(bool, const Ice::Current&);
+    virtual int getConnectionCount(const Ice::Current&) override;
+    virtual std::string getConnectionInfo(const Ice::Current&) override;
+    virtual void closeConnection(bool, const Ice::Current&) override;
 
-    virtual void datagram(const Ice::Current&);
-    virtual int getDatagramCount(const Ice::Current&);
+    virtual void datagram(const Ice::Current&) override;
+    virtual int getDatagramCount(const Ice::Current&) override;
 
-    virtual void callDatagramCallback(const Ice::Current&);
-    virtual void getCallbackDatagramCount_async(const Test::AMD_MyClass_getCallbackDatagramCountPtr&, const Ice::Current&);
+    virtual void callDatagramCallback(const Ice::Current&) override;
 
-    virtual int getHeartbeatCount(const Ice::Current&);
-    virtual void enableHeartbeats(const Ice::Current&);
+    virtual void getCallbackDatagramCountAsync(std::function<void(int)>,
+                                               std::function<void(std::exception_ptr)>,
+                                               const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    virtual int getHeartbeatCount(const Ice::Current&) override;
+    virtual void enableHeartbeats(const Ice::Current&) override;
 
-    void removeConnection(const Ice::ConnectionPtr&);
-    void incHeartbeatCount(const Ice::ConnectionPtr&);
+    virtual void shutdown(const Ice::Current&) override;
+
+    void removeConnection(const std::shared_ptr<Ice::Connection>&);
+    void incHeartbeatCount(const std::shared_ptr<Ice::Connection>&);
 
 private:
 
-    void checkConnection(const Ice::ConnectionPtr&);
+    void checkConnection(const std::shared_ptr<Ice::Connection>&);
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-    int _datagramCount;
-    std::map<Ice::ConnectionPtr, int> _connections;
-    int _counter;
+    std::mutex _lock;
+    std::condition_variable _condVar;
+    int _datagramCount = 0;
+    std::map<std::shared_ptr<Ice::Connection>, int> _connections;
+    int _counter = 0;
 };
-typedef IceUtil::Handle<MyClassI> MyClassIPtr;
 
 #endif
