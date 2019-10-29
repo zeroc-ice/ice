@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,9 +65,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
