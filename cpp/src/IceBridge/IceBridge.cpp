@@ -37,8 +37,8 @@ struct QueuedDispatch final
     QueuedDispatch(const QueuedDispatch&) = delete;
 
     const vector<Byte> inParams;
-    const function<void(bool, const pair<const Byte*, const Byte*>&)> response;
-    const function<void(exception_ptr)> error;
+    function<void(bool, const pair<const Byte*, const Byte*>&)> response;
+    function<void(exception_ptr)> error;
     const Current current;
 };
 
@@ -230,10 +230,10 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
     //
     // Flush any queued dispatches
     //
-    for(const auto& p : _queue)
+    for(auto& p : _queue)
     {
         auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
-        send(_outgoing, inParams, p.response, p.error, p.current);
+        send(_outgoing, inParams, move(p.response), move(p.error), p.current);
     }
     _queue.clear();
 }
