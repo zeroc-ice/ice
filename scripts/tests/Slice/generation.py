@@ -11,8 +11,7 @@ class SliceGenerationTestCase(ClientTestCase):
         current.mkdirs("classes")
 
         slice2java.run(current,
-                       args=["--list-generated", "--output-dir", "classes", "File1.ice", "File2.ice"] +
-                       (["--compat"] if current.testsuite.getPath().find("java-compat") >= 0 else []))
+                       args=["--list-generated", "--output-dir", "classes", "File1.ice", "File2.ice"])
 
         lines1 = slice2java.getOutput(current).strip().split("\n")
         lines2 = open(os.path.join(current.testsuite.getPath(), "list-generated.out"), "r").readlines()

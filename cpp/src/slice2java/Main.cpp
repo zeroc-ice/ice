@@ -11,7 +11,6 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <Gen.h>
-#include <GenCompat.h>
 #include <iterator>
 
 using namespace std;
@@ -71,10 +70,7 @@ usage(const string& n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
-        "--compat                 Generate code for the Java Compat mapping.\n"
-        "--tie                    Generate tie classes. (Java Compat Only)\n"
         "--impl                   Generate sample implementations.\n"
-        "--impl-tie               Generate sample tie implementations. (Java Compat Only)\n"
         "--meta META              Define global metadata directive META.\n"
         "--list-generated         Emit list of generated files in XML format.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
@@ -96,9 +92,7 @@ compile(const vector<string>& argv)
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "tie");
     opts.addOpt("", "impl");
-    opts.addOpt("", "impl-tie");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
@@ -107,7 +101,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("", "compat");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string>args;
@@ -160,11 +153,7 @@ compile(const vector<string>& argv)
 
     string output = opts.optArg("output-dir");
 
-    bool tie = opts.isSet("tie");
-
     bool impl = opts.isSet("impl");
-
-    bool implTie = opts.isSet("impl-tie");
 
     bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
@@ -182,31 +171,9 @@ compile(const vector<string>& argv)
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
-    bool compat = opts.isSet("compat");
-
     if(args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if(!validate)
-        {
-            usage(argv[0]);
-        }
-        return EXIT_FAILURE;
-    }
-
-    if(impl && implTie)
-    {
-        consoleErr << argv[0] << ": error: cannot specify both --impl and --impl-tie" << endl;
-        if(!validate)
-        {
-            usage(argv[0]);
-        }
-        return EXIT_FAILURE;
-    }
-
-    if(!compat && (tie || implTie))
-    {
-        consoleErr << argv[0] << ": error: TIE classes are only supported with the Java-Compat mapping" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -242,10 +209,6 @@ compile(const vector<string>& argv)
 
     vector<string> cppOpts;
     cppOpts.push_back("-D__SLICE2JAVA__");
-    if(compat)
-    {
-        cppOpts.push_back("-D__SLICE2JAVA_COMPAT__");
-    }
 
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
@@ -338,27 +301,11 @@ compile(const vector<string>& argv)
                 {
                     try
                     {
-                        if(compat)
+                        Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
+                        gen.generate(p);
+                        if(impl)
                         {
-                            GenCompat gen(argv[0], icecpp->getBaseName(), includePaths, output, tie);
-                            gen.generate(p);
-                            if(impl)
-                            {
-                                gen.generateImpl(p);
-                            }
-                            if(implTie)
-                            {
-                                gen.generateImplTie(p);
-                            }
-                        }
-                        else
-                        {
-                            Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
-                            gen.generate(p);
-                            if(impl)
-                            {
-                                gen.generateImpl(p);
-                            }
+                            gen.generateImpl(p);
                         }
                     }
                     catch(const Slice::FileException& ex)

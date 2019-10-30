@@ -48,9 +48,6 @@ jobs:
       script: $DOCKER_RUN "${ALLTESTS} --language=java"
       env: comment=Java
     - <<: *test-staging
-      script: $DOCKER_RUN "${ALLTESTS} --language=java-compat"
-      env: comment=Java Compat
-    - <<: *test-staging
       script: $DOCKER_RUN "${ALLTESTS} --language=js"
       env: comment=JavaScript
     - <<: *test-staging

@@ -99,13 +99,6 @@ public final class %(classname)s
 {
 """
 
-javaCompatPreamble = commonPreamble + """
-package IceInternal;
-
-public final class %(classname)s
-{
-"""
-
 csPreamble = commonPreamble + """
 namespace IceInternal
 {
@@ -675,8 +668,6 @@ def main():
             lang = "cpp"
         elif option == "--java":
             lang = "java"
-        elif option == "--java-compat":
-            lang = "java-compat"
         elif option == "--csharp":
             lang = "csharp"
         elif option == "--js":

@@ -139,14 +139,6 @@ if(project.name == "icebox") {
     }
 }
 
-if(project.name == "icebox-compat") {
-    jar {
-        manifest {
-            attributes("Main-Class": "IceBox.Server")
-        }
-    }
-}
-
 clean {
     delete("${libDir}/${jar.archiveName}")
     delete("${libDir}/${project.name}-${project.version}-javadoc.jar")

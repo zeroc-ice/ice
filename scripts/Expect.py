@@ -636,7 +636,7 @@ class Expect (object):
 
     def hasInterruptSupport(self):
         """Return True if the application gracefully terminated, False otherwise."""
-        if win32 and (self.mapping == "java" or self.mapping == "java-compat"):
+        if win32 and (self.mapping == "java"):
             return False
         return True
 
@@ -659,7 +659,7 @@ class Expect (object):
             # -signal or 0 depending on the signal value (in general 0 SIGTERM and -2 for SIGINT). On Windows,
             # we explicitly set the exitstatus to -signal when we explicitly kill the process.
             #
-            if not win32 and self.mapping in ["java", "java-compat"]:
+            if not win32 and (self.mapping == "java"):
                 test(self.exitstatus, 128 + self.killed)
             else:
                 test(self.exitstatus, [exitstatus, -self.killed])
