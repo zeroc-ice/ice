@@ -3131,7 +3131,7 @@ class CppMapping(Mapping):
 
             Mapping.Config.__init__(self, options)
 
-            if self.buildConfig == platform.getDefaultBuildConfig():
+            if self.buildConfig == platform.getDefaultBuildConfig() and not isinstance(platform, Windows):
                 self.buildConfig = "cpp98-shared"
 
             # Derive from the build config the cpp11 option. This is used by canRun to allow filtering

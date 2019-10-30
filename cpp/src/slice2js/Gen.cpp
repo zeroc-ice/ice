@@ -862,18 +862,26 @@ Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<
 bool
 Slice::Gen::RequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    _seenClass = true; // Set regardless of whether p->isLocal()
+    if(p->isLocal())
+    {
+        return false;
+    }
+    _seenClass = true;
     if(p->compactId() >= 0)
     {
         _seenCompactId = true;
     }
-    return !p->isLocal(); // Look for operations.
+    return true;
 }
 
 bool
-Slice::Gen::RequireVisitor::visitStructStart(const StructPtr&)
+Slice::Gen::RequireVisitor::visitStructStart(const StructPtr& p)
 {
-    _seenStruct = true; // Set regardless of whether p->isLocal()
+    if(p->isLocal())
+    {
+        return false;
+    }
+    _seenStruct = true;
     return false;
 }
 
@@ -888,19 +896,19 @@ Slice::Gen::RequireVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     if(p->isLocal())
     {
-        _seenLocalException = true;
+        return false;
     }
-    else
-    {
-        _seenUserException = true;
-    }
-
+    _seenUserException = true;
     return false;
 }
 
 void
 Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 {
+    if(seq->isLocal())
+    {
+        return;
+    }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
     if(builtin)
     {
@@ -921,6 +929,10 @@ Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 void
 Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
 {
+    if(dict->isLocal())
+    {
+        return;
+    }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(dict->valueType());
     if(builtin)
     {
@@ -1277,10 +1289,7 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    //
-    // Don't need to generate any code for local interfaces.
-    //
-    if(p->isInterface() && p->isLocal())
+    if(p->isLocal())
     {
         return false;
     }
@@ -1342,34 +1351,28 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     assert(scopedIter != ids.end());
     StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
-    if(!p->isLocal())
+    _out << sp;
+    _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
+    _out.inc();
+
+    for(StringList::const_iterator q = ids.begin(); q != ids.end(); ++q)
     {
-        _out << sp;
-        _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
-        _out.inc();
-
-        for(StringList::const_iterator q = ids.begin(); q != ids.end(); ++q)
+        if(q != ids.begin())
         {
-            if(q != ids.begin())
-            {
-                _out << ',';
-            }
-           _out << nl << '"' << *q << '"';
+            _out << ',';
         }
-
-        _out.dec();
-        _out << nl << "];";
+        _out << nl << '"' << *q << '"';
     }
 
-    if(!p->isInterface() || p->isLocal())
+    _out.dec();
+    _out << nl << "];";
+
+    if(!p->isInterface())
     {
         _out << sp;
         writeDocComment(p, getDeprecateReason(p, 0, "type"));
         _out << nl << localScope << '.' << name << " = class";
-        if(!p->isLocal() || hasBaseClass)
-        {
-            _out << " extends " << baseRef;
-        }
+        _out << " extends " << baseRef;
 
         _out << sb;
         if(!allParamNames.empty())
@@ -1409,62 +1412,55 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
 
             _out << epar << sb;
-            if(!p->isLocal() || hasBaseClass)
-            {
-                _out << nl << "super" << spar << baseParamNames << epar << ';';
-            }
+            _out << nl << "super" << spar << baseParamNames << epar << ';';
+
             writeInitDataMembers(dataMembers);
             _out << eb;
 
-            if(!p->isLocal())
+            if(p->compactId() != -1)
             {
-                if(p->compactId() != -1)
-                {
-                    _out << sp;
-                    _out << nl << "static get _iceCompactId()";
-                    _out << sb;
-                    _out << nl << "return " << p->compactId() << ";";
-                    _out << eb;
-                }
+                _out << sp;
+                _out << nl << "static get _iceCompactId()";
+                _out << sb;
+                _out << nl << "return " << p->compactId() << ";";
+                _out << eb;
+            }
 
-                if(!dataMembers.empty())
-                {
-                    _out << sp;
-                    _out << nl << "_iceWriteMemberImpl(ostr)";
-                    _out << sb;
-                    writeMarshalDataMembers(dataMembers, optionalMembers);
-                    _out << eb;
+            if(!dataMembers.empty())
+            {
+                _out << sp;
+                _out << nl << "_iceWriteMemberImpl(ostr)";
+                _out << sb;
+                writeMarshalDataMembers(dataMembers, optionalMembers);
+                _out << eb;
 
-                    _out << sp;
-                    _out << nl << "_iceReadMemberImpl(istr)";
-                    _out << sb;
-                    writeUnmarshalDataMembers(dataMembers, optionalMembers);
-                    _out << eb;
-                }
+                _out << sp;
+                _out << nl << "_iceReadMemberImpl(istr)";
+                _out << sb;
+                writeUnmarshalDataMembers(dataMembers, optionalMembers);
+                _out << eb;
             }
         }
         _out << eb << ";";
 
         _out << sp;
-        if(!p->isLocal())
-        {
-            bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
 
-            _out << nl << "Slice.defineValue(" << localScope << "." << name << ", "
-                 << "iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "], "
-                 << (preserved ? "true" : "false") ;
-            if(p->compactId() >= 0)
-            {
-                _out << ", " << p->compactId();
-            }
-            _out << ");";
+        bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
+
+        _out << nl << "Slice.defineValue(" << localScope << "." << name << ", "
+             << "iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "], "
+             << (preserved ? "true" : "false") ;
+        if(p->compactId() >= 0)
+        {
+            _out << ", " << p->compactId();
         }
+        _out << ");";
     }
 
     //
     // Define servant an proxy types for non local classes
     //
-    if(!p->isLocal() && (p->isInterface() || !p->allOperations().empty()))
+    if(p->isInterface() || !p->allOperations().empty())
     {
         _out << sp;
         writeDocComment(p, getDeprecateReason(p, 0, "type"));
@@ -1808,6 +1804,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     const string scope = p->scope();
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
@@ -1819,7 +1819,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        baseRef = p->isLocal() ? "Ice.LocalException" : "Ice.UserException";
+        baseRef = "Ice.UserException";
     }
 
     const DataMemberList allDataMembers = p->allDataMembers();
@@ -1902,37 +1902,34 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;
 
-    if(!p->isLocal())
+    _out << sp;
+    _out << nl << "_mostDerivedType()";
+    _out << sb;
+    _out << nl << "return " << localScope << '.' << name << ";";
+    _out << eb;
+
+    if(!dataMembers.empty())
     {
         _out << sp;
-        _out << nl << "_mostDerivedType()";
+        _out << nl << "_writeMemberImpl(ostr)";
         _out << sb;
-        _out << nl << "return " << localScope << '.' << name << ";";
+        writeMarshalDataMembers(dataMembers, optionalMembers);
         _out << eb;
 
-        if(!dataMembers.empty())
-        {
-            _out << sp;
-            _out << nl << "_writeMemberImpl(ostr)";
-            _out << sb;
-            writeMarshalDataMembers(dataMembers, optionalMembers);
-            _out << eb;
+        _out << sp;
+        _out << nl << "_readMemberImpl(istr)";
+        _out << sb;
+        writeUnmarshalDataMembers(dataMembers, optionalMembers);
+        _out << eb;
+    }
 
-            _out << sp;
-            _out << nl << "_readMemberImpl(istr)";
-            _out << sb;
-            writeUnmarshalDataMembers(dataMembers, optionalMembers);
-            _out << eb;
-        }
-
-        if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
-        {
-            _out << sp;
-            _out << nl << "_usesClasses()";
-            _out << sb;
-            _out << nl << "return true;";
-            _out << eb;
-        }
+    if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+    {
+        _out << sp;
+        _out << nl << "_usesClasses()";
+        _out << sb;
+        _out << nl << "return true;";
+        _out << eb;
     }
 
     _out << eb << ";";
@@ -1940,7 +1937,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
-    if(!p->isLocal() && preserved && !basePreserved)
+    if(preserved && !basePreserved)
     {
         _out << sp;
         _out << nl << "Slice.PreservedUserException(" << localScope << '.' << name << ");";
@@ -1952,6 +1949,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     const string scope = p->scope();
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
@@ -2004,26 +2005,23 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeInitDataMembers(dataMembers);
     _out << eb;
 
-    if(!p->isLocal())
-    {
-        _out << sp;
-        _out << nl << "_write(ostr)";
-        _out << sb;
-        writeMarshalDataMembers(dataMembers, DataMemberList());
-        _out << eb;
+    _out << sp;
+    _out << nl << "_write(ostr)";
+    _out << sb;
+    writeMarshalDataMembers(dataMembers, DataMemberList());
+    _out << eb;
 
-        _out << sp;
-        _out << nl << "_read(istr)";
-        _out << sb;
-        writeUnmarshalDataMembers(dataMembers, DataMemberList());
-        _out << eb;
+    _out << sp;
+    _out << nl << "_read(istr)";
+    _out << sb;
+    writeUnmarshalDataMembers(dataMembers, DataMemberList());
+    _out << eb;
 
-        _out << sp;
-        _out << nl << "static get minWireSize()";
-        _out << sb;
-        _out << nl << "return  " << p->minWireSize() << ";";
-        _out << eb;
-    }
+    _out << sp;
+    _out << nl << "static get minWireSize()";
+    _out << sb;
+    _out << nl << "return  " << p->minWireSize() << ";";
+    _out << eb;
 
     _out << eb << ";";
 
@@ -2043,6 +2041,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
     const TypePtr keyType = p->keyType();
     const TypePtr valueType = p->valueType();
 
@@ -2097,6 +2099,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
     const string scope = p->scope();
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
@@ -2374,6 +2380,10 @@ Slice::Gen::TypeScriptRequireVisitor::visitModuleStart(const ModulePtr& p)
 bool
 Slice::Gen::TypeScriptRequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     //
     // Add imports required for base classes
     //
@@ -2430,6 +2440,10 @@ Slice::Gen::TypeScriptRequireVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     //
     // Add imports required for base exceptions
     //
@@ -2554,6 +2568,10 @@ Slice::Gen::TypeScriptAliasVisitor::visitModuleStart(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     ModulePtr module = ModulePtr::dynamicCast(p->container());
     //
     // Add alias required for base classes
@@ -2597,6 +2615,10 @@ Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     ModulePtr module = ModulePtr::dynamicCast(p->container());
     //
     // Add alias required for data members
@@ -2612,6 +2634,10 @@ Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     ModulePtr module = ModulePtr::dynamicCast(p->container());
     //
     // Add alias required for base exception
@@ -2636,12 +2662,20 @@ Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::TypeScriptAliasVisitor::visitSequence(const SequencePtr& seq)
 {
+    if(seq->isLocal())
+    {
+        return;
+    }
     addAlias(seq->type(), ModulePtr::dynamicCast(seq->container()));
 }
 
 void
 Slice::Gen::TypeScriptAliasVisitor::visitDictionary(const DictionaryPtr& dict)
 {
+    if(dict->isLocal())
+    {
+        return;
+    }
     ModulePtr module = ModulePtr::dynamicCast(dict->container());
     addAlias(dict->keyType(), module);
     addAlias(dict->valueType(), module);
@@ -2706,6 +2740,10 @@ Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string icePrefix = importPrefix("Ice.", p);
     if(p->isDelegate())
@@ -2744,129 +2782,6 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "void;";
         }
-    }
-    else if(p->isLocal())
-    {
-        const ClassList bases = p->bases();
-        const DataMemberList dataMembers = p->dataMembers();
-        const DataMemberList allDataMembers = p->allDataMembers();
-
-        _out << sp;
-        writeDocSummary(_out, p);
-        _out << nl;
-        _out << (p->isInterface() ? "interface" : "class") << " " << fixId(p->name());
-        if(!bases.empty() && !bases.front()->isInterface())
-        {
-            const string prefix = importPrefix(ContainedPtr::dynamicCast(bases.front()), p, imports());
-            _out << " extends " << prefix << getUnqualified(fixId(bases.front()->scoped()), p->scope(), prefix);
-        }
-        _out << sb;
-        if(!p->isInterface())
-        {
-            _out << nl << "/**";
-            _out << nl << " * One-shot constructor to initialize all data members.";
-            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-            {
-                CommentPtr comment = (*q)->parseComment(false);
-                if(comment)
-                {
-                    _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
-                }
-            }
-            _out << nl << " */";
-            _out << nl << "constructor" << spar;
-            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-            {
-                _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
-            }
-            _out << epar << ";";
-
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                writeDocSummary(_out, *q);
-                _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true)
-                     << ";";
-            }
-        }
-
-        OperationList allOperations = p->allOperations();
-        for(OperationList::const_iterator q = allOperations.begin(); q != allOperations.end(); ++q)
-        {
-            OperationPtr op = *q;
-            ParamDeclList params = op->parameters();
-            ParamDeclList inParams, outParams;
-            for(ParamDeclList::const_iterator r = params.begin(); r != params.end(); ++r)
-            {
-                if((*r)->isOutParam())
-                {
-                    outParams.push_back(*r);
-                }
-                else
-                {
-                    inParams.push_back(*r);
-                }
-            }
-
-            TypePtr ret = op->returnType();
-            bool async = op->hasMetaData("js:async") || op->hasMetaData("async-oneway");
-            CommentPtr comment = op->parseComment(false);
-            if(comment)
-            {
-                StringList returns;
-                if(async)
-                {
-                    returns.push_back("@returns The asynchronous result object for the invocation.");
-                }
-                else if(ret)
-                {
-                    returns = comment->returns();
-                }
-                writeOpDocSummary(_out, op, comment, OpDocAllParams, true, StringList(), StringList(), returns);
-            }
-
-            _out << nl << fixId((*q)->name()) << spar;
-            for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); r++)
-            {
-                _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
-            }
-
-            for(ParamDeclList::const_iterator r = outParams.begin(); r != outParams.end(); r++)
-            {
-                const string prefix = importPrefix("Ice.Holder", p);
-                _out << (fixId((*r)->name()) + ":"  + prefix +
-                         getUnqualified("Ice.Holder", p->scope(), prefix) + "<" +
-                         typeToString((*r)->type(), p, imports(), true, false, true) + ">");
-            }
-
-            _out << epar;
-
-            _out << ":";
-            if(async)
-            {
-               _out << icePrefix << getUnqualified("Ice.AsyncResultBase", p->scope(), icePrefix) << "<";
-            }
-
-            if(ret)
-            {
-                _out << typeToString(ret, p, imports(), true, false, true);
-            }
-            else
-            {
-                _out << "void";
-            }
-
-            if (async)
-            {
-                _out << ">";
-            }
-            _out << ";";
-        }
-
-        if(p->hasMetaData("js:comparable"))
-        {
-            _out << nl << "equals(rhs:any):boolean";
-        }
-        _out << eb;
     }
     else
     {
@@ -3112,6 +3027,10 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
@@ -3127,9 +3046,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        baseRef = p->isLocal() ?
-            icePrefix + getUnqualified("Ice.LocalException", p->scope(), icePrefix) :
-            icePrefix + getUnqualified("Ice.UserException", p->scope(), icePrefix);
+        baseRef = icePrefix + getUnqualified("Ice.UserException", p->scope(), icePrefix);
     }
 
     _out << sp;
@@ -3168,6 +3085,10 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
     const string icePrefix = importPrefix("Ice.", p);
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
@@ -3214,6 +3135,10 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
     const string icePrefix = importPrefix("Ice.", p);
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string name = fixId(p->name());
@@ -3237,6 +3162,10 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
     const string icePrefix = importPrefix("Ice.", p);
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string name = fixId(p->name());
@@ -3262,6 +3191,10 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
     _out << sp;
     writeDocSummary(_out, p);
     _out << nl << "class " << fixId(p->name());
