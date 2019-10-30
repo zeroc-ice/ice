@@ -67,7 +67,7 @@ class Ice(Component):
                      "Ice/threadPoolPriority",
                      "Ice/udp"])
         elif "static" in config.buildConfig:
-            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
+            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple"],
                     ["Ice/library", "Ice/plugin"])
         elif isinstance(mapping, CSharpMapping) and config.xamarin:
             return (["Ice/.*"],
@@ -134,7 +134,7 @@ class Ice(Component):
                 return False
             elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
                 return False
-            elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
+            elif parent in ["Glacier2"] and testId not in ["Glacier2/sessionHelper"]:
                 return False
 
         if current.config.xamarin and not current.config.uwp:

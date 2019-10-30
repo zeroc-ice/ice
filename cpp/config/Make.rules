@@ -52,7 +52,6 @@ static_projects         = test/Common \
                           test/Ice/% \
                           test/IceSSL/% \
                           test/IceDiscovery/simple \
-                          test/Glacier2/application \
                           test/IceGrid/simple
 
 static_excludes         = test/Ice/library test/Ice/plugin
@@ -75,7 +74,6 @@ cpp11_projects          = test/Common \
                           test/IceSSL/% \
                           test/IceDiscovery/% \
                           test/IceBox/% \
-                          test/Glacier2/application \
                           test/Glacier2/sessionHelper \
                           test/IceGrid/simple
 
