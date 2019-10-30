@@ -146,8 +146,8 @@ public:
                                  const Current& current) override;
 
     void closed(const shared_ptr<Connection>&);
-    void outgoingSuccess(shared_ptr<BridgeConnection>, shared_ptr<Connection>);
-    void outgoingException(shared_ptr<BridgeConnection>, exception_ptr);
+    void outgoingSuccess(const shared_ptr<BridgeConnection>&, shared_ptr<Connection>);
+    void outgoingException(const shared_ptr<BridgeConnection>&, exception_ptr);
 
 private:
 
@@ -361,19 +361,20 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
             {
                 prx = prx->ice_oneway();
             }
-            prx->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, move(error),
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, error,
                                  [response = move(response)](bool){ response(true, {nullptr, nullptr}); },
                                  current.ctx);
         }
         else
         {
             // Twoway request
-            prx->ice_invokeAsync(current.operation, current.mode, inParams, move(response), move(error),
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, move(response), error,
                                  nullptr, current.ctx);
         }
     }
     catch(const std::exception&)
     {
+        // can't move error parameter above since we need it here
         error(current_exception());
     }
 }
@@ -439,8 +440,8 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
                 // especially when using Bluetooth.
                 //
                 target->ice_getConnectionAsync(
-                    [self, bc](auto outgoing) { self->outgoingSuccess(move(bc), move(outgoing)); },
-                    [self, bc](auto ex) { self->outgoingException(move(bc), ex); });
+                    [self, bc](auto outgoing) { self->outgoingSuccess(bc, move(outgoing)); },
+                    [self, bc](auto ex) { self->outgoingException(bc, ex); });
             }
             catch(const std::exception&)
             {
@@ -479,7 +480,7 @@ BridgeI::closed(const shared_ptr<Connection>& con)
 }
 
 void
-BridgeI::outgoingSuccess(shared_ptr<BridgeConnection> bc, shared_ptr<Connection> outgoing)
+BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, shared_ptr<Connection> outgoing)
 {
     //
     // An outgoing connection was established. Notify the BridgeConnection object.
@@ -493,7 +494,7 @@ BridgeI::outgoingSuccess(shared_ptr<BridgeConnection> bc, shared_ptr<Connection>
 }
 
 void
-BridgeI::outgoingException(shared_ptr<BridgeConnection> bc, exception_ptr ex)
+BridgeI::outgoingException(const shared_ptr<BridgeConnection>& bc, exception_ptr ex)
 {
     //
     // An outgoing connection attempt failed. Notify the BridgeConnection object.
