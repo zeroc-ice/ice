@@ -71,8 +71,6 @@ ServantLocator.d.ts
 ServantLocator.js
 ServantLocatorF.d.ts
 ServantLocatorF.js
-SliceChecksumDict.d.ts
-SliceChecksumDict.js
 ValueFactory.d.ts
 ValueFactory.js
 Version.d.ts

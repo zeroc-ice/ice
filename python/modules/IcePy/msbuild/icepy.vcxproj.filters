@@ -102,9 +102,6 @@
     <ClCompile Include="..\..\..\..\cpp\src\Slice\MD5I.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
     <ClCompile Include="..\Dispatcher.cpp">
       <Filter>Source Files</Filter>

@@ -82,8 +82,6 @@ public:
 
     virtual void shutdown(const Ice::Current&);
 
-    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
-
 private:
 
     void checkIsReadOnly() const;

@@ -25,7 +25,6 @@
         <SliceCompile Include="..\..\..\slice\Ice\PropertiesAdmin.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\RemoteLogger.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Router.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\SliceChecksumDict.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\ValueFactory.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Version.ice" />
         <SliceCompile Include="..\..\..\slice\Glacier2\*.ice" />

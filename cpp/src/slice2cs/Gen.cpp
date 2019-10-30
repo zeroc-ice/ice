@@ -16,7 +16,6 @@
 
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
-#include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <DotNetNames.h>
@@ -2032,51 +2031,6 @@ Slice::Gen::generateImpl(const UnitPtr& p)
     _impl << sp << nl << "using _System = global::System;";
     ImplVisitor implVisitor(_impl);
     p->visit(&implVisitor, false);
-}
-
-void
-Slice::Gen::generateChecksums(const UnitPtr& u)
-{
-    ChecksumMap map = createChecksums(u);
-    if(!map.empty())
-    {
-        string className = "X" + generateUUID();
-        for(string::size_type pos = 1; pos < className.size(); ++pos)
-        {
-            if(!isalnum(static_cast<unsigned char>(className[pos])))
-            {
-                className[pos] = '_';
-            }
-        }
-
-        _out << sp << nl << "namespace IceInternal";
-        _out << sb;
-        _out << nl << "namespace SliceChecksums";
-        _out << sb;
-        _out << nl << "[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"slice2cs\", \"" << ICE_STRING_VERSION
-             << "\")]";
-        _out << nl << "public sealed class " << className;
-        _out << sb;
-        _out << nl << "public static global::System.Collections.Hashtable map = new global::System.Collections.Hashtable();";
-        _out << sp << nl << "static " << className << "()";
-        _out << sb;
-        for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
-        {
-            _out << nl << "map.Add(\"" << p->first << "\", \"";
-            ostringstream str;
-            str.flags(ios_base::hex);
-            str.fill('0');
-            for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-            {
-                str << static_cast<int>(*q);
-            }
-            _out << str.str() << "\");";
-        }
-        _out << eb;
-        _out << eb << ';';
-        _out << eb;
-        _out << eb;
-    }
 }
 
 void

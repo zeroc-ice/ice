@@ -25,8 +25,6 @@ public:
     ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
     virtual ~ServiceManagerI();
 
-    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
-
     virtual void startService(ICE_IN(std::string), const ::Ice::Current&);
     virtual void stopService(ICE_IN(std::string), const ::Ice::Current&);
 

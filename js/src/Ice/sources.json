@@ -37,7 +37,6 @@
         "Ice/RouterF.ice",
         "Ice/ServantLocator.ice",
         "Ice/ServantLocatorF.ice",
-        "Ice/SliceChecksumDict.ice",
         "Ice/ValueFactory.ice",
         "Ice/Version.ice",
         "IceSSL/ConnectionInfo.ice",

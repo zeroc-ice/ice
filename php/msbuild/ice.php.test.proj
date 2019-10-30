@@ -2,15 +2,9 @@
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <ItemGroup>
         <SliceCompile Include="..\test\**\*.ice"
-                      Exclude="..\test\Ice\checksum\*.ice;
-                               ..\test\Ice\optional\*.ice;
+                      Exclude="..\test\Ice\optional\*.ice;
                                ..\test\Ice\slicing\objects\*.ice">
             <OutputDir>$(MSBuildThisFileDirectory)..\test\%(RecursiveDir)</OutputDir>
-        </SliceCompile>
-
-        <SliceCompile Include="..\test\Ice\checksum\*.ice">
-            <OutputDir>$(MSBuildThisFileDirectory)..\test\Ice\checksum</OutputDir>
-            <AdditionalOptions>--checksum</AdditionalOptions>
         </SliceCompile>
 
         <SliceCompile Include="..\test\Ice\optional\*.ice">

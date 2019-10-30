@@ -7,7 +7,6 @@
 #include <Ice/Ice.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
-#include <Ice/SliceChecksums.h>
 
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>
@@ -792,12 +791,6 @@ void
 AdminI::shutdown(const Current&)
 {
     _registry->shutdown();
-}
-
-SliceChecksumDict
-AdminI::getSliceChecksums(const Current&) const
-{
-    return sliceChecksums();
 }
 
 void
