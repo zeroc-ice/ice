@@ -49,13 +49,13 @@ class RouterI final : public Router
 {
 public:
 
-    virtual shared_ptr<ObjectPrx> getClientProxy(Ice::optional<bool>& hasRoutingTable, const Current&) const override
+    shared_ptr<ObjectPrx> getClientProxy(Ice::optional<bool>& hasRoutingTable, const Current&) const override
     {
         hasRoutingTable = false; // We don't maintain a routing table, no need to call addProxies on this impl.
         return nullptr;
     }
 
-    virtual shared_ptr<ObjectPrx> getServerProxy(const Current& current) const override
+    shared_ptr<ObjectPrx> getServerProxy(const Current& current) const override
     {
         //
         // We return a non-nil dummy proxy here so that a client is able to configure its
@@ -64,7 +64,7 @@ public:
         return current.adapter->getCommunicator()->stringToProxy("dummy");
     }
 
-    virtual ObjectProxySeq addProxies(ObjectProxySeq, const Current&) override
+    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) override
     {
         return ObjectProxySeq();
     }
@@ -79,7 +79,7 @@ public:
     {
     }
 
-    virtual shared_ptr<RouterPrx> getRouter(const Current&) override
+    shared_ptr<RouterPrx> getRouter(const Current&) override
     {
         return _router;
     }
@@ -140,10 +140,10 @@ public:
 
     BridgeI(shared_ptr<ObjectAdapter> adapter, shared_ptr<ObjectPrx> target);
 
-    virtual void ice_invokeAsync(pair<const Byte*, const Byte*> inEncaps,
-                                 function<void(bool, const pair<const Byte*, const Byte*>&)> response,
-                                 function<void(exception_ptr)> error,
-                                 const Current& current) override;
+    void ice_invokeAsync(pair<const Byte*, const Byte*> inEncaps,
+                         function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                         function<void(exception_ptr)> error,
+                         const Current& current) override;
 
     void closed(const shared_ptr<Connection>&);
     void outgoingSuccess(const shared_ptr<BridgeConnection>&, shared_ptr<Connection>);
@@ -162,9 +162,9 @@ class BridgeService final : public Service
 {
 protected:
 
-    virtual bool start(int, char*[], int&) override;
-    virtual bool stop() override;
-    virtual shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
+    bool start(int, char*[], int&) override;
+    bool stop() override;
+    shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
 private:
 

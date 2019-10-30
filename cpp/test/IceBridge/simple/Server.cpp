@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class Server final: public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 

@@ -19,26 +19,26 @@ class CallbackI final : public Test::Callback
 {
 public:
 
-    virtual void
+    void
     ping(const Ice::Current&) override
     {
         ++_count;
     }
 
-    virtual int
+    int
     getCount(const Ice::Current&) override
     {
         return _count;
     }
 
-    virtual void
+    void
     datagram(const Ice::Current& c) override
     {
         test(c.con->getEndpoint()->getInfo()->datagram());
         ++_datagramCount;
     }
 
-    virtual int
+    int
     getDatagramCount(const Ice::Current&) override
     {
         return _datagramCount;
