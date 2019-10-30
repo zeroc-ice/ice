@@ -140,7 +140,7 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList(), bool = true, bool = false, bool = false) const;
+                             const StringList& = StringList(), bool = true, bool = false) const;
 
     //
     // Get the Java object name for a type. For primitive types, this returns the
@@ -311,7 +311,7 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList(), bool = true, bool = false, bool = false) const;
+                             const StringList& = StringList(), bool = true, bool = false) const;
 
     //
     // Get the Java object name for a type. For primitive types, this returns the
@@ -319,7 +319,7 @@ protected:
     // to typeToString.
     //
     std::string typeToObjectString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                                   const StringList& = StringList(), bool = true, bool = false) const;
+                                   const StringList& = StringList(), bool = true) const;
 
     //
     // Generate code to marshal or unmarshal a type.
@@ -379,9 +379,8 @@ protected:
     // the default mapping was used.
     //
     bool getDictionaryTypes(const DictionaryPtr&, const std::string&, const StringList&,
-                            std::string&, std::string&, bool) const;
-    bool getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&,
-                          bool) const;
+                            std::string&, std::string&) const;
+    bool getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
 
     virtual JavaOutput* createOutput();
 

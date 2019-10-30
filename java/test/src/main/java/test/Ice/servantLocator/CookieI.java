@@ -4,11 +4,8 @@
 
 package test.Ice.servantLocator;
 
-import test.Ice.servantLocator.Test.Cookie;
-
-public final class CookieI extends Cookie
+public final class CookieI
 {
-    @Override
     public String message()
     {
         return "blahblah";

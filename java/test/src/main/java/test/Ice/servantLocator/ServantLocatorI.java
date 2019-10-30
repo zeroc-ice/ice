@@ -12,7 +12,6 @@ import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
 
-import test.Ice.servantLocator.Test.Cookie;
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfUserException;
 
@@ -100,7 +99,7 @@ public final class ServantLocatorI implements ServantLocator
             exception(current);
         }
 
-        Cookie co = (Cookie)cookie;
+        CookieI co = (CookieI)cookie;
         test(co.message().equals("blahblah"));
     }
 

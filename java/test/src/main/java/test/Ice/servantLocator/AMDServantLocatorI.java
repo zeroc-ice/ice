@@ -12,7 +12,6 @@ import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
 
-import test.Ice.servantLocator.AMD.Test.Cookie;
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
 
@@ -100,7 +99,7 @@ public final class AMDServantLocatorI implements ServantLocator
             exception(current);
         }
 
-        Cookie co = (Cookie)cookie;
+        AMDCookieI co = (AMDCookieI)cookie;
         test(co.message().equals("blahblah"));
     }
 

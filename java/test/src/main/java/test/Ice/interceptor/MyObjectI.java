@@ -8,7 +8,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
 
 import test.Ice.interceptor.Test.InvalidInputException;
-import test.Ice.interceptor.Test.RetryException;
 import test.Ice.interceptor.Test.MyObject;
 
 class MyObjectI implements MyObject

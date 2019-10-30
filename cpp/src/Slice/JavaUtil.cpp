@@ -1159,8 +1159,7 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
                                          const string& package,
                                          const StringList& metaData,
                                          bool formal,
-                                         bool optional,
-                                         bool local) const
+                                         bool optional) const
 {
     static const char* builtinTable[] =
     {
@@ -1207,20 +1206,6 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
         "???",
         "???"
     };
-
-    if(local)
-    {
-        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
-        {
-            const string javaType = "java:type:";
-            const string meta = *i;
-
-            if(meta.find(javaType) == 0)
-            {
-                return meta.substr(javaType.size());
-            }
-        }
-    }
 
     if(!type)
     {
@@ -3641,8 +3626,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                                    const string& package,
                                    const StringList& metaData,
                                    bool formal,
-                                   bool optional,
-                                   bool local) const
+                                   bool optional) const
 {
     static const char* builtinTable[] =
     {
@@ -3675,20 +3659,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "???",
         "???"
     };
-
-    if(local)
-    {
-        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
-        {
-            const string javaType = "java:type:";
-            const string meta = *i;
-
-            if(meta.find(javaType) == 0)
-            {
-                return meta.substr(javaType.size());
-            }
-        }
-    }
 
     if(!type)
     {
@@ -3725,7 +3695,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
-            if(!local && builtin->kind() == Builtin::KindObject)
+            if(builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(builtinTable[Builtin::KindValue], package);
             }
@@ -3740,12 +3710,12 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 
     if(optional)
     {
-        return "java.util.Optional<" + typeToObjectString(type, mode, package, metaData, formal, local) + ">";
+        return "java.util.Optional<" + typeToObjectString(type, mode, package, metaData, formal) + ">";
     }
 
     if(cl)
     {
-        if(cl->isInterface() && !local)
+        if(cl->isInterface())
         {
             return getUnqualified("com.zeroc.Ice.Value", package);
         }
@@ -3773,7 +3743,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     if(dict)
     {
         string instanceType, formalType;
-        getDictionaryTypes(dict, package, metaData, instanceType, formalType, local);
+        getDictionaryTypes(dict, package, metaData, instanceType, formalType);
         return formal ? formalType : instanceType;
     }
 
@@ -3781,7 +3751,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     if(seq)
     {
         string instanceType, formalType;
-        getSequenceTypes(seq, package, metaData, instanceType, formalType, local);
+        getSequenceTypes(seq, package, metaData, instanceType, formalType);
         return formal ? formalType : instanceType;
     }
 
@@ -3806,8 +3776,7 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
                                          TypeMode mode,
                                          const string& package,
                                          const StringList& metaData,
-                                         bool formal,
-                                         bool local) const
+                                         bool formal) const
 {
     static const char* builtinTable[] =
     {
@@ -3824,29 +3793,14 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         "java.lang.Object",
         "com.zeroc.Ice.Value"
     };
-    static const char* builtinLocalTable[] =
-    {
-        "java.lang.Byte",
-        "java.lang.Boolean",
-        "java.lang.Short",
-        "java.lang.Integer",
-        "java.lang.Long",
-        "java.lang.Float",
-        "java.lang.Double",
-        "java.lang.String",
-        "com.zeroc.Ice.Object",
-        "com.zeroc.Ice.ObjectPrx",
-        "java.lang.Object",
-        "com.zeroc.Ice.Value"
-    };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin && mode != TypeModeOut)
     {
-        return local ? builtinLocalTable[builtin->kind()] : builtinTable[builtin->kind()];
+        return builtinTable[builtin->kind()];
     }
 
-    return typeToString(type, mode, package, metaData, formal, false, local);
+    return typeToString(type, mode, package, metaData, formal, false);
 }
 
 void
@@ -4064,8 +4018,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         if(optionalParam || mode == OptionalMember)
         {
             string instanceType, formalType, origInstanceType, origFormalType;
-            getDictionaryTypes(dict, "", metaData, instanceType, formalType, false);
-            getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType, false);
+            getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+            getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
             if(formalType == origFormalType && (marshal || instanceType == origInstanceType))
             {
                 //
@@ -4192,7 +4146,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else if(mode != OptionalMember)
                 {
-                    out << nl << param << " = " << stream << ".readSerializable" << spar << tag << typeS + ".class" << epar << ";";
+                    out << nl << param << " = " << stream << ".readSerializable" << spar << tag << typeS + ".class"
+                        << epar << ";";
                     return;
                 }
             }
@@ -4201,8 +4156,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     findMetaData("java:type", metaData, ignored))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
-                getSequenceTypes(seq, "", metaData, instanceType, formalType, false);
-                getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType, false);
+                getSequenceTypes(seq, "", metaData, instanceType, formalType);
+                getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
                 if(formalType == origFormalType && (marshal || instanceType == origInstanceType))
                 {
                     string helper = getUnqualified(seq, package, "", "Helper");
@@ -4378,8 +4333,8 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     // the helper.
     //
     string instanceType, formalType, origInstanceType, origFormalType;
-    getDictionaryTypes(dict, "", metaData, instanceType, formalType, false);
-    getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType, false);
+    getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+    getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
     if(useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
     {
         //
@@ -4607,8 +4562,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     // the helper.
     //
     string instanceType, formalType, origInstanceType, origFormalType;
-    bool customType = getSequenceTypes(seq, "", metaData, instanceType, formalType, false);
-    getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType, false);
+    bool customType = getSequenceTypes(seq, "", metaData, instanceType, formalType);
+    getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
     if(useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
     {
         //
@@ -4918,7 +4873,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter, customStream);
+                    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter,
+                                              customStream);
                 }
                 out << eb;
                 iter++;
@@ -5031,14 +4987,13 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
                                          const string& package,
                                          const StringList& metaData,
                                          string& instanceType,
-                                         string& formalType,
-                                         bool local) const
+                                         string& formalType) const
 {
     //
     // Get the types of the key and value.
     //
-    string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package, StringList(), true, local);
-    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package, StringList(), true, local);
+    string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package, StringList(), true);
+    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package, StringList(), true);
 
     //
     // Collect metadata for a custom type.
@@ -5067,8 +5022,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                                        const string& package,
                                        const StringList& metaData,
                                        string& instanceType,
-                                       string& formalType,
-                                       bool local) const
+                                       string& formalType) const
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
     if(builtin)
@@ -5114,8 +5068,8 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
         assert(!instanceType.empty());
         if(formalType.empty())
         {
-            formalType = "java.util.List<" +
-                typeToObjectString(seq->type(), TypeModeIn, package, StringList(), true, local) + ">";
+            formalType = "java.util.List<" + typeToObjectString(seq->type(), TypeModeIn, package, StringList(), true) +
+                ">";
         }
         return true;
     }
@@ -5123,7 +5077,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     //
     // The default mapping is a native array.
     //
-    instanceType = formalType = typeToString(seq->type(), TypeModeIn, package, metaData, true, false, local) + "[]";
+    instanceType = formalType = typeToString(seq->type(), TypeModeIn, package, metaData, true, false) + "[]";
     return false;
 }
 

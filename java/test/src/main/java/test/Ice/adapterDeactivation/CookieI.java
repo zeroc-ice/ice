@@ -4,9 +4,7 @@
 
 package test.Ice.adapterDeactivation;
 
-import test.Ice.adapterDeactivation.Test.Cookie;
-
-public final class CookieI extends Cookie
+public final class CookieI
 {
     public String message()
     {

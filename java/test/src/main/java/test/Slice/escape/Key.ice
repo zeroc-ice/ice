@@ -52,13 +52,6 @@ exception import extends hashCode
     int native;
 }
 
-local interface new
-{
-    assert notify(break notifyAll, else null, finalize package, else* private, finalize* protected, catch* public,
-                default* return, int static, int strictfp, int super)
-        throws hashCode, import;
-}
-
 const int switch = 0;
 const int synchronized = 0;
 const int this = 0;

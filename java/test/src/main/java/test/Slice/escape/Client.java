@@ -11,7 +11,6 @@ import test.Slice.escape._abstract._else;
 import test.Slice.escape._abstract._finalize;
 import test.Slice.escape._abstract._hashCode;
 import test.Slice.escape._abstract._import;
-import test.Slice.escape._abstract._new;
 import test.Slice.escape._abstract._switch;
 import test.Slice.escape._abstract.catchPrx;
 import test.Slice.escape._abstract.defaultPrx;
@@ -50,22 +49,6 @@ public class Client extends test.TestHelper
     {
         public elseI()
         {
-        }
-    }
-
-    static public class newI implements _new
-    {
-        public newI()
-        {
-        }
-
-        @Override
-        public _assert _notify(_break _notifyAll, _else _null, _finalize _package,
-                               com.zeroc.Ice.ObjectPrx _private, finalizePrx _protected,
-                               catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super)
-            throws _hashCode, _import
-        {
-            return null;
         }
     }
 
@@ -115,7 +98,6 @@ public class Client extends test.TestHelper
         j._if = 0;
         j._instanceof = 1;
         j._native = 2;
-        _new k = new newI();
         assert _switch.value == 0;
     }
 

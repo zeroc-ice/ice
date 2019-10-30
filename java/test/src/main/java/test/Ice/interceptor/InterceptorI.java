@@ -8,7 +8,6 @@ import java.util.concurrent.CompletionStage;
 
 import com.zeroc.Ice.OutputStream;
 
-import test.Ice.interceptor.Test.RetryException;
 import test.Ice.interceptor.Test.InvalidInputException;
 
 class InterceptorI extends com.zeroc.Ice.DispatchInterceptor

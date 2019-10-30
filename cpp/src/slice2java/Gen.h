@@ -222,7 +222,7 @@ private:
         //
         // Generate an operation.
         //
-        void writeOperation(::IceUtilInternal::Output&, const std::string&, const OperationPtr&, bool);
+        void writeOperation(::IceUtilInternal::Output&, const std::string&, const OperationPtr&);
     };
 };
 

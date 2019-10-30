@@ -4,11 +4,8 @@
 
 package test.Ice.servantLocator;
 
-import test.Ice.servantLocator.AMD.Test.Cookie;
-
-public final class AMDCookieI extends Cookie
+public final class AMDCookieI
 {
-    @Override
     public String message()
     {
         return "blahblah";

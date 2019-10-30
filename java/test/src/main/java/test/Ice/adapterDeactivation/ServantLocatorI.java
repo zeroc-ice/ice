@@ -4,7 +4,6 @@
 
 package test.Ice.adapterDeactivation;
 
-import test.Ice.adapterDeactivation.Test.Cookie;
 import com.zeroc.Ice.ServantLocator;
 
 public final class ServantLocatorI implements ServantLocator
@@ -82,7 +81,7 @@ public final class ServantLocatorI implements ServantLocator
             return;
         }
 
-        Cookie co = (Cookie)cookie;
+        CookieI co = (CookieI)cookie;
         test(co.message().equals("blahblah"));
     }
 
