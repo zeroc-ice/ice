@@ -59,7 +59,6 @@ class ServiceTemplates extends Templates
         ServiceDescriptor sd = new ServiceDescriptor(
             new java.util.LinkedList<AdapterDescriptor>(),
             new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>()),
-            new java.util.LinkedList<DbEnvDescriptor>(),
             new String[0],
             "",
             "",
