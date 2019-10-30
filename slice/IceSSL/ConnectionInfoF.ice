@@ -14,9 +14,7 @@
 
 [["python:pkgdir:IceSSL"]]
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["swift:module:Ice:SSL"]
 module IceSSL

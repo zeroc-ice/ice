@@ -16,9 +16,7 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 module Ice
 {

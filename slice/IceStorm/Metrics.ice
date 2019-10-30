@@ -15,9 +15,7 @@
 
 #include <Ice/Metrics.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["js:module:ice", "swift:module:IceStorm:MX"]
 module IceMX

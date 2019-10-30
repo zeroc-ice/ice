@@ -15,9 +15,7 @@
 
 #include <Ice/Locator.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 /**
  * IceLocatorDiscovery is an Ice plug-in that enables the discovery of IceGrid and custom locators via

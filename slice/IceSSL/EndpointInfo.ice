@@ -21,9 +21,7 @@
  * IceSSL provides a secure transport for Ice.
  *
  **/
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["swift:module:Ice:SSL"]
 module IceSSL

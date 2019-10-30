@@ -22,9 +22,7 @@
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 module IceGrid
 {

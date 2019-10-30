@@ -21,9 +21,7 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 module IceGrid
 {
