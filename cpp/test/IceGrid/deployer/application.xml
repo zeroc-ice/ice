@@ -117,10 +117,6 @@
           <object identity="${ObjectCategory2}/${ObjectName2}" type="::TestId4"/>
           <object identity="${ObjectIdSlash}${ObjectName2}" type="::TestId5"/>
         </adapter>
-
-        <dbenv name="DbEnv">
-          <description>DBENV ${NodeVar}</description>
-        </dbenv>
         <option>--Test.Test=2</option>
         <env>MY_ENV_VARIABLE=12</env>
         <env>MY_UNIX_COMPOSED_VARIABLE=BAR;$MY_FOO</env>

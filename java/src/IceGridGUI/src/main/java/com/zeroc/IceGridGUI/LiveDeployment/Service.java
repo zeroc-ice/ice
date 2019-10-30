@@ -283,7 +283,7 @@ public class Service extends Communicator
     Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
             ServiceDescriptor serviceDescriptor, PropertySetDescriptor serverInstancePSDescriptor)
     {
-        super(parent, serviceName, 3);
+        super(parent, serviceName, 2);
         _resolver = resolver;
 
         _instanceDescriptor = descriptor;
@@ -292,10 +292,8 @@ public class Service extends Communicator
 
         _childrenArray[0] = _metrics;
         _childrenArray[1] = _adapters;
-        _childrenArray[2] = _dbEnvs;
 
         createAdapters();
-        createDbEnvs();
     }
 
     void stopShowIceLogDialog()
@@ -429,24 +427,13 @@ public class Service extends Communicator
         }
     }
 
-    private void createDbEnvs()
-    {
-        for(DbEnvDescriptor p : _serviceDescriptor.dbEnvs)
-        {
-            String dbEnvName = Utils.substitute(p.name, _resolver);
-            insertSortedChild(new DbEnv(this, dbEnvName, _resolver, p), _dbEnvs, null);
-        }
-    }
-
     void rebuild(Service service)
     {
         _adapters = service._adapters;
-        _dbEnvs = service._dbEnvs;
         _metrics = service._metrics;
 
         _childrenArray[0] = _metrics;
         _childrenArray[1] = _adapters;
-        _childrenArray[2] = _dbEnvs;
 
         //
         // Need to re-parent all the children
@@ -454,11 +441,6 @@ public class Service extends Communicator
         for(Adapter adapter: _adapters)
         {
             adapter.reparent(this);
-        }
-
-        for(DbEnv dbEnv: _dbEnvs)
-        {
-            dbEnv.reparent(this);
         }
 
         for(MetricsView metrics: _metrics)
@@ -474,7 +456,6 @@ public class Service extends Communicator
     private final Utils.Resolver _resolver;
 
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
-    private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<>();
 
     private boolean _started = false;
 

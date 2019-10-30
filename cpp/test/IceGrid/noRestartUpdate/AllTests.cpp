@@ -492,30 +492,6 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
         test(serverPid == admin->getServerPid("Server"));
-
-        try
-        {
-            info = admin->getServerInfo("Server");
-            test(info.descriptor);
-            DbEnvDescriptor dbEnv = DbEnvDescriptor();
-            dbEnv.name = "foo";
-            info.descriptor->dbEnvs.push_back(dbEnv);
-            update = empty;
-            update.nodes[0].servers.push_back(info.descriptor);
-            admin->updateApplicationWithoutRestart(update);
-            test(false);
-        }
-        catch(const DeploymentException&)
-        {
-            // Can't update server dbenvs without restart
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            test(false);
-        }
-        test(serverPid == admin->getServerPid("Server"));
-
         cout << "ok" << endl;
 
         cout << "testing icebox server add... " << flush;

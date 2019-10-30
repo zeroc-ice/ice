@@ -142,22 +142,6 @@ descriptorUpdated(const InternalServerDescriptorPtr& lhs, const InternalServerDe
         }
     }
 
-    if(lhs->dbEnvs.size() != rhs->dbEnvs.size())
-    {
-        return true;
-    }
-    else
-    {
-        InternalDbEnvDescriptorSeq::const_iterator q = rhs->dbEnvs.begin();
-        for(InternalDbEnvDescriptorSeq::const_iterator p = lhs->dbEnvs.begin(); p != lhs->dbEnvs.end(); ++p, ++q)
-        {
-            if((*p)->name != (*q)->name || (*p)->properties != (*q)->properties)
-            {
-                return true;
-            }
-        }
-    }
-
     if(!noProps && lhs->properties != rhs->properties)
     {
         return true;
@@ -2222,67 +2206,6 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
                 out << "couldn't remove directory `" << _serverDir << "/" << *p << "':\n" << ex.what();
-            }
-        }
-    }
-
-    //
-    // Update the database environments if necessary and remove the
-    // old ones.
-    //
-    {
-        Ice::StringSeq knownDbEnvs;
-        for(InternalDbEnvDescriptorSeq::const_iterator q = _desc->dbEnvs.begin(); q != _desc->dbEnvs.end(); ++q)
-        {
-            knownDbEnvs.push_back((*q)->name);
-
-            string dbEnvHome = _serverDir + "/dbs/" + (*q)->name;
-            createDirectory(dbEnvHome);
-
-            if(!(*q)->properties.empty())
-            {
-                string file = dbEnvHome + "/DB_CONFIG";
-
-                ofstream configfile(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
-                if(!configfile.good())
-                {
-                    throw runtime_error("couldn't create configuration file `" + file + "'");
-                }
-
-                for(PropertyDescriptorSeq::const_iterator p = (*q)->properties.begin();
-                    p != (*q)->properties.end(); ++p)
-                {
-                    if(!p->name.empty())
-                    {
-                        configfile << p->name;
-                        if(!p->value.empty())
-                        {
-                            configfile << " " << p->value;
-                        }
-                        configfile << endl;
-                    }
-                }
-                configfile.close();
-            }
-        }
-        sort(knownDbEnvs.begin(), knownDbEnvs.end());
-
-        //
-        // Remove old database environments.
-        //
-        Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
-        Ice::StringSeq toDel;
-        set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
-        for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
-        {
-            try
-            {
-                removeRecursive(_serverDir + "/dbs/" + *p);
-            }
-            catch(const exception& ex)
-            {
-                Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "couldn't remove directory `" << _serverDir << "/dbs/" << *p << "':\n" << ex.what();
             }
         }
     }

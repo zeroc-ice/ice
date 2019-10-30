@@ -68,7 +68,6 @@ private:
     bool _isTopLevel;
     bool _inAdapter;
     bool _inReplicaGroup;
-    bool _inDbEnv;
 };
 
 }
@@ -80,8 +79,7 @@ DescriptorHandler::DescriptorHandler(const string& filename, const Ice::Communic
     _currentCommunicator(0),
     _isTopLevel(true),
     _inAdapter(false),
-    _inReplicaGroup(false),
-    _inDbEnv(false)
+    _inReplicaGroup(false)
 {
 }
 
@@ -405,15 +403,6 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
             }
             _currentCommunicator->addAllocatable(attributes);
         }
-        else if(name == "dbenv")
-        {
-            if(!_currentCommunicator)
-            {
-                error("the <dbenv> element can only be a child of a <server> or <service> element");
-            }
-            _currentCommunicator->addDbEnv(attributes);
-            _inDbEnv = true;
-        }
         else if(name == "log")
         {
             if(!_currentCommunicator)
@@ -421,14 +410,6 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
                 error("the <log> element can only be a child of a <server> or <service> element");
             }
             _currentCommunicator->addLog(attributes);
-        }
-        else if(name == "dbproperty")
-        {
-            if(!_inDbEnv)
-            {
-                error("the <dbproperty> element can only be a child of a <dbenv> element");
-            }
-            _currentCommunicator->addDbEnvProperty(attributes);
         }
         else if(name == "description" || name == "option" || name == "env")
         {
@@ -590,11 +571,6 @@ DescriptorHandler::endElement(const string& name, int line, int column)
             {
                 _currentApplication->setReplicaGroupDescription(elementValue());
             }
-            else if(_inDbEnv)
-            {
-                assert(_currentCommunicator);
-                _currentCommunicator->setDbEnvDescription(elementValue());
-            }
             else if(_currentCommunicator)
             {
                 _currentCommunicator->setDescription(elementValue());
@@ -636,10 +612,6 @@ DescriptorHandler::endElement(const string& name, int line, int column)
         {
             _currentApplication->finishReplicaGroup();
             _inReplicaGroup = false;
-        }
-        else if(name == "dbenv")
-        {
-            _inDbEnv = false;
         }
     }
     catch(const exception& ex)

@@ -646,33 +646,4 @@ generated from the section label.
         <property name="[any].AdminPermissionsVerifier" />
     </section>
 
-    <section name="Freeze">
-        <property name="DbEnv.[any].CheckpointPeriod" />
-        <property name="DbEnv.[any].DbHome" />
-        <property name="DbEnv.[any].DbPrivate" />
-        <property name="DbEnv.[any].DbRecoverFatal" />
-        <property name="DbEnv.[any].EncodingVersion" />
-        <property name="DbEnv.[any].LockFile" />
-        <property name="DbEnv.[any].OldLogsAutoDelete" />
-        <property name="DbEnv.[any].PeriodicCheckpointMinSize" />
-        <property name="Evictor.[any].BtreeMinKey" />
-        <property name="Evictor.[any].Checksum" />
-        <property name="Evictor.[any].MaxTxSize" />
-        <property name="Evictor.[any].PageSize" />
-        <property name="Evictor.[any].PopulateEmptyIndices" />
-        <property name="Evictor.[any].RollbackOnUserException" />
-        <property name="Evictor.[any].SavePeriod" />
-        <property name="Evictor.[any].SaveSizeTrigger" />
-        <property name="Evictor.[any].StreamTimeout" />
-        <property name="Map.[any].BtreeMinKey" />
-        <property name="Map.[any].Checksum" />
-        <property name="Map.[any].PageSize" />
-        <property name="Trace.DbEnv" />
-        <property name="Trace.Evictor" />
-        <property name="Trace.Map" />
-        <property name="Trace.Transaction" />
-        <property name="Warn.Deadlocks" />
-        <property name="Warn.Rollback" />
-    </section>
-
 </properties>

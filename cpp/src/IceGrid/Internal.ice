@@ -22,6 +22,8 @@ local exception SynchronizationException
 {
 }
 
+// This class is no longer used. We keep it only for interop with IceGrid 3.7.
+//
 class InternalDbEnvDescriptor
 {
     /** The name of the database environment. */
@@ -111,7 +113,7 @@ class InternalServerDescriptor
     /** The indirect object adapters. */
     InternalAdapterDescriptorSeq adapters;
 
-    /** The database environments. */
+    // Not used, always empty. Kept only for interop with IceGrid 3.7.
     InternalDbEnvDescriptorSeq dbEnvs;
 
     /** The configuration files of the server. */

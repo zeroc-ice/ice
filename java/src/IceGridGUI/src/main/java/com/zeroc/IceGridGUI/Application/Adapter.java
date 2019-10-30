@@ -45,8 +45,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        actions[PASTE] = clipboard != null && (clipboard instanceof AdapterCopy ||
-            clipboard instanceof DbEnvDescriptor);
+        actions[PASTE] = clipboard != null && (clipboard instanceof AdapterCopy);
 
         actions[DELETE] = true;
 

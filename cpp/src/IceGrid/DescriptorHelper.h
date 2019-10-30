@@ -96,7 +96,6 @@ public:
 
 protected:
 
-    void printDbEnv(IceUtilInternal::Output&, const DbEnvDescriptor&) const;
     void printObjectAdapter(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const AdapterDescriptor&) const;
     void printPropertySet(IceUtilInternal::Output&, const PropertySetDescriptor&) const;
     virtual std::string getProperty(const std::string&) const;

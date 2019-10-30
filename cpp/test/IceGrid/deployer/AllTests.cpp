@@ -648,7 +648,6 @@ allTests(Test::TestHelper* helper)
     test(info.descriptor->id == "SimpleServer");
     test(info.descriptor->description == "SERVER NodeVar");
     test(info.descriptor->adapters[0].description == "ADAPTER NodeVar");
-    test(info.descriptor->dbEnvs[0].description == "DBENV NodeVar");
     cout << "ok" << endl;
 
     cout << "testing property sets..." << flush;

@@ -149,12 +149,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     }
 
     @Override
-    public void newDbEnv()
-    {
-        _dbEnvs.newChild();
-    }
-
-    @Override
     public void newService()
     {
         _services.newChild();
@@ -176,11 +170,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             Adapter.AdapterCopy copy  = (Adapter.AdapterCopy)descriptor;
             _adapters.newAdapter(Adapter.copyDescriptor(copy.descriptor),
                                  new java.util.HashMap<>(copy.parentProperties));
-        }
-        else if(descriptor instanceof DbEnvDescriptor)
-        {
-            DbEnvDescriptor d = (DbEnvDescriptor)descriptor;
-            _dbEnvs.newDbEnv(DbEnv.copyDescriptor(d));
         }
         else if(descriptor instanceof ServiceInstanceDescriptor && _services.initialized())
         {
@@ -214,13 +203,9 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         {
             return _adapters.findChildById(other.getId());
         }
-        else if(other instanceof DbEnv)
-        {
-            return _dbEnvs.findChildById(other.getId());
-        }
         else if(other instanceof Service)
         {
-            return _dbEnvs.findChildById(other.getId());
+            return _services.findChildById(other.getId());
         }
         else
         {
@@ -448,7 +433,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             throws UpdateFailedException
         {
             //
-            // Child is an Adapter or DbEnv
+            // Child is an Adapter
             //
             assert _sorted;
 
@@ -579,52 +564,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         }
     }
 
-    class DbEnvs extends ChildList<DbEnvDescriptor>
-    {
-        DbEnvs()
-        {
-            super(true);
-        }
-
-        @Override
-        void newChild()
-        {
-            DbEnvDescriptor descriptor = new DbEnvDescriptor(
-                "NewDbEnv",
-                "",
-                "",
-                new java.util.LinkedList<PropertyDescriptor>());
-
-            newDbEnv(descriptor);
-        }
-
-        //TreeNode createChild(Object descriptor)
-        @Override
-        TreeNode createChild(DbEnvDescriptor descriptor)
-        {
-            //DbEnvDescriptor dd = (DbEnvDescriptor)descriptor;
-            //String name =  Utils.substitute(dd.name, getResolver());
-            //return new DbEnv(Communicator.this, name, dd, false);
-            String name =  Utils.substitute(descriptor.name, getResolver());
-            return new DbEnv(Communicator.this, name, descriptor, false);
-        }
-
-        private void newDbEnv(DbEnvDescriptor descriptor)
-        {
-            descriptor.name = makeNewChildId(descriptor.name);
-            DbEnv dbEnv = new DbEnv(Communicator.this, descriptor.name, descriptor, true);
-            try
-            {
-                addChild(dbEnv, true);
-            }
-            catch(UpdateFailedException e)
-            {
-                assert false;
-            }
-            getRoot().setSelectedNode(dbEnv);
-        }
-    }
-
     class Services extends ChildList<ServiceInstanceDescriptor>
     {
         Services()
@@ -639,7 +578,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                 new ServiceDescriptor(new java.util.LinkedList<AdapterDescriptor>(),
                                       new PropertySetDescriptor(
                                           new String[0], new java.util.LinkedList<PropertyDescriptor>()),
-                                      new java.util.LinkedList<DbEnvDescriptor>(),
                                       new String[0],
                                       "",
                                       "NewService",
@@ -866,11 +804,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         return _adapters;
     }
 
-    DbEnvs getDbEnvs()
-    {
-        return _dbEnvs;
-    }
-
     Services getServices()
     {
         return _services;
@@ -997,7 +930,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     // Children
     //
     protected Adapters _adapters = new Adapters();
-    protected DbEnvs _dbEnvs = new DbEnvs();
     protected Services _services = new Services();
-    protected ChildList[] _childListArray = new ChildList[]{_adapters, _dbEnvs, _services};
+    protected ChildList[] _childListArray = new ChildList[]{_adapters, _services};
 }

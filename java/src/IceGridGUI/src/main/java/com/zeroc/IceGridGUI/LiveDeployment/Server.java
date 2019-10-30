@@ -439,7 +439,7 @@ public class Server extends Communicator
            ServerDescriptor serverDescriptor, ApplicationDescriptor application, ServerState state, int pid,
            boolean enabled)
     {
-        super(parent, serverId, 4);
+        super(parent, serverId, 3);
         _resolver = resolver;
 
         _instanceDescriptor = instanceDescriptor;
@@ -448,13 +448,11 @@ public class Server extends Communicator
 
         _childrenArray[0] = _metrics;
         _childrenArray[1] = _adapters;
-        _childrenArray[2] = _dbEnvs;
-        _childrenArray[3] = _services;
+        _childrenArray[2] = _services;
 
         update(state, pid, enabled, false);
 
         createAdapters();
-        createDbEnvs();
         createServices();
     }
 
@@ -531,13 +529,11 @@ public class Server extends Communicator
 
         _metrics = server._metrics;
         _adapters = server._adapters;
-        _dbEnvs = server._dbEnvs;
         _services = server._services;
 
         _childrenArray[0] = _metrics;
         _childrenArray[1] = _adapters;
-        _childrenArray[2] = _dbEnvs;
-        _childrenArray[3] = _services;
+        _childrenArray[2] = _services;
 
         //
         // Need to re-parent all the children
@@ -545,11 +541,6 @@ public class Server extends Communicator
         for(Adapter adapter: _adapters)
         {
             adapter.reparent(this);
-        }
-
-        for(DbEnv dbEnv: _dbEnvs)
-        {
-            dbEnv.reparent(this);
         }
 
         for(Service service: _services)
@@ -591,8 +582,6 @@ public class Server extends Communicator
 
             _adapters.clear();
             createAdapters();
-            _dbEnvs.clear();
-            createDbEnvs();
             _services.clear();
             _servicePropertySets.clear();
             createServices();
@@ -876,15 +865,6 @@ public class Server extends Communicator
         }
     }
 
-    private void createDbEnvs()
-    {
-        for(DbEnvDescriptor p : _serverDescriptor.dbEnvs)
-        {
-            String dbEnvName = Utils.substitute(p.name, _resolver);
-            insertSortedChild(new DbEnv(this, dbEnvName, _resolver, p), _dbEnvs, null);
-        }
-    }
-
     private void createServices()
     {
         if(_serverDescriptor instanceof IceBoxDescriptor)
@@ -1017,7 +997,6 @@ public class Server extends Communicator
 
     private Utils.Resolver _resolver;
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
-    private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<>();
     private java.util.List<Service> _services = new java.util.LinkedList<>();
 
     private java.util.Set<String> _startedServices = new java.util.HashSet<>();

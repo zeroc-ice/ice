@@ -223,53 +223,6 @@ struct AdapterDescriptor
 
 /**
  *
- * A Freeze database environment descriptor.
- *
- **/
-["cpp:comparable"]
-struct DbEnvDescriptor
-{
-    /**
-     *
-     * The name of the database environment.
-     *
-     **/
-    string name;
-
-    /**
-     *
-     * The description of this database environment.
-     *
-     **/
-    string description;
-
-    /**
-     *
-     * The home of the database environment (i.e., the directory where
-     * the database files will be stored). If empty, the node will
-     * provide a default database directory, otherwise the directory
-     * must exist.
-     *
-     **/
-    string dbHome;
-
-    /**
-     *
-     * The configuration properties of the database environment.
-     *
-     **/
-    PropertyDescriptorSeq properties;
-}
-
-/**
- *
- * A sequence of database environment descriptors.
- *
- **/
-["java:type:java.util.LinkedList<DbEnvDescriptor>"] sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
-
-/**
- *
  * A communicator descriptor.
  *
  **/
@@ -288,13 +241,6 @@ class CommunicatorDescriptor
      *
      **/
     PropertySetDescriptor propertySet;
-
-    /**
-     *
-     * The database environments.
-     *
-     **/
-    DbEnvDescriptorSeq dbEnvs;
 
     /**
      *

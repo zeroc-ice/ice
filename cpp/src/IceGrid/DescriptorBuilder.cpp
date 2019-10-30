@@ -702,64 +702,6 @@ CommunicatorDescriptorBuilder::addAllocatable(const XmlAttributesHelper& attrs)
 }
 
 void
-CommunicatorDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
-{
-    DbEnvDescriptor desc;
-    desc.name = attrs("name");
-
-    DbEnvDescriptorSeq::iterator p;
-    for(p = _descriptor->dbEnvs.begin(); p != _descriptor->dbEnvs.end(); ++p)
-    {
-        //
-        // We are re-opening the dbenv element to define more properties.
-        //
-        if(p->name == desc.name)
-        {
-            break;
-        }
-    }
-
-    if(p != _descriptor->dbEnvs.end())
-    {
-        //
-        // Remove the previously defined dbenv, we'll add it back again when
-        // the dbenv element end tag is reached.
-        //
-        desc = *p;
-        _descriptor->dbEnvs.erase(p);
-    }
-
-    if(desc.dbHome.empty())
-    {
-        desc.dbHome = attrs("home", "");
-    }
-
-    _descriptor->dbEnvs.push_back(desc);
-}
-
-void
-CommunicatorDescriptorBuilder::addDbEnvProperty(const XmlAttributesHelper& attrs)
-{
-    if(!_descriptor->dbEnvs.back().dbHome.empty())
-    {
-        throw invalid_argument("can't add property to the database environment:\n"
-                               "properties are only allowed if the database\n"
-                               "environment home directory is managed by the node");
-    }
-
-    PropertyDescriptor prop;
-    prop.name = attrs("name");
-    prop.value = attrs("value", "");
-    _descriptor->dbEnvs.back().properties.push_back(prop);
-}
-
-void
-CommunicatorDescriptorBuilder::setDbEnvDescription(const string& value)
-{
-    _descriptor->dbEnvs.back().description = value;
-}
-
-void
 CommunicatorDescriptorBuilder::addLog(const XmlAttributesHelper& attrs)
 {
     if(attrs.contains("property"))
@@ -896,12 +838,6 @@ void
 IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& /*attrs*/)
 {
     throw invalid_argument("<adapter> element can't be a child of an <icebox> element");
-}
-
-void
-IceBoxDescriptorBuilder::addDbEnv(const XmlAttributesHelper& /*attrs*/)
-{
-    throw invalid_argument("<dbenv> element can't be a child of an <icebox> element");
 }
 
 void

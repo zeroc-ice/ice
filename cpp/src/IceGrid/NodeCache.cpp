@@ -98,21 +98,6 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
 
         _desc->logs.insert(_desc->logs.end(), desc->logs.begin(), desc->logs.end());
 
-        const string dbsPath = _node->dataDir + "/servers/" + _desc->id + "/dbs/";
-        for(DbEnvDescriptorSeq::const_iterator p = desc->dbEnvs.begin(); p != desc->dbEnvs.end(); ++p)
-        {
-            props.push_back(createProperty("# Database environment " + p->name));
-            if(p->dbHome.empty())
-            {
-                _desc->dbEnvs.push_back(new InternalDbEnvDescriptor(p->name, p->properties));
-                props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", dbsPath + p->name));
-            }
-            else
-            {
-                props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", p->dbHome));
-            }
-        }
-
         //
         // Copy the communicator descriptor properties.
         //
@@ -929,7 +914,6 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
 
     // server->logs: assigned for each communicator (see below)
     // server->adapters: assigned for each communicator (see below)
-    // server->dbEnvs: assigned for each communicator (see below)
     // server->properties: assigned for each communicator (see below)
 
     //
@@ -1041,7 +1025,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
 
     //
     // Now, for each communicator of the descriptor, add the necessary
-    // logs, adapters, db envs and properties to the internal server
+    // logs, adapters and properties to the internal server
     // descriptor.
     //
     forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), iceVersion))(info.descriptor);

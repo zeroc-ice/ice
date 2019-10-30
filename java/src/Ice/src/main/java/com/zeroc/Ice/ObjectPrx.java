@@ -654,8 +654,6 @@ public interface ObjectPrx
      * it first attempts to create a connection.
      *
      * @return The {@link Connection} for this proxy.
-     * @throws CollocationOptimizationException If the proxy uses collocation optimization and denotes a
-     * collocated object.
      *
      * @see Connection
      **/
@@ -684,8 +682,6 @@ public interface ObjectPrx
      *
      * @return The cached {@link Connection} for this proxy (<code>null</code> if the proxy does not have
      * an established connection).
-     * @throws CollocationOptimizationException If the proxy uses collocation optimization and denotes a
-     * collocated object.
      *
      * @see Connection
      **/

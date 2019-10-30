@@ -86,8 +86,7 @@ class ServerTemplate extends Communicator
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] = clipboard != null &&
                 ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                 || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy
-                                     || clipboard instanceof DbEnvDescriptor)));
+                 || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy)));
         }
 
         actions[DELETE] = true;
@@ -97,7 +96,6 @@ class ServerTemplate extends Communicator
             actions[NEW_ADAPTER] = !_services.initialized();
             actions[NEW_SERVICE] = _services.initialized();
             actions[NEW_SERVICE_FROM_TEMPLATE] = _services.initialized();
-            actions[NEW_DBENV] = _dbEnvs.initialized();
         }
 
         return actions;
@@ -118,7 +116,6 @@ class ServerTemplate extends Communicator
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
-            _popup.add(actions.get(NEW_DBENV));
             _popup.add(actions.get(NEW_SERVICE));
             _popup.add(actions.get(NEW_SERVICE_FROM_TEMPLATE));
         }
@@ -278,7 +275,6 @@ class ServerTemplate extends Communicator
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
 
                 _adapters.write(writer, descriptor.propertySet.properties);
-                _dbEnvs.write(writer);
                 writer.writeEndTag("server");
             }
             writer.writeEndTag("server-template");
@@ -296,7 +292,6 @@ class ServerTemplate extends Communicator
         _templateDescriptor = descriptor;
 
         _adapters.clear();
-        _dbEnvs.clear();
         _services.clear();
 
         if(!_ephemeral)
@@ -308,12 +303,6 @@ class ServerTemplate extends Communicator
                 IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 
                 _services.init(iceBoxDescriptor.services);
-
-                assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
-            }
-            else
-            {
-                _dbEnvs.init(_templateDescriptor.descriptor.dbEnvs);
             }
         }
     }

@@ -55,18 +55,6 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_DBENV] = new AbstractAction(popup ? "New Database Environment" : "Database Environment")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(apply(_target))
-                    {
-                        _target.newDbEnv();
-                    }
-                }
-            };
-
         _array[TreeNode.NEW_NODE] = new AbstractAction(popup ? "New Node" : "Node")
             {
                 @Override

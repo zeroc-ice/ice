@@ -58,8 +58,7 @@ class ServiceTemplate extends Communicator
         {
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] = clipboard != null &&
-                (clipboard instanceof Adapter.AdapterCopy
-                 || clipboard instanceof DbEnvDescriptor);
+                (clipboard instanceof Adapter.AdapterCopy);
         }
 
         actions[DELETE] = true;
@@ -68,7 +67,6 @@ class ServiceTemplate extends Communicator
         {
             actions[COPY] = true;
             actions[NEW_ADAPTER] = true;
-            actions[NEW_DBENV] = true;
         }
 
         return actions;
@@ -89,7 +87,6 @@ class ServiceTemplate extends Communicator
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
-            _popup.add(actions.get(NEW_DBENV));
         }
         actions.setTarget(this);
         return _popup;
@@ -152,7 +149,6 @@ class ServiceTemplate extends Communicator
             writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
             writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
             _adapters.write(writer, descriptor.propertySet.properties);
-            _dbEnvs.write(writer);
             writer.writeEndTag("service");
             writer.writeEndTag("service-template");
         }
@@ -164,12 +160,10 @@ class ServiceTemplate extends Communicator
         _templateDescriptor = descriptor;
 
         _adapters.clear();
-        _dbEnvs.clear();
 
         if(!_ephemeral)
         {
             _adapters.init(_templateDescriptor.descriptor.adapters);
-            _dbEnvs.init(_templateDescriptor.descriptor.dbEnvs);
         }
     }
 
