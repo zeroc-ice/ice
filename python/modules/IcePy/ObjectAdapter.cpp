@@ -1697,7 +1697,7 @@ static PyMethodDef AdapterMethods[] =
     { STRCAST("waitForDeactivate"), reinterpret_cast<PyCFunction>(adapterWaitForDeactivate), METH_VARARGS,
         PyDoc_STR(STRCAST("waitForDeactivate() -> None")) },
     { STRCAST("isDeactivated"), reinterpret_cast<PyCFunction>(adapterIsDeactivated), METH_NOARGS,
-        PyDoc_STR(STRCAST("isDeactivatied() -> None")) },
+        PyDoc_STR(STRCAST("isDeactivated() -> None")) },
     { STRCAST("destroy"), reinterpret_cast<PyCFunction>(adapterDestroy), METH_NOARGS,
         PyDoc_STR(STRCAST("destroy() -> None")) },
     { STRCAST("add"), reinterpret_cast<PyCFunction>(adapterAdd), METH_VARARGS,
