@@ -27,7 +27,7 @@ public:
     FILE* preprocess(bool, const std::vector<std::string>&);
     bool close();
 
-    enum Language { CPlusPlus, Java, CSharp, Python, JavaScript, JavaScriptJSON, SliceXML, MATLAB };
+    enum Language { CPlusPlus, Java, CSharp, Python, JavaScript, JavaScriptJSON, SliceXML, MATLAB, Swift };
 
     bool printMakefileDependencies(std::ostream&, Language, const std::vector<std::string>&, const std::string& = "",
                                    const std::string& = "cpp", const std::string& = "");
