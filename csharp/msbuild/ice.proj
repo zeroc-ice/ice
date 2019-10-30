@@ -42,7 +42,7 @@
                  BuildInParallel="true"
                  Condition="'$(OS)' == 'Windows_NT'"/>
 
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="@(SliceCompilers)"
                  BuildInParallel="true"
                  Properties="Platform=$(CppPlatform);Configuration=$(Configuration)"

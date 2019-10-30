@@ -34,7 +34,7 @@
         Restore NuGet packages.
     -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
     <Target Name="RemovePackages">
@@ -67,16 +67,16 @@
             </PropertyGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
             </ItemGroup>
@@ -151,7 +151,7 @@
             </PropertyGroup>
             <!-- Ice for C++98 configurations -->
             <ItemGroup>
-                <DistSolution Include="ice.$(DefaultPlatformToolset).sln">
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
 

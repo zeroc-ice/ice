@@ -20,7 +20,7 @@
              Targets="NuGetRestore"
              BuildInParallel="true"/>
 
-    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
              Targets="$(slice2java)"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
