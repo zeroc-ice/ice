@@ -721,6 +721,18 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             }
             break;
         }
+        case Swift:
+        {
+            //
+            // Change .o[bj] suffix to .swift suffix.
+            //
+            pos = 0;
+            if ((pos = result.find(suffix)) != string::npos)
+            {
+                result.replace(pos, suffix.size() - 1, ".swift");
+            }
+            break;
+        }
         default:
         {
             assert(false);
