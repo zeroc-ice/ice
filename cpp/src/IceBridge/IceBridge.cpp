@@ -114,9 +114,9 @@ private:
               function<void(exception_ptr)>,
               const Current& current);
 
-    shared_ptr<ObjectAdapter> _adapter;
-    shared_ptr<ObjectPrx> _target;
-    shared_ptr<Connection> _incoming;
+    const shared_ptr<ObjectAdapter> _adapter;
+    const shared_ptr<ObjectPrx> _target;
+    const shared_ptr<Connection> _incoming;
 
     std::mutex _lock;
     shared_ptr<Connection> _outgoing;
@@ -230,7 +230,7 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
     //
     // Flush any queued dispatches
     //
-    for(auto& p : _queue)
+    for(const auto& p : _queue)
     {
         auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
         send(_outgoing, inParams, p.response, p.error, p.current);
@@ -261,7 +261,7 @@ BridgeConnection::outgoingException(exception_ptr ex)
     // The client will receive an UnknownLocalException whose reason member contains information
     // about the failure.
     //
-    for(auto& p : _queue)
+    for(const auto& p : _queue)
     {
         p.error(ex);
     }
@@ -303,7 +303,7 @@ BridgeConnection::closed(const shared_ptr<Connection>& con)
     // Even though the connection is already closed, we still need to "complete" the pending dispatches so
     // that the connection's dispatch count is updated correctly.
     //
-    for(auto& p : _queue)
+    for(const auto& p : _queue)
     {
         p.error(_exception);
     }
@@ -336,7 +336,7 @@ BridgeConnection::dispatch(pair<const Byte*, const Byte*> inParams,
     }
     else
     {
-        send(current.con == _incoming ? _outgoing : _incoming, inParams, response, error, current);
+        send(current.con == _incoming ? _outgoing : _incoming, inParams, move(response), move(error), current);
     }
 }
 
@@ -361,14 +361,15 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
             {
                 prx = prx->ice_oneway();
             }
-            prx->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, error,
-                                 [response = move(response)](bool){ response(true, make_pair(nullptr, nullptr)); },
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, move(error),
+                                 [response = move(response)](bool){ response(true, {nullptr, nullptr}); },
                                  current.ctx);
         }
         else
         {
             // Twoway request
-            prx->ice_invokeAsync(current.operation, current.mode, inParams, response, error, nullptr, current.ctx);
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, move(response), move(error),
+                                 nullptr, current.ctx);
         }
     }
     catch(const std::exception&)
@@ -423,7 +424,7 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
             target = target->ice_connectionId(Ice::generateUUID());
 
             bc = make_shared<BridgeConnection>(_adapter, target, current.con);
-            _connections.emplace(make_pair(current.con, bc));
+            _connections.emplace(current.con, bc);
 
             auto self = shared_from_this();
             current.con->setCloseCallback([self](const auto& con) { self->closed(con); });
@@ -485,7 +486,7 @@ BridgeI::outgoingSuccess(shared_ptr<BridgeConnection> bc, shared_ptr<Connection>
     //
     {
         lock_guard<mutex> lg(_lock);
-        _connections.insert(make_pair(outgoing, bc));
+        _connections.emplace(outgoing, bc);
         outgoing->setCloseCallback([self = shared_from_this()](const auto& con) { self->closed(con); });
     }
     bc->outgoingSuccess(move(outgoing));

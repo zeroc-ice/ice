@@ -7,6 +7,7 @@
 #include <Test.h>
 #include <mutex>
 #include <chrono>
+#include <atomic>
 
 using namespace std;
 using namespace std::chrono_literals;
@@ -47,28 +48,6 @@ private:
 
     int _count = 0;
     int _datagramCount = 0;
-};
-
-class Counter
-{
-public:
-
-    void increment()
-    {
-        lock_guard<mutex> lg(_lock);
-        ++_count;
-    }
-
-    int getCount()
-    {
-        lock_guard<mutex> lg(_lock);
-        return _count;
-    }
-
-private:
-
-    std::mutex _lock;
-    int _count = 0;
 };
 
 }
@@ -246,19 +225,19 @@ allTests(Test::TestHelper* helper)
         p->ice_getConnection()->setACM(1, Ice::nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
         auto p2 = cl->ice_connectionId("heartbeat2");
-        Counter counter;
+        atomic_int counter = 0;
         p2->ice_getConnection()->setHeartbeatCallback([&counter](const auto&)
                                                       {
-                                                          counter.increment();
+                                                          counter++;
                                                       });
         p2->enableHeartbeats();
 
         int nRetry = 20;
-        while((p->getHeartbeatCount() < 1 || counter.getCount() < 1) && --nRetry > 0)
+        while((p->getHeartbeatCount() < 1 || counter.load() < 1) && --nRetry > 0)
         {
             this_thread::sleep_for(500ms); // TODO: check sleep time
         }
-        test(p->getHeartbeatCount() > 0 && counter.getCount() > 0);
+        test(p->getHeartbeatCount() > 0 && counter.load() > 0);
     }
     cout << "ok" << endl;
 
