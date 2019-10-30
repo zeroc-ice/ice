@@ -92,7 +92,7 @@ const short iAPEndpointType = 8;
  **/
 const short iAPSEndpointType = 9;
 
-#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
+#if !defined(__SLICE2MATLAB__)
 /**
  *
  * Base class providing access to the endpoint details.

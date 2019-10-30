@@ -6,6 +6,6 @@
     </Target>
 
     <Target Name="SliceCompileClean">
-        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).php')" />
+        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).m')" />
     </Target>
 </Project>

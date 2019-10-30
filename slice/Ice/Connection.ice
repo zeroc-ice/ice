@@ -53,7 +53,7 @@ local enum CompressBatch
     BasedOnProxy
 }
 
-#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
+#if !defined(__SLICE2MATLAB__)
 /**
  *
  * Base class providing access to the connection details.
@@ -211,7 +211,7 @@ local enum ConnectionClose
     GracefullyWithWait
 }
 
-#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
+#if !defined(__SLICE2MATLAB__)
 /**
  *
  * The user-level interface to a connection.

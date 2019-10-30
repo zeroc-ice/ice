@@ -41,8 +41,7 @@ class SliceUnicodePathsTestCase(ClientTestCase):
             ("html", ["index.html"], ""),
             ("java", ["Test/Point.java", "Test/CanvasI.java"], "--impl"),
             ("js", ["Test.js"], ""),
-            ("objc", ["Test.m"], ""),
-            ("php", ["Test.php"], "")]
+            ("objc", ["Test.m"], "")]
 
         try:
             for language, generated, args in tests:

@@ -46,12 +46,6 @@ class Ice(Component):
         envHomeName = None if isinstance(platform, Windows) and not isinstance(mapping, CppMapping) else "ICE_HOME"
         return Component._getInstallDir(self, mapping, current, envHomeName)
 
-    def getPhpExtension(self, mapping, current):
-        if isinstance(platform, Windows):
-            return "php_ice.dll" if current.driver.configs[mapping].buildConfig in ["Debug", "Release"] else "php_ice_nts.dll"
-        else:
-            return "ice.so"
-
     def getNugetPackageVersionFile(self, mapping):
         if isinstance(mapping, CSharpMapping):
             return os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
@@ -241,8 +235,6 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, JavaMapping(), component)
     elif m == "python" or re.match("python-.*", m):
         Mapping.add(m, PythonMapping(), component)
-    elif m == "php" or re.match("php-.*", m):
-        Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
@@ -256,7 +248,6 @@ if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
     if platform.getCompiler() not in ["v141"]:
         Mapping.disable("python")
-        Mapping.disable("php")
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping

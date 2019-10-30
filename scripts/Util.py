@@ -106,9 +106,6 @@ class Component(object):
     def getScriptDir(self):
         return os.path.join(self.getSourceDir(), "scripts", "tests")
 
-    def getPhpExtension(self, mapping, current):
-        raise RuntimeError("must be overriden if component provides php mapping")
-
     def getNugetPackage(self, mapping):
         return "zeroc.{0}.{1}".format(self.__class__.__name__.lower(),
                                       "net" if isinstance(mapping, CSharpMapping) else platform.getPlatformToolset())
@@ -182,9 +179,6 @@ class Component(object):
 
     def getLibDir(self, process, mapping, current):
         return platform._getLibDir(self, process, mapping, current)
-
-    def getPhpIncludePath(self, mapping, current):
-        return "{0}/{1}".format(self.getInstallDir(mapping, current), "php" if self.useBinDist(mapping, current) else "lib")
 
     def _useBinDist(self, mapping, current, envName):
         env = os.environ.get(envName, "").split()
@@ -384,10 +378,6 @@ class Linux(Platform):
 
         buildPlatform = current.driver.configs[mapping].buildPlatform
 
-        # PHP module is always installed in the lib directory for the default build platform
-        if isinstance(mapping, PhpMapping) and buildPlatform == self.getDefaultBuildPlatform():
-            return os.path.join(installDir, "lib")
-
         if self.linuxId in ["centos", "rhel", "fedora"]:
             return os.path.join(installDir, "lib64" if buildPlatform == "x64" else "lib")
         elif self.linuxId in ["ubuntu", "debian"]:
@@ -468,9 +458,6 @@ class Windows(Platform):
         else:
             if isinstance(mapping, CSharpMapping):
                 return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
-            elif isinstance(mapping, PhpMapping):
-                return os.path.join(self.getNugetPackageDir(component, mapping, current),
-                                    "build", "native", "bin", platform, config)
             else:
                 return os.path.join(installDir, "bin", platform, config)
 
@@ -481,9 +468,7 @@ class Windows(Platform):
         else:
             platform = current.driver.configs[mapping].buildPlatform
             config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
-            if isinstance(mapping, PhpMapping):
-                return os.path.join(installDir, "lib", "php-{0}".format(current.config.phpVersion), platform, config)
-            elif component.useBinDist(mapping, current):
+            if component.useBinDist(mapping, current):
                 return os.path.join(installDir, "build", "native", "bin", platform, config)
             else:
                 return os.path.join(installDir, "bin", platform, config)
@@ -623,7 +608,6 @@ class Mapping(object):
             self.xamarin = False
             self.device = ""
             self.avd = ""
-            self.phpVersion = "7.2"
 
             parseOptions(self, options, { "config" : "buildConfig", "platform" : "buildPlatform" })
 
@@ -3654,70 +3638,6 @@ class CppBasedClientMapping(Cpp98BasedMapping):
     def getServerMapping(self, testId=None):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
 
-class PhpMapping(CppBasedClientMapping):
-
-    class Config(CppBasedClientMapping.Config):
-        mappingName = "php"
-        mappingDesc = "PHP"
-
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["php-version="])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("PHP Mapping options:")
-            print("--php-version=[7.2|7.3]    PHP Version used for Windows builds")
-
-
-        def __init__(self, options=[]):
-            CppBasedClientMapping.Config.__init__(self, options)
-            parseOptions(self, options, { "php-version" : "phpVersion" })
-
-    def getCommandLine(self, current, process, exe, args):
-        phpArgs = []
-        php = "php"
-
-        #
-        # On Windows, when using a source distribution use the php executable from
-        # the Nuget PHP dependency.
-        #
-        if isinstance(platform, Windows) and not self.component.useBinDist(self, current):
-            nugetVersions = {
-                "7.2": "7.2.8",
-                "7.3": "7.3.0"
-            }
-            nugetVersion = nugetVersions[current.config.phpVersion]
-            threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]
-            buildPlatform = current.driver.configs[self].buildPlatform
-            buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
-            packageName = "php-{0}-{1}.{2}".format(current.config.phpVersion, "ts" if threadSafe else "nts", nugetVersion)
-            php = os.path.join(self.path, "msbuild", "packages", packageName, "build", "native", "bin",
-                               buildPlatform, buildConfig, "php.exe")
-
-        #
-        # If Ice is not installed in the system directory, specify its location with PHP
-        # configuration arguments.
-        #
-        if isinstance(platform, Windows) and not self.component.useBinDist(self, current) or \
-           platform.getInstallDir() and self.component.getInstallDir(self, current) != platform.getInstallDir():
-            phpArgs += ["-n"] # Do not load any php.ini files
-            phpArgs += ["-d", "extension_dir='{0}'".format(self.component.getLibDir(process, self, current))]
-            phpArgs += ["-d", "extension='{0}'".format(self.component.getPhpExtension(self, current))]
-            phpArgs += ["-d", "include_path='{0}'".format(self.component.getPhpIncludePath(self, current))]
-
-        if hasattr(process, "getPhpArgs"):
-            phpArgs += process.getPhpArgs(current)
-
-        return "{0} {1} -f {2} -- {3} {4}".format(php,
-                                                  " ".join(phpArgs),
-                                                  os.path.join(self.path, "test", "TestHelper.php"),
-                                                  exe,
-                                                  args)
-
-    def _getDefaultSource(self, processType):
-        return { "client" : "Client.php" }[processType]
 
 class MatlabMapping(CppBasedClientMapping):
 

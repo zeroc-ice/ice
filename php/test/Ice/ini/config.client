@@ -1,2 +1,0 @@
-Ice.Trace.Protocol=1
-Hello.Proxy=hello:tcp -h localhost -p 10000

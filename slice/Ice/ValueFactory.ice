@@ -25,7 +25,6 @@
 module Ice
 {
 
-#if !defined(__SLICE2PHP__)
 /**
  *
  * A factory for values. Value factories are used in several
@@ -127,6 +126,5 @@ local interface ValueFactoryManager
      **/
     ["cpp:const", "cpp:noexcept", "swift:noexcept"] ValueFactory find(string id);
 }
-#endif
 
 }

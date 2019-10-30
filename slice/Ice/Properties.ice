@@ -27,8 +27,6 @@
 module Ice
 {
 
-#if !defined(__SLICE2PHP__)
-
 /**
  *
  * A property set used to configure Ice and Ice applications.
@@ -237,7 +235,5 @@ local interface Properties
      **/
     ["cpp:noexcept", "swift:noexcept", "swift:nonnull"] Properties clone();
 }
-
-#endif
 
 }
