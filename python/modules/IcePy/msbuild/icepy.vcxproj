@@ -21,8 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\FileTracker.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Grammar.cpp" />
-    <ClCompile Include="..\..\..\..\cpp98\src\Slice\MD5.cpp" />
-    <ClCompile Include="..\..\..\..\cpp98\src\Slice\MD5I.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Parser.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Preprocessor.cpp" />
     <ClCompile Include="..\..\..\..\cpp98\src\Slice\Python.cpp" />

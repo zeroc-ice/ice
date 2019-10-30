@@ -6,7 +6,6 @@
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
-#include <Slice/MD5.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/FileUtil.h>
 
@@ -14,11 +13,9 @@
 #include <string.h>
 
 #ifdef _WIN32
-#include <direct.h>
-#endif
-
-#ifndef _WIN32
-#include <unistd.h>
+#   include <direct.h>
+#else
+#   include <unistd.h>
 #endif
 
 using namespace std;
