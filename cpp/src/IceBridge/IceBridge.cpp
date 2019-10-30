@@ -457,7 +457,7 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
     //
     // Delegate the invocation to the BridgeConnection object.
     //
-    bc->dispatch(inParams, response, error, current);
+    bc->dispatch(inParams, move(response), move(error), current);
 }
 
 void
