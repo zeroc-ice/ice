@@ -12,9 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -30,7 +27,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX", "swift:module:Ice:MX"]
+["swift:module:Ice:MX"]
 module IceMX
 {
 

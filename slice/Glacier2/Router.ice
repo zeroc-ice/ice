@@ -11,9 +11,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:GLACIER2_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Ice/Router.ice>
@@ -32,7 +29,6 @@
  * security solution that is both non-intrusive and easy to configure.
  *
  **/
-["objc:prefix:GLACIER2"]
 module Glacier2
 {
 

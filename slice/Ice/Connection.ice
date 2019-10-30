@@ -12,9 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
@@ -25,7 +22,6 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
 module Ice
 {
 
@@ -33,7 +29,7 @@ module Ice
  * The batch compression option when flushing queued batch requests.
  *
  **/
-["cpp:scoped", "objc:scoped"]
+["cpp:scoped"]
 local enum CompressBatch
 {
     /**
@@ -192,7 +188,7 @@ local struct ACM
 /**
  * Determines the behavior when manually closing a connection.
  **/
-["cpp:scoped", "objc:scoped"]
+["cpp:scoped"]
 local enum ConnectionClose
 {
     /**

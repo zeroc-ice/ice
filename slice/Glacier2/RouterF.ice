@@ -10,16 +10,12 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:GLACIER2_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:GLACIER2"]
 module Glacier2
 {
 

@@ -12,9 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICESSL_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceSSL"]]
 
 [["cpp:include:IceSSL/Plugin.h"]]
@@ -25,7 +22,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICESSL", "swift:module:Ice:SSL"]
+["swift:module:Ice:SSL"]
 module IceSSL
 {
 

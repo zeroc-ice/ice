@@ -12,20 +12,15 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
 module Ice
 {
 
-["objc:prefix:ICEINSTRUMENTATION"]
 module Instrumentation
 {
 

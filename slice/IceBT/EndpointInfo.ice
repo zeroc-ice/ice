@@ -12,8 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceBT"]]
 
 #include <Ice/Endpoint.ice>
@@ -27,7 +25,7 @@
  * IceBT provides a Bluetooth transport for Ice.
  *
  **/
-["objc:prefix:ICEBT", "swift:module:Ice:SSL"]
+["swift:module:Ice:SSL"]
 module IceBT
 {
 

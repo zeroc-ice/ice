@@ -12,9 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
@@ -44,7 +41,6 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
 module Ice
 {
 
@@ -305,7 +301,7 @@ local interface Communicator
      *
      **/
     ["js:async", "swift:nonnull"] ObjectAdapter
-    createObjectAdapterWithRouter(string name, ["objc:param:router", "swift:nonnull"] Router* rtr);
+    createObjectAdapterWithRouter(string name, ["swift:nonnull"] Router* rtr);
 
 #if !defined(__SLICE2SWIFT__)
     /**
@@ -358,7 +354,7 @@ local interface Communicator
      *
      **/
     ["deprecate:addObjectFactory() is deprecated, use ValueFactoryManager::add() instead."]
-    void addObjectFactory(ObjectFactory factory, ["objc:param:sliceId"] string id);
+    void addObjectFactory(ObjectFactory factory, string id);
 
     /**
      *

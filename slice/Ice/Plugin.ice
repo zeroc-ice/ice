@@ -13,9 +13,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
@@ -25,7 +22,6 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
 module Ice
 {
 

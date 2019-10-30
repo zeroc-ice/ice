@@ -687,40 +687,6 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             }
             break;
         }
-        case Ruby:
-        {
-            //
-            // Change .o[bj] suffix to .rb suffix.
-            //
-            pos = 0;
-            if((pos = result.find(suffix)) != string::npos)
-            {
-                result.replace(pos, suffix.size() - 1, ".rb");
-            }
-            break;
-        }
-        case PHP:
-        {
-            //
-            // Change .o[bj] suffix to .php suffix.
-            //
-            pos = 0;
-            if((pos = result.find(suffix)) != string::npos)
-            {
-                result.replace(pos, suffix.size() - 1, ".php");
-            }
-            break;
-        }
-        case ObjC:
-        {
-            pos = result.find(suffix);
-            if(pos != string::npos)
-            {
-                string name = result.substr(0, pos);
-                result.replace(0, pos + suffix.size() - 1, name + ".h " + name + ".m");
-            }
-            break;
-        }
         default:
         {
             assert(false);

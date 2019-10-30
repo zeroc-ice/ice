@@ -276,7 +276,7 @@ get-shared-library-targets = $(if $2,$(addprefix $2/,\
 # $(call make-shared-module,$1=libname,$2=libdir,$3=version,$4=soversion,$5=objects,$6=dependencies,$7=ldflags,
 #                           $8=platform,$9=config)
 #
-# Defines rules for building the shared module (this is used to build the Python/Ruby/PHP modules)
+# Defines rules for building the shared module (this is used to build the Python modules)
 #
 define make-shared-module
 $2/$1: $5 $(foreach d,$6,$($d_targets))
@@ -947,7 +947,7 @@ comma           := ,
 escape-ldflags   ?= $1
 unescape-ldflags ?= $1
 
-mappings        = cpp cpp98 objective-c python ruby php
+mappings        = cpp cpp98 python
 mappingdir3     = $(if $(filter $(mappings),$(notdir $1)),$1,$(if $1,$(call mappingdir3,$(call dirname,$1))))
 mappingdir2     = $(if $(filter ../%,$1),$(call mappingdir2,$(patsubst ../%,%,$1)),$(call mappingdir3,$1))
 mappingdir      = $(patsubst $(lang_srcdir)/%,%,$(if $(filter-out ../%,$1),$2,$(top_srcdir)/$(call mappingdir2,$1)/$2))

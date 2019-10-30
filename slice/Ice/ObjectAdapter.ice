@@ -12,9 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/CommunicatorF.ice>
@@ -28,7 +25,6 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
 module Ice
 {
 
@@ -200,7 +196,7 @@ local interface ObjectAdapter
      *
      **/
     ["swift:nonnull", "swift:attribute:@discardableResult"]
-    Object* add(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id);
+    Object* add(["swift:nonnull"] Object servant, Identity id);
 
     /**
      *
@@ -225,7 +221,7 @@ local interface ObjectAdapter
      *
      **/
     ["swift:nonnull", "swift:attribute:@discardableResult"]
-    Object* addFacet(["swift:nonnull"] Object servant, ["objc:param:identity"] Identity id, string facet);
+    Object* addFacet(["swift:nonnull"] Object servant, Identity id, string facet);
 
     /**
      *

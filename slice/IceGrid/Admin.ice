@@ -13,9 +13,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICEGRID_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceGrid"]]
 
 #include <Ice/Identity.ice>
@@ -29,7 +26,6 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEGRID"]
 module IceGrid
 {
 

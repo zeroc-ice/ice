@@ -12,8 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceBT"]]
 
 #include <Ice/Connection.ice>
@@ -22,7 +20,6 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEBT"]
 module IceBT
 {
 

@@ -12,16 +12,12 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
 module Ice
 {
 
@@ -111,7 +107,7 @@ local interface ValueFactoryManager
      * an empty string for the default factory.
      *
      **/
-    void add(["swift:nonnull"] ValueFactory factory, ["objc:param:sliceId"] string id);
+    void add(["swift:nonnull"] ValueFactory factory, string id);
 
     /**
      *

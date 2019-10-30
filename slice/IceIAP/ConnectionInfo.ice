@@ -12,11 +12,9 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 #include <Ice/Connection.ice>
 
-["objc:prefix:ICEIAP", "swift:module:Ice:IAP"]
+["swift:module:Ice:IAP"]
 module IceIAP
 {
 

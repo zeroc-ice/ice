@@ -11,8 +11,6 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceLocatorDiscovery"]]
 
 #include <Ice/Locator.ice>

@@ -12,8 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceBT"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
@@ -25,7 +23,6 @@
  * IceBT provides a Bluetooth transport for Ice.
  *
  **/
-["objc:prefix:ICEBT"]
 module IceBT
 {
 

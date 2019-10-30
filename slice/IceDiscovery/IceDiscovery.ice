@@ -11,8 +11,6 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceDiscovery"]]
 
 #include <Ice/Identity.ice>

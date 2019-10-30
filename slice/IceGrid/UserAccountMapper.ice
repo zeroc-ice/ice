@@ -13,16 +13,12 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICEGRID_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceGrid"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEGRID"]
 module IceGrid
 {
 

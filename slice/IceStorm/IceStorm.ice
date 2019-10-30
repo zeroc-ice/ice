@@ -13,9 +13,6 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:ICESTORM_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceStorm"]]
 
 #include <Ice/Identity.ice>
@@ -34,7 +31,6 @@
  * easy as invoking a method on an interface.
  *
  **/
-["objc:prefix:ICESTORM"]
 module IceStorm
 {
 

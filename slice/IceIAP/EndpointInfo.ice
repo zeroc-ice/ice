@@ -12,8 +12,6 @@
 
 [["js:module:ice"]]
 
-[["objc:header-dir:objc"]]
-
 #include <Ice/Endpoint.ice>
 
 /**
@@ -21,7 +19,7 @@
  * IceIAP provides a secure transport for Ice.
  *
  **/
-["objc:prefix:ICEIAP", "swift:module:Ice:IAP"]
+["swift:module:Ice:IAP"]
 module IceIAP
 {
 
