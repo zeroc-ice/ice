@@ -147,6 +147,7 @@
   -->
   <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11'">
     <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
 
