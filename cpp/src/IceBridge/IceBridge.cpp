@@ -27,7 +27,7 @@ struct QueuedDispatch final
                    function<void(bool, const pair<const Byte*, const Byte*>&)>&& r,
                    function<void(exception_ptr)>&& e,
                    const Current& c) :
-        inParams(p.first, p.second), response(r), error(e), current(c)
+        inParams(p.first, p.second), response(move(r)), error(move(e)), current(c)
     {
     }
 
