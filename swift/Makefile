@@ -21,7 +21,7 @@ endef
 ice.xcodeproj: Rakefile | carthage
 	rake icesdistproj
 
-ice-test.xcodeproj: Rakefile carthage
+ice-test.xcodeproj: Rakefile | carthage
 	rake icebdistproj
 
 all:: tests
