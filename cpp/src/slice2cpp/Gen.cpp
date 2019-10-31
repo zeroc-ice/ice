@@ -2994,7 +2994,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         other.sort();
         ids.merge(other);
         ids.unique();
-        StringList::const_iterator firstIter = ids.begin();
+
         StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
         assert(scopedIter != ids.end());
 

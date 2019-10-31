@@ -123,7 +123,14 @@ typedef IceUtil::Handle<FileLock> FileLockPtr;
 // Use streamFilename to construct the filename given to std stream classes
 // like ifstream and ofstream.
 //
+#ifdef _WIN32
 ICE_API std::wstring streamFilename(const std::string&);
+#else
+inline std::string streamFilename(const std::string& filename)
+{
+    return filename;
+}
+#endif
 
 }
 #endif
