@@ -412,6 +412,10 @@ Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
     //
     // Emit forward declarations.
     //
@@ -421,13 +425,13 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         _out << sp << nl << "if " << getDictLookup(p) << ':';
         _out.inc();
 
-        if(!p->isInterface() || p->isLocal())
+        if(!p->isInterface())
         {
             _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.declareValue('" << scoped << "')";
         }
 
         ClassDefPtr def = p->definition();
-        if(!p->isLocal() && (p->isInterface() || (def && def->allOperations().size())))
+        if(p->isInterface() || (def && def->allOperations().size()))
         {
             _out << nl << "_M_" << getAbsolute(p, "_t_", "Disp") << " = IcePy.declareClass('" << scoped << "')";
             _out << nl << "_M_" << getAbsolute(p, "_t_", "Prx") << " = IcePy.declareProxy('" << scoped << "')";
@@ -449,79 +453,49 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
         for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
-            if(!p->isLocal())
+            if((*oli)->hasMarshaledResult())
             {
-                if((*oli)->hasMarshaledResult())
-                {
-                    string name = (*oli)->name();
-                    name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
-                    _out << sp;
-                    _out << nl << "\"\"\"";
-                    _out << nl << "Immediately marshals the result of an invocation of " << (*oli)->name()
-                         << nl << "and returns an object that the servant implementation must return"
-                         << nl << "as its result."
-                         << nl << "Arguments:"
-                         << nl << "result -- The result (or result tuple) of the invocation."
-                         << nl << "current -- The Current object passed to the invocation."
-                         << nl << "Returns: An object containing the marshaled result.";
-                    _out << nl << "\"\"\"";
-                    _out << nl << "@staticmethod";
-                    _out << nl << "def " << name << "MarshaledResult(result, current):";
-                    _out.inc();
-                    _out << nl << "return IcePy.MarshaledResult(result, _M_" << getAbsolute(p) << "._op_"
-                        << (*oli)->name() << ", current.adapter.getCommunicator().getImpl(), current.encoding)";
-                    _out.dec();
-                }
-
-                _out << sp << nl << "def " << fixedOpName << "(self";
-
-                ParamDeclList params = (*oli)->parameters();
-
-                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
-                {
-                    if(!(*pli)->isOutParam())
-                    {
-                        _out << ", " << fixIdent((*pli)->name());
-                    }
-                }
-
-                if(!p->isLocal())
-                {
-                    const string currentParamName = getEscapedParamName(*oli, "current");
-                    _out << ", " << currentParamName << "=None";
-                }
-                _out << "):";
+                string name = (*oli)->name();
+                name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
+                _out << sp;
+                _out << nl << "\"\"\"";
+                _out << nl << "Immediately marshals the result of an invocation of " << (*oli)->name()
+                     << nl << "and returns an object that the servant implementation must return"
+                     << nl << "as its result."
+                     << nl << "Arguments:"
+                     << nl << "result -- The result (or result tuple) of the invocation."
+                     << nl << "current -- The Current object passed to the invocation."
+                     << nl << "Returns: An object containing the marshaled result.";
+                _out << nl << "\"\"\"";
+                _out << nl << "@staticmethod";
+                _out << nl << "def " << name << "MarshaledResult(result, current):";
                 _out.inc();
-
-                writeDocstring(*oli, DocAsyncDispatch, false);
-
-                _out << nl << "raise NotImplementedError(\"servant method '" << fixedOpName << "' not implemented\")";
+                _out << nl << "return IcePy.MarshaledResult(result, _M_" << getAbsolute(p) << "._op_"
+                     << (*oli)->name() << ", current.adapter.getCommunicator().getImpl(), current.encoding)";
                 _out.dec();
             }
-            else
+
+            _out << sp << nl << "def " << fixedOpName << "(self";
+
+            ParamDeclList params = (*oli)->parameters();
+
+            for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
             {
-                _out << sp << nl << "def " << fixedOpName << "(self";
-
-                ParamDeclList params = (*oli)->parameters();
-
-                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
+                if(!(*pli)->isOutParam())
                 {
-                    if(!(*pli)->isOutParam())
-                    {
-                        _out << ", " << fixIdent((*pli)->name());
-                    }
+                    _out << ", " << fixIdent((*pli)->name());
                 }
-                if(!p->isLocal())
-                {
-                    const string currentParamName = getEscapedParamName(*oli, "current");
-                    _out << ", " << currentParamName << "=None";
-                }
-                _out << "):";
-                _out.inc();
-                writeDocstring(*oli, DocDispatch, p->isLocal());
-                _out << nl << "raise NotImplementedError(\"method '" << fixedOpName << "' not implemented\")";
-                _out.dec();
             }
+
+            const string currentParamName = getEscapedParamName(*oli, "current");
+            _out << ", " << currentParamName << "=None";
+            _out << "):";
+            _out.inc();
+
+            writeDocstring(*oli, DocAsyncDispatch, false);
+
+            _out << nl << "raise NotImplementedError(\"servant method '" << fixedOpName << "' not implemented\")";
+            _out.dec();
         }
     }
 }
@@ -529,7 +503,11 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    bool isLocal = p->isLocal();
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
@@ -537,9 +515,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     string type = getAbsolute(p, "_t_");
     string classType = getAbsolute(p, "_t_", "Disp");
     string abs = getAbsolute(p);
-    string className = isLocal || isInterface ? fixIdent(p->name()) : isAbstract ? fixIdent(p->name() + "Disp") : "None";
+    string className = isInterface ? fixIdent(p->name()) : isAbstract ? fixIdent(p->name() + "Disp") : "None";
     string classAbs = isInterface ? getAbsolute(p) : getAbsolute(p, "", "Disp");
-    string valueName = (isInterface && !isLocal) ? "Ice.Value" : fixIdent(p->name());
+    string valueName = isInterface ? "Ice.Value" : fixIdent(p->name());
     string prxAbs = getAbsolute(p, "", "Prx");
     string prxName = fixIdent(p->name() + "Prx");
     string prxType = getAbsolute(p, "_t_", "Prx");
@@ -554,40 +532,19 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define a class type for Value types or local classes.
     //
-    if(isLocal || !isInterface)
+    if(!isInterface)
     {
         _out << sp << nl << "if " << getDictLookup(p) << ':';
         _out.inc();
         _out << nl << "_M_" << abs << " = Ice.createTempClass()";
         _out << nl << "class " << valueName << '(';
-        if(isLocal)
+        if(bases.empty() || bases.front()->isInterface())
         {
-            if(bases.empty())
-            {
-                _out << "object";
-            }
-            else
-            {
-                for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-                {
-                    if(q != bases.begin())
-                    {
-                        _out << ", ";
-                    }
-                    _out << getSymbol(*q);
-                }
-            }
+            _out << "Ice.Value";
         }
         else
         {
-            if(bases.empty() || bases.front()->isInterface())
-            {
-                _out << "Ice.Value";
-            }
-            else
-            {
-                _out << getSymbol(bases.front());
-            }
+            _out << getSymbol(bases.front());
         }
         _out << "):";
 
@@ -604,13 +561,13 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeConstructorParams(allMembers);
         _out << "):";
         _out.inc();
-        if(!base && !p->hasDataMembers() && (!isAbstract || !isLocal))
+        if(!base && !p->hasDataMembers() && !isAbstract)
         {
             _out << nl << "pass";
         }
         else
         {
-            if(isAbstract && isLocal)
+            if(isAbstract)
             {
                 _out << nl << "if Ice.getType(self) == _M_" << abs << ':';
                 _out.inc();
@@ -639,29 +596,22 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out.dec();
 
-        if(!isLocal)
-        {
-            //
-            // ice_id
-            //
-            _out << sp << nl << "def ice_id(self):";
-            _out.inc();
-            _out << nl << "return '" << scoped << "'";
-            _out.dec();
+        //
+        // ice_id
+        //
+        _out << sp << nl << "def ice_id(self):";
+        _out.inc();
+        _out << nl << "return '" << scoped << "'";
+        _out.dec();
 
-            //
-            // ice_staticId
-            //
-            _out << sp << nl << "@staticmethod";
-            _out << nl << "def ice_staticId():";
-            _out.inc();
-            _out << nl << "return '" << scoped << "'";
-            _out.dec();
-        }
-        else
-        {
-            writeOperations(p);
-        }
+        //
+        // ice_staticId
+        //
+        _out << sp << nl << "@staticmethod";
+        _out << nl << "def ice_staticId():";
+        _out.inc();
+        _out << nl << "return '" << scoped << "'";
+        _out.dec();
 
         //
         // __str__
@@ -745,14 +695,14 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _out.dec();
     }
-    else if(!isLocal && isInterface)
+    else if(isInterface)
     {
         _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', Ice.Value, -1, ";
         writeMetaData(p->getMetaData());
         _out << ", False, True, None, ())";
     }
 
-    if(!isLocal && isAbstract)
+    if(isAbstract)
     {
         _out << sp << nl << "if " << getDictLookup(p, "", "Prx") << ':';
         _out.inc();
@@ -1177,6 +1127,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1191,10 +1146,6 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         baseName = getSymbol(base);
         _out << baseName;
-    }
-    else if(p->isLocal())
-    {
-        _out << "Ice.LocalException";
     }
     else
     {
@@ -1324,6 +1275,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1599,6 +1555,11 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     static const string protobuf = "python:protobuf:";
     StringList metaData = p->getMetaData();
     bool isCustom = false;
@@ -1664,6 +1625,11 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
