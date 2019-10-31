@@ -6,12 +6,12 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
         "../Ice/LocalException",
-        "../Ice/ObjectAdapterI",
+        "../Ice/ObjectAdapter",
         "../Ice/Promise",
         "../Ice/UUID"
     ]);
 
-const ObjectAdapterI = Ice.ObjectAdapterI;
+const ObjectAdapter = Ice.ObjectAdapter;
 const _Promise = Ice.Promise;
 
 //
@@ -72,8 +72,7 @@ class ObjectAdapterFactory
         {
             if(name.length === 0)
             {
-                adapter = new ObjectAdapterI(this._instance, this._communicator, this, Ice.generateUUID(), null, true,
-                                             promise);
+                adapter = new ObjectAdapter(this._instance, this._communicator, this, Ice.generateUUID(), null, true, promise);
             }
             else
             {
@@ -81,7 +80,7 @@ class ObjectAdapterFactory
                 {
                     throw new Ice.AlreadyRegisteredException("object adapter", name);
                 }
-                adapter = new ObjectAdapterI(this._instance, this._communicator, this, name, router, false, promise);
+                adapter = new ObjectAdapter(this._instance, this._communicator, this, name, router, false, promise);
                 this._adapterNamesInUse.push(name);
             }
             this._adapters.push(adapter);

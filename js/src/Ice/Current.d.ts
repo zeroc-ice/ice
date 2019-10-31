@@ -60,12 +60,12 @@ export namespace Ice
          * recoverable error.
          */
         static readonly Idempotent:OperationMode;
-        
+
         static valueOf(value:number):OperationMode;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }

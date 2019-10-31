@@ -123,19 +123,6 @@ function MyValueFactory(type:string):Ice.Value
     return null;
 }
 
-class MyObjectFactory implements Ice.ObjectFactory
-{
-
-    create(type:string):Ice.Value
-    {
-        return null;
-    }
-
-    destroy()
-    {
-    }
-}
-
 export class Client extends TestHelper
 {
     async allTests()
@@ -153,8 +140,6 @@ export class Client extends TestHelper
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
-
-        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
         out.write("testing stringToProxy... ");
         let ref = "initial:" + this.getTestEndpoint();
@@ -441,10 +426,6 @@ export class Client extends TestHelper
             test(ex instanceof Test.Inner.Sub.Ex, ex);
             test(ex.reason == "Inner::Sub::Ex");
         }
-        out.writeLine("ok");
-
-        out.write("testing getting ObjectFactory... ");
-        test(communicator.findObjectFactory("TestOF") !== null);
         out.writeLine("ok");
 
         out.write("testing getting ObjectFactory as ValueFactory... ");

@@ -9,7 +9,7 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Debug",
         "../Ice/DefaultsAndOverrides",
         "../Ice/EndpointFactoryManager",
-        "../Ice/ImplicitContextI",
+        "../Ice/ImplicitContext",
         "../Ice/IdentityUtil",
         "../Ice/LocatorManager",
         "../Ice/ObjectAdapterFactory",
@@ -39,7 +39,7 @@ const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;
 const DefaultsAndOverrides = Ice.DefaultsAndOverrides;
 const EndpointFactoryManager = Ice.EndpointFactoryManager;
-const ImplicitContextI = Ice.ImplicitContextI;
+const ImplicitContext = Ice.ImplicitContext;
 const LocatorManager = Ice.LocatorManager;
 const ObjectAdapterFactory = Ice.ObjectAdapterFactory;
 const ValueFactoryManagerI = Ice.ValueFactoryManagerI;
@@ -362,7 +362,7 @@ class Instance
             }
 
             this._implicitContext =
-                ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
+                ImplicitContext.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
 
             this._routerManager = new RouterManager();
 
@@ -569,32 +569,6 @@ class Instance
                 promise.reject(ex);
             });
         return promise;
-    }
-
-    addObjectFactory(factory, id)
-    {
-        //
-        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
-        // with the value factory manager. This may raise AlreadyRegisteredException.
-        //
-        this._initData.valueFactoryManager.add(typeId => factory.create(typeId), id);
-
-        if(this._objectFactoryMap === null)
-        {
-            this._objectFactoryMap = new Map();
-        }
-
-        this._objectFactoryMap.set(id, factory);
-    }
-
-    findObjectFactory(id)
-    {
-        let factory = null;
-        if(this._objectFactoryMap !== null)
-        {
-            factory = this._objectFactoryMap.get(id);
-        }
-        return factory !== undefined ? factory : null;
     }
 }
 

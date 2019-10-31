@@ -2,39 +2,145 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-/* eslint-disable */
-/* jshint ignore: start */
+const Ice = require("../Ice/ModuleRegistry").Ice;
+Ice._ModuleRegistry.require(module, ["../Ice/LocalException", "../Ice/Current"]);
 
-/* slice2js browser-bundle-skip */
-(function(module, require, exports)
+const Context = Ice.Context;
+const InitializationException = Ice.InitializationException;
+
+//
+// The base class for all ImplicitContext implementations
+//
+class ImplicitContext
 {
-/* slice2js browser-bundle-skip-end */
-/* slice2js browser-bundle-skip */
-    const _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
-    const Ice = _ModuleRegistry.require(module,
-    [
-        "../Ice/Object",
-        "../Ice/Value",
-        "../Ice/ObjectPrx",
-        "../Ice/Long",
-        "../Ice/HashMap",
-        "../Ice/HashUtil",
-        "../Ice/ArrayUtil",
-        "../Ice/StreamHelpers",
-        "../Ice/LocalException",
-        "../Ice/Current"
-    ]).Ice;
+    constructor()
+    {
+        this._context = new Context();
+    }
 
-    const Slice = Ice.Slice;
-/* slice2js browser-bundle-skip-end */
-/* slice2js browser-bundle-skip */
-    exports.Ice = Ice;
-/* slice2js browser-bundle-skip-end */
-/* slice2js browser-bundle-skip */
+    getContext()
+    {
+        return new Context(this._context);
+    }
+
+    setContext(context)
+    {
+        if(context !== null && context.size > 0)
+        {
+            this._context = new Context(context);
+        }
+        else
+        {
+            this._context.clear();
+        }
+    }
+
+    containsKey(key)
+    {
+        if(key === null)
+        {
+            key = "";
+        }
+
+        return this._context.has(key);
+    }
+
+    get(key)
+    {
+        if(key === null)
+        {
+            key = "";
+        }
+
+        let val = this._context.get(key);
+        if(val === null)
+        {
+            val = "";
+        }
+
+        return val;
+    }
+
+    put(key, value)
+    {
+        if(key === null)
+        {
+            key = "";
+        }
+        if(value === null)
+        {
+            value = "";
+        }
+
+        let oldVal = this._context.get(key);
+        if(oldVal === null)
+        {
+            oldVal = "";
+        }
+
+        this._context.set(key, value);
+
+        return oldVal;
+    }
+
+    remove(key)
+    {
+        if(key === null)
+        {
+            key = "";
+        }
+
+        let val = this._context.get(key);
+        this._context.delete(key);
+
+        if(val === null)
+        {
+            val = "";
+        }
+        return val;
+    }
+
+    write(prxContext, os)
+    {
+        if(prxContext.size === 0)
+        {
+            Ice.ContextHelper.write(os, this._context);
+        }
+        else
+        {
+            let ctx = null;
+            if(this._context.size === 0)
+            {
+                ctx = prxContext;
+            }
+            else
+            {
+                ctx = new Context(this._context);
+                for(const [key, value] of prxContext)
+                {
+                    ctx.set(key, value);
+                }
+            }
+            Ice.ContextHelper.write(os, ctx);
+        }
+    }
+
+    static create(kind)
+    {
+        if(kind.length === 0 || kind === "None")
+        {
+            return null;
+        }
+        else if(kind === "Shared")
+        {
+            return new ImplicitContext();
+        }
+        else
+        {
+            throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
+        }
+    }
 }
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require :
- (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports :
- (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));
-/* slice2js browser-bundle-skip-end */
+
+Ice.ImplicitContext = ImplicitContext;
+module.exports.Ice = Ice;
