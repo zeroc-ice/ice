@@ -2,6 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+// COMPILERFIX: codecvt_utf8_utf16 is deprecated in C++17
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
+
 #include <Ice/LocalException.h>
 #include <iostream>
 #include <string>
@@ -685,7 +688,7 @@ string
 IceMatlab::idToClass(const string& id)
 {
     auto ids = splitScopedName(id);
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    transform(ids.begin(), ids.end(), ids.begin(), [](const auto& id) -> auto { return lookupKwd(id); });
     stringstream result;
     for(auto i = ids.begin(); i != ids.end(); ++i)
     {
