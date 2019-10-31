@@ -6,7 +6,6 @@
 #define ICEMX_METRICSOBSERVER_I_H
 
 #include <IceUtil/StopWatch.h>
-#include <IceUtil/Atomic.h>
 
 #include <Ice/Instrumentation.h>
 #include <Ice/Endpoint.h>
@@ -657,7 +656,7 @@ private:
     // TODO: Replace by std::atomic<bool> when it becomes widely
     // available.
     //
-    IceUtilInternal::Atomic _enabled;
+    std::atomic<int> _enabled;
     UpdaterPtr _updater;
 };
 

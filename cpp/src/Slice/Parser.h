@@ -42,7 +42,7 @@ private:
     const std::string _reason;
 };
 
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32)
 
 const IceUtil::Int64 Int32Max =  0x7fffffffi64;
 const IceUtil::Int64 Int32Min = -Int32Max - 1i64;

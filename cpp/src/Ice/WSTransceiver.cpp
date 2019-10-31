@@ -17,12 +17,7 @@
 #include <IceUtil/StringUtil.h>
 
 // Python 2.7 under Windows.
-#if _MSC_VER == 1500
-typedef unsigned short uint16_t;
-#else
 #include <stdint.h>
-#endif
-
 #include <climits>
 
 using namespace std;

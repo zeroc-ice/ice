@@ -289,19 +289,13 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
 
-#ifdef __MINGW32__
-    if(::LockFile(_fd, 0, 0, 0, 0) == 0)
-    {
-        throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
-    }
-#else
     OVERLAPPED overlaped;
     overlaped.Internal = 0;
     overlaped.InternalHigh = 0;
     overlaped.Offset = 0;
     overlaped.OffsetHigh = 0;
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#if defined(_MSC_VER)
     overlaped.hEvent = nullptr;
 #else
     overlaped.hEvent = 0;
@@ -312,7 +306,6 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
         ::CloseHandle(_fd);
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
-#endif
     //
     // In Windows implementation we don't write the process pid to the file, as it is
     // not possible to read the file from other process while it is locked here.
@@ -326,13 +319,11 @@ IceUtilInternal::FileLock::~FileLock()
     unlink(_path);
 }
 
-#ifndef __MINGW32__
 wstring
 IceUtilInternal::streamFilename(const string& filename)
 {
     return stringToWstring(filename, IceUtil::getProcessStringConverter());
 }
-#endif
 
 #else
 

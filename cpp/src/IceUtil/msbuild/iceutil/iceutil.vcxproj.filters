@@ -68,12 +68,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Atomic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>

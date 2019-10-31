@@ -41,7 +41,7 @@ namespace IceInternal
 {
 
 // TODO: fix this warning
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#if defined(_MSC_VER)
 #   pragma warning(push)
 #   pragma warning(disable:4239)
 #endif
@@ -119,7 +119,7 @@ private:
     const ResponseHandlerPtr _responseHandlerCopy;
 };
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#if defined(_MSC_VER)
 #   pragma warning(pop)
 #endif
 

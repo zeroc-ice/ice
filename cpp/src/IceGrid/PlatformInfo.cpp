@@ -253,11 +253,11 @@ PlatformInfo::PlatformInfo(const string& prefix,
 //
 // GetVersionEx deprecated in Windows 8.1
 //
-#  if defined(_MSC_VER) && _MSC_VER >= 1800
+#  if defined(_MSC_VER)
 #    pragma warning (disable : 4996)
 #  endif
     GetVersionEx(&osInfo);
-#  if defined(_MSC_VER) && _MSC_VER >= 1800
+#  if defined(_MSC_VER)
 #    pragma warning (default : 4996)
 #  endif
 

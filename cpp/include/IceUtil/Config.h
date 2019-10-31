@@ -108,7 +108,7 @@
 //
 #if (ICE_CPLUSPLUS >= 201103) || \
     ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1900))
+    (defined(_MSC_VER))
 #   define ICE_CPP11_COMPILER
 #endif
 
@@ -133,18 +133,10 @@
 // Does the C++ compiler library provide std::codecvt_utf8 and
 // std::codecvt_utf8_utf16?
 //
-#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || \
-    defined(__clang__)                        || \
-    (defined(ICE_CPP11_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5))
+#if (defined(_MSC_VER) || \
+    defined(__clang__) || \
+     (defined(ICE_CPP11_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5)))
 #define ICE_HAS_CODECVT_UTF8
-#endif
-
-//
-// Support for thread-safe function local static initialization
-// (a.k.a. "magic statics")
-//
-#if defined(ICE_CPP11_MAPPING) || defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
-#   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
 #endif
 
 //
@@ -157,12 +149,9 @@
 //  With Visual Studio, we can import/export member functions without importing/
 //  exporting the whole class
 #   define ICE_MEMBER_IMPORT_EXPORT
-#elif (defined(__GNUC__) || defined(__clang__) || defined(__IBMCPP__)) && !defined(__ibmxl__)
+#elif defined(__GNUC__) || defined(__clang__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
 #   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
-#elif defined(__SUNPRO_CC)
-#   define ICE_DECLSPEC_EXPORT __global
-#   define ICE_DECLSPEC_IMPORT /**/
 #else
 #   define ICE_DECLSPEC_EXPORT /**/
 #   define ICE_DECLSPEC_IMPORT /**/
@@ -174,14 +163,6 @@
 #else
 #   define ICE_CLASS(API) API
 #   define ICE_MEMBER(API) /**/
-#endif
-
-// With IBM xlC, the visibility attribute must be at the end of the
-// declaration of global variables.
-#if defined(__IBMCPP__) && !defined(ICE_STATIC_LIBS)
-#   define ICE_GLOBAL_VAR_SUFFIX __attribute__((visibility ("default")))
-#else
-#   define ICE_GLOBAL_VAR_SUFFIX /**/
 #endif
 
 //
@@ -257,11 +238,6 @@
 #if defined(_AIX) && defined(_LARGE_FILES)
     // defines macros such as open that we want to use consistently everywhere
 #   include <fcntl.h>
-#endif
-
-#ifdef __IBMCPP__
-    // TODO: better fix for this warning
-#   pragma report(disable, "1540-0198") // private inheritance without private keyword
 #endif
 
 //

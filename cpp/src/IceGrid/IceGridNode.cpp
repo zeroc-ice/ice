@@ -31,12 +31,7 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace IceGrid;
 
-// Work-around for anonymous namspace bug in xlclang++
-#ifdef __ibmxl__
-namespace IceGridNodeNamespace
-#else
 namespace
-#endif
 {
 
 class ProcessI : public Process
@@ -113,10 +108,6 @@ setNoIndexingAttribute(const string& path)
 #endif
 
 }
-
-#ifdef __ibmxl__
-using namespace IceGridNodeNamespace;
-#endif
 
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com,
                                        const ActivatorPtr& activator,

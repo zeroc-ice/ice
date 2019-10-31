@@ -175,7 +175,7 @@ Glacier2::Request::queued()
 {
     if(!_proxy->ice_isTwoway())
     {
-#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+#if defined(_MSC_VER)
         _amdCB->ice_response(true, pair<const Byte*, const Byte*>(static_cast<const Byte*>(nullptr),
                                                                   static_cast<const Byte*>(nullptr)));
 #else

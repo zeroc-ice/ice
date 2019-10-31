@@ -133,7 +133,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     lib += "++11";
 #  endif
 
-#   if defined(_DEBUG) && !defined(__MINGW32__)
+#   if defined(_DEBUG)
     lib += 'd';
 #   endif
 

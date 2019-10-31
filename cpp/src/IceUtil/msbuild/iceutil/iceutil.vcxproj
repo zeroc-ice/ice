@@ -112,7 +112,6 @@
     <ClCompile Include="..\..\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Atomic.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />

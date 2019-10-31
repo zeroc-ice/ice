@@ -459,12 +459,6 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
             }
             throw PluginInitializationException(__FILE__, __LINE__, os.str());
         }
-
-#ifdef __IBMCPP__
-    // xlC warns when casting a void* to function pointer
-#   pragma report(disable, "1540-0216")
-#endif
-
         factory = reinterpret_cast<PluginFactory>(sym);
     }
 

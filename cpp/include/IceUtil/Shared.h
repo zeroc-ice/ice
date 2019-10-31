@@ -6,7 +6,7 @@
 #define ICE_UTIL_SHARED_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Atomic.h>
+#include <atomic>
 
 //
 // Base classes for reference counted types. The IceUtil::Handle
@@ -118,7 +118,7 @@ public:
 
 protected:
 
-    IceUtilInternal::Atomic _ref;
+    std::atomic<int> _ref;
     unsigned char _flags;
 };
 

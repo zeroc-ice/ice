@@ -33,9 +33,6 @@
 #if defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
-#   ifdef __MINGW32__
-#       include <wincrypt.h>
-#   endif
 #   include <iphlpapi.h>
 #   include <Mswsock.h>
 #   include <mstcpip.h>
@@ -58,20 +55,6 @@
 #   ifndef SIO_LOOPBACK_FAST_PATH
 #       define SIO_LOOPBACK_FAST_PATH _WSAIOW(IOC_VENDOR,16)
 #   endif
-#endif
-
-#if defined(__MINGW32__)
-//
-// Work-around for missing definitions in MinGW Windows headers
-//
-#   ifndef IPV6_V6ONLY
-#       define IPV6_V6ONLY 27
-#   endif
-
-extern "C"
-{
-    WINSOCK_API_LINKAGE int WSAAPI inet_pton(INT, PCTSTR, PVOID);
-}
 #endif
 
 using namespace std;

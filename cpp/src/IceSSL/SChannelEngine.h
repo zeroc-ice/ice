@@ -26,46 +26,6 @@
 #  include <schannel.h>
 #  undef SECURITY_WIN32
 
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
-
-//
-// Add some definitions missing from MinGW headers.
-//
-
-#   ifndef CERT_TRUST_IS_EXPLICIT_DISTRUST
-#      define CERT_TRUST_IS_EXPLICIT_DISTRUST 0x04000000
-#   endif
-
-#   ifndef CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT
-#      define CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT 0x08000000
-#   endif
-
-#   ifndef SECBUFFER_ALERT
-#      define SECBUFFER_ALERT 17
-#   endif
-
-#   ifndef SCH_SEND_ROOT_CERT
-#      define SCH_SEND_ROOT_CERT 0x00040000
-#   endif
-
-#   ifndef SP_PROT_TLS1_1_SERVER
-#      define SP_PROT_TLS1_1_SERVER 0x00000100
-#   endif
-
-#   ifndef SP_PROT_TLS1_1_CLIENT
-#      define SP_PROT_TLS1_1_CLIENT 0x00000200
-#   endif
-
-#   ifndef SP_PROT_TLS1_2_SERVER
-#      define SP_PROT_TLS1_2_SERVER 0x00000400
-#   endif
-
-#   ifndef SP_PROT_TLS1_2_CLIENT
-#      define SP_PROT_TLS1_2_CLIENT 0x00000800
-#   endif
-
-#endif
-
 namespace IceSSL
 {
 

@@ -46,7 +46,6 @@
 #include <Ice/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/Atomic.h>
 
 #include <stdio.h>
 #include <list>
@@ -217,7 +216,7 @@ private:
     // TODO: Replace by std::atomic<bool> when it becomes widely
     // available.
     //
-    IceUtilInternal::Atomic _hasObserver;
+    std::atomic<int> _hasObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
 

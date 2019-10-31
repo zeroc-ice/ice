@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#if defined(_MSC_VER) && _MSC_VER >= 1700
+#if defined(_MSC_VER)
 //
 // DbgHelp.dll on Windows XP does not contain Unicode functions, so we
 // "switch on" Unicode only with VS2012 and up
@@ -43,7 +43,7 @@
 #       endif
 #   endif
 
-#   if !defined(_AIX) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__) && !defined(ICE_STATIC_LIBS)
+#   if !defined(_AIX) && !defined(__sun) && !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
 #       include <execinfo.h>
 #       include <cxxabi.h>
 #       include <stdint.h>
@@ -54,15 +54,11 @@
 //
 // The Slice compilers don't retrieve the exception stack traces so we don't need the DbgHelp calls.
 //
-#if defined(_WIN32) && !defined(__MINGW32__) && !defined(ICE_BUILDING_SLICE_COMPILERS)
+#if defined(_WIN32) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #   define ICE_DBGHELP
-#   if defined(_MSC_VER) && (_MSC_VER >= 1700)
-#       define DBGHELP_TRANSLATE_TCHAR
-#       include <IceUtil/StringConverter.h>
-#       if _MSC_VER >= 1900
-#           pragma warning(disable:4091) // VS 2015 RC issues this warning for code in DbgHelp.h
-#       endif
-#   endif
+#   define DBGHELP_TRANSLATE_TCHAR
+#   include <IceUtil/StringConverter.h>
+#   pragma warning(disable:4091) // VS 2015 RC issues this warning for code in DbgHelp.h
 #   include <DbgHelp.h>
 #   include <tchar.h>
 #endif
@@ -391,7 +387,7 @@ getStackTrace(const vector<void*>& stackFrames)
     }
     lock.release();
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#if defined(_MSC_VER)
 #   if defined(DBGHELP_TRANSLATE_TCHAR)
     static_assert(sizeof(TCHAR) == sizeof(wchar_t), "Bad TCHAR - should be wchar_t");
 #   else

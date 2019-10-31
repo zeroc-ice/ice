@@ -10,11 +10,7 @@
 #   pragma warning(disable:4250) // ... : inherits ... via dominance
 #   pragma warning(disable:4251) // class ... needs to have dll-interface to be used by clients of class ...
 #   pragma warning(disable:4512) //  ... assignment operator could not be generated
-
-#   if _MSC_VER >= 1900
-#      pragma warning(disable:4275) // non dll-interface class ... used as base for dll-interface class ...
-#   endif
-
+#   pragma warning(disable:4275) // non dll-interface class ... used as base for dll-interface class ...
 #elif defined(__clang__)
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wredundant-decls" // expected when using forward Slice declarations

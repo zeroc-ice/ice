@@ -122,13 +122,7 @@ Client::run(int, char*[])
     {
         filename += "release";
 #if defined(_MSC_VER)
-#   if(_MSC_VER == 1700)
-        filename += "-vc110";
-#   elif(_MSC_VER == 1800)
-        filename += "-vc120";
-#   elif(_MSC_VER == 1900)
-        filename += "-vc140";
-#    elif(_MSC_VER >= 1910)
+#   if(_MSC_VER >= 1910)
         filename += "-vc141";
 #   endif
 #elif defined(__apple_build_version__)
