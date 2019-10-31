@@ -5,74 +5,49 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 #include <Test.h>
+#include <mutex>
+#include <chrono>
+#include <atomic>
 
 using namespace std;
+using namespace std::chrono_literals;
 
 namespace
 {
 
-class CallbackI : public Test::Callback
+class CallbackI final : public Test::Callback
 {
 public:
 
-    CallbackI() : _count(0), _datagramCount(0)
-    {
-    }
-
-    virtual void
-    ping(const Ice::Current&)
+    void
+    ping(const Ice::Current&) override
     {
         ++_count;
     }
 
-    virtual int
-    getCount(const Ice::Current&)
+    int
+    getCount(const Ice::Current&) override
     {
         return _count;
     }
 
-    virtual void
-    datagram(const Ice::Current& c)
+    void
+    datagram(const Ice::Current& c) override
     {
         test(c.con->getEndpoint()->getInfo()->datagram());
         ++_datagramCount;
     }
 
-    virtual int
-    getDatagramCount(const Ice::Current&)
+    int
+    getDatagramCount(const Ice::Current&) override
     {
         return _datagramCount;
     }
 
 private:
 
-    int _count;
-    int _datagramCount;
-};
-
-class HeartbeatCallbackI : public Ice::HeartbeatCallback, private IceUtil::Mutex
-{
-public:
-
-    HeartbeatCallbackI() : _count(0)
-    {
-    }
-
-    virtual void heartbeat(const Ice::ConnectionPtr&)
-    {
-        Lock sync(*this);
-        ++_count;
-    }
-
-    int getCount() const
-    {
-        Lock sync(*this);
-        return _count;
-    }
-
-private:
-
-    int _count;
+    int _count = 0;
+    int _datagramCount = 0;
 };
 
 }
@@ -80,12 +55,12 @@ private:
 void
 allTests(Test::TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
+    auto communicator = helper->communicator();
     cout << "testing connection to bridge... " << flush;
-    Ice::ObjectPrx prx = communicator->stringToProxy("test:" + helper->getTestEndpoint(1) + ":" +
-                                                      helper->getTestEndpoint(1, "udp"));
+    auto prx = communicator->stringToProxy("test:" + helper->getTestEndpoint(1) + ":" +
+                                           helper->getTestEndpoint(1, "udp"));
     test(prx);
-    Test::MyClassPrx cl = Ice::checkedCast<Test::MyClassPrx>(prx);
+    auto cl = Ice::checkedCast<Test::MyClassPrx>(prx);
     cl->ice_ping();
     cout << "ok" << endl;
 
@@ -98,7 +73,7 @@ allTests(Test::TestHelper* helper)
         int nRetry = 20;
         while(cl->getDatagramCount() < 10 && --nRetry > 0)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+            this_thread::sleep_for(50ms);
         }
         test(cl->getDatagramCount() >= 10);
     }
@@ -106,7 +81,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing connection close... " << flush;
     {
-        Test::MyClassPrx clc =
+        auto clc =
             Ice::checkedCast<Test::MyClassPrx>(cl->ice_getConnection()->createProxy(cl->ice_getIdentity()));
         clc->ice_ping();
         clc->closeConnection(false);
@@ -130,7 +105,7 @@ allTests(Test::TestHelper* helper)
                 // of the connection close.
                 test(ex.unknown.find("CloseConnectionException") != string::npos);
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+            this_thread::sleep_for(1ms);
         }
         try
         {
@@ -149,16 +124,16 @@ allTests(Test::TestHelper* helper)
         int nRetry = 20;
         while(cl->getConnectionCount() != 2 && --nRetry > 0)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+            this_thread::sleep_for(50ms);
         }
         test(cl->getConnectionCount() == 2);
         test(cl->ice_connectionId("other")->getConnectionInfo() != cl->getConnectionInfo());
         test(cl->getConnectionCount() == 3);
-        cl->ice_connectionId("other")->ice_getConnection()->close(Ice::ConnectionCloseGracefully);
+        cl->ice_connectionId("other")->ice_getConnection()->close(Ice::ConnectionClose::Gracefully);
         nRetry = 20;
         while(cl->getConnectionCount() != 2 && --nRetry > 0)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+            this_thread::sleep_for(50ms);
         }
         test(cl->getConnectionCount() == 2);
     }
@@ -174,10 +149,10 @@ allTests(Test::TestHelper* helper)
         {
             ostringstream os;
             os << i;
-            Test::MyClassPrx p = cl->ice_connectionId(os.str());
+            auto p = cl->ice_connectionId(os.str());
             for(int j = 0; j < 20; ++j)
             {
-                p->begin_incCounter(++counter);
+                p->incCounterAsync(++counter, nullptr);
             }
             cl->waitCounter(counter);
             p->closeConnection(false);
@@ -186,10 +161,10 @@ allTests(Test::TestHelper* helper)
         {
             ostringstream os;
             os << i;
-            Test::MyClassPrx p = cl->ice_connectionId(os.str())->ice_oneway();
+            auto p = cl->ice_connectionId(os.str())->ice_oneway();
             for(int j = 0; j < 20; ++j)
             {
-                p->begin_incCounter(++counter);
+                p->incCounterAsync(++counter, nullptr);
             }
             cl->waitCounter(counter);
             p->closeConnection(false);
@@ -197,10 +172,10 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+    auto adapter = communicator->createObjectAdapter("");
     Ice::Identity id;
     id.name = "callback";
-    adapter->add(new CallbackI(), id);
+    adapter->add(make_shared<CallbackI>(), id);
 
     cout << "testing bi-dir callbacks... " << flush;
     {
@@ -216,7 +191,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing datagram bi-dir callbacks... " << flush;
     {
-        Test::MyClassPrx p = cl->ice_datagram();
+        auto p = cl->ice_datagram();
         p->ice_getConnection()->setAdapter(adapter);
         for(int i = 0; i < 20; i++)
         {
@@ -225,7 +200,7 @@ allTests(Test::TestHelper* helper)
         int nRetry = 20;
         while(cl->getCallbackDatagramCount() < 10 && --nRetry > 0)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+            this_thread::sleep_for(50ms);
         }
         test(cl->getCallbackDatagramCount() >= 10);
     }
@@ -233,11 +208,11 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing router... " << flush;
     {
-        Ice::ObjectPrx base = communicator->stringToProxy("Ice/RouterFinder:" + helper->getTestEndpoint(1));
-        Ice::RouterFinderPrx finder = Ice::checkedCast<Ice::RouterFinderPrx>(base);
-        Ice::RouterPrx router = finder->getRouter();
+        auto base = communicator->stringToProxy("Ice/RouterFinder:" + helper->getTestEndpoint(1));
+        auto finder = Ice::checkedCast<Ice::RouterFinderPrx>(base);
+        auto router = finder->getRouter();
         base = communicator->stringToProxy("test")->ice_router(router);
-        Test::MyClassPrx p = Ice::checkedCast<Test::MyClassPrx>(base);
+        auto p = Ice::checkedCast<Test::MyClassPrx>(base);
         p->ice_ping();
     }
     cout << "ok" << endl;
@@ -246,20 +221,23 @@ allTests(Test::TestHelper* helper)
     {
         test(cl->getHeartbeatCount() == 0); // No heartbeats enabled by default
 
-        Test::MyClassPrx p = cl->ice_connectionId("heartbeat");
-        p->ice_getConnection()->setACM(1, IceUtil::None, Ice::HeartbeatAlways);
+        auto p = cl->ice_connectionId("heartbeat");
+        p->ice_getConnection()->setACM(1, Ice::nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
-        Test::MyClassPrx p2 = cl->ice_connectionId("heartbeat2");
-        HeartbeatCallbackI* heartbeat = new HeartbeatCallbackI();
-        p2->ice_getConnection()->setHeartbeatCallback(heartbeat);
+        auto p2 = cl->ice_connectionId("heartbeat2");
+        atomic_int counter = 0;
+        p2->ice_getConnection()->setHeartbeatCallback([&counter](const auto&)
+                                                      {
+                                                          counter++;
+                                                      });
         p2->enableHeartbeats();
 
         int nRetry = 20;
-        while((p->getHeartbeatCount() < 1 || heartbeat->getCount() < 1) && --nRetry > 0)
+        while((p->getHeartbeatCount() < 1 || counter.load() < 1) && --nRetry > 0)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(500ms); // TODO: check sleep time
         }
-        test(p->getHeartbeatCount() > 0 && heartbeat->getCount() > 0);
+        test(p->getHeartbeatCount() > 0 && counter.load() > 0);
     }
     cout << "ok" << endl;
 
@@ -268,8 +246,8 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing bridge shutdown... " << flush;
-    Ice::ObjectPrx admin = communicator->stringToProxy("IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
-    Ice::ProcessPrx process = Ice::checkedCast<Ice::ProcessPrx>(admin->ice_facet("Process"));
+    auto admin = communicator->stringToProxy("IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
+    auto process = Ice::checkedCast<Ice::ProcessPrx>(admin->ice_facet("Process"));
     process->shutdown();
     cout << "ok" << endl;
 }

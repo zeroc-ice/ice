@@ -60,12 +60,13 @@ static_excludes         = test/Ice/library test/Ice/plugin
 # Components and projects which are built with C++98
 #
 cpp98_projects          = %
-#cpp98_excludes          = icebridge
+cpp98_excludes          = icebridge \
+                          test/IceBridge/simple
 
 #
 # Components and projects which are built with C++11
 #
-cpp11_components        = $(coreandstub_components) icebox
+cpp11_components        = $(coreandstub_components) icebox icebridge
 
 cpp11_projects          = test/Common \
                           test/IceUtil/% \
@@ -75,7 +76,8 @@ cpp11_projects          = test/Common \
                           test/IceDiscovery/% \
                           test/IceBox/% \
                           test/Glacier2/sessionHelper \
-                          test/IceGrid/simple
+                          test/IceGrid/simple \
+                          test/IceBridge/simple
 
 cpp11_excludes          = test/Ice/gc
 
@@ -99,7 +101,7 @@ endif
 # the cpp11 name to the target directory if building outside the build
 # directory.
 #
-cpp11_cppflags          = -DICE_CPP11_MAPPING -std=c++11
+cpp11_cppflags          = -DICE_CPP11_MAPPING -std=c++17
 cpp11_ldflags           = $(cpp11_cppflags)
 cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)
 cpp11_targetdir         = $(if $(filter %/build,$5),cpp11)
