@@ -1162,17 +1162,55 @@ allTests(Test::TestHelper* helper, bool collocated)
             test(promise.get_future().get() == 15);
         }
         {
+            // Count copies made
+            class CopyCounter
+            {
+            public:
+                CopyCounter(int& count) : _count(count)
+                {
+                }
+
+                CopyCounter(const CopyCounter& o) : _count(o._count)
+                {
+                    _count++;
+                }
+
+                CopyCounter(CopyCounter&&) = default;
+
+            private:
+                int& _count;
+            };
+
+            int responseCopyCount = 0;
+            int errorCopyCount = 0;
+            int sentCopyCount = 0;
+            CopyCounter responseCopyCounter(responseCopyCount);
+            CopyCounter errorCopyCounter(errorCopyCount);
+            CopyCounter sentCopyCounter(sentCopyCount);
+
             promise<int> promise;
             p->opWithResultAsync(
-                [&](int result)
+                [&promise, responseCopyCounter](int result)
                 {
                     promise.set_value(result);
                 },
-                [&](exception_ptr ex)
+                [&promise, errorCopyCounter](exception_ptr ex)
                 {
                     promise.set_exception(ex);
+                },
+                [sentCopyCounter](bool)
+                {
+                    // no-op
                 });
             test(promise.get_future().get() == 15);
+#if ICE_CPLUSPLUS >= 201402L
+            // Move capture with C++14 saves one copy (see Proxy.h and OutgoingAsync.h)
+            test(responseCopyCount == 1);
+#else
+            test(responseCopyCount == 2);
+#endif
+            test(errorCopyCount == 1);
+            test(sentCopyCount == 1);
         }
         {
             promise<int> promise;

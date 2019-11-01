@@ -178,7 +178,12 @@ public:
     {
         if(response)
         {
+#if ICE_CPLUSPLUS >= 201402L
+            // Move capture with C++14
+            _response = [this, response = std::move(response)](bool ok)
+#else
             _response = [this, response](bool ok)
+#endif
             {
                 if(this->_is.b.empty())
                 {
@@ -235,7 +240,11 @@ public:
                              ::std::function<void(bool)> sent) :
         ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
+#if ICE_CPLUSPLUS >= 201402L
+        _response = [&, response = std::move(response)](bool)
+#else
         _response = [&, response](bool)
+#endif
         {
             response(getConnection());
         };
@@ -354,7 +363,8 @@ public:
                  ::std::function<void(bool)> sent = nullptr,
                  const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<bool>(response, ex, sent, this, &ObjectPrx::_iceI_isA, typeId, context);
+        return _makeLamdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
+                                        &ObjectPrx::_iceI_isA, typeId, context);
     }
 
     /**
@@ -399,7 +409,8 @@ public:
                   ::std::function<void(bool)> sent = nullptr,
                   const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<void>(response, ex, sent, this, &ObjectPrx::_iceI_ping, context);
+        return _makeLamdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
+                                        &ObjectPrx::_iceI_ping, context);
     }
 
     /**
@@ -445,7 +456,8 @@ public:
                  ::std::function<void(bool)> sent = nullptr,
                  const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<::std::vector<::std::string>>(response, ex, sent, this, &ObjectPrx::_iceI_ids, context);
+        return _makeLamdaOutgoing<::std::vector<::std::string>>(std::move(response), std::move(ex), std::move(sent),
+                                                                this, &ObjectPrx::_iceI_ids, context);
     }
 
     /**
@@ -490,7 +502,8 @@ public:
                 ::std::function<void(bool)> sent = nullptr,
                 const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<::std::string>(response, ex, sent, this, &ObjectPrx::_iceI_id, context);
+        return _makeLamdaOutgoing<::std::string>(std::move(response), std::move(ex), std::move(sent), this,
+                                                 &ObjectPrx::_iceI_id, context);
     }
 
     /**
@@ -583,12 +596,16 @@ public:
         ::std::function<void(::Ice::Object::Ice_invokeResult&&)> r;
         if(response)
         {
+#if ICE_CPLUSPLUS >= 201402L
+            r = [response = std::move(response)](::Ice::Object::Ice_invokeResult&& result)
+#else
             r = [response](::Ice::Object::Ice_invokeResult&& result)
+#endif
             {
                 response(result.returnValue, std::move(result.outParams));
             };
         }
-        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), r, ex, sent);
+        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), std::move(r), std::move(ex), std::move(sent));
         outAsync->invoke(operation, mode, ::IceInternal::makePair(inParams), context);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -669,12 +686,16 @@ public:
         ::std::function<void(Result&&)> r;
         if(response)
         {
+#if ICE_CPLUSPLUS >= 201402L
+            r = [response = std::move(response)](Result&& result)
+#else
             r = [response](Result&& result)
+#endif
             {
                 response(::std::get<0>(result), ::std::move(::std::get<1>(result)));
             };
         }
-        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), r, ex, sent);
+        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), std::move(r), std::move(ex), std::move(sent));
         outAsync->invoke(operation, mode, inParams, context);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -1023,7 +1044,7 @@ public:
                            ::std::function<void(bool)> sent = nullptr)
     {
         using LambdaOutgoing = ::IceInternal::ProxyGetConnectionLambda;
-        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), response, ex, sent);
+        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), std::move(response), std::move(ex), std::move(sent));
         _iceI_getConnection(outAsync);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -1073,7 +1094,7 @@ public:
                                 ::std::function<void(bool)> sent = nullptr)
     {
         using LambdaOutgoing = ::IceInternal::ProxyFlushBatchLambda;
-        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), ex, sent);
+        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), std::move(ex), std::move(sent));
         _iceI_flushBatchRequests(outAsync);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -1128,7 +1149,8 @@ protected:
     template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
     ::std::function<void()> _makeLamdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
     {
-        auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<R>>(shared_from_this(), r, e, s);
+        auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<R>>(shared_from_this(),
+                                                                             std::move(r), std::move(e), std::move(s));
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
         return [outAsync]() { outAsync->cancel(); };
     }
