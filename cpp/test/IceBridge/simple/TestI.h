@@ -47,7 +47,7 @@ private:
 
     void checkConnection(const std::shared_ptr<Ice::Connection>&);
 
-    std::mutex _lock;
+    std::mutex _mutex;
     std::condition_variable _condVar;
     int _datagramCount = 0;
     std::map<std::shared_ptr<Ice::Connection>, int> _connections;

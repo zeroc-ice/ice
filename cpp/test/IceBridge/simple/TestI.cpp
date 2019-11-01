@@ -46,7 +46,7 @@ MyClassI::incCounter(int expected, const Ice::Current& current)
     checkConnection(current.con);
 
     {
-        lock_guard<mutex> lg(_lock);
+        lock_guard<mutex> lg(_mutex);
         if(_counter + 1 != expected)
         {
             cout << _counter << " " << expected << endl;
@@ -59,7 +59,7 @@ MyClassI::incCounter(int expected, const Ice::Current& current)
 void
 MyClassI::waitCounter(int value, const Ice::Current&)
 {
-    unique_lock<mutex> lock(_lock);
+    unique_lock<mutex> lock(_mutex);
     while(_counter != value)
     {
         _condVar.wait(lock);
@@ -134,7 +134,7 @@ MyClassI::getHeartbeatCount(const Ice::Current& current)
 {
     checkConnection(current.con);
 
-    lock_guard<mutex> lg(_lock);
+    lock_guard<mutex> lg(_mutex);
     return _connections[current.con];
 }
 
@@ -155,14 +155,14 @@ MyClassI::shutdown(const Ice::Current& current)
 void
 MyClassI::removeConnection(const shared_ptr<Ice::Connection>& con)
 {
-    lock_guard<mutex> lg(_lock);
+    lock_guard<mutex> lg(_mutex);
     _connections.erase(con);
 }
 
 void
 MyClassI::incHeartbeatCount(const shared_ptr<Ice::Connection>& con)
 {
-    lock_guard<mutex> lg(_lock);
+    lock_guard<mutex> lg(_mutex);
     auto p = _connections.find(con);
     if(p == _connections.end())
     {
@@ -174,7 +174,7 @@ MyClassI::incHeartbeatCount(const shared_ptr<Ice::Connection>& con)
 void
 MyClassI::checkConnection(const shared_ptr<Ice::Connection>& con)
 {
-    lock_guard<mutex> lg(_lock);
+    lock_guard<mutex> lg(_mutex);
     if(_connections.find(con) == _connections.end())
     {
         _connections.insert(make_pair(con, 0));
