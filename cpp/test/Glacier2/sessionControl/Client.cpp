@@ -12,17 +12,17 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class SessionControlClient : public Test::TestHelper
+class SessionControlClient final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 SessionControlClient::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
 
     //
     // We want to check whether the client retries for evicted
@@ -34,15 +34,15 @@ SessionControlClient::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
+    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
+    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
     test(router);
     communicator->setDefaultRouter(router);
     cout << "ok" << endl;
 
     cout << "creating session... " << flush;
-    Glacier2::SessionPrx sessionBase = router->createSession("userid", "abc123");
-    Test::SessionPrx session = Test::SessionPrx::uncheckedCast(sessionBase);
+    auto sessionBase = router->createSession("userid", "abc123");
+    auto session = uncheckedCast<Test::SessionPrx>(sessionBase);
     test(session);
     cout << "ok" << endl;
 
@@ -85,11 +85,11 @@ SessionControlClient::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "testing shutdown... " << flush;
-    session = Test::SessionPrx::uncheckedCast(router->createSession("userid", "abc123"));
+    session = uncheckedCast<Test::SessionPrx>(router->createSession("userid", "abc123"));
     session->shutdown();
     communicator->setDefaultRouter(0);
-    ObjectPrx processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
+    auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+    auto process = checkedCast<Ice::ProcessPrx>(processBase);
     test(process);
     process->shutdown();
     try

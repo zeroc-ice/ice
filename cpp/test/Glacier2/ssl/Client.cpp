@@ -10,21 +10,21 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class Client : public Test::TestHelper
+class Client final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Client::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Connections", "0");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    Glacier2::RouterPrx router = Glacier2::RouterPrx::uncheckedCast(
+    auto router = uncheckedCast<Glacier2::RouterPrx>(
         communicator->stringToProxy("Glacier2/router:" + getTestEndpoint("tcp")));
     communicator->setDefaultRouter(router);
 
@@ -34,7 +34,7 @@ Client::run(int argc, char** argv)
     cout << "creating non-ssl session with tcp connection... ";
     try
     {
-        Glacier2::SessionPrx session = router->createSession("nossl", "");
+        auto session = router->createSession("nossl", "");
         session->ice_ping();
         router->destroySession();
     }
@@ -47,7 +47,7 @@ Client::run(int argc, char** argv)
     cout << "creating ssl session with tcp connection... ";
     try
     {
-        Glacier2::SessionPrx session = router->createSessionFromSecureConnection();
+        auto  session = router->createSessionFromSecureConnection();
         test(false);
     }
     catch(const Glacier2::PermissionDeniedException&)
@@ -59,8 +59,8 @@ Client::run(int argc, char** argv)
     // Switch to using the SSL router. First, clear the router. Then
     // set a new SSL based router.
     //
-    communicator->setDefaultRouter(Glacier2::RouterPrx());
-    router = Glacier2::RouterPrx::uncheckedCast(
+    communicator->setDefaultRouter(nullptr);
+    router = uncheckedCast<Glacier2::RouterPrx>(
         communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(1, "ssl")));
     communicator->setDefaultRouter(router);
 
@@ -70,7 +70,7 @@ Client::run(int argc, char** argv)
     cout << "creating non-ssl session with ssl connection... ";
     try
     {
-        Glacier2::SessionPrx session = router->createSession("ssl", "");
+        auto session = router->createSession("ssl", "");
         session->ice_ping();
         router->destroySession();
     }
@@ -83,7 +83,7 @@ Client::run(int argc, char** argv)
     cout << "creating ssl session with ssl connection... ";
     try
     {
-        Glacier2::SessionPrx session = router->createSessionFromSecureConnection();
+        auto session = router->createSessionFromSecureConnection();
         session->ice_ping();
         router->destroySession();
     }
@@ -93,8 +93,8 @@ Client::run(int argc, char** argv)
     }
     cout << "ok" << endl;
 
-    communicator->setDefaultRouter(0);
-    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(
+    communicator->setDefaultRouter(nullptr);
+    auto process = checkedCast<Ice::ProcessPrx>(
         communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(2, "tcp")));
     process->shutdown();
 }

@@ -8,31 +8,26 @@
 using namespace std;
 using namespace Test;
 
-SessionManagerI::SessionManagerI(const TestControllerIPtr& controller):
+SessionManagerI::SessionManagerI(const shared_ptr<TestControllerI>& controller):
     _controller(controller)
 {
 }
 
-Glacier2::SessionPrx
-SessionManagerI::create(const string&, const Glacier2::SessionControlPrx& sessionControl, const Ice::Current& current)
+shared_ptr<Glacier2::SessionPrx>
+SessionManagerI::create(string, shared_ptr<Glacier2::SessionControlPrx> sessionControl, const Ice::Current& current)
 {
-    Glacier2::SessionPrx newSession = Glacier2::SessionPrx::uncheckedCast(
-        current.adapter->addWithUUID(new SessionI(sessionControl, _controller)));
-    _controller->addSession(SessionTuple(newSession, sessionControl));
+    auto newSession = Ice::uncheckedCast<Glacier2::SessionPrx>(
+        current.adapter->addWithUUID(make_shared<SessionI>(sessionControl, _controller)));
+    _controller->addSession(SessionTuple(newSession, move(sessionControl)));
     return newSession;
 }
 
-SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl, const TestControllerIPtr& controller) :
-    _sessionControl(sessionControl),
-    _controller(controller)
+SessionI::SessionI(shared_ptr<Glacier2::SessionControlPrx> sessionControl,
+                   shared_ptr<TestControllerI> controller) :
+    _sessionControl(move(sessionControl)),
+    _controller(move(controller))
 {
-    assert(sessionControl);
-}
-
-void
-SessionI::destroySession(const Ice::Current&)
-{
-    _sessionControl->destroy();
+    assert(_sessionControl);
 }
 
 void

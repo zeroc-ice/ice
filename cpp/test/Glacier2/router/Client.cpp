@@ -2,113 +2,107 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Random.h>
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <TestHelper.h>
 #include <CallbackI.h>
+#include <mutex>
+#include <random>
 
 using namespace std;
+using namespace std::chrono_literals;
 using namespace Ice;
 using namespace Test;
 
 static Ice::InitializationData initData;
 
-class AsyncCallback : public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Shared
+class AsyncCallback final
 {
 public:
 
-    AsyncCallback() :
-        _haveResponse(false)
+    void
+    response(int val)
     {
+        {
+            lock_guard<mutex> lg(_mutex);
+            _haveResponse = true;
+            _response = val;
+        }
+        _condVar.notify_one();
     }
 
     void
-    response(Int response)
+    error(exception_ptr e)
     {
-        Lock sync(*this);
-        _haveResponse = true;
-        _response = response;
-        notify();
-    }
-
-    void
-    exception(const Exception& e)
-    {
-        Lock sync(*this);
-        _haveResponse = true;
-        _ex.reset(e.ice_clone());
-        notify();
+        {
+            lock_guard<mutex> lg(_mutex);
+            _haveResponse = true;
+            _exception = e;
+        }
+        _condVar.notify_one();
     }
 
     int
-    waitResponse() const
+    waitResponse()
     {
-        Lock sync(*this);
+        unique_lock<mutex> lock(_mutex);
         while(!_haveResponse)
         {
-            wait();
+            _condVar.wait(lock);
         }
-        if(_ex.get())
+        if(_exception)
         {
-            _ex->ice_throw();
+            rethrow_exception(_exception);
         }
         return _response;
     }
 
 private:
 
-    bool _haveResponse;
-    IceInternal::UniquePtr<Exception> _ex;
-    Int _response;
+    bool _haveResponse = false;
+    exception_ptr _exception = nullptr;
+    int _response = -1;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<AsyncCallback> AsyncCallbackPtr;
 
-class MisbehavedClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class MisbehavedClient final
 {
 public:
 
-    MisbehavedClient(int id) : _id(id), _callback(false)
+    explicit MisbehavedClient(int id) : _id(id)
     {
     }
 
-    virtual
     void run()
     {
-        CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy(
+        auto communicator = initialize(initData);
+        auto routerBase = communicator->stringToProxy(
             "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
-        Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
+        auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
         communicator->setDefaultRouter(router);
 
         ostringstream os;
         os << "userid-" << _id;
-        Glacier2::SessionPrx session = router->createSession(os.str(), "abc123");
+        auto session = router->createSession(os.str(), "abc123");
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-        ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         adapter->activate();
 
-        //
-        // Verify that the generated end_ method is exported properly - see bug 4719.
-        //
-        Ice::AsyncResultPtr r = router->begin_getCategoryForClient();
-        string category = router->end_getCategoryForClient(r);
+        string category = router->getCategoryForClient();
         {
-            Lock sync(*this);
-            _callbackReceiver = new CallbackReceiverI;
-            notify();
+            lock_guard<mutex> lg(_mutex);
+            _callbackReceiver = make_shared<CallbackReceiverI>();
         }
+        _condVar.notify_one();
 
-        Identity ident;
-        ident.name = "callbackReceiver";
-        ident.category = category;
-        CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
+        Identity ident = {"callbackReceiver", category};
+        auto receiver = uncheckedCast<CallbackReceiverPrx>(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base = communicator->stringToProxy(
+        auto base = communicator->stringToProxy(
             "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         base = base->ice_oneway();
-        CallbackPrx callback = CallbackPrx::uncheckedCast(base);
+        auto callback = uncheckedCast<CallbackPrx>(base);
 
         //
         // Block the CallbackReceiver in wait() to prevent the client from
@@ -121,10 +115,10 @@ public:
         // Notify the main thread that the callback was received.
         //
         {
-            Lock sync(*this);
+            lock_guard<mutex> lg(_mutex);
             _callback = true;
-            notify();
         }
+        _condVar.notify_one();
 
         //
         // Callback the client with a large payload. This should cause
@@ -156,96 +150,90 @@ public:
     void
     waitForCallback()
     {
+        unique_lock<mutex> lock(_mutex);
+        while(!_callback)
         {
-            Lock sync(*this);
-            while(!_callback)
-            {
-                wait();
-            }
+            _condVar.wait(lock);
         }
     }
 
 private:
 
     int _id;
-    CallbackReceiverIPtr _callbackReceiver;
-    bool _callback;
+    shared_ptr<CallbackReceiverI> _callbackReceiver;
+    bool _callback = false;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<MisbehavedClient> MisbehavedClientPtr;
 
-class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class StressClient
 {
 public:
 
-    StressClient(int id) : _id(id), _initialized(false), _notified(false)
+    explicit StressClient(int id) : _id(id)
     {
     }
 
-    virtual
     void run()
     {
-        CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy(
+        auto communicator = initialize(initData);
+        auto routerBase = communicator->stringToProxy(
             "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
-        _router = Glacier2::RouterPrx::checkedCast(routerBase);
+        _router = checkedCast<Glacier2::RouterPrx>(routerBase);
         communicator->setDefaultRouter(_router);
 
         ostringstream os;
         os << "userid-" << _id;
-        Glacier2::SessionPrx session = _router->createSession(os.str(), "abc123");
+        auto session = _router->createSession(os.str(), "abc123");
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-        ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", _router);
+        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", _router);
         adapter->activate();
 
         string category = _router->getCategoryForClient();
-        _callbackReceiver = new CallbackReceiverI;
-        Identity ident;
-        ident.name = "callbackReceiver";
-        ident.category = category;
-        CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
+        _callbackReceiver = make_shared<CallbackReceiverI>();
+        Identity ident = {"callbackReceiver", category};
+        auto receiver = uncheckedCast<CallbackReceiverPrx>(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base = communicator->stringToProxy(
+        auto base = communicator->stringToProxy(
             "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         base = base->ice_oneway();
-        CallbackPrx callback = CallbackPrx::uncheckedCast(base);
+        auto callback = uncheckedCast<CallbackPrx>(base);
 
         {
-            Lock sync(*this);
+            lock_guard<mutex> lg(_mutex);
             _initialized = true;
-            notifyAll();
         }
+        _condVar.notify_all();
+
         {
-            Lock sync(*this);
+            unique_lock<mutex> lock(_mutex);
             while(!_notified)
             {
-                wait();
+                _condVar.wait(lock);
             }
         }
 
         //
         // Stress the router until the connection is closed.
         //
-        stress(callback, receiver);
+        stress(move(callback), move(receiver));
         communicator->destroy();
     }
 
-    virtual void stress(const CallbackPrx& callback, const CallbackReceiverPrx&) = 0;
+    virtual void stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx>) = 0;
 
     void
     notifyThread()
     {
         {
-            Lock sync(*this);
+            unique_lock<mutex> lock(_mutex);
             while(!_initialized)
             {
-                wait();
+                _condVar.wait(lock);
             }
-        }
-        {
-            Lock sync(*this);
             _notified = true;
-            notify();
         }
+        _condVar.notify_one();
     }
 
     void
@@ -272,34 +260,35 @@ public:
 
 protected:
 
-    Glacier2::RouterPrx _router;
+    shared_ptr<Glacier2::RouterPrx> _router;
     int _id;
-    CallbackReceiverIPtr _callbackReceiver;
-    bool _initialized;
-    bool _notified;
+    shared_ptr<CallbackReceiverI> _callbackReceiver;
+    bool _initialized = false;
+    bool _notified = false;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<StressClient> StressClientPtr;
 
-class PingStressClient : public StressClient
+class PingStressClient final : public StressClient
 {
 public:
 
-    PingStressClient(int id) : StressClient(id)
+    explicit PingStressClient(int id) : StressClient(id)
     {
     }
 
-    virtual void
-    stress(const CallbackPrx& callback, const CallbackReceiverPrx&)
+    void
+    stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx>) override
     {
         try
         {
-            CallbackPrx cb = CallbackPrx::uncheckedCast(callback->ice_twoway());
+            auto cb = callback->ice_twoway();
             Context context;
             context["_fwd"] = "t";
             while(true)
             {
                 cb->ice_ping(context);
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+                this_thread::sleep_for(1ms);
             }
         }
         catch(const Ice::ConnectionLostException&)
@@ -319,27 +308,27 @@ public:
     }
 };
 
-class CallbackStressClient : public StressClient
+class CallbackStressClient final : public StressClient
 {
 public:
 
-    CallbackStressClient(int id) : StressClient(id)
+    explicit CallbackStressClient(int id) : StressClient(id)
     {
     }
 
-    virtual void
-    stress(const CallbackPrx& callback, const CallbackReceiverPrx& receiver)
+    void
+    stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx> receiver) override
     {
         try
         {
-            CallbackPrx cb = CallbackPrx::uncheckedCast(callback->ice_twoway());
+            auto cb = callback->ice_twoway();
             Context context;
             context["_fwd"] = "t";
             while(true)
             {
                 cb->initiateCallback(receiver, context);
                 _callbackReceiver->callbackOK();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+                this_thread::sleep_for(1ms);
             }
         }
         catch(const Ice::ConnectionLostException&)
@@ -363,27 +352,27 @@ public:
     }
 };
 
-class CallbackWithPayloadStressClient : public StressClient
+class CallbackWithPayloadStressClient final : public StressClient
 {
 public:
 
-    CallbackWithPayloadStressClient(int id) : StressClient(id)
+    explicit CallbackWithPayloadStressClient(int id) : StressClient(id)
     {
     }
 
-    virtual void
-    stress(const CallbackPrx& callback, const CallbackReceiverPrx& receiver)
+    void
+    stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx> receiver) override
     {
         try
         {
-            CallbackPrx cb = CallbackPrx::uncheckedCast(callback->ice_twoway());
+            auto cb = callback->ice_twoway();
             Context context;
             context["_fwd"] = "t";
             while(true)
             {
                 cb->initiateCallbackWithPayload(receiver, context);
                 _callbackReceiver->callbackWithPayloadOK();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+                this_thread::sleep_for(10ms);
             }
         }
         catch(const Ice::ConnectionLostException&)
@@ -407,11 +396,11 @@ public:
     }
 };
 
-class CallbackClient : public Test::TestHelper
+class CallbackClient final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -426,26 +415,26 @@ CallbackClient::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    ObjectPrx routerBase;
+    shared_ptr<ObjectPrx> routerBase;
     {
         cout << "testing stringToProxy for router... " << flush;
         routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
         cout << "ok" << endl;
     }
 
-    Glacier2::RouterPrx router;
+    shared_ptr<Glacier2::RouterPrx> router;
 
     {
         cout << "testing checked cast for router... " << flush;
-        router = Glacier2::RouterPrx::checkedCast(routerBase);
+        router = checkedCast<Glacier2::RouterPrx>(routerBase);
         test(router);
         cout << "ok" << endl;
     }
 
     {
         cout << "testing router finder... " << flush;
-        Ice::RouterFinderPrx finder =
-            RouterFinderPrx::uncheckedCast(communicator->stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
+        auto finder =
+            uncheckedCast<RouterFinderPrx>(communicator->stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
         test(finder->getRouter()->ice_getIdentity() == router->ice_getIdentity());
         cout << "ok" << endl;
     }
@@ -458,12 +447,12 @@ CallbackClient::run(int argc, char** argv)
 
     {
         cout << "getting the session timeout... " << flush;
-        Ice::Long timeout = router->getSessionTimeout();
+        auto timeout = router->getSessionTimeout();
         test(timeout == 30);
         cout << "ok" << endl;
     }
 
-    ObjectPrx base;
+    shared_ptr<ObjectPrx> base;
 
     {
         cout << "testing stringToProxy for server object... " << flush;
@@ -484,7 +473,7 @@ CallbackClient::run(int argc, char** argv)
         }
     }
 
-    Glacier2::SessionPrx session;
+    shared_ptr<Glacier2::SessionPrx> session;
 
     {
         cout << "trying to create session with wrong password... " << flush;
@@ -547,7 +536,7 @@ CallbackClient::run(int argc, char** argv)
 
     {
         cout << "pinging object with client endpoint... " << flush;
-        Ice::ObjectPrx baseC = communicator->stringToProxy("collocated:" + getTestEndpoint(50));
+        auto baseC = communicator->stringToProxy("collocated:" + getTestEndpoint(50));
         try
         {
             baseC->ice_ping();
@@ -558,16 +547,16 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    CallbackPrx twoway;
+    shared_ptr<CallbackPrx> twoway;
 
     {
         cout << "testing checked cast for server object... " << flush;
-        twoway = CallbackPrx::checkedCast(base);
+        twoway = checkedCast<CallbackPrx>(base);
         test(twoway);
         cout << "ok" << endl;
     }
 
-    ObjectAdapterPtr adapter;
+    shared_ptr<ObjectAdapter> adapter;
 
     {
         cout << "creating and activating callback receiver adapter with router... " << flush;
@@ -585,37 +574,31 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    CallbackReceiverI* callbackReceiverImpl;
-    ObjectPtr callbackReceiver;
-    CallbackReceiverPrx twowayR;
-    CallbackReceiverPrx fakeTwowayR;
+    shared_ptr<CallbackReceiverI> callbackReceiver;
+    shared_ptr<CallbackReceiverPrx> twowayR;
+    shared_ptr<CallbackReceiverPrx> fakeTwowayR;
 
     {
         cout << "creating and adding callback receiver object... " << flush;
-        callbackReceiverImpl = new CallbackReceiverI;
-        callbackReceiver = callbackReceiverImpl;
-        Identity callbackReceiverIdent;
-        callbackReceiverIdent.name = "callbackReceiver";
-        callbackReceiverIdent.category = category;
-        twowayR = CallbackReceiverPrx::uncheckedCast(adapter->add(callbackReceiver, callbackReceiverIdent));
-        Identity fakeCallbackReceiverIdent;
-        fakeCallbackReceiverIdent.name = "callbackReceiver";
-        fakeCallbackReceiverIdent.category = "dummy";
-        fakeTwowayR = CallbackReceiverPrx::uncheckedCast(adapter->add(callbackReceiver, fakeCallbackReceiverIdent));
+        callbackReceiver = make_shared<CallbackReceiverI>();
+        Identity callbackReceiverIdent = {"callbackReceiver", category};
+        twowayR = uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, callbackReceiverIdent));
+        Identity fakeCallbackReceiverIdent = {"callbackReceiver", "dummy"};
+        fakeTwowayR = uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, fakeCallbackReceiverIdent));
         cout << "ok" << endl;
     }
 
     {
         cout << "testing oneway callback... " << flush;
-        CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
-        CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
+        auto oneway = twoway->ice_oneway();
+        auto onewayR = twowayR->ice_oneway();
         Context context;
         context["_fwd"] = "o";
         oneway->initiateCallback(onewayR, context);
         oneway->initiateCallback(onewayR, context);
         oneway->initiateCallback(onewayR, context);
         oneway->initiateCallback(onewayR, context);
-        callbackReceiverImpl->callbackOK(4);
+        callbackReceiver->callbackOK(4);
         cout << "ok" << endl;
     }
 
@@ -627,7 +610,7 @@ CallbackClient::run(int argc, char** argv)
         twoway->initiateCallback(twowayR, context);
         twoway->initiateCallback(twowayR, context);
         twoway->initiateCallback(twowayR, context);
-        callbackReceiverImpl->callbackOK(4);
+        callbackReceiver->callbackOK(4);
         cout << "ok" << endl;
     }
 
@@ -635,8 +618,8 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing batch oneway callback... " << flush;
         Context context;
         context["_fwd"] = "O";
-        CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
-        CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
+        auto batchOneway = twoway->ice_batchOneway();
+        auto onewayR = twowayR->ice_oneway();
         batchOneway->initiateCallback(onewayR, context);
         batchOneway->initiateCallback(onewayR, context);
         batchOneway->initiateCallback(onewayR, context);
@@ -644,7 +627,7 @@ CallbackClient::run(int argc, char** argv)
         batchOneway->initiateCallback(onewayR, context);
         batchOneway->initiateCallback(onewayR, context);
         batchOneway->ice_flushBatchRequests();
-        callbackReceiverImpl->callbackOK(6);
+        callbackReceiver->callbackOK(6);
         cout << "ok" << endl;
     }
 
@@ -658,19 +641,28 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing concurrent twoway callback... " << flush;
         Context context;
         context["_fwd"] = "t";
-        AsyncCallbackPtr cb0 = new AsyncCallback();
-        twoway->begin_initiateConcurrentCallback(0, twowayR, context,
-            newCallback_Callback_initiateConcurrentCallback(cb0, &AsyncCallback::response, &AsyncCallback::exception));
-        AsyncCallbackPtr cb1 = new AsyncCallback();
-        twoway->begin_initiateConcurrentCallback(1, twowayR, context,
-            newCallback_Callback_initiateConcurrentCallback(cb1, &AsyncCallback::response, &AsyncCallback::exception));
-        AsyncCallbackPtr cb2 = new AsyncCallback();
-        twoway->begin_initiateConcurrentCallback(2, twowayR, context,
-            newCallback_Callback_initiateConcurrentCallback(cb2, &AsyncCallback::response, &AsyncCallback::exception));
-        callbackReceiverImpl->answerConcurrentCallbacks(3);
-        test(cb0->waitResponse() == 0);
-        test(cb1->waitResponse() == 1);
-        test(cb2->waitResponse() == 2);
+        AsyncCallback cb0;
+        twoway->initiateConcurrentCallbackAsync(0, twowayR,
+                                                [&cb0](int val){ cb0.response(val); },
+                                                [&cb0](exception_ptr e){ cb0.error(e); },
+                                                nullptr, context);
+
+        AsyncCallback cb1;
+        twoway->initiateConcurrentCallbackAsync(1, twowayR,
+                                                [&cb1](int val){ cb1.response(val); },
+                                                [&cb1](exception_ptr e){ cb1.error(e); },
+                                                nullptr, context);
+
+        AsyncCallback cb2;
+        twoway->initiateConcurrentCallbackAsync(2, twowayR,
+                                                [&cb2](int val){ cb2.response(val); },
+                                                [&cb2](exception_ptr e){ cb2.error(e); },
+                                                nullptr, context);
+
+        callbackReceiver->answerConcurrentCallbacks(3);
+        test(cb0.waitResponse() == 0);
+        test(cb1.waitResponse() == 1);
+        test(cb2.waitResponse() == 2);
         cout << "ok" << endl;
     }
 
@@ -688,7 +680,7 @@ CallbackClient::run(int argc, char** argv)
             test(ex.someValue == 3.14);
             test(ex.someString == "3.14");
         }
-        callbackReceiverImpl->callbackOK();
+        callbackReceiver->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -711,10 +703,10 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing whether other allowed category is accepted... " << flush;
         Context context;
         context["_fwd"] = "t";
-        CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
+        auto otherCategoryTwoway = uncheckedCast<CallbackPrx>(
             twoway->ice_identity(stringToIdentity("c2/callback")));
         otherCategoryTwoway->initiateCallback(twowayR, context);
-        callbackReceiverImpl->callbackOK();
+        callbackReceiver->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -724,7 +716,7 @@ CallbackClient::run(int argc, char** argv)
         context["_fwd"] = "t";
         try
         {
-            CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
+            auto otherCategoryTwoway = uncheckedCast<CallbackPrx>(
                 twoway->ice_identity(stringToIdentity("c3/callback")));
             otherCategoryTwoway->initiateCallback(twowayR, context);
             test(false);
@@ -739,10 +731,10 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing whether user-id as category is accepted... " << flush;
         Context context;
         context["_fwd"] = "t";
-        CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
+        auto otherCategoryTwoway = uncheckedCast<CallbackPrx>(
             twoway->ice_identity(stringToIdentity("_userid/callback")));
         otherCategoryTwoway->initiateCallback(twowayR, context);
-        callbackReceiverImpl->callbackOK();
+        callbackReceiver->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -752,21 +744,21 @@ CallbackClient::run(int argc, char** argv)
         //
         // Start 3 misbehaving clients.
         //
+        MisbehavedClient clients[] = {MisbehavedClient(0), MisbehavedClient(1), MisbehavedClient(2)};
+        std::future<void> futures[3] = {};
         const int nClients = 3; // Passwords need to be added to the password file if more clients are needed.
-        int i;
-        vector<MisbehavedClientPtr> clients;
-        for(i = 0; i < nClients; ++i)
+        for(int i = 0; i < nClients; ++i)
         {
-            clients.push_back(new MisbehavedClient(i));
-            clients.back()->start();
-            clients.back()->waitForCallback();
+            auto& client = clients[i];
+            futures[i] = std::async(launch::async, [&client]{ client.run(); });
+            client.waitForCallback();
         }
 
         //
         // Sleep for one second to make sure the router starts sending
         // the callback with the payload to the clients.
         //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+        this_thread::sleep_for(1s);
 
         //
         // Initiate few callbacks with a large payload. Because of
@@ -777,18 +769,18 @@ CallbackClient::run(int argc, char** argv)
         Context context;
         context["_fwd"] = "t";
         twoway->initiateCallbackWithPayload(twowayR, context);
-        callbackReceiverImpl->callbackWithPayloadOK();
+        callbackReceiver->callbackWithPayloadOK();
         twoway->initiateCallbackWithPayload(twowayR, context);
-        callbackReceiverImpl->callbackWithPayloadOK();
+        callbackReceiver->callbackWithPayloadOK();
         twoway->initiateCallbackWithPayload(twowayR, context);
-        callbackReceiverImpl->callbackWithPayloadOK();
+        callbackReceiver->callbackWithPayloadOK();
         twoway->initiateCallbackWithPayload(twowayR, context);
-        callbackReceiverImpl->callbackWithPayloadOK();
+        callbackReceiver->callbackWithPayloadOK();
 
-        for(vector<MisbehavedClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+        for(int i = 0; i < nClients; ++i)
         {
-            (*p)->notifyWaitCallback();
-            (*p)->getThreadControl().join();
+            clients[i].notifyWaitCallback();
+            futures[i].get();
         }
 
         cout << "ok" << endl;
@@ -797,36 +789,38 @@ CallbackClient::run(int argc, char** argv)
     {
         cout << "stress test... " << flush;
         const int nClients = 3; // Passwords need to be added to the password file if more clients are needed.
-        int i;
-        vector<StressClientPtr> clients;
-        for(i = 0; i < nClients; ++i)
+        vector<shared_ptr<StressClient>> clients;
+        vector<future<void>> futures;
+        random_device rd;
+        for(int i = 0; i < nClients; ++i)
         {
-            switch(IceUtilInternal::random(3))
+            switch(rd() % 3)
             {
             case 0:
-                clients.push_back(new PingStressClient(i));
+                clients.push_back(make_shared<PingStressClient>(i));
                 break;
             case 1:
-                clients.push_back(new CallbackStressClient(i));
+                clients.push_back(make_shared<CallbackStressClient>(i));
                 break;
             case 2:
-                clients.push_back(new CallbackWithPayloadStressClient(i));
+                clients.push_back(make_shared<CallbackWithPayloadStressClient>(i));
                 break;
             default:
                 assert(false);
                 break;
             }
-            clients.back()->start();
+            auto client = clients.back();
+            futures.push_back(std::async(launch::async, [client = move(client)]{ client->run(); }));
         }
-        for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+        for(const auto& p: clients)
         {
-            (*p)->notifyThread();
+            p->notifyThread();
         }
 
         //
         // Let the stress client run for a bit.
         //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(3));
+        this_thread::sleep_for(3s);
 
         //
         // Send some callbacks.
@@ -834,15 +828,18 @@ CallbackClient::run(int argc, char** argv)
         Context context;
         context["_fwd"] = "t";
         twoway->initiateCallback(twowayR);
-        callbackReceiverImpl->callbackOK();
+        callbackReceiver->callbackOK();
 
         //
         // Kill the stress clients.
         //
-        for(vector<StressClientPtr>::const_iterator q = clients.begin(); q != clients.end(); ++q)
+        for(const auto& p: clients)
         {
-            (*q)->kill();
-            (*q)->getThreadControl().join();
+            p->kill();
+        }
+        for(auto& f: futures)
+        {
+            f.get();
         }
 
         cout << "ok" << endl;
@@ -905,7 +902,7 @@ CallbackClient::run(int argc, char** argv)
             cout << "ok" << endl;
         }
 
-        ObjectPrx processBase;
+        shared_ptr<ObjectPrx> processBase;
 
         {
             cout << "testing stringToProxy for admin process facet... " << flush;
@@ -913,11 +910,11 @@ CallbackClient::run(int argc, char** argv)
             cout << "ok" << endl;
         }
 
-        Ice::ProcessPrx process;
+        shared_ptr<Ice::ProcessPrx> process;
 
         {
             cout << "testing checked cast for process facet... " << flush;
-            process = Ice::ProcessPrx::checkedCast(processBase);
+            process = checkedCast<Ice::ProcessPrx>(processBase);
             test(process);
             cout << "ok" << endl;
         }

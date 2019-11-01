@@ -52,30 +52,31 @@ TestControllerI::TestControllerI(const string& endpoint)
 };
 
 void
-TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToken& currentState, TestToken& newState,
+TestControllerI::step(shared_ptr<Glacier2::SessionPrx> currentSession, TestToken currentState, TestToken& newState,
                       const Ice::Current&)
 {
     switch(currentState.code)
     {
-        case Test::Finished:
+        case Test::StateCode::Finished:
         {
             assert(false);
             break;
         }
 
-        case Test::Running:
+        case Test::StateCode::Running:
         {
             TestConfiguration& config = _configurations[static_cast<size_t>(currentState.config)];
             assert(!config.description.empty());
 
             bool found = false;
             SessionTuple session;
-            for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)
+            for(const auto& p : _sessions)
             {
-                if(i->session == currentSession)
+                if(targetEqualTo(p.session, currentSession))
                 {
-                    session = *i;
+                    session = p;
                     found = true;
+                    break;
                 }
             }
 
@@ -101,7 +102,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
                 ++newState.config;
                 if(!(newState.config < (long)_configurations.size()))
                 {
-                    newState.code = Test::Finished;
+                    newState.code = Test::StateCode::Finished;
                     newState.expectedResult = false;
                     newState.description = "No more tests";
                     newState.testReference = "";
@@ -124,13 +125,13 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
             if(reconfigure)
             {
-                Glacier2::StringSetPrx categories = session.sessionControl->categories();
+                auto categories = session.sessionControl->categories();
                 categories->add(config.categoryFiltersAccept);
 
-                Glacier2::StringSetPrx adapterIds = session.sessionControl->adapterIds();
+                auto adapterIds = session.sessionControl->adapterIds();
                 adapterIds->add(config.adapterIdFiltersAccept);
 
-                Glacier2::IdentitySetPrx ids = session.sessionControl->identities();
+                auto ids = session.sessionControl->identities();
                 ids->add(config.objectIdFiltersAccept);
                 session.configured = true;
             }
@@ -139,7 +140,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
         default:
         {
-            newState.code = Running;
+            newState.code = Test::StateCode::Running;
             newState.config = 0;
             newState.caseIndex = 0;
             newState.testReference = "";
@@ -157,17 +158,17 @@ TestControllerI::shutdown(const Ice::Current& current)
 }
 
 void
-TestControllerI::addSession(const SessionTuple& s)
+TestControllerI::addSession(SessionTuple&& s)
 {
-    _sessions.push_back(s);
+    _sessions.emplace_back(move(s));
 }
 
 void
-TestControllerI::notifyDestroy(const Glacier2::SessionControlPrx& control)
+TestControllerI::notifyDestroy(const shared_ptr<Glacier2::SessionControlPrx>& control)
 {
-    for(vector<SessionTuple>::iterator i = _sessions.begin(); i != _sessions.end(); ++i)
+    for(auto i = _sessions.begin(); i != _sessions.end(); ++i)
     {
-        if(i->sessionControl == control)
+        if(targetEqualTo(i->sessionControl, control))
         {
             _sessions.erase(i);
             break;

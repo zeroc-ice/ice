@@ -14,7 +14,7 @@ using namespace Test;
 namespace
 {
 
-void testContext(bool ssl, const Ice::CommunicatorPtr& communicator, const Ice::Context& context)
+void testContext(bool ssl, const shared_ptr<Ice::Communicator>& communicator, const Ice::Context& context)
 {
     Ice::Context ctx = context;
     if(!ssl)
@@ -38,28 +38,28 @@ void testContext(bool ssl, const Ice::CommunicatorPtr& communicator, const Ice::
 
 }
 
-class PermissionsVerifierI : public Glacier2::PermissionsVerifier
+class PermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool
-    checkPermissions(const string& userId, const string&, string&, const Ice::Current& current) const
+    bool
+    checkPermissions(string userId, string, string&, const Ice::Current& current) const override
     {
         testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
         return true;
     }
 };
 
-class SSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
+class SSLPermissionsVerifierI final : public Glacier2::SSLPermissionsVerifier
 {
 public:
 
-    virtual bool
-    authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
+    bool
+    authorize(Glacier2::SSLInfo info, string&, const Ice::Current& current) const override
     {
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+        auto cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
              "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
         test(cert->getSubjectDN() == IceSSL::DistinguishedName(
@@ -70,7 +70,7 @@ public:
     }
 };
 
-class SessionI : public Glacier2::Session
+class SessionI final : public Glacier2::Session
 {
 public:
 
@@ -78,8 +78,8 @@ public:
     {
     }
 
-    virtual void
-    destroy(const Ice::Current& current)
+    void
+    destroy(const Ice::Current& current) override
     {
         testContext(_ssl, current.adapter->getCommunicator(), current.ctx);
 
@@ -90,8 +90,8 @@ public:
         }
     }
 
-    virtual void
-    ice_ping(const Ice::Current& current) const
+    void
+    ice_ping(const Ice::Current& current) const override
     {
         testContext(_ssl, current.adapter->getCommunicator(), current.ctx);
     }
@@ -102,26 +102,26 @@ private:
     const bool _ssl;
 };
 
-class SessionManagerI : public Glacier2::SessionManager
+class SessionManagerI final : public Glacier2::SessionManager
 {
 public:
 
-    virtual Glacier2::SessionPrx
-    create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+    shared_ptr<Glacier2::SessionPrx>
+    create(string userId, shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current& current) override
     {
         testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
 
-        Glacier2::SessionPtr session = new SessionI(false, userId == "ssl");
-        return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+        auto session = make_shared<SessionI>(false, userId == "ssl");
+        return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(session));
     }
 };
 
-class SSLSessionManagerI : public Glacier2::SSLSessionManager
+class SSLSessionManagerI final : public Glacier2::SSLSessionManager
 {
 public:
 
-    virtual Glacier2::SessionPrx
-    create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+    shared_ptr<Glacier2::SessionPrx>
+    create(Glacier2::SSLInfo info, shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current& current) override
     {
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 
@@ -131,7 +131,7 @@ public:
 
         try
         {
-            IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+            auto cert = IceSSL::Certificate::decode(info.certs[0]);
             test(cert->getIssuerDN() == IceSSL::DistinguishedName(
                      "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
             test(cert->getSubjectDN() == IceSSL::DistinguishedName(
@@ -143,28 +143,28 @@ public:
             test(false);
         }
 
-        Glacier2::SessionPtr session = new SessionI(true, true);
-        return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+        auto session = make_shared<SessionI>(true, true);
+        return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(session));
     }
 };
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SessionServer",
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SessionServer",
                                                                                    getTestEndpoint(3, "tcp"));
-    adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("verifier"));
-    adapter->add(new SSLPermissionsVerifierI, Ice::stringToIdentity("sslverifier"));
-    adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
-    adapter->add(new SSLSessionManagerI, Ice::stringToIdentity("sslsessionmanager"));
+    adapter->add(make_shared<PermissionsVerifierI>(), Ice::stringToIdentity("verifier"));
+    adapter->add(make_shared<SSLPermissionsVerifierI>(), Ice::stringToIdentity("sslverifier"));
+    adapter->add(make_shared<SessionManagerI>(), Ice::stringToIdentity("sessionmanager"));
+    adapter->add(make_shared<SSLSessionManagerI>(), Ice::stringToIdentity("sslsessionmanager"));
     adapter->activate();
     communicator->waitForShutdown();
 }

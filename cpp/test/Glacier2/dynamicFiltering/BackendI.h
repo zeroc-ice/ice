@@ -7,11 +7,11 @@
 
 #include <Test.h>
 
-class BackendI : public Test::Backend
+class BackendI final : public Test::Backend
 {
 public:
-    virtual void check(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void check(const Ice::Current&) override;
+    void shutdown(const Ice::Current&) override;
 };
 
 #endif

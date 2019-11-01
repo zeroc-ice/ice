@@ -5,8 +5,6 @@
 #ifndef TEST_CONTROLLER_H
 #define TEST_CONTROLLER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <Glacier2/Session.h>
 #include <Test.h>
 #include <vector>
@@ -14,30 +12,21 @@
 
 struct SessionTuple
 {
-    Glacier2::SessionPrx session;
-    Glacier2::SessionControlPrx sessionControl;
-    bool configured;
+    std::shared_ptr<Glacier2::SessionPrx> session;
+    std::shared_ptr<Glacier2::SessionControlPrx> sessionControl;
+    bool configured = false;
 
-    SessionTuple() {}
-    SessionTuple(Glacier2::SessionPrx s, Glacier2::SessionControlPrx control):
-        session(s),
-        sessionControl(control),
+    SessionTuple() = default;
+    SessionTuple(std::shared_ptr<Glacier2::SessionPrx> s, std::shared_ptr<Glacier2::SessionControlPrx> control):
+        session(move(s)),
+        sessionControl(move(control)),
         configured(false)
-    {}
-
-    SessionTuple&
-    operator=(const SessionTuple& rhs)
     {
-        if(this == &rhs)
-        {
-            return *this;
-        }
-
-        session = rhs.session;
-        sessionControl = rhs.sessionControl;
-        configured = rhs.configured;
-        return *this;
     }
+
+    SessionTuple(const SessionTuple&) = delete;
+    SessionTuple& operator=(const SessionTuple&) = default;
+    SessionTuple(SessionTuple&&) = default;
 };
 
 /*
@@ -66,31 +55,27 @@ struct TestConfiguration
 // configuration of the test's session and provides the client with test
 // cases and expected outcomes.
 //
-class TestControllerI : public Test::TestController
+class TestControllerI final : public Test::TestController
 {
 public:
     TestControllerI(const std::string&);
-    //
-    // Slice to C++ mapping.
-    //
-    void step(const Glacier2::SessionPrx& currentSession, const Test::TestToken& currentState,
-              Test::TestToken& newState, const Ice::Current&);
 
-    void shutdown(const Ice::Current&);
+    void step(std::shared_ptr<Glacier2::SessionPrx> currentSession, Test::TestToken currentState,
+              Test::TestToken& newState, const Ice::Current&) override;
+
+    void shutdown(const Ice::Current&) override;
 
     //
     // Internal methods.
     //
-    void addSession(const SessionTuple&);
+    void addSession(SessionTuple&&);
 
-    void notifyDestroy(const Glacier2::SessionControlPrx&);
+    void notifyDestroy(const std::shared_ptr<Glacier2::SessionControlPrx>&);
 
 private:
     std::vector<SessionTuple> _sessions;
     std::vector<TestConfiguration> _configurations;
 
 };
-
-typedef IceUtil::Handle<TestControllerI> TestControllerIPtr;
 
 #endif

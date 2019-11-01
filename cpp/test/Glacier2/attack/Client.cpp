@@ -2,28 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <Backend.h>
 #include <TestHelper.h>
 #include <set>
+#include <random>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class AttackClient : public Test::TestHelper
+class AttackClient final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 AttackClient::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
@@ -32,22 +32,22 @@ AttackClient::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
+    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
+    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
     test(router);
     communicator->setDefaultRouter(router);
     cout << "ok" << endl;
 
     cout << "creating session... " << flush;
-    Glacier2::SessionPrx session = router->createSession("userid", "abc123");
+    auto session = router->createSession("userid", "abc123");
     cout << "ok" << endl;
 
     cout << "making thousands of invocations on proxies... " << flush;
-    ObjectPrx backendBase = communicator->stringToProxy("dummy:" + getTestEndpoint());
-    BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
+    auto backendBase = communicator->stringToProxy("dummy:" + getTestEndpoint());
+    auto backend = checkedCast<BackendPrx>(backendBase);
     backend->ice_ping();
 
-    set<BackendPrx> backends;
+    set<shared_ptr<BackendPrx>, TargetCompare<shared_ptr<BackendPrx>, std::less>> backends;
 
     string msg;
     for(int i = 1; i <= 10000; ++i)
@@ -66,22 +66,23 @@ AttackClient::run(int argc, char** argv)
 
         Identity ident;
         string::iterator p;
+        random_device rd;
 
-        ident.name.resize(1); // 1 + IceUtilInternal::random() % 2);
+        ident.name.resize(1);
         for(p = ident.name.begin(); p != ident.name.end(); ++p)
         {
-            *p = static_cast<char>('A' + IceUtilInternal::random() % 26);
+            *p = static_cast<char>('A' + rd() % 26);
         }
 
-        ident.category.resize(IceUtilInternal::random() % 2);
+        ident.category.resize(rd() % 2);
         for(p = ident.category.begin(); p != ident.category.end(); ++p)
         {
-            *p = static_cast<char>('a' + IceUtilInternal::random() % 26);
+            *p = static_cast<char>('a' + rd() % 26);
         }
 
-        BackendPrx newBackend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));
+        auto newBackend = uncheckedCast<BackendPrx>(backendBase->ice_identity(ident));
 
-        set<BackendPrx>::const_iterator q = backends.find(newBackend);
+        auto q = backends.find(newBackend);
 
         if(q == backends.end())
         {
@@ -101,8 +102,8 @@ AttackClient::run(int argc, char** argv)
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
     communicator->setDefaultRouter(0);
-    ObjectPrx adminBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(adminBase);
+    auto adminBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+    auto process = checkedCast<Ice::ProcessPrx>(adminBase);
     test(process);
     process->shutdown();
     try

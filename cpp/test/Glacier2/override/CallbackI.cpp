@@ -10,103 +10,41 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class Cookie : public Ice::LocalObject
-{
-};
-typedef IceUtil::Handle<Cookie> CookiePtr;
-
-template<class T>
-class CookieT : public Cookie
-{
-public:
-
-    CookieT(const T& v) : cb(v)
-    {
-    }
-
-    T cb;
-};
-
-template<typename T> CookiePtr newCookie(const T& cb)
-{
-    return new CookieT<T>(cb);
-}
-
-template<typename T> const T& getCookie(const CookiePtr& cookie)
-{
-    return dynamic_cast<CookieT<T>* >(cookie.get())->cb;
-}
-
-class AsyncCB : public IceUtil::Shared
-{
-public:
-
-    void
-    responseCallback(const CookiePtr& cookie)
-    {
-        getCookie<AMD_Callback_initiateCallbackPtr>(cookie)->ice_response();
-    }
-
-    void
-    exceptionCallback(const Ice::Exception& ex, const CookiePtr& cookie)
-    {
-        getCookie<AMD_Callback_initiateCallbackPtr>(cookie)->ice_exception(ex);
-    }
-
-    void
-    responseCallbackWithPayload(const CookiePtr& cookie)
-    {
-        getCookie<AMD_Callback_initiateCallbackWithPayloadPtr>(cookie)->ice_response();
-    }
-
-    void
-    exceptionCallbackWithPayload(const Ice::Exception& ex, const CookiePtr& cookie)
-    {
-        getCookie<AMD_Callback_initiateCallbackWithPayloadPtr>(cookie)->ice_exception(ex);
-    }
-};
-typedef IceUtil::Handle<AsyncCB> AsyncCBPtr;
-
-CallbackReceiverI::CallbackReceiverI() :
-    _holding(false),
-    _lastToken(-1),
-    _callback(0),
-    _callbackWithPayload(0)
-{
-}
-
 void
 CallbackReceiverI::callback(int token, const Current&)
 {
-    Lock sync(*this);
-    checkForHold();
-
-    if(token != _lastToken)
     {
-        _callback = 0;
-        _lastToken = token;
+        unique_lock<mutex> lock(_mutex);
+        checkForHold(lock);
+        if(token != _lastToken)
+        {
+            _callback = 0;
+            _lastToken = token;
+        }
+        ++_callback;
     }
-    ++_callback;
-    notifyAll();
+    _condVar.notify_all();
 }
 
 void
-CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current&)
+CallbackReceiverI::callbackWithPayload(Ice::ByteSeq, const Current&)
 {
-    Lock sync(*this);
-    checkForHold();
-    ++_callbackWithPayload;
-    notifyAll();
+    {
+        unique_lock<mutex> lock(_mutex);
+        checkForHold(lock);
+        ++_callbackWithPayload;
+    }
+    _condVar.notify_all();
 }
 
 int
 CallbackReceiverI::callbackOK(int count, int token)
 {
-    Lock sync(*this);
+    unique_lock<mutex> lock(_mutex);
 
     while(_lastToken != token || _callback < count)
     {
-        wait();
+        _condVar.wait(lock);
     }
 
     _callback -= count;
@@ -116,11 +54,11 @@ CallbackReceiverI::callbackOK(int count, int token)
 int
 CallbackReceiverI::callbackWithPayloadOK(int count)
 {
-    Lock sync(*this);
+    unique_lock<mutex> lock(_mutex);
 
     while(_callbackWithPayload < count)
     {
-        wait();
+        _condVar.wait(lock);
     }
 
     _callbackWithPayload -= count;
@@ -130,37 +68,36 @@ CallbackReceiverI::callbackWithPayloadOK(int count)
 void
 CallbackReceiverI::hold()
 {
-    Lock sync(*this);
+    lock_guard<mutex> lg(_mutex);
     _holding = true;
 }
 
 void
 CallbackReceiverI::activate()
 {
-    Lock sync(*this);
-    _holding = false;
-    notifyAll();
+    {
+        lock_guard<mutex> lg(_mutex);
+        _holding = false;
+    }
+    _condVar.notify_all();
 }
 
 void
-CallbackReceiverI::checkForHold()
+CallbackReceiverI::checkForHold(unique_lock<mutex>& lock)
 {
     while(_holding)
     {
-        wait();
+        _condVar.wait(lock);
     }
 }
 
-CallbackI::CallbackI()
-{
-}
-
 void
-CallbackI::initiateCallback_async(const AMD_Callback_initiateCallbackPtr& cb,
-                                  const CallbackReceiverPrx& proxy, int token, const Current& current)
+CallbackI::initiateCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy, int token,
+                                 function<void()> response, function<void(exception_ptr)> error,
+                                 const Current& current)
 {
-    Ice::Context::const_iterator p = current.ctx.find("serverOvrd");
-    Ice::Context ctx = current.ctx;
+    auto p = current.ctx.find("serverOvrd");
+    auto ctx = current.ctx;
     if(p != current.ctx.end())
     {
         ctx["_ovrd"] = p->second;
@@ -168,25 +105,22 @@ CallbackI::initiateCallback_async(const AMD_Callback_initiateCallbackPtr& cb,
 
     if(proxy->ice_isTwoway())
     {
-        AsyncCBPtr acb = new AsyncCB();
-        proxy->begin_callback(token, ctx,
-            newCallback_CallbackReceiver_callback(acb, &AsyncCB::responseCallback, &AsyncCB::exceptionCallback),
-            newCookie(cb));
+        proxy->callbackAsync(token, move(response), move(error), nullptr, ctx);
     }
     else
     {
         proxy->callback(token, ctx);
-        cb->ice_response();
+        response();
     }
 }
 
 void
-CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallbackWithPayloadPtr& cb,
-                                             const CallbackReceiverPrx& proxy,
-                                             const Current& current)
+CallbackI::initiateCallbackWithPayloadAsync(shared_ptr<CallbackReceiverPrx> proxy,
+                                            function<void()> response, function<void(exception_ptr)> error,
+                                            const Current& current)
 {
-    Ice::Context::const_iterator p = current.ctx.find("serverOvrd");
-    Ice::Context ctx = current.ctx;
+    auto p = current.ctx.find("serverOvrd");
+    auto ctx = current.ctx;
     if(p != current.ctx.end())
     {
         ctx["_ovrd"] = p->second;
@@ -195,18 +129,12 @@ CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallback
     Ice::ByteSeq seq(1000 * 1024, 0);
     if(proxy->ice_isTwoway())
     {
-        AsyncCBPtr acb = new AsyncCB();
-        proxy->begin_callbackWithPayload(seq, ctx,
-                                         newCallback_CallbackReceiver_callbackWithPayload(
-                                             acb,
-                                             &AsyncCB::responseCallbackWithPayload,
-                                             &AsyncCB::exceptionCallbackWithPayload),
-                                         newCookie(cb));
+        proxy->callbackWithPayloadAsync(seq, move(response), move(error), nullptr, ctx);
     }
     else
     {
         proxy->callbackWithPayload(seq, ctx);
-        cb->ice_response();
+        response();
     }
 }
 

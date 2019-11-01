@@ -15,100 +15,79 @@ using namespace Test;
 // simplicity, we essentially 'alias' all possible requests to a single
 // object adapter and a single servant.
 //
-class ServerLocatorRegistry : public virtual LocatorRegistry
+class ServerLocatorRegistry final : public LocatorRegistry
 {
 public:
 
-    virtual void
-    setAdapterDirectProxy_async(const AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb, const string&,
-                                const ObjectPrx&, const Current&)
+    void
+    setAdapterDirectProxyAsync(string, shared_ptr<ObjectPrx>, function<void()> response, function<void(exception_ptr)>,
+                               const Current&) override
     {
-        cb->ice_response();
+        response();
     }
 
-    virtual void
-    setReplicatedAdapterDirectProxy_async(const AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr& cb,
-                                          const string&, const string&, const ObjectPrx&, const Current&)
+    void
+    setReplicatedAdapterDirectProxyAsync(string, string, shared_ptr<ObjectPrx>,
+                                         function<void()> response, function<void(exception_ptr)>,
+                                         const Current&) override
     {
-        cb->ice_response();
+        response();
     }
 
-    virtual void
-    setServerProcessProxy_async(const AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
-                                const string&, const ProcessPrx&, const Current&)
+    void
+    setServerProcessProxyAsync(string, shared_ptr<ProcessPrx>,
+                               function<void()> response, function<void(exception_ptr)>,
+                               const Current&) override
     {
-        cb->ice_response();
+        response();
     }
 };
 
-class ServerLocatorI : public virtual Locator
+class ServerLocatorI final : public Locator
 {
 public:
-    ServerLocatorI(const BackendPtr& backend, const ObjectAdapterPtr& adapter) :
-        _backend(backend),
+
+    ServerLocatorI(shared_ptr<Backend> backend, const shared_ptr<ObjectAdapter>& adapter) :
+        _backend(move(backend)),
         _adapter(adapter),
-        _registryPrx(
-            LocatorRegistryPrx::uncheckedCast(
-                adapter->add(new ServerLocatorRegistry, Ice::stringToIdentity("registry"))))
+        _registryPrx(uncheckedCast<LocatorRegistryPrx>(
+                         adapter->add(make_shared<ServerLocatorRegistry>(), Ice::stringToIdentity("registry"))))
     {
     }
 
-    virtual void
-    findObjectById_async(const AMD_Locator_findObjectByIdPtr& cb, const Identity& id, const Current&) const
+    void
+    findObjectByIdAsync(Identity id,
+                        function<void(const shared_ptr<ObjectPrx>&)> response, function<void(exception_ptr)>,
+                        const Current&) const override
     {
-        cb->ice_response(_adapter->createProxy(id));
+        response(_adapter->createProxy(id));
     }
 
-    virtual void
-    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string&, const Current&) const
+    void
+    findAdapterByIdAsync(string,
+                         function<void(const shared_ptr<ObjectPrx>&)> response, function<void(exception_ptr)>,
+                         const Current&) const override
     {
-       cb->ice_response(_adapter->createDirectProxy(stringToIdentity("dummy")));
+        response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }
 
-    virtual LocatorRegistryPrx
-    getRegistry(const Current&) const
+    shared_ptr<LocatorRegistryPrx>
+    getRegistry(const Current&) const override
     {
         return _registryPrx;
     }
 
 private:
-    const BackendPtr _backend;
-    const ObjectAdapterPtr _adapter;
-    const LocatorRegistryPrx _registryPrx;
+    const shared_ptr<Backend> _backend;
+    const shared_ptr<ObjectAdapter> _adapter;
+    const shared_ptr<LocatorRegistryPrx> _registryPrx;
 };
 
-class ServantLocatorI : public virtual ServantLocator
+class BackendServer final : public Test::TestHelper
 {
 public:
 
-    ServantLocatorI(const BackendPtr& backend) :
-        _backend(backend)
-    {
-    }
-
-    virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
-    {
-        return _backend;
-    }
-
-    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
-    {
-    }
-
-    virtual void deactivate(const string&)
-    {
-    }
-
-private:
-
-    const BackendPtr _backend;
-};
-
-class BackendServer : public Test::TestHelper
-{
-public:
-
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -119,11 +98,11 @@ BackendServer::run(int argc, char** argv)
                                                                              "tcp -p 12010:ssl -p 12011");
 
     communicator->getProperties()->setProperty("BackendAdapter.Endpoints", endpoints);
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("BackendAdapter");
-    BackendPtr backend = new BackendI;
-    Ice::LocatorPtr locator = new ServerLocatorI(backend, adapter);
+    auto adapter = communicator->createObjectAdapter("BackendAdapter");
+    auto backend = make_shared<BackendI>();
+    auto locator = make_shared<ServerLocatorI>(backend, adapter);
     adapter->add(locator, Ice::stringToIdentity("locator"));
-    adapter->addServantLocator(new ServantLocatorI(backend), "");
+    adapter->addDefaultServant(backend, "");
     adapter->activate();
     communicator->waitForShutdown();
 }

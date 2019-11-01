@@ -17,31 +17,30 @@
 // reason why not as long as there isn't a deadlock situation.
 //
 
-class SessionManagerI : public Glacier2::SessionManager
+class SessionManagerI final : public Glacier2::SessionManager
 {
 public:
-    SessionManagerI(const TestControllerIPtr&);
+    SessionManagerI(const std::shared_ptr<TestControllerI>&);
 
-    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
+    std::shared_ptr<Glacier2::SessionPrx>
+    create(std::string, std::shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current&) override;
 
 private:
-    TestControllerIPtr _controller;
+    std::shared_ptr<TestControllerI> _controller;
 };
 
-class SessionI : public Test::TestSession
+class SessionI final : public Test::TestSession
 {
 public:
 
-    SessionI(const Glacier2::SessionControlPrx&, const TestControllerIPtr&);
-    virtual void destroySession(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
-
-    virtual void destroy(const Ice::Current&);
+    SessionI(std::shared_ptr<Glacier2::SessionControlPrx>, std::shared_ptr<TestControllerI>);
+    void shutdown(const Ice::Current&) override;
+    void destroy(const Ice::Current&) override;
 
 private:
 
-    Glacier2::SessionControlPrx _sessionControl;
-    TestControllerIPtr _controller;
+    std::shared_ptr<Glacier2::SessionControlPrx> _sessionControl;
+    std::shared_ptr<TestControllerI> _controller;
 };
 
 #endif
