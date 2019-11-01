@@ -2,58 +2,59 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <TestHelper.h>
 #include <CallbackI.h>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono_literals;
+
 using namespace Ice;
 using namespace Test;
 
-class CallbackClient : public Test::TestHelper
+class CallbackClient final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 CallbackClient::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Connections", "0");
     properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
+    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
+    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
     communicator->setDefaultRouter(router);
 
-    ObjectPrx base = communicator->stringToProxy("c/callback:" + getTestEndpoint());
-    Glacier2::SessionPrx session = router->createSession("userid", "abc123");
+    auto base = communicator->stringToProxy("c/callback:" + getTestEndpoint());
+    auto session = router->createSession("userid", "abc123");
     base->ice_ping();
 
-    CallbackPrx twoway = CallbackPrx::checkedCast(base);
-    CallbackPrx oneway = twoway->ice_oneway();
-    CallbackPrx batchOneway = twoway->ice_batchOneway();
+    auto twoway = checkedCast<CallbackPrx>(base);
+    auto oneway = twoway->ice_oneway();
+    auto batchOneway = twoway->ice_batchOneway();
 
     communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+    auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
     adapter->activate();
 
     string category = router->getCategoryForClient();
 
-    CallbackReceiverI* callbackReceiverImpl = new CallbackReceiverI;
-    ObjectPtr callbackReceiver = callbackReceiverImpl;
+    auto callbackReceiver = make_shared<CallbackReceiverI>();
 
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    CallbackReceiverPrx twowayR =
-        CallbackReceiverPrx::uncheckedCast(adapter->add(callbackReceiver, callbackReceiverIdent));
-    CallbackReceiverPrx onewayR = twowayR->ice_oneway();
+    auto twowayR =
+        uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, callbackReceiverIdent));
+    auto onewayR = twowayR->ice_oneway();
 
     {
         cout << "testing client request override... " << flush;
@@ -62,7 +63,7 @@ CallbackClient::run(int argc, char** argv)
             {
                 oneway->initiateCallback(twowayR, 0);
                 oneway->initiateCallback(twowayR, 0);
-                callbackReceiverImpl->callbackOK(2, 0);
+                callbackReceiver->callbackOK(2, 0);
             }
         }
 
@@ -74,8 +75,8 @@ CallbackClient::run(int argc, char** argv)
                 oneway->initiateCallback(twowayR, i, ctx);
                 oneway->initiateCallback(twowayR, i, ctx);
                 oneway->initiateCallback(twowayR, i, ctx);
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-                test(callbackReceiverImpl->callbackOK(1, i) < 3);
+                this_thread::sleep_for(100ms);
+                test(callbackReceiver->callbackOK(1, i) < 3);
             }
         }
         cout << "ok" << endl;
@@ -90,17 +91,17 @@ CallbackClient::run(int argc, char** argv)
             oneway->initiateCallback(onewayR, i, ctx);
             oneway->initiateCallback(onewayR, i, ctx);
             oneway->initiateCallback(onewayR, i, ctx);
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-            test(callbackReceiverImpl->callbackOK(1, i) < 3);
+            this_thread::sleep_for(100ms);
+            test(callbackReceiver->callbackOK(1, i) < 3);
         }
         oneway->initiateCallback(twowayR, 0);
-        test(callbackReceiverImpl->callbackOK(1, 0) == 0);
+        test(callbackReceiver->callbackOK(1, 0) == 0);
 
         int count = 0;
         int nRetry = 0;
         do
         {
-            callbackReceiverImpl->hold();
+            callbackReceiver->hold();
             oneway->initiateCallbackWithPayload(onewayR, ctx);
             oneway->initiateCallbackWithPayload(onewayR, ctx);
             oneway->initiateCallbackWithPayload(onewayR, ctx);
@@ -112,18 +113,18 @@ CallbackClient::run(int argc, char** argv)
             oneway->initiateCallbackWithPayload(onewayR, ctx);
             oneway->initiateCallbackWithPayload(onewayR, ctx);
             oneway->initiateCallback(twowayR, 0);
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200 + nRetry * 200));
-            callbackReceiverImpl->activate();
-            test(callbackReceiverImpl->callbackOK(1, 0) == 0);
-            count = callbackReceiverImpl->callbackWithPayloadOK(0);
-            callbackReceiverImpl->callbackWithPayloadOK(count);
+            this_thread::sleep_for(chrono::milliseconds(200 + nRetry * 200));
+            callbackReceiver->activate();
+            test(callbackReceiver->callbackOK(1, 0) == 0);
+            count = callbackReceiver->callbackWithPayloadOK(0);
+            callbackReceiver->callbackWithPayloadOK(count);
         }
         while(count == 10 && nRetry++ < 10);
         test(count < 10);
 
         oneway->initiateCallbackWithPayload(twowayR);
         oneway->initiateCallbackWithPayload(twowayR);
-        callbackReceiverImpl->hold();
+        callbackReceiver->hold();
         oneway->initiateCallbackWithPayload(twowayR);
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallback(onewayR, 0, ctx);
@@ -131,11 +132,11 @@ CallbackClient::run(int argc, char** argv)
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallbackWithPayload(twowayR);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1000));
-        callbackReceiverImpl->activate();
-        test(callbackReceiverImpl->callbackWithPayloadOK(4) == 0);
+        this_thread::sleep_for(1000ms);
+        callbackReceiver->activate();
+        test(callbackReceiver->callbackWithPayloadOK(4) == 0);
 
-        int remainingCallbacks = callbackReceiverImpl->callbackOK(1, 0);
+        int remainingCallbacks = callbackReceiver->callbackOK(1, 0);
         //
         // Occasionally, Glacier2 flushes in the middle of our 5
         // callbacks, so we get more than 1 callback
@@ -147,13 +148,13 @@ CallbackClient::run(int argc, char** argv)
         test(remainingCallbacks <= 4);
         if(remainingCallbacks > 0)
         {
-            test(callbackReceiverImpl->callbackOK(remainingCallbacks, 0) == 0);
+            test(callbackReceiver->callbackOK(remainingCallbacks, 0) == 0);
         }
 
         ctx["_fwd"] = "O";
 
         oneway->initiateCallbackWithPayload(twowayR);
-        callbackReceiverImpl->hold();
+        callbackReceiver->hold();
         oneway->initiateCallbackWithPayload(twowayR);
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallback(onewayR, 0, ctx);
@@ -161,16 +162,16 @@ CallbackClient::run(int argc, char** argv)
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallbackWithPayload(twowayR);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
-        callbackReceiverImpl->activate();
-        test(callbackReceiverImpl->callbackWithPayloadOK(3) == 0);
-        remainingCallbacks = callbackReceiverImpl->callbackOK(1, 0);
+        this_thread::sleep_for(200ms);
+        callbackReceiver->activate();
+        test(callbackReceiver->callbackWithPayloadOK(3) == 0);
+        remainingCallbacks = callbackReceiver->callbackOK(1, 0);
         // Unlikely but sometime we get more than just one callback if the flush
         // occurs in the middle of our 5 callbacks.
         test(remainingCallbacks <= 3);
         if(remainingCallbacks > 0)
         {
-            test(callbackReceiverImpl->callbackOK(remainingCallbacks, 0) == 0);
+            test(callbackReceiver->callbackOK(remainingCallbacks, 0) == 0);
         }
 
         cout << "ok" << endl;
@@ -190,8 +191,8 @@ CallbackClient::run(int argc, char** argv)
         }
 
         communicator->setDefaultRouter(0);
-        ObjectPrx processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-        Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
+        auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+        auto process = checkedCast<Ice::ProcessPrx>(processBase);
         process->shutdown();
         try
         {

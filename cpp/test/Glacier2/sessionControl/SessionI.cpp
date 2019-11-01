@@ -9,35 +9,8 @@
 using namespace std;
 using namespace Test;
 
-class DestroyCB : public virtual IceUtil::Shared
-{
-public:
-
-    DestroyCB(const Test::AMD_Session_destroyFromClientPtr& cb) : _cb(cb)
-    {
-    }
-
-    void
-    response()
-    {
-        _cb->ice_response();
-    }
-
-    void
-    exception(const IceUtil::Exception&)
-    {
-        test(false);
-    }
-
-private:
-
-    Test::AMD_Session_destroyFromClientPtr _cb;
-};
-
-typedef IceUtil::Handle<DestroyCB> DestroyCBPtr;
-
-Glacier2::SessionPrx
-SessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& sessionControl,
+shared_ptr<Glacier2::SessionPrx>
+SessionManagerI::create(string userId, shared_ptr<Glacier2::SessionControlPrx> sessionControl,
                         const Ice::Current& current)
 {
     if(userId == "rejectme")
@@ -48,23 +21,19 @@ SessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new SessionI(sessionControl)));
+    return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
 }
 
-SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl) :
-    _sessionControl(sessionControl)
+SessionI::SessionI(shared_ptr<Glacier2::SessionControlPrx> sessionControl) :
+    _sessionControl(move(sessionControl))
 {
-    assert(sessionControl);
+    assert(_sessionControl);
 }
 
 void
-SessionI::destroyFromClient_async(const Test::AMD_Session_destroyFromClientPtr& cb, const Ice::Current&)
+SessionI::destroyFromClientAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
-    DestroyCBPtr asyncCB = new DestroyCB(cb);
-    Glacier2::Callback_SessionControl_destroyPtr amiCB = Glacier2::newCallback_SessionControl_destroy(asyncCB,
-                                                 &DestroyCB::response,
-                                                 &DestroyCB::exception);
-    _sessionControl->begin_destroy(amiCB);
+    _sessionControl->destroyAsync(move(response), [](exception_ptr){ test(false); });
 }
 
 void

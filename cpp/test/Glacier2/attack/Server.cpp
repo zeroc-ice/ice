@@ -10,38 +10,11 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class ServantLocatorI : public virtual ServantLocator
+class BackendServer final : public Test::TestHelper
 {
 public:
 
-    ServantLocatorI() :
-        _backend(new BackendI)
-    {
-    }
-
-    virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
-    {
-        return _backend;
-    }
-
-    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
-    {
-    }
-
-    virtual void deactivate(const string&)
-    {
-    }
-
-private:
-
-    BackendPtr _backend;
-};
-
-class BackendServer : public Test::TestHelper
-{
-public:
-
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -49,8 +22,8 @@ BackendServer::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint());
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("BackendAdapter");
-    adapter->addServantLocator(new ServantLocatorI, "");
+    auto adapter = communicator->createObjectAdapter("BackendAdapter");
+    adapter->addDefaultServant(make_shared<BackendI>(), "");
     adapter->activate();
     communicator->waitForShutdown();
 }

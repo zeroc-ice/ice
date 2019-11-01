@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 #include <Callback.h>
@@ -13,25 +12,24 @@ using namespace Test;
 namespace
 {
 
-class CallbackI : public Callback
+class CallbackI final : public Callback
 {
-
 public:
 
-    virtual void
-    initiateCallback(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
+    void
+    initiateCallback(shared_ptr<CallbackReceiverPrx> proxy, const Ice::Current& current) override
     {
         proxy->callback(current.ctx);
     }
 
-    virtual void
-    initiateCallbackEx(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
+    void
+    initiateCallbackEx(shared_ptr<CallbackReceiverPrx> proxy, const Ice::Current& current) override
     {
         proxy->callbackEx(current.ctx);
     }
 
-    virtual void
-    shutdown(const Ice::Current& current)
+    void
+    shutdown(const Ice::Current& current) override
     {
         current.adapter->getCommunicator()->shutdown();
     }
@@ -39,11 +37,11 @@ public:
 
 }
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -54,7 +52,7 @@ Server::run(int argc, char** argv)
     communicator->createObjectAdapter("DeactivatedAdapter");
 
     communicator->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint());
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("CallbackAdapter");
+    auto adapter = communicator->createObjectAdapter("CallbackAdapter");
     adapter->add(ICE_MAKE_SHARED(CallbackI), Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator->waitForShutdown();
