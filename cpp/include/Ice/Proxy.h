@@ -344,8 +344,8 @@ public:
                  ::std::function<void(bool)> sent = nullptr,
                  const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
-                                        &ObjectPrx::_iceI_isA, typeId, context);
+        return _makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
+                                         &ObjectPrx::_iceI_isA, typeId, context);
     }
 
     /**
@@ -390,8 +390,8 @@ public:
                   ::std::function<void(bool)> sent = nullptr,
                   const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
-                                        &ObjectPrx::_iceI_ping, context);
+        return _makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
+                                         &ObjectPrx::_iceI_ping, context);
     }
 
     /**
@@ -437,8 +437,8 @@ public:
                  ::std::function<void(bool)> sent = nullptr,
                  const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<::std::vector<::std::string>>(std::move(response), std::move(ex), std::move(sent),
-                                                                this, &ObjectPrx::_iceI_ids, context);
+        return _makeLambdaOutgoing<::std::vector<::std::string>>(std::move(response), std::move(ex), std::move(sent),
+                                                                 this, &ObjectPrx::_iceI_ids, context);
     }
 
     /**
@@ -483,8 +483,8 @@ public:
                 ::std::function<void(bool)> sent = nullptr,
                 const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<::std::string>(std::move(response), std::move(ex), std::move(sent), this,
-                                                 &ObjectPrx::_iceI_id, context);
+        return _makeLambdaOutgoing<::std::string>(std::move(response), std::move(ex), std::move(sent), this,
+                                                  &ObjectPrx::_iceI_id, context);
     }
 
     /**
@@ -1128,7 +1128,7 @@ protected:
     }
 
     template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
-    ::std::function<void()> _makeLamdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
+    ::std::function<void()> _makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
     {
         auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<R>>(shared_from_this(),
                                                                              std::move(r), std::move(e), std::move(s));

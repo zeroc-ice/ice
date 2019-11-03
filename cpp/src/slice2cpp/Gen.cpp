@@ -7138,7 +7138,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
             H << epar << ";" << eb << ";";
         }
 
-        H << nl << "return _makeLamdaOutgoing<" << futureT << ">" << spar;
+        H << nl << "return _makeLambdaOutgoing<" << futureT << ">" << spar;
 
         H << "std::move(" + (futureOutParams.size() > 1 ? "_responseCb" : responseParam) + ")"
           << "std::move(" + exParam + ")"
