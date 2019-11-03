@@ -7194,7 +7194,10 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 
         H << nl << "return _makeLamdaOutgoing<" << futureT << ">" << spar;
 
-        H << (futureOutParams.size() > 1 ? "_responseCb" : responseParam) << exParam << sentParam << "this";
+        H << "std::move(" + (futureOutParams.size() > 1 ? "_responseCb" : responseParam) + ")"
+          << "std::move(" + exParam + ")"
+          << "std::move(" + sentParam + ")"
+          << "this";
         H << string("&" + getUnqualified(scoped, clScope.substr(2)) + "_iceI_" + name);
         for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
