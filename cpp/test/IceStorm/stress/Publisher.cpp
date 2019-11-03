@@ -13,11 +13,11 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class Publisher : public Test::TestHelper
+class Publisher final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -56,8 +56,8 @@ Publisher::run(int argc, char** argv)
     bool oneway = opts.isSet("oneway");
     bool maxQueueTest = opts.isSet("maxQueueTest");
 
-    PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
+    auto properties = communicator->getProperties();
+    string managerProxyProperty = "IceStormAdmin.TopicManager.Default";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {
@@ -66,7 +66,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
@@ -75,13 +75,13 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    TopicPrx topic = manager->retrieve("fed1");
+    auto topic = manager->retrieve("fed1");
 
-    EventPrx twowayProxy = EventPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
-    EventPrx proxy;
+    auto twowayProxy = uncheckedCast<EventPrx>(topic->getPublisher()->ice_twoway());
+    shared_ptr<EventPrx> proxy;
     if(oneway)
     {
-        proxy = EventPrx::uncheckedCast(twowayProxy->ice_oneway());
+        proxy = twowayProxy->ice_oneway();
     }
     else
     {
@@ -93,7 +93,7 @@ Publisher::run(int argc, char** argv)
         if(maxQueueTest && i == 10)
         {
             // Sleep one seconds to give some time to IceStorm to connect to the subscriber
-            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+            this_thread::sleep_for(1s);
         }
         proxy->pub(i);
     }

@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
@@ -14,11 +13,11 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class SingleI : public Single, public IceUtil::Monitor<IceUtil::Mutex>
+class SingleI final : public Single
 {
 public:
 
-    SingleI(const CommunicatorPtr& communicator, const string& name, int max) :
+    SingleI(const shared_ptr<Communicator>& communicator, const string& name, int max) :
         _communicator(communicator),
         _name(name),
         _max(max),
@@ -27,30 +26,29 @@ public:
     {
     }
 
-    virtual void
-    event(int i, const Current&)
+    void
+    event(int i, const Current&) override
     {
         if(_name == "twoway ordered" && i != _last)
         {
             cerr << endl << "received unordered event for `" << _name << "': " << i << " " << _last;
             test(false);
         }
-        Lock sync(*this);
+        lock_guard<mutex> lg(_mutex);
         ++_last;
         if(++_count == _max)
         {
-            notify();
+            _condVar.notify_one();
         }
     }
 
-    virtual void
+    void
     waitForEvents()
     {
-        Lock sync(*this);
-        IceUtil::Time timeout = IceUtil::Time::seconds(40);
+        unique_lock<mutex> lock(_mutex);
         while(_count < _max)
         {
-            if(!timedWait(timeout))
+            if(_condVar.wait_for(lock, 40s) == cv_status::timeout)
             {
                 test(false);
             }
@@ -59,19 +57,20 @@ public:
 
 private:
 
-    CommunicatorPtr _communicator;
+    shared_ptr<Communicator> _communicator;
     const string _name;
     const int _max;
     int _count;
     int _last;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-class Subscriber : public Test::TestHelper
+class Subscriber final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -94,8 +93,8 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    PropertiesPtr properties = communicator->getProperties();
-    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto properties = communicator->getProperties();
+    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
@@ -103,8 +102,8 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy(managerProxy);
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -112,9 +111,9 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
 
-    TopicPrx topic;
+    shared_ptr<TopicPrx> topic;
     while(true)
     {
         try
@@ -144,19 +143,19 @@ Subscriber::run(int argc, char** argv)
     //
     // Create subscribers with different QoS.
     //
-    SingleIPtr sub;
+    shared_ptr<SingleI> sub;
     IceStorm::QoS qos;
     if(opts.isSet("ordered"))
     {
-        sub = new SingleI(communicator.communicator(), "twoway ordered", events);
+        sub = make_shared<SingleI>(communicator.communicator(), "twoway ordered", events);
         qos["reliability"] = "ordered";
     }
     else
     {
-        sub = new SingleI(communicator.communicator(), "twoway", events);
+        sub = make_shared<SingleI>(communicator.communicator(), "twoway", events);
     }
 
-    Ice::ObjectPrx prx = adapter->addWithUUID(sub);
+    auto prx = adapter->addWithUUID(sub);
 
     while(true)
     {
