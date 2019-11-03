@@ -5,8 +5,6 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <TestHelper.h>
 
 using namespace std;
@@ -14,55 +12,25 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class EventI : public Event
+class EventI final : public Event
 {
 public:
 
-    virtual void
-    pub(const string&, const Ice::Current& current)
+    void
+    pub(string, const Ice::Current& current) override
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_countMutex);
-
         if(++_count == 30 + 40 + 30)
         {
             current.adapter->getCommunicator()->shutdown();
         }
     }
 
-    static IceUtil::Mutex* _countMutex;
-
 private:
 
-    static int _count;
+    static atomic_int _count;
 };
 
-typedef IceUtil::Handle<EventI> EventIPtr;
-
-int EventI::_count = 0;
-IceUtil::Mutex* EventI::_countMutex = 0;
-
-namespace
-{
-
-class Init
-{
-public:
-
-    Init()
-    {
-        EventI::_countMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete EventI::_countMutex;
-        EventI::_countMutex = 0;
-    }
-};
-
-Init init;
-
-}
+atomic_int EventI::_count = 0;
 
 void
 usage(const char* appName)
@@ -74,11 +42,11 @@ usage(const char* appName)
         "-b                   Use batch reliability.\n";
 }
 
-class Subscriber : public Test::TestHelper
+class Subscriber final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -114,15 +82,15 @@ Subscriber::run(int argc, char** argv)
         }
     }
 
-    PropertiesPtr properties = communicator->getProperties();
-    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto properties = communicator->getProperties();
+    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy(managerProxy);
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -130,13 +98,13 @@ Subscriber::run(int argc, char** argv)
         throw runtime_error(os.str());
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
     //
     // Activate the servants.
     //
-    ObjectPrx objFed1 = adapter->addWithUUID(new EventI());
-    ObjectPrx objFed2 = adapter->addWithUUID(new EventI());
-    ObjectPrx objFed3 = adapter->addWithUUID(new EventI());
+    auto objFed1 = adapter->addWithUUID(make_shared<EventI>());
+    auto objFed2 = adapter->addWithUUID(make_shared<EventI>());
+    auto objFed3 = adapter->addWithUUID(make_shared<EventI>());
 
     IceStorm::QoS qos;
     if(batch)
@@ -152,9 +120,9 @@ Subscriber::run(int argc, char** argv)
         objFed3 = objFed1->ice_oneway();
     }
 
-    TopicPrx fed1 = manager->retrieve("fed1");
-    TopicPrx fed2 = manager->retrieve("fed2");
-    TopicPrx fed3 = manager->retrieve("fed3");
+    auto fed1 = manager->retrieve("fed1");
+    auto fed2 = manager->retrieve("fed2");
+    auto fed3 = manager->retrieve("fed3");
 
     fed1->subscribeAndGetPublisher(qos, objFed1);
     fed2->subscribeAndGetPublisher(qos, objFed2);

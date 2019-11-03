@@ -11,19 +11,19 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class Client : public Test::TestHelper
+class Client final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    PropertiesPtr properties = communicator->getProperties();
-    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto properties = communicator->getProperties();
+    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
@@ -31,8 +31,8 @@ Client::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    IceStorm::TopicManagerPrx manager =
-        IceStorm::TopicManagerPrx::checkedCast(communicator->stringToProxy(managerProxy));
+    auto manager =
+        checkedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy(managerProxy));
     if(!manager)
     {
         ostringstream os;
@@ -52,12 +52,12 @@ Client::run(int argc, char** argv)
         // Create topics
         //
         cerr << "creating topics and links..." << flush;
-        TopicPrx linkTo = 0;
+        shared_ptr<TopicPrx> linkTo;
         for(int i = 0; i < 10; ++i)
         {
             ostringstream topicName;
             topicName << "topic" << i;
-            TopicPrx topic = manager->create(topicName.str());
+            auto topic = manager->create(topicName.str());
             if(linkTo)
             {
                 topic->link(linkTo, i + 1);
@@ -74,7 +74,7 @@ Client::run(int argc, char** argv)
         {
             ostringstream topicName;
             topicName << "topic" << i;
-            TopicPrx topic = manager->retrieve(topicName.str());
+            auto topic = manager->retrieve(topicName.str());
             test(topic);
 
             ostringstream subscriber;

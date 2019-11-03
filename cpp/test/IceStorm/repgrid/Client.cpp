@@ -12,33 +12,27 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class SingleI : public Single, public IceUtil::Monitor<IceUtil::Mutex>
+class SingleI final : public Single
 {
 public:
 
-    SingleI() :
-        _count(0)
+    void
+    event(int, const Current&) override
     {
-    }
-
-    virtual void
-    event(int, const Current&)
-    {
-        Lock sync(*this);
+        lock_guard<mutex> lg(_mutex);
         if(++_count == 1000)
         {
-            notify();
+            _condVar.notify_one();
         }
     }
 
-    virtual void
+    void
     waitForEvents()
     {
-        Lock sync(*this);
-        IceUtil::Time timeout = IceUtil::Time::seconds(20);
+        unique_lock<mutex> lock(_mutex);
         while(_count < 1000)
         {
-            if(!timedWait(timeout))
+            if(_condVar.wait_for(lock, 20s) == cv_status::timeout)
             {
                 test(false);
             }
@@ -47,23 +41,24 @@ public:
 
 private:
 
-    int _count;
+    int _count = 0;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-class Client : public Test::TestHelper
+class Client final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    ObjectPrx base = communicator->stringToProxy("Test.IceStorm/TopicManager");
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy("Test.IceStorm/TopicManager");
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -71,22 +66,22 @@ Client::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:udp");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:udp");
 
-    TopicPrx topic = manager->create("single");
+    auto topic = manager->create("single");
 
     //
     // Create subscribers with different QoS.
     //
-    SingleIPtr sub = new SingleI;
+    auto sub = make_shared<SingleI>();
     topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(sub));
 
     adapter->activate();
 
     // Ensure that getPublisher & getNonReplicatedPublisher work
     // correctly.
-    Ice::ObjectPrx p1 = topic->getPublisher();
-    Ice::ObjectPrx p2 = topic->getNonReplicatedPublisher();
+    auto p1 = topic->getPublisher();
+    auto p2 = topic->getNonReplicatedPublisher();
     test(p1->ice_getAdapterId() == "PublishReplicaGroup");
     test(p2->ice_getAdapterId() == "Test.IceStorm1.Publish" ||
          p2->ice_getAdapterId() == "Test.IceStorm2.Publish" ||
@@ -96,7 +91,7 @@ Client::run(int argc, char** argv)
     // Get a publisher object, create a twoway proxy and then cast to
     // a Single object.
     //
-    SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway());
+    auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
     for(int i = 0; i < 1000; ++i)
     {
         single->event(i);

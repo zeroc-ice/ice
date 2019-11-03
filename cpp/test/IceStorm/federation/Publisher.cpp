@@ -12,7 +12,7 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class Publisher : public Test::TestHelper
+class Publisher final : public Test::TestHelper
 {
 public:
 
@@ -23,8 +23,8 @@ void
 Publisher::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    PropertiesPtr properties = communicator->getProperties();
-    const string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto properties = communicator->getProperties();
+    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
@@ -32,8 +32,8 @@ Publisher::run(int argc, char** argv)
         throw runtime_error(os.str());
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy(managerProxy);
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -41,13 +41,13 @@ Publisher::run(int argc, char** argv)
         throw runtime_error(os.str());
     }
 
-    TopicPrx fed1 = manager->retrieve("fed1");
-    TopicPrx fed2 = manager->retrieve("fed2");
-    TopicPrx fed3 = manager->retrieve("fed3");
+    auto fed1 = manager->retrieve("fed1");
+    auto fed2 = manager->retrieve("fed2");
+    auto fed3 = manager->retrieve("fed3");
 
-    EventPrx eventFed1 = EventPrx::uncheckedCast(fed1->getPublisher()->ice_oneway());
-    EventPrx eventFed2 = EventPrx::uncheckedCast(fed2->getPublisher()->ice_oneway());
-    EventPrx eventFed3 = EventPrx::uncheckedCast(fed3->getPublisher()->ice_oneway());
+    auto eventFed1 = uncheckedCast<EventPrx>(fed1->getPublisher()->ice_oneway());
+    auto eventFed2 = uncheckedCast<EventPrx>(fed2->getPublisher()->ice_oneway());
+    auto eventFed3 = uncheckedCast<EventPrx>(fed3->getPublisher()->ice_oneway());
 
     Ice::Context context;
 
@@ -91,9 +91,9 @@ Publisher::run(int argc, char** argv)
     // Before we exit, we ping all proxies as twoway, to make sure
     // that all oneways are delivered.
     //
-    EventPrx::uncheckedCast(eventFed1->ice_twoway())->ice_ping();
-    EventPrx::uncheckedCast(eventFed2->ice_twoway())->ice_ping();
-    EventPrx::uncheckedCast(eventFed3->ice_twoway())->ice_ping();
+    eventFed1->ice_twoway()->ice_ping();
+    eventFed2->ice_twoway()->ice_ping();
+    eventFed3->ice_twoway()->ice_ping();
 }
 
 DEFINE_TEST(Publisher)

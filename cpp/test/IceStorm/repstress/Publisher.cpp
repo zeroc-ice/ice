@@ -3,7 +3,6 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
 #include <Controller.h>
@@ -14,33 +13,33 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class ControllerI : public Controller
+class ControllerI final : public Controller
 {
 public:
 
-    virtual void stop(const Ice::Current& c)
+    void stop(const Ice::Current& c) override
     {
         c.adapter->getCommunicator()->shutdown();
     }
 };
 
-class PublishThread : public IceUtil::Thread, public IceUtil::Mutex
+class PublishThread final
 {
 public:
 
-    PublishThread(const SinglePrx& single) :
-        _single(single),
+    explicit PublishThread(shared_ptr<SinglePrx> single) :
+        _single(std::move(single)),
         _published(0),
         _destroy(false)
     {
     }
 
-    virtual void run()
+    void run()
     {
         while(true)
         {
             {
-                Lock sync(*this);
+                lock_guard<mutex> log(_mutex);
                 if(_destroy)
                 {
                     cout << _published << endl;
@@ -50,7 +49,7 @@ public:
             try
             {
                 _single->event(_published);
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+                this_thread::sleep_for(1ms);
             }
             catch(const Ice::UnknownException&)
             {
@@ -64,31 +63,30 @@ public:
 
     void destroy()
     {
-        Lock sync(*this);
+        lock_guard<mutex> log(_mutex);
         _destroy = true;
     }
 
 private:
 
-    const SinglePrx _single;
+    const shared_ptr<SinglePrx> _single;
     int _published;
     bool _destroy;
+    mutex _mutex;
 };
-typedef IceUtil::Handle<PublishThread> PublishThreadPtr;
 
-class Publisher : public Test::TestHelper
+class Publisher final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Publisher::run(int argc, char** argv)
 {
-
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
@@ -97,7 +95,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
@@ -106,27 +104,27 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    TopicPrx topic = manager->retrieve("single");
+    auto topic = manager->retrieve("single");
     assert(topic);
 
     //
     // Get a publisher object, create a twoway proxy, disable
     // connection caching and then cast to a Single object.
     //
-    SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
+    auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
-    Ice::ObjectPrx controller = adapter->addWithUUID(new ControllerI);
+    auto adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
+    auto controller = adapter->addWithUUID(make_shared<ControllerI>());
     adapter->activate();
     cout << communicator->proxyToString(controller) << endl;
 
-    PublishThreadPtr t = new PublishThread(single);
-    t->start();
+    PublishThread pt(move(single));
+    auto fut = std::async(launch::async, [&pt]{ pt.run(); });
 
     communicator->waitForShutdown();
 
-    t->destroy();
-    t->getThreadControl().join();
+    pt.destroy();
+    fut.get();
 }
 
 DEFINE_TEST(Publisher)

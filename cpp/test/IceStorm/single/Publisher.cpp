@@ -12,18 +12,18 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class Publisher : public Test::TestHelper
+class Publisher final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Publisher::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
@@ -32,7 +32,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
@@ -41,14 +41,14 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    TopicPrx topic = manager->retrieve("single");
+    auto topic = manager->retrieve("single");
     assert(topic);
 
     //
     // Get a publisher object, create a twoway proxy and then cast to
     // a Single object.
     //
-    SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway());
+    auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
     for(int i = 0; i < 1000; ++i)
     {
         single->event(i);

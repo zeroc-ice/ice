@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
@@ -14,19 +13,20 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class SingleI : public Single
+class SingleI final : public Single
 {
 public:
 
-    SingleI() {}
-    virtual void event(int, const Current&) {}
+    void event(int, const Current&) override
+    {
+    }
 };
 
-class Sub : public Test::TestHelper
+class Sub final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -48,8 +48,8 @@ Sub::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    PropertiesPtr properties = communicator->getProperties();
-    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto properties = communicator->getProperties();
+    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
@@ -57,8 +57,8 @@ Sub::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy(managerProxy);
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -66,11 +66,11 @@ Sub::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
 
-    TopicPrx topic = manager->retrieve("single");
+    auto topic = manager->retrieve("single");
 
-    Ice::ObjectPrx prx = adapter->add(new SingleI(), stringToIdentity(opts.optArg("id")));
+    auto prx = adapter->add(make_shared<SingleI>(), stringToIdentity(opts.optArg("id")));
     if(opts.isSet("unsub"))
     {
         topic->unsubscribe(prx);

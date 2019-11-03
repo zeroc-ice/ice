@@ -12,7 +12,7 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class SingleI : public Single, public IceUtil::Monitor<IceUtil::Mutex>
+class SingleI final : public Single
 {
 public:
 
@@ -23,8 +23,8 @@ public:
     {
     }
 
-    virtual void
-    event(int i, const Current& current)
+    void
+    event(int i, const Current& current) override
     {
         if((_name == "default" || _name == "oneway" || _name == "batch" || _name == "datagram" ||
             _name == "batch datagram") && current.requestId != 0)
@@ -46,7 +46,7 @@ public:
             cerr << endl << "expected datagram to be received over udp";
             test(false);
         }
-        Lock sync(*this);
+        lock_guard<mutex> lg(_mutex);
         if(_name == "per-request load balancing")
         {
             _connections.insert(current.con);
@@ -54,19 +54,19 @@ public:
         ++_last;
         if(++_count == 1000)
         {
-            notify();
+            _condVar.notify_one();
         }
     }
 
-    virtual void
+    void
     waitForEvents()
     {
-        Lock sync(*this);
+        unique_lock<mutex> lock(_mutex);
         cout << "testing " << _name << " ... " << flush;
         bool datagram = _name == "datagram" || _name == "batch datagram";
         while(_count < 1000)
         {
-            if(!timedWait(IceUtil::Time::seconds(30)))
+            if(_condVar.wait_for(lock, 30s) == cv_status::timeout)
             {
                 if(datagram && _count > 0)
                 {
@@ -98,22 +98,23 @@ private:
     const string _name;
     int _count;
     int _last;
-    set<Ice::ConnectionPtr> _connections;
+    set<shared_ptr<Ice::Connection>> _connections;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-class Subscriber : public Test::TestHelper
+class Subscriber final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Subscriber::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
@@ -122,8 +123,8 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy(managerProxy);
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -132,7 +133,7 @@ Subscriber::run(int argc, char** argv)
     }
 
     // Use 2 default endpoints to test per-request load balancing
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:default:udp");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:default:udp");
 
     //
     // Test topic name that is too long
@@ -149,7 +150,7 @@ Subscriber::run(int argc, char** argv)
         }
     }
 
-    TopicPrx topic = manager->retrieve("single");
+    auto topic = manager->retrieve("single");
 
     //
     // Test subscriber identity that is too long
@@ -158,7 +159,7 @@ Subscriber::run(int argc, char** argv)
     {
         try
         {
-            Ice::ObjectPrx object = communicator->stringToProxy(string(512, 'A') + ":default -p 10000");
+            auto object = communicator->stringToProxy(string(512, 'A') + ":default -p 10000");
             topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
             test(false);
         }
@@ -170,48 +171,48 @@ Subscriber::run(int argc, char** argv)
     //
     // Create subscribers with different QoS.
     //
-    vector<SingleIPtr> subscribers;
+    vector<shared_ptr<SingleI>> subscribers;
     vector<Ice::Identity> subscriberIdentities;
 
     {
-        subscribers.push_back(new SingleI("default"));
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_oneway();
+        subscribers.push_back(make_shared<SingleI>("default"));
+        auto object = adapter->addWithUUID(subscribers.back())->ice_oneway();
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
-        subscribers.push_back(new SingleI("oneway"));
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_oneway();
+        subscribers.push_back(make_shared<SingleI>("oneway"));
+        auto object = adapter->addWithUUID(subscribers.back())->ice_oneway();
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
-        subscribers.push_back(new SingleI("twoway"));
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscribers.push_back(make_shared<SingleI>("twoway"));
+        auto object = adapter->addWithUUID(subscribers.back());
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
-        subscribers.push_back(new SingleI("batch"));
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_batchOneway();
+        subscribers.push_back(make_shared<SingleI>("batch"));
+        auto object = adapter->addWithUUID(subscribers.back())->ice_batchOneway();
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
-        subscribers.push_back(new SingleI("twoway ordered")); // Ordered
+        subscribers.push_back(make_shared<SingleI>("twoway ordered")); // Ordered
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        auto object = adapter->addWithUUID(subscribers.back());
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(qos, object);
     }
 
     {
-        subscribers.push_back(new SingleI("per-request load balancing"));
+        subscribers.push_back(make_shared<SingleI>("per-request load balancing"));
         IceStorm::QoS qos;
         qos["locatorCacheTimeout"] = "10";
         qos["connectionCached"] = "0";
-        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        auto object = adapter->addWithUUID(subscribers.back());
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(qos, object);
     }
@@ -220,9 +221,9 @@ Subscriber::run(int argc, char** argv)
         // (otherwise, if multiple UDP subscribers use the same connection we might get high
         // packet loss, see bug 1784).
         communicator->getProperties()->setProperty("UdpAdapter3.ThreadPool.Size", "1");
-        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter3", "udp");
-        subscribers.push_back(new SingleI("datagram"));
-        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
+        auto adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter3", "udp");
+        subscribers.push_back(make_shared<SingleI>("datagram"));
+        auto object = adpt->addWithUUID(subscribers.back())->ice_datagram();
         subscriberIdentities.push_back(object->ice_getIdentity());
         adpt->activate();
         topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
@@ -232,9 +233,9 @@ Subscriber::run(int argc, char** argv)
         // (otherwise, if multiple UDP subscribers use the same connection we might get high
         // packet loss, see bug 1784).
         communicator->getProperties()->setProperty("UdpAdapter4.ThreadPool.Size", "1");
-        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter4", "udp");
-        subscribers.push_back(new SingleI("batch datagram"));
-        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_batchDatagram();
+        auto adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter4", "udp");
+        subscribers.push_back(make_shared<SingleI>("batch datagram"));
+        auto object = adpt->addWithUUID(subscribers.back())->ice_batchDatagram();
         subscriberIdentities.push_back(object->ice_getIdentity());
         adpt->activate();
         topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
@@ -244,14 +245,14 @@ Subscriber::run(int argc, char** argv)
 
     vector<Ice::Identity> ids = topic->getSubscribers();
     test(ids.size() == subscriberIdentities.size());
-    for(vector<Ice::Identity>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for(const auto& p: ids)
     {
-        test(find(subscriberIdentities.begin(), subscriberIdentities.end(), *i) != subscriberIdentities.end());
+        test(find(subscriberIdentities.begin(), subscriberIdentities.end(), p) != subscriberIdentities.end());
     }
 
-    for(vector<SingleIPtr>::const_iterator p = subscribers.begin(); p != subscribers.end(); ++p)
+    for(const auto& p: subscribers)
     {
-        (*p)->waitForEvents();
+        p->waitForEvents();
     }
 }
 

@@ -62,7 +62,8 @@ static_excludes         = test/Ice/library test/Ice/plugin
 cpp98_projects          = %
 cpp98_excludes          = icebridge \
                           test/Glacier2/% \
-                          test/IceBridge/%
+                          test/IceBridge/% \
+                          test/IceStorm/%
 
 #
 # Components and projects which are built with C++11
@@ -76,6 +77,7 @@ cpp11_projects          = test/Common \
                           test/IceSSL/% \
                           test/IceDiscovery/% \
                           test/IceBox/% \
+                          test/IceStorm/% \
                           test/Glacier2/% \
                           test/IceGrid/simple \
                           test/IceBridge/simple

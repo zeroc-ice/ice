@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
@@ -14,57 +13,49 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class ControllerI : public Controller
+class ControllerI final : public Controller
 {
 public:
 
-    virtual void stop(const Ice::Current& c)
+    void stop(const Ice::Current& c) override
     {
         c.adapter->getCommunicator()->shutdown();
     }
 };
 
-class SingleI : public Single, public IceUtil::Monitor<IceUtil::Mutex>
+class SingleI final : public Single
 {
 public:
 
-    SingleI() :
-        _nevents(0)
+    void
+    event(int, const Current&) override
     {
-    }
-
-    virtual void
-    event(int, const Current&)
-    {
-        Lock sync(*this);
         ++_nevents;
     }
 
     int
     nevents() const
     {
-        Lock sync(*this);
         return _nevents;
     }
 
 private:
 
-    int _nevents;
+    atomic_int _nevents = 0;
 };
-typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-class Subscriber : public Test::TestHelper
+class Subscriber final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Subscriber::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
@@ -73,8 +64,8 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    auto base = communicator->stringToProxy(managerProxy);
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
     if(!manager)
     {
         ostringstream os;
@@ -82,12 +73,12 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
-    TopicPrx topic = manager->retrieve("single");
+    auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
+    auto topic = manager->retrieve("single");
 
-    SingleIPtr sub = new SingleI();
-    Ice::ObjectPrx prx = adapter->addWithUUID(sub);
-    Ice::ObjectPrx control = adapter->addWithUUID(new ControllerI);
+    auto sub = make_shared<SingleI>();
+    auto prx = adapter->addWithUUID(sub);
+    auto control = adapter->addWithUUID(make_shared<ControllerI>());
 
     IceStorm::QoS qos;
 

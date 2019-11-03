@@ -10,11 +10,11 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class Control : public Test::TestHelper
+class Control final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -28,7 +28,7 @@ Control::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    ControllerPrx control = ControllerPrx::uncheckedCast(communicator->stringToProxy(argv[1]));
+    auto control = uncheckedCast<ControllerPrx>(communicator->stringToProxy(argv[1]));
     control->stop();
 }
 
