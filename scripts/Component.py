@@ -164,10 +164,6 @@ class Ice(Component):
             if current.config.ipv6 and testId in ["Ice/udp"]:
                 return False
 
-        # IceSSL test doesn't work on macOS/.NET Core
-        if isinstance(mapping, CSharpMapping) and isinstance(platform, Darwin) and parent in ["IceSSL"]:
-            return False
-
         return True
 
     def isMainThreadOnly(self, testId):

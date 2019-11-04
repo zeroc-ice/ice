@@ -846,7 +846,17 @@ public class AllTests
                 X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
                 X509Certificate2Collection certs = new X509Certificate2Collection();
-                certs.Import(defaultDir + "/s_rsa_cai2.p12", "password", X509KeyStorageFlags.DefaultKeySet);
+                var storageFlags = X509KeyStorageFlags.DefaultKeySet;
+                if(IceInternal.AssemblyUtil.isMacOS)
+                {
+                    //
+                    // On macOS, we need to mark the key exportable because the addition of the key to the
+                    // cert store requires to move the key from on keychain to another (which requires the
+                    // Exportable flag... see https://github.com/dotnet/corefx/issues/25631)
+                    //
+                    storageFlags |= X509KeyStorageFlags.Exportable;
+                }
+                certs.Import(defaultDir + "/s_rsa_cai2.p12", "password", storageFlags);
                 foreach(X509Certificate2 cert in certs)
                 {
                     certStore.Add(cert);
@@ -2313,11 +2323,21 @@ public class AllTests
 
                 X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
+                var storageFlags = X509KeyStorageFlags.DefaultKeySet;
+                if(IceInternal.AssemblyUtil.isMacOS)
+                {
+                    //
+                    // On macOS, we need to mark the key exportable because the addition of the key to the
+                    // cert store requires to move the key from on keychain to another (which requires the
+                    // Exportable flag... see https://github.com/dotnet/corefx/issues/25631)
+                    //
+                    storageFlags |= X509KeyStorageFlags.Exportable;
+                }
                 try
                 {
                     foreach(string cert in certificates)
                     {
-                        certStore.Add(new X509Certificate2(defaultDir + cert, "password"));
+                        certStore.Add(new X509Certificate2(defaultDir + cert, "password", storageFlags));
                     }
                     for(int i = 0; i < clientFindCertProperties.Length; ++i)
                     {
