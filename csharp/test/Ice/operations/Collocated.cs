@@ -18,7 +18,7 @@ namespace Ice
                 initData.properties = createTestProperties(ref args);
                 initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
                 initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-                initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
+
                 using (var communicator = initialize(initData))
                 {
                     communicator.getProperties().setProperty("TestAdapter.AdapterId", "test");

@@ -20,7 +20,6 @@ namespace Ice
                 ObjectPrx baseProxy = communicator.stringToProxy("test:" + helper.getTestEndpoint(0));
                 var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
                 var oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
-                var batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
 
                 var output = helper.getWriter();
                 output.Write("testing ice_invoke... ");
@@ -32,12 +31,6 @@ namespace Ice
                     {
                         test(false);
                     }
-
-                    test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null, out outEncaps));
-                    test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null, out outEncaps));
-                    test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null, out outEncaps));
-                    test(batchOneway.ice_invoke("opOneway", OperationMode.Normal, null, out outEncaps));
-                    batchOneway.ice_flushBatchRequests();
 
                     OutputStream outS = new OutputStream(communicator);
                     outS.startEncapsulation();

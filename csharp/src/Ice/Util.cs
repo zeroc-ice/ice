@@ -87,11 +87,6 @@ namespace Ice
         public System.Func<int, string> compactIdResolver;
 
         /// <summary>
-        /// The batch request interceptor.
-        /// </summary>
-        public System.Action<BatchRequest, int, int> batchRequestInterceptor;
-
-        /// <summary>
         /// The value factory manager.
         /// </summary>
         public ValueFactoryManager valueFactoryManager;

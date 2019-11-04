@@ -41,17 +41,6 @@ namespace Ice
                 OnewaysAMI.onewaysAMI(helper, cl);
                 output.WriteLine("ok");
 
-                output.Write("testing batch oneway operations... ");
-                output.Flush();
-                BatchOneways.batchOneways(helper, cl);
-                BatchOneways.batchOneways(helper, derivedProxy);
-                output.WriteLine("ok");
-
-                output.Write("testing batch AMI oneway operations... ");
-                output.Flush();
-                BatchOnewaysAMI.batchOneways(cl);
-                BatchOnewaysAMI.batchOneways(derivedProxy);
-                output.WriteLine("ok");
                 return cl;
             }
         }

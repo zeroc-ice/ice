@@ -12,8 +12,6 @@
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../AllTests.cs" />
-    <Compile Include="../../../BatchOneways.cs" />
-    <Compile Include="../../../BatchOnewaysAMI.cs" />
     <Compile Include="../../../Client.cs" />
     <Compile Include="../../../Oneways.cs" />
     <Compile Include="../../../OnewaysAMI.cs" />

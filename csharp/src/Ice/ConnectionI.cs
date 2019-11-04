@@ -368,8 +368,7 @@ namespace Ice
                         setState(StateClosed, new ConnectionTimeoutException());
                     }
                     else if (acm.close != ACMClose.CloseOnInvocation &&
-                            _dispatchCount == 0 && _batchRequestQueue.isEmpty() &&
-                            _asyncRequests.Count == 0)
+                            _dispatchCount == 0  && _asyncRequests.Count == 0)
                     {
                         //
                         // The connection is idle, close it.
@@ -380,8 +379,7 @@ namespace Ice
             }
         }
 
-        public int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response,
-                                    int batchRequestNum)
+        public int sendAsyncRequest(OutgoingAsyncBase og, bool compress, bool response)
         {
             OutputStream os = og.getOs();
 
@@ -430,11 +428,6 @@ namespace Ice
                     os.pos(Protocol.headerSize);
                     os.writeInt(requestId);
                 }
-                else if (batchRequestNum > 0)
-                {
-                    os.pos(Protocol.headerSize);
-                    os.writeInt(batchRequestNum);
-                }
 
                 og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
 
@@ -461,38 +454,6 @@ namespace Ice
                 return status;
             }
         }
-
-        public BatchRequestQueue getBatchRequestQueue()
-        {
-            return _batchRequestQueue;
-        }
-
-        public void flushBatchRequests(CompressBatch compressBatch)
-        {
-            try
-            {
-                var completed = new FlushBatchTaskCompletionCallback();
-                var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
-                outgoing.invoke(_flushBatchRequests_name, compressBatch, true);
-                completed.Task.Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        public Task flushBatchRequestsAsync(CompressBatch compressBatch,
-                                            IProgress<bool> progress = null,
-                                            CancellationToken cancel = new CancellationToken())
-        {
-            var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
-            var outgoing = new ConnectionFlushBatchAsync(this, _instance, completed);
-            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
-            return completed.Task;
-        }
-
-        private const string _flushBatchRequests_name = "flushBatchRequests";
 
         public void setCloseCallback(CloseCallback callback)
         {
@@ -574,7 +535,7 @@ namespace Ice
                     os_.writeByte((byte)0);
                     os_.writeInt(IceInternal.Protocol.headerSize); // Message size.
 
-                    int status = _connection.sendAsyncRequest(this, false, false, 0);
+                    int status = _connection.sendAsyncRequest(this, false, false);
 
                     if ((status & AsyncStatusSent) != 0)
                     {
@@ -1363,8 +1324,7 @@ namespace Ice
             }
 
             //
-            // Method invocation (or multiple invocations for batch messages)
-            // must be done outside the thread synchronization, so that nested
+            // Method invocation must be done outside the thread synchronization, so that nested
             // calls are possible.
             //
             if (info.invokeNum > 0)
@@ -1701,7 +1661,6 @@ namespace Ice
             }
             _nextRequestId = 1;
             _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
-            _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
             _readStream = new InputStream(instance, Util.currentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
@@ -1901,7 +1860,6 @@ namespace Ice
                                 return;
                             }
 
-                            _batchRequestQueue.destroy(_exception);
                             _threadPool.finish(this);
                             _transceiver.close();
                             break;
@@ -3046,7 +3004,6 @@ namespace Ice
         private LocalException _exception;
 
         private readonly int _messageSizeMax;
-        private BatchRequestQueue _batchRequestQueue;
 
         private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
 

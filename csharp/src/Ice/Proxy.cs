@@ -557,20 +557,6 @@ namespace Ice
         Connection ice_getCachedConnection();
 
         /// <summary>
-        /// Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
-        /// </summary>
-        void ice_flushBatchRequests();
-
-        /// <summary>
-        /// Asynchronously flushes any pending batched requests for this proxy.
-        /// </summary>
-        /// <param name="progress">Sent progress provider.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>The task object representing the asynchronous operation.</returns>
-        Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
-                                         CancellationToken cancel = new CancellationToken());
-
-        /// <summary>
         /// Write a proxy to the output stream.
         /// </summary>
         /// <param name="os">Output stream object to write the proxy.</param>
@@ -1742,46 +1728,6 @@ namespace Ice
             return null;
         }
 
-        /// <summary>
-        /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
-        /// </summary>
-        public void ice_flushBatchRequests()
-        {
-            try
-            {
-                var completed = new FlushBatchTaskCompletionCallback();
-                iceI_ice_flushBatchRequests(completed, true);
-                completed.Task.Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        internal const string _ice_flushBatchRequests_name = "ice_flushBatchRequests";
-
-        public Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
-                                                CancellationToken cancel = new CancellationToken())
-        {
-            var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
-            iceI_ice_flushBatchRequests(completed, false);
-            return completed.Task;
-        }
-
-        private void iceI_ice_flushBatchRequests(OutgoingAsyncCompletionCallback completed, bool synchronous)
-        {
-            var outgoing = new ProxyFlushBatchAsync(this, completed);
-            try
-            {
-                outgoing.invoke(_ice_flushBatchRequests_name, synchronous);
-            }
-            catch (Exception ex)
-            {
-                outgoing.abort(ex);
-            }
-        }
-
         public System.Threading.Tasks.TaskScheduler ice_scheduler()
         {
             return _reference.getThreadPool();
@@ -1947,20 +1893,6 @@ namespace Ice
                 }
             }
             return _reference.getRequestHandler(this);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public BatchRequestQueue
-        iceGetBatchRequestQueue()
-        {
-            lock (this)
-            {
-                if (_batchRequestQueue == null)
-                {
-                    _batchRequestQueue = _reference.getBatchRequestQueue();
-                }
-                return _batchRequestQueue;
-            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -2195,7 +2127,7 @@ namespace Ice
 
         private Reference _reference;
         private RequestHandler _requestHandler;
-        private BatchRequestQueue _batchRequestQueue;
+
         private struct StreamCacheEntry
         {
             public InputStream iss;

@@ -462,20 +462,14 @@ namespace IceInternal
             {
                 return "oneway";
             }
-            else if (_proxy.ice_isBatchOneway())
-            {
-                return "batch-oneway";
-            }
             else if (_proxy.ice_isDatagram())
             {
                 return "datagram";
             }
-            else if (_proxy.ice_isBatchDatagram())
-            {
-                return "batch-datagram";
-            }
             else
             {
+                // Note: it's not possible to invoke on a batch proxy, but it's
+                // possible to receive a batch request.
                 throw new ArgumentOutOfRangeException("mode");
             }
         }

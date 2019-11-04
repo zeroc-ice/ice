@@ -49,40 +49,6 @@ namespace Ice
             }
 
             override public void
-            opBatch(Ice.Current current)
-            {
-                lock (this)
-                {
-                    ++_batchCount;
-                    Monitor.Pulse(this);
-                }
-            }
-
-            override public int
-            opBatchCount(Ice.Current current)
-            {
-                lock (this)
-                {
-                    return _batchCount;
-                }
-            }
-
-            override public bool
-            waitForBatch(int count, Ice.Current current)
-            {
-                lock (this)
-                {
-                    while (_batchCount < count)
-                    {
-                        test(Monitor.Wait(this, 10000));
-                    }
-                    bool result = count == _batchCount;
-                    _batchCount = 0;
-                    return result;
-                }
-            }
-
-            override public void
             close(Test.CloseMode mode, Ice.Current current)
             {
                 current.con.close((Ice.ConnectionClose)((int)mode));
@@ -206,7 +172,6 @@ namespace Ice
                 }
             }
 
-            private int _batchCount;
             private bool _shutdown;
             private TaskCompletionSource<object> _pending = null;
         }

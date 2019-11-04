@@ -243,20 +243,6 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
-        {
-            List<Ice.ObjectAdapterI> adapters;
-            lock (this)
-            {
-                adapters = new List<Ice.ObjectAdapterI>(_adapters);
-            }
-
-            foreach (Ice.ObjectAdapterI adapter in adapters)
-            {
-                adapter.flushAsyncBatchRequests(compressBatch, outAsync);
-            }
-        }
-
         //
         // Only for use by Instance.
         //

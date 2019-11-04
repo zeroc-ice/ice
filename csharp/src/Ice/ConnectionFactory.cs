@@ -255,40 +255,6 @@ namespace IceInternal
             }
         }
 
-        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
-        {
-            ICollection<Ice.ConnectionI> c = new List<Ice.ConnectionI>();
-
-            lock (this)
-            {
-                if (!_destroyed)
-                {
-                    foreach (ICollection<Ice.ConnectionI> connectionList in _connections.Values)
-                    {
-                        foreach (Ice.ConnectionI conn in connectionList)
-                        {
-                            if (conn.isActiveOrHolding())
-                            {
-                                c.Add(conn);
-                            }
-                        }
-                    }
-                }
-            }
-
-            foreach (Ice.ConnectionI conn in c)
-            {
-                try
-                {
-                    outAsync.flushConnection(conn, compressBatch);
-                }
-                catch (Ice.LocalException)
-                {
-                    // Ignore.
-                }
-            }
-        }
-
         //
         // Only for use by Instance.
         //
@@ -1312,24 +1278,6 @@ namespace IceInternal
                 }
 
                 return connections;
-            }
-        }
-
-        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
-        {
-            //
-            // connections() is synchronized, no need to synchronize here.
-            //
-            foreach (Ice.ConnectionI connection in connections())
-            {
-                try
-                {
-                    outAsync.flushConnection(connection, compressBatch);
-                }
-                catch (Ice.LocalException)
-                {
-                    // Ignore.
-                }
             }
         }
 

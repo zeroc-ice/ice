@@ -163,33 +163,6 @@ namespace Ice
             return _instance.pluginManager();
         }
 
-        public void flushBatchRequests(Ice.CompressBatch compressBatch)
-        {
-            try
-            {
-                var completed = new FlushBatchTaskCompletionCallback();
-                var outgoing = new CommunicatorFlushBatchAsync(_instance, completed);
-                outgoing.invoke(_flushBatchRequests_name, compressBatch, true);
-                completed.Task.Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        public Task flushBatchRequestsAsync(Ice.CompressBatch compressBatch,
-                                            IProgress<bool> progress = null,
-                                            CancellationToken cancel = new CancellationToken())
-        {
-            var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
-            var outgoing = new CommunicatorFlushBatchAsync(_instance, completed);
-            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
-            return completed.Task;
-        }
-
-        private const string _flushBatchRequests_name = "flushBatchRequests";
-
         public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
             return _instance.createAdmin(adminAdapter, adminIdentity);
