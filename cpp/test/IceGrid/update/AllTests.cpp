@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
 #include <TestHelper.h>
@@ -13,45 +12,40 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
+addProperty(const shared_ptr<CommunicatorDescriptor>& desc, string name, string value)
 {
-    PropertyDescriptor prop;
-    prop.name = name;
-    prop.value = value;
-    communicator->propertySet.properties.push_back(prop);
+    PropertyDescriptor prop = { move(name), move(value) };
+    desc->propertySet.properties.push_back(prop);
 }
 
 string
-getProperty(const PropertyDescriptorSeq& properties, const string& name)
+getProperty(const PropertyDescriptorSeq& properties, string name)
 {
-    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for(const auto& q: properties)
     {
-        if(q->name == name)
+        if(q.name == name)
         {
-            return q->value;
+            return q.value;
         }
     }
     return "";
 }
 
 PropertyDescriptor
-createProperty(const string& name, const string& value)
+createProperty(string name, string value)
 {
-    PropertyDescriptor prop;
-    prop.name = name;
-    prop.value = value;
+    PropertyDescriptor prop{ move(name), move(value) };
     return prop;
 }
 
 bool
-hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
+hasProperty(const shared_ptr<CommunicatorDescriptor>& desc, string name, string value)
 {
-    for(PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
-        p != desc->propertySet.properties.end(); ++p)
+    for(const auto& p : desc->propertySet.properties)
     {
-        if(p->name == name)
+        if(p.name == name)
         {
-            return p->value == value;
+            return p.value == value;
         }
     }
     return false;
@@ -60,20 +54,18 @@ hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const str
 void
 allTests(Test::TestHelper* helper)
 {
-    const Ice::CommunicatorPtr& communicator = helper->communicator();
-    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
+    auto communicator = helper->communicator();
+    auto registry = Ice::checkedCast<IceGrid::RegistryPrx>(communicator->stringToProxy(
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+    auto session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         IceUtil::None,
-                                         Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
-    AdminPrx admin = session->getAdmin();
+    auto admin = session->getAdmin();
     test(admin);
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
 
     {
         ApplicationDescriptor testApp;
@@ -90,7 +82,7 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing server add... " << flush;
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        shared_ptr<ServerDescriptor> server = make_shared<ServerDescriptor>();
         server->id = "Server";
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -155,8 +147,8 @@ allTests(Test::TestHelper* helper)
 
         TemplateDescriptor templ;
         templ.parameters.push_back("name");
-        templ.descriptor = new ServerDescriptor();
-        server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
+        templ.descriptor = make_shared<ServerDescriptor>();
+        server = dynamic_pointer_cast<ServerDescriptor>(templ.descriptor);
         server->id = "${name}";
         server->exe = "${test.dir}/server";
         server->pwd = ".";
@@ -535,7 +527,7 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing icebox server add... " << flush;
 
-        ServiceDescriptorPtr service = new ServiceDescriptor();
+        auto service = make_shared<ServiceDescriptor>();
         service->name = "Service1";
         service->entry = "TestService:create";
         AdapterDescriptor adapter;
@@ -546,18 +538,18 @@ allTests(Test::TestHelper* helper)
         addProperty(service, "${service}.Endpoints", "default");
         service->adapters.push_back(adapter);
 
-        IceBoxDescriptorPtr server = new IceBoxDescriptor();
+        auto server = make_shared<IceBoxDescriptor>();
         server->id = "IceBox";
         server->exe = properties->getProperty("IceBoxExe");
 
         server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->services.resize(3);
-        server->services[0].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+        server->services[0].descriptor = dynamic_pointer_cast<ServiceDescriptor>(service->ice_clone());
         service->name = "Service2";
-        server->services[1].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+        server->services[1].descriptor = dynamic_pointer_cast<ServiceDescriptor>(service->ice_clone());
         service->name = "Service3";
-        server->services[2].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+        server->services[2].descriptor = dynamic_pointer_cast<ServiceDescriptor>(service->ice_clone());
 
         update.nodes[0].servers.push_back(server);
         try
@@ -711,7 +703,7 @@ allTests(Test::TestHelper* helper)
     {
         cout << "testing variable update... " << flush;
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        auto server = make_shared<ServerDescriptor>();
         server->id = "${name}";
         server->exe = "server";
         server->pwd = ".";
@@ -860,7 +852,6 @@ allTests(Test::TestHelper* helper)
         }
 
         serverAfter = admin->getServerInfo("Server");
-        PropertyDescriptorSeq newProps = serverAfter.descriptor->propertySet.properties;
         test(getProperty(serverAfter.descriptor->propertySet.properties, "ApplicationVar") == "nodeoverride");
         test(getProperty(serverAfter.descriptor->propertySet.properties, "NodeVar") == "NodeValue");
         test(getProperty(serverAfter.descriptor->propertySet.properties, "ServerParamVar") == "ServerParamValue");
@@ -871,7 +862,7 @@ allTests(Test::TestHelper* helper)
     {
         cout << "testing property set update... " << flush;
 
-        ServiceDescriptorPtr service = new ServiceDescriptor();
+        auto service = make_shared<ServiceDescriptor>();
         service->name = "${name}";
         service->entry = "dummy";
         addProperty(service, "ServiceProp", "test");
@@ -885,7 +876,7 @@ allTests(Test::TestHelper* helper)
         serviceInstance.parameterValues["name"] =  "Service";
         serviceInstance.propertySet.properties.push_back(createProperty("ServiceInstanceProp", "test"));
 
-        IceBoxDescriptorPtr server = new IceBoxDescriptor();
+        auto server = make_shared<IceBoxDescriptor>();
         server->id = "${name}";
         server->exe = "server";
         server->pwd = ".";
@@ -941,7 +932,7 @@ allTests(Test::TestHelper* helper)
         test(hasProperty(info.descriptor, "ApplicationProp", "test"));
         test(hasProperty(info.descriptor, "ServerInstanceProp", "test"));
 
-        ServiceDescriptorPtr svc = IceBoxDescriptorPtr::dynamicCast(info.descriptor)->services[0].descriptor;
+        auto svc = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor)->services[0].descriptor;
         test(hasProperty(svc, "ServiceProp", "test"));
 
         ApplicationUpdateDescriptor empty;
@@ -955,7 +946,7 @@ allTests(Test::TestHelper* helper)
         update.serviceTemplates["ServiceTemplate"] = svcTempl;
         admin->updateApplication(update);
         info = admin->getServerInfo("Server");
-        svc = IceBoxDescriptorPtr::dynamicCast(info.descriptor)->services[0].descriptor;
+        svc = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor)->services[0].descriptor;
         test(hasProperty(svc, "ServiceProp", "updated"));
 
         update = empty;
@@ -967,7 +958,7 @@ allTests(Test::TestHelper* helper)
         update.serverTemplates["ServerTemplate"] = templ;
         admin->updateApplication(update);
         info = admin->getServerInfo("Server");
-        svc = IceBoxDescriptorPtr::dynamicCast(info.descriptor)->services[0].descriptor;
+        svc = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor)->services[0].descriptor;
         test(hasProperty(svc, "ServiceInstanceProp", "updated"));
 
         update = empty;
@@ -1053,7 +1044,7 @@ allTests(Test::TestHelper* helper)
         testApp = admin->getApplicationInfo("TestApp").descriptor;
         test(testApp.description == "Description");
 
-        update.description = new BoxedString("updatedDescription");
+        update.description = make_shared<BoxedString>("updatedDescription");
         try
         {
             admin->updateApplication(update);
@@ -1066,7 +1057,7 @@ allTests(Test::TestHelper* helper)
         testApp = admin->getApplicationInfo("TestApp").descriptor;
         test(testApp.description == "updatedDescription");
 
-        update.description = new BoxedString("");
+        update.description = make_shared<BoxedString>("");
         try
         {
             admin->updateApplication(update);
@@ -1090,7 +1081,7 @@ allTests(Test::TestHelper* helper)
         ApplicationDescriptor nodeApp;
         nodeApp.name = "NodeApp";
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        ServerDescriptorPtr server = make_shared<ServerDescriptor>();
         server->id = "node-${index}";
         server->exe = properties->getProperty("IceGridNodeExe");
         server->pwd = ".";
@@ -1144,7 +1135,7 @@ allTests(Test::TestHelper* helper)
             catch(const NodeNotExistException&)
             {
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(500ms);
             ++retry;
         }
         test(admin->pingNode("node-1"));
@@ -1152,7 +1143,7 @@ allTests(Test::TestHelper* helper)
 
         ApplicationDescriptor testApp;
         testApp.name = "TestApp";
-        server = new ServerDescriptor();
+        server = make_shared<ServerDescriptor>();
         server->id = "Server";
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -1180,7 +1171,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             admin->startServer("Server");
-            test(admin->getServerState("Server") == Active);
+            test(admin->getServerState("Server") == ServerState::Active);
         }
         catch(const ServerStartException& ex)
         {
@@ -1218,19 +1209,19 @@ allTests(Test::TestHelper* helper)
         {
             try
             {
-                test(admin->getServerInfo("Server").node == "node-2" && admin->getServerState("Server") == Inactive);
+                test(admin->getServerInfo("Server").node == "node-2" && admin->getServerState("Server") == ServerState::Inactive);
 
                 admin->startServer("Server");
-                test(admin->getServerState("Server") == Active);
+                test(admin->getServerState("Server") == ServerState::Active);
                 break;
             }
             catch(const DeploymentException&)
             {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+                this_thread::sleep_for(200ms);
             }
         }
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+        this_thread::sleep_for(1s);
 
         update = ApplicationUpdateDescriptor();
         update.name = "TestApp";
