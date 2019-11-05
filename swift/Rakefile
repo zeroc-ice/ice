@@ -573,11 +573,16 @@ def target_name(basename, suffix = nil)
     suffix ? "#{name} #{suffix}" : name
 end
 
+# This class can be removed once https://github.com/CocoaPods/Xcodeproj/issues/724 is fixed
+class PBXBuildRule < Xcodeproj::Project::PBXBuildRule
+    attribute :dependency_file, String
+end
+
 def target_add_slice2swift_build_rule(project, target, prefix = nil)
     #
     # Add Slice Compiler build rule to the target
     #
-    rule = project.new(Xcodeproj::Project::PBXBuildRule)
+    rule = project.new(PBXBuildRule)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
 
@@ -604,7 +609,11 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
             mkdir -p "$DERIVED_FILE_DIR/#{prefix}"
             "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
             mv "$DERIVED_FILE_DIR/#{prefix}/$BASENAME.swift" "$DERIVED_FILE_DIR/#{prefix}_$BASENAME.swift"
+
+            "$SLICE2SWIFT" --depend --depend-file "$DERIVED_FILES_DIR/#{prefix}_$INPUT_FILE_NAME.d" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" "$INPUT_FILE_PATH"
+            echo "$INPUT_FILE_PATH: $SLICE2SWIFT" >> "$DERIVED_FILES_DIR/#{prefix}_$INPUT_FILE_NAME.d"
         EOF
+        rule.dependency_file = "$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_NAME).d"
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
     else
         rule.name = "Slice Compiler"
@@ -612,7 +621,10 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
         rule.script = <<~EOF
             #{slic2swift}
             "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR" "$INPUT_FILE_PATH"
+            "$SLICE2SWIFT" --depend --depend-file "$DERIVED_FILES_DIR/$INPUT_FILE_NAME.d" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" "$INPUT_FILE_PATH"
+            echo "$INPUT_FILE_PATH: $SLICE2SWIFT" >> "$DERIVED_FILES_DIR/$INPUT_FILE_NAME.d"
         EOF
+        rule.dependency_file = "$(DERIVED_FILE_DIR)/$(INPUT_FILE_NAME).d"
         rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
     end
     target.build_rules << rule
@@ -622,18 +634,18 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     #
     # Add Slice Compiler build rule to the target
     #
-    rule = project.new(Xcodeproj::Project::PBXBuildRule)
+    rule = project.new(PBXBuildRule)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
     rule.file_patterns = "*/#{prefix}/*.ice"
+    rule.dependency_file = "$(DERIVED_FILES_DIR)/#{prefix}/$(INPUT_FILE_NAME).d"
+
     rule.script = <<~EOF
         if [ -f "$ICE_HOME/cpp/bin/slice2cpp" ]; then
             SLICE2CPP="$ICE_HOME/cpp/bin/slice2cpp"
         elif [ -f "$SRCROOT/../cpp/bin/slice2cpp" ]; then
             SLICE2CPP="$SRCROOT/../cpp/bin/slice2cpp"
-        elif [ -f /usr/local/opt/slice2swift/libexec/bin/slice2cpp ]; then
-            SLICE2CPP=/usr/local/opt/slice2swift/libexec/bin/slice2cpp
         elif [ -f /usr/local/bin/slice2cpp ]; then
             SLICE2CPP=/usr/local/bin/slice2cpp
         else
@@ -644,13 +656,17 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
         BASENAME=$(basename -- "$INPUT_FILE_PATH")
         BASENAME="${BASENAME%.*}"
         mkdir -p "$DERIVED_FILE_DIR/#{prefix}"
-        $SLICE2CPP -I"$SRCROOT/../slice" -D ICE_SWIFT --include-dir #{prefix} --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
+        "$SLICE2CPP" -I"$SRCROOT/../slice" -D ICE_SWIFT --include-dir #{prefix} --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
         mkdir -p "$SYMROOT/$PLATFORM_NAME/include/#{prefix}"
         mv "$DERIVED_FILE_DIR/#{prefix}/$BASENAME.h" "$SYMROOT/$PLATFORM_NAME/include/#{prefix}/$BASENAME.h"
+
+        "$SLICE2CPP" --depend --depend-file "$DERIVED_FILES_DIR/#{prefix}/$INPUT_FILE_NAME.d" -I"$SRCROOT/../slice" --include-dir #{prefix} "$INPUT_FILE_PATH"
+        echo "$INPUT_FILE_PATH: $SLICE2CPP" >> "$DERIVED_FILES_DIR/#{prefix}/$INPUT_FILE_NAME.d"
     EOF
     rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).cpp",
                          "$(SYMROOT)/$(PLATFORM_NAME)/include/#{prefix}/$(INPUT_FILE_BASE).h"]
     target.build_rules << rule
+
 end
 
 def target_add_swiftlint_build_phase(target, basedir)
