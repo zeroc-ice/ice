@@ -587,8 +587,14 @@ public class AllTests
                         }
                         catch(Ice.LocalException ex)
                         {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
+                            //
+                            // macOS catalina does not check the certificate common name
+                            //
+                            if(!IceInternal.AssemblyUtil.isMacOS)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
                         }
                         fact.destroyServer(server);
                         comm.destroy();
@@ -774,8 +780,14 @@ public class AllTests
                         }
                         catch(Ice.SecurityException ex)
                         {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
+                            //
+                            // macOS catalina does not check the certificate common name
+                            //
+                            if(!IceInternal.AssemblyUtil.isMacOS)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
                         }
                         fact.destroyServer(server);
                         comm.destroy();
