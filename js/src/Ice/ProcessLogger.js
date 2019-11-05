@@ -3,7 +3,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-const Ice = require("../Ice/LoggerI").Ice;
+const Ice = require("../Ice/Logger").Ice;
 const Logger = Ice.Logger;
 
 let processLogger = null;
