@@ -7,13 +7,13 @@
 
 #include <Test.h>
 
-class TestI : public ::Test::TestIntf
+class TestI final : public ::Test::TestIntf
 {
 public:
 
     TestI();
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 };
 
 #endif

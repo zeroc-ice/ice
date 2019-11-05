@@ -3,18 +3,16 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
 #include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
-using namespace Test;
 
-class Client : public Test::TestHelper
+class Client final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -23,7 +21,7 @@ Client::run(int argc, char** argv)
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceLocatorDiscovery(false);
 #endif
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
 
     bool withDeploy = false;
 

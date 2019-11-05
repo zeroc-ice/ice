@@ -8,21 +8,21 @@
 
 using namespace std;
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    string id = communicator->getProperties()->getPropertyWithDefault("Identity", "test");
-    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity(id));
+    auto adapter = communicatorHolder->createObjectAdapter("TestAdapter");
+    auto id = communicatorHolder->getProperties()->getPropertyWithDefault("Identity", "test");
+    adapter->add(make_shared<TestI>(), Ice::stringToIdentity(id));
 
     try
     {
@@ -31,7 +31,7 @@ Server::run(int argc, char** argv)
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator->waitForShutdown();
+    communicatorHolder->waitForShutdown();
 }
 
 DEFINE_TEST(Server)

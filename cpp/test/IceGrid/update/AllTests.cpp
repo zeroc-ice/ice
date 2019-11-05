@@ -14,7 +14,7 @@ using namespace IceGrid;
 void
 addProperty(const shared_ptr<CommunicatorDescriptor>& desc, string name, string value)
 {
-    PropertyDescriptor prop = { move(name), move(value) };
+    PropertyDescriptor prop{ move(name), move(value) };
     desc->propertySet.properties.push_back(prop);
 }
 
@@ -1081,7 +1081,7 @@ allTests(Test::TestHelper* helper)
         ApplicationDescriptor nodeApp;
         nodeApp.name = "NodeApp";
 
-        ServerDescriptorPtr server = make_shared<ServerDescriptor>();
+        auto server = make_shared<ServerDescriptor>();
         server->id = "node-${index}";
         server->exe = properties->getProperty("IceGridNodeExe");
         server->pwd = ".";
