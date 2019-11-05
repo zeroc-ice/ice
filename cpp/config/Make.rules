@@ -63,6 +63,7 @@ cpp98_projects          = %
 cpp98_excludes          = icebridge \
                           test/Glacier2/% \
                           test/IceBridge/% \
+                          test/IceGrid/% \
                           test/IceStorm/%
 
 #
@@ -79,7 +80,7 @@ cpp11_projects          = test/Common \
                           test/IceBox/% \
                           test/IceStorm/% \
                           test/Glacier2/% \
-                          test/IceGrid/simple \
+                          test/IceGrid/% \
                           test/IceBridge/simple
 
 cpp11_excludes          = test/Ice/gc
