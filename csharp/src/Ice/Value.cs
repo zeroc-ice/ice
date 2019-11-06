@@ -31,22 +31,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
-        /// to override this method in order to validate its data members.
-        /// </summary>
-        public virtual void ice_preMarshal()
-        {
-        }
-
-        /// <summary>
-        /// This Ice run time invokes this method after unmarshaling an object's data members. This allows a
-        /// subclass to override this method in order to perform additional initialization.
-        /// </summary>
-        public virtual void ice_postUnmarshal()
-        {
-        }
-
-        /// <summary>
         /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
         /// un-marshaling of the value, null is returned otherwise.
         /// </summary>

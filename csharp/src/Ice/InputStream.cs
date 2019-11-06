@@ -2985,50 +2985,6 @@ namespace Ice
                         _patchMap.Remove(index);
                     }
                 }
-
-                if ((_patchMap == null || _patchMap.Count == 0) && _valueList == null)
-                {
-                    try
-                    {
-                        v.ice_postUnmarshal();
-                    }
-                    catch (System.Exception ex)
-                    {
-                        string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                        _stream.instance().initializationData().logger.warning(s);
-                    }
-                }
-                else
-                {
-                    if (_valueList == null)
-                    {
-                        _valueList = new List<Value>();
-                    }
-                    _valueList.Add(v);
-
-                    if (_patchMap == null || _patchMap.Count == 0)
-                    {
-                        //
-                        // Iterate over the instance list and invoke ice_postUnmarshal on
-                        // each instance. We must do this after all instances have been
-                        // unmarshaled in order to ensure that any instance data members
-                        // have been properly patched.
-                        //
-                        foreach (var p in _valueList)
-                        {
-                            try
-                            {
-                                p.ice_postUnmarshal();
-                            }
-                            catch (System.Exception ex)
-                            {
-                                string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                                _stream.instance().initializationData().logger.warning(s);
-                            }
-                        }
-                        _valueList.Clear();
-                    }
-                }
             }
 
             protected readonly InputStream _stream;
@@ -3046,7 +3002,6 @@ namespace Ice
             private Dictionary<int, Value> _unmarshaledMap;
             private Dictionary<int, string> _typeIdMap;
             private int _typeIdIndex;
-            private List<Value> _valueList;
             private Dictionary<string, Type> _typeIdCache;
         }
 

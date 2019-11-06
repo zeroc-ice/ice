@@ -2345,17 +2345,6 @@ namespace Ice
                         // are added to toBeMarshaledMap.
                         //
                         _stream.writeInt(p.Value);
-
-                        try
-                        {
-                            p.Key.ice_preMarshal();
-                        }
-                        catch (System.Exception ex)
-                        {
-                            string s = "exception raised by ice_preMarshal:\n" + ex;
-                            _stream.instance().initializationData().logger.warning(s);
-                        }
-
                         p.Key.iceWrite(_stream);
                     }
                 }
@@ -2681,16 +2670,6 @@ namespace Ice
                 // insert it into the marshaled map, and write the instance.
                 //
                 _marshaledMap.Add(v, ++_valueIdIndex);
-
-                try
-                {
-                    v.ice_preMarshal();
-                }
-                catch (System.Exception ex)
-                {
-                    string s = "exception raised by ice_preMarshal:\n" + ex;
-                    _stream.instance().initializationData().logger.warning(s);
-                }
 
                 _stream.writeSize(1); // Object instance marker.
                 v.iceWrite(_stream);

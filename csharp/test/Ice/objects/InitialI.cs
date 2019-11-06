@@ -14,10 +14,10 @@ namespace Ice
             public InitialI(Ice.ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _b1 = new BI();
-                _b2 = new BI();
-                _c = new CI();
-                _d = new DI();
+                _b1 = new Test.B();
+                _b2 = new Test.B();
+                _c = new Test.C();
+                _d = new Test.D();
                 _e = new EI();
                 _f = new FI(_e);
 

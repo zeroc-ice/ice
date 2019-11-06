@@ -64,15 +64,15 @@ namespace Ice
                 {
                     if (type.Equals("::Test::B"))
                     {
-                        return new BI();
+                        return new B();
                     }
                     else if (type.Equals("::Test::C"))
                     {
-                        return new CI();
+                        return new C();
                     }
                     else if (type.Equals("::Test::D"))
                     {
-                        return new DI();
+                        return new D();
                     }
                     else if (type.Equals("::Test::E"))
                     {
@@ -165,12 +165,6 @@ namespace Ice
                     test(((B)b1.theA).theB == b1);
                     //test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
                     test(((C)(((B)b1.theA).theC)).theB == b1.theA);
-                    test(b1.preMarshalInvoked);
-                    test(b1.postUnmarshalInvoked);
-                    test(b1.theA.preMarshalInvoked);
-                    test(b1.theA.postUnmarshalInvoked);
-                    test(((B)b1.theA).theC.preMarshalInvoked);
-                    test(((B)b1.theA).theC.postUnmarshalInvoked);
 
                     // More tests possible for b2 and d, but I think this is already
                     // sufficient.
@@ -204,14 +198,6 @@ namespace Ice
                     test(dout.theA == b1out);
                     test(dout.theB == b2out);
                     test(dout.theC == null);
-                    test(dout.preMarshalInvoked);
-                    test(dout.postUnmarshalInvoked);
-                    test(dout.theA.preMarshalInvoked);
-                    test(dout.theA.postUnmarshalInvoked);
-                    test(dout.theB.preMarshalInvoked);
-                    test(dout.theB.postUnmarshalInvoked);
-                    test(dout.theB.theC.preMarshalInvoked);
-                    test(dout.theB.theC.postUnmarshalInvoked);
 
                     output.WriteLine("ok");
 
