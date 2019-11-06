@@ -8,10 +8,11 @@
 #include <Test.h>
 
 using namespace std;
+using namespace IceGrid;
 using namespace Test;
 
 void
-allTests(Test::TestHelper* helper)
+allTests(TestHelper* helper)
 {
     auto communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
@@ -20,7 +21,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing IceGrid.Locator is present... " << flush;
-    auto locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(base);
+    auto locator = Ice::uncheckedCast<LocatorPrx>(base);
     test(locator);
     cout << "ok" << endl;
 
@@ -36,8 +37,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing locator finder... " << flush;
     Ice::Identity finderId{ "Ice", "LocatorFinder" };
-    auto finder = Ice::checkedCast<Ice::LocatorFinderPrx>(
-        communicator->getDefaultLocator()->ice_identity(finderId));
+    auto finder = Ice::checkedCast<Ice::LocatorFinderPrx>(communicator->getDefaultLocator()->ice_identity(finderId));
     test(finder->getLocator());
     cout << "ok" << endl;
 
@@ -47,7 +47,7 @@ allTests(Test::TestHelper* helper)
         cout << "testing discovery... " << flush;
         {
             // Add test well-known object
-            auto registry = Ice::checkedCast<IceGrid::RegistryPrx>(communicator->stringToProxy(
+            auto registry = Ice::checkedCast<RegistryPrx>(communicator->stringToProxy(
                 communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
             test(registry);
 
@@ -73,9 +73,9 @@ allTests(Test::TestHelper* helper)
             com->stringToProxy("test @ TestAdapter")->ice_ping();
             com->stringToProxy("test")->ice_ping();
             test(com->getDefaultLocator()->getRegistry());
-            test(Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalRegistry());
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
+            test(Ice::checkedCast<LocatorPrx>(com->getDefaultLocator()));
+            test(Ice::uncheckedCast<LocatorPrx>(com->getDefaultLocator())->getLocalRegistry());
+            test(Ice::uncheckedCast<LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
 
             auto adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
             adapter->activate();
@@ -114,10 +114,10 @@ allTests(Test::TestHelper* helper)
             {
             }
             test(!com->getDefaultLocator()->getRegistry());
-            test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
+            test(!Ice::checkedCast<LocatorPrx>(com->getDefaultLocator()));
             try
             {
-                test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
+                test(Ice::uncheckedCast<LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
             }
             catch(const Ice::OperationNotExistException&)
             {
@@ -221,7 +221,7 @@ allTests(Test::TestHelper* helper)
 }
 
 void
-allTestsWithDeploy(Test::TestHelper* helper)
+allTestsWithDeploy(TestHelper* helper)
 {
     auto communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
@@ -298,7 +298,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    auto registry = Ice::checkedCast<IceGrid::RegistryPrx>(communicator->stringToProxy(
+    auto registry = Ice::checkedCast<RegistryPrx>(communicator->stringToProxy(
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
 

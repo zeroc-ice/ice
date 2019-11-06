@@ -134,10 +134,10 @@ instantiateServer(const shared_ptr<AdminPrx>& admin, string templ, const map<str
     desc.parameterValues = params;
     NodeUpdateDescriptor nodeUpdate;
     nodeUpdate.name = "localnode";
-    nodeUpdate.serverInstances.push_back(desc);
+    nodeUpdate.serverInstances.push_back(move(desc));
     ApplicationUpdateDescriptor update;
     update.name = "Test";
-    update.nodes.push_back(nodeUpdate);
+    update.nodes.push_back(move(nodeUpdate));
     try
     {
         admin->updateApplication(update);
@@ -178,7 +178,7 @@ removeServer(const shared_ptr<AdminPrx>& admin, const string& id)
     nodeUpdate.removeServers.push_back(id);
     ApplicationUpdateDescriptor update;
     update.name = "Test";
-    update.nodes.push_back(nodeUpdate);
+    update.nodes.push_back(move(nodeUpdate));
     try
     {
         admin->updateApplication(update);
@@ -244,10 +244,10 @@ isAdapterInfoEqual(const AdapterInfo& adpt1, const AdapterInfo& adpt2)
 }
 
 void
-allTests(Test::TestHelper* helper)
+allTests(TestHelper* helper)
 {
     auto communicator = helper->communicator();
-    auto registry = Ice::checkedCast<IceGrid::RegistryPrx>(communicator->stringToProxy(
+    auto registry = Ice::checkedCast<RegistryPrx>(communicator->stringToProxy(
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
     auto adminSession = registry->createAdminSession("foo", "bar");
@@ -272,7 +272,7 @@ allTests(Test::TestHelper* helper)
     params["replicaName"] = "Slave1";
     params["port"] = "12051";
     instantiateServer(admin, "IceGridRegistry", params);
-    
+
     params.clear();
     params["id"] = "Slave2";
     params["replicaName"] = "Slave2";
@@ -322,7 +322,7 @@ allTests(Test::TestHelper* helper)
         test(endpoints[1]->toString().find("-p 12051") != string::npos);
         info = masterAdmin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query"));
         test(isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info));
-        test(info.type == IceGrid::Query::ice_staticId());
+        test(info.type == Query::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 2);
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
@@ -353,7 +353,7 @@ allTests(Test::TestHelper* helper)
             ++nRetry;
         }
         test(isObjectInfoEqual(slave2Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info));
-        test(info.type == IceGrid::Query::ice_staticId());
+        test(info.type == Query::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 3);
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
@@ -386,7 +386,7 @@ allTests(Test::TestHelper* helper)
             ++nRetry;
         }
         test(isObjectInfoEqual(slave1Admin->getObjectInfo(Ice::stringToIdentity("RepTestIceGrid/Query")), info));
-        test(info.type == IceGrid::Query::ice_staticId());
+        test(info.type == Query::ice_staticId());
         endpoints = info.proxy->ice_getEndpoints();
         test(endpoints.size() == 2);
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
@@ -962,26 +962,20 @@ allTests(Test::TestHelper* helper)
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->allocatable = false;
-        PropertyDescriptor prop{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" };
-        server->propertySet.properties.push_back(prop);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
         adapter.registerProcess = false;
         adapter.serverLifetime = true;
-        PropertyDescriptor property;
-        property.name = "TestAdapter.Endpoints";
-        property.value = "default";
-        server->propertySet.properties.push_back(property);
-        property.name = "Identity";
-        property.value = "test";
-        server->propertySet.properties.push_back(property);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "TestAdapter.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Identity", "test" });
         ObjectDescriptor object;
         object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
-        adapter.objects.push_back(object);
-        server->adapters.push_back(adapter);
+        adapter.objects.push_back(move(object));
+        server->adapters.push_back(move(adapter));
         app.nodes["Node1"].servers.push_back(server);
 
         masterAdmin->addApplication(app);
@@ -1020,10 +1014,8 @@ allTests(Test::TestHelper* helper)
         NodeUpdateDescriptor node;
         node.name = "Node1";
         node.servers.push_back(server);
-        update.nodes.push_back(node);
-        property.name = "Dummy";
-        property.value = "val";
-        server->propertySet.properties.push_back(property);
+        update.nodes.push_back(move(node));
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Dummy", "val" });
         masterAdmin->updateApplication(update);
 
         try
@@ -1089,9 +1081,7 @@ allTests(Test::TestHelper* helper)
         slave2Admin->shutdown();
         waitForServerState(admin, "Slave2", false);
 
-        property.name = "Dummy2";
-        property.value = "val";
-        server->propertySet.properties.push_back(property);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Dummy2", "val" });
         masterAdmin->updateApplication(update);
 
         masterAdmin->shutdown();
@@ -1198,26 +1188,20 @@ allTests(Test::TestHelper* helper)
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->allocatable = false;
-        PropertyDescriptor prop{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" };
-        server->propertySet.properties.push_back(prop);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
         adapter.serverLifetime = true;
         adapter.registerProcess = false;
-        PropertyDescriptor property;
-        property.name = "TestAdapter.Endpoints";
-        property.value = "default";
-        server->propertySet.properties.push_back(property);
-        property.name = "Identity";
-        property.value = "test";
-        server->propertySet.properties.push_back(property);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "TestAdapter.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Identity", "test" });
         ObjectDescriptor object;
         object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
-        adapter.objects.push_back(object);
-        server->adapters.push_back(adapter);
+        adapter.objects.push_back(move(object));
+        server->adapters.push_back(move(adapter));
         app.nodes["Node1"].servers.push_back(server);
 
         masterAdmin->addApplication(app);
@@ -1253,10 +1237,8 @@ allTests(Test::TestHelper* helper)
         NodeUpdateDescriptor node;
         node.name = "Node1";
         node.servers.push_back(server);
-        update.nodes.push_back(node);
-        property.name = "Dummy";
-        property.value = "val";
-        server->propertySet.properties.push_back(property);
+        update.nodes.push_back(move(node));
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Dummy", "val" });
         slave1Admin->updateApplication(update);
 
         communicator->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
@@ -1337,27 +1319,21 @@ allTests(Test::TestHelper* helper)
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->allocatable = false;
-        PropertyDescriptor prop{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" };
-        server->propertySet.properties.push_back(prop);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
         adapter.serverLifetime = true;
         adapter.registerProcess = false;
-        PropertyDescriptor property;
-        property.name = "TestAdapter.Endpoints";
-        property.value = "default";
-        server->propertySet.properties.push_back(property);
-        property.name = "Identity";
-        property.value = "test";
-        server->propertySet.properties.push_back(property);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "TestAdapter.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor { "Identity", "test" });
         ObjectDescriptor object;
         object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
-        adapter.objects.push_back(object);
-        server->adapters.push_back(adapter);
-        app.nodes["Node2"].servers.push_back(server);
+        adapter.objects.push_back(move(object));
+        server->adapters.push_back(move(adapter));
+        app.nodes["Node2"].servers.push_back(move(server));
 
         masterAdmin->addApplication(app);
 
@@ -1381,12 +1357,12 @@ allTests(Test::TestHelper* helper)
 
         app.replicaGroups.resize(1);
         app.replicaGroups[0].id = "TestReplicaGroup";
-        app.replicaGroups[0].loadBalancing = make_shared<IceGrid::RandomLoadBalancingPolicy>("2");
+        app.replicaGroups[0].loadBalancing = make_shared<RandomLoadBalancingPolicy>("2");
 
         ObjectDescriptor object;
         object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
-        app.replicaGroups[0].objects.push_back(object);
+        app.replicaGroups[0].objects.push_back(move(object));
 
         auto server = make_shared<ServerDescriptor>();
         server->id = "Server1";
@@ -1401,20 +1377,15 @@ allTests(Test::TestHelper* helper)
         adapter.replicaGroupId = "TestReplicaGroup";
         adapter.serverLifetime = true;
         adapter.registerProcess = false;
-        PropertyDescriptor property;
-        property.name = "TestAdapter.Endpoints";
-        property.value = "default";
-        server->propertySet.properties.push_back(property);
-        property.name = "Identity";
-        property.value = "test";
-        server->propertySet.properties.push_back(property);
+        server->propertySet.properties.push_back(PropertyDescriptor{ "TestAdapter.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Identity", "test" });
 
-        server->adapters.push_back(adapter);
+        server->adapters.push_back(move(adapter));
         app.nodes["Node1"].servers.push_back(server);
 
         auto server2 = dynamic_pointer_cast<ServerDescriptor>(server->ice_clone());
         server2->id = "Server2";
-        app.nodes["Node2"].servers.push_back(server2);
+        app.nodes["Node2"].servers.push_back(move(server2));
 
         try
         {
