@@ -375,14 +375,8 @@ allTests(Test::TestHelper* helper)
         admin->enableServer("server-always", true);
         waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
         admin->stopServer("server-always");
-        try
-        {
-            admin->startServer("server-always");
-//          test(false);
-        }
-        catch(const IceGrid::ServerStartException&)
-        {
-        }
+
+        admin->startServer("server-always");
         test(admin->getServerState("server-always") == IceGrid::ServerState::Active);
     }
     catch(const Ice::LocalException& ex)
