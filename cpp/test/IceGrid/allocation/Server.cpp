@@ -12,18 +12,22 @@ class Server : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
 
     string name = properties->getProperty("Ice.ProgramName");
 
+<<<<<<< HEAD
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
+=======
+    auto adapter = communicator->createObjectAdapter("Server");
+>>>>>>> 4e3bb25b13 (Port IceGrid/allocation to C++11)
     adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity("allocatable"));
     adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity("nonallocatable"));
     adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity("allocatable1"));
