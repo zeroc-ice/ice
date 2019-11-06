@@ -8,12 +8,12 @@
 
 using namespace std;
 
-class PermissionsVerifierI : public Glacier2::PermissionsVerifier
+class PermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool
-    checkPermissions(const string&, const string&, string&, const Ice::Current&) const
+    bool
+    checkPermissions(string, string, string&, const Ice::Current&) const override
     {
         return true;
     }
@@ -23,11 +23,11 @@ class Server : public Test::TestHelper
 {
 public:
 
-    virtual void run(int argc, char** argv)
+    void run(int argc, char** argv) override
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PermissionsVerifier");
-        adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("PermissionsVerifier"));
+        auto adapter = communicator->createObjectAdapter("PermissionsVerifier");
+        adapter->add(make_shared<PermissionsVerifierI>(), Ice::stringToIdentity("PermissionsVerifier"));
         adapter->activate();
         communicator->waitForShutdown();
     }

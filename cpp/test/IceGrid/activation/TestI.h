@@ -7,7 +7,7 @@
 
 #include <Test.h>
 
-class TestI final : public ::Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 

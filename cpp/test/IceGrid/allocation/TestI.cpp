@@ -5,8 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::PropertiesPtr& properties) :
-    _properties(properties)
+TestI::TestI(std::shared_ptr<Ice::Properties> properties) :
+    _properties(move(properties))
 {
 }
 
@@ -17,7 +17,7 @@ TestI::shutdown(const Ice::Current& current)
 }
 
 std::string
-TestI::getProperty(const std::string& name, const Ice::Current&)
+TestI::getProperty(std::string name, const Ice::Current&)
 {
     return _properties->getProperty(name);
 }
