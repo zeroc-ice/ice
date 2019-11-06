@@ -12,8 +12,6 @@ module Test
 //
 interface Echo
 {
-    void startBatch();
-    void flushBatch();
     void shutdown();
 }
 

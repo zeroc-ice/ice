@@ -363,11 +363,7 @@ namespace IceInternal
             }
         }
 
-        //
-        // This virtual method is necessary for the communicator flush
-        // batch requests implementation.
-        //
-        protected virtual Ice.Instrumentation.InvocationObserver getObserver()
+        protected Ice.Instrumentation.InvocationObserver getObserver()
         {
             return observer_;
         }
@@ -691,7 +687,7 @@ namespace IceInternal
                 case Reference.Mode.ModeBatchOneway:
                 case Reference.Mode.ModeBatchDatagram:
                     {
-                        proxy_.iceGetBatchRequestQueue().prepareBatchRequest(os_);
+                        Debug.Assert(false); // not implemented
                         break;
                     }
             }
@@ -901,7 +897,7 @@ namespace IceInternal
         public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
         {
             cachedConnection_ = connection;
-            return connection.sendAsyncRequest(this, compress, response, 0);
+            return connection.sendAsyncRequest(this, compress, response);
         }
 
         public override int invokeCollocated(CollocatedRequestHandler handler)
@@ -912,7 +908,7 @@ namespace IceInternal
                 // Disable caching by marking the streams as cached!
                 state_ |= StateCachedBuffers;
             }
-            return handler.invokeAsyncRequest(this, 0, synchronous_);
+            return handler.invokeAsyncRequest(this, synchronous_);
         }
 
         public new void abort(Ice.Exception ex)
@@ -920,12 +916,7 @@ namespace IceInternal
             Reference.Mode mode = proxy_.iceReference().getMode();
             if (mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
-                //
-                // If we didn't finish a batch oneway or datagram request, we
-                // must notify the connection about that we give up ownership
-                // of the batch stream.
-                //
-                proxy_.iceGetBatchRequestQueue().abortBatchRequest(os_);
+                Debug.Assert(false); // not implemented
             }
 
             base.abort(ex);
@@ -937,9 +928,7 @@ namespace IceInternal
             Reference.Mode mode = proxy_.iceReference().getMode();
             if (mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
-                sentSynchronously_ = true;
-                proxy_.iceGetBatchRequestQueue().finishBatchRequest(os_, proxy_, operation);
-                responseImpl(true, true, false); // Don't call sent/completed callback for batch AMI requests
+                Debug.Assert(false); // not implemented
                 return;
             }
 
@@ -1062,9 +1051,8 @@ namespace IceInternal
                         if (is_ == null || is_.isEmpty())
                         {
                             //
-                            // If there's no response (oneway, batch-oneway proxies), we just set the result
-                            // on completion without reading anything from the input stream. This is required for
-                            // batch invocations.
+                            // If there's no response (oneway), we just set the result
+                            // on completion without reading anything from the input stream.
                             //
                         }
                         else
@@ -1094,62 +1082,6 @@ namespace IceInternal
         }
 
         protected System.Func<Ice.InputStream, T> read_;
-    }
-
-    //
-    // Class for handling the proxy's begin_ice_flushBatchRequest request.
-    //
-    internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
-    {
-        public ProxyFlushBatchAsync(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback) :
-            base(prx, completionCallback)
-        {
-        }
-
-        public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
-        {
-            if (_batchRequestNum == 0)
-            {
-                if (sent())
-                {
-                    return AsyncStatusSent | AsyncStatusInvokeSentCallback;
-                }
-                else
-                {
-                    return AsyncStatusSent;
-                }
-            }
-            cachedConnection_ = connection;
-            return connection.sendAsyncRequest(this, compress, false, _batchRequestNum);
-        }
-
-        public override int invokeCollocated(CollocatedRequestHandler handler)
-        {
-            if (_batchRequestNum == 0)
-            {
-                if (sent())
-                {
-                    return AsyncStatusSent | AsyncStatusInvokeSentCallback;
-                }
-                else
-                {
-                    return AsyncStatusSent;
-                }
-            }
-            return handler.invokeAsyncRequest(this, _batchRequestNum, false);
-        }
-
-        public void invoke(string operation, bool synchronous)
-        {
-            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
-            synchronous_ = synchronous;
-            observer_ = ObserverHelper.get(proxy_, operation, null);
-            bool compress; // Not used for proxy flush batch requests.
-            _batchRequestNum = proxy_.iceGetBatchRequestQueue().swap(os_, out compress);
-            invokeImpl(true); // userThread = true
-        }
-
-        private int _batchRequestNum;
     }
 
     //
@@ -1193,222 +1125,6 @@ namespace IceInternal
             invokeImpl(true); // userThread = true
         }
     }
-
-    internal class ConnectionFlushBatchAsync : OutgoingAsyncBase
-    {
-        public ConnectionFlushBatchAsync(Ice.ConnectionI connection,
-                                         Instance instance,
-                                         OutgoingAsyncCompletionCallback completionCallback) :
-            base(instance, completionCallback)
-        {
-            _connection = connection;
-        }
-
-        public void invoke(string operation, Ice.CompressBatch compressBatch, bool synchronous)
-        {
-            synchronous_ = synchronous;
-            observer_ = ObserverHelper.get(instance_, operation);
-            try
-            {
-                int status;
-                bool compress;
-                int batchRequestNum = _connection.getBatchRequestQueue().swap(os_, out compress);
-                if (batchRequestNum == 0)
-                {
-                    status = AsyncStatusSent;
-                    if (sent())
-                    {
-                        status = status | AsyncStatusInvokeSentCallback;
-                    }
-                }
-                else
-                {
-                    bool comp;
-                    if (compressBatch == Ice.CompressBatch.Yes)
-                    {
-                        comp = true;
-                    }
-                    else if (compressBatch == Ice.CompressBatch.No)
-                    {
-                        comp = false;
-                    }
-                    else
-                    {
-                        comp = compress;
-                    }
-                    status = _connection.sendAsyncRequest(this, comp, false, batchRequestNum);
-                }
-
-                if ((status & AsyncStatusSent) != 0)
-                {
-                    sentSynchronously_ = true;
-                    if ((status & AsyncStatusInvokeSentCallback) != 0)
-                    {
-                        invokeSent();
-                    }
-                }
-            }
-            catch (RetryException ex)
-            {
-                try
-                {
-                    throw ex.get();
-                }
-                catch (Ice.LocalException ee)
-                {
-                    if (exception(ee))
-                    {
-                        invokeExceptionAsync();
-                    }
-                }
-            }
-            catch (Ice.Exception ex)
-            {
-                if (exception(ex))
-                {
-                    invokeExceptionAsync();
-                }
-            }
-        }
-
-        private readonly Ice.ConnectionI _connection;
-    };
-
-    public class CommunicatorFlushBatchAsync : OutgoingAsyncBase
-    {
-        private class FlushBatch : OutgoingAsyncBase
-        {
-            public FlushBatch(CommunicatorFlushBatchAsync outAsync,
-                              Instance instance,
-                              Ice.Instrumentation.InvocationObserver observer) : base(instance, null)
-            {
-                _outAsync = outAsync;
-                _observer = observer;
-            }
-
-            public override bool
-            sent()
-            {
-                if (childObserver_ != null)
-                {
-                    childObserver_.detach();
-                    childObserver_ = null;
-                }
-                _outAsync.check(false);
-                return false;
-            }
-
-            public override bool
-            exception(Ice.Exception ex)
-            {
-                if (childObserver_ != null)
-                {
-                    childObserver_.failed(ex.ice_id());
-                    childObserver_.detach();
-                    childObserver_ = null;
-                }
-                _outAsync.check(false);
-                return false;
-            }
-
-            protected override Ice.Instrumentation.InvocationObserver
-            getObserver()
-            {
-                return _observer;
-            }
-
-            private CommunicatorFlushBatchAsync _outAsync;
-            private Ice.Instrumentation.InvocationObserver _observer;
-        };
-
-        public CommunicatorFlushBatchAsync(Instance instance, OutgoingAsyncCompletionCallback callback) :
-            base(instance, callback)
-        {
-            //
-            // _useCount is initialized to 1 to prevent premature callbacks.
-            // The caller must invoke ready() after all flush requests have
-            // been initiated.
-            //
-            _useCount = 1;
-        }
-
-        public void flushConnection(Ice.ConnectionI con, Ice.CompressBatch compressBatch)
-        {
-            lock (this)
-            {
-                ++_useCount;
-            }
-
-            try
-            {
-                var flushBatch = new FlushBatch(this, instance_, observer_);
-                bool compress;
-                int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out compress);
-                if (batchRequestNum == 0)
-                {
-                    flushBatch.sent();
-                }
-                else
-                {
-                    bool comp;
-                    if (compressBatch == Ice.CompressBatch.Yes)
-                    {
-                        comp = true;
-                    }
-                    else if (compressBatch == Ice.CompressBatch.No)
-                    {
-                        comp = false;
-                    }
-                    else
-                    {
-                        comp = compress;
-                    }
-                    con.sendAsyncRequest(flushBatch, comp, false, batchRequestNum);
-                }
-            }
-            catch (Ice.LocalException)
-            {
-                check(false);
-                throw;
-            }
-        }
-
-        public void invoke(string operation, Ice.CompressBatch compressBatch, bool synchronous)
-        {
-            synchronous_ = synchronous;
-            observer_ = ObserverHelper.get(instance_, operation);
-            instance_.outgoingConnectionFactory().flushAsyncBatchRequests(compressBatch, this);
-            instance_.objectAdapterFactory().flushAsyncBatchRequests(compressBatch, this);
-            check(true);
-        }
-
-        public void check(bool userThread)
-        {
-            lock (this)
-            {
-                Debug.Assert(_useCount > 0);
-                if (--_useCount > 0)
-                {
-                    return;
-                }
-            }
-
-            if (sentImpl(true))
-            {
-                if (userThread)
-                {
-                    sentSynchronously_ = true;
-                    invokeSent();
-                }
-                else
-                {
-                    invokeSentAsync();
-                }
-            }
-        }
-
-        private int _useCount;
-    };
 
     public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
     {
@@ -1458,8 +1174,7 @@ namespace IceInternal
         public bool handleResponse(bool userThread, bool ok, OutgoingAsyncBase og)
         {
             //
-            // If called from the user thread (only the case for batch requests) or if this
-            // is a synchronous call, we can notify the task from this thread to avoid the
+            // If this is a synchronous call, we can notify the task from this thread to avoid the
             // thread context switch. We know there aren't any continuations setup with the
             // task.
             //
@@ -1508,20 +1223,6 @@ namespace IceInternal
         public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
         {
             SetResult(((OutgoingAsyncT<T>)og).getResult(ok));
-        }
-    }
-
-    public class FlushBatchTaskCompletionCallback : TaskCompletionCallback<object>
-    {
-        public FlushBatchTaskCompletionCallback(System.IProgress<bool> progress = null,
-                                                CancellationToken cancellationToken = new CancellationToken()) :
-            base(progress, cancellationToken)
-        {
-        }
-
-        public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
-        {
-            SetResult(null);
         }
     }
 }

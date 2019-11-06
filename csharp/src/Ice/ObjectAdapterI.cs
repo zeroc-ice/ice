@@ -690,20 +690,6 @@ namespace Ice
             }
         }
 
-        public void flushAsyncBatchRequests(Ice.CompressBatch compressBatch, CommunicatorFlushBatchAsync outAsync)
-        {
-            List<IncomingConnectionFactory> f;
-            lock (this)
-            {
-                f = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
-            }
-
-            foreach (IncomingConnectionFactory factory in f)
-            {
-                factory.flushAsyncBatchRequests(compressBatch, outAsync);
-            }
-        }
-
         public void updateConnectionObservers()
         {
             List<IncomingConnectionFactory> f;

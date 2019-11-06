@@ -4,13 +4,6 @@
 
 namespace Ice
 {
-    public enum CompressBatch
-    {
-        Yes,
-        No,
-        BasedOnProxy
-    }
-
     [System.Serializable]
     public partial class ConnectionInfo
     {
@@ -189,17 +182,6 @@ namespace Ice
         /// </summary>
         /// <returns>The endpoint from which the connection was created.</returns>
         Endpoint getEndpoint();
-
-        /// <summary>
-        /// Flush any pending batch requests for this connection.
-        /// This means all batch requests invoked on fixed proxies
-        /// associated with the connection.
-        ///
-        /// </summary>
-        /// <param name="compress">Specifies whether or not the queued batch requests
-        /// should be compressed before being sent over the wire.</param>
-        void flushBatchRequests(CompressBatch compress);
-        global::System.Threading.Tasks.Task flushBatchRequestsAsync(CompressBatch compress, global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
 
         /// <summary>
         /// Set a close callback on the connection.

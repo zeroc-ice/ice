@@ -20,16 +20,6 @@ public class Server : Test.TestHelper
             _blob = blob;
         }
 
-        public override void startBatch(Ice.Current current)
-        {
-            _blob.startBatch();
-        }
-
-        public override void flushBatch(Ice.Current current)
-        {
-            _blob.flushBatch();
-        }
-
         public override void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();

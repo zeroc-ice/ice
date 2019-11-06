@@ -824,62 +824,6 @@ public class AllTests
             ctl.writeReady(true);
         }
 
-        byte[] seq = new byte[512 * 1024];
-
-        BackgroundPrx backgroundBatchOneway = BackgroundPrxHelper.uncheckedCast(background.ice_batchOneway());
-
-        //
-        // First send small requests to test without auto-flushing.
-        //
-        ctl.holdAdapter();
-        backgroundBatchOneway.op();
-        backgroundBatchOneway.op();
-        backgroundBatchOneway.op();
-        backgroundBatchOneway.op();
-        ctl.resumeAdapter();
-        backgroundBatchOneway.ice_flushBatchRequests();
-
-        //
-        // Send bigger requests to test with auto-flushing.
-        //
-        ctl.holdAdapter();
-        backgroundBatchOneway.opWithPayload(seq);
-        backgroundBatchOneway.opWithPayload(seq);
-        backgroundBatchOneway.opWithPayload(seq);
-        backgroundBatchOneway.opWithPayload(seq);
-        ctl.resumeAdapter();
-        backgroundBatchOneway.ice_flushBatchRequests();
-
-        //
-        // Then try the same thing with async flush.
-        //
-
-        ctl.holdAdapter();
-        backgroundBatchOneway.op();
-        backgroundBatchOneway.op();
-        backgroundBatchOneway.op();
-        backgroundBatchOneway.op();
-        ctl.resumeAdapter();
-        backgroundBatchOneway.ice_flushBatchRequestsAsync();
-        closeConnection(backgroundBatchOneway);
-
-        ctl.holdAdapter();
-        backgroundBatchOneway.opWithPayload(seq);
-        backgroundBatchOneway.opWithPayload(seq);
-        backgroundBatchOneway.opWithPayload(seq);
-        backgroundBatchOneway.opWithPayload(seq);
-        ctl.resumeAdapter();
-        var t3 = backgroundBatchOneway.ice_flushBatchRequestsAsync();
-        //
-        // We can't close the connection before ensuring all the batches have been sent since
-        // with auto-flushing the close connection message might be sent once the first call
-        // opWithPayload is sent and before the flushBatchRequests (this would therefore result
-        // in the flush to report a CloseConnectionException). Instead we flush a second time
-        // with the same callback to wait for the first flush to complete.
-        //
-        //backgroundBatchOneway.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-        t3.Wait();
-        closeConnection(backgroundBatchOneway);
     }
 
     private static void readWriteTests(Configuration configuration, Test.BackgroundPrx background,

@@ -291,18 +291,6 @@ namespace Ice
         ValueFactoryManager getValueFactoryManager();
 
         /// <summary>
-        /// Flush any pending batch requests for this communicator.
-        /// This means all batch requests invoked on fixed proxies
-        /// for all connections associated with the communicator.
-        /// Any errors that occur while flushing a connection are ignored.
-        ///
-        /// </summary>
-        /// <param name="compress">Specifies whether or not the queued batch requests
-        /// should be compressed before being sent over the wire.</param>
-        void flushBatchRequests(CompressBatch compress);
-        global::System.Threading.Tasks.Task flushBatchRequestsAsync(CompressBatch compress, global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
-
-        /// <summary>
         /// Add the Admin object with all its facets to the provided object adapter.
         /// If Ice.Admin.ServerId is set and the provided object adapter has a Locator,
         /// createAdmin registers the Admin's Process facet with the Locator's LocatorRegistry.

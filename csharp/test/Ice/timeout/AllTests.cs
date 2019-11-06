@@ -429,22 +429,6 @@ namespace Ice
                         test(false);
                     }
 
-                    Test.TimeoutPrx batchTimeout = (Test.TimeoutPrx)proxy.ice_batchOneway();
-                    batchTimeout.ice_ping();
-                    batchTimeout.ice_ping();
-                    batchTimeout.ice_ping();
-
-                    // Keep the server thread pool busy.
-                    ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).sleepAsync(500);
-                    try
-                    {
-                        batchTimeout.ice_flushBatchRequestsAsync().Wait();
-                        test(false);
-                    }
-                    catch (System.AggregateException ex) when (ex.InnerException is InvocationTimeoutException)
-                    {
-                    }
-
                     adapter.destroy();
                 }
                 output.WriteLine("ok");

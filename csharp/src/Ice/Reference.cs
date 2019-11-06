@@ -421,8 +421,6 @@ namespace IceInternal
 
         public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy);
 
-        public abstract BatchRequestQueue getBatchRequestQueue();
-
         public override bool Equals(object obj)
         {
             //
@@ -774,11 +772,6 @@ namespace IceInternal
             }
 
             return proxy.iceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
-        }
-
-        public override BatchRequestQueue getBatchRequestQueue()
-        {
-            return _fixedConnection.getBatchRequestQueue();
         }
 
         public override bool Equals(object obj)
@@ -1298,11 +1291,6 @@ namespace IceInternal
         public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
         {
             return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
-        }
-
-        public override BatchRequestQueue getBatchRequestQueue()
-        {
-            return new BatchRequestQueue(getInstance(), getMode() == Reference.Mode.ModeBatchDatagram);
         }
 
         public void getConnection(GetConnectionCallback callback)
