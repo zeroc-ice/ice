@@ -1369,7 +1369,7 @@ allTests(TestHelper* helper)
         server->exe = communicator->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
         server->allocatable = false;
-        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
