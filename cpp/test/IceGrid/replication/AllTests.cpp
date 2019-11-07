@@ -401,7 +401,7 @@ allTests(TestHelper* helper)
         query = Ice::uncheckedCast<QueryPrx>(
             communicator->stringToProxy("RepTestIceGrid/Query:" + endpoints[1]->toString()));
         auto objs2 = query->findAllObjectsByType("::IceGrid::Registry");
-        for(int i = 0; i < objs1.size(); i++)
+        for(size_t i = 0; i < objs1.size(); i++)
         {
             test(Ice::targetEqualTo(objs1[i], objs2[i]));
         }
