@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
 #include <TestHelper.h>
@@ -13,7 +12,7 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
+addProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name, const string& value)
 {
     PropertyDescriptor prop;
     prop.name = name;
@@ -22,31 +21,24 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
 }
 
 string
-getProperty(const CommunicatorDescriptorPtr& communicator, const string& name)
+getProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name)
 {
     PropertyDescriptorSeq& properties = communicator->propertySet.properties;
-    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for(auto& prop : properties)
     {
-        if(q->name == name)
+        if(prop.name == name)
         {
-            return q->value;
+            return prop.value;
         }
     }
     return "";
 }
 
 void
-removeProperty(const CommunicatorDescriptorPtr& communicator, const string& name)
+removeProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name)
 {
     PropertyDescriptorSeq& properties = communicator->propertySet.properties;
-    for(PropertyDescriptorSeq::iterator q = properties.begin(); q != properties.end(); ++q)
-    {
-        if(q->name == name)
-        {
-            properties.erase(q);
-            break;
-        }
-    }
+    properties.erase(remove_if(properties.begin(), properties.end(),[&name](const auto& p) { return p.name == name; }));
 }
 
 PropertyDescriptor
@@ -59,21 +51,22 @@ createProperty(const string& name, const string& value)
 }
 
 bool
-hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
+hasProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name, const string& value)
 {
-    for(PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
-        p != desc->propertySet.properties.end(); ++p)
+    PropertyDescriptorSeq& properties = communicator->propertySet.properties;
+    for(const auto& prop : properties)
     {
-        if(p->name == name)
+        if(prop.name == name)
         {
-            return p->value == value;
+            return prop.value == value;
         }
     }
     return false;
 }
 
 void
-updateServerRuntimeProperties(const AdminPrx& admin, const string&, const ServerDescriptorPtr& desc)
+updateServerRuntimeProperties(const shared_ptr<AdminPrx>& admin, const string&,
+                              const shared_ptr<ServerDescriptor>& desc)
 {
     ApplicationUpdateDescriptor update;
     update.name = "TestApp";
@@ -92,33 +85,33 @@ updateServerRuntimeProperties(const AdminPrx& admin, const string&, const Server
     }
 }
 
-ServiceDescriptorPtr
-getServiceDescriptor(const AdminPrx& admin, const string& service)
+shared_ptr<ServiceDescriptor>
+getServiceDescriptor(const shared_ptr<AdminPrx>& admin, const string& service)
 {
-    ServerInfo info = admin->getServerInfo("IceBox");
+    auto info = admin->getServerInfo("IceBox");
     test(info.descriptor);
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
-    for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+    auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
+    for(const auto& serviceInstance : iceBox->services)
     {
-        if(p->descriptor->name == service)
+        if(serviceInstance.descriptor->name == service)
         {
-            return p->descriptor;
+            return serviceInstance.descriptor;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void
-updateServiceRuntimeProperties(const AdminPrx& admin, const ServiceDescriptorPtr& desc)
+updateServiceRuntimeProperties(const shared_ptr<AdminPrx>& admin,  const shared_ptr<ServiceDescriptor>& desc)
 {
-    ServerInfo info = admin->getServerInfo("IceBox");
+    auto info = admin->getServerInfo("IceBox");
     test(info.descriptor);
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
-    for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+    auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
+    for(const auto& serviceInstance : iceBox->services)
     {
-        if(p->descriptor->name == desc->name)
+        if(serviceInstance.descriptor->name == desc->name)
         {
-            p->descriptor->propertySet.properties = desc->propertySet.properties;
+            serviceInstance.descriptor->propertySet.properties = desc->propertySet.properties;
         }
     }
     ApplicationUpdateDescriptor update;
@@ -146,20 +139,20 @@ updateServiceRuntimeProperties(const AdminPrx& admin, const ServiceDescriptorPtr
 void
 allTests(Test::TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
-    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+    auto communicator = helper->communicator();
+    auto registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+    auto session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         IceUtil::None,
-                                         Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+                                         Ice::nullopt,
+                                         Ice::ACMHeartbeat::HeartbeatAlways);
 
-    AdminPrx admin = session->getAdmin();
+    auto admin = session->getAdmin();
     test(admin);
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
 
     {
         ApplicationDescriptor testApp;
@@ -176,7 +169,7 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing server add... " << flush;
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        auto server = make_shared<ServerDescriptor>();
         server->id = "Server";
         server->exe = properties->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -221,8 +214,8 @@ allTests(Test::TestHelper* helper)
 
         TemplateDescriptor templ;
         templ.parameters.push_back("name");
-        templ.descriptor = new ServerDescriptor();
-        server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
+        templ.descriptor = make_shared<ServerDescriptor>();
+        server = dynamic_pointer_cast<ServerDescriptor>(templ.descriptor);
         server->id = "${name}";
         server->exe = "${server.dir}/server";
         server->pwd = ".";
@@ -347,39 +340,39 @@ allTests(Test::TestHelper* helper)
         test(info.descriptor);
 
         addProperty(info.descriptor, "test", "test");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test") == "");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test") == "");
         updateServerRuntimeProperties(admin, "Server", info.descriptor);
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test") == "test");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test") == "test");
         test(serverPid == admin->getServerPid("Server"));
         admin->stopServer("Server");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test") == "test");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test") == "test");
         test((serverPid = admin->getServerPid("Server")) > 0);
         test(hasProperty(admin->getServerInfo("Server").descriptor, "test", "test"));
 
         addProperty(info.descriptor, "test2", "test2");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test2") == "");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test2") == "");
         updateServerRuntimeProperties(admin, "Server", info.descriptor);
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test2") == "test2");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test2") == "test2");
         test(serverPid == admin->getServerPid("Server"));
         test(hasProperty(admin->getServerInfo("Server").descriptor, "test2", "test2"));
 
         removeProperty(info.descriptor, "test2");
         updateServerRuntimeProperties(admin, "Server", info.descriptor);
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test2") == "");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test2") == "");
         test(serverPid == admin->getServerPid("Server"));
         test(!hasProperty(admin->getServerInfo("Server").descriptor, "test2", "test2"));
 
         addProperty(info.descriptor, "test3", "test3");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test3") == "");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test3") == "");
         updateServerRuntimeProperties(admin, "Server", info.descriptor);
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test3") == "test3");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test3") == "test3");
         test(serverPid == admin->getServerPid("Server"));
         test(hasProperty(admin->getServerInfo("Server").descriptor, "test3", "test3"));
 
         admin->stopServer("Server");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test") == "test");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test2") == "");
-        test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server"))->getProperty("test3") == "test3");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test") == "test");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test2") == "");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server"))->getProperty("test3") == "test3");
         test((serverPid = admin->getServerPid("Server")) > 0);
         test(hasProperty(admin->getServerInfo("Server").descriptor, "test", "test"));
         test(!hasProperty(admin->getServerInfo("Server").descriptor, "test2", ""));
@@ -408,12 +401,12 @@ allTests(Test::TestHelper* helper)
             addProperty(server, "test", "test");
             assert(templ.descriptor == server);
             update.serverTemplates["ServerTemplate"] = templ;
-            test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server1"))->getProperty("test") == "");
+            test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") == "");
             admin->updateApplicationWithoutRestart(update);
-            test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server1"))->getProperty("test") == "test");
+            test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") == "test");
             test(server1Pid == admin->getServerPid("Server1"));
             admin->stopServer("Server1");
-            test(TestIntfPrx::uncheckedCast(communicator->stringToProxy("Server1"))->getProperty("test") == "test");
+            test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") == "test");
             server1Pid = admin->getServerPid("Server1");
             test(hasProperty(admin->getServerInfo("Server1").descriptor, "test", "test"));
         }
@@ -496,7 +489,7 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing icebox server add... " << flush;
 
-        ServiceDescriptorPtr service = new ServiceDescriptor();
+        auto service = make_shared<ServiceDescriptor>();
         addProperty(service, "Ice.Warn.UnknownProperties", "0");
         //addProperty(service, "Ice.Trace.Admin.Properties", "1");
         service->name = "Service1";
@@ -514,21 +507,21 @@ allTests(Test::TestHelper* helper)
         adapter.objects.push_back(object);
         service->adapters.push_back(adapter);
 
-        IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
+        auto icebox = make_shared<IceBoxDescriptor>();
         icebox->id = "IceBox";
         icebox->exe = properties->getProperty("IceBoxExe");
         icebox->activation = "on-demand";
         icebox->allocatable = false;
         addProperty(icebox, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         icebox->services.resize(3);
-        icebox->services[0].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+        icebox->services[0].descriptor = dynamic_pointer_cast<ServiceDescriptor>(service->ice_clone());
         service->name = "Service2";
-        icebox->services[1].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+        icebox->services[1].descriptor = dynamic_pointer_cast<ServiceDescriptor>(service->ice_clone());
         service->name = "Service3";
         // Test also with shared communicator because it uses different proxy name
         // and thus different branches in code.
         addProperty(icebox, "IceBox.UseSharedCommunicator.Service3", "1");
-        icebox->services[2].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+        icebox->services[2].descriptor = dynamic_pointer_cast<ServiceDescriptor>(service->ice_clone());
 
         try
         {
@@ -566,7 +559,7 @@ allTests(Test::TestHelper* helper)
         {
             // can't add service without restart
             test(iceBoxPid == admin->getServerPid("IceBox"));
-            icebox = IceBoxDescriptorPtr::dynamicCast(admin->getServerInfo("IceBox").descriptor);
+            icebox = dynamic_pointer_cast<IceBoxDescriptor>(admin->getServerInfo("IceBox").descriptor);
         }
         catch(const Ice::Exception& ex)
         {
@@ -586,7 +579,7 @@ allTests(Test::TestHelper* helper)
         {
             // can't remove service without restart
             test(iceBoxPid == admin->getServerPid("IceBox"));
-            icebox = IceBoxDescriptorPtr::dynamicCast(admin->getServerInfo("IceBox").descriptor);
+            icebox = dynamic_pointer_cast<IceBoxDescriptor>(admin->getServerInfo("IceBox").descriptor);
         }
         catch(const Ice::Exception& ex)
         {
@@ -606,7 +599,7 @@ allTests(Test::TestHelper* helper)
         {
             // can't update service entry point without restart
             test(iceBoxPid == admin->getServerPid("IceBox"));
-            icebox = IceBoxDescriptorPtr::dynamicCast(admin->getServerInfo("IceBox").descriptor);
+            icebox = dynamic_pointer_cast<IceBoxDescriptor>(admin->getServerInfo("IceBox").descriptor);
         }
         catch(const Ice::Exception& ex)
         {
@@ -614,14 +607,14 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
 
-        ServiceDescriptorPtr svc1 = icebox->services[0].descriptor;
-        TestIntfPrx svc1Prx = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox.Service1"));
+        auto svc1 = icebox->services[0].descriptor;
+        auto svc1Prx = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("IceBox.Service1"));
 
-        ServiceDescriptorPtr svc2 = icebox->services[1].descriptor;
-        TestIntfPrx svc2Prx = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox.Service2"));
+        auto svc2 = icebox->services[1].descriptor;
+        auto svc2Prx = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("IceBox.Service2"));
 
-        ServiceDescriptorPtr svc3 = icebox->services[2].descriptor;
-        TestIntfPrx svc3Prx = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox.Service3"));
+        auto svc3 = icebox->services[2].descriptor;
+        auto svc3Prx = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("IceBox.Service3"));
 
         addProperty(svc1, "test", "test");
         test(svc1Prx->getProperty("test") == "");
@@ -662,9 +655,9 @@ allTests(Test::TestHelper* helper)
         // Wait for the server to be active to have the guarantee that
         // the property update will return once the properties are
         // updated.
-        while(admin->getServerState("IceBox") != IceGrid::Active)
+        while(admin->getServerState("IceBox") != IceGrid::ServerState::Active)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(100ms);
         }
         test(hasProperty(getServiceDescriptor(admin, "Service1"), "test", "test"));
         test(!hasProperty(getServiceDescriptor(admin, "Service1"), "test2", ""));

@@ -9,18 +9,15 @@
 using namespace std;
 using namespace Ice;
 
-class ServiceI : public ::IceBox::Service
+class ServiceI final : public IceBox::Service
 {
 public:
 
-    ServiceI();
-    virtual ~ServiceI();
+    void start(const string&,
+               const shared_ptr<Communicator>&,
+               const StringSeq&) override;
 
-    virtual void start(const string&,
-                       const CommunicatorPtr&,
-                       const StringSeq&);
-
-    virtual void stop();
+    void stop() override;
 };
 
 extern "C"
@@ -30,30 +27,21 @@ extern "C"
 // Factory function
 //
 ICE_DECLSPEC_EXPORT ::IceBox::Service*
-create(CommunicatorPtr)
+create(shared_ptr<Communicator>)
 {
     return new ServiceI;
 }
 
 }
 
-ServiceI::ServiceI()
-{
-}
-
-ServiceI::~ServiceI()
-{
-}
-
 void
 ServiceI::start(const string& name,
-                const CommunicatorPtr& communicator,
+                const shared_ptr<Communicator>& communicator,
                 const StringSeq&)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
-    Ice::ObjectPtr object = new TestI(adapter, properties);
-    adapter->add(object, stringToIdentity(properties->getProperty(name + ".Identity")));
+    auto properties = communicator->getProperties();
+    auto adapter = communicator->createObjectAdapter(name);
+    adapter->add(make_shared<TestI>(adapter, properties), stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();
 }
 
