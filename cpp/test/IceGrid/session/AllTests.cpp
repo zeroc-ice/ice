@@ -245,7 +245,7 @@ public:
     }
 
     void
-    objectRemoved(Ice::Identity id, const Ice::Current& current)
+    objectRemoved(Ice::Identity id, const Ice::Current& current) override
     {
         lock_guard<mutex> lg(_mutex);
         objects.erase(id);
@@ -1660,10 +1660,10 @@ allTests(TestHelper* helper)
         server->options.push_back("--nowarn");
         server->pwd = ".";
         server->allocatable = false;
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "IceGrid.Node.Name", "node-1" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "IceGrid.Node.Endpoints", "default" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" }));
+        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Name", "node-1" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
 
         NodeDescriptor node;
         node.servers.push_back(move(server));
@@ -1717,8 +1717,8 @@ allTests(TestHelper* helper)
         adapter.registerProcess = false;
         adapter.serverLifetime = true;
         server->adapters.push_back(move(adapter));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "Server.Endpoints", "default" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" }));
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Server.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
         node = NodeDescriptor();
         node.servers.push_back(server);
         testApp.nodes["localnode"] = node;
