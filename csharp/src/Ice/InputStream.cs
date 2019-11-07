@@ -241,7 +241,6 @@ namespace Ice
             _instance = instance;
             _traceSlicing = _instance.traceLevels().slicing > 0;
             _classGraphDepthMax = _instance.classGraphDepthMax();
-            _valueFactoryManager = _instance.initializationData().valueFactoryManager;
             _logger = _instance.initializationData().logger;
             _classResolver = _instance.resolveClass;
         }
@@ -286,17 +285,6 @@ namespace Ice
 
             _startSeq = -1;
             _sliceValues = true;
-        }
-
-        /// <summary>
-        /// Sets the value factory manager to use when marshaling value instances. If the stream
-        /// was initialized with a communicator, the communicator's value factory manager will
-        /// be used by default.
-        /// </summary>
-        /// <param name="vfm">The value factory manager.</param>
-        public void setValueFactoryManager(ValueFactoryManager vfm)
-        {
-            _valueFactoryManager = vfm;
         }
 
         /// <summary>
@@ -444,10 +432,6 @@ namespace Ice
             int tmpMinSeqSize = other._minSeqSize;
             other._minSeqSize = _minSeqSize;
             _minSeqSize = tmpMinSeqSize;
-
-            ValueFactoryManager tmpVfm = other._valueFactoryManager;
-            other._valueFactoryManager = _valueFactoryManager;
-            _valueFactoryManager = tmpVfm;
 
             Logger tmpLogger = other._logger;
             other._logger = _logger;
@@ -2764,15 +2748,13 @@ namespace Ice
             };
 
             internal EncapsDecoder(InputStream stream, Encaps encaps, bool sliceValues,
-                                   int classGraphDepthMax, ValueFactoryManager f,
-                                   System.Func<string, Type> cr)
+                                   int classGraphDepthMax, System.Func<string, Type> cr)
             {
                 _stream = stream;
                 _encaps = encaps;
                 _sliceValues = sliceValues;
                 _classGraphDepthMax = classGraphDepthMax;
                 _classGraphDepth = 0;
-                _valueFactoryManager = f;
                 _classResolver = cr;
                 _typeIdIndex = 0;
                 _unmarshaledMap = new Dictionary<int, Value>();
@@ -2858,47 +2840,20 @@ namespace Ice
 
             protected Value newInstance(string typeId)
             {
-                //
-                // Try to find a factory registered for the specific type.
-                //
-                var userFactory = _valueFactoryManager.find(typeId);
                 Value v = null;
-                if (userFactory != null)
-                {
-                    v = userFactory(typeId);
-                }
 
-                //
-                // If that fails, invoke the default factory if one has been
-                // registered.
-                //
-                if (v == null)
+                Type cls = resolveClass(typeId);
+
+                if (cls != null)
                 {
-                    userFactory = _valueFactoryManager.find("");
-                    if (userFactory != null)
+                    try
                     {
-                        v = userFactory(typeId);
+                        Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
+                        v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
                     }
-                }
-
-                //
-                // Last chance: try to instantiate the class dynamically.
-                //
-                if (v == null)
-                {
-                    Type cls = resolveClass(typeId);
-
-                    if (cls != null)
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                            v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new NoValueFactoryException("no value factory", typeId, ex);
-                        }
+                        throw new NoValueFactoryException("no value factory", typeId, ex);
                     }
                 }
 
@@ -2992,7 +2947,6 @@ namespace Ice
             protected readonly bool _sliceValues;
             protected readonly int _classGraphDepthMax;
             protected int _classGraphDepth;
-            protected ValueFactoryManager _valueFactoryManager;
             protected System.Func<string, Type> _classResolver;
 
             //
@@ -3008,8 +2962,8 @@ namespace Ice
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
             internal EncapsDecoder10(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                     ValueFactoryManager f, System.Func<string, Type> cr)
-                : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
+                                     System.Func<string, Type> cr)
+                : base(stream, encaps, sliceValues, classGraphDepthMax, cr)
             {
                 _sliceType = SliceType.NoSlice;
             }
@@ -3328,8 +3282,8 @@ namespace Ice
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
             internal EncapsDecoder11(InputStream stream, Encaps encaps, bool sliceValues, int classGraphDepthMax,
-                                     ValueFactoryManager f, System.Func<string, Type> cr, System.Func<int, string> r)
-                : base(stream, encaps, sliceValues, classGraphDepthMax, f, cr)
+                                     System.Func<string, Type> cr, System.Func<int, string> r)
+                : base(stream, encaps, sliceValues, classGraphDepthMax, cr)
             {
                 _compactIdResolver = r;
                 _current = null;
@@ -4030,12 +3984,12 @@ namespace Ice
                 if (_encapsStack.encoding_1_0)
                 {
                     _encapsStack.decoder = new EncapsDecoder10(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                               _valueFactoryManager, _classResolver);
+                                                               _classResolver);
                 }
                 else
                 {
                     _encapsStack.decoder = new EncapsDecoder11(this, _encapsStack, _sliceValues, _classGraphDepthMax,
-                                                               _valueFactoryManager, _classResolver, _compactIdResolver);
+                                                               _classResolver, _compactIdResolver);
                 }
             }
         }
@@ -4047,7 +4001,6 @@ namespace Ice
         private int _startSeq;
         private int _minSeqSize;
 
-        private ValueFactoryManager _valueFactoryManager;
         private Logger _logger;
         private System.Func<int, string> _compactIdResolver;
         private System.Func<string, Type> _classResolver;

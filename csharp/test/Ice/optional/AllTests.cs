@@ -14,8 +14,8 @@ namespace Ice
             public static Test.InitialPrx allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
-                FactoryI factory = new FactoryI();
-                communicator.getValueFactoryManager().add(factory.create, "");
+                // FactoryI factory = new FactoryI();
+                // communicator.getValueFactoryManager().add(factory.create, "");
 
                 var output = helper.getWriter();
                 output.Write("testing stringToProxy... ");
@@ -341,6 +341,8 @@ namespace Ice
                     test(owc2.s.Value.a == 5);
                 }
 
+                /* TODO: rewrite test without factories
+
                 //
                 // Send a request using blobjects. Upon receival, we don't read
                 // any of the optional members. This ensures the optional members
@@ -373,6 +375,9 @@ namespace Ice
                 @in.endEncapsulation();
                 test(cb.obj != null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
+                */
+
+                byte[] outEncaps;
 
                 //
                 // Use the 1.0 encoding with operations whose only class parameters are optional.
@@ -409,14 +414,14 @@ namespace Ice
 
                 initial.opVoid();
 
-                os = new OutputStream(communicator);
+                var os = new OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(1, OptionalFormat.F4);
                 os.writeInt(15);
                 os.writeOptional(1, OptionalFormat.VSize);
                 os.writeString("test");
                 os.endEncapsulation();
-                inEncaps = os.finished();
+                var inEncaps = os.finished();
                 test(initial.ice_invoke("opVoid", OperationMode.Normal, inEncaps, out outEncaps));
 
                 output.WriteLine("ok");
@@ -446,6 +451,7 @@ namespace Ice
                 test(mc.fss.Value.Length == 300);
                 test(mc.ifsd.Value.Count == 300);
 
+                /*
                 factory.setEnabled(true);
                 os = new OutputStream(communicator);
                 os.startEncapsulation();
@@ -459,6 +465,7 @@ namespace Ice
                 @in.endEncapsulation();
                 test(cb.obj != null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
+                */
 
                 output.WriteLine("ok");
 
@@ -482,6 +489,7 @@ namespace Ice
                     test(b2.mc.Value == 12);
                     test(b2.md.Value == 13);
 
+                    /*
                     factory.setEnabled(true);
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -495,6 +503,8 @@ namespace Ice
                     @in.endEncapsulation();
                     test(cb.obj != null);
                     factory.setEnabled(false);
+                    */
+
                 }
                 output.WriteLine("ok");
 
@@ -509,6 +519,7 @@ namespace Ice
                     Test.F rf = (Test.F)initial.pingPong(f);
                     test(rf.ae == rf.af.Value);
 
+                    /*
                     factory.setEnabled(true);
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
@@ -523,6 +534,7 @@ namespace Ice
                     factory.setEnabled(false);
                     rf = ((FValueReader)rocb.obj).getF();
                     test(rf.ae != null && !rf.af.HasValue);
+                    */
                 }
                 output.WriteLine("ok");
 
@@ -553,6 +565,8 @@ namespace Ice
                         os.writeValue(c);
                         os.endEncapsulation();
                         inEncaps = os.finished();
+
+                        /*
                         factory.setEnabled(true);
                         test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                         @in = new InputStream(communicator, outEncaps);
@@ -577,6 +591,7 @@ namespace Ice
                         test(cb.obj != null && cb.obj is DValueReader);
                         ((DValueReader)cb.obj).check();
                         factory.setEnabled(false);
+                        */
                     }
                     output.WriteLine("ok");
 
@@ -595,7 +610,7 @@ namespace Ice
                         test(initial.ice_invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps,
                                                 out outEncaps));
 
-                        @in = new InputStream(communicator, outEncaps);
+                        var @in = new InputStream(communicator, outEncaps);
                         @in.startEncapsulation();
                         @in.endEncapsulation();
                     }
@@ -632,7 +647,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opByte", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F1));
                     test(@in.readByte() == 56);
@@ -673,7 +688,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opBool", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F1));
                     test(@in.readBool() == true);
@@ -714,7 +729,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opShort", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F2));
                     test(@in.readShort() == 56);
@@ -755,7 +770,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opInt", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F4));
                     test(@in.readInt() == 56);
@@ -796,7 +811,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opLong", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(2, OptionalFormat.F8));
                     test(@in.readLong() == 56);
@@ -837,7 +852,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFloat", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F4));
                     test(@in.readFloat() == 1.0);
@@ -878,7 +893,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opDouble", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F8));
                     test(@in.readDouble() == 1.0);
@@ -921,7 +936,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     test(@in.readString().Equals("test"));
@@ -962,7 +977,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.Size));
                     test((Test.MyEnum)@in.readEnum(1) == Test.MyEnum.MyEnumMember);
@@ -1004,7 +1019,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1051,7 +1066,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1104,7 +1119,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opVarStruct", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
@@ -1158,7 +1173,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.Class));
                     ReadValueCallbackI p2cb = new ReadValueCallbackI();
@@ -1217,7 +1232,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opOneOptionalProxy", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
@@ -1263,7 +1278,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     test(ArraysEqual(@in.readByteSeq(), p1.Value));
@@ -1307,7 +1322,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     test(ArraysEqual(@in.readBoolSeq(), p1.Value));
@@ -1353,7 +1368,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1400,7 +1415,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1447,7 +1462,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1494,7 +1509,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1541,7 +1556,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1589,7 +1604,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opStringSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
@@ -1639,7 +1654,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1691,7 +1706,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1743,7 +1758,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1795,7 +1810,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1848,7 +1863,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opVarStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
@@ -1894,7 +1909,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opSerializable", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     Test.SerializableClass sc = Test.SerializableHelper.read(@in);
@@ -1942,7 +1957,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
@@ -1993,7 +2008,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opStringIntDict", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
@@ -2067,7 +2082,7 @@ namespace Ice
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new InputStream(communicator, outEncaps);
+                    var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
@@ -2349,6 +2364,9 @@ namespace Ice
                 }
             }
 
+            /*
+                TODO: update test to not rely on ValueReader / ValueWriter
+
             private class TestValueReader : ValueReader
             {
                 public override void read(InputStream @in)
@@ -2396,7 +2414,7 @@ namespace Ice
                     @in.endValue(false);
                 }
             }
-
+            */
             private class DValueWriter : ValueWriter
             {
                 public override void write(OutputStream @out)
@@ -2429,6 +2447,7 @@ namespace Ice
                 }
             }
 
+            /*
             private class DValueReader : ValueReader
             {
                 public override void read(InputStream @in)
@@ -2535,6 +2554,7 @@ namespace Ice
 
                 private bool _enabled;
             }
+            */
 
             private class ReadValueCallbackI
             {

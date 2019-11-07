@@ -13,12 +13,7 @@
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../AllTests.cs" />
     <Compile Include="../../../Collocated.cs" />
-    <Compile Include="../../../EI.cs" />
-    <Compile Include="../../../FI.cs" />
-    <Compile Include="../../../HI.cs" />
-    <Compile Include="../../../II.cs" />
     <Compile Include="../../../InitialI.cs" />
-    <Compile Include="../../../JI.cs" />
     <Compile Include="../../../F2I.cs" />
     <Compile Include="../../../UnexpectedObjectExceptionTestI.cs" />
     <Compile Include="generated\Test.cs">

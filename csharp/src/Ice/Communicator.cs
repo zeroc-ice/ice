@@ -283,14 +283,6 @@ namespace Ice
         PluginManager getPluginManager();
 
         /// <summary>
-        /// Get the value factory manager for this communicator.
-        /// </summary>
-        /// <returns>This communicator's value factory manager.
-        ///
-        /// </returns>
-        ValueFactoryManager getValueFactoryManager();
-
-        /// <summary>
         /// Add the Admin object with all its facets to the provided object adapter.
         /// If Ice.Admin.ServerId is set and the provided object adapter has a Locator,
         /// createAdmin registers the Admin's Process facet with the Locator's LocatorRegistry.

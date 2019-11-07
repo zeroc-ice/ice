@@ -11,12 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../../EI.cs" />
-    <Compile Include="../../../FI.cs" />
-    <Compile Include="../../../HI.cs" />
-    <Compile Include="../../../II.cs" />
     <Compile Include="../../../InitialI.cs" />
-    <Compile Include="../../../JI.cs" />
     <Compile Include="../../../F2I.cs" />
     <Compile Include="../../../Server.cs" />
     <Compile Include="../../../UnexpectedObjectExceptionTestI.cs" />

@@ -20,11 +20,6 @@ class Base
     string str;
 }
 
-class AbstractBase extends Base
-{
-    void op();
-}
-
 class B;
 class C;
 
@@ -51,32 +46,8 @@ class D
     C theC;
 }
 
-["protected"] class E
-{
-    int i;
-    string s;
-}
-
-class F
-{
-    ["protected"] E e1;
-    E e2;
-}
-
 // Exercise empty class with non-empty base
 class G extends Base
-{
-}
-
-interface I
-{
-}
-
-interface J extends I
-{
-}
-
-class H implements I
 {
 }
 
@@ -201,8 +172,6 @@ interface Initial
     B getB2();
     C getC();
     D getD();
-    E getE();
-    F getF();
 
     void setRecursive(Recursive p);
     bool supportsClassGraphDepthMax();
@@ -211,10 +180,6 @@ interface Initial
     ["amd", "marshaled-result"] B getAMDMB();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
-
-    I getH();
-    I getI();
-    I getJ();
 
     K getK();
 
@@ -226,7 +191,6 @@ interface Initial
     void throwEDerived() throws EDerived;
 
     void setG(G theG);
-    void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 

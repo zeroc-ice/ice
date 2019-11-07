@@ -75,25 +75,6 @@ namespace Ice
                 internal bool called = false;
             }
 
-            private class TestValueReader : Ice.ValueReader
-            {
-                public override void read(Ice.InputStream inS)
-                {
-                    obj = new Test.MyClass();
-                    obj.iceRead(inS);
-                    called = true;
-                }
-
-                internal Test.MyClass obj;
-                internal bool called = false;
-            }
-
-            private static Ice.Value TestObjectFactory(string type)
-            {
-                Debug.Assert(type.Equals(Test.MyClass.ice_staticId()));
-                return new TestValueReader();
-            }
-
             private class TestReadValueCallback
             {
                 public void invoke(Ice.Value obj)
@@ -104,42 +85,9 @@ namespace Ice
                 internal Ice.Value obj;
             }
 
-            public class MyClassFactoryWrapper
-            {
-                public MyClassFactoryWrapper()
-                {
-                    _factory = null;
-                }
-
-                public Ice.Value create(string type)
-                {
-                    if (_factory != null)
-                    {
-                        return _factory(type);
-                    }
-                    return new Test.MyClass();
-                }
-
-                public void setFactory(Ice.ValueFactory factory)
-                {
-                    _factory = factory;
-                }
-
-                private Ice.ValueFactory _factory;
-            }
-
             static public int allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
-                MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-
-                communicator.getValueFactoryManager().add(factoryWrapper.create, Test.MyClass.ice_staticId());
-                communicator.getValueFactoryManager().add((id) =>
-                    {
-                        return new Ice.InterfaceByValue("::Test::MyInterface");
-                    },
-                    "::Test::MyInterface");
-
                 Ice.InputStream inS;
                 Ice.OutputStream outS;
 
@@ -552,12 +500,6 @@ namespace Ice
                     myClassArray[i].d["hi"] = myClassArray[i];
                 }
 
-                var myInterfaceArray = new Ice.Value[4];
-                for (int i = 0; i < myInterfaceArray.Length; ++i)
-                {
-                    myInterfaceArray[i] = new Ice.InterfaceByValue("::Test::MyInterface");
-                }
-
                 {
                     outS = new Ice.OutputStream(communicator);
                     Test.MyClassSHelper.write(outS, myClassArray);
@@ -621,29 +563,6 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    Test.MyInterfaceSHelper.write(outS, myInterfaceArray);
-                    outS.writePendingValues();
-                    var data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var arr2 = Test.MyInterfaceSHelper.read(inS);
-                    inS.readPendingValues();
-                    test(arr2.Length == myInterfaceArray.Length);
-                    Ice.Value[][] arrS = { myInterfaceArray, new Ice.Value[0], myInterfaceArray };
-                    outS = new Ice.OutputStream(communicator);
-                    Test.MyInterfaceSSHelper.write(outS, arrS);
-                    outS.writePendingValues();
-                    data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var arr2S = Test.MyInterfaceSSHelper.read(inS);
-                    inS.readPendingValues();
-                    test(arr2S.Length == arrS.Length);
-                    test(arr2S[0].Length == arrS[0].Length);
-                    test(arr2S[1].Length == arrS[1].Length);
-                    test(arr2S[2].Length == arrS[2].Length);
-                }
-
-                {
-                    outS = new Ice.OutputStream(communicator);
                     var obj = new Test.MyClass();
                     obj.s = new Test.SmallStruct();
                     obj.s.e = Test.MyEnum.enum2;
@@ -652,18 +571,15 @@ namespace Ice
                     outS.writePendingValues();
                     var data = outS.finished();
                     test(writer.called);
-                    factoryWrapper.setFactory(TestObjectFactory);
                     inS = new Ice.InputStream(communicator, data);
                     var cb = new TestReadValueCallback();
                     inS.readValue(cb.invoke);
                     inS.readPendingValues();
                     test(cb.obj != null);
-                    test(cb.obj is TestValueReader);
-                    var reader = (TestValueReader)cb.obj;
-                    test(reader.called);
-                    test(reader.obj != null);
-                    test(reader.obj.s.e == Test.MyEnum.enum2);
-                    factoryWrapper.setFactory(null);
+                    test(cb.obj is Test.MyClass);
+                    var robj = (Test.MyClass)cb.obj;
+                    test(robj != null);
+                    test(robj.s.e == Test.MyEnum.enum2);
                 }
 
                 {
