@@ -6,7 +6,6 @@ IllegalUseOfKeyword.ice:16: structs cannot be forward declared
 IllegalUseOfKeyword.ice:17: keyword `class' cannot be used as struct name
 IllegalUseOfKeyword.ice:22: keyword `interface' cannot be used as class name
 IllegalUseOfKeyword.ice:23: keyword `struct' cannot be used as class name
-IllegalUseOfKeyword.ice:29: keyword `local' cannot be used as interface name
 IllegalUseOfKeyword.ice:30: keyword `extends' cannot be used as interface name
 IllegalUseOfKeyword.ice:37: keyword `implements' cannot be used as operation name
 IllegalUseOfKeyword.ice:39: keyword `throws' cannot be used as parameter name
@@ -18,7 +17,6 @@ IllegalUseOfKeyword.ice:47: keyword `long' cannot be used as data member name
 IllegalUseOfKeyword.ice:48: keyword `float' cannot be used as data member name
 IllegalUseOfKeyword.ice:49: keyword `double' cannot be used as data member name
 IllegalUseOfKeyword.ice:52: keyword `Object' cannot be used as sequence name
-IllegalUseOfKeyword.ice:54: keyword `LocalObject' cannot be used as dictionary name
 IllegalUseOfKeyword.ice:56: keyword `string' cannot be used as enumeration name
 IllegalUseOfKeyword.ice:63: keyword `sequence' cannot be used as enumerator
 IllegalUseOfKeyword.ice:64: keyword `dictionary' cannot be used as enumerator

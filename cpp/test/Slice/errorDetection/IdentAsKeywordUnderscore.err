@@ -22,7 +22,6 @@ IdentAsKeywordUnderscore.ice:30: `C': a class can be defined only at module scop
 IdentAsKeywordUnderscore.ice:30: keyword `extends' cannot be used as data member name
 IdentAsKeywordUnderscore.ice:31: `D': a class can be defined only at module scope
 IdentAsKeywordUnderscore.ice:31: keyword `extends' cannot be used as data member name
-IdentAsKeywordUnderscore.ice:33: keyword `local' cannot be used as interface name
 IdentAsKeywordUnderscore.ice:33: `local': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:34: `Local': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:36: keyword `Object' cannot be used as interface name
@@ -47,7 +46,6 @@ IdentAsKeywordUnderscore.ice:54: syntax error
 IdentAsKeywordUnderscore.ice:55: `d4': a dictionary can be defined only at module scope
 IdentAsKeywordUnderscore.ice:57: syntax error
 IdentAsKeywordUnderscore.ice:58: `VOID' is an exception, which cannot be used as a type
-IdentAsKeywordUnderscore.ice:60: keyword `local' cannot be used as enumeration name
 IdentAsKeywordUnderscore.ice:60: `local': an enumeration can be defined only at module scope
 IdentAsKeywordUnderscore.ice:61: enumeration `LOCAL' differs only in capitalization from enumeration `local'
 IdentAsKeywordUnderscore.ice:63: `e1': an enumeration can be defined only at module scope

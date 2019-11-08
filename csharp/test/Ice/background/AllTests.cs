@@ -1039,10 +1039,10 @@ public class AllTests
         }
 
         OpAMICallback cb = new OpAMICallback();
-        bool sent = false;
+        bool t1Sent = false;
         var t1 = background.opAsync(progress: new Progress<bool>(value => {
             cb.sent(value);
-            sent = true;
+            t1Sent = true;
         })).ContinueWith(p => {
             try
             {
@@ -1054,13 +1054,13 @@ public class AllTests
                 cb.exception(ex);
             }
         });
-        test(!sent);
+        test(!t1Sent);
 
         OpAMICallback cb2 = new OpAMICallback();
-        sent = false;
+        var t2Sent = false;
         var t2 = background.opAsync(progress: new Progress<bool>(value => {
             cb2.sent(value);
-            sent = true;
+            t2Sent = true;
         })).ContinueWith((Task p) => {
             try
             {
@@ -1072,13 +1072,11 @@ public class AllTests
                 cb2.noException(ex);
             }
         });
-        test(!sent);
+        test(!t2Sent);
 
         var t1SentSynchronously = false;
-        var t1Sent = false;
         t1 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value => {
             t1SentSynchronously = value;
-            t1Sent = true;
         }));
         test(!t1SentSynchronously);
         t1.ContinueWith((Task p) => {
@@ -1094,10 +1092,8 @@ public class AllTests
         });
 
         var t2SentSynchronously = false;
-        var t2Sent = false;
         t2 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value => {
             t2SentSynchronously = value;
-            t2Sent = true;
         }));
         test(!t2SentSynchronously);
         t2.ContinueWith((Task p) => {

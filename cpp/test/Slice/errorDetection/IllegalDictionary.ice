@@ -16,7 +16,6 @@ dictionary<float, long> b1;             // Bad
 dictionary<double, long> b2;            // Bad
 dictionary<Object, long> b3;            // Bad
 dictionary<Object*, long> b4;           // Bad
-dictionary<LocalObject, long> b5;       // Bad
 
 sequence<byte> s1;
 dictionary<s1, long> d7;                // Deprecated

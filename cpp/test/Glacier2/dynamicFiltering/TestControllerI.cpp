@@ -80,7 +80,7 @@ TestControllerI::step(shared_ptr<Glacier2::SessionPrx> currentSession, TestToken
                 }
             }
 
-            assert(found);
+            test(found);
 
             //
             // New sessions force configuration step.
