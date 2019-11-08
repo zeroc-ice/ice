@@ -60,7 +60,8 @@ proxyIdentityEqual(const string& strId)
     };
 }
 
-void logTests(const Ice::CommunicatorPtr& comm, shared_ptr<AdminSessionPrx> session)
+void
+logTests(const shared_ptr<Ice::Communicator>& comm, const shared_ptr<AdminSessionPrx>& session)
 {
     cout << "testing stderr/stdout/log files... " << flush;
     string testDir = comm->getProperties()->getProperty("TestDir");

@@ -130,7 +130,7 @@ public:
                 else
                 {
                     session = _registry->createSession(os.str(), "");
-                    session->setAllocationTimeout(static_cast<Ice::Int>(_rd() % 200)); // 200ms timeout
+                    session->setAllocationTimeout(static_cast<int>(_rd() % 200)); // 200ms timeout
                 }
             }
 
@@ -1170,7 +1170,7 @@ allTests(Test::TestHelper* helper)
             clients.insert(make_pair(client9, async(launch::async, [=] { client9->run(); })));
         }
 
-        for(auto& c : clients)
+        for(const auto& c : clients)
         {
             c.first->notifyThread();
         }
