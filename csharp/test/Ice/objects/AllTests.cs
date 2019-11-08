@@ -60,55 +60,9 @@ namespace Ice
 
             public class AllTests : global::Test.AllTests
             {
-                public static Ice.Value MyValueFactory(string type)
-                {
-                    if (type.Equals("::Test::B"))
-                    {
-                        return new B();
-                    }
-                    else if (type.Equals("::Test::C"))
-                    {
-                        return new C();
-                    }
-                    else if (type.Equals("::Test::D"))
-                    {
-                        return new D();
-                    }
-                    else if (type.Equals("::Test::E"))
-                    {
-                        return new EI();
-                    }
-                    else if (type.Equals("::Test::F"))
-                    {
-                        return new FI();
-                    }
-                    else if (type.Equals("::Test::I"))
-                    {
-                        return new II();
-                    }
-                    else if (type.Equals("::Test::J"))
-                    {
-                        return new JI();
-                    }
-                    else if (type.Equals("::Test::H"))
-                    {
-                        return new HI();
-                    }
-                    Debug.Assert(false); // Should never be reached
-                    return null;
-                }
-
                 public static Test.InitialPrx allTests(global::Test.TestHelper helper)
                 {
                     Ice.Communicator communicator = helper.communicator();
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
                     var output = helper.getWriter();
 
@@ -201,32 +155,6 @@ namespace Ice
 
                     output.WriteLine("ok");
 
-                    output.Write("testing protected members... ");
-                    output.Flush();
-                    EI e = (EI)initial.getE();
-                    test(e != null && e.checkValues());
-                    System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
-                                                           System.Reflection.BindingFlags.Public |
-                                                           System.Reflection.BindingFlags.Instance;
-                    test(!typeof(E).GetField("i", flags).IsPublic && !typeof(E).GetField("i", flags).IsPrivate);
-                    test(!typeof(E).GetField("s", flags).IsPublic && !typeof(E).GetField("s", flags).IsPrivate);
-                    FI f = (FI)initial.getF();
-                    test(f.checkValues());
-                    test(((EI)f.e2).checkValues());
-                    test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
-                    test(typeof(F).GetField("e2", flags).IsPublic && !typeof(F).GetField("e2", flags).IsPrivate);
-                    output.WriteLine("ok");
-
-                    output.Write("getting I, J and H... ");
-                    output.Flush();
-                    var i = initial.getI();
-                    test(i != null);
-                    var j = initial.getJ();
-                    test(j != null);
-                    var h = initial.getH();
-                    test(h != null);
-                    output.WriteLine("ok");
-
                     output.Write("getting K... ");
                     {
                         output.Flush();
@@ -299,13 +227,6 @@ namespace Ice
                     catch (Ice.OperationNotExistException)
                     {
                     }
-                    output.WriteLine("ok");
-
-                    output.Write("setting I... ");
-                    output.Flush();
-                    initial.setI(i);
-                    initial.setI(j);
-                    initial.setI(h);
                     output.WriteLine("ok");
 
                     output.Write("testing sequences...");

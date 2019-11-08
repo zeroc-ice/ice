@@ -7,37 +7,27 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
+namespace Test
+{
+    public partial class PNode
+    {    partial void ice_initialize()
+         {
+             ++counter;
+         }
+         internal static int counter = 0;
+    }
+
+    public partial class Preserved
+    {    partial void ice_initialize()
+         {
+             ++counter;
+         }
+         internal static int counter = 0;
+    }
+}
+
 public class AllTests : Test.AllTests
 {
-    private class PNodeI : PNode
-    {
-        public PNodeI()
-        {
-            ++counter;
-        }
-
-        internal static int counter = 0;
-    }
-
-    private class PreservedI : Preserved
-    {
-        public PreservedI()
-        {
-            ++counter;
-        }
-
-        internal static int counter = 0;
-    }
-
-    private static Ice.Value PreservedFactoryI(string id)
-    {
-        if (id.Equals(Preserved.ice_staticId()))
-        {
-            return new PreservedI();
-        }
-        return null;
-    }
-
     public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
@@ -1670,16 +1660,6 @@ public class AllTests : Test.AllTests
         output.Write("preserved classes... ");
         output.Flush();
 
-        //
-        // Register a factory in order to substitute our own subclass of Preserved. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
-        // the Ice run time will install its own internal factory for Preserved upon receiving the
-        // first instance.
-        //
-        communicator.getValueFactoryManager().add(PreservedFactoryI, Preserved.ice_staticId());
-
         try
         {
             //
@@ -2000,19 +1980,6 @@ public class AllTests : Test.AllTests
         try
         {
             //
-            // Register a factory in order to substitute our own subclass of PNode. This provides
-            // an easy way to determine how many unmarshaled instances currently exist.
-            //
-            communicator.getValueFactoryManager().add((string id) =>
-            {
-                if (id.Equals(PNode.ice_staticId()))
-                {
-                    return new PNodeI();
-                }
-                return null;
-            }, PNode.ice_staticId());
-
-            //
             // Relay a graph through the server.
             //
             {
@@ -2021,11 +1988,11 @@ public class AllTests : Test.AllTests
                 c.next.next = new PNode();
                 c.next.next.next = c;
 
-                test(PNodeI.counter == 0);
+                test(PNode.counter == 3);
                 PNode n = testPrx.exchangePNode(c);
 
-                test(PNodeI.counter == 3);
-                PNodeI.counter = 0;
+                test(PNode.counter == 6);
+                PNode.counter = 0;
                 n.next = null;
             }
 
@@ -2035,11 +2002,11 @@ public class AllTests : Test.AllTests
             // objects.
             //
             {
-                test(PNodeI.counter == 0);
+                test(PNode.counter == 0);
                 Preserved p = testPrx.PBSUnknownAsPreservedWithGraph();
                 testPrx.checkPBSUnknownWithGraph(p);
-                test(PNodeI.counter == 3);
-                PNodeI.counter = 0;
+                test(PNode.counter == 3);
+                PNode.counter = 0;
             }
 
             //
@@ -2050,11 +2017,11 @@ public class AllTests : Test.AllTests
             // outer.iceSlicedData_.outer
             //
             {
-                PreservedI.counter = 0;
+                Preserved.counter = 0;
                 Preserved p = testPrx.PBSUnknown2AsPreservedWithGraph();
                 testPrx.checkPBSUnknown2WithGraph(p);
-                test(PreservedI.counter == 1);
-                PreservedI.counter = 0;
+                test(Preserved.counter == 1);
+                Preserved.counter = 0;
             }
 
             //
@@ -2070,7 +2037,7 @@ public class AllTests : Test.AllTests
             //
             try
             {
-                test(PreservedI.counter == 0);
+                test(Preserved.counter == 0);
 
                 try
                 {
@@ -2078,10 +2045,10 @@ public class AllTests : Test.AllTests
                 }
                 catch (PreservedException)
                 {
-                    test(PreservedI.counter == 1);
+                    test(Preserved.counter == 1);
                 }
 
-                PreservedI.counter = 0;
+                Preserved.counter = 0;
             }
             catch (Exception ex)
             {

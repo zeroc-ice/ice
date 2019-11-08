@@ -49,7 +49,6 @@ class OptionalClass
 
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
-sequence<MyInterface> MyInterfaceS;
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -61,7 +60,6 @@ sequence<Ice::DoubleSeq> DoubleSS;
 sequence<Ice::StringSeq> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
-sequence<MyInterfaceS> MyInterfaceSS;
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
@@ -119,14 +117,6 @@ sequence<Object> ObjectStack;
 //
 ["clr:generic:Stack"]
 sequence<MyClass> MyClassStack;
-
-//
-// This will produce a warning and use the default
-// sequence mapping. The generic:Stack metadata cannot be use
-// with object sequences.
-//
-["clr:generic:Stack"]
-sequence<MyInterface> MyInterfaceStack;
 
 ["clr:generic:Queue"]
 sequence<double> DoubleQueue;

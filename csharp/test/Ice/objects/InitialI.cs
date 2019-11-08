@@ -18,8 +18,6 @@ namespace Ice
                 _b2 = new Test.B();
                 _c = new Test.C();
                 _d = new Test.D();
-                _e = new EI();
-                _f = new FI(_e);
 
                 _b1.theA = _b2; // Cyclic reference to another B
                 _b1.theB = _b1; // Self reference.
@@ -62,31 +60,6 @@ namespace Ice
             public override Test.D getD(Ice.Current current)
             {
                 return _d;
-            }
-
-            public override Test.E getE(Ice.Current current)
-            {
-                return _e;
-            }
-
-            public override Test.F getF(Ice.Current current)
-            {
-                return _f;
-            }
-
-            public override Ice.Value getI(Ice.Current current)
-            {
-                return new II();
-            }
-
-            public override Ice.Value getJ(Ice.Current current)
-            {
-                return new JI();
-            }
-
-            public override Ice.Value getH(Ice.Current current)
-            {
-                return new HI();
             }
 
             public override Test.K getK(Ice.Current current)
@@ -136,11 +109,6 @@ namespace Ice
             public override void setG(Test.G theG, Ice.Current current)
             {
             }
-
-            public override void setI(Ice.Value theI, Ice.Current current)
-            {
-            }
-
             public override Test.Base[] opBaseSeq(Test.Base[] inS, out Test.Base[] outS, Ice.Current current)
             {
                 outS = inS;
@@ -229,8 +197,6 @@ namespace Ice
             private Test.B _b2;
             private Test.C _c;
             private Test.D _d;
-            private Test.E _e;
-            private Test.F _f;
         }
     }
 }

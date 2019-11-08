@@ -948,11 +948,6 @@ namespace IceInternal
 
                 _pluginManager = new Ice.PluginManagerI(communicator);
 
-                if (_initData.valueFactoryManager == null)
-                {
-                    _initData.valueFactoryManager = new ValueFactoryManagerI();
-                }
-
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);

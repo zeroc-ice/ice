@@ -125,20 +125,6 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
-                {
-                    output.Write("testing object factory registration exception... ");
-                    communicator.getValueFactoryManager().add(_ => { return null; }, "::x");
-                    try
-                    {
-                        communicator.getValueFactoryManager().add(_ => { return null; }, "::x");
-                        test(false);
-                    }
-                    catch (AlreadyRegisteredException)
-                    {
-                    }
-                    output.WriteLine("ok");
-                }
-
                 output.Write("testing stringToProxy... ");
                 output.Flush();
                 String @ref = "thrower:" + helper.getTestEndpoint(0);

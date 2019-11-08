@@ -113,11 +113,6 @@ namespace Ice
             return _instance.objectAdapterFactory().createObjectAdapter(name, router);
         }
 
-        public ValueFactoryManager getValueFactoryManager()
-        {
-            return _instance.initializationData().valueFactoryManager;
-        }
-
         public Properties getProperties()
         {
             return _instance.initializationData().properties;
