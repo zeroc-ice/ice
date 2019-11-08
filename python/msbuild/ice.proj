@@ -43,7 +43,11 @@
                                ..\..\slice\IceBox\*.ice;
                                ..\..\slice\IceGrid\*.ice;
                                ..\..\slice\IceStorm\*.ice"/>
-        <PythonGenerated Include="$(MSBuildThisFileDirectory)\..\python\**\*_ice.py"/>
+        <PythonGenerated Include="@(SliceCompile->'$(MSBuildThisFileDirectory)..\python\Ice\%(Filename)_ice.py')"/>
+        <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceBox\*_ice.py"/>
+        <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceGrid\*_ice.py"/>
+        <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceMX\*_ice.py"/>
+        <PythonGenerated Include="$(MSBuildThisFileDirectory)..\python\IceStorm\*_ice.py"/>
     </ItemGroup>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
