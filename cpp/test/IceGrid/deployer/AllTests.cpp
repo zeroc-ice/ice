@@ -51,24 +51,14 @@ bool isLongLineEnd(const string& line)
 
 }
 
-#ifdef ICE_CPP11_COMPILER
-function<bool(Ice::ObjectPrxPtr&)>
+function<bool(const shared_ptr<Ice::ObjectPrx>&)>
 proxyIdentityEqual(const string& strId)
 {
-    return [id = Ice::stringToIdentity(strId)](const Ice::ObjectPrxPtr& obj)
+    return [id = Ice::stringToIdentity(strId)](const shared_ptr<Ice::ObjectPrx>& obj)
     {
         return obj->ice_getIdentity() == id;
     };
 }
-#else
-struct ProxyEqualIdentity : public std::binary_function<Ice::ObjectPrx,string,bool>
-{
-    bool
-    operator()(const Ice::ObjectPrx& p1, const string& id) const
-    {
-        return p1->ice_getIdentity() == Ice::stringToIdentity(id);
-    }
-};
 
 binder2nd<ProxyEqualIdentity>
 proxyIdentityEqual(const string& strId)
@@ -420,7 +410,8 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing object registration... " << flush;
-    Ice::ObjectProxySeq objs = query->findAllObjectsByType("::Test");
+
+    auto objs = query->findAllObjectsByType("::Test");
     test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server1")) != objs.end());
     test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server2")) != objs.end());
     test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleServer")) != objs.end());

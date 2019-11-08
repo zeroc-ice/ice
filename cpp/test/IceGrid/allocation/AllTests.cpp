@@ -132,7 +132,7 @@ public:
                 else
                 {
                     session = _registry->createSession(os.str(), "");
-                    session->setAllocationTimeout(static_cast<Ice::Int>(IceUtilInternal::random(200))); // 200ms timeout
+                    session->setAllocationTimeout(static_cast<int>(_rd() % 200)); // 200ms timeout
                 }
             }
 
@@ -214,34 +214,21 @@ public:
     void allocateAndDestroy(const SessionPrxPtr& session)
     {
         ostringstream os;
-        os << "stress-" << IceUtilInternal::random(3);
-        auto cb = make_shared<Callback>();
-        session->allocateObjectByIdAsync(
-            Ice::stringToIdentity(os.str()),
-            [cb](shared_ptr<Ice::ObjectPrx> obj)
-            {
-                cb->response(obj);
-            },
-            [cb](exception_ptr)
-            {
-                cb->exception();
-            });
+        os << "stress-" << (_rd() % 3);
+
+        auto asyncCB = make_shared<Callback>();
+        session->allocateObjectByIdAsync(Ice::stringToIdentity(os.str()),
+                                         [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
+                                         [asyncCB](exception_ptr e) { asyncCB->exception(e); });
         session->destroy();
     }
 
     void allocateByTypeAndDestroy(shared_ptr<SessionPrx> session)
     {
-        auto cb = make_shared<Callback>();
-        session->allocateObjectByTypeAsync(
-            "::StressTest",
-            [cb](shared_ptr<Ice::ObjectPrx> obj)
-            {
-                cb->response(obj);
-            },
-            [cb](exception_ptr)
-            {
-                cb->exception();
-            });
+        auto asyncCB = make_shared<Callback>();
+        session->allocateObjectByTypeAsync("::StressTest",
+                                          [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
+                                          [asyncCB](exception_ptr e) { asyncCB->exception(e); });
         session->destroy();
     }
 
@@ -1308,7 +1295,7 @@ allTests(Test::TestHelper* helper)
             clients.push_back(make_pair(client, std::move(t)));
         }
 
-        for (const auto& p : clients)
+        for(const auto& c : clients)
         {
             p.first->notifyThread();
         }

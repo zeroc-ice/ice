@@ -24,7 +24,7 @@ string
 getProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string& name)
 {
     PropertyDescriptorSeq& properties = communicator->propertySet.properties;
-    for(auto& prop : properties)
+    for(const auto& prop : properties)
     {
         if(prop.name == name)
         {
