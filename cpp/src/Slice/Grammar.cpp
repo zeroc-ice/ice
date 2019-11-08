@@ -1885,7 +1885,7 @@ yyreduce:
   case 41:
 #line 264 "src/Slice/Grammar.y" /* yacc.c:1652  */
     {
-    assert(EnumPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || EnumPtr::dynamicCast(yyvsp[0]));
 }
 #line 1891 "src/Slice/Grammar.cpp" /* yacc.c:1652  */
     break;
