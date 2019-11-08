@@ -83,7 +83,8 @@ cpp11_projects          = test/Common \
                           test/IceGrid/% \
                           test/IceBridge/simple
 
-cpp11_excludes          = test/Ice/gc
+cpp11_excludes          = test/Ice/gc \
+                          test/IceGrid/replicaGroup
 
 #
 # If building on a Linux multilib platform, we restrict what we build for
