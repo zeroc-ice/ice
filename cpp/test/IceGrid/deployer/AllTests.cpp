@@ -49,25 +49,14 @@ bool isLongLineEnd(const string& line)
 
 }
 
-struct ProxyIdentityEqual
+function<bool(const shared_ptr<Ice::ObjectPrx>&)>
+proxyIdentityEqual(const string& strId)
 {
-
-public:
-
-    explicit ProxyIdentityEqual(const string& id) : _id(Ice::stringToIdentity(id))
+    return [id = Ice::stringToIdentity(strId)](const shared_ptr<Ice::ObjectPrx>& obj)
     {
-    }
-
-    bool
-    operator()(const shared_ptr<Ice::ObjectPrx>& p1) const
-    {
-        return p1->ice_getIdentity() == _id;
-    }
-
-private:
-
-    Ice::Identity _id;
-};
+        return obj->ice_getIdentity() == id;
+    };
+}
 
 void
 logTests(const shared_ptr<Ice::Communicator>& comm, const shared_ptr<AdminSessionPrx>& session)
@@ -414,15 +403,15 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing object registration... " << flush;
     auto objs = query->findAllObjectsByType("::Test");
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("Server1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("Server2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("SimpleServer")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("IceBox1-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("IceBox1-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("IceBox2-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("IceBox2-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("SimpleIceBox-SimpleService")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), ProxyIdentityEqual("ReplicatedObject")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleServer")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleIceBox-SimpleService")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("ReplicatedObject")) != objs.end());
 
     {
         test(comm->identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
@@ -581,7 +570,7 @@ allTests(Test::TestHelper* helper)
         comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
     proxies.push_back(obj);
 
-    for(auto& p : proxies)
+    for(const auto& p : proxies)
     {
         test(p->getProperty("AppVarProp") == "AppVar");
         test(p->getProperty("NodeVarProp") == "NodeVar");

@@ -130,7 +130,7 @@ public:
                 else
                 {
                     session = _registry->createSession(os.str(), "");
-                    session->setAllocationTimeout(static_cast<Ice::Int>(_rd() % 200)); // 200ms timeout
+                    session->setAllocationTimeout(static_cast<int>(_rd() % 200)); // 200ms timeout
                 }
             }
 
@@ -219,7 +219,7 @@ public:
         auto asyncCB = make_shared<Callback>();
         session->allocateObjectByIdAsync(Ice::stringToIdentity(os.str()),
                                          [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
-                                         [asyncCB](exception_ptr e) { asyncCB->exception(move(e)); });
+                                         [asyncCB](exception_ptr e) { asyncCB->exception(e); });
         session->destroy();
     }
 
@@ -229,7 +229,7 @@ public:
         auto asyncCB = make_shared<Callback>();
         session->allocateObjectByTypeAsync("::StressTest",
                                           [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
-                                          [asyncCB](exception_ptr e) { asyncCB->exception(move(e)); });
+                                          [asyncCB](exception_ptr e) { asyncCB->exception(e); });
         session->destroy();
     }
 
@@ -1172,7 +1172,7 @@ allTests(Test::TestHelper* helper)
             clients.insert(make_pair(client9, async(launch::async, [=] { client9->run(); })));
         }
 
-        for(auto& c : clients)
+        for(const auto& c : clients)
         {
             c.first->notifyThread();
         }
