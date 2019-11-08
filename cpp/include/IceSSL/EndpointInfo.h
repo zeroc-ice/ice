@@ -5,6 +5,7 @@
 #ifndef ICESSL_ENDPOINT_INFO_H
 #define ICESSL_ENDPOINT_INFO_H
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
@@ -130,5 +131,7 @@ inline bool operator<(const EndpointInfo& lhs, const EndpointInfo& rhs)
 }
 
 #endif
+
+#include <IceUtil/PopDisableWarnings.h>
 
 #endif

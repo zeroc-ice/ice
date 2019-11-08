@@ -862,10 +862,6 @@ Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<
 bool
 Slice::Gen::RequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     _seenClass = true;
     if(p->compactId() >= 0)
     {
@@ -875,12 +871,8 @@ Slice::Gen::RequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::RequireVisitor::visitStructStart(const StructPtr& p)
+Slice::Gen::RequireVisitor::visitStructStart(const StructPtr&)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     _seenStruct = true;
     return false;
 }
@@ -892,12 +884,8 @@ Slice::Gen::RequireVisitor::visitOperation(const OperationPtr&)
 }
 
 bool
-Slice::Gen::RequireVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::Gen::RequireVisitor::visitExceptionStart(const ExceptionPtr&)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     _seenUserException = true;
     return false;
 }
@@ -905,10 +893,6 @@ Slice::Gen::RequireVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 {
-    if(seq->isLocal())
-    {
-        return;
-    }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
     if(builtin)
     {
@@ -929,10 +913,6 @@ Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 void
 Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    if(dict->isLocal())
-    {
-        return;
-    }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(dict->valueType());
     if(builtin)
     {
@@ -1289,10 +1269,6 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     const string scope = p->scope();
     const string scoped = p->scoped();
     const string localScope = getLocalScope(scope);
@@ -1804,10 +1780,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     const string scope = p->scope();
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
@@ -1949,10 +1921,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     const string scope = p->scope();
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
@@ -2041,10 +2009,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     const TypePtr keyType = p->keyType();
     const TypePtr valueType = p->valueType();
 
@@ -2099,10 +2063,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     const string scope = p->scope();
     const string localScope = getLocalScope(scope);
     const string name = fixId(p->name());
@@ -2171,7 +2131,6 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
         "7",  // string
         "8",  // Ice.Object
         "9",  // Ice.ObjectPrx
-        "??", // LocalObject
         "10", // Ice.Value
     };
 
@@ -2380,10 +2339,6 @@ Slice::Gen::TypeScriptRequireVisitor::visitModuleStart(const ModulePtr& p)
 bool
 Slice::Gen::TypeScriptRequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     //
     // Add imports required for base classes
     //
@@ -2440,10 +2395,6 @@ Slice::Gen::TypeScriptRequireVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     //
     // Add imports required for base exceptions
     //
@@ -2568,10 +2519,6 @@ Slice::Gen::TypeScriptAliasVisitor::visitModuleStart(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     ModulePtr module = ModulePtr::dynamicCast(p->container());
     //
     // Add alias required for base classes
@@ -2615,10 +2562,6 @@ Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     ModulePtr module = ModulePtr::dynamicCast(p->container());
     //
     // Add alias required for data members
@@ -2634,10 +2577,6 @@ Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     ModulePtr module = ModulePtr::dynamicCast(p->container());
     //
     // Add alias required for base exception
@@ -2662,20 +2601,12 @@ Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::TypeScriptAliasVisitor::visitSequence(const SequencePtr& seq)
 {
-    if(seq->isLocal())
-    {
-        return;
-    }
     addAlias(seq->type(), ModulePtr::dynamicCast(seq->container()));
 }
 
 void
 Slice::Gen::TypeScriptAliasVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    if(dict->isLocal())
-    {
-        return;
-    }
     ModulePtr module = ModulePtr::dynamicCast(dict->container());
     addAlias(dict->keyType(), module);
     addAlias(dict->valueType(), module);
@@ -2740,286 +2671,243 @@ Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string icePrefix = importPrefix("Ice.", p);
-    if(p->isDelegate())
+
+    const OperationList ops = p->allOperations();
+    if(p->isInterface() || !ops.empty())
     {
-        // A delegate only has one operation
-        OperationPtr op = p->allOperations().front();
-        CommentPtr comment = op->parseComment(false);
-        if(comment)
-        {
-            writeOpDocSummary(_out, op, comment, OpDocAllParams, true, StringList(), StringList(), comment->returns());
-        }
-        _out << nl << "type " << fixId(p->name()) << " = " << spar;
-        ParamDeclList paramList = op->parameters();
-        for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            ostringstream os;
-            os << fixId((*q)->name()) << ":";
-            if((*q)->isOutParam())
-            {
-                os << icePrefix << getUnqualified("Ice.Holder", p->scope(), icePrefix) << "<";
-            }
-            os << typeToString((*q)->type(), p, imports(), true, false, true);
-            if((*q)->isOutParam())
-            {
-                os << ">";
-            }
-            _out << os.str();
-        }
-        _out << epar << " => ";
-        TypePtr ret = op->returnType();
-        if(ret)
-        {
-            _out << typeToString(ret, p, imports(), true, false, true) << ";";
-        }
-        else
-        {
-            _out << "void;";
-        }
-    }
-    else
-    {
-        const OperationList ops = p->allOperations();
-        if(p->isInterface() || !ops.empty())
-        {
-            //
-            // Define servant an proxy types for non local classes
-            //
-            _out << sp;
-            _out << nl << "abstract class " << fixId(p->name() + "Prx")
-                 << " extends " << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
-            _out << sb;
+        //
+        // Define servant an proxy types for non local classes
+        //
+        _out << sp;
+        _out << nl << "abstract class " << fixId(p->name() + "Prx")
+             << " extends " << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
+        _out << sb;
 
-            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        {
+            const OperationPtr op = *q;
+            const ParamDeclList paramList = op->parameters();
+            const TypePtr ret = op->returnType();
+            ParamDeclList inParams, outParams;
+            for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
             {
-                const OperationPtr op = *q;
-                const ParamDeclList paramList = op->parameters();
-                const TypePtr ret = op->returnType();
-                ParamDeclList inParams, outParams;
-                for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+                if((*r)->isOutParam())
                 {
-                    if((*r)->isOutParam())
-                    {
-                        outParams.push_back(*r);
-                    }
-                    else
-                    {
-                        inParams.push_back(*r);
-                    }
-                }
-
-                const string contextParam = escapeParam(paramList, "context");
-                CommentPtr comment = op->parseComment(false);
-                const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
-                const string asyncDoc = "The asynchronous result object for the invocation.";
-                if(comment)
-                {
-                    StringList postParams, returns;
-                    postParams.push_back(contextDoc);
-                    returns.push_back(asyncDoc);
-                    writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
-                }
-                _out << nl << fixId((*q)->name()) << spar;
-                for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
-                {
-                    _out << (fixId((*r)->name()) +
-                             ((*r)->optional() ? "?" : "") +
-                             ":" +
-                             typeToString((*r)->type(), p, imports(), true, false, true));
-                }
-                _out << "context?:Map<string, string>";
-                _out << epar;
-
-                _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
-                if(!ret && outParams.empty())
-                {
-                    _out << "<void>";
-                }
-                else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
-                {
-                    TypePtr t = ret ? ret : outParams.front()->type();
-                    _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
+                    outParams.push_back(*r);
                 }
                 else
                 {
-                    _out << "<[";
-                    if(ret)
-                    {
-                        _out << typeToString(ret, p, imports(), true, false, true) << ", ";
-                    }
-
-                    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
-                    {
-                        _out << typeToString((*i)->type(), p, imports(), true, false, true);
-                        if(++i != outParams.end())
-                        {
-                            _out << ", ";
-                        }
-                    }
-
-                    _out << "]>";
+                    inParams.push_back(*r);
                 }
-
-                _out << ";";
             }
 
-            const string icePrefix = importPrefix("Ice.ObjectPrx", p);
-            _out << sp;
-            _out << nl << "/**";
-            _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
-            _out << nl << " * @param prx The target proxy.";
-            _out << nl << " * @return A proxy with the requested type.";
-            _out << nl << " */";
-            _out << nl << "static uncheckedCast(prx:" << icePrefix
-                 << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
-                 << "facet?:string):"
-                 << fixId(p->name() + "Prx") << ";";
-            _out << nl << "/**";
-            _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
-            _out << nl << " * @param prx The target proxy.";
-            _out << nl << " * @param facet A facet name.";
-            _out << nl << " * @param context The context map for the invocation.";
-            _out << nl << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
-            _out << nl << " * object does not support the requested type.";
-            _out << nl << " */";
-            _out << nl << "static checkedCast(prx:" << icePrefix
-                 << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
-                 << "facet?:string, contex?:Map<string, string>):" << icePrefix
-                 << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
-            _out << eb;
-
-            _out << sp;
-            _out << nl << "abstract class " << fixId(p->name() + (p->isInterface() ? "" : "Disp"))
-                 << " extends " << icePrefix << getUnqualified("Ice.Object", p->scope(), icePrefix);
-            _out << sb;
-            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+            const string contextParam = escapeParam(paramList, "context");
+            CommentPtr comment = op->parseComment(false);
+            const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
+            const string asyncDoc = "The asynchronous result object for the invocation.";
+            if(comment)
             {
-                const OperationPtr op = *q;
-                const ParamDeclList paramList = op->parameters();
-                const TypePtr ret = op->returnType();
-                ParamDeclList inParams, outParams;
-                for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
-                {
-                    if((*r)->isOutParam())
-                    {
-                        outParams.push_back(*r);
-                    }
-                    else
-                    {
-                        inParams.push_back(*r);
-                    }
-                }
-
-                const string currentParam = escapeParam(inParams, "current");
-                CommentPtr comment = p->parseComment(false);
-                const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
-                const string resultDoc = "The result or a promise like object that will "
-                    "be resolved with the result of the invocation.";
-                if(comment)
-                {
-                    StringList postParams, returns;
-                    postParams.push_back(currentDoc);
-                    returns.push_back(resultDoc);
-                    writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
-                }
-                _out << nl << "abstract " << fixId((*q)->name()) << spar;
-                for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
-                {
-                    _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
-                }
-                _out << ("current:" + icePrefix + getUnqualified("Ice.Current", p->scope(), icePrefix));
-                _out << epar << ":";
-
-                if(!ret && outParams.empty())
-                {
-                    _out << "PromiseLike<void>|void";
-                }
-                else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
-                {
-                    TypePtr t = ret ? ret : outParams.front()->type();
-                    string returnType = typeToString(t, p, imports(), true, false, true);
-                    _out << "PromiseLike<" << returnType  << ">|" << returnType;
-                }
-                else
-                {
-                    ostringstream os;
-                    if(ret)
-                    {
-                        os << typeToString(ret, p, imports(), true, false, true) << ", ";
-                    }
-
-                    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
-                    {
-                        os << typeToString((*i)->type(), p, imports(), true, false, true);
-                        if(++i != outParams.end())
-                        {
-                            os << ", ";
-                        }
-                    }
-                    _out << "PromiseLike<[" << os.str() << "]>|[" << os.str() << "]";
-                }
-                _out << ";";
+                StringList postParams, returns;
+                postParams.push_back(contextDoc);
+                returns.push_back(asyncDoc);
+                writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
             }
-            _out << nl << "/**";
-            _out << nl << " * Obtains the Slice type ID of this type.";
-            _out << nl << " * @return The return value is always \"" + p->scoped() + "\".";
-            _out << nl << " */";
-            _out << nl << "static ice_staticId():string;";
-            _out << eb;
-        }
-
-        if(!p->isInterface())
-        {
-            const DataMemberList dataMembers = p->dataMembers();
-            const DataMemberList allDataMembers = p->allDataMembers();
-            _out << sp;
-            writeDocSummary(_out, p);
-            _out << nl << "class " << fixId(p->name()) << " extends ";
-            const string scope = p->scope();
-            const string scoped = p->scoped();
-            ClassList bases = p->bases();
-            if(!bases.empty() && !bases.front()->isInterface())
+            _out << nl << fixId((*q)->name()) << spar;
+            for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
             {
-                ClassDefPtr base = bases.front();
-                const string prefix = importPrefix(ContainedPtr::dynamicCast(base), p, imports());
-                _out << prefix << getUnqualified(fixId(base->scoped()), p->scope(), prefix);
+                _out << (fixId((*r)->name()) +
+                         ((*r)->optional() ? "?" : "") +
+                         ":" +
+                         typeToString((*r)->type(), p, imports(), true, false, true));
+            }
+            _out << "context?:Map<string, string>";
+            _out << epar;
+
+            _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
+            if(!ret && outParams.empty())
+            {
+                _out << "<void>";
+            }
+            else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+            {
+                TypePtr t = ret ? ret : outParams.front()->type();
+                _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
             }
             else
             {
-                _out << icePrefix << getUnqualified("Ice.Value", p->scope(), icePrefix);
-            }
-            _out << sb;
-            _out << nl << "/**";
-            _out << nl << " * One-shot constructor to initialize all data members.";
-            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-            {
-                CommentPtr comment = (*q)->parseComment(false);
-                if(comment)
+                _out << "<[";
+                if(ret)
                 {
-                    _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+                    _out << typeToString(ret, p, imports(), true, false, true) << ", ";
+                }
+
+                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+                {
+                    _out << typeToString((*i)->type(), p, imports(), true, false, true);
+                    if(++i != outParams.end())
+                    {
+                        _out << ", ";
+                    }
+                }
+
+                _out << "]>";
+            }
+
+            _out << ";";
+        }
+
+        const string icePrefix = importPrefix("Ice.ObjectPrx", p);
+        _out << sp;
+        _out << nl << "/**";
+        _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
+        _out << nl << " * @param prx The target proxy.";
+        _out << nl << " * @return A proxy with the requested type.";
+        _out << nl << " */";
+        _out << nl << "static uncheckedCast(prx:" << icePrefix
+             << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
+             << "facet?:string):"
+             << fixId(p->name() + "Prx") << ";";
+        _out << nl << "/**";
+        _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
+        _out << nl << " * @param prx The target proxy.";
+        _out << nl << " * @param facet A facet name.";
+        _out << nl << " * @param context The context map for the invocation.";
+        _out << nl << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
+        _out << nl << " * object does not support the requested type.";
+        _out << nl << " */";
+        _out << nl << "static checkedCast(prx:" << icePrefix
+             << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
+             << "facet?:string, contex?:Map<string, string>):" << icePrefix
+             << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
+        _out << eb;
+
+        _out << sp;
+        _out << nl << "abstract class " << fixId(p->name() + (p->isInterface() ? "" : "Disp"))
+             << " extends " << icePrefix << getUnqualified("Ice.Object", p->scope(), icePrefix);
+        _out << sb;
+        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        {
+            const OperationPtr op = *q;
+            const ParamDeclList paramList = op->parameters();
+            const TypePtr ret = op->returnType();
+            ParamDeclList inParams, outParams;
+            for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+            {
+                if((*r)->isOutParam())
+                {
+                    outParams.push_back(*r);
+                }
+                else
+                {
+                    inParams.push_back(*r);
                 }
             }
-            _out << nl << " */";
-            _out << nl << "constructor" << spar;
-            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+
+            const string currentParam = escapeParam(inParams, "current");
+            CommentPtr comment = p->parseComment(false);
+            const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
+            const string resultDoc = "The result or a promise like object that will "
+                "be resolved with the result of the invocation.";
+            if(comment)
             {
-                _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+                StringList postParams, returns;
+                postParams.push_back(currentDoc);
+                returns.push_back(resultDoc);
+                writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
             }
-            _out << epar << ";";
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            _out << nl << "abstract " << fixId((*q)->name()) << spar;
+            for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
             {
-                writeDocSummary(_out, *q);
-                _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true)
-                     << ";";
+                _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
             }
-            _out << eb;
+            _out << ("current:" + icePrefix + getUnqualified("Ice.Current", p->scope(), icePrefix));
+            _out << epar << ":";
+
+            if(!ret && outParams.empty())
+            {
+                _out << "PromiseLike<void>|void";
+            }
+            else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+            {
+                TypePtr t = ret ? ret : outParams.front()->type();
+                string returnType = typeToString(t, p, imports(), true, false, true);
+                _out << "PromiseLike<" << returnType  << ">|" << returnType;
+            }
+            else
+            {
+                ostringstream os;
+                if(ret)
+                {
+                    os << typeToString(ret, p, imports(), true, false, true) << ", ";
+                }
+
+                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+                {
+                    os << typeToString((*i)->type(), p, imports(), true, false, true);
+                    if(++i != outParams.end())
+                    {
+                        os << ", ";
+                    }
+                }
+                _out << "PromiseLike<[" << os.str() << "]>|[" << os.str() << "]";
+            }
+            _out << ";";
         }
+        _out << nl << "/**";
+        _out << nl << " * Obtains the Slice type ID of this type.";
+        _out << nl << " * @return The return value is always \"" + p->scoped() + "\".";
+        _out << nl << " */";
+        _out << nl << "static ice_staticId():string;";
+        _out << eb;
+    }
+
+    if(!p->isInterface())
+    {
+        const DataMemberList dataMembers = p->dataMembers();
+        const DataMemberList allDataMembers = p->allDataMembers();
+        _out << sp;
+        writeDocSummary(_out, p);
+        _out << nl << "class " << fixId(p->name()) << " extends ";
+        const string scope = p->scope();
+        const string scoped = p->scoped();
+        ClassList bases = p->bases();
+        if(!bases.empty() && !bases.front()->isInterface())
+        {
+            ClassDefPtr base = bases.front();
+            const string prefix = importPrefix(ContainedPtr::dynamicCast(base), p, imports());
+            _out << prefix << getUnqualified(fixId(base->scoped()), p->scope(), prefix);
+        }
+        else
+        {
+            _out << icePrefix << getUnqualified("Ice.Value", p->scope(), icePrefix);
+        }
+        _out << sb;
+        _out << nl << "/**";
+        _out << nl << " * One-shot constructor to initialize all data members.";
+        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        {
+            CommentPtr comment = (*q)->parseComment(false);
+            if(comment)
+            {
+                _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+            }
+        }
+        _out << nl << " */";
+        _out << nl << "constructor" << spar;
+        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        {
+            _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+        }
+        _out << epar << ";";
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeDocSummary(_out, *q);
+            _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true)
+                 << ";";
+        }
+        _out << eb;
     }
     return false;
 }
@@ -3027,10 +2915,6 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
@@ -3085,10 +2969,6 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     const string icePrefix = importPrefix("Ice.", p);
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
@@ -3135,10 +3015,6 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     const string icePrefix = importPrefix("Ice.", p);
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string name = fixId(p->name());
@@ -3162,10 +3038,6 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     const string icePrefix = importPrefix("Ice.", p);
     const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
     const string name = fixId(p->name());
@@ -3191,10 +3063,6 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     _out << sp;
     writeDocSummary(_out, p);
     _out << nl << "class " << fixId(p->name());

@@ -585,7 +585,6 @@ Slice::isMovable(const TypePtr& type)
             case Builtin::KindString:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return true;
@@ -644,7 +643,6 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::string",
         "::Ice::ObjectPtr",
         "::Ice::ObjectPrx",
-        "::Ice::LocalObjectPtr",
         "::Ice::ValuePtr"
     };
 
@@ -660,7 +658,6 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::string",
         "::std::shared_ptr<::Ice::Object>",
         "::std::shared_ptr<::Ice::ObjectPrx>",
-        "::std::shared_ptr<void>",
         "::std::shared_ptr<::Ice::Value>"
     };
 
@@ -707,11 +704,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     {
         if(cpp11)
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return getUnqualified(fixKwd(cl->scoped()), scope);
-            }
-            else if(cl->isInterface())
+            if(cl->isInterface())
             {
                 return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
             }
@@ -836,7 +829,6 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::std::string&",
         "const ::Ice::ObjectPtr&",
         "const ::Ice::ObjectPrx&",
-        "const ::Ice::LocalObjectPtr&",
         "const ::Ice::ValuePtr&"
     };
 
@@ -852,7 +844,6 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::std::string&",
         "const ::std::shared_ptr<::Ice::Object>&",
         "const ::std::shared_ptr<::Ice::ObjectPrx>&",
-        "const ::std::shared_ptr<void>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -892,11 +883,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(cpp11)
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return getUnqualified(fixKwd(cl->scoped()), scope);
-            }
-            else if(cl->isInterface())
+            if(cl->isInterface())
             {
                 return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -991,7 +978,6 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::std::string&",
         "::Ice::ObjectPtr&",
         "::Ice::ObjectPrxPtr&",
-        "::Ice::LocalObjectPtr&",
         "::Ice::ValuePtr&"
     };
 
@@ -1007,7 +993,6 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::std::string&",
         "::std::shared_ptr<::Ice::Object>&",
         "::std::shared_ptr<::Ice::ObjectPrx>&",
-        "::std::shared_ptr<void>&",
         "::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -1045,11 +1030,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     {
         if(cpp11)
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return getUnqualified(fixKwd(cl->scoped()), scope) + "&";
-            }
-            else if(cl->isInterface())
+            if(cl->isInterface())
             {
                 return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
             }

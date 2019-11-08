@@ -490,18 +490,6 @@ private:
                 //
                 dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + *i + "'");
             }
-            else if(i->find("delegate") == 0)
-            {
-                ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
-                if(cl && cl->isDelegate())
-                {
-                    newMetaData.push_back(*i);
-                }
-                else
-                {
-                    dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + *i + "'");
-                }
-            }
             else if(i->find("java:implements:") == 0)
             {
                 if(ClassDefPtr::dynamicCast(p) || StructPtr::dynamicCast(p))
@@ -1106,11 +1094,6 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
         {
             return prefix + "FSize";
         }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
         case Builtin::KindValue:
         {
             return prefix + "Class";
@@ -1172,7 +1155,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "String",
         "com.zeroc.Ice.Object",
         "com.zeroc.Ice.ObjectPrx",
-        "java.lang.Object",
         "com.zeroc.Ice.Value"
     };
 
@@ -1185,7 +1167,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "java.util.OptionalLong",
         "java.util.Optional<java.lang.Float>",
         "java.util.OptionalDouble",
-        "???",
         "???",
         "???",
         "???",
@@ -1218,7 +1199,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 case Builtin::KindString:
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
                 case Builtin::KindValue:
                 {
                     break;
@@ -1322,7 +1302,6 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         "java.lang.String",
         "com.zeroc.Ice.Value",
         "com.zeroc.Ice.ObjectPrx",
-        "java.lang.Object",
         "com.zeroc.Ice.Value"
     };
 
@@ -1471,11 +1450,6 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                         out << nl << param << " = " << stream << ".readProxy();";
                     }
                 }
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
                 break;
             }
         }
@@ -2311,7 +2285,6 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 case Builtin::KindValue:
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
                 {
                     assert(false);
                     break;

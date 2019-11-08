@@ -1076,7 +1076,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
         "Swift.String",
         "Ice.Disp",         // Object
         "Ice.ObjectPrx",    // ObjectPrx
-        "Swift.AnyObject",  // LocalObject
         "Ice.Value"         // Value
     };
 
@@ -1159,7 +1158,6 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
         "Swift.String",
         "Ice.Disp",         // Object
         "Ice.ObjectPrx",    // ObjectPrx
-        "Swift.AnyObject",  // LocalObject
         "Ice.Value"         // Value
     };
 
@@ -1315,11 +1313,6 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
         {
             return ".FSize";
         }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
         case Builtin::KindValue:
         {
             return ".Class";
@@ -1371,7 +1364,6 @@ SwiftGenerator::isNullableType(const TypePtr& type)
         {
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return true;
@@ -1661,11 +1653,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 }";
                 }
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
                 break;
             }
             default:

@@ -2181,10 +2181,6 @@ Slice::Gen::TypeIdVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypeIdVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     if(!p->isInterface())
     {
         generateHelperClass(p);
@@ -2195,10 +2191,7 @@ Slice::Gen::TypeIdVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeIdVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(!p->isLocal())
-    {
-        generateHelperClass(p);
-    }
+    generateHelperClass(p);
     return false;
 }
 
@@ -2255,10 +2248,6 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false; // Do not generate code for local classes
-    }
     string name = p->name();
     string scoped = fixId(p->scoped());
     string ns = getNamespace(p);
@@ -2269,15 +2258,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     emitAttributes(p);
-
-    if(p->isDelegate())
-    {
-        emitComVisibleAttribute();
-        OperationPtr o = p->allOperations().front();
-        _out << nl << "public delegate " << typeToString(o->returnType(), ns, o->returnIsOptional()) << " ";
-        _out << fixId(name) << spar << getParams(o, ns) << epar << ";";
-        return false;
-    }
 
     if(p->isInterface())
     {
@@ -2466,10 +2446,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr&)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     string name = fixId(p->name());
     string ns = getNamespace(p);
     ExceptionPtr base = p->base();
@@ -2807,10 +2783,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
     string name = fixId(p->name());
     string ns = getNamespace(p);
     _out << sp;
@@ -3051,10 +3023,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr&)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     string name = fixId(p->name());
     string ns = getNamespace(p);
     string scoped = fixId(p->scoped());
@@ -3412,9 +3380,9 @@ Slice::Gen::ResultVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 bool
-Slice::Gen::ResultVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ResultVisitor::visitClassDefStart(const ClassDefPtr&)
 {
-    return !p->isLocal();
+    return true;
 }
 
 void
@@ -3569,7 +3537,7 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().size() == 0))
+    if(!p->isInterface() && p->allOperations().size() == 0)
     {
         return false;
     }
@@ -3759,7 +3727,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Don't generate Operations interfaces for non-abstract classes.
     //
-    if(!p->isAbstract() || p->isLocal())
+    if(!p->isAbstract())
     {
         return false;
     }
@@ -3855,7 +3823,7 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().size() == 0))
+    if(!p->isInterface() && p->allOperations().size() == 0)
     {
         return false;
     }
@@ -4402,14 +4370,6 @@ Slice::Gen::HelperVisitor::visitClassDefEnd(const ClassDefPtr&)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    //
-    // Don't generate helper for sequence of a local type.
-    //
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string ns = getNamespace(p);
     string typeS = typeToString(p, ns);
     _out << sp;
@@ -4467,14 +4427,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    //
-    // Don't generate helper for a dictionary containing a local type
-    //
-    if(p->isLocal())
-    {
-        return;
-    }
-
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
@@ -4605,7 +4557,7 @@ Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
     }

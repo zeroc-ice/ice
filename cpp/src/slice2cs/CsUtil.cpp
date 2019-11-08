@@ -409,7 +409,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "string",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "System.Object",
         "Ice.Value"
     };
 
@@ -2315,10 +2314,6 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
                 }
                 break;
             }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-            }
         }
         return;
     }
@@ -2726,18 +2721,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
 
             dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + oldS + "'");
-            continue;
-        }
-        else if(s == "delegate")
-        {
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-            if(cl && cl->isDelegate())
-            {
-                newLocalMetaData.push_back(s);
-                continue;
-            }
-
-            dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + s + "'");
             continue;
         }
         newLocalMetaData.push_back(s);

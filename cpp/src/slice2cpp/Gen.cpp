@@ -872,10 +872,6 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/ValueFactory.h>";
         C << "\n#include <Ice/OutgoingAsync.h>";
     }
-    else if(p->hasLocalClassDefsWithAsync())
-    {
-        H << "\n#include <Ice/OutgoingAsync.h>";
-    }
     else if(p->hasNonLocalClassDecls())
     {
         H << "\n#include <Ice/Proxy.h>";
@@ -4378,7 +4374,6 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return "0";
             }
@@ -5403,26 +5398,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 continue;
             }
 
-            if(BuiltinPtr::dynamicCast(cont) &&
-               BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindLocalObject &&
-               ss.find("type:") == 0)
-            {
-                continue;
-            }
-
-            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
-            newMetaData.remove(s);
-            continue;
-        }
-
-        if(s.find("delegate") == 0)
-        {
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-            if(cl && cl->isDelegate())
-            {
-                continue;
-            }
-
             dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
             newMetaData.remove(s);
             continue;
@@ -5773,11 +5748,6 @@ void
 Slice::Gen::Cpp11DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     ClassDefPtr def = p->definition();
-    if(def && def->isDelegate())
-    {
-        return;
-    }
-
     H << nl << "class " << fixKwd(p->name()) << ';';
     if(p->isInterface() || (def && !def->allOperations().empty()))
     {
@@ -8194,11 +8164,6 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->definition() && p->definition()->isDelegate())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
 
@@ -8250,7 +8215,6 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return "nullptr";
             }

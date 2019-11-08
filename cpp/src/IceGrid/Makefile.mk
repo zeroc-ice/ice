@@ -7,7 +7,7 @@ local_node_srcs         = Activator.cpp \
                           NodeI.cpp \
                           NodeSessionManager.cpp \
                           ServerAdapterI.cpp \
-                          ServerI.cp \
+                          ServerI.cpp \
                           SynchronizationException.cpp
 
 local_registry_srcs     = Internal.ice \

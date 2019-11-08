@@ -560,8 +560,6 @@ initScanner()
     keywordMap["double"] = ICE_DOUBLE;
     keywordMap["string"] = ICE_STRING;
     keywordMap["Object"] = ICE_OBJECT;
-    keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
-    keywordMap["local"] = ICE_LOCAL;
     keywordMap["const"] = ICE_CONST;
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;

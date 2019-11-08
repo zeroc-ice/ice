@@ -412,10 +412,6 @@ Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     //
     // Emit forward declarations.
     //
@@ -503,11 +499,6 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
@@ -1127,11 +1118,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1275,11 +1261,6 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1555,11 +1536,6 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     static const string protobuf = "python:protobuf:";
     StringList metaData = p->getMetaData();
     bool isCustom = false;
@@ -1625,11 +1601,6 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1779,11 +1750,6 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
                 _out << "IcePy._t_ObjectPrx";
                 break;
             }
-            case Builtin::KindLocalObject:
-            {
-                _out << "IcePy._t_LocalObject";
-                break;
-            }
         }
         return;
     }
@@ -1844,7 +1810,6 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 _out << "None";
                 break;
@@ -1986,38 +1951,39 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
         {
             switch(b->kind())
             {
-            case Slice::Builtin::KindBool:
-            {
-                _out << (value == "true" ? "True" : "False");
-                break;
-            }
-            case Slice::Builtin::KindByte:
-            case Slice::Builtin::KindShort:
-            case Slice::Builtin::KindInt:
-            case Slice::Builtin::KindFloat:
-            case Slice::Builtin::KindDouble:
-            case Slice::Builtin::KindLong:
-            {
-                _out << value;
-                break;
-            }
-            case Slice::Builtin::KindString:
-            {
-                string sv2 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", Octal, 0);
-                string sv3 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", UCN, 0);
-
-                _out << "\"" << sv2<< "\"";
-                if(sv2 != sv3)
+                case Slice::Builtin::KindBool:
                 {
-                    _out << " if _version_info_[0] < 3 else \"" << sv3 << "\"";
+                    _out << (value == "true" ? "True" : "False");
+                    break;
                 }
-                break;
-            }
-            case Slice::Builtin::KindValue:
-            case Slice::Builtin::KindObject:
-            case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindLocalObject:
-                assert(false);
+                case Slice::Builtin::KindByte:
+                case Slice::Builtin::KindShort:
+                case Slice::Builtin::KindInt:
+                case Slice::Builtin::KindFloat:
+                case Slice::Builtin::KindDouble:
+                case Slice::Builtin::KindLong:
+                {
+                    _out << value;
+                    break;
+                }
+                case Slice::Builtin::KindString:
+                {
+                    string sv2 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", Octal, 0);
+                    string sv3 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", UCN, 0);
+
+                    _out << "\"" << sv2<< "\"";
+                    if(sv2 != sv3)
+                    {
+                        _out << " if _version_info_[0] < 3 else \"" << sv3 << "\"";
+                    }
+                    break;
+                }
+                case Slice::Builtin::KindValue:
+                case Slice::Builtin::KindObject:
+                case Slice::Builtin::KindObjectProxy:
+                {
+                    assert(false);
+                }
             }
         }
         else if(en)
