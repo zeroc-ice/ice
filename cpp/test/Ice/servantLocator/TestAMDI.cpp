@@ -272,8 +272,12 @@ TestAMDI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& cb, const Current
 }
 #endif
 
+Cookie::~Cookie()
+{
+}
+
 string
-CookieI::message() const
+Cookie::message() const
 {
     return "blahblah";
 }

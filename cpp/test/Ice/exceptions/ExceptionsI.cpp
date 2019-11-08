@@ -19,13 +19,3 @@ Test::F::ice_print(ostream& out) const
         out << " data:'F'";
     }
 }
-
-void
-Test::H::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    if(!data.empty())
-    {
-        out << " data:'H'";
-    }
-}

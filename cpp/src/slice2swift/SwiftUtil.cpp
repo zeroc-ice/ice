@@ -641,8 +641,7 @@ void
 SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
                                   const OperationPtr& p,
                                   bool async,
-                                  bool dispatch,
-                                  bool local)
+                                  bool dispatch)
 {
     DocElements doc = parseComment(p);
     if(!doc.overview.empty())
@@ -660,13 +659,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         }
     }
 
-    int typeCtx = TypeContextInParam;
-    if(local)
-    {
-        typeCtx |= TypeContextLocal;
-    }
-
-    const ParamInfoList allInParams = getAllInParams(p, typeCtx);
+    const ParamInfoList allInParams = getAllInParams(p);
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
     {
         out << nl << "///";
@@ -680,20 +673,15 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         }
     }
 
-    if(!local)
+    out << nl << "///";
+    if(dispatch)
     {
-        out << nl << "///";
-        if(dispatch)
-        {
-            out << nl << "/// - parameter current: `Ice.Current` - The Current object for the dispatch.";
-        }
-        else
-        {
-            out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
-        }
+        out << nl << "/// - parameter current: `Ice.Current` - The Current object for the dispatch.";
     }
-
-    typeCtx = local ? TypeContextLocal : 0;
+    else
+    {
+        out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
+    }
 
     if(async)
     {
@@ -710,12 +698,12 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         }
 
         out << nl << "///";
-        out << nl << "/// - returns: `PromiseKit.Promise<" << operationReturnType(p, typeCtx)
+        out << nl << "/// - returns: `PromiseKit.Promise<" << operationReturnType(p)
             << ">` - The result of the operation";
     }
     else
     {
-        const ParamInfoList allOutParams = getAllOutParams(p, typeCtx);
+        const ParamInfoList allOutParams = getAllOutParams(p);
         if(allOutParams.size() == 1)
         {
             ParamInfo ret = allOutParams.front();
@@ -742,7 +730,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         else if(allOutParams.size() > 1)
         {
             out << nl << "///";
-            out << nl << "/// - returns: `" << operationReturnType(p, typeCtx) << "`:";
+            out << nl << "/// - returns: `" << operationReturnType(p) << "`:";
             if(p->returnType())
             {
                 ParamInfo ret = allOutParams.back();
@@ -1074,8 +1062,7 @@ string
 SwiftGenerator::typeToString(const TypePtr& type,
                              const ContainedPtr& toplevel,
                              const StringList& metadata,
-                             bool optional,
-                             int typeCtx)
+                             bool optional)
 {
     static const char* builtinTable[] =
     {
@@ -1098,20 +1085,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
         return "";
     }
 
-    bool local = (typeCtx & TypeContextLocal) != 0;
-    if(local)
-    {
-        for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
-        {
-            const string swiftType = "swift:type:";
-            const string meta = *i;
-            if(meta.find(swiftType) == 0)
-            {
-                return meta.substr(swiftType.size());
-            }
-        }
-    }
-
     string t = "";
     //
     // The current module were the type is being used
@@ -1119,11 +1092,10 @@ SwiftGenerator::typeToString(const TypePtr& type,
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
-    bool inparam = typeCtx & TypeContextInParam;
 
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
+        if(builtin->kind() == Builtin::KindObject)
         {
             t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
         }
@@ -1139,20 +1111,12 @@ SwiftGenerator::typeToString(const TypePtr& type,
 
     if(cl)
     {
-        if(cl->isInterface() && !cl->isLocal())
+        if(cl->isInterface())
         {
             t = fixIdent(getUnqualified(builtinTable[Builtin::KindValue], currentModule));
         }
         else
         {
-            //
-            // Annotate nonnull closure as @escaping, Swift optional closure parameters are always
-            // @escaping see https://www.jessesquires.com/blog/why-optional-swift-closures-are-escaping/
-            //
-            if(cl->isLocal() && cl->definition() && cl->definition()->isDelegate() && inparam && nonnull)
-            {
-                t = "@escaping ";
-            }
             t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
         }
     }
@@ -1508,7 +1472,7 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& members,
                                            const ContainedPtr& p)
 {
-    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, false, true);
+    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
 }
 
 void
@@ -1517,30 +1481,20 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& baseMembers,
                                            const DataMemberList& allMembers,
                                            const ContainedPtr& p,
-                                           bool local,
-                                           bool rootClass,
-                                           const StringPairList& extraParams)
+                                           bool rootClass)
 {
     if(!members.empty())
     {
         out << sp;
         out << nl;
-        int typeCtx = TypeContextInParam;
-        if(local)
-        {
-            typeCtx |= TypeContextLocal;
-        }
         out << "public init" << spar;
         for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
             DataMemberPtr m = *i;
             out << (fixIdent(m->name()) + ": " +
-                    typeToString(m->type(), p, m->getMetaData(), m->optional(), TypeContextInParam));
+                    typeToString(m->type(), p, m->getMetaData(), m->optional()));
         }
-        for(StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
-        {
-            out << (q->first + ": " + q->second);
-        }
+
         out << epar;
         out << sb;
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
@@ -1558,10 +1512,6 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                 const string name = fixIdent((*i)->name());
                 out << (name + ": " + name);
             }
-            for(StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
-            {
-                out << (q->first + ": " + q->first);
-            }
             out << epar;
         }
         out << eb;
@@ -1571,12 +1521,9 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
 void
 SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
                              const DataMemberList& members,
-                             const ContainedPtr& p,
-                             int typeCtx)
+                             const ContainedPtr& p)
 {
     string swiftModule = getSwiftModule(getTopLevelModule(p));
-    bool protocol = (typeCtx & TypeContextProtocol) != 0;
-    string access = protocol ? "" : "public ";
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
@@ -1584,16 +1531,16 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         const string defaultValue = member->defaultValue();
 
         const string memberName = fixIdent(member->name());
-        string memberType = typeToString(type, p, member->getMetaData(), member->optional(), typeCtx);
+        string memberType = typeToString(type, p, member->getMetaData(), member->optional());
 
         //
         // If the member type is equal to the member name, create a local type alias
         // to avoid ambiguity.
         //
         string alias;
-        if(!protocol && memberName == memberType && (StructPtr::dynamicCast(type) ||
-                                                     SequencePtr::dynamicCast(type) ||
-                                                     DictionaryPtr::dynamicCast(type)))
+        if(memberName == memberType && (StructPtr::dynamicCast(type) ||
+                                        SequencePtr::dynamicCast(type) ||
+                                        DictionaryPtr::dynamicCast(type)))
         {
             ModulePtr m = getTopLevelModule(type);
             alias =  m->name() + "_" + memberType;
@@ -1601,23 +1548,16 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         }
 
         writeMemberDoc(out, member);
-        out << nl << access << "var " << memberName << ": " << memberType;
-        if(protocol)
+        out << nl << "public var " << memberName << ": " << memberType;
+        out << " = ";
+        if(alias.empty())
         {
-            out << " { get set }";
+            writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
+                               member->optional());
         }
         else
         {
-            out << " = ";
-            if(alias.empty())
-            {
-                writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
-                                   member->optional());
-            }
-            else
-            {
-                out << alias << "()";
-            }
+            out << alias << "()";
         }
     }
 }
@@ -1993,7 +1933,7 @@ SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 }
 
 string
-SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
+SwiftGenerator::operationReturnType(const OperationPtr& op)
 {
     ostringstream os;
     bool returnIsTuple = operationReturnIsTuple(op);
@@ -2010,7 +1950,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
         {
             os << paramLabel("returnValue", outParams) << ": ";
         }
-        os << typeToString(returnType, op, op->getMetaData(), op->returnIsOptional(), typeCtx);
+        os << typeToString(returnType, op, op->getMetaData(), op->returnIsOptional());
     }
 
     for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -2025,7 +1965,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op, int typeCtx)
             os << (*q)->name() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional(), typeCtx);
+        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->optional());
     }
 
     if(returnIsTuple)
@@ -2132,7 +2072,7 @@ SwiftGenerator::operationIsAmd(const OperationPtr& op)
 }
 
 ParamInfoList
-SwiftGenerator::getAllInParams(const OperationPtr& op, int typeCtx)
+SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
     const ParamDeclList l = op->inParameters();
     ParamInfoList r;
@@ -2141,7 +2081,7 @@ SwiftGenerator::getAllInParams(const OperationPtr& op, int typeCtx)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional(), typeCtx);
+        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -2181,7 +2121,7 @@ SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, Par
 }
 
 ParamInfoList
-SwiftGenerator::getAllOutParams(const OperationPtr& op, int typeCtx)
+SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
     ParamDeclList params = op->outParameters();
     ParamInfoList l;
@@ -2191,7 +2131,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op, int typeCtx)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional(), typeCtx);
+        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->optional());
         info.optional = (*p)->optional();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -2203,7 +2143,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op, int typeCtx)
         ParamInfo info;
         info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional(), typeCtx);
+        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsOptional());
         info.optional = op->returnIsOptional();
         info.tag = op->returnTag();
         l.push_back(info);
@@ -2819,11 +2759,11 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
 bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
     return true;
 }
@@ -2838,38 +2778,22 @@ SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
     const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
 
-    if(!cl->isLocal())
-    {
-        for(StringList::iterator q = metaData.begin(); q != metaData.end();)
-        {
-            string s = *q++;
-            if(s.find("swift:attribute:") == 0 ||
-               s.find("swift:type:") == 0 ||
-               s == "swift:noexcept" ||
-               s == "swift:nonnull")
-            {
-                dc->warning(InvalidMetaData, p->file(), p->line(),
-                            "ignoring metadata `" + s + "' for non local operation");
-                metaData.remove(s);
-            }
-        }
-    }
-    p->setMetaData(validate(p, metaData, p->file(), p->line(), cl->isLocal()));
+    p->setMetaData(validate(p, metaData, p->file(), p->line()));
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), cl->isLocal(), true));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
 }
 
 bool
 SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
     return true;
 }
@@ -2877,11 +2801,11 @@ SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
     return true;
 }
@@ -2889,7 +2813,7 @@ SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 void
 SwiftGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
 void
@@ -2908,11 +2832,6 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
             continue;
         }
 
-        if(p->isLocal() && s.find("swift:type:") == 0)
-        {
-            continue;
-        }
-
         dc->error(p->file(), p->line(), "invalid metadata `" + s + "' for dictionary key type");
     }
 
@@ -2925,31 +2844,16 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
         {
             continue;
         }
-
-        if(p->isLocal() && s.find("swift:type:") == 0)
-        {
-            continue;
-        }
-
-        if(p->isLocal() && s == "swift:nonnull")
-        {
-            if(!isNullableType(t))
-            {
-                dc->error(p->file(), p->line(), "error invalid metadata `" + s + "' for non nullable value type");
-            }
-            continue;
-        }
-
         dc->error(p->file(), p->line(), "error invalid metadata `" + s + "' for dictionary value type");
     }
 
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
 void
@@ -2960,9 +2864,7 @@ SwiftGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 StringList
 SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData,
-                                          const string& file, const string& line,
-                                          bool local,
-                                          bool operationParameter)
+                                          const string& file, const string& line)
 {
     StringList newMetaData = metaData;
     const string prefix = "swift:";
@@ -2980,64 +2882,6 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
         if(ModulePtr::dynamicCast(cont) && s.find("swift:module:") == 0)
         {
             continue;
-        }
-
-        if(local)
-        {
-            OperationPtr op = OperationPtr::dynamicCast(cont);
-            if(op)
-            {
-                if(s == "swift:noexcept")
-                {
-                    continue;
-                }
-
-                if(s == "swift:nonnull")
-                {
-                    TypePtr returnType = op->returnType();
-                    if(!returnType)
-                    {
-                        dc->warning(InvalidMetaData, file, line,
-                                    "ignoring invalid metadata `" + s + "' for operation with void return type");
-                        newMetaData.remove(s);
-                    }
-                    else if(!isNullableType(returnType))
-                    {
-                        dc->warning(InvalidMetaData, file, line,
-                                    "ignoring invalid metadata `" + s + "' for operation with non nullable return type");
-                        newMetaData.remove(s);
-                    }
-                    continue;
-                }
-            }
-
-            if(operationParameter && s == "swift:nonnull")
-            {
-                if(!isNullableType(TypePtr::dynamicCast(cont)))
-                {
-                     dc->warning(InvalidMetaData, file, line,
-                                 "ignoring invalid metadata `swift:nonnull' for non nullable type");
-                     newMetaData.remove(s);
-                }
-                continue;
-            }
-
-            if(s.find("swift:type:") == 0)
-            {
-                continue;
-            }
-
-            SequencePtr seq =  SequencePtr::dynamicCast(cont);
-            if(seq && s == "swift:nonnull")
-            {
-                if(!isNullableType(seq->type()))
-                {
-                    dc->warning(InvalidMetaData, file, line,
-                                "ignoring invalid metadata `" + s + "' for sequence of non nullable type");
-                    newMetaData.remove(s);
-                }
-                continue;
-            }
         }
 
         if(ClassDefPtr::dynamicCast(cont) && s.find("swift:inherits:") == 0)

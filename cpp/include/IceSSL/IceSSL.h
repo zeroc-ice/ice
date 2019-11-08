@@ -10,11 +10,11 @@
 #include <IceSSL/Plugin.h>
 
 #if defined(_WIN32)
-#  include <IceSSL/SChannel.h>
+#   include <IceSSL/SChannel.h>
 #elif defined(__APPLE__)
-#  include <IceSSL/SecureTransport.h>
+#   include <IceSSL/SecureTransport.h>
 #else
-#  include <IceSSL/OpenSSL.h>
+#   include <IceSSL/OpenSSL.h>
 #endif
 
 #include <IceSSL/EndpointInfo.h>

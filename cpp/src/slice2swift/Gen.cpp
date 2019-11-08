@@ -1,7 +1,6 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-//
 
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -102,9 +101,6 @@ Gen::generate(const UnitPtr& p)
 
     ObjectExtVisitor objectExtVisitor(_out);
     p->visit(&objectExtVisitor, false);
-
-    LocalObjectVisitor localObjectVisitor(_out);
-    p->visit(&localObjectVisitor, false);
 }
 
 void
@@ -149,7 +145,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
     //
-    if(p->hasNonLocalInterfaceDefs() || p->hasLocalClassDefsWithAsync())
+    if(p->hasNonLocalInterfaceDefs())
     {
         addImport("PromiseKit");
     }
@@ -313,11 +309,6 @@ Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o)
 bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
@@ -372,46 +363,43 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     ExceptionPtr base = p->base();
 
-    if(!p->isLocal())
+    const string prefix = getClassResolverPrefix(p->unit());
+
+    //
+    // For each UserException class we generate an extension in ClassResolver
+    //
+    ostringstream factory;
+    factory << prefix;
+    StringList parts = splitScopedName(p->scoped());
+    for(StringList::const_iterator it = parts.begin(); it != parts.end();)
     {
-        const string prefix = getClassResolverPrefix(p->unit());
-
-        //
-        // For each UserException class we generate an extension in ClassResolver
-        //
-        ostringstream factory;
-        factory << prefix;
-        StringList parts = splitScopedName(p->scoped());
-        for(StringList::const_iterator it = parts.begin(); it != parts.end();)
+        factory << (*it);
+        if(++it != parts.end())
         {
-            factory << (*it);
-            if(++it != parts.end())
-            {
-                factory << "_";
-            }
+            factory << "_";
         }
-
-        out << sp;
-        out << nl << "/// :nodoc:";
-        out << nl << "public class " << name << "_TypeResolver: "
-            << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
-        out << sb;
-        out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
-        out << sb;
-        out << nl << "return " << fixIdent(name) << ".self";
-        out << eb;
-        out << eb;
-
-        out << sp;
-        out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
-        out << sb;
-        out << nl << "@objc static func " <<  factory.str() << "() -> "
-            << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
-        out << sb;
-        out << nl << "return " << name << "_TypeResolver()";
-        out << eb;
-        out << eb;
     }
+
+    out << sp;
+    out << nl << "/// :nodoc:";
+    out << nl << "public class " << name << "_TypeResolver: "
+        << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
+    out << sb;
+    out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
+    out << sb;
+    out << nl << "return " << fixIdent(name) << ".self";
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
+    out << sb;
+    out << nl << "@objc static func " <<  factory.str() << "() -> "
+        << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
+    out << sb;
+    out << nl << "return " << name << "_TypeResolver()";
+    out << eb;
+    out << eb;
 
     out << sp;
     writeDocSummary(out, p);
@@ -420,10 +408,6 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(base)
     {
         out << fixIdent(getUnqualified(getAbsolute(base), swiftModule));
-    }
-    else if(p->isLocal())
-    {
-        out << getUnqualified("Ice.LocalException", swiftModule);
     }
     else
     {
@@ -435,29 +419,22 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
 
-    StringPairList extraParams;
-    if(p->isLocal())
-    {
-        extraParams.push_back(make_pair("file", "Swift.String = #file"));
-        extraParams.push_back(make_pair("line", "Swift.Int = #line"));
-    }
-
     writeMembers(out, members, p);
 
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
-    if(!p->isLocal() && preserved && !basePreserved)
+    if(preserved && !basePreserved)
     {
         out << nl << "var _slicedData: Ice.SlicedData?";
     }
 
-    bool rootClass = !base && !p->isLocal();
+    bool rootClass = !base;
     if(rootClass || !members.empty())
     {
         writeDefaultInitializer(out, true, rootClass);
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), rootClass, extraParams);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass);
 
     out << sp;
     out << nl << "/// Returns the Slice type ID of this exception.";
@@ -468,88 +445,74 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
-    if(p->isLocal())
+    out << sp;
+    out << nl << "open override func _iceWriteImpl(to ostr: "
+        << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << sb;
+    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: -1, last: "
+        << (!base ? "true" : "false") << ")";
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    {
+        writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), true, (*i)->tag());
+    }
+    out << nl << "ostr.endSlice()";
+    if(base)
+    {
+        out << nl << "super._iceWriteImpl(to: ostr);";
+    }
+    out << eb;
+
+    out << sp;
+    out << nl << "open override func _iceReadImpl(from istr: "
+        << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+    out << sb;
+    out << nl << "_ = try istr.startSlice()";
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    {
+        writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false, (*i)->tag());
+    }
+    out << nl << "try istr.endSlice()";
+    if(base)
+    {
+        out << nl << "try super._iceReadImpl(from: istr);";
+    }
+    out << eb;
+
+    if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
     {
         out << sp;
-        out << nl << "/// Returns a string representation of this exception";
-        out << nl << "///";
-        out << nl << "/// - returns: `Swift.String` - The string representaton of this exception.";
-        out << nl << "open override func ice_print() -> Swift.String";
-        out << sb;
-        out << nl << "return _" << name << "Description";
+        out << nl << "open override func _usesClasses() -> Swift.Bool" << sb;
+        out << nl << "return true";
         out << eb;
     }
-    else
+
+    if(preserved && !basePreserved)
     {
         out << sp;
-        out << nl << "open override func _iceWriteImpl(to ostr: "
-            << getUnqualified("Ice.OutputStream", swiftModule) << ")";
-        out << sb;
-        out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: -1, last: "
-            << (!base ? "true" : "false") << ")";
-        for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
-        {
-            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), true, (*i)->tag());
-        }
-        out << nl << "ostr.endSlice()";
-        if(base)
-        {
-            out << nl << "super._iceWriteImpl(to: ostr);";
-        }
+        out << nl << "/// Returns the sliced data if the exception has a preserved-slice base class and has been";
+        out << nl << "/// sliced during un-marshaling, nil is returned otherwise.";
+        out << nl << "///";
+        out << nl << "/// - returns: `Ice.SlicedData` - The sliced data.";
+        out << nl << "open override func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData", swiftModule)
+            << "?" << sb;
+        out << nl << "return _slicedData";
         out << eb;
 
         out << sp;
-        out << nl << "open override func _iceReadImpl(from istr: "
-            << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
-        out << sb;
-        out << nl << "_ = try istr.startSlice()";
-        for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
-        {
-            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false, (*i)->tag());
-        }
-        out << nl << "try istr.endSlice()";
-        if(base)
-        {
-            out << nl << "try super._iceReadImpl(from: istr);";
-        }
+        out << nl << "open override func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
+            << ") throws" << sb;
+        out << nl << "istr.startException()";
+        out << nl << "try _iceReadImpl(from: istr)";
+        out << nl << "_slicedData = try istr.endException(preserve: true)";
         out << eb;
 
-        if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
-        {
-            out << sp;
-            out << nl << "open override func _usesClasses() -> Swift.Bool" << sb;
-            out << nl << "return true";
-            out << eb;
-        }
-
-        if(preserved && !basePreserved)
-        {
-            out << sp;
-            out << nl << "/// Returns the sliced data if the exception has a preserved-slice base class and has been";
-            out << nl << "/// sliced during un-marshaling, nil is returned otherwise.";
-            out << nl << "///";
-            out << nl << "/// - returns: `Ice.SlicedData` - The sliced data.";
-            out << nl << "open override func ice_getSlicedData() -> " << getUnqualified("Ice.SlicedData", swiftModule)
-                << "?" << sb;
-            out << nl << "return _slicedData";
-            out << eb;
-
-            out << sp;
-            out << nl << "open override func _iceRead(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
-                << ") throws" << sb;
-            out << nl << "istr.startException()";
-            out << nl << "try _iceReadImpl(from: istr)";
-            out << nl << "_slicedData = try istr.endException(preserve: true)";
-            out << eb;
-
-            out << sp;
-            out << nl << "open override func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
-                << ")" << sb;
-            out << nl << "ostr.startException(data: _slicedData)";
-            out << nl << "_iceWriteImpl(to: ostr)";
-            out << nl << "ostr.endException()";
-            out << eb;
-        }
+        out << sp;
+        out << nl << "open override func _iceWrite(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule)
+            << ")" << sb;
+        out << nl << "ostr.startException(data: _slicedData)";
+        out << nl << "_iceWriteImpl(to: ostr)";
+        out << nl << "ostr.endException()";
+        out << eb;
     }
 
     out << eb;
@@ -583,94 +546,91 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << eb;
 
-    if(!p->isLocal())
+    out << sp;
+    out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` structured values from the stream.";
+    out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
+    out << sb;
+
+    out << sp;
+    out << nl << "/// Read a `" << name << "` structured value from the stream.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << name << "` - The structured value read from the stream.";
+    out << nl << "func read() throws -> " << name;
+    out << sb;
+    out << nl << (isClass ? "let" : "var") << " v = " << name << "()";
+    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        out << sp;
-        out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` structured values from the stream.";
-        out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
-        out << sb;
-
-        out << sp;
-        out << nl << "/// Read a `" << name << "` structured value from the stream.";
-        out << nl << "///";
-        out << nl << "/// - returns: `" << name << "` - The structured value read from the stream.";
-        out << nl << "func read() throws -> " << name;
-        out << sb;
-        out << nl << (isClass ? "let" : "var") << " v = " << name << "()";
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-        {
-            writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
-        }
-        out << nl << "return v";
-        out << eb;
-
-        out << sp;
-        out << nl << "/// Read an optional `" << name << "?` structured value from the stream.";
-        out << nl << "///";
-        out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
-        out << nl << "///";
-        out << nl << "/// - returns: `" << name << "?` - The structured value read from the stream.";
-        out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
-        out << sb;
-        out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
-        out << sb;
-        out << nl << "return nil";
-        out << eb;
-        if(p->isVariableLength())
-        {
-            out << nl << "try skip(4)";
-        }
-        else
-        {
-            out << nl << "try skipSize()";
-        }
-        out << nl << "return try read() as " << name;
-        out << eb;
-
-        out << eb;
-
-        out << sp;
-        out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` structured values from the stream.";
-        out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
-        out << sb;
-
-        out << nl << "/// Write a `" << name << "` structured value to the stream.";
-        out << nl << "///";
-        out << nl << "/// - parameter _: `" << name << "` - The value to write to the stream.";
-        out << nl << "func write(_ v: " << name << ")" << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-        {
-            writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), true);
-        }
-        out << eb;
-
-        out << sp;
-        out << nl << "/// Write an optional `" << name << "?` structured value to the stream.";
-        out << nl << "///";
-        out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
-        out << nl << "///";
-        out << nl << "/// - parameter value: `" << name << "?` - The value to write to the stream.";
-        out << nl << "func write(tag: Swift.Int32, value: " << name << "?)" << sb;
-        out << nl << "if let v = value" << sb;
-        out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
-
-        if(p->isVariableLength())
-        {
-            out << nl << "let pos = startSize()";
-            out << nl << "write(v)";
-            out << nl << "endSize(position: pos)";
-        }
-        else
-        {
-            out << nl << "write(size: " << p->minWireSize() << ")";
-            out << nl << "write(v)";
-        }
-        out << eb;
-        out << eb;
-        out << eb;
-
-        out << eb;
+        writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), false);
     }
+    out << nl << "return v";
+    out << eb;
+
+    out << sp;
+    out << nl << "/// Read an optional `" << name << "?` structured value from the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - returns: `" << name << "?` - The structured value read from the stream.";
+    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
+    out << sb;
+    out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << sb;
+    out << nl << "return nil";
+    out << eb;
+    if(p->isVariableLength())
+    {
+        out << nl << "try skip(4)";
+    }
+    else
+    {
+        out << nl << "try skipSize()";
+    }
+    out << nl << "return try read() as " << name;
+    out << eb;
+
+    out << eb;
+
+    out << sp;
+    out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` structured values from the stream.";
+    out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
+    out << sb;
+
+    out << nl << "/// Write a `" << name << "` structured value to the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter _: `" << name << "` - The value to write to the stream.";
+    out << nl << "func write(_ v: " << name << ")" << sb;
+    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    {
+        writeMarshalUnmarshalCode(out, (*q)->type(), p, "v." + fixIdent((*q)->name()), true);
+    }
+    out << eb;
+
+    out << sp;
+    out << nl << "/// Write an optional `" << name << "?` structured value to the stream.";
+    out << nl << "///";
+    out << nl << "/// - parameter tag: `Swift.Int32` - The numeric tag associated with the value.";
+    out << nl << "///";
+    out << nl << "/// - parameter value: `" << name << "?` - The value to write to the stream.";
+    out << nl << "func write(tag: Swift.Int32, value: " << name << "?)" << sb;
+    out << nl << "if let v = value" << sb;
+    out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
+
+    if(p->isVariableLength())
+    {
+        out << nl << "let pos = startSize()";
+        out << nl << "write(v)";
+        out << nl << "endSize(position: pos)";
+    }
+    else
+    {
+        out << nl << "write(size: " << p->minWireSize() << ")";
+        out << nl << "write(v)";
+    }
+    out << eb;
+    out << eb;
+    out << eb;
+
+    out << eb;
 
     return false;
 }
@@ -680,7 +640,6 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
-    int typeCtx = p->isLocal() ? TypeContextLocal : 0;
 
     const TypePtr type = p->type();
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
@@ -695,12 +654,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, p->getMetaData(), false, typeCtx) << "]";
-    }
-
-    if(p->isLocal())
-    {
-        return;
+        out << "[" << typeToString(p->type(), p, p->getMetaData()) << "]";
     }
 
     if(builtin && builtin->kind() <= Builtin::KindString)
@@ -841,18 +795,12 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
-    int typeCtx = p->isLocal() ? TypeContextLocal : 0;
 
-    const string keyType = typeToString(p->keyType(), p, p->keyMetaData(), false, typeCtx);
-    const string valueType = typeToString(p->valueType(), p, p->valueMetaData(), false, typeCtx);
+    const string keyType = typeToString(p->keyType(), p, p->keyMetaData());
+    const string valueType = typeToString(p->valueType(), p, p->valueMetaData());
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
-
-    if(p->isLocal())
-    {
-        return;
-    }
 
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
@@ -1121,7 +1069,7 @@ Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
     }
@@ -1317,7 +1265,7 @@ Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& o) : out(o)
 bool
 Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || p->isInterface())
+    if(p->isInterface())
     {
         return false;
     }
@@ -1408,7 +1356,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const bool preserved = p->hasMetaData("preserve-slice");
 
     writeMembers(out, members, p);
-    if(!p->isLocal() && preserved && !basePreserved)
+    if(preserved && !basePreserved)
     {
         out << nl << "var _slicedData: " << getUnqualified("Ice.SlicedData?", swiftModule);
     }
@@ -1417,7 +1365,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         writeDefaultInitializer(out, true, !base);
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), !base);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
 
     out << sp;
     out << nl << "/// Returns the Slice type ID of the most-derived interface supported by this object.";
@@ -1546,7 +1494,7 @@ Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
     }
@@ -1750,7 +1698,7 @@ Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
     }
@@ -1784,265 +1732,5 @@ Gen::ObjectExtVisitor::visitOperation(const OperationPtr& op)
     else
     {
         writeDispatchOperation(out, op);
-    }
-}
-
-Gen::LocalObjectVisitor::LocalObjectVisitor(::IceUtilInternal::Output& o) : out(o)
-{
-}
-
-bool
-Gen::LocalObjectVisitor::visitModuleStart(const ModulePtr&)
-{
-    return true;
-}
-
-void
-Gen::LocalObjectVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
-bool
-Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isLocal())
-    {
-        return false;
-    }
-
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = getUnqualified(getAbsolute(p), swiftModule);
-
-    if(p->isDelegate())
-    {
-        OperationPtr op = p->allOperations().front();
-        const ParamDeclList params = op->parameters();
-
-        out << sp;
-        writeDocSummary(out, p);
-        out << nl << "///";
-        writeOpDocSummary(out, op, false, false, true);
-        out << nl << "public typealias " << name << " = ";
-        out << spar;
-        for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
-        {
-            ParamDeclPtr param = *i;
-            if(!param->isOutParam())
-            {
-                TypePtr type = param->type();
-                ostringstream s;
-                s << typeToString(type, p, param->getMetaData(), param->optional(), TypeContextLocal);
-                out << s.str();
-            }
-        }
-        out << epar;
-        if(!op->hasMetaData("swift:noexcept"))
-        {
-            out << " throws";
-        }
-        out << " -> ";
-
-        TypePtr ret = op->returnType();
-        ParamDeclList outParams = op->outParameters();
-
-        if(ret || !outParams.empty())
-        {
-            if(outParams.empty())
-            {
-                out << typeToString(ret, op, op->getMetaData(), op->returnIsOptional(), TypeContextLocal);
-            }
-            else if(!ret && outParams.size() == 1)
-            {
-                ParamDeclPtr param = outParams.front();
-                out << typeToString(param->type(), op, param->getMetaData(), param->optional(), TypeContextLocal);
-            }
-            else
-            {
-                string returnValueS = "returnValue";
-                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-                {
-                    ParamDeclPtr param = *i;
-                    if(param->name() == "returnValue")
-                    {
-                        returnValueS = "_returnValue";
-                        break;
-                    }
-                }
-
-                out << spar;
-                out << (returnValueS + ": " + typeToString(ret, op, op->getMetaData(), op->returnIsOptional(),
-                                                           TypeContextLocal));
-                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-                {
-                    ParamDeclPtr param = *i;
-                    out << (fixIdent(param->name()) + ": " +
-                            typeToString(param->type(), op, op->getMetaData(), param->optional(), TypeContextLocal));
-                }
-                out << epar;
-            }
-        }
-        else
-        {
-            out << "Swift.Void";
-        }
-        return false;
-    }
-
-    ClassList bases = p->bases();
-    StringList baseNames;
-    if(bases.empty())
-    {
-        baseNames.push_back(" Swift.AnyObject");
-    }
-    else
-    {
-        for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
-        {
-            baseNames.push_back(getUnqualified(getAbsolute(*i), swiftModule));
-        }
-    }
-
-    //
-    // Check for swift:inherits metadata.
-    //
-    const StringList metaData = p->getMetaData();
-    static const string prefix = "swift:inherits:";
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
-    {
-        if(q->find(prefix) == 0)
-        {
-            baseNames.push_back(q->substr(prefix.size()));
-        }
-    }
-
-    //
-    // Local interfaces and local classes map to Swift protocol
-    //
-    out << sp;
-    writeDocSummary(out, p);
-    out << nl << "public protocol " << fixIdent(name) << ":";
-
-    for(StringList::const_iterator i = baseNames.begin(); i != baseNames.end();)
-    {
-        out << " " << (*i);
-        if(++i != baseNames.end())
-        {
-            out << ",";
-        }
-    }
-
-    out << sb;
-    writeMembers(out, p->dataMembers(), p, TypeContextProtocol | TypeContextLocal);
-    return true;
-}
-
-void
-Gen::LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    out << eb;
-}
-
-void
-Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
-{
-    const string name = fixIdent(p->name());
-    ParamDeclList params = p->parameters();
-    ParamDeclList inParams = p->inParameters();
-
-    int typeCtx = TypeContextInParam | TypeContextLocal;
-
-    out << sp;
-    writeOpDocSummary(out, p, false, false, true);
-    writeSwiftAttributes(out, p->getMetaData());
-    out << nl << "func " << name;
-    out << spar;
-    for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)
-    {
-        ParamDeclPtr param = *i;
-        TypePtr type = param->type();
-        ostringstream s;
-        if(inParams.size() == 1)
-        {
-            s << "_ ";
-        }
-        s << param->name() << ": "
-          << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
-        out << s.str();
-    }
-    out << epar;
-
-    if(!p->hasMetaData("swift:noexcept"))
-    {
-        out << " throws";
-    }
-
-    TypePtr ret = p->returnType();
-    ParamDeclList outParams = p->outParameters();
-
-    if(ret || !outParams.empty())
-    {
-        out << " -> ";
-        if(outParams.empty())
-        {
-            out << typeToString(ret, p, p->getMetaData(), p->returnIsOptional(), typeCtx);
-        }
-        else if(!ret && outParams.size() == 1)
-        {
-            ParamDeclPtr param = outParams.front();
-            out << typeToString(param->type(), p, param->getMetaData(), param->optional(), typeCtx);
-        }
-        else
-        {
-            string returnValueS = "returnValue";
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-            {
-                ParamDeclPtr param = *i;
-                if(param->name() == "returnValue")
-                {
-                    returnValueS = "_returnValue";
-                    break;
-                }
-            }
-
-            out << spar;
-            out << (returnValueS + ": " + typeToString(ret, p, p->getMetaData(), p->returnIsOptional(), typeCtx));
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-            {
-                ParamDeclPtr param = *i;
-                out << (fixIdent(param->name()) + ": " +
-                        typeToString(param->type(), p, p->getMetaData(), param->optional(), typeCtx));
-            }
-            out << epar;
-        }
-    }
-
-    if(p->hasMetaData("async-oneway"))
-    {
-        out << sp;
-        writeOpDocSummary(out, p, true, false, true);
-        out << nl << "func " << name << "Async";
-        out << spar;
-        for(ParamDeclList::const_iterator i = inParams.begin(); i != inParams.end(); ++i)
-        {
-            ParamDeclPtr param = *i;
-            TypePtr type = param->type();
-            ostringstream s;
-            if(inParams.size() == 1)
-            {
-                s << "_ ";
-            }
-            s << fixIdent(param->name()) << ": "
-              << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
-            out << s.str();
-        }
-        out << "sentOn: Dispatch.DispatchQueue?";
-        out << "sentFlags: Dispatch.DispatchWorkItemFlags?";
-        out << "sent: ((Swift.Bool) -> Swift.Void)?";
-        out << epar;
-
-        out << " -> ";
-
-        assert(!ret && outParams.empty());
-        out << "PromiseKit.Promise<Swift.Void>";
     }
 }

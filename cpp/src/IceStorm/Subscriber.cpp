@@ -15,6 +15,46 @@ using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
 
+#ifdef ICE_CPP11_MAPPING
+IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached()
+{
+}
+
+const ::std::string&
+IceStorm::SendQueueSizeMaxReached::ice_staticId()
+{
+    static const ::std::string typeId = "::IceStorm::SendQueueSizeMaxReached";
+    return typeId;
+}
+#else
+IceStorm::SendQueueSizeMaxReached::SendQueueSizeMaxReached(const char* file, int line) :
+    ::Ice::LocalException(file, line)
+{
+}
+
+IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached() throw()
+{
+}
+
+::std::string
+IceStorm::SendQueueSizeMaxReached::ice_id() const
+{
+    return "::IceStorm::SendQueueSizeMaxReached";
+}
+
+IceStorm::SendQueueSizeMaxReached*
+IceStorm::SendQueueSizeMaxReached::ice_clone() const
+{
+    return new SendQueueSizeMaxReached(*this);
+}
+
+void
+IceStorm::SendQueueSizeMaxReached::ice_throw() const
+{
+    throw* this;
+}
+#endif
+
 //
 // Per Subscriber object.
 //

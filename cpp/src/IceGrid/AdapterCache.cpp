@@ -11,6 +11,7 @@
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/SessionI.h>
+#include <IceGrid/SynchronizationException.h>
 
 #include <functional>
 

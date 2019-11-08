@@ -465,23 +465,6 @@ allTests(Test::TestHelper* helper)
             test(os.str() == "::Test::F data:'F'");
             test(ex.data == "F");
         }
-
-        {
-            G ex(__FILE__, __LINE__, "G");
-            ostringstream os;
-            ex.ice_print(os);
-            test(endsWith(os.str(), "Test::G"));
-            test(ex.data == "G");
-        }
-
-        {
-            H ex(__FILE__, __LINE__, "H");
-            ostringstream os;
-            ex.ice_print(os);
-            test(endsWith(os.str(), "Test::H data:'H'"));
-            test(ex.data == "H");
-        }
-
     }
     cout << "ok" << endl;
 

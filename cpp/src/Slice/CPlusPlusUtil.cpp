@@ -711,7 +711,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
             {
                 return getUnqualified(fixKwd(cl->scoped()), scope);
             }
-            else if(cl->isInterface() && !cl->isLocal())
+            else if(cl->isInterface())
             {
                 return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
             }
@@ -896,7 +896,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
             {
                 return getUnqualified(fixKwd(cl->scoped()), scope);
             }
-            else if(cl->isInterface() && !cl->isLocal())
+            else if(cl->isInterface())
             {
                 return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -1049,7 +1049,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
             {
                 return getUnqualified(fixKwd(cl->scoped()), scope) + "&";
             }
-            else if(cl->isInterface() && !cl->isLocal())
+            else if(cl->isInterface())
             {
                 return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
             }

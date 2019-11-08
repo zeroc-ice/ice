@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef GLACIER2_H
-#define GLACIER2_H
+#ifndef GLACIER2_GLACIER2_H
+#define GLACIER2_GLACIER2_H
 
 #include <IceUtil/PushDisableWarnings.h>
 #include <Ice/Config.h>

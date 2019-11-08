@@ -106,7 +106,7 @@ class ThreadPoolDestroyedException
 {
 };
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 string
 prefixToDispatchQueueLabel(const std::string& prefix)
 {
@@ -264,7 +264,7 @@ IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     _dispatchQueue(dispatch_queue_create(prefixToDispatchQueueLabel(prefix).c_str(),
                                          DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
 #else
@@ -446,7 +446,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     dispatch_release(_dispatchQueue);
 #endif
 }
@@ -563,7 +563,7 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 void
 IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
 {
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     dispatch_sync(_dispatchQueue, ^
     {
         workItem->run();
@@ -573,15 +573,15 @@ IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workI
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
+#    ifdef ICE_CPP11_MAPPING
             _dispatcher([workItem]()
             {
                 workItem->run();
             },
             workItem->getConnection());
-#else
+#    else
             _dispatcher->dispatch(workItem, workItem->getConnection());
-#endif
+#    endif
         }
         catch(const std::exception& ex)
         {
@@ -642,7 +642,7 @@ IceInternal::ThreadPool::prefix() const
     return _prefix;
 }
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 
 dispatch_queue_t
 IceInternal::ThreadPool::getDispatchQueue() const ICE_NOEXCEPT

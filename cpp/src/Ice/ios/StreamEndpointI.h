@@ -53,9 +53,6 @@ public:
 
 private:
 
-#ifndef ICE_SWIFT
-    const bool _voip;
-#endif
     const Ice::CommunicatorPtr _communicator;
     IceInternal::UniqueRef<CFMutableDictionaryRef> _proxySettings;
     std::string _proxyHost;
@@ -93,12 +90,10 @@ public:
     virtual std::string options() const;
 
 #ifdef ICE_CPP11_MAPPING
-
     std::shared_ptr<StreamEndpointI> shared_from_this()
     {
         return std::static_pointer_cast<StreamEndpointI>(IceInternal::IPEndpointI::shared_from_this());
     }
-
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
 #else

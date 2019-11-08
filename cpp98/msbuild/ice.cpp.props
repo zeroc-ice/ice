@@ -8,6 +8,12 @@
       <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
+  <ItemDefinitionGroup>
+      <SliceCompile>
+          <IncludeDirectories>$(MSBuildThisFileDirectory)..\slice</IncludeDirectories>
+      </SliceCompile>
+  </ItemDefinitionGroup>
+
   <!-- Visual Studio 2010 doesn't set DefaultPlatformToolset -->
   <PropertyGroup>
     <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>

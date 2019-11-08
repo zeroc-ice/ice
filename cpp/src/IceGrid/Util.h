@@ -5,6 +5,7 @@
 #ifndef ICE_GRID_UTIL_H
 #define ICE_GRID_UTIL_H
 
+#include <Ice/Properties.h>
 #include <IceGrid/Descriptor.h>
 #include <IceUtil/StringUtil.h>
 #include <IceGrid/Exception.h>

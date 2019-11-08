@@ -97,7 +97,7 @@ public:
 
     virtual ValueFactoryManagerPtr getValueFactoryManager() const ICE_NOEXCEPT;
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     virtual dispatch_queue_t getClientDispatchQueue() const;
     virtual dispatch_queue_t getServerDispatchQueue() const;
 #endif

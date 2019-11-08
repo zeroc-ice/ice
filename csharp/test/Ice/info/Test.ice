@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Current.ice>
+#include <Ice/Context.ice>
 
 ["cs:namespace:Ice.info"]
 module Test

@@ -1029,118 +1029,118 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\BuiltinSequences.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\BuiltinSequences.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Communicator.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Communicator.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\CommunicatorF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\CommunicatorF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Connection.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Connection.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ConnectionF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ConnectionF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Current.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Current.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Endpoint.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Endpoint.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\EndpointF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointTypes.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\EndpointTypes.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\FacetMap.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\FacetMap.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Identity.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Identity.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContext.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ImplicitContext.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContextF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ImplicitContextF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Instrumentation.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Instrumentation.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\InstrumentationF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\InstrumentationF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocalException.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\LocalException.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Locator.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\LocatorF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Logger.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Logger.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LoggerF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\LoggerF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Metrics.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapter.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectAdapter.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapterF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectAdapterF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectFactory.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectFactory.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Plugin.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Plugin.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PluginF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\PluginF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Process.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ProcessF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ProcessF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Properties.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Properties.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\PropertiesAdmin.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\PropertiesF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\RemoteLogger.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\RemoteLogger.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Router.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Router.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\RouterF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\RouterF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocator.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ServantLocator.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocatorF.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ServantLocatorF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ValueFactory.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\ValueFactory.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Version.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\Version.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

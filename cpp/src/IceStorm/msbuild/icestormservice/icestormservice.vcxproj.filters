@@ -97,9 +97,6 @@
     <ClCompile Include="Win32\Debug\IceStormInternal.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Instrumentation.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\LinkRecord.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
@@ -113,9 +110,6 @@
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\IceStormInternal.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Instrumentation.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\LinkRecord.cpp">
@@ -133,9 +127,6 @@
     <ClCompile Include="Win32\Release\IceStormInternal.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Instrumentation.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\LinkRecord.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
@@ -151,9 +142,6 @@
     <ClCompile Include="x64\Release\IceStormInternal.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Instrumentation.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\LinkRecord.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
@@ -162,6 +150,9 @@
     </ClCompile>
     <ClCompile Include="x64\Release\SubscriberRecord.cpp">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Instrumentation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -276,6 +267,9 @@
     <ClInclude Include="x64\Release\IceStorm\SubscriberRecord.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Instrumentation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\IceStormService.rc">
@@ -290,9 +284,6 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\IceStormInternal.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\Instrumentation.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\LinkRecord.ice">

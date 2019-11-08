@@ -136,44 +136,44 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\BuiltinSequences.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Communicator.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\CommunicatorF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Connection.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ConnectionF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Current.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Endpoint.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointTypes.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\FacetMap.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Identity.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContext.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContextF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Instrumentation.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\InstrumentationF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocalException.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Logger.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LoggerF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapter.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapterF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectFactory.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Plugin.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PluginF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ProcessF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Properties.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\RemoteLogger.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Router.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\RouterF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocator.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocatorF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ValueFactory.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Version.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\BuiltinSequences.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Communicator.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\CommunicatorF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Connection.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ConnectionF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Current.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Endpoint.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\EndpointF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\EndpointTypes.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\FacetMap.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Identity.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ImplicitContext.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ImplicitContextF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Instrumentation.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\InstrumentationF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\LocalException.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Locator.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\LocatorF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Logger.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\LoggerF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Metrics.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectAdapter.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectAdapterF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectFactory.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Plugin.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\PluginF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Process.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ProcessF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Properties.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\PropertiesAdmin.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\PropertiesF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\RemoteLogger.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Router.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\RouterF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ServantLocator.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ServantLocatorF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\ValueFactory.ice" />
+    <SliceCompile Include="..\..\..\..\slice\Ice\Version.ice" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
@@ -203,913 +203,913 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Communicator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\CommunicatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Connection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ConnectionF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Current.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Endpoint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\EndpointF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\EndpointTypes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\FacetMap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Identity.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ImplicitContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ImplicitContextF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Instrumentation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\InstrumentationF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\LocalException.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Locator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\LocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Logger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\LoggerF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Metrics.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ObjectAdapter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ObjectAdapterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ObjectFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Plugin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\PluginF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Process.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ProcessF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Properties.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\PropertiesAdmin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\PropertiesF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\RemoteLogger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\RouterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ServantLocator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ServantLocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ValueFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Version.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\BuiltinSequences.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Communicator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\CommunicatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Connection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ConnectionF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Current.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Endpoint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\EndpointF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\EndpointTypes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\FacetMap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Identity.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ImplicitContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ImplicitContextF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Instrumentation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\InstrumentationF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\LocalException.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Locator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\LocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Logger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\LoggerF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Metrics.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ObjectAdapter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ObjectAdapterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ObjectFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Plugin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\PluginF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Process.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ProcessF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Properties.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\PropertiesAdmin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\PropertiesF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\RemoteLogger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\RouterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ServantLocator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ServantLocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ValueFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Version.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\BuiltinSequences.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Communicator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\CommunicatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Connection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ConnectionF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Current.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Endpoint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\EndpointF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\EndpointTypes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\FacetMap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Identity.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ImplicitContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ImplicitContextF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Instrumentation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\InstrumentationF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\LocalException.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Locator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\LocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Logger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\LoggerF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Metrics.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ObjectAdapter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ObjectAdapterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ObjectFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Plugin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\PluginF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Process.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ProcessF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Properties.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\PropertiesAdmin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\PropertiesF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\RemoteLogger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\RouterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ServantLocator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ServantLocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ValueFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Version.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\BuiltinSequences.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Communicator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\CommunicatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Connection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ConnectionF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Current.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Endpoint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\EndpointF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\EndpointTypes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\FacetMap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Identity.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ImplicitContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ImplicitContextF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Instrumentation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\InstrumentationF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\LocalException.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Locator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\LocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Logger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\LoggerF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Metrics.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ObjectAdapter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ObjectAdapterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ObjectFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Plugin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\PluginF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Process.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ProcessF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Properties.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\PropertiesAdmin.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\PropertiesF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\RemoteLogger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\RouterF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ServantLocator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ServantLocatorF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ValueFactory.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Version.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1117,913 +1117,913 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Communicator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\CommunicatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Connection.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ConnectionF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Current.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Endpoint.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\EndpointF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\EndpointTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\FacetMap.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Identity.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ImplicitContext.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ImplicitContextF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Instrumentation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\InstrumentationF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LocalException.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Locator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Logger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LoggerF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Metrics.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ObjectAdapter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ObjectAdapterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ObjectFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Plugin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\PluginF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Process.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ProcessF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Properties.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\PropertiesAdmin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\PropertiesF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\RemoteLogger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\RouterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ServantLocator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ServantLocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ValueFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Version.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\BuiltinSequences.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Communicator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\CommunicatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Connection.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ConnectionF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Current.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Endpoint.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\EndpointF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\EndpointTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\FacetMap.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Identity.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ImplicitContext.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ImplicitContextF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Instrumentation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\InstrumentationF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LocalException.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Locator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Logger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LoggerF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Metrics.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ObjectAdapter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ObjectAdapterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ObjectFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Plugin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\PluginF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Process.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ProcessF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Properties.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\PropertiesAdmin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\PropertiesF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\RemoteLogger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\RouterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ServantLocator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ServantLocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ValueFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Version.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\BuiltinSequences.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Communicator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\CommunicatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Connection.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ConnectionF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Current.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Endpoint.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\EndpointF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\EndpointTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\FacetMap.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Identity.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ImplicitContext.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ImplicitContextF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Instrumentation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\InstrumentationF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LocalException.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Locator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Logger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LoggerF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Metrics.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ObjectAdapter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ObjectAdapterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ObjectFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Plugin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\PluginF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Process.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ProcessF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Properties.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\PropertiesAdmin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\PropertiesF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\RemoteLogger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\RouterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ServantLocator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ServantLocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ValueFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Version.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\BuiltinSequences.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Communicator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Communicator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\CommunicatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\CommunicatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Connection.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Connection.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ConnectionF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ConnectionF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Current.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Current.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Endpoint.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Endpoint.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\EndpointF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\EndpointTypes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\EndpointTypes.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\FacetMap.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\FacetMap.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Identity.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ImplicitContext.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContext.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ImplicitContextF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ImplicitContextF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Instrumentation.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Instrumentation.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\InstrumentationF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\InstrumentationF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LocalException.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocalException.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Locator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Logger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Logger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LoggerF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\LoggerF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Metrics.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ObjectAdapter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapter.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ObjectAdapterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectAdapterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ObjectFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ObjectFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Plugin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Plugin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\PluginF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PluginF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Process.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Process.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ProcessF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Properties.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Properties.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\PropertiesAdmin.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\PropertiesF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\PropertiesF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\RemoteLogger.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Router.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\RouterF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ServantLocator.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocator.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ServantLocatorF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ServantLocatorF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ValueFactory.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\ValueFactory.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Version.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

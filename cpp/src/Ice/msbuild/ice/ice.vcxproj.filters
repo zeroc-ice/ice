@@ -92,49 +92,7 @@
     <ClCompile Include="Win32\Debug\BuiltinSequences.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Communicator.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\CommunicatorF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Connection.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ConnectionF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Current.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Endpoint.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\EndpointF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\EndpointTypes.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\FacetMap.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\Identity.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ImplicitContext.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ImplicitContextF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Instrumentation.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\InstrumentationF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\LocalException.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Locator.cpp">
@@ -143,28 +101,7 @@
     <ClCompile Include="Win32\Debug\LocatorF.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Logger.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\LoggerF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\Metrics.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ObjectAdapter.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ObjectAdapterF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ObjectFactory.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Plugin.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\PluginF.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Process.cpp">
@@ -173,13 +110,7 @@
     <ClCompile Include="Win32\Debug\ProcessF.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Properties.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\PropertiesAdmin.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\PropertiesF.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\RemoteLogger.cpp">
@@ -191,64 +122,10 @@
     <ClCompile Include="Win32\Debug\RouterF.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\ServantLocator.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ServantLocatorF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\ValueFactory.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\Version.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\BuiltinSequences.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Communicator.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\CommunicatorF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Connection.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ConnectionF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Current.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Endpoint.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\EndpointF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\EndpointTypes.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\FacetMap.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\Identity.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ImplicitContext.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ImplicitContextF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Instrumentation.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\InstrumentationF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\LocalException.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Locator.cpp">
@@ -257,28 +134,7 @@
     <ClCompile Include="x64\Debug\LocatorF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Logger.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\LoggerF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\Metrics.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ObjectAdapter.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ObjectAdapterF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ObjectFactory.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Plugin.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\PluginF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Process.cpp">
@@ -287,13 +143,7 @@
     <ClCompile Include="x64\Debug\ProcessF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\Properties.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\PropertiesAdmin.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\PropertiesF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\RemoteLogger.cpp">
@@ -305,64 +155,10 @@
     <ClCompile Include="x64\Debug\RouterF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\ServantLocator.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ServantLocatorF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ValueFactory.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Version.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\BuiltinSequences.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Communicator.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\CommunicatorF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Connection.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ConnectionF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Current.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Endpoint.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\EndpointF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\EndpointTypes.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\FacetMap.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\Identity.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ImplicitContext.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ImplicitContextF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Instrumentation.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\InstrumentationF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\LocalException.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Locator.cpp">
@@ -371,28 +167,7 @@
     <ClCompile Include="Win32\Release\LocatorF.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Logger.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\LoggerF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\Metrics.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ObjectAdapter.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ObjectAdapterF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ObjectFactory.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Plugin.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\PluginF.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Process.cpp">
@@ -401,13 +176,7 @@
     <ClCompile Include="Win32\Release\ProcessF.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\Properties.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\PropertiesAdmin.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\PropertiesF.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\RemoteLogger.cpp">
@@ -419,64 +188,10 @@
     <ClCompile Include="Win32\Release\RouterF.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\ServantLocator.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ServantLocatorF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\ValueFactory.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Version.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\BuiltinSequences.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Communicator.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\CommunicatorF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Connection.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ConnectionF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Current.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Endpoint.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\EndpointF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\EndpointTypes.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\FacetMap.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\Identity.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ImplicitContext.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ImplicitContextF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Instrumentation.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\InstrumentationF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\LocalException.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Locator.cpp">
@@ -485,28 +200,7 @@
     <ClCompile Include="x64\Release\LocatorF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Logger.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\LoggerF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\Metrics.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ObjectAdapter.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ObjectAdapterF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ObjectFactory.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Plugin.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\PluginF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Process.cpp">
@@ -515,13 +209,7 @@
     <ClCompile Include="x64\Release\ProcessF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Properties.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\PropertiesAdmin.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\PropertiesF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\RemoteLogger.cpp">
@@ -533,17 +221,62 @@
     <ClCompile Include="x64\Release\RouterF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\ServantLocator.cpp">
-      <Filter>Source Files\x64\Release</Filter>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\ServantLocatorF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\ValueFactory.cpp">
-      <Filter>Source Files\x64\Release</Filter>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\Version.cpp">
-      <Filter>Source Files\x64\Release</Filter>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\*.cpp">
       <Filter>Source Files</Filter>
@@ -554,15 +287,1875 @@
     <ClCompile Include="..\..\*.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\..\..\include\Ice\*.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\*.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IceUtil\*.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Context.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Context.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Context.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Context.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IceUtil\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\*.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\OperationMode.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\OperationMode.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\OperationMode.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\OperationMode.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -576,49 +2169,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Communicator.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\CommunicatorF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Connection.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ConnectionF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Current.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Endpoint.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\EndpointF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\EndpointTypes.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\FacetMap.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Identity.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ImplicitContext.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ImplicitContextF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Instrumentation.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\InstrumentationF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LocalException.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Locator.h">
@@ -627,28 +2178,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LocatorF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Logger.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LoggerF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Metrics.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ObjectAdapter.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ObjectAdapterF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ObjectFactory.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Plugin.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\PluginF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Process.h">
@@ -657,13 +2187,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ProcessF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Properties.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\PropertiesAdmin.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\PropertiesF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\RemoteLogger.h">
@@ -675,64 +2199,13 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\RouterF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ServantLocator.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ServantLocatorF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\ValueFactory.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Version.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Communicator.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\CommunicatorF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Connection.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ConnectionF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Current.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Endpoint.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\EndpointF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\EndpointTypes.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\FacetMap.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Identity.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ImplicitContext.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ImplicitContextF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Instrumentation.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\InstrumentationF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LocalException.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Locator.h">
@@ -741,28 +2214,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LocatorF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Logger.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LoggerF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Metrics.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ObjectAdapter.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ObjectAdapterF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ObjectFactory.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Plugin.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\PluginF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Process.h">
@@ -771,13 +2223,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ProcessF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Properties.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\PropertiesAdmin.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\PropertiesF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\RemoteLogger.h">
@@ -789,64 +2235,13 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\RouterF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ServantLocator.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ServantLocatorF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\ValueFactory.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Version.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Communicator.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\CommunicatorF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Connection.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ConnectionF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Current.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Endpoint.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\EndpointF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\EndpointTypes.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\FacetMap.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Identity.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ImplicitContext.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ImplicitContextF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Instrumentation.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\InstrumentationF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LocalException.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Locator.h">
@@ -855,28 +2250,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LocatorF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Logger.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LoggerF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Metrics.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ObjectAdapter.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ObjectAdapterF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ObjectFactory.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Plugin.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\PluginF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Process.h">
@@ -885,13 +2259,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ProcessF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Properties.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\PropertiesAdmin.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\PropertiesF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\RemoteLogger.h">
@@ -903,64 +2271,13 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\RouterF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ServantLocator.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ServantLocatorF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\ValueFactory.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Version.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\BuiltinSequences.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Communicator.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\CommunicatorF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Connection.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ConnectionF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Current.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Endpoint.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\EndpointF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\EndpointTypes.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\FacetMap.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Identity.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ImplicitContext.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ImplicitContextF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Instrumentation.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\InstrumentationF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LocalException.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Locator.h">
@@ -969,28 +2286,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LocatorF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Logger.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LoggerF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Metrics.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ObjectAdapter.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ObjectAdapterF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ObjectFactory.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Plugin.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\PluginF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Process.h">
@@ -999,13 +2295,7 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ProcessF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Properties.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\PropertiesAdmin.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\PropertiesF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\RemoteLogger.h">
@@ -1017,66 +2307,324 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\RouterF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ServantLocator.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ServantLocatorF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\ValueFactory.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Version.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Context.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Context.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Context.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Context.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Acceptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AcceptorF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ACM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ACMF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ArgVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Base64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\BatchRequestQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CollocatedRequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CommunicatorI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectionFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectionFactoryF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectionI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectionRequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Connector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectorF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectRequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ConnectRequestHandlerF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DefaultsAndOverrides.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DefaultsAndOverridesF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointFactoryF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointFactoryManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointFactoryManagerF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EndpointIF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\EventHandlerF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\HashUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\HttpParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ImplicitContextI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\IncomingRequest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Instance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\InstrumentationI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\IPEndpointI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\IPEndpointIF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LocatorInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LocatorInfoF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LoggerAdminI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LoggerI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\NetworkProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\NetworkProxyF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ObjectAdapterFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ObjectAdapterFactoryF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ObjectAdapterI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\OpaqueEndpointI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\OSLogLoggerI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PluginManagerI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PropertiesAdminI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PropertiesI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PropertyNames.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProtocolInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProtocolInstanceF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProtocolPluginFacade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProtocolPluginFacadeF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ProxyFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Reference.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ReferenceFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RegisterPluginsInit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ReplyStatus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RequestHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RequestHandlerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ResponseHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RetryQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RetryQueueF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RouterInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RouterInfoF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Selector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ServantManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\StreamSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\StringUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SysLoggerI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SystemdJournalI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TcpAcceptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TcpConnector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TcpEndpointI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TcpTransceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ThreadPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TraceLevels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TraceLevelsF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TraceUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Transceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TransceiverF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UdpConnector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UdpEndpointI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UdpTransceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ValueFactoryManagerI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VirtualShared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WSAcceptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WSConnector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WSEndpoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WSTransceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\OperationMode.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\OperationMode.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\OperationMode.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\OperationMode.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Current.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\Ice\Ice.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\BuiltinSequences.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Communicator.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\CommunicatorF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Connection.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ConnectionF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Current.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Endpoint.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\EndpointTypes.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\FacetMap.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Identity.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContext.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ImplicitContextF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Instrumentation.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\InstrumentationF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocalException.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice">
@@ -1085,28 +2633,7 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Logger.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LoggerF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapter.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectAdapterF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ObjectFactory.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Plugin.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PluginF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice">
@@ -1115,13 +2642,7 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\ProcessF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Properties.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\RemoteLogger.ice">
@@ -1133,16 +2654,10 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\RouterF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocator.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\Context.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocatorF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ValueFactory.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\Version.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\OperationMode.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

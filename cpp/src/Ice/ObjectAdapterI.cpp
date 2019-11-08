@@ -735,7 +735,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
     }
 }
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 dispatch_queue_t
 Ice::ObjectAdapterI::getDispatchQueue() const
 {

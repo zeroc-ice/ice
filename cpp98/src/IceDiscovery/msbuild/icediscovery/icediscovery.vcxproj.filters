@@ -106,7 +106,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\IceDiscovery.ice">
+    <SliceCompile Include="..\..\..\..\slice\IceDiscovery\IceDiscovery.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

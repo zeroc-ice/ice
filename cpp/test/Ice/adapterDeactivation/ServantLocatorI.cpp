@@ -78,7 +78,7 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
     test(current.id.category == "");
     test(current.id.name == "test");
 
-    cookie = ICE_MAKE_SHARED(CookieI);
+    cookie = ICE_MAKE_SHARED(Cookie);
 
     return ICE_MAKE_SHARED(TestI);
 }
@@ -97,7 +97,7 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, co
     }
 
 #ifdef ICE_CPP11_MAPPING
-    shared_ptr<CookieI> co = static_pointer_cast<CookieI>(cookie);
+    shared_ptr<Cookie> co = static_pointer_cast<Cookie>(cookie);
 #else
     CookiePtr co = CookiePtr::dynamicCast(cookie);
 #endif

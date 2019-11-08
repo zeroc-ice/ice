@@ -28,7 +28,7 @@
     <ClCompile Include="..\..\ServiceManagerI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Service.cpp">
+    <ClCompile Include="..\..\ServiceI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

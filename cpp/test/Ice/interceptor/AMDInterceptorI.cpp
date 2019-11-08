@@ -6,6 +6,7 @@
 #include <AMDInterceptorI.h>
 #include <MyObjectI.h>
 #include <TestHelper.h>
+#include <TestI.h>
 
 using namespace std;
 

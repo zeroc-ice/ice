@@ -9,7 +9,6 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/ProcessF.ice>
-#include <Ice/Properties.ice>
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>
@@ -17,10 +16,6 @@
 
 module IceGrid
 {
-
-local exception SynchronizationException
-{
-}
 
 // This class is no longer used. We keep it only for interop with IceGrid 3.7.
 //

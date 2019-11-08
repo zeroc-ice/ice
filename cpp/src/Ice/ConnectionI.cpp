@@ -1846,7 +1846,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     _threadPool->dispatchFromThisThread(new DispatchCall(ICE_SHARED_FROM_THIS, startCB, sentCBs, compress, requestId,
                                                          invokeNum, servantManager, adapter, outAsync,
                                                          heartbeatCallback, current.stream));
@@ -2017,7 +2017,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     current.ioCompleted();
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
 #else
     if(!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.

@@ -90,7 +90,7 @@ private:
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&, bool = false);
+        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -383,7 +383,7 @@ private:
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&, bool = false);
+        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -442,21 +442,6 @@ private:
         bool _doneStaticSymbol;
         int _useWstring;
         std::list<int> _useWstringHist;
-    };
-
-    class Cpp11LocalObjectVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
-    {
-    public:
-
-        Cpp11LocalObjectVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitOperation(const OperationPtr&);
     };
 
     class Cpp11InterfaceVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor

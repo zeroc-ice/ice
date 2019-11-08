@@ -105,8 +105,12 @@ TestI::shutdown(const Current& current)
     current.adapter->deactivate();
 }
 
+Cookie::~Cookie()
+{
+}
+
 string
-CookieI::message() const
+Cookie::message() const
 {
     return "blahblah";
 }

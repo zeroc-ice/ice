@@ -14,11 +14,6 @@ exception InvalidInputException
     string message;
 }
 
-["cpp:ice_print"]
-local exception RetryException
-{
-}
-
 interface MyObject
 {
     //

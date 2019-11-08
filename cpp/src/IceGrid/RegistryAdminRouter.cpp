@@ -3,6 +3,7 @@
 //
 
 #include <IceGrid/RegistryAdminRouter.h>
+#include <IceGrid/SynchronizationException.h>
 #include <Ice/Ice.h>
 
 using namespace IceGrid;

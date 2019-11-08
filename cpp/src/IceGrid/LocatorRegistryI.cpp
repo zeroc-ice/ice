@@ -7,6 +7,7 @@
 #include <IceGrid/ReplicaSessionManager.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/SynchronizationException.h>
 
 using namespace std;
 using namespace IceGrid;

@@ -67,7 +67,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemGroup>
-    <ClCompile Include="..\..\Service.cpp" />
+    <ClCompile Include="..\..\ServiceI.cpp" />
     <ClCompile Include="..\..\ServiceManagerI.cpp" />
   </ItemGroup>
   <ItemGroup>

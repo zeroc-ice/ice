@@ -8,6 +8,7 @@
 #include <Ice/Plugin.h>
 #include <IceSSL/Config.h>
 #include <IceSSL/ConnectionInfoF.h>
+#include <IceSSL/EndpointInfo.h>
 
 #ifdef ICE_CPP11_MAPPING
 #   include <chrono>

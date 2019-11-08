@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICEGRID_H
-#define ICEGRID_H
+#ifndef ICEGRID_ICEGRID_H
+#define ICEGRID_ICEGRID_H
 
 #include <IceGrid/Admin.h>
 #include <IceGrid/Descriptor.h>

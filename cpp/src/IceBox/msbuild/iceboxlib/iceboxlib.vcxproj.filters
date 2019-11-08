@@ -60,45 +60,51 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Exception.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\IceBox.cpp">
+    <ClCompile Include="Win32\Debug\ServiceManager.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\IceBox.cpp">
+    <ClCompile Include="x64\Debug\ServiceManager.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\IceBox.cpp">
+    <ClCompile Include="Win32\Release\ServiceManager.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\IceBox.cpp">
+    <ClCompile Include="x64\Release\ServiceManager.cpp">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Service.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\IceBox\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceBox\ServiceManager.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceBox\ServiceManager.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceBox\ServiceManager.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceBox\ServiceManager.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceBox\IceBox.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
+    <ClInclude Include="..\..\..\..\include\IceBox\IceBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceBox\Service.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\IceBox\ServiceManager.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

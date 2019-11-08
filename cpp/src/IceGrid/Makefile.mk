@@ -7,7 +7,8 @@ local_node_srcs         = Activator.cpp \
                           NodeI.cpp \
                           NodeSessionManager.cpp \
                           ServerAdapterI.cpp \
-                          ServerI.cpp
+                          ServerI.cp \
+                          SynchronizationException.cpp
 
 local_registry_srcs     = Internal.ice \
                           AdminRouter.cpp \
@@ -43,6 +44,7 @@ local_registry_srcs     = Internal.ice \
                           ServerCache.cpp \
                           SessionI.cpp \
                           SessionServantManager.cpp \
+                          SynchronizationException.cpp \
                           Topics.cpp \
                           Util.cpp \
                           WellKnownObjectsManager.cpp

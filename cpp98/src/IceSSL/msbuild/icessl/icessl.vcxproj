@@ -112,9 +112,9 @@
     <ResourceCompile Include="..\..\IceSSL.rc" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\EndpointInfo.ice" />
+    <SliceCompile Include="..\..\..\..\slice\IceSSL\ConnectionInfo.ice" />
+    <SliceCompile Include="..\..\..\..\slice\IceSSL\ConnectionInfoF.ice" />
+    <SliceCompile Include="..\..\..\..\slice\IceSSL\EndpointInfo.ice" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AcceptorI.cpp" />
@@ -135,73 +135,73 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ConnectionInfoF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\EndpointInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ConnectionInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\ConnectionInfoF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\EndpointInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ConnectionInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\ConnectionInfoF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\EndpointInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ConnectionInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\ConnectionInfoF.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\EndpointInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,73 +209,73 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceSSL\ConnectionInfoF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceSSL\EndpointInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceSSL\ConnectionInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceSSL\ConnectionInfoF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceSSL\EndpointInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceSSL\ConnectionInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceSSL\ConnectionInfoF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceSSL\EndpointInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceSSL\ConnectionInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceSSL\ConnectionInfoF.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\ConnectionInfoF.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceSSL\EndpointInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceSSL\EndpointInfo.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceSSL\Config.h" />
     <ClInclude Include="..\..\..\..\include\IceSSL\IceSSL.h" />

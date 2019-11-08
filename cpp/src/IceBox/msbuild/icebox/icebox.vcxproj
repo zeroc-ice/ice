@@ -76,7 +76,7 @@
     <ClInclude Include="../../ServiceManagerI.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Service.cpp" />
+    <ClCompile Include="..\..\ServiceI.cpp" />
     <ClCompile Include="..\..\ServiceManagerI.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

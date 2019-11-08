@@ -8,6 +8,7 @@
 #include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/SynchronizationException.h>
 
 using namespace std;
 using namespace IceGrid;

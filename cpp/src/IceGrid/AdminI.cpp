@@ -16,6 +16,7 @@
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/NodeSessionI.h>
+#include <IceGrid/SynchronizationException.h>
 
 using namespace std;
 using namespace Ice;

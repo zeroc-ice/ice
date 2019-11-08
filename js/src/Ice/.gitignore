@@ -1,14 +1,8 @@
 # Ignore generated files
 BuiltinSequences.d.ts
 BuiltinSequences.js
-ConnectionInfo.d.ts
-ConnectionInfo.js
-EndpointInfo.d.ts
-EndpointInfo.js
 Identity.d.ts
 Identity.js
-InstrumentationF.d.ts
-InstrumentationF.js
 Locator.d.ts
 Locator.js
 LocatorF.d.ts
@@ -21,13 +15,9 @@ ProcessF.d.ts
 ProcessF.js
 PropertiesAdmin.d.ts
 PropertiesAdmin.js
-PropertiesF.d.ts
-PropertiesF.js
 RemoteLogger.d.ts
 RemoteLogger.js
 Router.d.ts
 Router.js
 RouterF.d.ts
 RouterF.js
-Version.d.ts
-Version.js

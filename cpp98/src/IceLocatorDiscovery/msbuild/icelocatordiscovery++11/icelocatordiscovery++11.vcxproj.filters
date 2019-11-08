@@ -94,7 +94,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
+    <SliceCompile Include="..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

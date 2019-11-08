@@ -158,9 +158,11 @@ def create_platform_targets(project, platform, bindist)
             target = project.new_target(:static_library, "#{component} C++11 #{platform_name}", platform)
             cpp_targets << target
 
-            group = project_group(project, "slice/#{component}")
-            target_add_files(target, group, "../slice/#{component}", ["*.ice"])
-            target_add_slice2cpp_build_rule(project, target, component)
+            if ["Ice", "IceDiscovery", "IceLocatorDiscovery"].include? component then
+                group = project_group(project, "slice/#{component}")
+                target_add_files(target, group, "../slice/#{component}", ["*.ice"])
+                target_add_slice2cpp_build_rule(project, target, component)
+            end
 
             target.build_configurations.each { |config|
                 config.build_settings["HEADER_SEARCH_PATHS"] = [
@@ -273,16 +275,9 @@ def create_platform_targets(project, platform, bindist)
         target_add_headers(target, group, "src/Ice", ["*.h"])
         target_add_files(target, group, "src/Ice", ["*.swift"])
 
-        slices = ["Ice", "IceSSL"]
-        if platform == :ios then
-            slices << "IceIAP"
-        end
-
-        slices.each do |item|
-            group = project_group(project, "slice/#{item}")
-            target_add_files(target, group, "../slice/#{item}", ["*.ice"], excludes[item] || [])
-            target_add_slice2swift_build_rule(project, target, item)
-        end
+        group = project_group(project, "slice/Ice")
+        target_add_files(target, group, "../slice/Ice", ["*.ice"])
+        target_add_slice2swift_build_rule(project, target, "Ice")
 
         target_add_swiftlint_build_phase(target, "src/Ice")
 

@@ -29,8 +29,12 @@ TestI::deactivate(const Current& current)
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
 }
 
+Cookie::~Cookie()
+{
+}
+
 string
-CookieI::message() const
+Cookie::message() const
 {
     return "blahblah";
 }

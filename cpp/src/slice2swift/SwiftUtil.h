@@ -13,10 +13,6 @@ typedef std::list<std::pair<std:: string, std::string> > StringPairList;
 namespace Slice
 {
 
-const int TypeContextInParam = 1;
-const int TypeContextProtocol = 2;
-const int TypeContextLocal = 32;
-
 std::string getSwiftModule(const ModulePtr&, std::string&);
 std::string getSwiftModule(const ModulePtr&);
 ModulePtr getTopLevelModule(const ContainedPtr&);
@@ -68,28 +64,27 @@ protected:
     void writeDocSentence(IceUtilInternal::Output&, const StringList&);
     void writeSeeAlso(IceUtilInternal::Output&, const StringList&, const ContainerPtr&);
     void writeDocSummary(IceUtilInternal::Output&, const ContainedPtr&);
-    void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool, bool = false);
+    void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool = false);
 
     void writeProxyDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
     void writeServantDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
     void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
 
     std::string paramLabel(const std::string&, const ParamDeclList&);
-    std::string operationReturnType(const OperationPtr&, int typeCtx = 0);
+    std::string operationReturnType(const OperationPtr&);
     bool operationReturnIsTuple(const OperationPtr&);
     std::string operationReturnDeclaration(const OperationPtr&);
     std::string operationInParamsDeclaration(const OperationPtr&);
 
     bool operationIsAmd(const OperationPtr&);
 
-    ParamInfoList getAllInParams(const OperationPtr&, int = 0);
+    ParamInfoList getAllInParams(const OperationPtr&);
     void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-    ParamInfoList getAllOutParams(const OperationPtr&, int = 0);
+    ParamInfoList getAllOutParams(const OperationPtr&);
     void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
-    std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false,
-                             int = 0);
+    std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false);
 
     std::string getAbsolute(const TypePtr&);
     std::string getAbsolute(const ProxyPtr&);
@@ -119,10 +114,8 @@ protected:
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList&,
                                     const DataMemberList&, const ContainedPtr&,
-                                    bool local = false,
-                                    bool rootClass = false,
-                                    const StringPairList& = StringPairList());
-    void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
+                                    bool rootClass = false);
+    void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
 
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
                                    const TypePtr&,
@@ -162,10 +155,7 @@ private:
 
     private:
 
-        StringList validate(const SyntaxTreeBasePtr&, const StringList&,
-                            const std::string&, const std::string&,
-                            bool local = false,
-                            bool operationParameter = false);
+        StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&);
 
         typedef std::map<std::string, std::string> ModuleMap;
         typedef std::map<std::string, ModuleMap> ModulePrefix;

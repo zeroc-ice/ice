@@ -13,6 +13,7 @@ IceStormService_dependencies    := IceGrid Glacier2 IceBox IceDB
 IceStormService_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
+                                                             Instrumentation.cpp \
                                                              InstrumentationI.cpp \
                                                              NodeI.cpp \
                                                              Observers.cpp \
@@ -26,7 +27,6 @@ IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              Util.cpp \
                                                              Election.ice \
                                                              IceStormInternal.ice \
-                                                             Instrumentation.ice \
                                                              LinkRecord.ice \
                                                              LLURecord.ice \
                                                              SubscriberRecord.ice \

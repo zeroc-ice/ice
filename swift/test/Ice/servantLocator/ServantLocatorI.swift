@@ -6,6 +6,10 @@ import Foundation
 import Ice
 import TestCommon
 
+public protocol Cookie :  Swift.AnyObject {
+    func message() throws -> Swift.String
+}
+
 class CookieI: Cookie {
     func message() -> String {
         return "blahblah"

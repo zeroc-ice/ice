@@ -232,13 +232,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice">
+    <SliceCompile Include="..\..\..\..\slice\IceSSL\ConnectionInfo.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice">
+    <SliceCompile Include="..\..\..\..\slice\IceSSL\ConnectionInfoF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\EndpointInfo.ice">
+    <SliceCompile Include="..\..\..\..\slice\IceSSL\EndpointInfo.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

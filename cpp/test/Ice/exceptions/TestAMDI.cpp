@@ -380,14 +380,10 @@ ThrowerI::throwGAsync(function<void()>,
 {
     try
     {
-        throw G(__FILE__, __LINE__, "G");
+        throw runtime_error("G async");
     }
-    catch(const G& ex)
+    catch(const std::exception&)
     {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::G"));
-        test(ex.data == "G");
         exception(current_exception());
     }
 }
@@ -399,14 +395,10 @@ ThrowerI::throwHAsync(function<void()>,
 {
     try
     {
-        throw H(__FILE__, __LINE__, "H");
+        throw runtime_error("H async");
     }
-    catch(const H& ex)
+    catch(const std::exception&)
     {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::H data:'H'"));
-        test(ex.data == "H");
         exception(current_exception());
     }
 }
@@ -625,14 +617,10 @@ ThrowerI::throwG_async(const Test::AMD_Thrower_throwGPtr& cb, const Ice::Current
 {
     try
     {
-        throw G(__FILE__, __LINE__, "G");
+        throw new std::runtime_error("async error");
     }
-    catch(const G& ex)
+    catch (const std::exception & ex)
     {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::G"));
-        test(ex.data == "G");
         cb->ice_exception(ex);
     }
 }
@@ -642,14 +630,10 @@ ThrowerI::throwH_async(const Test::AMD_Thrower_throwHPtr& cb, const Ice::Current
 {
     try
     {
-        throw H(__FILE__, __LINE__, "H");
+        throw new std::runtime_error("async error");
     }
-    catch(const H& ex)
+    catch(const std::exception& ex)
     {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::H data:'H'"));
-        test(ex.data == "H");
         cb->ice_exception(ex);
     }
 }

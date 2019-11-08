@@ -78,38 +78,6 @@ public:
     }
 };
 
-class friendI : public _cpp_and::_cpp_friend
-{
-public:
-    virtual _cpp_and::_cpp_auto
-    _cpp_goto(_cpp_and::_cpp_continue,
-              const _cpp_and::_cpp_auto&,
-#ifdef ICE_CPP11_MAPPING
-              const _cpp_and::_cpp_delete&,
-#else
-              const _cpp_and::deletePtr&,
-#endif
-              const _cpp_and::switchPtr&,
-#ifdef ICE_CPP11_MAPPING
-              const ::std::shared_ptr<::Ice::Value>&,
-#else
-              const _cpp_and::doPtr&,
-#endif
-              const _cpp_and::breakPrxPtr&,
-              const _cpp_and::charPrxPtr&,
-#ifdef ICE_CPP11_MAPPING
-              const ::std::shared_ptr<::Ice::ObjectPrx>&,
-#else
-              const _cpp_and::switchPrxPtr&,
-#endif
-              const _cpp_and::doPrxPtr&,
-              ::Ice::Int, ::Ice::Int,
-              ::Ice::Int, ::Ice::Int)
-    {
-        return _cpp_and::_cpp_auto();
-    }
-};
-
 //
 // This section of the test is present to ensure that the C++ types
 // are named correctly. It is not expected to run.
@@ -162,8 +130,6 @@ testtypes()
     k._cpp_static = 0;
     k._cpp_switch = 1;
     k._cpp_signed = 2;
-
-    _cpp_and::friendPtr l = ICE_MAKE_SHARED(friendI);
 
     const int m  = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);

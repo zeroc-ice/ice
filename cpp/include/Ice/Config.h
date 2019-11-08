@@ -24,7 +24,7 @@
 #   include <cstddef>
 #endif
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 #   include <dispatch/dispatch.h>
 #endif
 

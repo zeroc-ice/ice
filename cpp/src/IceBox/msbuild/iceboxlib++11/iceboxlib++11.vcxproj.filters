@@ -29,12 +29,6 @@
     <Filter Include="Header Files\Win32\Debug">
       <UniqueIdentifier>{06cbdc9b-f7b5-467c-9ca7-e655ad6e9c58}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64">
-      <UniqueIdentifier>{3dd772c9-c7d3-4cc6-b05a-aa298b346591}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\x64\Debug">
-      <UniqueIdentifier>{69c221db-d6f1-41b4-9cd8-76a57742c97e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\x64">
       <UniqueIdentifier>{43f6a95b-c02e-4958-9b6e-e0f6346aed51}</UniqueIdentifier>
     </Filter>
@@ -47,11 +41,17 @@
     <Filter Include="Header Files\Win32\Release">
       <UniqueIdentifier>{0ccc023b-3644-415f-860f-8e358c680580}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64\Release">
-      <UniqueIdentifier>{ff5c68c3-18cf-4d01-b540-98e37d7912af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\x64\Release">
       <UniqueIdentifier>{7cd8ec76-fa21-40fc-a9f6-b371a67d0ac6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64">
+      <UniqueIdentifier>{b26c70fd-8eb5-410c-8e86-2a1670ad5c87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Debug">
+      <UniqueIdentifier>{62111268-7a42-4b4d-9ca1-c721f4036929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Release">
+      <UniqueIdentifier>{e6f43fe2-81ca-46ac-a62a-c582afd3d2e7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,45 +60,47 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Exception.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\IceBox.cpp">
+    <ClCompile Include="Win32\Debug\ServiceManager.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\IceBox.cpp">
+    <ClCompile Include="x64\Debug\ServiceManager.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\IceBox.cpp">
+    <ClCompile Include="Win32\Release\ServiceManager.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\IceBox.cpp">
+    <ClCompile Include="x64\Release\ServiceManager.cpp">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Service.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\IceBox\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\IceBox\ServiceManager.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\IceBox\ServiceManager.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\IceBox\ServiceManager.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceBox\ServiceManager.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceBox\IceBox.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
+    <None Include="packages.config">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <SliceCompile Include="..\..\..\..\..\slice\IceBox\ServiceManager.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceSSL/Plugin.h>
+#include <IceSSL/ConnectionInfoF.h>
 
 #if defined(__APPLE__)
 #  include <CoreFoundation/CoreFoundation.h>

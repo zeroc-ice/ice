@@ -154,6 +154,7 @@
     <ClCompile Include="..\..\SessionI.cpp" />
     <ClCompile Include="..\..\SessionManager.cpp" />
     <ClCompile Include="..\..\SessionServantManager.cpp" />
+    <ClCompile Include="..\..\SynchronizationException.cpp" />
     <ClCompile Include="..\..\Topics.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />
     <ClCompile Include="..\..\Util.cpp" />
@@ -208,6 +209,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\SynchronizationException.h" />
     <ClInclude Include="Win32\Debug\IceGrid\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

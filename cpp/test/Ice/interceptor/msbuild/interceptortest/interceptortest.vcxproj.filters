@@ -126,6 +126,9 @@
     <ClInclude Include="Win32\Cpp11-Release\Test.h">
       <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\TestI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -8,9 +8,10 @@
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
-#include <Ice/Current.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
+#include <Ice/Context.ice>
+#include <Ice/OperationMode.ice>
 
 [["cpp:include:deque"]]
 
@@ -32,10 +33,6 @@ module IceStorm
     Ice::ByteSeq data;
     /** The Ice::Current::Context data from the originating request. */
     Ice::Context context;
-}
-
-local exception SendQueueSizeMaxReached
-{
 }
 
 /** A sequence of EventData. */

@@ -8,6 +8,7 @@
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/AdminI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/SynchronizationException.h>
 
 #include <IceSSL/Plugin.h>
 

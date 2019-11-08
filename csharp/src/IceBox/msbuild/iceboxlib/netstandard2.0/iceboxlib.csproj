@@ -8,7 +8,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <SliceCompile Include="../../../../../../slice/IceBox/IceBox.ice" />
+    <SliceCompile Include="../../../../../../slice/IceBox/ServiceManager.ice" />
     <Compile Include="../../../AssemblyInfo.cs" />
     <Compile Include="../../../Service.cs" />
   </ItemGroup>

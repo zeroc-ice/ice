@@ -147,7 +147,8 @@ use-bin-dist = $(or $(filter all,$(ICE_BIN_DIST)),\
 bindir                  = $(if $(use-bin-dist),$(ice_bindir),$(call mappingdir,$(or $1,$(currentdir)),bin))
 libdir                  = $(if $(use-bin-dist),$(ice_libdir),$(call mappingdir,$(or $1,$(currentdir)),lib))
 includedir              = $(if $(use-bin-dist),$(ice_slicedir),$(call mappingdir,$(or $1,$(currentdir)),include))
-slicedir                = $(if $(use-bin-dist),$(ice_slicedir),$(top_srcdir)/slice)
+## TODO WORKAROUND to use Slice files from cpp98/slice
+slicedir                = $(if $(use-bin-dist),$(ice_slicedir),$(if $(filter %/cpp98,$(lang_srcdir)),$(top_srcdir)/cpp98/slice,$(top_srcdir)/slice))
 sdkdir                  = $(if $(use-bin-dist),$(ice_home)/sdk,$(top_srcdir)/sdk)
 srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
 

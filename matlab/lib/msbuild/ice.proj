@@ -13,7 +13,7 @@
         <SliceCompile Include="..\..\..\slice\Ice\BuiltinSequences.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Communicator.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Connection.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Current.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Context.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Endpoint.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\EndpointTypes.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Identity.ice" />

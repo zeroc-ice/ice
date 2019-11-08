@@ -108,64 +108,66 @@
     <ResourceCompile Include="..\..\IceBox.rc" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceBox\IceBox.ice" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\Exception.cpp" />
-    <ClCompile Include="Win32\Debug\IceBox.cpp">
+    <ClCompile Include="..\..\Service.cpp" />
+    <ClCompile Include="Win32\Debug\ServiceManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Release\IceBox.cpp">
+    <ClCompile Include="Win32\Release\ServiceManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Debug\IceBox.cpp">
+    <ClCompile Include="x64\Debug\ServiceManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Release\IceBox.cpp">
+    <ClCompile Include="x64\Release\ServiceManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceBox\ServiceManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceBox\ServiceManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceBox\ServiceManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceBox\IceBox.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceBox\ServiceManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceBox\IceBox.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IceBox\ServiceManager.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceBox\Config.h" />
+    <ClInclude Include="..\..\..\..\include\IceBox\IceBox.h" />
+    <ClInclude Include="..\..\..\..\include\IceBox\Service.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\IceBox\ServiceManager.ice" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

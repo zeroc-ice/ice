@@ -24,14 +24,14 @@ protected:
     virtual Ice::ObjectPtr
     newServantAndCookie(shared_ptr<void>& cookie) const
     {
-        cookie = make_shared<CookieI>();
+        cookie = make_shared<Cookie>();
         return make_shared<TestI>();
     }
 
     virtual void
     checkCookie(const shared_ptr<void>& cookie) const
     {
-        Test::CookiePtr co = static_pointer_cast<Test::Cookie>(cookie);
+        auto co = static_pointer_cast<Cookie>(cookie);
         test(co);
         test(co->message() == "blahblah");
     }
@@ -39,14 +39,14 @@ protected:
     virtual Ice::ObjectPtr
     newServantAndCookie(Ice::LocalObjectPtr& cookie) const
     {
-        cookie = new CookieI();
+        cookie = new Cookie();
         return new TestI();
     }
 
     virtual void
     checkCookie(const Ice::LocalObjectPtr& cookie) const
     {
-        Test::CookiePtr co = Test::CookiePtr::dynamicCast(cookie);
+        CookiePtr co = CookiePtr::dynamicCast(cookie);
         test(co);
         test(co->message() == "blahblah");
     }

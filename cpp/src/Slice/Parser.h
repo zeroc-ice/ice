@@ -652,7 +652,7 @@ public:
 
     //
     // Note: The order of definitions here *must* match the order of
-    // definitions of ::Ice::OperationMode in slice/Ice/Current.ice!
+    // definitions of ::Ice::OperationMode in Ice/Current.h
     //
     enum Mode
     {

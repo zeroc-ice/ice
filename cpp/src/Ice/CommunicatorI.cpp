@@ -18,7 +18,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <Ice/UUID.h>
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 #   include <Ice/ThreadPool.h>
 #endif
 
@@ -381,7 +381,7 @@ Ice::CommunicatorI::getValueFactoryManager() const ICE_NOEXCEPT
     return _instance->initializationData().valueFactoryManager;
 }
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
 
 dispatch_queue_t
 Ice::CommunicatorI::getClientDispatchQueue() const

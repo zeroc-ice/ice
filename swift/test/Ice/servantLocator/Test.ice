@@ -42,9 +42,4 @@ interface TestActivation
     void activateServantLocator(bool activate);
 }
 
-local class Cookie
-{
-    ["cpp:const"] string message();
-}
-
 }

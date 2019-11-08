@@ -98,25 +98,25 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\IceLocatorDiscovery.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\IceLocatorDiscovery.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\IceLocatorDiscovery.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,30 +124,30 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\Plugin.h" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice" />
+    <SliceCompile Include="..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

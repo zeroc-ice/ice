@@ -101,7 +101,6 @@
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\Descriptor.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\Exception.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\FileParser.ice" />
-    <SliceCompile Include="..\..\..\..\..\slice\IceGrid\PluginFacade.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\Registry.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\Session.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\UserAccountMapper.ice" />
@@ -131,12 +130,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceGrid\FileParser.ice</SliceCompileSource>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\PluginFacade.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceGrid\PluginFacade.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Registry.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -180,12 +173,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceGrid\FileParser.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Release\PluginFacade.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceGrid\PluginFacade.ice</SliceCompileSource>
-    </ClCompile>
     <ClCompile Include="Win32\Release\Registry.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -228,12 +215,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceGrid\FileParser.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Debug\PluginFacade.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceGrid\PluginFacade.ice</SliceCompileSource>
-    </ClCompile>
     <ClCompile Include="x64\Debug\Registry.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -275,12 +256,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceGrid\FileParser.ice</SliceCompileSource>
-    </ClCompile>
-    <ClCompile Include="x64\Release\PluginFacade.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\IceGrid\PluginFacade.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Registry.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

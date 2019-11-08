@@ -97,15 +97,13 @@
     <ResourceCompile Include="..\Glacier2Router.rc" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\Instrumentation.ice" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\Blobject.cpp" />
     <ClCompile Include="..\ClientBlobject.cpp" />
     <ClCompile Include="..\FilterI.cpp" />
     <ClCompile Include="..\FilterManager.cpp" />
     <ClCompile Include="..\Glacier2Router.cpp" />
     <ClCompile Include="..\Instance.cpp" />
+    <ClCompile Include="..\Instrumentation.cpp" />
     <ClCompile Include="..\InstrumentationI.cpp" />
     <ClCompile Include="..\ProxyVerifier.cpp" />
     <ClCompile Include="..\RequestQueue.cpp" />
@@ -113,30 +111,6 @@
     <ClCompile Include="..\RoutingTable.cpp" />
     <ClCompile Include="..\ServerBlobject.cpp" />
     <ClCompile Include="..\SessionRouterI.cpp" />
-    <ClCompile Include="Win32\Debug\Instrumentation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Instrumentation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Instrumentation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Instrumentation.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Blobject.h" />
@@ -144,6 +118,7 @@
     <ClInclude Include="..\FilterI.h" />
     <ClInclude Include="..\FilterManager.h" />
     <ClInclude Include="..\Instance.h" />
+    <ClInclude Include="..\Instrumentation.h" />
     <ClInclude Include="..\InstrumentationI.h" />
     <ClInclude Include="..\ProxyVerifier.h" />
     <ClInclude Include="..\RequestQueue.h" />
@@ -151,30 +126,6 @@
     <ClInclude Include="..\RoutingTable.h" />
     <ClInclude Include="..\ServerBlobject.h" />
     <ClInclude Include="..\SessionRouterI.h" />
-    <ClInclude Include="Win32\Debug\Glacier2\Instrumentation.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="Win32\Release\Glacier2\Instrumentation.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\Glacier2\Instrumentation.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="x64\Release\Glacier2\Instrumentation.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\Instrumentation.ice</SliceCompileSource>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

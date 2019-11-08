@@ -75,9 +75,6 @@
     <ClCompile Include="Win32\Debug\FileParser.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\PluginFacade.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\Registry.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
@@ -97,9 +94,6 @@
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\FileParser.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\PluginFacade.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Registry.cpp">
@@ -123,9 +117,6 @@
     <ClCompile Include="Win32\Release\FileParser.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\PluginFacade.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\Registry.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
@@ -145,9 +136,6 @@
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\FileParser.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\PluginFacade.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Registry.cpp">
@@ -278,9 +266,6 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\FileParser.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\IceGrid\PluginFacade.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\IceGrid\Registry.ice">

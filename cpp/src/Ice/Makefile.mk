@@ -13,7 +13,7 @@ ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
 endif
 
 Ice_sliceflags          := --include-dir Ice
-Ice_libs                := bz2
+Ice_libs                := bz2 os
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 Ice_excludes            = src/Ice/DLLMain.cpp
 

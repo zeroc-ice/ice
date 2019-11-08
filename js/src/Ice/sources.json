@@ -5,20 +5,15 @@
     "slice":[
         "Ice/BuiltinSequences.ice",
         "Ice/Identity.ice",
-        "Ice/InstrumentationF.ice",
         "Ice/Locator.ice",
         "Ice/LocatorF.ice",
         "Ice/Metrics.ice",
         "Ice/Process.ice",
         "Ice/ProcessF.ice",
         "Ice/PropertiesAdmin.ice",
-        "Ice/PropertiesF.ice",
         "Ice/RemoteLogger.ice",
         "Ice/Router.ice",
-        "Ice/RouterF.ice",
-        "Ice/Version.ice",
-        "IceSSL/ConnectionInfo.ice",
-        "IceSSL/EndpointInfo.ice"
+        "Ice/RouterF.ice"
     ],
 
     "common": [
@@ -55,7 +50,6 @@
         "IncomingAsync.js",
         "Initialize.js",
         "Instance.js",
-        "InstrumentationF.js",
         "LocalException.js",
         "LocatorInfo.js",
         "LocatorManager.js",
@@ -104,6 +98,7 @@
         "UnknownSlicedValue.js",
         "Value.js",
         "ValueFactoryManagerI.js",
+        "Version.js",
         "WSEndpoint.js",
         "WSEndpointFactory.js"
     ],

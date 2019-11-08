@@ -59,13 +59,6 @@ exception as extends return
     int static; int switch;
 }
 
-local interface friend
-{
-    guard goto(continue if, guard d, defer inline, switch private, do mutable, break* namespace,
-              func* new, switch* not, do* operator, int or, int protected, int public, int register)
-        throws return, as;
-}
-
 const int is = 0;
 const int self = 0;
 const int throw = 0;

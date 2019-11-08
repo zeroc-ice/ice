@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_IAP_ICE_IAP_H
-#define ICE_IAP_ICE_IAP_H
+#ifndef ICEIAP_ICEIAP_H
+#define ICEIAP_ICEIAP_H
 
 #include <IceUtil/PushDisableWarnings.h>
 #include <IceIAP/EndpointInfo.h>

@@ -85,7 +85,7 @@ public:
     virtual EndpointSeq getPublishedEndpoints() const ICE_NOEXCEPT;
     virtual void setPublishedEndpoints(const EndpointSeq&);
 
-#ifdef ICE_SWIFT
+#ifdef __APPLE__
     virtual dispatch_queue_t getDispatchQueue() const;
 #endif
 
