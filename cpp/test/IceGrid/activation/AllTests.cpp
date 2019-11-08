@@ -37,7 +37,7 @@ ping(const shared_ptr<Ice::ObjectPrx>& proxy, int nRepetitions)
         {
             proxy->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
             exception = std::current_exception();
         }
@@ -406,7 +406,7 @@ allTests(Test::TestHelper* helper)
                 test(exception);
                 rethrow_exception(exception);
             }
-            catch(const Ice::NoEndpointException& ex)
+            catch(const Ice::NoEndpointException&)
             {
             }
             catch(...)
@@ -428,7 +428,7 @@ allTests(Test::TestHelper* helper)
                 test(exception);
                 rethrow_exception(exception);
             }
-            catch(const Ice::NoEndpointException& ex)
+            catch(const Ice::NoEndpointException&)
             {
             }
             catch(...)
@@ -451,7 +451,7 @@ allTests(Test::TestHelper* helper)
                 test(exception);
                 rethrow_exception(exception);
             }
-            catch(const Ice::NoEndpointException& ex)
+            catch(const Ice::NoEndpointException&)
             {
             }
             catch(...)
@@ -507,7 +507,7 @@ allTests(Test::TestHelper* helper)
                 test(exception);
                 rethrow_exception(exception);
             }
-            catch(const Ice::NoEndpointException& ex)
+            catch(const Ice::NoEndpointException&)
             {
             }
             catch(...)

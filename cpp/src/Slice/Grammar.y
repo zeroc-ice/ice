@@ -211,7 +211,7 @@ opt_semicolon
 }
 | interface_def
 {
-    assert(ClassDefPtr::dynamicCast($1));
+    assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
 opt_semicolon
 | exception_decl
@@ -225,7 +225,7 @@ opt_semicolon
 }
 | exception_def
 {
-    assert(ExceptionPtr::dynamicCast($1));
+    assert($1 == 0 || ExceptionPtr::dynamicCast($1));
 }
 opt_semicolon
 | struct_decl
@@ -262,7 +262,7 @@ opt_semicolon
 }
 | enum_def
 {
-    assert(EnumPtr::dynamicCast($1));
+    assert($1 == 0 || EnumPtr::dynamicCast($1));
 }
 opt_semicolon
 | const_def

@@ -1797,7 +1797,7 @@ yyreduce:
   case 23:
 #line 213 "src/Slice/Grammar.y" /* yacc.c:1652  */
     {
-    assert(ClassDefPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || ClassDefPtr::dynamicCast(yyvsp[0]));
 }
 #line 1803 "src/Slice/Grammar.cpp" /* yacc.c:1652  */
     break;
@@ -1821,7 +1821,7 @@ yyreduce:
   case 28:
 #line 227 "src/Slice/Grammar.y" /* yacc.c:1652  */
     {
-    assert(ExceptionPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || ExceptionPtr::dynamicCast(yyvsp[0]));
 }
 #line 1827 "src/Slice/Grammar.cpp" /* yacc.c:1652  */
     break;
