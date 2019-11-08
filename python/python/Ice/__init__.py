@@ -744,6 +744,7 @@ IcePy._t_LocalObject = IcePy.declareValue('::Ice::LocalObject')
 #
 import Ice.BuiltinSequences_ice
 import Ice.Context_ice
+import Ice.Current_ice
 import Ice.Communicator_ice
 import Ice.ImplicitContext_ice
 import Ice.Endpoint_ice
