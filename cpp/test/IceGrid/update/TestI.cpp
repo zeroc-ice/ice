@@ -5,8 +5,10 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::PropertiesPtr& properties) :
-    _properties(properties)
+using namespace std;
+
+TestI::TestI(shared_ptr<Ice::Properties>&& properties) :
+    _properties(move(properties))
 {
 }
 
@@ -16,8 +18,8 @@ TestI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-std::string
-TestI::getProperty(const std::string& name, const Ice::Current&)
+string
+TestI::getProperty(string name, const Ice::Current&)
 {
     return _properties->getProperty(name);
 }

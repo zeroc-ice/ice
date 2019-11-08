@@ -10,12 +10,12 @@
 
 using namespace std;
 
-class AdminPermissionsVerifierI : public Glacier2::PermissionsVerifier
+class AdminPermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& c) const
+    bool
+    checkPermissions(string userId, string passwd, string&, const Ice::Current& c) const override
     {
         if(c.ctx.find("throw") != c.ctx.end())
         {
@@ -27,24 +27,24 @@ public:
     }
 };
 
-class PermissionsVerifierServer : public Test::TestHelper
+class PermissionsVerifierServer final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 PermissionsVerifierServer::run(int argc, char** argv)
 {
     shutdownOnInterrupt();
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
     properties->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PermissionsVerifier");
-    adapter->add(new AdminPermissionsVerifierI, Ice::stringToIdentity("AdminPermissionsVerifier"));
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv, properties);
+    auto adapter = communicatorHolder->createObjectAdapter("PermissionsVerifier");
+    adapter->add(make_shared<AdminPermissionsVerifierI>(), Ice::stringToIdentity("AdminPermissionsVerifier"));
     adapter->activate();
-    communicator->waitForShutdown();
+    communicatorHolder->waitForShutdown();
 }
 
 DEFINE_TEST(PermissionsVerifierServer)

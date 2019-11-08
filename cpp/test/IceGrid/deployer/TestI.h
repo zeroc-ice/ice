@@ -7,18 +7,18 @@
 
 #include <Test.h>
 
-class TestI : public ::Test::TestIntf
+class TestI final : public ::Test::TestIntf
 {
 public:
 
-    TestI(const Ice::PropertiesPtr&);
+    TestI(std::shared_ptr<Ice::Properties>);
 
-    virtual void shutdown(const Ice::Current&);
-    virtual std::string getProperty(const std::string&, const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
+    std::string getProperty(std::string, const Ice::Current&) override;
 
 private:
 
-    Ice::PropertiesPtr _properties;
+    std::shared_ptr<Ice::Properties> _properties;
 };
 
 #endif

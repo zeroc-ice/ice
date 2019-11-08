@@ -7,14 +7,14 @@
 
 #include <Test.h>
 
-class TestI : public ::Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
     TestI();
 
-    virtual void fail(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void fail(const Ice::Current&) override;
+    void shutdown(const Ice::Current&) override;
 
     bool isFailed() const;
 
@@ -22,5 +22,5 @@ private:
 
     bool _failed;
 };
-ICE_DEFINE_PTR(TestIPtr, TestI);
+
 #endif

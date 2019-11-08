@@ -3,20 +3,19 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 #include <TestI.h>
 #include <TestHelper.h>
 
 using namespace std;
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
-class TestActivationFailure : public std::runtime_error
+class TestActivationFailure final : public std::runtime_error
 {
 public:
 
@@ -29,21 +28,21 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
     if(properties->getPropertyAsInt("FailOnStartup") > 0)
     {
         throw TestActivationFailure("FailOnStartup");
     }
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    TestIPtr testI = ICE_MAKE_SHARED(TestI);
+    auto adapter = communicator->createObjectAdapter("TestAdapter");
+    auto testI = make_shared<TestI>();
     adapter->add(testI, Ice::stringToIdentity(properties->getProperty("Ice.Admin.ServerId")));
 
     int delay = properties->getPropertyAsInt("ActivationDelay");
     if(delay > 0)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(delay));
+        this_thread::sleep_for(chrono::seconds(delay));
     }
 
     try
@@ -58,7 +57,7 @@ Server::run(int argc, char** argv)
     delay = properties->getPropertyAsInt("DeactivationDelay");
     if(delay > 0)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(delay));
+        this_thread::sleep_for(chrono::seconds(delay));
     }
 
     if(testI->isFailed())

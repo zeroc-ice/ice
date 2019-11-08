@@ -10,12 +10,12 @@
 
 using namespace std;
 
-class ClientPermissionsVerifierI : public Glacier2::PermissionsVerifier
+class ClientPermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& current) const
+    bool
+    checkPermissions(string userId, string passwd, string&, const Ice::Current& current) const override
     {
         if(current.ctx.find("throw") != current.ctx.end())
         {
@@ -25,19 +25,19 @@ public:
     }
 };
 
-class SSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
+class SSLPermissionsVerifierI final : public Glacier2::SSLPermissionsVerifier
 {
 public:
 
-    virtual bool
-    authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
+    bool
+    authorize(Glacier2::SSLInfo info, string&, const Ice::Current& current) const override
     {
         if(current.ctx.find("throw") != current.ctx.end())
         {
             throw Test::ExtendedPermissionDeniedException("reason");
         }
         test(info.certs.size() > 0);
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+        auto cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
              "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
         test(cert->getSubjectDN() == IceSSL::DistinguishedName(
@@ -48,22 +48,22 @@ public:
     }
 };
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
-    if(communicator->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
+    auto adapter = communicatorHolder->createObjectAdapter("Server");
+    if(communicatorHolder->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
-        adapter->add(new ClientPermissionsVerifierI(), Ice::stringToIdentity("ClientPermissionsVerifier"));
-        adapter->add(new SSLPermissionsVerifierI(), Ice::stringToIdentity("SSLPermissionsVerifier"));
+        adapter->add(make_shared<ClientPermissionsVerifierI>(), Ice::stringToIdentity("ClientPermissionsVerifier"));
+        adapter->add(make_shared<SSLPermissionsVerifierI>(), Ice::stringToIdentity("SSLPermissionsVerifier"));
     }
     adapter->activate();
 
@@ -74,7 +74,7 @@ Server::run(int argc, char** argv)
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator->waitForShutdown();
+    communicatorHolder->waitForShutdown();
 }
 
 DEFINE_TEST(Server)

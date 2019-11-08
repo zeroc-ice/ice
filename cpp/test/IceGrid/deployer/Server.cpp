@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <TestI.h>
 #include <TestHelper.h>
@@ -14,7 +13,7 @@ class Server : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -69,9 +68,9 @@ Server::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
     string name = properties->getProperty("Ice.ProgramName");
-    Ice::ObjectAdapterPtr adapter;
+    shared_ptr<Ice::ObjectAdapter> adapter;
 
     if(!properties->getProperty("ReplicatedAdapter").empty())
     {
@@ -80,8 +79,7 @@ Server::run(int argc, char** argv)
     }
 
     adapter = communicator->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(properties);
-    adapter->add(object, Ice::stringToIdentity(name));
+    adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity(name));
     try
     {
         adapter->activate();

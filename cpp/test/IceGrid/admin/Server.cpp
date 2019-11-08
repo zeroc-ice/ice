@@ -7,18 +7,18 @@
 
 using namespace std;
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    auto adapter = communicator->createObjectAdapter("TestAdapter");
     try
     {
         adapter->activate();

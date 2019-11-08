@@ -5,9 +5,9 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::PropertiesPtr& properties) :
-    _adapter(adapter),
-    _properties(properties)
+TestI::TestI(std::shared_ptr<Ice::ObjectAdapter> adapter, std::shared_ptr<Ice::Properties> properties) :
+    _adapter(move(adapter)),
+    _properties(move(properties))
 {
 }
 
@@ -18,7 +18,7 @@ TestI::shutdown(const Ice::Current&)
 }
 
 std::string
-TestI::getProperty(const std::string& name, const Ice::Current&)
+TestI::getProperty(std::string name, const Ice::Current&)
 {
     return _properties->getProperty(name);
 }

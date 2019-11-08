@@ -8,23 +8,22 @@
 
 using namespace std;
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    string name = properties->getProperty("Ice.ProgramName");
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
+    auto properties = communicatorHolder->getProperties();
+    auto name = properties->getProperty("Ice.ProgramName");
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(properties);
-    adapter->add(object, Ice::stringToIdentity(name));
+    auto adapter = communicatorHolder->createObjectAdapter("Server");
+    adapter->add(make_shared<TestI>(move(properties)), Ice::stringToIdentity(name));
 
     try
     {
@@ -33,7 +32,7 @@ Server::run(int argc, char** argv)
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator->waitForShutdown();
+    communicatorHolder->waitForShutdown();
 }
 
 DEFINE_TEST(Server)

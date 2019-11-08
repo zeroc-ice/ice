@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
@@ -19,13 +19,12 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
 
     string name = properties->getProperty("Ice.ProgramName");
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(adapter, properties);
-    adapter->add(object, Ice::stringToIdentity(name));
+    auto adapter = communicator->createObjectAdapter("Server");
+    adapter->add(make_shared<TestI>(adapter, properties), Ice::stringToIdentity(name));
 
     try
     {
