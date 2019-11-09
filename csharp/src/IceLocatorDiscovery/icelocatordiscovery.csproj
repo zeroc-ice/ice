@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>IceLocatorDiscovery</AssemblyName>
+        <Title>IceLocatorDiscovery .NET Plug-in</Title>
+        <OutputPath>../../lib</OutputPath>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../Ice/ice.csproj" />
+    </ItemGroup>
+</Project>

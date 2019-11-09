@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>IceGrid</AssemblyName>
+        <Title>IceGrid .NET Client Library</Title>
+        <OutputPath>../../lib</OutputPath>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../Ice/ice.csproj" />
+        <ProjectReference Include="../Glacier2/glacier2.csproj" />
+    </ItemGroup>
+</Project>

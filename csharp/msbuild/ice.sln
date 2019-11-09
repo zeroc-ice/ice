@@ -2,23 +2,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "glacier2", "..\src\Glacier2\msbuild\netstandard2.0\glacier2.csproj", "{D1B4D424-D3FE-41CA-9554-6F87B2BB4EC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "glacier2", "..\src\Glacier2\glacier2.csproj", "{D1B4D424-D3FE-41CA-9554-6F87B2BB4EC0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ice", "..\src\Ice\msbuild\netstandard2.0\ice.csproj", "{516D755E-DA02-41CE-95A5-23D54691B642}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ice", "..\src\Ice\ice.csproj", "{516D755E-DA02-41CE-95A5-23D54691B642}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icebox", "..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj", "{A3F95F43-28AB-47FF-A8FC-6ED09914A71B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icebox", "..\src\IceBox\icebox.csproj", "{A3F95F43-28AB-47FF-A8FC-6ED09914A71B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iceboxlib", "..\src\IceBox\msbuild\iceboxlib\netstandard2.0\iceboxlib.csproj", "{32B9FED8-D32A-4A4E-8B5A-B29C4EFD1061}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iceboxlib", "..\src\iceboxnet\iceboxnet.csproj", "{32B9FED8-D32A-4A4E-8B5A-B29C4EFD1061}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icediscovery", "..\src\IceDiscovery\msbuild\netstandard2.0\icediscovery.csproj", "{2FC4428A-6742-46F5-883E-D895BB2D680D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icediscovery", "..\src\IceDiscovery\icediscovery.csproj", "{2FC4428A-6742-46F5-883E-D895BB2D680D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icegrid", "..\src\IceGrid\msbuild\netstandard2.0\icegrid.csproj", "{34992560-3AE2-4A79-A0DC-734C73B0304F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icegrid", "..\src\IceGrid\icegrid.csproj", "{34992560-3AE2-4A79-A0DC-734C73B0304F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icelocatordiscovery", "..\src\IceLocatorDiscovery\msbuild\netstandard2.0\icelocatordiscovery.csproj", "{09CB4C91-0352-46C0-AA47-A6EF56A664E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icelocatordiscovery", "..\src\IceLocatorDiscovery\icelocatordiscovery.csproj", "{09CB4C91-0352-46C0-AA47-A6EF56A664E9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icessl", "..\src\IceSSL\msbuild\netstandard2.0\icessl.csproj", "{3787B2EF-12C6-478E-9AE1-F44868D497FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icessl", "..\src\IceSSL\icessl.csproj", "{3787B2EF-12C6-478E-9AE1-F44868D497FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icestorm", "..\src\IceStorm\msbuild\netstandard2.0\icestorm.csproj", "{02FCB7A2-167B-4239-B3FB-05C74B0EA633}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "icestorm", "..\src\IceStorm\icestorm.csproj", "{02FCB7A2-167B-4239-B3FB-05C74B0EA633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

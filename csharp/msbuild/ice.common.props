@@ -10,8 +10,6 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <Prefer32Bit>false</Prefer32Bit>
         <FileAlignment>512</FileAlignment>
         <ErrorReport>prompt</ErrorReport>
@@ -28,7 +26,12 @@
 
     <!-- Import Ice version settings -->
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props" Condition="'$(ICE_BIN_DIST)' != 'all'"/>
-
+    <PropertyGroup>
+        <Company>ZeroC, Inc.</Company>
+        <Product>Ice</Product>
+        <Version>$(IceVersion)</Version>
+        <Copyright>© ZeroC, Inc.</Copyright>
+    </PropertyGroup>
     <Choose>
         <When Condition="'$(ICE_BIN_DIST)' != 'all'">
             <PropertyGroup>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Ice</AssemblyName>
+        <Title>Ice .NET library</Title>
+        <OutputPath>../../lib</OutputPath>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+    </ItemGroup>
+</Project>
