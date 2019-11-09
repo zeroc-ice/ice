@@ -477,14 +477,12 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("        {\n")
         for s in self.sections:
             self.srcFile.write("            %sProps,\n" % s)
-        self.srcFile.write("            null\n")
         self.srcFile.write("        };\n\n")
 
         self.srcFile.write("        public static string[] clPropNames =\n")
         self.srcFile.write("        {\n")
         for s in self.cmdLineOptions:
             self.srcFile.write("            \"%s\",\n" % s)
-        self.srcFile.write("            null\n")
         self.srcFile.write("        };\n")
         self.srcFile.write("    }\n")
         self.srcFile.write("}\n")
@@ -510,7 +508,6 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("        {\n")
 
     def closeSection(self):
-        self.srcFile.write("             null\n")
         self.srcFile.write("        };\n")
         self.srcFile.write("\n")
 

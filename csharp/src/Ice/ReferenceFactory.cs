@@ -686,9 +686,9 @@ namespace IceInternal
             //
             // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
             //
-            for (int i = 0; PropertyNames.clPropNames[i] != null; ++i)
+            foreach (string name in PropertyNames.clPropNames)
             {
-                if (prefix.StartsWith(PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
+                if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
                 {
                     return;
                 }

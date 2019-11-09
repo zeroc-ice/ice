@@ -1369,9 +1369,9 @@ namespace Ice
             //
             bool addUnknown = true;
             string prefix = _name + ".";
-            for (int i = 0; PropertyNames.clPropNames[i] != null; ++i)
+            foreach (var propertyName in PropertyNames.clPropNames)
             {
-                if (prefix.StartsWith(PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
+                if (prefix.StartsWith(string.Format("{0}.", propertyName), StringComparison.Ordinal))
                 {
                     addUnknown = false;
                     break;
