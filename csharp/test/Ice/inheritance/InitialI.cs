@@ -10,34 +10,10 @@ namespace Ice
         {
             public InitialI(Ice.ObjectAdapter adapter)
             {
-                _ca = Test.MA.CAPrxHelper.uncheckedCast(adapter.addWithUUID(new CAI()));
-                _cb = Test.MB.CBPrxHelper.uncheckedCast(adapter.addWithUUID(new CBI()));
-                _cc = Test.MA.CCPrxHelper.uncheckedCast(adapter.addWithUUID(new CCI()));
-                _cd = Test.MA.CDPrxHelper.uncheckedCast(adapter.addWithUUID(new CDI()));
                 _ia = Test.MA.IAPrxHelper.uncheckedCast(adapter.addWithUUID(new IAI()));
                 _ib1 = Test.MB.IB1PrxHelper.uncheckedCast(adapter.addWithUUID(new IB1I()));
                 _ib2 = Test.MB.IB2PrxHelper.uncheckedCast(adapter.addWithUUID(new IB2I()));
                 _ic = Test.MA.ICPrxHelper.uncheckedCast(adapter.addWithUUID(new ICI()));
-            }
-
-            public override Test.MA.CAPrx caop(Ice.Current current)
-            {
-                return _ca;
-            }
-
-            public override Test.MB.CBPrx cbop(Ice.Current current)
-            {
-                return _cb;
-            }
-
-            public override Test.MA.CCPrx ccop(Ice.Current current)
-            {
-                return _cc;
-            }
-
-            public override Test.MA.CDPrx cdop(Ice.Current current)
-            {
-                return _cd;
             }
 
             public override Test.MA.IAPrx iaop(Ice.Current current)
@@ -65,10 +41,6 @@ namespace Ice
                 current.adapter.getCommunicator().shutdown();
             }
 
-            private Test.MA.CAPrx _ca;
-            private Test.MB.CBPrx _cb;
-            private Test.MA.CCPrx _cc;
-            private Test.MA.CDPrx _cd;
             private Test.MA.IAPrx _ia;
             private Test.MB.IB1Prx _ib1;
             private Test.MB.IB2Prx _ib2;

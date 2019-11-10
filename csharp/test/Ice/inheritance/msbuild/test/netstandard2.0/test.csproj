@@ -10,10 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
       <Compile Include="../../../AllTests.cs" />
-      <Compile Include="../../../CAI.cs" />
-      <Compile Include="../../../CBI.cs" />
-      <Compile Include="../../../CCI.cs" />
-      <Compile Include="../../../CDI.cs" />
       <Compile Include="../../../Client.cs" />
       <Compile Include="../../../Collocated.cs" />
       <Compile Include="../../../IAI.cs" />

@@ -27,7 +27,6 @@ namespace Ice
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
-                        adapter.add(new BI(), Ice.Util.stringToIdentity("b"));
                         adapter.activate();
                         serverReady();
                         communicator.waitForShutdown();

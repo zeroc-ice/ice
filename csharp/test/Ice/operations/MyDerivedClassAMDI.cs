@@ -13,19 +13,6 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class BI : M.BDisp_
-            {
-                public override Task opBAsync(Ice.Current current)
-                {
-                    return Task.Delay(0);
-                }
-
-                public override Task opIntfAsync(Ice.Current current)
-                {
-                    return Task.Delay(0);
-                }
-            }
-
             public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
             {
                 private static void test(bool b)

@@ -11,10 +11,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../../CAI.cs" />
-    <Compile Include="../../../CBI.cs" />
-    <Compile Include="../../../CCI.cs" />
-    <Compile Include="../../../CDI.cs" />
     <Compile Include="../../../IAI.cs" />
     <Compile Include="../../../IB1I.cs" />
     <Compile Include="../../../IB2I.cs" />

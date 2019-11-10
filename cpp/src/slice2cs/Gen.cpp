@@ -2276,15 +2276,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitComVisibleAttribute();
         emitPartialTypeAttributes();
         _out << nl << "[global::System.Serializable]";
-        if(p->allOperations().size() > 0) // See bug 4747
-        {
-            _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
-        }
         _out << nl << "public ";
-        if(p->allOperations().size() > 0) // Don't use isAbstract() here - see bug 3739
-        {
-            _out << "abstract ";
-        }
         _out << "partial class " << fixId(name);
 
         if(!hasBaseClass)
@@ -2342,14 +2334,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-        const bool isAbstract = p->isAbstract();
-
         _out << sp << nl << "partial void ice_initialize();";
         if(allDataMembers.empty())
         {
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << (isAbstract ? "protected " : "public ") << name << spar << epar;
+            _out << nl << "public " << name << spar << epar;
             _out << sb;
             _out << nl << "ice_initialize();";
             _out << eb;
@@ -2360,7 +2350,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << (isAbstract ? "protected " : "public ") << name << spar << epar;
+            _out << nl << "public " << name << spar << epar;
             if(hasBaseClass)
             {
                 _out << " : base()";
@@ -2372,7 +2362,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << (isAbstract ? "protected " : "public ") << name << spar;
+            _out << nl << "public " << name << spar;
             vector<string> paramDecl;
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
@@ -3094,8 +3084,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     bool isClass = false;
     bool isProperty = false;
     bool isValue = false;
-    bool isProtected = false;
-    bool isPrivate = false;
     const bool isOptional = p->optional();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
@@ -3115,22 +3103,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             isProperty = true;
         }
-        //
-        // C# structs are implicit sealed and cannot use `protected' modifier,
-        // we must use either public or private. For Slice structs using the
-        // class mapping we can still use protected modifier.
-        //
-        if(cont->hasMetaData("protected") || p->hasMetaData("protected"))
-        {
-            if(isValue)
-            {
-                isPrivate = true;
-            }
-            else
-            {
-                isProtected = true;
-            }
-        }
     }
     else if(ex)
     {
@@ -3145,7 +3117,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             isProperty = true;
         }
-        isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
     }
 
     _out << sp;
@@ -3173,18 +3144,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
-        if(isPrivate)
-        {
-            _out << nl << "private";
-        }
-        else if(isProtected)
-        {
-            _out << nl << "protected";
-        }
-        else
-        {
-            _out << nl << "public";
-        }
+        _out << nl << "public";
     }
 
     if(isOptional && isValue)
@@ -3200,18 +3160,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
-        if(isPrivate)
-        {
-            _out << nl << "private";
-        }
-        else if(isProtected)
-        {
-            _out << nl << "protected";
-        }
-        else
-        {
-            _out << nl << "public";
-        }
+        _out << nl << "public";
 
         if(!isValue)
         {
@@ -3725,9 +3674,9 @@ bool
 Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     //
-    // Don't generate Operations interfaces for non-abstract classes.
+    // Generate operations only for interfaces
     //
-    if(!p->isAbstract())
+    if(!p->isInterface())
     {
         return false;
     }
@@ -3738,28 +3687,25 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     string opIntfName = "Operations";
 
     _out << sp;
-    writeDocComment(p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    writeDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << name << opIntfName << '_';
-    if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
+    if(bases.size() >= 1)
     {
         _out << " : ";
         ClassList::const_iterator q = bases.begin();
         bool first = true;
         while(q != bases.end())
         {
-            if((*q)->isAbstract())
+            if (!first)
             {
-                if (!first)
-                {
-                    _out << ", ";
-                }
-                else
-                {
-                    first = false;
-                }
-                _out << getUnqualified(*q, ns, "", "Operations_");
+                _out << ", ";
             }
+            else
+            {
+                first = false;
+            }
+            _out << getUnqualified(*q, ns, "", "Operations_");
             ++q;
         }
     }
@@ -3880,11 +3826,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // handler, causing compiler warnings and resulting in the base exception
         // being marshaled instead of the derived exception.
         //
-#if defined(__SUNPRO_CC)
-        throws.sort(Slice::derivedToBaseCompare);
-#else
         throws.sort(Slice::DerivedToBaseCompare());
-#endif
 
         string context = getEscapedParamName(op, "context");
 
@@ -3982,11 +3924,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // handler, causing compiler warnings and resulting in the base exception
         // being marshaled instead of the derived exception.
         //
-#if defined(__SUNPRO_CC)
-        throws.sort(Slice::derivedToBaseCompare);
-#else
         throws.sort(Slice::DerivedToBaseCompare());
-#endif
 
         //
         // Write the public Async method.
@@ -4557,49 +4495,21 @@ Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isInterface() && p->allOperations().empty())
+    if(!p->isInterface())
     {
         return false;
     }
 
     ClassList bases = p->bases();
-    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
     string name = p->name();
     string ns = getNamespace(p);
     string baseClass = getUnqualified("Ice.ObjectImpl", ns);
-    if(hasBaseClass && !bases.front()->allOperations().empty())
-    {
-        baseClass = getUnqualified(bases.front(), ns, "", "Disp_");
-    }
 
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
     _out << nl << "public abstract class " << name << "Disp_ : " << baseClass << ", ";
-
-    if(p->isInterface())
-    {
-        _out << fixId(name);
-    }
-    else
-    {
-        _out << name << "Operations_";
-    }
-
-    if(!p->isInterface())
-    {
-        ClassList allBases = bases;
-        if(!allBases.empty() && !allBases.front()->isInterface())
-        {
-            allBases.pop_front();
-        }
-
-        for(ClassList::const_iterator i = allBases.begin(); i != allBases.end(); ++i)
-        {
-            _out << ", " << getUnqualified(*i, ns);
-        }
-    }
-
+    _out << fixId(name);
     _out << sb;
 
     OperationList ops = p->operations();

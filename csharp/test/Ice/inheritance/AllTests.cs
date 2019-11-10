@@ -26,20 +26,6 @@ namespace Ice
                 test(initial.Equals(@base));
                 output.WriteLine("ok");
 
-                output.Write("getting proxies for class hierarchy... ");
-                output.Flush();
-                var ca = initial.caop();
-                var cb = initial.cbop();
-                var cc = initial.ccop();
-                var cd = initial.cdop();
-                test(ca != cb);
-                test(ca != cc);
-                test(ca != cd);
-                test(cb != cc);
-                test(cb != cd);
-                test(cc != cd);
-                output.WriteLine("ok");
-
                 output.Write("getting proxies for interface hierarchy... ");
                 output.Flush();
                 var ia = initial.iaop();
@@ -53,57 +39,7 @@ namespace Ice
                 test(ib2 != ic);
                 output.WriteLine("ok");
 
-                output.Write("invoking proxy operations on class hierarchy... ");
-                output.Flush();
-                Test.MA.CAPrx cao;
-                Test.MB.CBPrx cbo;
-                Test.MA.CCPrx cco;
-
-                cao = ca.caop(ca);
-                test(cao.Equals(ca));
-                cao = ca.caop(cb);
-                test(cao.Equals(cb));
-                cao = ca.caop(cc);
-                test(cao.Equals(cc));
-                cao = cb.caop(ca);
-                test(cao.Equals(ca));
-                cao = cb.caop(cb);
-                test(cao.Equals(cb));
-                cao = cb.caop(cc);
-                test(cao.Equals(cc));
-                cao = cc.caop(ca);
-                test(cao.Equals(ca));
-                cao = cc.caop(cb);
-                test(cao.Equals(cb));
-                cao = cc.caop(cc);
-                test(cao.Equals(cc));
-
-                cao = cb.cbop(cb);
-                test(cao.Equals(cb));
-                cbo = cb.cbop(cb);
-                test(cbo.Equals(cb));
-                cao = cb.cbop(cc);
-                test(cao.Equals(cc));
-                cbo = cb.cbop(cc);
-                test(cbo.Equals(cc));
-                cao = cc.cbop(cb);
-                test(cao.Equals(cb));
-                cbo = cc.cbop(cb);
-                test(cbo.Equals(cb));
-                cao = cc.cbop(cc);
-                test(cao.Equals(cc));
-                cbo = cc.cbop(cc);
-                test(cbo.Equals(cc));
-
-                cao = cc.ccop(cc);
-                test(cao.Equals(cc));
-                cbo = cc.ccop(cc);
-                test(cbo.Equals(cc));
-                cco = cc.ccop(cc);
-                test(cco.Equals(cc));
-                output.WriteLine("ok");
-
-                output.Write("ditto, but for interface hierarchy... ");
+                output.Write("invoking proxy operations on interface hierarchy... ");
                 output.Flush();
                 Test.MA.IAPrx iao;
                 Test.MB.IB1Prx ib1o;
@@ -185,38 +121,6 @@ namespace Ice
                 test(ib2o.Equals(ic));
                 ico = ic.icop(ic);
                 test(ico.Equals(ic));
-                output.WriteLine("ok");
-
-                output.Write("ditto, but for class implementing interfaces... ");
-                output.Flush();
-
-                cao = cd.caop(cd);
-                test(cao.Equals(cd));
-                cbo = cd.cbop(cd);
-                test(cbo.Equals(cd));
-                cco = cd.ccop(cd);
-                test(cco.Equals(cd));
-
-                iao = cd.iaop(cd);
-                test(iao.Equals(cd));
-                ib1o = cd.ib1op(cd);
-                test(ib1o.Equals(cd));
-                ib2o = cd.ib2op(cd);
-                test(ib2o.Equals(cd));
-
-                cao = cd.cdop(cd);
-                test(cao.Equals(cd));
-                cbo = cd.cdop(cd);
-                test(cbo.Equals(cd));
-                cco = cd.cdop(cd);
-                test(cco.Equals(cd));
-
-                iao = cd.cdop(cd);
-                test(iao.Equals(cd));
-                ib1o = cd.cdop(cd);
-                test(ib1o.Equals(cd));
-                ib2o = cd.cdop(cd);
-                test(ib2o.Equals(cd));
                 output.WriteLine("ok");
                 return initial;
             }
