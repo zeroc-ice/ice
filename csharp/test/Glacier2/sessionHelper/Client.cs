@@ -7,8 +7,6 @@ using System;
 using System.Reflection;
 using System.Threading;
 
-[assembly: CLSCompliant(true)]
-
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]

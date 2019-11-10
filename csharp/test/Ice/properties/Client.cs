@@ -5,8 +5,6 @@
 using System;
 using System.Reflection;
 
-[assembly: CLSCompliant(true)]
-
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
