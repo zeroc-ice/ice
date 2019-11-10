@@ -54,9 +54,13 @@ namespace Ice
                 return null;
             }
 
-            public override void addObject(Ice.ObjectPrx obj, Ice.Current current = null)
+            public override void addObject(Ice.ObjectPrx obj, Ice.Current current)
             {
-                _objects[obj.ice_getIdentity()] = obj;
+                addObject(obj);
+            }
+            public void addObject(Ice.ObjectPrx obj)
+            {
+                 _objects[obj.ice_getIdentity()] = obj;
             }
 
             public virtual Ice.ObjectPrx getAdapter(string adapter)

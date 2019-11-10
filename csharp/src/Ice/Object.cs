@@ -31,37 +31,37 @@ namespace Ice
         /// </summary>
         ///
         /// <param name="s">The type ID of the Slice interface to test against.</param>
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>True if this object has the interface
         /// specified by s or derives from the interface specified by s.</returns>
-        bool ice_isA(string s, Current current = null);
+        bool ice_isA(string s, Current current);
 
         /// <summary>
         /// Tests whether this object can be reached.
         /// </summary>
-        /// <param name="current">The Current object for the invocation.</param>
-        void ice_ping(Current current = null);
+        /// <param name="current">The Current object for the dispatch.</param>
+        void ice_ping(Current current);
 
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by this object.
         /// </summary>
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>The Slice type IDs of the interfaces supported by this object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::Object.</returns>
-        string[] ice_ids(Current current = null);
+        string[] ice_ids(Current current);
 
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        string ice_id(Current current = null);
+        string ice_id(Current current);
 
         /// <summary>
-        /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+        /// Dispatches a request to a servant. This method is used by dispatch interceptors to forward a request
         /// to a servant (or to another interceptor).
         /// </summary>
-        /// <param name="request">The details of the invocation.</param>
+        /// <param name="request">The details of the request.</param>
         /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
         Task<OutputStream> ice_dispatch(Request request);
 
@@ -99,9 +99,9 @@ namespace Ice
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
         /// <param name="s">The type ID of the Slice interface to test against.</param>
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>The return value is true if s is ::Ice::Object.</returns>
-        public virtual bool ice_isA(string s, Current current = null)
+        public virtual bool ice_isA(string s, Current current)
         {
             return s.Equals(_ids[0]);
         }
@@ -122,9 +122,9 @@ namespace Ice
 
         /// <summary>
         /// Tests whether this object can be reached.
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// </summary>
-        public virtual void ice_ping(Current current = null)
+        public virtual void ice_ping(Current current)
         {
             // Nothing to do.
         }
@@ -141,9 +141,9 @@ namespace Ice
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by this object.
         /// </summary>
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>An array whose only element is ::Ice::Object.</returns>
-        public virtual string[] ice_ids(Current current = null)
+        public virtual string[] ice_ids(Current current)
         {
             return _ids;
         }
@@ -163,9 +163,9 @@ namespace Ice
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
-        /// <param name="current">The Current object for the invocation.</param>
+        /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>The return value is always ::Ice::Object.</returns>
-        public virtual string ice_id(Current current = null)
+        public virtual string ice_id(Current current)
         {
             return _ids[0];
         }
@@ -197,10 +197,10 @@ namespace Ice
         };
 
         /// <summary>
-        /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+        /// Dispatches a request to a servant. This method is used by dispatch interceptors to forward a request
         /// to a servant (or to another interceptor).
         /// </summary>
-        /// <param name="request">The details of the invocation.</param>
+        /// <param name="request">The details of the request.</param>
         /// <returns>The task if dispatched asynchronously, null otherwise.</returns>
         public virtual Task<OutputStream> ice_dispatch(Request request)
         {

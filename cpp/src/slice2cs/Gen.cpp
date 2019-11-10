@@ -427,7 +427,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current = null)";
+    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return global::System.Array.BinarySearch(_ids, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
@@ -437,7 +437,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current = null)";
+    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return _ids;";
     _out << eb;
@@ -447,7 +447,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current = null)";
+    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current)";
     _out << sb;
     _out << nl << "return _ids[" << scopedPos << "];";
     _out << eb;
@@ -1010,7 +1010,7 @@ Slice::CsVisitor::getDispatchParams(const OperationPtr& op, string& retS, vector
     }
 
     string currentParamName = getEscapedParamName(op, "current");
-    params.push_back(getUnqualified("Ice.Current", ns) + " " + currentParamName + " = null");
+    params.push_back(getUnqualified("Ice.Current", ns) + " " + currentParamName);
     args.push_back(currentParamName);
     return name;
 }
@@ -4655,7 +4655,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
 
         _out << "public override ";
         _out << retS << ' ' << fixId(opName, DotNet::ICloneable, true) << spar << pDecls;
-        _out << getUnqualified("Ice.Current", ns) + " current = null";
+        _out << getUnqualified("Ice.Current", ns) + " current";
         _out << epar;
         if(comment)
         {

@@ -40,11 +40,11 @@ namespace Ice
                 Ice.Identity id = Ice.Util.stringToIdentity("hello");
                 try
                 {
-                    _registry.addObject(_adapter2.add(_adapter1.remove(id), id));
+                    _registry.addObject(_adapter2.add(_adapter1.remove(id), id), current);
                 }
                 catch (Ice.NotRegisteredException)
                 {
-                    _registry.addObject(_adapter1.add(_adapter2.remove(id), id));
+                    _registry.addObject(_adapter1.add(_adapter2.remove(id), id), current);
                 }
             }
 

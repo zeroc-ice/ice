@@ -27,8 +27,6 @@ namespace Ice
                     var uet = new UnexpectedObjectExceptionTestI();
                     adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
                     Test.AllTests.allTests(this);
-                    // We must call shutdown even in the collocated case for cyclic dependency cleanup
-                    initial.shutdown();
                 }
             }
 
