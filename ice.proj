@@ -8,16 +8,12 @@
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
-  <PropertyGroup>
-    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
-  </PropertyGroup>
-
   <ItemGroup>
     <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj">
+    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v142'">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
@@ -29,7 +25,7 @@
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140' or '$(DefaultPlatformToolset)' == 'v141'">
+    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v141'">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
   </ItemGroup>

@@ -245,7 +245,8 @@ if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
     if platform.getCompiler() not in ["v141"]:
         Mapping.disable("python")
-
+    if platform.getCompiler() not in ["v142"]:
+        Mapping.disable("csharp")
 #
 # Check if Matlab is installed and eventually add the Matlab mapping
 #
