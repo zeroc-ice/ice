@@ -238,6 +238,11 @@ class IceGridTestCase(TestCase):
                 "test.dir" : self.getPath(current),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe" : IceBox().getCommandLine(current),
+                #
+                # WORKAROUND: used by IceStorm/repgrid testing until IceStorm service is port to C++11 mapping
+                #
+                "icebox98.exe" : os.path.join(os.path.dirname(IceGridNode().getCommandLine(current)),
+                        os.path.basename(IceGridNode().getCommandLine(current))).replace("icegridnode", "icebox"),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),
                 "glacier2router.exe" : Glacier2Router().getCommandLine(current),
                 "icegridregistry.exe" : IceGridRegistryMaster().getCommandLine(current),
