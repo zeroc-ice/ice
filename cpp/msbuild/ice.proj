@@ -81,22 +81,6 @@
                 </DistSolution>
             </ItemGroup>
 
-            <!-- Ice for C++ test configurations (C++98 mapping) -->
-            <ItemGroup>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
-            </ItemGroup>
-
             <!-- Ice for C++ test configurations (C++11 mapping) requires a C++11 compiler -->
             <ItemGroup Condition="'$(Cpp11Compiler)' == 'yes'">
                 <TestSolution Include="$(IceTestSolution)">
@@ -111,22 +95,6 @@
                 <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=Cpp11-Release;Platform=x64</Properties>
                 </TestSolution>
-            </ItemGroup>
-
-            <!-- OpenSSL C++ test configurations (C++98 mapping) -->
-            <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Debug;Platform=Win32</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Debug;Platform=x64</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Release;Platform=Win32</Properties>
-                </OpenSSLTestSolution>
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=Release;Platform=x64</Properties>
-                </OpenSSLTestSolution>
             </ItemGroup>
 
             <!-- OpenSSL C++ test configurations (C++11 mapping) -->
@@ -154,10 +122,6 @@
                 <DistSolution Include="ice.sln">
                     <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
-
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
-                </TestSolution>
             </ItemGroup>
 
             <!-- Ice for C++ test configurations (C++11 mapping) requires v140 or v141 -->
@@ -168,12 +132,6 @@
             </ItemGroup>
 
             <!-- OpenSSL test builds -->
-            <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
-                <OpenSSLTestSolution Include="ice.openssl.test.sln">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </OpenSSLTestSolution>
-            </ItemGroup>
-
             <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes' and '$(Cpp11Compiler)' == 'yes'">
                 <OpenSSLTestSolution Include="ice.openssl.test.sln">
                     <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>

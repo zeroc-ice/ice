@@ -3131,7 +3131,11 @@ class CppMapping(Mapping):
 
             Mapping.Config.__init__(self, options)
 
-            if self.buildConfig == platform.getDefaultBuildConfig():
+            if self.buildConfig == "Debug":
+                self.buildConfig = "Cpp11-Debug"
+            elif self.buildConfig == "Release":
+                self.buildConfig = "Cpp11-Release"
+            elif self.buildConfig == platform.getDefaultBuildConfig():
                 if isinstance(platform, Windows):
                     self.buildConfig = "Cpp11-Release"
                 else:
