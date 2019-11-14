@@ -173,10 +173,8 @@ Slice::JsGenerator::getDefinedIn(const ContainedPtr& p)
     {
         string base = p->definitionContext()->filename();
         string::size_type pos = base.find_last_of("/\\");
-        if(pos != string::npos)
-        {
-            base = base.erase(pos);
-        }
+        assert(pos != string::npos);
+        base = base.erase(pos);
         return fullPath(base + "/" + definedIn);
     }
     return "";
