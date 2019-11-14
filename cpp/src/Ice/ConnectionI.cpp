@@ -1846,7 +1846,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     _threadPool->dispatchFromThisThread(new DispatchCall(ICE_SHARED_FROM_THIS, startCB, sentCBs, compress, requestId,
                                                          invokeNum, servantManager, adapter, outAsync,
                                                          heartbeatCallback, current.stream));

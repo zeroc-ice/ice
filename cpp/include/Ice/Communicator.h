@@ -572,7 +572,7 @@ public:
      */
     virtual ::Ice::FacetMap findAllAdminFacets() = 0;
 
-#if defined(__APPLE__)
+#if defined(ICE_SWIFT)
     /**
      * Returns the client dispatch queue.
      * @return The dispatch queue associated wih this Communicator's

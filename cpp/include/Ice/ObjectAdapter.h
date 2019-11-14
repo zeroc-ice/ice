@@ -584,7 +584,7 @@ public:
      */
     virtual void setPublishedEndpoints(const EndpointSeq& newEndpoints) = 0;
 
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     virtual dispatch_queue_t getDispatchQueue() const = 0;
 #endif
 };

@@ -110,7 +110,7 @@ public:
 
     std::string prefix() const;
 
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     dispatch_queue_t getDispatchQueue() const ICE_NOEXCEPT;
 #endif
 
@@ -131,7 +131,7 @@ private:
     std::string nextThreadId();
 
     const InstancePtr _instance;
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     const dispatch_queue_t _dispatchQueue;
 #else // Ice for Swift does not support a dispatcher
 #   ifdef ICE_CPP11_MAPPING

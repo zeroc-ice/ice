@@ -106,7 +106,7 @@ class ThreadPoolDestroyedException
 {
 };
 
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
 string
 prefixToDispatchQueueLabel(const std::string& prefix)
 {
@@ -264,7 +264,7 @@ IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     _dispatchQueue(dispatch_queue_create(prefixToDispatchQueueLabel(prefix).c_str(),
                                          DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
 #else
@@ -446,7 +446,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     dispatch_release(_dispatchQueue);
 #endif
 }
@@ -563,7 +563,7 @@ IceInternal::ThreadPool::ready(const EventHandlerPtr& handler, SocketOperation o
 void
 IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
 {
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
     dispatch_sync(_dispatchQueue, ^
     {
         workItem->run();
@@ -642,7 +642,7 @@ IceInternal::ThreadPool::prefix() const
     return _prefix;
 }
 
-#ifdef __APPLE__
+#ifdef ICE_SWIFT
 
 dispatch_queue_t
 IceInternal::ThreadPool::getDispatchQueue() const ICE_NOEXCEPT
