@@ -20,6 +20,7 @@ public:
     virtual ~JsGenerator() {};
 
     static bool isClassType(const TypePtr&);
+    static std::string getDefinedIn(const ContainedPtr&);
     static std::string getModuleMetadata(const TypePtr&);
     static std::string getModuleMetadata(const ContainedPtr&);
     static std::string fixId(const std::string&);
@@ -31,7 +32,8 @@ public:
 
     static std::string importPrefix(const ContainedPtr&,
                                     const ContainedPtr&,
-                                    const std::vector<std::pair<std::string, std::string> >&);
+                                    const std::vector<std::pair<std::string, std::string> >&,
+                                    const std::string& definedIn = "");
     static std::string importPrefix(const std::string&, const ContainedPtr&);
 
     static std::string getUnqualified(const std::string&, const std::string&, const std::string&);

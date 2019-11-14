@@ -2293,12 +2293,31 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const
 {
     if(!BuiltinPtr::dynamicCast(definition))
     {
-        const string m1 = getModuleMetadata(definition);
+        string m1 = getModuleMetadata(definition);
         const string m2 = getModuleMetadata(toplevel);
 
-        const string p1 = definition->definitionContext()->filename();
+        string p1 = definition->definitionContext()->filename();
         const string p2 = toplevel->definitionContext()->filename();
 
+        ProxyPtr p = ProxyPtr::dynamicCast(definition);
+        ClassDeclPtr c = p ? p->_class() : ClassDeclPtr::dynamicCast(definition);
+
+        if(c)
+        {
+            if(c->definition() == 0)
+            {
+                string definedIn = getDefinedIn(c);
+                if(!definedIn.empty())
+                {
+                    p1 = definedIn;
+                }
+            }
+            else
+            {
+                m1 = getModuleMetadata(ContainedPtr::dynamicCast(c->definition()));
+                p1 = c->definition()->definitionContext()->filename();
+            }
+        }
         addImport(m1, m2, p1, p2);
     }
 }
