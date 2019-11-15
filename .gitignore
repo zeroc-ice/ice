@@ -101,8 +101,11 @@ SliceCompile.command.*.log
 **/msbuild/zeroc.ice.*
 *.nupkg
 
-**/netstandard2.0/netstandard2.0/*
-**/netstandard2.0/netcoreapp3.0/*
+**/netstandard2.1/*
+**/netcoreapp3.0/*
+Resource.designer.cs
+*.apk
+*.apk.mSYM
 
 AppPackages
 BundleArtifacts
