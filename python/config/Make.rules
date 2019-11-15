@@ -29,8 +29,12 @@ python_ldflags          := $(or $(PYTHON_LDLFLAGS),$(shell $(python-config) --ld
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
 python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
 
-ifneq ($(filter debian ubuntu,$(linux_id)),)
+# As of Python 3.8 the python library is not included in the ldflags
+# This is also the same behavior used by pip
 allow-undefined-symbols := yes
+
+# Debian packaging complains if these libraries are included
+ifneq ($(filter debian ubuntu,$(linux_id)),)
 python_ldflags          := $(filter-out -lpython% -ldl -lutil,$(python_ldflags))
 endif
 
