@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.servantLocator</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/servantLocator/AllTests.cs" />
+    <Compile Include="../../../../Ice/servantLocator/Client.cs" />
+    <Compile Include="../../../../Ice/servantLocator/Collocated.cs" />
+    <Compile Include="../../../../Ice/servantLocator/CookieAMDI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/CookieI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/ServantLocatorAMDI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/ServantLocatorI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/Server.cs" />
+    <Compile Include="../../../../Ice/servantLocator/ServerAMD.cs" />
+    <Compile Include="../../../../Ice/servantLocator/TestActivationAMDI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/TestActivationI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/TestAMDI.cs" />
+    <Compile Include="../../../../Ice/servantLocator/TestI.cs" />
+    <Compile Include="generated/Test.cs">
+        <SliceCompileSource>../../../../Ice/servantLocator/Test.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/TestAMD.cs">
+        <SliceCompileSource>../../../../Ice/servantLocator/TestAMD.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/servantLocator/Test.ice" />
+    <SliceCompile Include="../../../../Ice/servantLocator/TestAMD.ice" />
+  </ItemGroup>
+</Project>

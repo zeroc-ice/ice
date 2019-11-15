@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TestCommon</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\TestCommon\TestHelper.cs"/>
+  </ItemGroup>
+</Project>

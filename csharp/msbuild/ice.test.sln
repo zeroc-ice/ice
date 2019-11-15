@@ -12,15 +12,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{BCE3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{626C0C11-B8E1-4EE7-B691-B1AB38A60609}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\ami\msbuild\client\netstandard2.0\client.csproj", "{7C2E5D0C-EEB4-4D29-9752-F3989B9E93D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\ami\msbuild\client\client.csproj", "{7C2E5D0C-EEB4-4D29-9752-F3989B9E93D8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{C5D2DD93-B375-47D3-96A7-6C061F0EDA75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\ami\msbuild\collocated\netstandard2.0\collocated.csproj", "{DA4E7C14-40D8-4329-9F2E-25C4132DEE65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\ami\msbuild\collocated\collocated.csproj", "{DA4E7C14-40D8-4329-9F2E-25C4132DEE65}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{5EE186FA-42FD-4F9D-83DA-87C6785F88B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\ami\msbuild\server\netstandard2.0\server.csproj", "{6FF90995-FBBD-4024-8BF0-62B7BD26AC95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\ami\msbuild\server\server.csproj", "{6FF90995-FBBD-4024-8BF0-62B7BD26AC95}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "location", "location", "{E4E3C843-C52C-4025-8072-78DBFD609083}"
 EndProject
@@ -28,11 +28,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{D535
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{70595B1E-2E4E-4B58-B47D-FCBEBD1805AA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\location\msbuild\client\netstandard2.0\client.csproj", "{8D2A4C15-1E8B-44CA-8552-30F8BF8287B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\location\msbuild\client\client.csproj", "{8D2A4C15-1E8B-44CA-8552-30F8BF8287B8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{7F6330A7-BBA6-4609-B02C-FB250A49B5C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\location\msbuild\server\netstandard2.0\server.csproj", "{395D7881-8FDF-45EE-B81D-F3F901CBEAFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\location\msbuild\server\server.csproj", "{395D7881-8FDF-45EE-B81D-F3F901CBEAFD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "networkProxy", "networkProxy", "{9344F6A6-799D-47A9-BD58-81E85608C360}"
 EndProject
@@ -40,11 +40,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{1CEE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{DF8E45A4-007E-4D78-828E-DCDDCDBD5C8C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\networkProxy\msbuild\client\netstandard2.0\client.csproj", "{996AE0FC-D4FA-4BAD-89E6-CEE14771EF56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\networkProxy\msbuild\client\client.csproj", "{996AE0FC-D4FA-4BAD-89E6-CEE14771EF56}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{7B019069-A6F9-43A2-915D-B1AA368FDA92}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\networkProxy\msbuild\server\netstandard2.0\server.csproj", "{4D558F5D-2D92-44AD-83D7-92A684BB09B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\networkProxy\msbuild\server\server.csproj", "{4D558F5D-2D92-44AD-83D7-92A684BB09B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "seqMapping", "seqMapping", "{328CCF98-D588-4E2F-9BA2-B5FEAA45325B}"
 EndProject
@@ -52,23 +52,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{7192
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{07D3EF83-3766-45AB-8D6F-C524CD405B9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\seqMapping\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{BC23FB1D-7902-4892-BAD7-B9C9CDAD9DE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\seqMapping\msbuild\serveramd\serveramd.csproj", "{BC23FB1D-7902-4892-BAD7-B9C9CDAD9DE9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{1020E906-BB6B-4134-AE60-1ECF9D513D45}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\seqMapping\msbuild\client\netstandard2.0\client.csproj", "{04563AA5-35F0-4E40-AAFE-641F1511DA92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\seqMapping\msbuild\client\client.csproj", "{04563AA5-35F0-4E40-AAFE-641F1511DA92}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{FFE24D64-1B54-4EAD-AA1A-53D51C902989}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\seqMapping\msbuild\collocated\netstandard2.0\collocated.csproj", "{816A32DF-4F3C-46CC-9AA7-05EA967E3E31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\seqMapping\msbuild\collocated\collocated.csproj", "{816A32DF-4F3C-46CC-9AA7-05EA967E3E31}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serializable", "serializable", "{9C2C59AF-0278-407F-9916-01AC6234EC63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\seqMapping\msbuild\serializable\netstandard2.0\serializable.csproj", "{BBE2B608-3838-4532-B7B8-9E7A732C574E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\seqMapping\msbuild\serializable\serializable.csproj", "{BBE2B608-3838-4532-B7B8-9E7A732C574E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{22553532-1E2F-49B4-9703-B1AED3485073}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\seqMapping\msbuild\server\netstandard2.0\server.csproj", "{74929646-62D2-4684-8E95-07605EBB0A7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\seqMapping\msbuild\server\server.csproj", "{74929646-62D2-4684-8E95-07605EBB0A7A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adapterDeactivation", "adapterDeactivation", "{6527AD92-52BA-416F-8B54-DB043172BEEE}"
 EndProject
@@ -76,15 +76,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{C987
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{7376A1B9-7972-4CC6-A74A-9F0C3999A04E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\adapterDeactivation\msbuild\client\netstandard2.0\client.csproj", "{924B2644-CDE5-44E4-B315-1D912CAE078A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\adapterDeactivation\msbuild\client\client.csproj", "{924B2644-CDE5-44E4-B315-1D912CAE078A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{2774F3A7-CE02-49CD-B3C8-BE40A0D62D0A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\adapterDeactivation\msbuild\collocated\netstandard2.0\collocated.csproj", "{A58F2515-C01C-412F-B746-1DF1DB800C1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\adapterDeactivation\msbuild\collocated\collocated.csproj", "{A58F2515-C01C-412F-B746-1DF1DB800C1C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{C26E43E2-A226-4A3C-B66D-1D8EA14C92E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\adapterDeactivation\msbuild\server\netstandard2.0\server.csproj", "{90A62765-E1EB-4073-9B77-412935A728E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\adapterDeactivation\msbuild\server\server.csproj", "{90A62765-E1EB-4073-9B77-412935A728E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interceptor", "interceptor", "{59DAF34A-51D4-4957-83DD-8581B1F03D26}"
 EndProject
@@ -92,7 +92,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{73E9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{6E443ADE-5852-49BB-BC2B-E549529445A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\interceptor\msbuild\client\netstandard2.0\client.csproj", "{65E7F078-1BC4-47FE-BEDD-717C2CF7688B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\interceptor\msbuild\client\client.csproj", "{65E7F078-1BC4-47FE-BEDD-717C2CF7688B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metrics", "metrics", "{ECCA1ABE-AABC-4D7D-BD99-28638D428920}"
 EndProject
@@ -100,19 +100,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{7C3B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{4B17608A-DFF0-4611-9B4D-4E03C03CA4E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\metrics\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{966E164A-BCAC-4096-BDE1-649051BEF7E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\metrics\msbuild\serveramd\serveramd.csproj", "{966E164A-BCAC-4096-BDE1-649051BEF7E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{4D3EE680-1BAE-4554-8304-37F4DDBCD67E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\metrics\msbuild\client\netstandard2.0\client.csproj", "{AAF0F9A2-9745-4916-BEC2-1F41BD3AAD80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\metrics\msbuild\client\client.csproj", "{AAF0F9A2-9745-4916-BEC2-1F41BD3AAD80}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{2FA28609-411C-4299-A5BF-CDD2217793D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\metrics\msbuild\collocated\netstandard2.0\collocated.csproj", "{E50AC237-046A-4CB4-A7A0-30BA48230577}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\metrics\msbuild\collocated\collocated.csproj", "{E50AC237-046A-4CB4-A7A0-30BA48230577}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{8CE267D6-D834-41F1-AB03-998666F2004D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\metrics\msbuild\server\netstandard2.0\server.csproj", "{2C221812-15A5-45B9-A073-251E2E1CD94E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\metrics\msbuild\server\server.csproj", "{2C221812-15A5-45B9-A073-251E2E1CD94E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logger", "logger", "{51326988-961F-41BE-8734-C7C0D139507C}"
 EndProject
@@ -120,7 +120,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{EC6A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{C513F72D-9687-43EE-A5EF-F1BE587D7496}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\logger\msbuild\client\netstandard2.0\client.csproj", "{FA1FA122-F665-41BB-ADF4-C1283576F86F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\logger\msbuild\client\client.csproj", "{FA1FA122-F665-41BB-ADF4-C1283576F86F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "inheritance", "inheritance", "{F1E9F9E4-3145-4E3E-B9A4-12369C019ED7}"
 EndProject
@@ -128,15 +128,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{82C3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{9E467158-F23E-4B39-A9A6-BD82472E3EE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\inheritance\msbuild\client\netstandard2.0\client.csproj", "{A86EE886-14DE-49BD-B947-8116842F61B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\inheritance\msbuild\client\client.csproj", "{A86EE886-14DE-49BD-B947-8116842F61B5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{4B6C72CC-E882-4598-B148-126A0C639319}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\inheritance\msbuild\collocated\netstandard2.0\collocated.csproj", "{2CD6677D-9A23-4175-8F05-A535076A118F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\inheritance\msbuild\collocated\collocated.csproj", "{2CD6677D-9A23-4175-8F05-A535076A118F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{690086C7-9F14-473C-BA6D-A91211C2D47C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\inheritance\msbuild\server\netstandard2.0\server.csproj", "{9642E642-C216-4D61-B7AA-412757DF1B71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\inheritance\msbuild\server\server.csproj", "{9642E642-C216-4D61-B7AA-412757DF1B71}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "udp", "udp", "{1539935C-94E5-451F-B0C9-99EB93854DD4}"
 EndProject
@@ -144,11 +144,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{B022
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{2A8F945A-CCD5-4987-A9D9-E01F14FEF2BF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\udp\msbuild\client\netstandard2.0\client.csproj", "{CC7E6B36-8C07-4E5C-9BEC-840CB05A7645}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\udp\msbuild\client\client.csproj", "{CC7E6B36-8C07-4E5C-9BEC-840CB05A7645}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{D6D0A514-D048-42BC-8869-72B8E6258F24}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\udp\msbuild\server\netstandard2.0\server.csproj", "{9AA3C6DB-27D9-417D-8BDD-3183AC80762F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\udp\msbuild\server\server.csproj", "{9AA3C6DB-27D9-417D-8BDD-3183AC80762F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assemblies", "assemblies", "{1787DCCB-9E21-4106-BB81-81AFD41A455B}"
 EndProject
@@ -156,15 +156,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{BB27
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{0B8327D2-ABE8-477C-9619-B28A1E3698C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core", "..\test\Ice\assemblies\msbuild\core\netstandard2.0\core.csproj", "{65C9DD41-5B33-4903-98DA-C1518CB60312}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core", "..\test\Ice\assemblies\msbuild\core\core.csproj", "{65C9DD41-5B33-4903-98DA-C1518CB60312}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{F66CA497-3B02-404F-BD37-AC7C413E8462}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\assemblies\msbuild\client\netstandard2.0\client.csproj", "{462744C6-9C76-4E40-A147-AA4C81CBB3A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\assemblies\msbuild\client\client.csproj", "{462744C6-9C76-4E40-A147-AA4C81CBB3A4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "user", "user", "{E82A1F26-557B-4F1A-88DA-041A142CDDE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "user", "..\test\Ice\assemblies\msbuild\user\netstandard2.0\user.csproj", "{0D5A4357-0147-4669-BFE8-C9252B78B171}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "user", "..\test\Ice\assemblies\msbuild\user\user.csproj", "{0D5A4357-0147-4669-BFE8-C9252B78B171}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hold", "hold", "{7AB445AF-ACDB-4864-A82D-1136CC51D1AC}"
 EndProject
@@ -172,11 +172,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{14EB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{451DDA28-5A49-45AD-B8CB-FC47C85FB4A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\hold\msbuild\client\netstandard2.0\client.csproj", "{711533CF-3289-489C-A735-AD9438E7E2B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\hold\msbuild\client\client.csproj", "{711533CF-3289-489C-A735-AD9438E7E2B4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{D55A3E1E-2314-432D-A0C5-884DE24CFBAB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\hold\msbuild\server\netstandard2.0\server.csproj", "{DD99763A-202E-4485-A2CB-6FD0C8604900}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\hold\msbuild\server\server.csproj", "{DD99763A-202E-4485-A2CB-6FD0C8604900}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "echo", "echo", "{22A48A85-75F1-4272-9E37-7057D671F2F3}"
 EndProject
@@ -184,7 +184,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{25BA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{864DD6D3-C1F6-4A01-84D8-CE7A8569D0FB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\echo\msbuild\server\netstandard2.0\server.csproj", "{1BC6CDBB-747C-4A1E-B027-646527EFF9D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\echo\msbuild\server\server.csproj", "{1BC6CDBB-747C-4A1E-B027-646527EFF9D5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "exceptions", "exceptions", "{FA969A09-4B37-4F4B-B601-2EE79D1CB84D}"
 EndProject
@@ -192,19 +192,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{B37C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{6FEAF87D-23A6-4531-BCF0-A7D09F6310E6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\exceptions\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{667B1C83-A570-405A-8976-29EA03A58AB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\exceptions\msbuild\serveramd\serveramd.csproj", "{667B1C83-A570-405A-8976-29EA03A58AB8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{0140F631-3AF8-4006-919F-92EF2064AA63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\exceptions\msbuild\client\netstandard2.0\client.csproj", "{0E174AA0-F114-4B38-99F1-8436774BC35F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\exceptions\msbuild\client\client.csproj", "{0E174AA0-F114-4B38-99F1-8436774BC35F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{77E8198F-94AF-498A-AC89-7FCB091C7997}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\exceptions\msbuild\collocated\netstandard2.0\collocated.csproj", "{351DA6FB-A6AB-4E2E-B9CE-0570B3C38BF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\exceptions\msbuild\collocated\collocated.csproj", "{351DA6FB-A6AB-4E2E-B9CE-0570B3C38BF4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{C260C50A-DC3E-44F1-8A3D-CC91486B9BDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\exceptions\msbuild\server\netstandard2.0\server.csproj", "{58DF3BCB-13B6-4985-B9BE-874232408A71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\exceptions\msbuild\server\server.csproj", "{58DF3BCB-13B6-4985-B9BE-874232408A71}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "faultTolerance", "faultTolerance", "{6FB56E75-FEA8-4F45-BD64-73248B878E01}"
 EndProject
@@ -212,11 +212,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{A917
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{37699521-9154-4B81-8AF6-8A12A4559F80}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\faultTolerance\msbuild\client\netstandard2.0\client.csproj", "{DF3DD907-E860-4DC2-BA49-301C1215D343}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\faultTolerance\msbuild\client\client.csproj", "{DF3DD907-E860-4DC2-BA49-301C1215D343}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{082962D2-9AF6-40BF-AF70-F1CE7794F224}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\faultTolerance\msbuild\server\netstandard2.0\server.csproj", "{D3959D80-E695-44BB-8D07-B7696D273BBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\faultTolerance\msbuild\server\server.csproj", "{D3959D80-E695-44BB-8D07-B7696D273BBC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "objects", "objects", "{46C29634-B6D4-49D6-9088-6A1C609CB456}"
 EndProject
@@ -224,15 +224,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{E03B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{A6DF8DAB-61CA-4DFA-8739-5651196B781E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\objects\msbuild\client\netstandard2.0\client.csproj", "{0AA89AE0-0CD1-4206-BF54-C5C1B2EAD7D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\objects\msbuild\client\client.csproj", "{0AA89AE0-0CD1-4206-BF54-C5C1B2EAD7D7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{7CC23B9D-6741-409F-96F6-B4FD51671087}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\objects\msbuild\collocated\netstandard2.0\collocated.csproj", "{F75A4F73-20BC-4F54-AAD5-23C42FD9FD87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\objects\msbuild\collocated\collocated.csproj", "{F75A4F73-20BC-4F54-AAD5-23C42FD9FD87}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{87007EB4-A74D-470D-BB6A-15BD1B10E5EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\objects\msbuild\server\netstandard2.0\server.csproj", "{9B8EA059-E2EC-4187-A800-C559F52CD2DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\objects\msbuild\server\server.csproj", "{9B8EA059-E2EC-4187-A800-C559F52CD2DB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "retry", "retry", "{32CCCDB9-D7E3-4CED-8C82-4FDBDA4CC66F}"
 EndProject
@@ -240,15 +240,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{7A26
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{464D34FA-4D4E-41EB-B603-626F907900B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\retry\msbuild\client\netstandard2.0\client.csproj", "{E0C85441-98E3-4B53-8962-50A025F63EE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\retry\msbuild\client\client.csproj", "{E0C85441-98E3-4B53-8962-50A025F63EE6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{35E2E146-3611-42C7-B4EF-06D863870194}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\retry\msbuild\collocated\netstandard2.0\collocated.csproj", "{4A83B42D-0340-416E-B14C-ECA73241DA02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\retry\msbuild\collocated\collocated.csproj", "{4A83B42D-0340-416E-B14C-ECA73241DA02}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{EDBF7C42-9048-44A9-A12D-A3A22C8CBC9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\retry\msbuild\server\netstandard2.0\server.csproj", "{2647C31A-CB44-4C93-9F8F-841CDD93D029}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\retry\msbuild\server\server.csproj", "{2647C31A-CB44-4C93-9F8F-841CDD93D029}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "binding", "binding", "{9324D743-670C-43CA-8405-9BC52EDB4B23}"
 EndProject
@@ -256,11 +256,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{B42E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{8ED96625-63AC-4B0E-8B5B-FFA15D95C8B4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\binding\msbuild\client\netstandard2.0\client.csproj", "{9465F5E4-99F3-4DA8-8796-BF9A07C59654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\binding\msbuild\client\client.csproj", "{9465F5E4-99F3-4DA8-8796-BF9A07C59654}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{EB0879E4-FCE4-4E0D-B1B4-F25F343525C9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\binding\msbuild\server\netstandard2.0\server.csproj", "{859B0129-8626-44C2-BC81-73568E3134E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\binding\msbuild\server\server.csproj", "{859B0129-8626-44C2-BC81-73568E3134E4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "slicing", "slicing", "{40390E2A-0837-43AC-9E2E-0A50F467AB96}"
 EndProject
@@ -270,15 +270,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{8CEC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{84AF0B64-7B23-4188-9658-A70BFBCACC5B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\slicing\exceptions\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{CC6E8EAD-AE07-4F88-BC2D-A262C27FFBB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\slicing\exceptions\msbuild\serveramd\serveramd.csproj", "{CC6E8EAD-AE07-4F88-BC2D-A262C27FFBB6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{81D2FA40-4E3C-4368-8F30-15CB99F1DB65}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\slicing\exceptions\msbuild\client\netstandard2.0\client.csproj", "{80956AF8-CFF6-429F-8D43-42618471D2BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\slicing\exceptions\msbuild\client\client.csproj", "{80956AF8-CFF6-429F-8D43-42618471D2BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{32703C06-82EF-4D39-9659-17D9BD9959EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\slicing\exceptions\msbuild\server\netstandard2.0\server.csproj", "{B116F091-BDBB-4FA4-9E07-0C10152816AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\slicing\exceptions\msbuild\server\server.csproj", "{B116F091-BDBB-4FA4-9E07-0C10152816AC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "objects", "objects", "{4A1EAD9A-C112-42AA-9052-5D0283D78DBD}"
 EndProject
@@ -286,15 +286,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{04BA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{497B97FF-A840-46A5-9123-746D9B2F1734}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\slicing\objects\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{B599BA5E-AC6A-4BB8-828A-B26D0D88F4E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\slicing\objects\msbuild\serveramd\serveramd.csproj", "{B599BA5E-AC6A-4BB8-828A-B26D0D88F4E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{92EF0534-3D8A-42EB-B348-5FE2FCA65364}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\slicing\objects\msbuild\client\netstandard2.0\client.csproj", "{80AC16FE-CB7F-4281-8F54-45D6660EDF81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\slicing\objects\msbuild\client\client.csproj", "{80AC16FE-CB7F-4281-8F54-45D6660EDF81}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{B5B85ECA-DE01-4643-8AAC-79729EB56BBB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\slicing\objects\msbuild\server\netstandard2.0\server.csproj", "{69725AFF-9269-4834-A090-8E5EDF984A37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\slicing\objects\msbuild\server\server.csproj", "{69725AFF-9269-4834-A090-8E5EDF984A37}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proxy", "proxy", "{C385C0B8-7312-4886-BD74-7ED271CA0C19}"
 EndProject
@@ -302,19 +302,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{06B4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{BEBF08CE-D19A-4AE8-998F-A9DB91C5AF03}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\proxy\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{213F14A5-B791-44F7-89A0-E67C10CDFA8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\proxy\msbuild\serveramd\serveramd.csproj", "{213F14A5-B791-44F7-89A0-E67C10CDFA8C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{0658A119-4730-4BFF-BCB9-426C98207CCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\proxy\msbuild\client\netstandard2.0\client.csproj", "{ACE2605C-DD91-43BD-9C79-A34AE6F6B036}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\proxy\msbuild\client\client.csproj", "{ACE2605C-DD91-43BD-9C79-A34AE6F6B036}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{3EE0A1F5-98A7-4553-A9F2-A95148A5AA68}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\proxy\msbuild\collocated\netstandard2.0\collocated.csproj", "{02B6BB37-D823-4002-99B2-3BA2FEF04B36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\proxy\msbuild\collocated\collocated.csproj", "{02B6BB37-D823-4002-99B2-3BA2FEF04B36}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{44B8C89D-B98D-4A30-8A89-7A00BCB5B2AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\proxy\msbuild\server\netstandard2.0\server.csproj", "{A9D9D620-C8BA-46E9-96D3-EA56C2F9BB63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\proxy\msbuild\server\server.csproj", "{A9D9D620-C8BA-46E9-96D3-EA56C2F9BB63}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "invoke", "invoke", "{946F1A80-001A-4090-B1A7-B8C1E32626A4}"
 EndProject
@@ -322,11 +322,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{7306
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{B8B83D50-38BA-497F-B9C5-1AF7B4CF2D6B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\invoke\msbuild\client\netstandard2.0\client.csproj", "{108FC787-0D65-42A1-A72F-CD82A207A46F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\invoke\msbuild\client\client.csproj", "{108FC787-0D65-42A1-A72F-CD82A207A46F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{E44967AB-EB33-4453-B8EA-1E705C6BE204}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\invoke\msbuild\server\netstandard2.0\server.csproj", "{B52CD75C-246F-44A9-8B56-56898CB5F0F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\invoke\msbuild\server\server.csproj", "{B52CD75C-246F-44A9-8B56-56898CB5F0F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "info", "info", "{E973397D-3937-4DB0-A6DF-A55DCADD8FB2}"
 EndProject
@@ -334,11 +334,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{2B68
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{45FB4DBA-CDBA-470B-AB9D-11E7A9761214}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\info\msbuild\client\netstandard2.0\client.csproj", "{866FB33D-793A-4301-BC74-7139BC85F7A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\info\msbuild\client\client.csproj", "{866FB33D-793A-4301-BC74-7139BC85F7A2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{CB1CFA85-981E-45DE-97BD-4BBEB051DE63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\info\msbuild\server\netstandard2.0\server.csproj", "{F045DD46-73E2-43E9-A2F4-0F26896E5723}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\info\msbuild\server\server.csproj", "{F045DD46-73E2-43E9-A2F4-0F26896E5723}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dictMapping", "dictMapping", "{E57AF9E4-7AD3-490B-BA86-20B9158B03FD}"
 EndProject
@@ -346,19 +346,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{0EF1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{0C123977-3936-47A8-8AE9-6F0F9D70742F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\dictMapping\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{A12841E5-236E-4EC2-B5D9-BB089829FC8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\dictMapping\msbuild\serveramd\serveramd.csproj", "{A12841E5-236E-4EC2-B5D9-BB089829FC8C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{59CFEA12-FA5A-475B-8FA2-260B4C75BD1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\dictMapping\msbuild\client\netstandard2.0\client.csproj", "{4FADCEC9-3384-469D-A1E9-2CE3D0A12D6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\dictMapping\msbuild\client\client.csproj", "{4FADCEC9-3384-469D-A1E9-2CE3D0A12D6D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{A0F8CBEC-2FD6-4726-BF67-D6AC547F9677}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\dictMapping\msbuild\collocated\netstandard2.0\collocated.csproj", "{54ABD75F-A1D4-4F1D-9381-D4755F34AF13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\dictMapping\msbuild\collocated\collocated.csproj", "{54ABD75F-A1D4-4F1D-9381-D4755F34AF13}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{1FF53522-443E-4DD5-84ED-C96534B813AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\dictMapping\msbuild\server\netstandard2.0\server.csproj", "{6961918C-BD6C-4F55-9B29-599A6E9BAA3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\dictMapping\msbuild\server\server.csproj", "{6961918C-BD6C-4F55-9B29-599A6E9BAA3F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugin", "plugin", "{D1F0A736-CD77-4ECF-83BF-F6A1D5C68B11}"
 EndProject
@@ -366,11 +366,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{0157
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{D1BB21AA-99B3-4D08-AF78-CE28FF8F2AD8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\plugin\msbuild\client\netstandard2.0\client.csproj", "{A524B8F4-A7F6-4FB9-BE32-4BBBD2A40520}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\plugin\msbuild\client\client.csproj", "{A524B8F4-A7F6-4FB9-BE32-4BBBD2A40520}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugin", "plugin", "{8F49722B-9998-4DDA-94DD-265AE8CD0BF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "plugin", "..\test\Ice\plugin\msbuild\plugin\netstandard2.0\plugin.csproj", "{EF1E30B7-D0B9-422E-958C-E55E8F3B16B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "plugin", "..\test\Ice\plugin\msbuild\plugin\plugin.csproj", "{EF1E30B7-D0B9-422E-958C-E55E8F3B16B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "operations", "operations", "{E341078B-F9E7-4D87-8186-843C532801D6}"
 EndProject
@@ -378,19 +378,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{4D72
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{2BFFE5DF-5323-4A3F-B66F-AACF2EC6F904}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\operations\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{D8402569-6F22-4009-B3F2-72E653DCC816}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\operations\msbuild\serveramd\serveramd.csproj", "{D8402569-6F22-4009-B3F2-72E653DCC816}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{9C6007CA-ECDA-4A84-A725-279BEBC98FCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\operations\msbuild\client\netstandard2.0\client.csproj", "{FC656241-4C89-4298-A911-D8786F46A819}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\operations\msbuild\client\client.csproj", "{FC656241-4C89-4298-A911-D8786F46A819}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{2CC7BB73-5985-4138-9F06-D7B592ABE068}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\operations\msbuild\collocated\netstandard2.0\collocated.csproj", "{9394263D-0515-4583-A248-21614C0C6037}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\operations\msbuild\collocated\collocated.csproj", "{9394263D-0515-4583-A248-21614C0C6037}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{2D45BE33-25C4-4D79-9380-DAA8E6C2F848}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\operations\msbuild\server\netstandard2.0\server.csproj", "{76D545BC-5554-47BC-927F-336A74F284AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\operations\msbuild\server\server.csproj", "{76D545BC-5554-47BC-927F-336A74F284AC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "servantLocator", "servantLocator", "{21EC2B14-E75C-432A-960C-55D954E0CD39}"
 EndProject
@@ -398,19 +398,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{2DE4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{AA16A14A-7EAB-4D0D-8797-66175252384F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\servantLocator\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{B3C46C35-7773-4FF8-B29E-A7ED93225436}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\servantLocator\msbuild\serveramd\serveramd.csproj", "{B3C46C35-7773-4FF8-B29E-A7ED93225436}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{D4E1288A-7CB7-4B46-8842-D4D895ED8CEC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\servantLocator\msbuild\client\netstandard2.0\client.csproj", "{698FDEEA-6D24-455E-92D9-B60B71C56F33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\servantLocator\msbuild\client\client.csproj", "{698FDEEA-6D24-455E-92D9-B60B71C56F33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{C30658A5-F0B3-4008-AB53-1104C1FB5FD3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\servantLocator\msbuild\collocated\netstandard2.0\collocated.csproj", "{783F73B4-26C1-4E17-9F3C-8822CE0EA1BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\servantLocator\msbuild\collocated\collocated.csproj", "{783F73B4-26C1-4E17-9F3C-8822CE0EA1BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{2A138876-D2E8-40C0-B27A-1CDEC4954108}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\servantLocator\msbuild\server\netstandard2.0\server.csproj", "{A3456E6B-276E-460F-956E-EB7DC6CA0D77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\servantLocator\msbuild\server\server.csproj", "{A3456E6B-276E-460F-956E-EB7DC6CA0D77}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hash", "hash", "{9A7EC42E-AA59-490D-94C4-4DD932D07FDC}"
 EndProject
@@ -418,7 +418,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{E4D1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{BACB2A2E-F8EC-47CF-9534-C8DB4DE1360B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\hash\msbuild\client\netstandard2.0\client.csproj", "{A96A8826-76CA-4AD5-B6C5-11691A2F457C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\hash\msbuild\client\client.csproj", "{A96A8826-76CA-4AD5-B6C5-11691A2F457C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "defaultValue", "defaultValue", "{B216E5A3-9285-4B4E-B0FA-86EAAC73929D}"
 EndProject
@@ -426,7 +426,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{067A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{A313EF12-CC3B-4BC1-95F2-1A963369DA3F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\defaultValue\msbuild\client\netstandard2.0\client.csproj", "{279C3FC6-CCEF-4D75-9DD0-0BC5ABDBD466}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\defaultValue\msbuild\client\client.csproj", "{279C3FC6-CCEF-4D75-9DD0-0BC5ABDBD466}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optional", "optional", "{3EF9C591-5A45-4490-B6AC-119A8FF2DD5B}"
 EndProject
@@ -434,19 +434,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{65E7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{AE39F912-1A33-45E9-BDAB-39594BFF0CDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\optional\msbuild\serveramd\netstandard2.0\serveramd.csproj", "{9F385295-C422-48E2-9184-88773DC979F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\optional\msbuild\serveramd\serveramd.csproj", "{9F385295-C422-48E2-9184-88773DC979F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{5790C45E-F8BB-44EF-85AE-80ABAECDF8F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\optional\msbuild\client\netstandard2.0\client.csproj", "{DDD52C5A-51FC-4C2C-BF27-DBF1F8CF0762}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\optional\msbuild\client\client.csproj", "{DDD52C5A-51FC-4C2C-BF27-DBF1F8CF0762}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serializable", "serializable", "{796F420F-C9BA-4623-9DB4-E2F784397A1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\optional\msbuild\serializable\netstandard2.0\serializable.csproj", "{457A0A73-4A96-43FA-B728-243A7DD8182B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\optional\msbuild\serializable\serializable.csproj", "{457A0A73-4A96-43FA-B728-243A7DD8182B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{83CEBF50-47F1-470B-8581-7414CA333054}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\optional\msbuild\server\netstandard2.0\server.csproj", "{DBBC1CFA-36ED-46D6-8EBD-55D007DFE5F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\optional\msbuild\server\server.csproj", "{DBBC1CFA-36ED-46D6-8EBD-55D007DFE5F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dispatcher", "dispatcher", "{736C1F0E-352B-4B30-9943-CA34989744FD}"
 EndProject
@@ -454,15 +454,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{1723
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{5BDA9F9A-CBD1-4EAE-8580-676343FD311E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\dispatcher\msbuild\client\netstandard2.0\client.csproj", "{2A6DE268-EFCB-4732-8E88-77E3FD76184A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\dispatcher\msbuild\client\client.csproj", "{2A6DE268-EFCB-4732-8E88-77E3FD76184A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{F1CEDB16-77DB-43A9-907B-8D8222F226CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\dispatcher\msbuild\collocated\netstandard2.0\collocated.csproj", "{DF68EF4A-15EA-4D78-804A-5337E00D8EAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\dispatcher\msbuild\collocated\collocated.csproj", "{DF68EF4A-15EA-4D78-804A-5337E00D8EAB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{8AAB9F16-6325-4596-AA26-926D3F72F15A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\dispatcher\msbuild\server\netstandard2.0\server.csproj", "{23F56DC6-F07E-45AC-A866-2DFAD3A1F202}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\dispatcher\msbuild\server\server.csproj", "{23F56DC6-F07E-45AC-A866-2DFAD3A1F202}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "acm", "acm", "{910705C7-7F2B-4D6D-B6CB-64C80E5624FE}"
 EndProject
@@ -470,11 +470,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{5D27
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{4CDD5099-0833-4B7E-AB1F-1E9611A16D1A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\acm\msbuild\client\netstandard2.0\client.csproj", "{0900FEA1-93CF-4AEB-9110-39C5DA196473}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\acm\msbuild\client\client.csproj", "{0900FEA1-93CF-4AEB-9110-39C5DA196473}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{FB894696-0EA2-4082-8A2A-29CD01936A14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\acm\msbuild\server\netstandard2.0\server.csproj", "{89FBAEB2-1A6D-458A-A74B-BE6E03D136FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\acm\msbuild\server\server.csproj", "{89FBAEB2-1A6D-458A-A74B-BE6E03D136FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stream", "stream", "{12C962DF-2768-4B1D-8554-EF3A1913A2FC}"
 EndProject
@@ -482,11 +482,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{7B56
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{EEFEF897-B053-4936-B296-9C6EC88F9C18}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\stream\msbuild\client\netstandard2.0\client.csproj", "{F689BFCB-B440-4DC1-9918-1745F36DE25D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\stream\msbuild\client\client.csproj", "{F689BFCB-B440-4DC1-9918-1745F36DE25D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serializable", "serializable", "{B152D8E5-1CC5-4EFB-BB0E-43AB880E46DB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\stream\msbuild\serializable\netstandard2.0\serializable.csproj", "{40D7AAD7-7D76-45F9-A81F-649E9DC5BE37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\stream\msbuild\serializable\serializable.csproj", "{40D7AAD7-7D76-45F9-A81F-649E9DC5BE37}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "admin", "admin", "{4EF07672-318F-47CF-B5EF-E7FC443A20B2}"
 EndProject
@@ -494,11 +494,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{1EA7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{27565266-1F50-4B30-9BB9-F0717A4BB1D5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\admin\msbuild\client\netstandard2.0\client.csproj", "{8788F08A-D617-49E7-8946-E2B431CC4BB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\admin\msbuild\client\client.csproj", "{8788F08A-D617-49E7-8946-E2B431CC4BB4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{6C1C6D6C-3DEA-45F7-A50C-D2369426F174}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\admin\msbuild\server\netstandard2.0\server.csproj", "{72AB952B-2305-489C-BED4-7B3330502845}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\admin\msbuild\server\server.csproj", "{72AB952B-2305-489C-BED4-7B3330502845}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "threadPoolPriority", "threadPoolPriority", "{2CD2830D-F81A-4DB2-A7E8-9E5E87B645C1}"
 EndProject
@@ -506,11 +506,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{2746
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{5B5D4A8E-D688-4D26-8498-6A18DCA94062}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\threadPoolPriority\msbuild\client\netstandard2.0\client.csproj", "{DBC75CEA-3B37-4E90-A2EC-BBABDCA5CC2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\threadPoolPriority\msbuild\client\client.csproj", "{DBC75CEA-3B37-4E90-A2EC-BBABDCA5CC2A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{00E27E09-9197-4251-8A46-103B722C12A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\threadPoolPriority\msbuild\server\netstandard2.0\server.csproj", "{E109BF1C-EC44-4FCF-9769-C30A3DD40BB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\threadPoolPriority\msbuild\server\server.csproj", "{E109BF1C-EC44-4FCF-9769-C30A3DD40BB2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "properties", "properties", "{4CDDE6FF-3276-4209-ADE3-2453D02A3970}"
 EndProject
@@ -518,7 +518,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{26DD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{3EC719AA-A422-433B-B145-37ED2FFB0D83}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\properties\msbuild\client\netstandard2.0\client.csproj", "{23BA0E21-3C05-46AE-B360-76FDAEADED58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\properties\msbuild\client\client.csproj", "{23BA0E21-3C05-46AE-B360-76FDAEADED58}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "enums", "enums", "{2CD3B7B1-1F4F-4A92-BBCB-46489BA6F7E3}"
 EndProject
@@ -526,11 +526,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{79F6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{7EC4A909-81BC-4F4C-B6C7-D17CD65E0056}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\enums\msbuild\client\netstandard2.0\client.csproj", "{83DB5C6E-6693-4179-8A6E-F28704DB5D50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\enums\msbuild\client\client.csproj", "{83DB5C6E-6693-4179-8A6E-F28704DB5D50}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{F7A085A4-24BD-476B-92FE-A605BBCC8131}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\enums\msbuild\server\netstandard2.0\server.csproj", "{B35816CE-C424-4779-A517-B3A9BC0C3ACE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\enums\msbuild\server\server.csproj", "{B35816CE-C424-4779-A517-B3A9BC0C3ACE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "timeout", "timeout", "{BEF8DC31-73BD-4C42-8FB6-3921EA4F5775}"
 EndProject
@@ -538,11 +538,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{B08A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{4B6BDFAD-4B86-450E-8FFB-83BEA046DC41}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\timeout\msbuild\client\netstandard2.0\client.csproj", "{489C045C-796B-4223-95E9-FD63759FD911}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\timeout\msbuild\client\client.csproj", "{489C045C-796B-4223-95E9-FD63759FD911}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{2072448F-D04F-433D-ABC3-7A20795EBFCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\timeout\msbuild\server\netstandard2.0\server.csproj", "{BFD43226-59A9-4C7A-8F6D-E67677E88FFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\timeout\msbuild\server\server.csproj", "{BFD43226-59A9-4C7A-8F6D-E67677E88FFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "background", "background", "{7621B695-119D-4570-A8B9-1C178A099F1A}"
 EndProject
@@ -550,11 +550,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{54BD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{8BBC585C-9212-4628-B9C5-0D5358C34049}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\background\msbuild\client\netstandard2.0\client.csproj", "{8C82715F-BC99-4623-A6C2-39EDAF6C6311}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\background\msbuild\client\client.csproj", "{8C82715F-BC99-4623-A6C2-39EDAF6C6311}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{1E1E6526-5317-4A87-A538-D7988116CDC0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\background\msbuild\server\netstandard2.0\server.csproj", "{EEA65CBF-68B5-4470-A102-40EB94BE78E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\background\msbuild\server\server.csproj", "{EEA65CBF-68B5-4470-A102-40EB94BE78E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serialize", "serialize", "{38A210F5-D51A-473A-B02D-8AA136E467F7}"
 EndProject
@@ -562,7 +562,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{FFB7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{4AF8EACA-CFB2-4A58-94EE-B374E0E8ED84}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\serialize\msbuild\client\netstandard2.0\client.csproj", "{21A35D04-45D9-4D70-8DB2-EEDADD33E4BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\serialize\msbuild\client\client.csproj", "{21A35D04-45D9-4D70-8DB2-EEDADD33E4BF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "defaultServant", "defaultServant", "{E181263B-D978-4DB9-A716-AB5CE5309385}"
 EndProject
@@ -570,7 +570,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{6334
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{F3F2995E-3A44-443B-8F6B-1199343DC83A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\defaultServant\msbuild\client\netstandard2.0\client.csproj", "{A12E8603-7E26-4131-A2E9-12C31E53EA33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\defaultServant\msbuild\client\client.csproj", "{A12E8603-7E26-4131-A2E9-12C31E53EA33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "facets", "facets", "{CFF6EE8B-5537-4F9D-B4EF-EF8D695C6072}"
 EndProject
@@ -578,15 +578,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{5376
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{F6FDB52C-07FE-4F78-B2AD-585DBFBE5DC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\facets\msbuild\client\netstandard2.0\client.csproj", "{B4492F1A-26D7-402E-B738-2DB5274D8A1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\facets\msbuild\client\client.csproj", "{B4492F1A-26D7-402E-B738-2DB5274D8A1E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "collocated", "collocated", "{C7B3115E-C312-49B3-A7D9-6ADB05A8D9E6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\facets\msbuild\collocated\netstandard2.0\collocated.csproj", "{63D6D1B7-227A-4119-A7E8-AB3BB5130545}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "collocated", "..\test\Ice\facets\msbuild\collocated\collocated.csproj", "{63D6D1B7-227A-4119-A7E8-AB3BB5130545}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{C5477D92-9777-475C-8428-21172732F14C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\facets\msbuild\server\netstandard2.0\server.csproj", "{E2A1D53C-C34F-4E7D-94AE-BC9ED43651F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\facets\msbuild\server\server.csproj", "{E2A1D53C-C34F-4E7D-94AE-BC9ED43651F2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IceGrid", "IceGrid", "{EE74142F-8D71-4BE6-AA5E-74EC2F493452}"
 EndProject
@@ -596,11 +596,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{25FC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{B3996FA6-40BF-4EB5-838B-84F17D19E6FB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceGrid\simple\msbuild\client\netstandard2.0\client.csproj", "{F977DCB5-AC22-456D-9813-38983DC626AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceGrid\simple\msbuild\client\client.csproj", "{F977DCB5-AC22-456D-9813-38983DC626AC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{6F853B07-4498-49A9-8E45-140BD1DA874B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\IceGrid\simple\msbuild\server\netstandard2.0\server.csproj", "{4927E0CC-2875-44AA-ADAB-A7E22EBC624B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\IceGrid\simple\msbuild\server\server.csproj", "{4927E0CC-2875-44AA-ADAB-A7E22EBC624B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IceDiscovery", "IceDiscovery", "{7119DC45-CEB8-49A6-A63A-1B62D3E946EC}"
 EndProject
@@ -610,11 +610,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{70CD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{C063923A-BB6C-4834-A84D-7AB22858B560}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceDiscovery\simple\msbuild\client\netstandard2.0\client.csproj", "{618A22AA-3E4F-447B-AA82-AE1AC6F1D369}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceDiscovery\simple\msbuild\client\client.csproj", "{618A22AA-3E4F-447B-AA82-AE1AC6F1D369}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{B5E5337F-E7BE-49E7-8AED-CFA309343CCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\IceDiscovery\simple\msbuild\server\netstandard2.0\server.csproj", "{D461E1F4-3D90-4C53-9295-E5F54E16A15C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\IceDiscovery\simple\msbuild\server\server.csproj", "{D461E1F4-3D90-4C53-9295-E5F54E16A15C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IceSSL", "IceSSL", "{936C5C6A-C8FE-493F-B7B7-B68495B30441}"
 EndProject
@@ -624,11 +624,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{E837
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{CB32ADA0-D8B7-4138-8B48-0539AF4F3E1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceSSL\configuration\msbuild\client\netstandard2.0\client.csproj", "{4C982E31-193A-4CF9-8EFB-5DE06207BA6B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceSSL\configuration\msbuild\client\client.csproj", "{4C982E31-193A-4CF9-8EFB-5DE06207BA6B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{22BCFDEE-ED0B-46BB-8421-EAE862F32A0B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\IceSSL\configuration\msbuild\server\netstandard2.0\server.csproj", "{E9AAE889-CC34-4E4F-8DB2-AF52E2322C18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\IceSSL\configuration\msbuild\server\server.csproj", "{E9AAE889-CC34-4E4F-8DB2-AF52E2322C18}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IceUtil", "IceUtil", "{A7AB4641-725F-4CBF-A665-1A06C5C81FA8}"
 EndProject
@@ -638,7 +638,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{7575
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{17F90CD6-44CE-4E0C-B28D-5063EAFCA1FE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceUtil\inputUtil\msbuild\client\netstandard2.0\client.csproj", "{9A3893E3-1B65-4A06-BA5D-214D8AF08459}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceUtil\inputUtil\msbuild\client\client.csproj", "{9A3893E3-1B65-4A06-BA5D-214D8AF08459}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Glacier2", "Glacier2", "{13ED0D90-31B5-410C-B820-D1F22E489E77}"
 EndProject
@@ -648,11 +648,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{5A6C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{B9C92934-57AC-4124-9F16-47C7BBE636E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Glacier2\sessionHelper\msbuild\client\netstandard2.0\client.csproj", "{6B2A87C8-EDC2-42D1-A54B-EF2E4F30CD3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Glacier2\sessionHelper\msbuild\client\client.csproj", "{6B2A87C8-EDC2-42D1-A54B-EF2E4F30CD3D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{85DBB503-4412-4633-8D3F-D06FDD54E517}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Glacier2\sessionHelper\msbuild\server\netstandard2.0\server.csproj", "{4225D6B8-462D-417D-B743-AAC282FA34EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Glacier2\sessionHelper\msbuild\server\server.csproj", "{4225D6B8-462D-417D-B743-AAC282FA34EA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "router", "router", "{37411BDB-6965-4990-910F-A5CB78783330}"
 EndProject
@@ -660,11 +660,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{1FBF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{95FB0D28-891E-4824-A6AF-EF61E1C35117}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Glacier2\router\msbuild\client\netstandard2.0\client.csproj", "{DD71F0AA-8233-4D75-96E8-0CF7D72DA578}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Glacier2\router\msbuild\client\client.csproj", "{DD71F0AA-8233-4D75-96E8-0CF7D72DA578}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{C51C2611-AADB-464E-AA0B-7E08493A48E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Glacier2\router\msbuild\server\netstandard2.0\server.csproj", "{08D90340-527E-4064-B5EE-CC4A903ADBE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Glacier2\router\msbuild\server\server.csproj", "{08D90340-527E-4064-B5EE-CC4A903ADBE2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IceBox", "IceBox", "{CF135DEA-F308-47B3-8CB4-E2666898A426}"
 EndProject
@@ -674,11 +674,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{C95D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testservice", "testservice", "{94AF8ECE-0A63-49F0-B5D8-6A7F423E0EE9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testservice", "..\test\IceBox\configuration\msbuild\testservice\netstandard2.0\testservice.csproj", "{F70172E1-C29D-4553-A3E2-5275DCD96D5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testservice", "..\test\IceBox\configuration\msbuild\testservice\testservice.csproj", "{F70172E1-C29D-4553-A3E2-5275DCD96D5F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{B552E6C3-1F92-465D-A8E4-92F839C9AE7C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceBox\configuration\msbuild\client\netstandard2.0\client.csproj", "{BE1123C0-875B-43C8-B44B-CBDDD32560EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceBox\configuration\msbuild\client\client.csproj", "{BE1123C0-875B-43C8-B44B-CBDDD32560EB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "admin", "admin", "{E6B28CA6-8909-4579-AF84-4DB6D978B732}"
 EndProject
@@ -686,11 +686,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{1684
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testservice", "testservice", "{2B9B81E7-DC59-4891-9533-53CF489AC7CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testservice", "..\test\IceBox\admin\msbuild\testservice\netstandard2.0\testservice.csproj", "{1598FF79-4BD7-4F16-9D47-0136C39F7FDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testservice", "..\test\IceBox\admin\msbuild\testservice\testservice.csproj", "{1598FF79-4BD7-4F16-9D47-0136C39F7FDC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{CFEC45BF-46F4-4A7E-986C-EA4CEB35CC39}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceBox\admin\msbuild\client\netstandard2.0\client.csproj", "{536B3186-8F6B-46AC-AC81-2B16A182A78C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\IceBox\admin\msbuild\client\client.csproj", "{536B3186-8F6B-46AC-AC81-2B16A182A78C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Slice", "Slice", "{BC37CE71-3B2B-4B50-85D3-F42A676B36B7}"
 EndProject
@@ -700,7 +700,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{B1ED
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{BBB77161-329A-422C-98CA-1EB2D9B296BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\macros\msbuild\client\netstandard2.0\client.csproj", "{A9731450-39EC-463D-8255-C7492A6CDB0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\macros\msbuild\client\client.csproj", "{A9731450-39EC-463D-8255-C7492A6CDB0A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "structure", "structure", "{CDCC06BD-E7CC-4B74-AE94-89F94409C8BF}"
 EndProject
@@ -708,7 +708,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{C750
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{D3B9F523-8E1D-41CF-ADBB-F8FF4551E01C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\structure\msbuild\client\netstandard2.0\client.csproj", "{1E06C2A4-8C58-4720-BE1D-7F1BBE551BE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\structure\msbuild\client\client.csproj", "{1E06C2A4-8C58-4720-BE1D-7F1BBE551BE6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "escape", "escape", "{AAA333D5-68CA-471F-ACCB-F1A68656D1D4}"
 EndProject
@@ -716,19 +716,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{D771
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{072A9C19-7C42-4C37-B919-A591DF07103C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\escape\msbuild\client\netstandard2.0\client.csproj", "{E6DC2FC3-3949-49B2-9AE1-F48BE3D70C4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\escape\msbuild\client\client.csproj", "{E6DC2FC3-3949-49B2-9AE1-F48BE3D70C4E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scope", "scope", "{A1152815-0E00-4E4C-B13E-E466550D83AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\scope\msbuild\client\netstandard2.0\client.csproj", "{B4061AF6-374C-4011-9CE7-B9D69F106317}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\scope\msbuild\client\client.csproj", "{B4061AF6-374C-4011-9CE7-B9D69F106317}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\scope\msbuild\server\netstandard2.0\server.csproj", "{F67DF0EA-3830-4D17-B60B-0F6BAD76AEAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\scope\msbuild\server\server.csproj", "{F67DF0EA-3830-4D17-B60B-0F6BAD76AEAA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "namespacemd", "namespacemd", "{2988E030-1F8E-490B-B8A3-D1F02073500A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\namespacemd\msbuild\client\netstandard2.0\client.csproj", "{C56E9BC5-37E6-4001-A45C-D11E64C7385E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\namespacemd\msbuild\client\client.csproj", "{C56E9BC5-37E6-4001-A45C-D11E64C7385E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\namespacemd\msbuild\server\netstandard2.0\server.csproj", "{33983EDC-CF67-4697-81D4-AA5337733FE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\namespacemd\msbuild\server\server.csproj", "{33983EDC-CF67-4697-81D4-AA5337733FE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

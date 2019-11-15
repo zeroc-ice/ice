@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.info</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/info/AllTests.cs" />
+    <Compile Include="../../../../Ice/info/Client.cs" />
+    <Compile Include="../../../../Ice/info/TestI.cs" />
+    <Compile Include="../../../../Ice/info/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/info/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/info/Test.ice" />
+  </ItemGroup>
+</Project>

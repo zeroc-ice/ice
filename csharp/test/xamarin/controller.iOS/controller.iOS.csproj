@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{FD70EC29-8D51-4F4F-8AD7-64170F22575D}</ProjectGuid>
-    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TemplateGuid>{6143fdea-f3c2-4a09-aafa-6e230626515e}</TemplateGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>controller.iOS</RootNamespace>
@@ -118,20 +118,6 @@
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <Choose>
-    <When Condition="'$(ICE_BIN_DIST)' == 'all'">
-      <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.7.3" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="..\..\..\lib\netstandard2.0\Ice.dll" />
-        <Reference Include="..\..\..\lib\netstandard2.0\IceSSL.dll" />
-        <Reference Include="..\..\..\lib\netstandard2.0\IceDiscovery.dll" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -184,11 +170,11 @@
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="3.1.0.697729" />
+    <PackageReference Include="Xamarin.Forms" Version="4.3.0.991211" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\TestCommon\msbuild\testcommon\netstandard2.0\testcommon.csproj">
+    <ProjectReference Include="..\tests\TestCommon\testcommon.csproj">
       <Project>{a62bf5e3-ad66-4edb-9bba-3e9bd6148425}</Project>
       <Name>testcommon</Name>
     </ProjectReference>

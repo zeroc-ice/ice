@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+    <AssemblyName>Plugin</AssemblyName>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../BasePlugin.cs"/>
+    <Compile Include="../../BasePluginFail.cs"/>
+    <Compile Include="../../PluginFactory.cs"/>
+    <Compile Include="../../PluginInitializeFailException.cs"/>
+    <Compile Include="../../PluginInitializeFailFactory.cs"/>
+    <Compile Include="../../PluginOneFactory.cs"/>
+    <Compile Include="../../PluginOneFailFactory.cs"/>
+    <Compile Include="../../PluginThreeFactory.cs"/>
+    <Compile Include="../../PluginThreeFailFactory.cs"/>
+    <Compile Include="../../PluginTwoFactory.cs"/>
+    <Compile Include="../../PluginTwoFailFactory.cs"/>
+  </ItemGroup>
+</Project>

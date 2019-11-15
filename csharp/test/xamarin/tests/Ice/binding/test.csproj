@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.binding</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/binding/AllTests.cs" />
+    <Compile Include="../../../../Ice/binding/Client.cs" />
+    <Compile Include="../../../../Ice/binding/TestI.cs" />
+    <Compile Include="../../../../Ice/binding/RemoteCommunicatorI.cs" />
+    <Compile Include="../../../../Ice/binding/RemoteObjectAdapterI.cs" />
+    <Compile Include="../../../../Ice/binding/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/binding/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/binding/Test.ice" />
+  </ItemGroup>
+</Project>

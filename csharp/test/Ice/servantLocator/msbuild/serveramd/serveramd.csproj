@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>serveramd</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../TestAMDI.cs" />
+    <Compile Include="../../ServerAMD.cs" />
+    <Compile Include="../../CookieAMDI.cs" />
+    <Compile Include="../../ServantLocatorAMDI.cs" />
+    <Compile Include="../../TestActivationAMDI.cs" />
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../TestAMD.ice" />
+  </ItemGroup>
+</Project>

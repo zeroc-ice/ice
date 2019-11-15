@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>collocated</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../TestI.cs" />
+    <Compile Include="../../AllTests.cs" />
+    <Compile Include="../../Collocated.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../Test.ice" />
+  </ItemGroup>
+</Project>

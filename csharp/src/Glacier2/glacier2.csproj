@@ -4,7 +4,7 @@
         <AssemblyName>Glacier2</AssemblyName>
         <Title>Glacier2 .NET Client Library</Title>
         <OutputPath>../../lib</OutputPath>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />

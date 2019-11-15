@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.namespacemd</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemDefinitionGroup Label="IceBuilder">
+    <SliceCompile>
+      <IncludeDirectories>../../../../Ice/namespacemd</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/namespacemd/AllTests.cs" />
+    <Compile Include="../../../../Ice/namespacemd/Client.cs" />
+    <Compile Include="../../../../Ice/namespacemd/InitialI.cs" />
+      <Compile Include="../../../../Ice/namespacemd/Server.cs" />
+    <Compile Include="generated/NoNamespace.cs">
+      <SliceCompileSource>../../../../Ice/namespacemd/NoNamespace.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/Namespace.cs">
+      <SliceCompileSource>../../../../Ice/namespacemd/Namespace.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/namespacemd/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/namespacemd/NoNamespace.ice" />
+    <SliceCompile Include="../../../../Ice/namespacemd/Namespace.ice" />
+    <SliceCompile Include="../../../../Ice/namespacemd/Test.ice" />
+  </ItemGroup>
+</Project>

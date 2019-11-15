@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.objects</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/objects/Client.cs" />
+    <Compile Include="../../../../Ice/objects/Collocated.cs" />
+    <Compile Include="../../../../Ice/objects/Server.cs" />
+    <Compile Include="../../../../Ice/objects/AllTests.cs" />
+    <Compile Include="../../../../Ice/objects/F2I.cs" />
+    <Compile Include="../../../../Ice/objects/InitialI.cs" />
+    <Compile Include="../../../../Ice/objects/UnexpectedObjectExceptionTestI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/objects/Test.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/Forward.cs">
+      <SliceCompileSource>../../../../Ice/objects/Forward.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/objects/Test.ice" />
+    <SliceCompile Include="../../../../Ice/objects/Forward.ice" />
+  </ItemGroup>
+</Project>

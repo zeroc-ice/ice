@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.timeout</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/timeout/AllTests.cs" />
+    <Compile Include="../../../../Ice/timeout/Client.cs" />
+    <Compile Include="../../../../Ice/timeout/Server.cs" />
+    <Compile Include="../../../../Ice/timeout/TestI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/timeout/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/timeout/Test.ice" />
+  </ItemGroup>
+</Project>

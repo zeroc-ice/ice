@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.interceptor</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/interceptor/Client.cs" />
+    <Compile Include="../../../../Ice/interceptor/InterceptorI.cs" />
+    <Compile Include="../../../../Ice/interceptor/MyObjectI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/interceptor/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/interceptor/Test.ice" />
+  </ItemGroup>
+</Project>

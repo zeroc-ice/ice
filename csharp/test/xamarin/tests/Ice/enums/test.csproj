@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.enums</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/enums/AllTests.cs" />
+    <Compile Include="../../../../Ice/enums/Client.cs" />
+    <Compile Include="../../../../Ice/enums/TestI.cs" />
+    <Compile Include="../../../../Ice/enums/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/enums/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/enums/Test.ice" />
+  </ItemGroup>
+</Project>

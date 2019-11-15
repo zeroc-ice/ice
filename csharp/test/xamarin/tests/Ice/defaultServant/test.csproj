@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.defaultServant</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/defaultServant/AllTests.cs" />
+    <Compile Include="../../../../Ice/defaultServant/Client.cs" />
+    <Compile Include="../../../../Ice/defaultServant/MyObjectI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/defaultServant/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/defaultServant/Test.ice" />
+  </ItemGroup>
+</Project>

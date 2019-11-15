@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.facets</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/facets/AllTests.cs" />
+    <Compile Include="../../../../Ice/facets/Client.cs" />
+    <Compile Include="../../../../Ice/facets/EmptyI.cs" />
+    <Compile Include="../../../../Ice/facets/AI.cs" />
+    <Compile Include="../../../../Ice/facets/BI.cs" />
+    <Compile Include="../../../../Ice/facets/CI.cs" />
+    <Compile Include="../../../../Ice/facets/DI.cs" />
+    <Compile Include="../../../../Ice/facets/EI.cs" />
+    <Compile Include="../../../../Ice/facets/FI.cs" />
+    <Compile Include="../../../../Ice/facets/GI.cs" />
+    <Compile Include="../../../../Ice/facets/HI.cs" />
+    <Compile Include="../../../../Ice/facets/Collocated.cs" />
+    <Compile Include="../../../../Ice/facets/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/facets/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/facets/Test.ice" />
+  </ItemGroup>
+</Project>

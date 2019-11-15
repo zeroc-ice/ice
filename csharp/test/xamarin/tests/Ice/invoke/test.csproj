@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.invoke</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/invoke/AllTests.cs" />
+    <Compile Include="../../../../Ice/invoke/BlobjectI.cs" />
+    <Compile Include="../../../../Ice/invoke/Client.cs" />
+    <Compile Include="../../../../Ice/invoke/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/invoke/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/invoke/Test.ice" />
+  </ItemGroup>
+</Project>

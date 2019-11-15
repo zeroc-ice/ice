@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.inheritance</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+      <Compile Include="../../../../Ice/inheritance/AllTests.cs" />
+      <Compile Include="../../../../Ice/inheritance/Client.cs" />
+      <Compile Include="../../../../Ice/inheritance/Collocated.cs" />
+      <Compile Include="../../../../Ice/inheritance/IAI.cs" />
+      <Compile Include="../../../../Ice/inheritance/IB1I.cs" />
+      <Compile Include="../../../../Ice/inheritance/IB2I.cs" />
+      <Compile Include="../../../../Ice/inheritance/ICI.cs" />
+      <Compile Include="../../../../Ice/inheritance/InitialI.cs" />
+      <Compile Include="../../../../Ice/inheritance/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/inheritance/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/inheritance/Test.ice" />
+  </ItemGroup>
+</Project>

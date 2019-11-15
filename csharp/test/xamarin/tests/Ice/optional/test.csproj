@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.optional</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/optional/AllTests.cs" />
+    <Compile Include="../../../../Ice/optional/Client.cs" />
+    <Compile Include="../../../../Ice/optional/SerializableClass.cs" />
+    <Compile Include="../../../../Ice/optional/Server.cs" />
+    <Compile Include="../../../../Ice/optional/ServerAMD.cs" />
+    <Compile Include="../../../../Ice/optional/TestI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/optional/Test.ice</SliceCompileSource>
+    </Compile>
+
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../../../Ice/optional/TestAMD.ice</SliceCompileSource>
+    </Compile>
+
+    <SliceCompile Include="../../../../Ice/optional/Test.ice" />
+    <SliceCompile Include="../../../../Ice/optional/TestAMD.ice" />
+  </ItemGroup>
+</Project>

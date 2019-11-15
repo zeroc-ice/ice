@@ -1,17 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "controller.Android", "..\test\xamarin\controller.Android\controller.Android.csproj", "{62B1BE59-435A-480B-8807-03A42623BA1A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "controller.iOS", "..\test\xamarin\controller.iOS\controller.iOS.csproj", "{FD70EC29-8D51-4F4F-8AD7-64170F22575D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "controller.UWP", "..\test\xamarin\controller.UWP\controller.UWP.csproj", "{00218ACB-5695-4935-BAE1-F47B13989E9B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "controller", "..\test\xamarin\controller\controller.csproj", "{0578CEE2-EF1E-496E-ABF4-5F9A70E888D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testcommon", "..\test\TestCommon\msbuild\testcommon\netstandard2.0\testcommon.csproj", "{A62BF5E3-AD66-4EDB-9BBA-3E9BD6148425}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testcommon", "..\test\xamarin\tests\TestCommon\testcommon.csproj", "{A62BF5E3-AD66-4EDB-9BBA-3E9BD6148425}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FDF2D71D-81F6-4D9F-A1B2-811399CA98B9}"
 EndProject
@@ -19,127 +17,127 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ice", "Ice", "{484E315B-A0A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "acm", "acm", "{B45B0A8F-AA7F-4E19-8B07-DEE60CCC0426}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\acm\msbuild\test\netstandard2.0\test.csproj", "{F98C37DC-6484-4958-8D70-BD941A2F8F33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\acm\test.csproj", "{F98C37DC-6484-4958-8D70-BD941A2F8F33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adapterDeactivation", "adapterDeactivation", "{1972D071-B981-43F3-8171-F268F57AB1A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\adapterDeactivation\msbuild\test\netstandard2.0\test.csproj", "{3F2F54AA-CE8A-4862-A7C1-CFDB52AB5591}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\adapterDeactivation\test.csproj", "{3F2F54AA-CE8A-4862-A7C1-CFDB52AB5591}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ami", "ami", "{38CCD9BB-576F-4DB3-9928-756D4FD73CBE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\ami\msbuild\test\netstandard2.0\test.csproj", "{F949076A-E4E8-4662-8099-211F47199863}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\ami\test.csproj", "{F949076A-E4E8-4662-8099-211F47199863}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "binding", "binding", "{3758776C-A23F-4FDA-A406-2354908A3E43}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\binding\msbuild\test\netstandard2.0\test.csproj", "{723D6742-BFAC-4265-84C5-60EB6AB60A2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\binding\test.csproj", "{723D6742-BFAC-4265-84C5-60EB6AB60A2C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "defaultServant", "defaultServant", "{552AB952-499C-4B62-9F09-90BAA194FBE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\defaultServant\msbuild\test\netstandard2.0\test.csproj", "{3A49DE34-5AA0-4B12-B3E4-01CA99E8EA8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\defaultServant\test.csproj", "{3A49DE34-5AA0-4B12-B3E4-01CA99E8EA8E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "defaultValue", "defaultValue", "{816AF508-01A3-4B01-A699-949F65B25446}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\defaultValue\msbuild\test\netstandard2.0\test.csproj", "{53E8D95F-DB44-4E2C-A081-99DE5B37F287}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\defaultValue\test.csproj", "{53E8D95F-DB44-4E2C-A081-99DE5B37F287}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dictMapping", "dictMapping", "{8EB84516-E587-4EC1-B59E-5DABF47A5C40}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\dictMapping\msbuild\test\netstandard2.0\test.csproj", "{23B0209F-89D7-40D3-BC3B-341828929087}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\dictMapping\test.csproj", "{23B0209F-89D7-40D3-BC3B-341828929087}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "enums", "enums", "{7FD1EE11-6DF7-4C05-B24A-B69D138B9769}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\enums\msbuild\test\netstandard2.0\test.csproj", "{D44F7836-C10D-4470-975B-A09EF73B90B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\enums\test.csproj", "{D44F7836-C10D-4470-975B-A09EF73B90B2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "exceptions", "exceptions", "{F26F29C8-30CA-4261-AA5B-9F61B252FE8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\exceptions\msbuild\test\netstandard2.0\test.csproj", "{12A3579A-2082-46DB-902F-6377F722E1E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\exceptions\test.csproj", "{12A3579A-2082-46DB-902F-6377F722E1E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "facets", "facets", "{D43387B9-67C0-48EA-BA5F-7DF77FECC623}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\facets\msbuild\test\netstandard2.0\test.csproj", "{D57CAED3-8E65-40B1-AB3C-439E17CCB883}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\facets\test.csproj", "{D57CAED3-8E65-40B1-AB3C-439E17CCB883}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hold", "hold", "{562E233D-EF39-43B1-A2A1-509BB5C85481}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\hold\msbuild\test\netstandard2.0\test.csproj", "{4F7AD3B5-E8F1-40FF-92B3-F6508F0F3997}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\hold\test.csproj", "{4F7AD3B5-E8F1-40FF-92B3-F6508F0F3997}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "info", "info", "{E5098B39-C3C4-443D-9659-6439B66BF7CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\info\msbuild\test\netstandard2.0\test.csproj", "{52E684CF-8511-4998-9DC9-A9EF4C06DD66}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\info\test.csproj", "{52E684CF-8511-4998-9DC9-A9EF4C06DD66}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "inheritance", "inheritance", "{521E4159-10F6-42F1-91CD-04039065F2B1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\inheritance\msbuild\test\netstandard2.0\test.csproj", "{D08551B3-2CF2-4F33-A901-76850D3575A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\inheritance\test.csproj", "{D08551B3-2CF2-4F33-A901-76850D3575A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interceptor", "interceptor", "{0C5BC375-D9B0-406C-BB6A-CFE7A7643F30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\interceptor\msbuild\test\netstandard2.0\test.csproj", "{EF7F3C57-F971-4D32-9368-B6B6C50CFE3C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\interceptor\test.csproj", "{EF7F3C57-F971-4D32-9368-B6B6C50CFE3C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "invoke", "invoke", "{260EAF61-B212-4E69-8FA4-BB0819CAEDD4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\invoke\msbuild\test\netstandard2.0\test.csproj", "{9E6FA72E-0FED-41DA-ACFD-B157008AC65B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\invoke\test.csproj", "{9E6FA72E-0FED-41DA-ACFD-B157008AC65B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "location", "location", "{6A8E1B61-4331-4865-9575-9507690EEA42}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\location\msbuild\test\netstandard2.0\test.csproj", "{1951FEA6-8C7B-453D-9856-B4C50FF12075}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\location\test.csproj", "{1951FEA6-8C7B-453D-9856-B4C50FF12075}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "objects", "objects", "{4D7539A2-A109-4C87-B392-33B7C864BF20}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\objects\msbuild\test\netstandard2.0\test.csproj", "{14183942-5E4A-4C85-9A22-EF3304B225D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\objects\test.csproj", "{14183942-5E4A-4C85-9A22-EF3304B225D9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "operations", "operations", "{612D4D4A-4056-4A7B-A9B6-F01264852C23}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\operations\msbuild\test\netstandard2.0\test.csproj", "{AA1A3A35-D870-438C-8D21-A78211B7059A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\operations\test.csproj", "{AA1A3A35-D870-438C-8D21-A78211B7059A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optional", "optional", "{153D4FEE-25AD-4182-AB53-C7F24861CCD4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\optional\msbuild\test\netstandard2.0\test.csproj", "{FA714D0F-528A-49F5-A2A8-51AAD5CD4D79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\optional\test.csproj", "{FA714D0F-528A-49F5-A2A8-51AAD5CD4D79}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "namespacemd", "namespacemd", "{76132143-9859-4F3C-9AB5-24E9905CAB77}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\namespacemd\msbuild\test\netstandard2.0\test.csproj", "{3E6D14B4-FB21-45EF-9B04-1AEC4F9DD72F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\namespacemd\test.csproj", "{3E6D14B4-FB21-45EF-9B04-1AEC4F9DD72F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proxy", "proxy", "{1E33ACEE-1485-4452-B0FD-319E69AE0ACA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\proxy\msbuild\test\netstandard2.0\test.csproj", "{30CE285A-6718-4D2A-B95C-95BF5B9DB5F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\proxy\test.csproj", "{30CE285A-6718-4D2A-B95C-95BF5B9DB5F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "retry", "retry", "{0EFC0D41-16DD-44D1-AA35-DFC9C002F630}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\retry\msbuild\test\netstandard2.0\test.csproj", "{90CE9B4D-CA44-4421-AFAE-9DAE646D6501}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\retry\test.csproj", "{90CE9B4D-CA44-4421-AFAE-9DAE646D6501}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scope", "scope", "{6C41B7FA-D096-47AD-B3AA-A414C53130B1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\scope\msbuild\test\netstandard2.0\test.csproj", "{B82E30D0-C708-4298-A4D9-23096CC0FC37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\scope\test.csproj", "{B82E30D0-C708-4298-A4D9-23096CC0FC37}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "seqMapping", "seqMapping", "{C6877DA9-5210-4A0D-8ACD-C2918409A128}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\seqMapping\msbuild\test\netstandard2.0\test.csproj", "{68CF8556-120A-4FFF-B210-4BD27F27B44F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\seqMapping\test.csproj", "{68CF8556-120A-4FFF-B210-4BD27F27B44F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serialize", "serialize", "{2F8411A2-5AA9-4DCE-95E9-8D7908CF4761}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\serialize\msbuild\test\netstandard2.0\test.csproj", "{8BB02A6B-DB53-4878-B16A-D21C4F88D24B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\serialize\test.csproj", "{8BB02A6B-DB53-4878-B16A-D21C4F88D24B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "servantLocator", "servantLocator", "{CCCA3C2A-9197-4A04-A804-91E0786F325A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\servantLocator\msbuild\test\netstandard2.0\test.csproj", "{28D70BA1-8833-4E5F-B32E-7BF9E7B6BF4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\servantLocator\test.csproj", "{28D70BA1-8833-4E5F-B32E-7BF9E7B6BF4A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stream", "stream", "{7FA498AC-C5B6-4B93-A80F-03290E1A0034}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\stream\msbuild\test\netstandard2.0\test.csproj", "{C9516047-F8C7-40FF-B035-DEF4F009AF1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\stream\test.csproj", "{C9516047-F8C7-40FF-B035-DEF4F009AF1E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "threadPoolPriority", "threadPoolPriority", "{DDB43470-FAE8-4A08-B5A6-4B9C76B85AFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\threadPoolPriority\msbuild\test\netstandard2.0\test.csproj", "{58562454-2EA2-4879-A2F5-E32AE32063A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\threadPoolPriority\test.csproj", "{58562454-2EA2-4879-A2F5-E32AE32063A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "timeout", "timeout", "{DD26F674-C90B-4443-B310-437CF2A48A0D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\timeout\msbuild\test\netstandard2.0\test.csproj", "{6A8B2B7D-8DE4-4F63-B65A-BFFCBBE8872D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\timeout\test.csproj", "{6A8B2B7D-8DE4-4F63-B65A-BFFCBBE8872D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "udp", "udp", "{1DCDA28D-9DB1-4C17-A4C0-4130F51BB169}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\udp\msbuild\test\netstandard2.0\test.csproj", "{433C2F7E-BB22-489C-A9B9-86F641560D78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\udp\test.csproj", "{433C2F7E-BB22-489C-A9B9-86F641560D78}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "admin", "admin", "{6EC98DF3-02B7-4211-945A-CA0BF0D64D76}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\admin\msbuild\test\netstandard2.0\test.csproj", "{F5396081-48EE-4728-B9E4-C2CF008376C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\admin\test.csproj", "{F5396081-48EE-4728-B9E4-C2CF008376C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -313,78 +311,6 @@ Global
 		{FD70EC29-8D51-4F4F-8AD7-64170F22575D}.Release|x86.ActiveCfg = Release|iPhone
 		{FD70EC29-8D51-4F4F-8AD7-64170F22575D}.Release|x86.Build.0 = Release|iPhone
 		{FD70EC29-8D51-4F4F-8AD7-64170F22575D}.Release|x86.Deploy.0 = Release|iPhone
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|Any CPU.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|Any CPU.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|Any CPU.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|ARM.ActiveCfg = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|ARM.Build.0 = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|ARM.Deploy.0 = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|iPhone.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|iPhone.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|iPhone.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|iPhoneSimulator.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|iPhoneSimulator.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|x64.ActiveCfg = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|x64.Build.0 = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|x64.Deploy.0 = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|x86.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|x86.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Ad-Hoc|x86.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|Any CPU.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|Any CPU.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|Any CPU.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|ARM.ActiveCfg = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|ARM.Build.0 = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|ARM.Deploy.0 = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|iPhone.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|iPhone.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|iPhone.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|iPhoneSimulator.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|iPhoneSimulator.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|iPhoneSimulator.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|x64.ActiveCfg = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|x64.Build.0 = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|x64.Deploy.0 = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|x86.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|x86.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.AppStore|x86.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|Any CPU.Build.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|Any CPU.Deploy.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|ARM.ActiveCfg = Debug|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|ARM.Build.0 = Debug|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|ARM.Deploy.0 = Debug|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|iPhone.ActiveCfg = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|iPhone.Build.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|iPhone.Deploy.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|iPhoneSimulator.ActiveCfg = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|iPhoneSimulator.Build.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|iPhoneSimulator.Deploy.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|x64.ActiveCfg = Debug|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|x64.Build.0 = Debug|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|x64.Deploy.0 = Debug|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|x86.ActiveCfg = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|x86.Build.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Debug|x86.Deploy.0 = Debug|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|Any CPU.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|Any CPU.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|Any CPU.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|ARM.ActiveCfg = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|ARM.Build.0 = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|ARM.Deploy.0 = Release|ARM
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|iPhone.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|iPhone.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|iPhone.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|iPhoneSimulator.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|iPhoneSimulator.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|iPhoneSimulator.Deploy.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|x64.ActiveCfg = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|x64.Build.0 = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|x64.Deploy.0 = Release|x64
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|x86.ActiveCfg = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|x86.Build.0 = Release|x86
-		{00218ACB-5695-4935-BAE1-F47B13989E9B}.Release|x86.Deploy.0 = Release|x86
 		{0578CEE2-EF1E-496E-ABF4-5F9A70E888D4}.Ad-Hoc|Any CPU.ActiveCfg = Debug|Any CPU
 		{0578CEE2-EF1E-496E-ABF4-5F9A70E888D4}.Ad-Hoc|Any CPU.Build.0 = Debug|Any CPU
 		{0578CEE2-EF1E-496E-ABF4-5F9A70E888D4}.Ad-Hoc|Any CPU.Deploy.0 = Debug|Any CPU

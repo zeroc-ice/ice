@@ -302,7 +302,7 @@ namespace IceInternal
             return _bzlibInstalled;
         }
 
-        public static Buffer compress(Buffer buf, int headerSize, int compressionLevel)
+        public static Buffer? compress(Buffer buf, int headerSize, int compressionLevel)
         {
             Debug.Assert(supported());
             //

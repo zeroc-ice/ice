@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.location</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/location/AllTests.cs" />
+    <Compile Include="../../../../Ice/location/Client.cs" />
+    <Compile Include="../../../../Ice/location/HelloI.cs" />
+    <Compile Include="../../../../Ice/location/Server.cs" />
+    <Compile Include="../../../../Ice/location/ServerLocator.cs" />
+    <Compile Include="../../../../Ice/location/ServerLocatorRegistry.cs" />
+    <Compile Include="../../../../Ice/location/ServerManagerI.cs" />
+    <Compile Include="../../../../Ice/location/TestI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/location/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/location/Test.ice" />
+  </ItemGroup>
+</Project>

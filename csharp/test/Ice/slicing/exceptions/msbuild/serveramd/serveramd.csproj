@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>serveramd</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <SliceCompile>
+      <IncludeDirectories>../..</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Compile Include="../../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../TestAMDI.cs" />
+    <Compile Include="../../ServerAMD.cs" />
+    <Compile Include="generated/ServerPrivateAMD.cs">
+      <SliceCompileSource>../../ServerPrivateAMD.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../TestAMD.ice" />
+    <SliceCompile Include="../../ServerPrivateAMD.ice" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>client</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../TestCommon/TestHelper.cs"/>
+    <Compile Include="../../Client.cs"/>
+  </ItemGroup>
+</Project>

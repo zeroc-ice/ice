@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.udp</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/udp/AllTests.cs" />
+    <Compile Include="../../../../Ice/udp/Client.cs" />
+    <Compile Include="../../../../Ice/udp/Server.cs" />
+    <Compile Include="../../../../Ice/udp/TestIntfI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/udp/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/udp/Test.ice" />
+  </ItemGroup>
+</Project>

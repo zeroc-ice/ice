@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>server</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../IAI.cs" />
+    <Compile Include="../../IB1I.cs" />
+    <Compile Include="../../IB2I.cs" />
+    <Compile Include="../../ICI.cs" />
+    <Compile Include="../../InitialI.cs" />
+    <Compile Include="../../Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../Test.ice" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.proxy</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+      <Compile Include="../../../../Ice/proxy/AllTests.cs" />
+      <Compile Include="../../../../Ice/proxy/Client.cs" />
+      <Compile Include="../../../../Ice/proxy/Collocated.cs" />
+      <Compile Include="../../../../Ice/proxy/MyDerivedClassAMDI.cs" />
+      <Compile Include="../../../../Ice/proxy/MyDerivedClassI.cs" />
+      <Compile Include="../../../../Ice/proxy/Server.cs" />
+      <Compile Include="../../../../Ice/proxy/ServerAMD.cs" />
+      <Compile Include="generated/Test.cs">
+          <SliceCompileSource>../../../../Ice/proxy/Test.ice</SliceCompileSource>
+      </Compile>
+      <Compile Include="generated/TestAMD.cs">
+          <SliceCompileSource>../../../../Ice/proxy/TestAMD.ice</SliceCompileSource>
+      </Compile>
+      <SliceCompile Include="../../../../Ice/proxy/Test.ice" />
+      <SliceCompile Include="../../../../Ice/proxy/TestAMD.ice" />
+  </ItemGroup>
+</Project>

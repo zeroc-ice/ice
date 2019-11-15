@@ -11,12 +11,12 @@
     <AssemblyName>controller.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.17134.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion>10.0.18362.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.18362.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>controller.UWP_TemporaryKey.pfx</PackageCertificateKeyFile>
     <PackageCertificateThumbprint>28A113377FFC465A2670468B58F20BEBACAF4D9D</PackageCertificateThumbprint>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
@@ -153,22 +153,8 @@
     <PackageReference Include="Xamarin.Forms" Version="3.1.0.697729" />
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.1.7" />
   </ItemGroup>
-  <Choose>
-    <When Condition="'$(ICE_BIN_DIST)' == 'all'">
-      <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.7.2" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="..\..\..\lib\netstandard2.0\Ice.dll" />
-        <Reference Include="..\..\..\lib\netstandard2.0\IceSSL.dll" />
-        <Reference Include="..\..\..\lib\netstandard2.0\IceDiscovery.dll" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
   <ItemGroup>
-    <ProjectReference Include="..\..\TestCommon\msbuild\testcommon\netstandard2.0\testcommon.csproj">
+    <ProjectReference Include="..\tests\TestCommon\testcommon.csproj">
       <Project>{a62bf5e3-ad66-4edb-9bba-3e9bd6148425}</Project>
       <Name>testcommon</Name>
     </ProjectReference>

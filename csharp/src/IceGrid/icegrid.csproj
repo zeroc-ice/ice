@@ -4,7 +4,7 @@
         <AssemblyName>IceGrid</AssemblyName>
         <Title>IceGrid .NET Client Library</Title>
         <OutputPath>../../lib</OutputPath>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.1</TargetFrameworks>
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />

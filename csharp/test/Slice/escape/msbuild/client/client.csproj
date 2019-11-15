@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>client</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../Client.cs" />
+    <Compile Include="generated/Clash.cs">
+      <SliceCompileSource>../../Clash.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated\Key.cs">
+      <SliceCompileSource>../../Key.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../Clash.ice" />
+    <SliceCompile Include="../../Key.ice" />
+  </ItemGroup>
+</Project>

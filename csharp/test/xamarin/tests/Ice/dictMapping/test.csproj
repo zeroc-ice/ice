@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.dictMapping</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/dictMapping/AllTests.cs" />
+    <Compile Include="../../../../Ice/dictMapping/Client.cs" />
+    <Compile Include="../../../../Ice/dictMapping/Twoways.cs" />
+    <Compile Include="../../../../Ice/dictMapping/TwowaysAMI.cs" />
+    <Compile Include="../../../../Ice/dictMapping/MyClassI.cs" />
+    <Compile Include="../../../../Ice/dictMapping/Collocated.cs" />
+    <Compile Include="../../../../Ice/dictMapping/Server.cs" />
+    <Compile Include="../../../../Ice/dictMapping/ServerAMD.cs" />
+    <Compile Include="../../../../Ice/dictMapping/MyClassAMDI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/dictMapping/Test.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../../../Ice/dictMapping/TestAMD.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/dictMapping/Test.ice" />
+    <SliceCompile Include="../../../../Ice/dictMapping/TestAMD.ice" />
+  </ItemGroup>
+</Project>

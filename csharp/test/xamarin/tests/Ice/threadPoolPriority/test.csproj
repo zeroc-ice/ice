@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.threadPoolPriority</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/threadPoolPriority/Client.cs" />
+    <Compile Include="../../../../Ice/threadPoolPriority/PriorityI.cs" />
+      <Compile Include="../../../../Ice/threadPoolPriority/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/threadPoolPriority/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/threadPoolPriority/Test.ice" />
+  </ItemGroup>
+</Project>

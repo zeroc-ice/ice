@@ -7,6 +7,10 @@
   </ImportGroup>
 
   <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <OutputPath>.</OutputPath>
+
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <WarningLevel>4</WarningLevel>

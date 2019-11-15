@@ -9,7 +9,7 @@ namespace IceUtilInternal
 {
     public sealed class Arrays
     {
-        public static bool Equals(object[] arr1, object[] arr2)
+        public static bool Equals(object[]? arr1, object[]? arr2)
         {
             if (object.ReferenceEquals(arr1, arr2))
             {

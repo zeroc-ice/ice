@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.operations</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/operations/AllTests.cs" />
+    <Compile Include="../../../../Ice/operations/Client.cs" />
+    <Compile Include="../../../../Ice/operations/Collocated.cs" />
+    <Compile Include="../../../../Ice/operations/Oneways.cs" />
+    <Compile Include="../../../../Ice/operations/OnewaysAMI.cs" />
+    <Compile Include="../../../../Ice/operations/Twoways.cs" />
+    <Compile Include="../../../../Ice/operations/TwowaysAMI.cs" />
+    <Compile Include="../../../../Ice/operations/MyDerivedClassI.cs" />
+    <Compile Include="../../../../Ice/operations/MyDerivedClassAMDI.cs" />
+    <Compile Include="../../../../Ice/operations/Server.cs" />
+    <Compile Include="../../../../Ice/operations/ServerAMD.cs" />
+
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/operations/Test.ice</SliceCompileSource>
+    </Compile>
+
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../../../Ice/operations/TestAMD.ice</SliceCompileSource>
+    </Compile>
+
+    <SliceCompile Include="../../../../Ice/operations/Test.ice" />
+    <SliceCompile Include="../../../../Ice/operations/TestAMD.ice" />
+  </ItemGroup>
+</Project>

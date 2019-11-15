@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.exceptions</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/exceptions/AllTests.cs" />
+    <Compile Include="../../../../Ice/exceptions/Client.cs" />
+    <Compile Include="../../../../Ice/exceptions/Collocated.cs" />
+    <Compile Include="../../../../Ice/exceptions/EmptyAMDI.cs" />
+    <Compile Include="../../../../Ice/exceptions/EmptyI.cs" />
+    <Compile Include="../../../../Ice/exceptions/ServantLocatorI.cs" />
+    <Compile Include="../../../../Ice/exceptions/ServerAMD.cs" />
+    <Compile Include="../../../../Ice/exceptions/ThrowerAMDI.cs" />
+    <Compile Include="../../../../Ice/exceptions/ThrowerI.cs" />
+    <Compile Include="../../../../Ice/exceptions/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/exceptions/Test.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../../../Ice/exceptions/TestAMD.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/exceptions/Test.ice" />
+    <SliceCompile Include="../../../../Ice/exceptions/TestAMD.ice" />
+  </ItemGroup>
+</Project>

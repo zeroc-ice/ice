@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.adapterDeactivation</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/adapterDeactivation/AllTests.cs" />
+    <Compile Include="../../../../Ice/adapterDeactivation/Client.cs" />
+    <Compile Include="../../../../Ice/adapterDeactivation/Collocated.cs" />
+    <Compile Include="../../../../Ice/adapterDeactivation/ServantLocatorI.cs" />
+    <Compile Include="../../../../Ice/adapterDeactivation/TestI.cs" />
+    <Compile Include="../../../../Ice/adapterDeactivation/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/adapterDeactivation/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/adapterDeactivation/Test.ice" />
+  </ItemGroup>
+</Project>

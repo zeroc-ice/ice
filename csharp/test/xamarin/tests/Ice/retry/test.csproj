@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.retry</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/retry/AllTests.cs" />
+    <Compile Include="../../../../Ice/retry/Client.cs" />
+    <Compile Include="../../../../Ice/retry/Collocated.cs" />
+    <Compile Include="../../../../Ice/retry/Instrumentation.cs" />
+    <Compile Include="../../../../Ice/retry/RetryI.cs" />
+    <Compile Include="../../../../Ice/retry/Server.cs" />
+    <Compile Include="../../../../Ice/retry/SystemFailure.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/retry/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/retry/Test.ice" />
+  </ItemGroup>
+</Project>

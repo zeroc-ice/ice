@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.scope</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+      <Compile Include="../../../../Ice/scope/AllTests.cs" />
+      <Compile Include="../../../../Ice/scope/Client.cs" />
+      <Compile Include="../../../../Ice/scope/Server.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/scope/Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/scope/Test.ice" />
+  </ItemGroup>
+</Project>

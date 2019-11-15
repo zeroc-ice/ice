@@ -281,7 +281,7 @@ class Platform(object):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netstandard2.0")
+            return os.path.join(installDir, "lib", "netstandard2.1")
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
@@ -3367,7 +3367,7 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            self.libTargetFramework = "netstandard2.0"
+            self.libTargetFramework = "netstandard2.1"
             self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
 
@@ -3385,7 +3385,7 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
+        return os.path.join("msbuild", name, self.getTargetFramework(current))
 
     def getProps(self, process, current):
         props = Mapping.getProps(self, process, current)

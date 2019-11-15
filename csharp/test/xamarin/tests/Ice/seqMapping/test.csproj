@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.seqMapping</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/seqMapping/AllTests.cs" />
+    <Compile Include="../../../../Ice/seqMapping/Client.cs" />
+    <Compile Include="../../../../Ice/seqMapping/Collocated.cs" />
+    <Compile Include="../../../../Ice/seqMapping/Custom.cs" />
+    <Compile Include="../../../../Ice/seqMapping/MyClassAMDI.cs" />
+    <Compile Include="../../../../Ice/seqMapping/MyClassI.cs" />
+    <Compile Include="../../../../Ice/seqMapping/Serializable.cs" />
+    <Compile Include="../../../../Ice/seqMapping/Server.cs" />
+    <Compile Include="../../../../Ice/seqMapping/ServerAMD.cs" />
+    <Compile Include="../../../../Ice/seqMapping/Twoways.cs" />
+    <Compile Include="../../../../Ice/seqMapping/TwowaysAMI.cs" />
+    <Compile Include="generated/Test.cs">
+        <SliceCompileSource>../../../../Ice/seqMapping/Test.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/TestAMD.cs">
+        <SliceCompileSource>../../../../Ice/seqMapping/TestAMD.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../../../Ice/seqMapping/Test.ice" />
+    <SliceCompile Include="../../../../Ice/seqMapping/TestAMD.ice" />
+  </ItemGroup>
+</Project>

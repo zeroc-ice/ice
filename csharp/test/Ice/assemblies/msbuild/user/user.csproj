@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>user</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <SliceCompile>
+      <IncludeDirectories>../..</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <SliceCompile Include="../../User.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../core/core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="generated/User.cs">
+      <SliceCompileSource>../../User.ice</SliceCompileSource>
+    </Compile>
+  </ItemGroup>
+</Project>

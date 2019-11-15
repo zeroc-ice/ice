@@ -20,7 +20,7 @@ public class Client : Test.TestHelper
     public override void run(string[] args)
     {
         string pluginPath =
-            String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
+            String.Format("msbuild/plugin/{0}/Plugin.dll",
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
         {
             Console.Write("testing a simple plug-in... ");
