@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>core</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <SliceCompile>
+      <IncludeDirectories>../..</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <SliceCompile Include="../../Core.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="generated/Core.cs">
+      <SliceCompileSource>../../Core.ice</SliceCompileSource>
+    </Compile>
+  </ItemGroup>
+</Project>

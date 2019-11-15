@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>client</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemDefinitionGroup Label="IceBuilder">
+    <SliceCompile>
+      <IncludeDirectories>../..</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../AllTests.cs" />
+    <Compile Include="../../Client.cs" />
+    <Compile Include="generated/NoNamespace.cs">
+      <SliceCompileSource>../../NoNamespace.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/Namespace.cs">
+      <SliceCompileSource>../../Namespace.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
+    </Compile>
+    <SliceCompile Include="../../Test.ice" />
+    <SliceCompile Include="../../Namespace.ice" />
+    <SliceCompile Include="../../NoNamespace.ice" />
+  </ItemGroup>
+</Project>
