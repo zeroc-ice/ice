@@ -345,7 +345,7 @@ local interface Connection
      * @param heartbeat The hertbeat condition
      *
      **/
-    ["swift:noexcept", "java:optional"]
+    ["swift:noexcept"]
     void setACM(optional(1) int timeout, optional(2) ACMClose close, optional(3) ACMHeartbeat heartbeat);
 
     /**

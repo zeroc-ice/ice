@@ -207,109 +207,100 @@ interface Initial
     void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
 
-    ["java:optional"] optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
+    optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
     optional(1) byte opByteReq(optional(2) byte p1, out optional(3) byte p3);
 
-    ["java:optional"] optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
+    optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
     optional(1) bool opBoolReq(optional(2) bool p1, out optional(3) bool p3);
 
-    ["java:optional"] optional(1) short opShort(optional(2) short p1, out optional(3) short p3);
+    optional(1) short opShort(optional(2) short p1, out optional(3) short p3);
     optional(1) short opShortReq(optional(2) short p1, out optional(3) short p3);
 
-    ["java:optional"] optional(1) int opInt(optional(2) int p1, out optional(3) int p3);
+    optional(1) int opInt(optional(2) int p1, out optional(3) int p3);
     optional(1) int opIntReq(optional(2) int p1, out optional(3) int p3);
 
-    ["java:optional"] optional(3) long opLong(optional(1) long p1, out optional(2) long p3);
+    optional(3) long opLong(optional(1) long p1, out optional(2) long p3);
     optional(3) long opLongReq(optional(1) long p1, out optional(2) long p3);
 
-    ["java:optional"] optional(1) float opFloat(optional(2) float p1, out optional(3) float p3);
+    optional(1) float opFloat(optional(2) float p1, out optional(3) float p3);
     optional(1) float opFloatReq(optional(2) float p1, out optional(3) float p3);
 
-    ["java:optional"] optional(1) double opDouble(optional(2) double p1, out optional(3) double p3);
+    optional(1) double opDouble(optional(2) double p1, out optional(3) double p3);
     optional(1) double opDoubleReq(optional(2) double p1, out optional(3) double p3);
 
-    ["java:optional"] optional(1) string opString(optional(2) string p1, out optional(3) string p3);
+    optional(1) string opString(optional(2) string p1, out optional(3) string p3);
     optional(1) string opStringReq(optional(2) string p1, out optional(3) string p3);
 
-    ["java:optional"] optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
+    optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
     optional(1) MyEnum opMyEnumReq(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
-    ["java:optional"] optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
+    optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
     optional(1) SmallStruct opSmallStructReq(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
 
-    ["java:optional"] optional(1) FixedStruct opFixedStruct(optional(2) FixedStruct p1, out optional(3) FixedStruct p3);
+    optional(1) FixedStruct opFixedStruct(optional(2) FixedStruct p1, out optional(3) FixedStruct p3);
     optional(1) FixedStruct opFixedStructReq(optional(2) FixedStruct p1, out optional(3) FixedStruct p3);
 
-    ["java:optional"] optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
+    optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
     optional(1) VarStruct opVarStructReq(optional(2) VarStruct p1, out optional(3) VarStruct p3);
 
-    ["java:optional"] optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
+    optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
     optional(1) OneOptional opOneOptionalReq(optional(2) OneOptional p1, out optional(3) OneOptional p3);
 
-    ["java:optional"] optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1,
-                                                                  out optional(3) OneOptional* p3);
+    optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
     optional(1) OneOptional* opOneOptionalProxyReq(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
 
-    ["java:optional"] optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
+    optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
     optional(1) ByteSeq opByteSeqReq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 
-    ["java:optional"] optional(1) BoolSeq opBoolSeq(optional(2) BoolSeq p1, out optional(3) BoolSeq p3);
+    optional(1) BoolSeq opBoolSeq(optional(2) BoolSeq p1, out optional(3) BoolSeq p3);
     optional(1) BoolSeq opBoolSeqReq(optional(2) BoolSeq p1, out optional(3) BoolSeq p3);
 
-    ["java:optional"] optional(1) ShortSeq opShortSeq(optional(2) ShortSeq p1, out optional(3) ShortSeq p3);
+    optional(1) ShortSeq opShortSeq(optional(2) ShortSeq p1, out optional(3) ShortSeq p3);
     optional(1) ShortSeq opShortSeqReq(optional(2) ShortSeq p1, out optional(3) ShortSeq p3);
 
-    ["java:optional"] optional(1) IntSeq opIntSeq(optional(2) IntSeq p1, out optional(3) IntSeq p3);
+    optional(1) IntSeq opIntSeq(optional(2) IntSeq p1, out optional(3) IntSeq p3);
     optional(1) IntSeq opIntSeqReq(optional(2) IntSeq p1, out optional(3) IntSeq p3);
 
-    ["java:optional"] optional(1) LongSeq opLongSeq(optional(2) LongSeq p1, out optional(3) LongSeq p3);
+    optional(1) LongSeq opLongSeq(optional(2) LongSeq p1, out optional(3) LongSeq p3);
     optional(1) LongSeq opLongSeqReq(optional(2) LongSeq p1, out optional(3) LongSeq p3);
 
-    ["java:optional"] optional(1) FloatSeq opFloatSeq(optional(2) FloatSeq p1, out optional(3) FloatSeq p3);
+    optional(1) FloatSeq opFloatSeq(optional(2) FloatSeq p1, out optional(3) FloatSeq p3);
     optional(1) FloatSeq opFloatSeqReq(optional(2) FloatSeq p1, out optional(3) FloatSeq p3);
 
-    ["java:optional"] optional(1) DoubleSeq opDoubleSeq(optional(2) DoubleSeq p1, out optional(3) DoubleSeq p3);
+    optional(1) DoubleSeq opDoubleSeq(optional(2) DoubleSeq p1, out optional(3) DoubleSeq p3);
     optional(1) DoubleSeq opDoubleSeqReq(optional(2) DoubleSeq p1, out optional(3) DoubleSeq p3);
 
-    ["java:optional"] optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
+    optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
     optional(1) StringSeq opStringSeqReq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
 
-    ["java:optional"] optional(1) SmallStructSeq opSmallStructSeq(optional(2) SmallStructSeq p1,
-                                                                  out optional(3) SmallStructSeq p3);
+    optional(1) SmallStructSeq opSmallStructSeq(optional(2) SmallStructSeq p1, out optional(3) SmallStructSeq p3);
     optional(1) SmallStructSeq opSmallStructSeqReq(optional(2) SmallStructSeq p1, out optional(3) SmallStructSeq p3);
 
-    ["java:optional"] optional(1) SmallStructList opSmallStructList(optional(2) SmallStructList p1,
-                                                                    out optional(3) SmallStructList p3);
+    optional(1) SmallStructList opSmallStructList(optional(2) SmallStructList p1, out optional(3) SmallStructList p3);
     optional(1) SmallStructList opSmallStructListReq(optional(2) SmallStructList p1,
                                                      out optional(3) SmallStructList p3);
 
-    ["java:optional"] optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1,
-                                                                  out optional(3) FixedStructSeq p3);
+    optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1, out optional(3) FixedStructSeq p3);
     optional(1) FixedStructSeq opFixedStructSeqReq(optional(2) FixedStructSeq p1, out optional(3) FixedStructSeq p3);
 
-    ["java:optional"] optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1,
-                                                                    out optional(3) FixedStructList p3);
+    optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1, out optional(3) FixedStructList p3);
     optional(1) FixedStructList opFixedStructListReq(optional(2) FixedStructList p1,
                                                      out optional(3) FixedStructList p3);
 
-    ["java:optional"] optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1,
-                                                              out optional(3) VarStructSeq p3);
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
     optional(1) VarStructSeq opVarStructSeqReq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
-    ["java:optional"] optional(1) Serializable opSerializable(optional(2) Serializable p1,
-                                                              out optional(3) Serializable p3);
+    optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
     optional(1) Serializable opSerializableReq(optional(2) Serializable p1, out optional(3) Serializable p3);
 
-    ["java:optional"] optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
+    optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
     optional(1) IntIntDict opIntIntDictReq(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
-    ["java:optional"] optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1,
-                                                                out optional(3) StringIntDict p3);
+    optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
     optional(1) StringIntDict opStringIntDictReq(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    ["java:optional"] optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
-                                                                          out optional(3) IntOneOptionalDict p3);
-
+    optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1,
+                                                        out optional(3) IntOneOptionalDict p3);
     optional(1) IntOneOptionalDict opIntOneOptionalDictReq(optional(2) IntOneOptionalDict p1,
                                                            out optional(3) IntOneOptionalDict p3);
 
@@ -317,7 +308,6 @@ interface Initial
 
     void sendOptionalClass(bool req, optional(1) OneOptional o);
 
-    ["java:optional"]
     void returnOptionalClass(bool req, out optional(1) OneOptional o);
 
     G opG(G g);
