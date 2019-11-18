@@ -1036,23 +1036,6 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
     }
 }
 
-bool
-Slice::JavaGenerator::useOptionalMapping(const OperationPtr& p)
-{
-    //
-    // The "java:optional" metadata can be applied to an operation or its
-    // interface to force the mapping to use the Optional types.
-    //
-    // Without the tag, parameters use the normal (non-optional) mapping.
-    //
-    static const string tag = "java:optional";
-
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    assert(cl);
-
-    return p->hasMetaData(tag) || cl->hasMetaData(tag);
-}
-
 string
 Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
 {

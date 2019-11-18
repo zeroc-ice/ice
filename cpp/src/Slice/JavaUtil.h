@@ -124,11 +124,6 @@ protected:
     std::string getStaticId(const TypePtr&, const std::string&) const;
 
     //
-    // Determines whether an operation should use the optional mapping.
-    //
-    bool useOptionalMapping(const OperationPtr&);
-
-    //
     // Returns the optional type corresponding to the given Slice type.
     //
     std::string getOptionalFormat(const TypePtr&);
