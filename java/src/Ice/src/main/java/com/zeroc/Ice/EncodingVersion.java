@@ -15,6 +15,8 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Annotations.*;
+
 /**
  * A version structure for the encoding version.
  **/
@@ -118,33 +120,29 @@ public class EncodingVersion implements java.lang.Cloneable,
         return v;
     }
 
-    static public void ice_write(OutputStream ostr, int tag, java.util.Optional<EncodingVersion> v)
+    static public void ice_write(OutputStream ostr, int tag, @Nullable EncodingVersion v)
     {
-        if(v != null && v.isPresent())
+        if(v != null)
         {
-            ice_write(ostr, tag, v.get());
+            if(ostr.writeOptional(tag, com.zeroc.Ice.OptionalFormat.VSize))
+            {
+                ostr.writeSize(2);
+                ice_write(ostr, v);
+            }
         }
+
     }
 
-    static public void ice_write(OutputStream ostr, int tag, EncodingVersion v)
-    {
-        if(ostr.writeOptional(tag, com.zeroc.Ice.OptionalFormat.VSize))
-        {
-            ostr.writeSize(2);
-            ice_write(ostr, v);
-        }
-    }
-
-    static public java.util.Optional<EncodingVersion> ice_read(InputStream istr, int tag)
+    static public @Nullable EncodingVersion ice_read(InputStream istr, int tag)
     {
         if(istr.readOptional(tag, com.zeroc.Ice.OptionalFormat.VSize))
         {
             istr.skipSize();
-            return java.util.Optional.of(EncodingVersion.ice_read(istr));
+            return EncodingVersion.ice_read(istr);
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 

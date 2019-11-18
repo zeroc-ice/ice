@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Annotations.*;
+
 /**
  * Base interface of all object proxies.
  **/
@@ -611,10 +613,10 @@ public interface ObjectPrx
     /**
      * Obtains the compression override setting of this proxy.
      *
-     * @return The compression override setting. If no optional value is present, no override is
-     * set. Otherwise, true if compression is enabled, false otherwise.
+     * @return The compression override setting. If no override is set, this method returns null.
+     * Otherwise it is true if compression is enabled, and false otherwise.
      */
-    java.util.Optional<Boolean> ice_getCompress();
+    @Nullable Boolean ice_getCompress();
 
     /**
      * Returns a proxy that is identical to this proxy, except for its connection timeout setting
@@ -631,10 +633,10 @@ public interface ObjectPrx
     /**
      * Obtains the timeout override of this proxy.
      *
-     * @return The timeout override. If no optional value is present, no override is set. Otherwise,
-     * returns the timeout override value.
+     * @return The timeout override. If no override is set, this method returns null.
+     * Otherwise, it returns the timeout override value.
      */
-    java.util.OptionalInt ice_getTimeout();
+    @Nullable Integer ice_getTimeout();
 
     /**
      * Returns a proxy that is identical to this proxy, except for its connection ID.

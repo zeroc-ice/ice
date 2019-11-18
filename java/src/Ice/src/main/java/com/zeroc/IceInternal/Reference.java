@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.Annotations.*;
+
 public abstract class Reference implements Cloneable
 {
     public final static int ModeTwoway = 0;
@@ -73,10 +75,10 @@ public abstract class Reference implements Cloneable
         return _invocationTimeout;
     }
 
-    public java.util.Optional<Boolean>
+    public @Nullable Boolean
     getCompress()
     {
-        return _overrideCompress ? java.util.Optional.of(_compress) : java.util.Optional.empty();
+        return _overrideCompress ? _compress : null;
     }
 
     public final com.zeroc.Ice.Communicator
@@ -95,7 +97,7 @@ public abstract class Reference implements Cloneable
     public abstract com.zeroc.Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
     public abstract String getConnectionId();
-    public abstract java.util.OptionalInt getTimeout();
+    public abstract @Nullable Integer getTimeout();
     public abstract com.zeroc.IceInternal.ThreadPool getThreadPool();
     public abstract com.zeroc.Ice.ConnectionI getConnection();
 

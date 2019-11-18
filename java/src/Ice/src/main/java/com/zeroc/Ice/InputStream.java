@@ -6,6 +6,7 @@ package com.zeroc.Ice;
 
 import java.io.IOException;
 
+import com.zeroc.Ice.Annotations.*;
 import com.zeroc.IceInternal.Buffer;
 import com.zeroc.IceInternal.Instance;
 import com.zeroc.IceInternal.Protocol;
@@ -962,17 +963,17 @@ public class InputStream
      * Extracts an optional byte value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted byte value, or null if it wasn't sent.
      **/
-    public java.util.Optional<Byte> readByte(int tag)
+    public @Nullable Byte readByte(int tag)
     {
         if(readOptional(tag, OptionalFormat.F1))
         {
-            return java.util.Optional.of(readByte());
+            return readByte();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -981,7 +982,7 @@ public class InputStream
      *
      * @return The extracted byte sequence.
      **/
-    public byte[] readByteSeq()
+    public @NonNull byte[] readByteSeq()
     {
         try
         {
@@ -1000,17 +1001,17 @@ public class InputStream
      * Extracts an optional byte sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted byte sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<byte[]> readByteSeq(int tag)
+    public @Nullable byte[] readByteSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
-            return java.util.Optional.of(readByteSeq());
+            return readByteSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1019,7 +1020,7 @@ public class InputStream
      *
      * @return A byte buffer "slice" of the internal buffer.
      **/
-    public java.nio.ByteBuffer readByteBuffer()
+    public java.nio.@NonNull ByteBuffer readByteBuffer()
     {
         try
         {
@@ -1049,7 +1050,7 @@ public class InputStream
         int sz = readAndCheckSeqSize(1);
         if (sz == 0)
         {
-            return null;
+            return null; //TODOTODO we should make this method NonNull.
         }
         com.zeroc.IceInternal.ObjectInputStream in = null;
         try
@@ -1088,17 +1089,17 @@ public class InputStream
      * @param <T> The serializable type.
      * @param tag The numeric tag associated with the value.
      * @param cl The class for the serializable type.
-     * @return The optional value (if any).
+     * @return The deserialized Java object, or null if it wasn't sent.
      **/
-    public <T extends java.io.Serializable> java.util.Optional<T> readSerializable(int tag, Class<T> cl)
+    public <T extends java.io.Serializable> @Nullable T readSerializable(int tag, Class<T> cl)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
-            return java.util.Optional.of(readSerializable(cl));
+            return readSerializable(cl);
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1123,17 +1124,17 @@ public class InputStream
      * Extracts an optional boolean value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted boolean, or null if it wasn't sent.
      **/
-    public java.util.Optional<Boolean> readBool(int tag)
+    public @Nullable Boolean readBool(int tag)
     {
         if(readOptional(tag, OptionalFormat.F1))
         {
-            return java.util.Optional.of(readBool());
+            return readBool();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1142,7 +1143,7 @@ public class InputStream
      *
      * @return The extracted boolean sequence.
      **/
-    public boolean[] readBoolSeq()
+    public @NonNull boolean[] readBoolSeq()
     {
         try
         {
@@ -1164,17 +1165,17 @@ public class InputStream
      * Extracts an optional boolean sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted boolean sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<boolean[]> readBoolSeq(int tag)
+    public @Nullable boolean[] readBoolSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
-            return java.util.Optional.of(readBoolSeq());
+            return readBoolSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1199,17 +1200,17 @@ public class InputStream
      * Extracts an optional short value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted short, or null if it wasn't sent.
      **/
-    public java.util.Optional<Short> readShort(int tag)
+    public @Nullable Short readShort(int tag)
     {
         if(readOptional(tag, OptionalFormat.F2))
         {
-            return java.util.Optional.of(readShort());
+            return readShort();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1218,7 +1219,7 @@ public class InputStream
      *
      * @return The extracted short sequence.
      **/
-    public short[] readShortSeq()
+    public @NonNull short[] readShortSeq()
     {
         try
         {
@@ -1239,18 +1240,18 @@ public class InputStream
      * Extracts an optional short sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted short sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<short[]> readShortSeq(int tag)
+    public @Nullable short[] readShortSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return java.util.Optional.of(readShortSeq());
+            return readShortSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1259,7 +1260,7 @@ public class InputStream
      *
      * @return A short buffer "slice" of the internal buffer.
      **/
-    public java.nio.ShortBuffer readShortBuffer()
+    public java.nio.@NonNull ShortBuffer readShortBuffer()
     {
         try
         {
@@ -1299,17 +1300,17 @@ public class InputStream
      * Extracts an optional int value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted int, or null if it wasn't sent.
      **/
-    public java.util.OptionalInt readInt(int tag)
+    public @Nullable Integer readInt(int tag)
     {
         if(readOptional(tag, OptionalFormat.F4))
         {
-            return java.util.OptionalInt.of(readInt());
+            return readInt();
         }
         else
         {
-            return java.util.OptionalInt.empty();
+            return null;
         }
     }
 
@@ -1318,7 +1319,7 @@ public class InputStream
      *
      * @return The extracted int sequence.
      **/
-    public int[] readIntSeq()
+    public @NonNull int[] readIntSeq()
     {
         try
         {
@@ -1339,18 +1340,18 @@ public class InputStream
      * Extracts an optional int sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted int sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<int[]> readIntSeq(int tag)
+    public @Nullable int[] readIntSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return java.util.Optional.of(readIntSeq());
+            return readIntSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1359,7 +1360,7 @@ public class InputStream
      *
      * @return An int buffer "slice" of the internal buffer.
      **/
-    public java.nio.IntBuffer readIntBuffer()
+    public java.nio.@NonNull IntBuffer readIntBuffer()
     {
         try
         {
@@ -1399,17 +1400,17 @@ public class InputStream
      * Extracts an optional long value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted long, or null if it wasn't sent.
      **/
-    public java.util.OptionalLong readLong(int tag)
+    public @Nullable Long readLong(int tag)
     {
         if(readOptional(tag, OptionalFormat.F8))
         {
-            return java.util.OptionalLong.of(readLong());
+            return readLong();
         }
         else
         {
-            return java.util.OptionalLong.empty();
+            return null;
         }
     }
 
@@ -1418,7 +1419,7 @@ public class InputStream
      *
      * @return The extracted long sequence.
      **/
-    public long[] readLongSeq()
+    public @NonNull long[] readLongSeq()
     {
         try
         {
@@ -1439,18 +1440,18 @@ public class InputStream
      * Extracts an optional long sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted long sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<long[]> readLongSeq(int tag)
+    public @Nullable long[] readLongSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return java.util.Optional.of(readLongSeq());
+            return readLongSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1459,7 +1460,7 @@ public class InputStream
      *
      * @return A long buffer "slice" of the internal buffer.
      **/
-    public java.nio.LongBuffer readLongBuffer()
+    public java.nio.@NonNull LongBuffer readLongBuffer()
     {
         try
         {
@@ -1499,17 +1500,17 @@ public class InputStream
      * Extracts an optional float value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted float, or null if it wasn't sent.
      **/
-    public java.util.Optional<Float> readFloat(int tag)
+    public @Nullable Float readFloat(int tag)
     {
         if(readOptional(tag, OptionalFormat.F4))
         {
-            return java.util.Optional.of(readFloat());
+            return readFloat();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1518,7 +1519,7 @@ public class InputStream
      *
      * @return The extracted float sequence.
      **/
-    public float[] readFloatSeq()
+    public @NonNull float[] readFloatSeq()
     {
         try
         {
@@ -1539,18 +1540,18 @@ public class InputStream
      * Extracts an optional float sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted float sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<float[]> readFloatSeq(int tag)
+    public @Nullable float[] readFloatSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return java.util.Optional.of(readFloatSeq());
+            return readFloatSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1559,7 +1560,7 @@ public class InputStream
      *
      * @return A float buffer "slice" of the internal buffer.
      **/
-    public java.nio.FloatBuffer readFloatBuffer()
+    public java.nio.@NonNull FloatBuffer readFloatBuffer()
     {
         try
         {
@@ -1599,17 +1600,17 @@ public class InputStream
      * Extracts an optional double value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted double, or null if it wasn't sent.
      **/
-    public java.util.OptionalDouble readDouble(int tag)
+    public @Nullable Double readDouble(int tag)
     {
         if(readOptional(tag, OptionalFormat.F8))
         {
-            return java.util.OptionalDouble.of(readDouble());
+            return readDouble();
         }
         else
         {
-            return java.util.OptionalDouble.empty();
+            return null;
         }
     }
 
@@ -1618,7 +1619,7 @@ public class InputStream
      *
      * @return The extracted double sequence.
      **/
-    public double[] readDoubleSeq()
+    public @NonNull double[] readDoubleSeq()
     {
         try
         {
@@ -1639,18 +1640,18 @@ public class InputStream
      * Extracts an optional double sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted double sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<double[]> readDoubleSeq(int tag)
+    public @Nullable double[] readDoubleSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
             skipSize();
-            return java.util.Optional.of(readDoubleSeq());
+            return readDoubleSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1659,7 +1660,7 @@ public class InputStream
      *
      * @return A double buffer "slice" of the internal buffer.
      **/
-    public java.nio.DoubleBuffer readDoubleBuffer()
+    public java.nio.@NonNull DoubleBuffer readDoubleBuffer()
     {
         try
         {
@@ -1685,7 +1686,7 @@ public class InputStream
      *
      * @return The extracted string.
      **/
-    public String readString()
+    public @NonNull String readString()
     {
         final int len = readSize();
 
@@ -1766,17 +1767,17 @@ public class InputStream
      * Extracts an optional string value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted string, or null if it wasn't sent.
      **/
-    public java.util.Optional<String> readString(int tag)
+    public @Nullable String readString(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
-            return java.util.Optional.of(readString());
+            return readString();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1785,7 +1786,7 @@ public class InputStream
      *
      * @return The extracted string sequence.
      **/
-    public String[] readStringSeq()
+    public @NonNull String[] readStringSeq()
     {
         final int sz = readAndCheckSeqSize(1);
         String[] v = new String[sz];
@@ -1800,18 +1801,18 @@ public class InputStream
      * Extracts an optional string sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted string sequence, or null if it wasn't sent.
      **/
-    public java.util.Optional<String[]> readStringSeq(int tag)
+    public @Nullable String[] readStringSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
-            return java.util.Optional.of(readStringSeq());
+            return readStringSeq();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1827,7 +1828,7 @@ public class InputStream
             throw new MarshalException("cannot unmarshal a proxy without a communicator");
         }
 
-        return _instance.proxyFactory().streamToProxy(this);
+        return _instance.proxyFactory().streamToProxy(this); //TODOTODO it would be nice to also make this NonNull
     }
 
     public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast)
@@ -1837,25 +1838,25 @@ public class InputStream
             throw new MarshalException("cannot unmarshal a proxy without a communicator");
         }
 
-        return cast.apply(_instance.proxyFactory().streamToProxy(this));
+        return cast.apply(_instance.proxyFactory().streamToProxy(this)); //TODOTODO it would be nice to also make this NonNull
     }
 
     /**
      * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The optional value (if any).
+     * @return The extracted proxy, or null if it wasn't sent.
      **/
-    public java.util.Optional<ObjectPrx> readProxy(int tag)
+    public @Nullable ObjectPrx readProxy(int tag)
     {
         if(readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
-            return java.util.Optional.of(readProxy());
+            return readProxy();
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1865,18 +1866,18 @@ public class InputStream
      * @param <T> The proxy type.
      * @param tag The numeric tag associated with the value.
      * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type.
-     * @return The optional value (if any).
+     * @return The extracted proxy, or null if it wasn't sent.
      **/
-    public <T extends ObjectPrx> java.util.Optional<T> readProxy(int tag, java.util.function.Function<ObjectPrx, T> cast)
+    public <T extends ObjectPrx> @Nullable T readProxy(int tag, java.util.function.Function<ObjectPrx, T> cast)
     {
         if(readOptional(tag, OptionalFormat.FSize))
         {
             skip(4);
-            return java.util.Optional.of(readProxy(cast));
+            return readProxy(cast);
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
@@ -1920,7 +1921,7 @@ public class InputStream
      *
      * @param cls The type of the Ice.Value to unmarshal.
      **/
-    public <T extends Value> void readValue(java.util.function.Consumer<T> cb, Class<T> cls)
+    public <T extends Value> void readValue(java.util.function.@Nullable Consumer<@NonNull T> cb, Class<T> cls)
     {
         initEncaps();
         if(cb == null)
@@ -1949,7 +1950,7 @@ public class InputStream
      * extracts Slice values in stages. The Ice run time calls accept on the consumer when
      * the corresponding instance has been fully unmarshaled.
      **/
-    public void readValue(java.util.function.Consumer<Value> cb)
+    public void readValue(java.util.function.@Nullable Consumer<@NonNull Value> cb)
     {
         readValue(cb, Value.class);
     }
@@ -1967,13 +1968,13 @@ public class InputStream
      *
      * @param cls The type of the Ice.Value to unmarshal.
      **/
-    public <T extends Value> void readValue(int tag, java.util.function.Consumer<java.util.Optional<T>> cb, Class<T> cls)
+    public <T extends Value> void readValue(int tag, java.util.function.@Nullable Consumer<@Nullable T> cb, Class<T> cls)
     {
         if(readOptional(tag, OptionalFormat.Class))
         {
             if(cb != null)
             {
-                readValue(v -> cb.accept(java.util.Optional.ofNullable(v)), cls);
+                readValue(v -> cb.accept(v), cls);
             }
             else
             {
@@ -1984,7 +1985,7 @@ public class InputStream
         {
             if(cb != null)
             {
-                cb.accept(java.util.Optional.empty());
+                cb.accept(null);
             }
         }
     }
@@ -1998,7 +1999,7 @@ public class InputStream
      * extracts Slice values in stages. The Ice run time calls accept on the consumer when
      * the corresponding instance has been fully unmarshaled.
      **/
-    public void readValue(int tag, java.util.function.Consumer<java.util.Optional<Value>> cb)
+    public void readValue(int tag, java.util.function.@Nullable Consumer<@Nullable Value> cb)
     {
         readValue(tag, cb, Value.class);
     }

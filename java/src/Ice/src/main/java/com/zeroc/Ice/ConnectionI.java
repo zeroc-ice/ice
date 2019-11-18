@@ -14,6 +14,7 @@ import com.zeroc.IceInternal.Protocol;
 import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.Time;
 import com.zeroc.IceInternal.TraceUtil;
+import com.zeroc.Ice.Annotations.*;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
@@ -599,10 +600,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     @Override
-    synchronized public void setACM(java.util.OptionalInt timeout, java.util.Optional<ACMClose> close,
-            java.util.Optional<ACMHeartbeat> heartbeat)
+    synchronized public void setACM(@Nullable Integer timeout, @Nullable ACMClose close,
+            @Nullable ACMHeartbeat heartbeat)
     {
-        if(timeout != null && timeout.isPresent() && timeout.getAsInt() < 0)
+        if(timeout != null && timeout < 0)
         {
             throw new IllegalArgumentException("invalid negative ACM timeout value");
         }

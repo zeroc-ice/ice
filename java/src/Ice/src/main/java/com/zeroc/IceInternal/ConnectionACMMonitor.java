@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.Annotations.*;
+
 class ConnectionACMMonitor implements ACMMonitor
 {
     ConnectionACMMonitor(FactoryACMMonitor parent, java.util.concurrent.ScheduledExecutorService timer,
@@ -70,8 +72,8 @@ class ConnectionACMMonitor implements ACMMonitor
 
     @Override
     public ACMMonitor
-    acm(java.util.OptionalInt timeout, java.util.Optional<com.zeroc.Ice.ACMClose> close,
-        java.util.Optional<com.zeroc.Ice.ACMHeartbeat> heartbeat)
+    acm(@Nullable Integer timeout, com.zeroc.Ice.@Nullable ACMClose close,
+        com.zeroc.Ice.@Nullable ACMHeartbeat heartbeat)
     {
         return _parent.acm(timeout, close, heartbeat);
     }

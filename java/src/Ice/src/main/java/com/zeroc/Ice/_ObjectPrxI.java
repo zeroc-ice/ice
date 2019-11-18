@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.zeroc.Ice.Annotations.*;
 import com.zeroc.IceInternal.OutgoingAsync;
 
 /**
@@ -310,12 +311,12 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram;
     }
 
-    public java.util.Optional<Boolean> ice_getCompress()
+    public @Nullable Boolean ice_getCompress()
     {
         return _reference.getCompress();
     }
 
-    public java.util.OptionalInt ice_getTimeout()
+    public @Nullable Integer ice_getTimeout()
     {
         return _reference.getTimeout();
     }

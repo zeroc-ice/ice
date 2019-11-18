@@ -56,7 +56,7 @@ public final class ReferenceFactory
             fixedConnection,
             -1,
             null,
-            java.util.Optional.empty());
+            null);
     }
 
     public Reference

@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import com.zeroc.Ice.Annotations.*;
+
 public class RoutableReference extends Reference
 {
     @Override
@@ -77,10 +79,10 @@ public class RoutableReference extends Reference
     }
 
     @Override
-    public java.util.OptionalInt
+    public @Nullable Integer
     getTimeout()
     {
-        return _overrideTimeout ? java.util.OptionalInt.of(_timeout) : java.util.OptionalInt.empty();
+        return _overrideTimeout ? _timeout : null;
     }
 
     @Override

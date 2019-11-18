@@ -15,6 +15,8 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Annotations.*;
+
 /**
  * Determines the retry behavior an invocation in case of a (potentially) recoverable error.
  **/
@@ -103,31 +105,26 @@ public enum OperationMode implements java.io.Serializable
         return validate(v);
     }
 
-    public static void ice_write(OutputStream ostr, int tag, java.util.Optional<OperationMode> v)
+    public static void ice_write(OutputStream ostr, int tag, @Nullable OperationMode v)
     {
-        if(v != null && v.isPresent())
+        if(v != null)
         {
-            ice_write(ostr, tag, v.get());
+            if(ostr.writeOptional(tag, com.zeroc.Ice.OptionalFormat.Size))
+            {
+                ice_write(ostr, v);
+            }
         }
     }
 
-    public static void ice_write(OutputStream ostr, int tag, OperationMode v)
-    {
-        if(ostr.writeOptional(tag, com.zeroc.Ice.OptionalFormat.Size))
-        {
-            ice_write(ostr, v);
-        }
-    }
-
-    public static java.util.Optional<OperationMode> ice_read(InputStream istr, int tag)
+    public static @Nullable OperationMode ice_read(InputStream istr, int tag)
     {
         if(istr.readOptional(tag, com.zeroc.Ice.OptionalFormat.Size))
         {
-            return java.util.Optional.of(ice_read(istr));
+            return ice_read(istr);
         }
         else
         {
-            return java.util.Optional.empty();
+            return null;
         }
     }
 
