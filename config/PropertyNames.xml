@@ -607,7 +607,6 @@ generated from the section label.
     <section name="Glacier2">
         <property name="AddConnectionContext"/>
         <property name="Client" class="objectadapter"/>
-        <property name="Client.AlwaysBatch" />
         <property name="Client.Buffered" />
         <property name="Client.ForwardContext" />
         <property name="Client.SleepTime" />
@@ -628,7 +627,6 @@ generated from the section label.
         <property name="SSLPermissionsVerifier" class="proxy" />
         <property name="RoutingTable.MaxSize" />
         <property name="Server" class="objectadapter" />
-        <property name="Server.AlwaysBatch" />
         <property name="Server.Buffered" />
         <property name="Server.ForwardContext" />
         <property name="Server.SleepTime" />
@@ -636,7 +634,6 @@ generated from the section label.
         <property name="Server.Trace.Request" />
         <property name="SessionManager" class="proxy" />
         <property name="SSLSessionManager" class="proxy" />
-        <property name="SessionTimeout" />
         <property name="Trace.RoutingTable" />
         <property name="Trace.Session" />
     </section>

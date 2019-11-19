@@ -10,18 +10,17 @@
 namespace Glacier2
 {
 
-class ServerBlobject;
-typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
-
-class ServerBlobject : public Glacier2::Blobject
+class ServerBlobject final : public Glacier2::Blobject
 {
 public:
 
-    ServerBlobject(const InstancePtr&, const Ice::ConnectionPtr&);
-    virtual ~ServerBlobject();
+    ServerBlobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>);
+    ~ServerBlobject() override;
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
+    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                         std::function<void(std::exception_ptr)> error,
+                         const Ice::Current& current) override;
 };
 
 }

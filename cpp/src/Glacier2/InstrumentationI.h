@@ -13,36 +13,36 @@
 namespace Glacier2
 {
 
-class SessionObserverI : public Glacier2::Instrumentation::SessionObserver,
-                         public IceMX::ObserverT<IceMX::SessionMetrics>
+class SessionObserverI final : public Glacier2::Instrumentation::SessionObserver,
+                               public IceMX::ObserverT<IceMX::SessionMetrics>
 {
 public:
 
-    virtual void forwarded(bool);
-    virtual void queued(bool);
-    virtual void overridden(bool);
-    virtual void routingTableSize(int);
+    void forwarded(bool) override;
+    void queued(bool) override;
+    void overridden(bool) override;
+    void routingTableSize(int) override;
 };
 
-class RouterObserverI : public Glacier2::Instrumentation::RouterObserver
+class RouterObserverI final : public Glacier2::Instrumentation::RouterObserver
 {
 public:
 
-    RouterObserverI(const IceInternal::MetricsAdminIPtr&, const std::string&);
+    RouterObserverI(std::shared_ptr<IceInternal::MetricsAdminI>, const std::string&);
 
-    virtual void setObserverUpdater(const Glacier2::Instrumentation::ObserverUpdaterPtr&);
+    void setObserverUpdater(const std::shared_ptr<Glacier2::Instrumentation::ObserverUpdater>&) override;
 
-    virtual Glacier2::Instrumentation::SessionObserverPtr getSessionObserver(
-        const std::string&, const Ice::ConnectionPtr&, int, const Glacier2::Instrumentation::SessionObserverPtr&);
+    std::shared_ptr<Glacier2::Instrumentation::SessionObserver> getSessionObserver(const std::string&,
+        const std::shared_ptr<Ice::Connection>&, int,
+        const std::shared_ptr<Glacier2::Instrumentation::SessionObserver>&) override;
 
 private:
 
-    const IceInternal::MetricsAdminIPtr _metrics;
+    const std::shared_ptr<IceInternal::MetricsAdminI> _metrics;
     const std::string _instanceName;
 
     IceMX::ObserverFactoryT<SessionObserverI> _sessions;
 };
-typedef IceUtil::Handle<RouterObserverI> RouterObserverIPtr;
 
 };
 

@@ -16,8 +16,6 @@ namespace
 
 const string serverForwardContext = "Glacier2.Server.ForwardContext";
 const string clientForwardContext = "Glacier2.Client.ForwardContext";
-const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
-const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
 const string serverTraceRequest = "Glacier2.Server.Trace.Request";
 const string clientTraceRequest = "Glacier2.Client.Trace.Request";
 const string serverTraceOverride = "Glacier2.Server.Trace.Override";
@@ -25,16 +23,13 @@ const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 
 }
 
-Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& reverseConnection,
+Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, shared_ptr<Connection> reverseConnection,
                              const Context& context) :
-    _instance(instance),
+    _instance(move(instance)),
     _reverseConnection(reverseConnection),
     _forwardContext(_reverseConnection ?
                     _instance->properties()->getPropertyAsInt(serverForwardContext) > 0 :
                     _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
-    _alwaysBatch(_reverseConnection ?
-                 _instance->properties()->getPropertyAsInt(serverAlwaysBatch) > 0 :
-                 _instance->properties()->getPropertyAsInt(clientAlwaysBatch) > 0),
     _requestTraceLevel(_reverseConnection ?
                        _instance->properties()->getPropertyAsInt(serverTraceRequest) :
                        _instance->properties()->getPropertyAsInt(clientTraceRequest)),
@@ -43,11 +38,12 @@ Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& r
                         _instance->properties()->getPropertyAsInt(clientTraceOverride)),
     _context(context)
 {
-    RequestQueueThreadPtr t = _reverseConnection ? _instance->serverRequestQueueThread() :
-                                                   _instance->clientRequestQueueThread();
+    auto t = _reverseConnection ? _instance->serverRequestQueueThread() : _instance->clientRequestQueueThread();
     if(t)
     {
-        const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t, _instance, _reverseConnection);
+        const_cast<shared_ptr<RequestQueue>&>(_requestQueue) = make_shared<RequestQueue>(t,
+                                                                                         _instance,
+                                                                                         _reverseConnection);
     }
 }
 
@@ -65,7 +61,7 @@ Glacier2::Blobject::destroy()
 }
 
 void
-Glacier2::Blobject::updateObserver(const Glacier2::Instrumentation::SessionObserverPtr& observer)
+Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::SessionObserver>& observer)
 {
     if(_requestQueue)
     {
@@ -74,49 +70,9 @@ Glacier2::Blobject::updateObserver(const Glacier2::Instrumentation::SessionObser
 }
 
 void
-Glacier2::Blobject::invokeResponse(bool ok, const pair<const Byte*, const Byte*>& outParams,
-                                   const AMD_Object_ice_invokePtr& amdCB)
-{
-    amdCB->ice_response(ok, outParams);
-}
-
-void
-Glacier2::Blobject::invokeSent(bool, const AMD_Object_ice_invokePtr& amdCB)
-{
-#if defined(_MSC_VER)
-    amdCB->ice_response(true, pair<const Byte*, const Byte*>(static_cast<const Byte*>(nullptr),
-                                                             static_cast<const Byte*>(nullptr)));
-#else
-    amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
-#endif
-}
-
-void
-Glacier2::Blobject::invokeException(const Exception& ex, const AMD_Object_ice_invokePtr& amdCB)
-{
-    //
-    // If the connection has been lost, destroy the session.
-    //
-    if(_reverseConnection)
-    {
-        if(dynamic_cast<const SocketException*>(&ex) ||
-            dynamic_cast<const TimeoutException*>(&ex) ||
-            dynamic_cast<const ProtocolException*>(&ex))
-        {
-            try
-            {
-                _instance->sessionRouter()->destroySession(_reverseConnection);
-            }
-            catch(const Exception&)
-            {
-            }
-        }
-    }
-    amdCB->ice_exception(ex);
-}
-
-void
-Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB,
+Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
+                           function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                           function<void(exception_ptr)> exception,
                            const std::pair<const Byte*, const Byte*>& inParams, const Current& current)
 {
     //
@@ -133,14 +89,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
     //
     if(current.requestId == 0)
     {
-        if(_alwaysBatch && _requestQueue)
-        {
-            proxy = proxy->ice_batchOneway();
-        }
-        else
-        {
-            proxy = proxy->ice_oneway();
-        }
+        proxy = proxy->ice_oneway();
     }
     else if(current.requestId > 0)
     {
@@ -166,53 +115,27 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 
                 case 'o':
                 {
-                    if(_alwaysBatch && _requestQueue)
-                    {
-                        proxy = proxy->ice_batchOneway();
-                    }
-                    else
-                    {
-                        proxy = proxy->ice_oneway();
-                    }
+                    proxy = proxy->ice_oneway();
                     break;
                 }
 
                 case 'd':
                 {
-                    if(_alwaysBatch && _requestQueue)
-                    {
-                        proxy = proxy->ice_batchDatagram();
-                    }
-                    else
-                    {
-                        proxy = proxy->ice_datagram();
-                    }
+                    proxy = proxy->ice_datagram();
                     break;
                 }
 
                 case 'O':
                 {
-                    if(_requestQueue)
-                    {
-                        proxy = proxy->ice_batchOneway();
-                    }
-                    else
-                    {
-                        proxy = proxy->ice_oneway();
-                    }
+                    // Batch support has been removed. These requests will be forwarded as oneway
+                    proxy = proxy->ice_oneway();
                     break;
                 }
 
                 case 'D':
                 {
-                    if(_requestQueue)
-                    {
-                        proxy = proxy->ice_batchDatagram();
-                    }
-                    else
-                    {
-                        proxy = proxy->ice_datagram();
-                    }
+                    // Batch support has been removed. These requests will be forwarded as datagram
+                    proxy = proxy->ice_datagram();
                     break;
                 }
 
@@ -286,12 +209,12 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
         bool override;
         try
         {
-            override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _context,
-                                                             amdCB));
+            override = _requestQueue->addRequest(make_shared<Request>(proxy, inParams, current, _forwardContext,
+                                                                      _context, move(response), move(exception)));
         }
-        catch(const ObjectNotExistException& ex)
+        catch(const ObjectNotExistException&)
         {
-            amdCB->ice_exception(ex);
+            exception(current_exception());
             return;
         }
 
@@ -327,21 +250,56 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
     else
     {
         //
-        // If we are in not in buffered mode, we send the request
-        // directly.
+        // If we are in not in buffered mode, we send the request directly.
         //
-        assert(!proxy->ice_isBatchOneway() && !proxy->ice_isBatchDatagram());
 
         try
         {
-            Callback_Object_ice_invokePtr amiCB;
+            function<void(bool, const pair<const Byte*, const Byte*>&)> amiResponse = nullptr;
+            function<void(bool)> amiSent = nullptr;
+
+            function<void(exception_ptr)> amiException = [self = shared_from_this(),
+                                                          amdException = move(exception)](exception_ptr ex)
+                {
+                    //
+                    // If the connection has been lost, destroy the session.
+                    //
+                    if(self->_reverseConnection)
+                    {
+                        try
+                        {
+                            rethrow_exception(ex);
+                        }
+                        catch(const Ice::LocalException& e)
+                        {
+                            if(dynamic_cast<const SocketException*>(&e) ||
+                            dynamic_cast<const TimeoutException*>(&e) ||
+                            dynamic_cast<const ProtocolException*>(&e))
+                            {
+                                try
+                                {
+                                    self->_instance->sessionRouter()->destroySession(self->_reverseConnection);
+                                }
+                                catch(const Exception&)
+                                {
+                                }
+                            }
+                        }
+                    }
+
+                    amdException(ex);
+                };
+
             if(proxy->ice_isTwoway())
             {
-                amiCB = newCallback_Object_ice_invoke(this, &Blobject::invokeResponse, &Blobject::invokeException);
+                amiResponse = move(response);
             }
             else
             {
-                amiCB = newCallback_Object_ice_invoke(this, &Blobject::invokeException, &Blobject::invokeSent);
+                amiSent = [amdResponse = move(response)](bool)
+                    {
+                        amdResponse(true, {nullptr, nullptr});
+                    };
             }
 
             if(_forwardContext)
@@ -350,28 +308,32 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                 {
                     Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, ctx, amiCB, amdCB);
+                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
+                                           move(amiResponse), move(amiException), move(amiSent), ctx);
                 }
                 else
                 {
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, amiCB, amdCB);
+                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
+                                           move(amiResponse), move(amiException), move(amiSent), current.ctx);
                 }
             }
             else
             {
                 if(_context.size() > 0)
                 {
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, _context, amiCB, amdCB);
+                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
+                                           move(amiResponse), move(amiException), move(amiSent), _context);
                 }
                 else
                 {
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, amiCB, amdCB);
+                    proxy->ice_invokeAsync(current.operation, current.mode, inParams,
+                                           move(amiResponse), move(amiException), move(amiSent));
                 }
             }
         }
-        catch(const LocalException& ex)
+        catch(const LocalException&)
         {
-            amdCB->ice_exception(ex);
+            exception(current_exception());
         }
     }
 }

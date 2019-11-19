@@ -17,7 +17,7 @@ routerProps = {
    "Ice.Warn.Connections" : "0",
    "Glacier2.Filter.Category.Accept" : "c1 c2",
    "Glacier2.Filter.Category.AcceptUser" : "2",
-   "Glacier2.SessionTimeout" : "30",
+   "Glacier2.Client.ACM.Timeout" : "30",
 }
 
 traceProps = {

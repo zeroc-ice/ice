@@ -447,8 +447,9 @@ CallbackClient::run(int argc, char** argv)
 
     {
         cout << "getting the session timeout... " << flush;
-        auto timeout = router->getSessionTimeout();
-        test(timeout == 30);
+        auto sessionTimeout = router->getSessionTimeout();
+        auto acmTimeout = router->getACMTimeout();
+        test(sessionTimeout == 30 && sessionTimeout == acmTimeout);
         cout << "ok" << endl;
     }
 
