@@ -324,8 +324,7 @@ public class AllTests
             test(false);
         }
 
-        session.ice_getConnection().setACM(java.util.OptionalInt.of(registry.getACMTimeout()), null,
-                                           java.util.Optional.of(com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways));
+        session.ice_getConnection().setACM(registry.getACMTimeout(), null, com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways);
 
         com.zeroc.IceGrid.AdminPrx admin = session.getAdmin();
         test(admin != null);

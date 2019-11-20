@@ -572,7 +572,7 @@ public class AllTests
 
             try
             {
-                con.setACM(java.util.OptionalInt.of(-19), null, null);
+                con.setACM(-19, null, null);
                 test(false);
             }
             catch(IllegalArgumentException ex)
@@ -591,9 +591,7 @@ public class AllTests
             test(acm.close == ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatOff);
 
-            con.setACM(java.util.OptionalInt.of(1),
-                       java.util.Optional.of(ACMClose.CloseOnInvocationAndIdle),
-                       java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
+            con.setACM(1, ACMClose.CloseOnInvocationAndIdle, ACMHeartbeat.HeartbeatAlways);
             acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == ACMClose.CloseOnInvocationAndIdle);

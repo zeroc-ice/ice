@@ -51,7 +51,7 @@ public class Server extends test.TestHelper
         public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(com.zeroc.Ice.Current current)
         {
             _controller.checkCallPause(current);
-            return new com.zeroc.Ice.Router.GetClientProxyResult(null, java.util.Optional.of(true));
+            return new com.zeroc.Ice.Router.GetClientProxyResult(null, true);
         }
 
         @Override
