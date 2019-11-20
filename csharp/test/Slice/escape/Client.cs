@@ -110,26 +110,23 @@ public class Client : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new decimalI(), Ice.Util.stringToIdentity("test"));
-            adapter.Add(new Test1I(), Ice.Util.stringToIdentity("test1"));
-            adapter.Add(new Test2I(), Ice.Util.stringToIdentity("test2"));
-            adapter.activate();
+            adapter.Add(new decimalI(), "test");
+            adapter.Add(new Test1I(), "test1");
+            adapter.Add(new Test2I(), "test2");
+            adapter.Activate();
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
-            @abstract.@decimalPrx p =
-                @abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
+            @abstract.@decimalPrx p = @abstract.@decimalPrxHelper.uncheckedCast(adapter.CreateProxy("test"));
             p.@default();
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing System as module name... ");
             Console.Out.Flush();
-            @abstract.System.TestPrx t1 =
-                @abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
+            @abstract.System.TestPrx t1 = @abstract.System.TestPrxHelper.uncheckedCast(adapter.CreateProxy("test1"));
             t1.op();
 
-            System.TestPrx t2 =
-                System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test2")));
+            System.TestPrx t2 = System.TestPrxHelper.uncheckedCast(adapter.CreateProxy("test2"));
 
             t2.op();
             Console.Out.WriteLine("ok");

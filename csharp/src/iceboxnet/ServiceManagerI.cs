@@ -385,7 +385,7 @@ namespace IceBox
                 _communicator.getAdmin();
                 if (adapter != null)
                 {
-                    adapter.activate();
+                    adapter.Activate();
                 }
 
                 //

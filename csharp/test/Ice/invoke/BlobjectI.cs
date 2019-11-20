@@ -13,7 +13,7 @@ namespace Ice
             public override bool
             ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
             {
-                Ice.Communicator communicator = current.adapter.getCommunicator();
+                Ice.Communicator communicator = current.adapter.GetCommunicator();
                 Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
                 inS.startEncapsulation();
                 Ice.OutputStream outS = new Ice.OutputStream(communicator);
@@ -81,7 +81,7 @@ namespace Ice
             public override Task<Ice.Object_Ice_invokeResult>
             ice_invokeAsync(byte[] inParams, Ice.Current current)
             {
-                Ice.Communicator communicator = current.adapter.getCommunicator();
+                Ice.Communicator communicator = current.adapter.GetCommunicator();
                 Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
                 inS.startEncapsulation();
                 Ice.OutputStream outS = new Ice.OutputStream(communicator);

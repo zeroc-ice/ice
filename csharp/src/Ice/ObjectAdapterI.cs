@@ -15,7 +15,7 @@ namespace Ice
 
     public sealed class ObjectAdapterI : ObjectAdapter
     {
-        public string getName()
+        public string GetName()
         {
             //
             // No mutex lock necessary, _name is immutable.
@@ -23,12 +23,12 @@ namespace Ice
             return _noConfig ? "" : _name;
         }
 
-        public Communicator getCommunicator()
+        public Communicator GetCommunicator()
         {
             return _communicator;
         }
 
-        public void activate()
+        public void Activate()
         {
             LocatorInfo locatorInfo = null;
             bool printAdapterReady = false;
@@ -71,7 +71,7 @@ namespace Ice
             {
                 Identity dummy = new Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(dummy));
             }
             catch (LocalException)
             {
@@ -108,7 +108,7 @@ namespace Ice
             }
         }
 
-        public void hold()
+        public void Hold()
         {
             lock (this)
             {
@@ -121,7 +121,7 @@ namespace Ice
             }
         }
 
-        public void waitForHold()
+        public void WaitForHold()
         {
             List<IncomingConnectionFactory> incomingConnectionFactories;
             lock (this)
@@ -137,7 +137,7 @@ namespace Ice
             }
         }
 
-        public void deactivate()
+        public void Deactivate()
         {
             lock (this)
             {
@@ -177,7 +177,7 @@ namespace Ice
                     _routerInfo.setAdapter(null);
                 }
 
-                updateLocatorRegistry(_locatorInfo, null);
+                UpdateLocatorRegistry(_locatorInfo, null);
             }
             catch (LocalException)
             {
@@ -202,7 +202,7 @@ namespace Ice
             }
         }
 
-        public void waitForDeactivate()
+        public void WaitForDeactivate()
         {
             IncomingConnectionFactory[] incomingConnectionFactories = null;
             lock (this)
@@ -234,7 +234,7 @@ namespace Ice
             }
         }
 
-        public bool isDeactivated()
+        public bool IsDeactivated()
         {
             lock (this)
             {
@@ -242,13 +242,13 @@ namespace Ice
             }
         }
 
-        public void destroy()
+        public void Destroy()
         {
             //
             // Deactivate and wait for completion.
             //
-            deactivate();
-            waitForDeactivate();
+            Deactivate();
+            WaitForDeactivate();
 
             lock (this)
             {
@@ -312,32 +312,39 @@ namespace Ice
             }
         }
 
-        public ObjectPrx Add(Disp obj, Identity? ident = null, string facet = "")
+        public ObjectPrx Add(Disp disp, string id, string facet = "")
+        {
+            return Add(disp, Util.stringToIdentity(id), facet);
+        }
+
+        public ObjectPrx Add(Disp disp, Identity? ident = null, string facet = "")
         {
             lock (this)
             {
                 ident = ident ?? new Identity(Guid.NewGuid().ToString(), "");
                 checkForDeactivation();
                 checkIdentity(ident);
-                checkServant(obj);
+                CheckServant(disp);
 
                 //
                 // Create a copy of the Identity argument, in case the caller
                 // reuses it.
                 //
+                // TODO remove this copy once we make Identity a value type
+                //
                 Identity id = new Identity();
                 id.category = ident.category;
                 id.name = ident.name;
 
-                _servantManager.addServant(obj, new Identity(id.name, id.category), facet);
+                _servantManager.addServant(disp, id, facet);
 
                 return newProxy(id, facet);
             }
         }
 
-        public void addDefaultServant(Disp servant, string category)
+        public void AddDefaultServant(Disp servant, string category)
         {
-            checkServant(servant);
+            CheckServant(servant);
 
             lock (this)
             {
@@ -347,7 +354,12 @@ namespace Ice
             }
         }
 
-        public Disp remove(Identity ident, string facet = "")
+        public Disp Remove(string ident, string facet = "")
+        {
+            return Remove(Util.stringToIdentity(ident), facet);
+        }
+
+        public Disp Remove(Identity ident, string facet = "")
         {
             lock (this)
             {
@@ -358,7 +370,12 @@ namespace Ice
             }
         }
 
-        public Dictionary<string, Disp> removeAllFacets(Identity ident)
+        public Dictionary<string, Disp> RemoveAllFacets(string ident)
+        {
+            return RemoveAllFacets(Util.stringToIdentity(ident));
+        }
+
+        public Dictionary<string, Disp> RemoveAllFacets(Identity ident)
         {
             lock (this)
             {
@@ -369,7 +386,7 @@ namespace Ice
             }
         }
 
-        public Disp removeDefaultServant(string category)
+        public Disp RemoveDefaultServant(string category)
         {
             lock (this)
             {
@@ -379,7 +396,7 @@ namespace Ice
             }
         }
 
-        public Disp find(Identity ident, string facet = "")
+        public Disp Find(Identity ident, string facet = "")
         {
             lock (this)
             {
@@ -390,7 +407,12 @@ namespace Ice
             }
         }
 
-        public Dictionary<string, Disp> findAllFacets(Identity ident)
+        public Dictionary<string, Disp> FindAllFacets(string ident)
+        {
+            return FindAllFacets(Util.stringToIdentity(ident));
+        }
+
+        public Dictionary<string, Disp> FindAllFacets(Identity ident)
         {
             lock (this)
             {
@@ -401,18 +423,18 @@ namespace Ice
             }
         }
 
-        public Disp findByProxy(ObjectPrx proxy)
+        public Disp FindByProxy(ObjectPrx proxy)
         {
             lock (this)
             {
                 checkForDeactivation();
 
                 Reference @ref = ((ObjectPrxHelperBase)proxy).iceReference();
-                return find(@ref.getIdentity(), @ref.getFacet());
+                return Find(@ref.getIdentity(), @ref.getFacet());
             }
         }
 
-        public Disp? findDefaultServant(string category)
+        public Disp? FindDefaultServant(string category)
         {
             lock (this)
             {
@@ -422,7 +444,7 @@ namespace Ice
             }
         }
 
-        public void addServantLocator(ServantLocator locator, string prefix)
+        public void AddServantLocator(ServantLocator locator, string prefix)
         {
             lock (this)
             {
@@ -432,7 +454,7 @@ namespace Ice
             }
         }
 
-        public ServantLocator removeServantLocator(string prefix)
+        public ServantLocator RemoveServantLocator(string prefix)
         {
             lock (this)
             {
@@ -442,7 +464,7 @@ namespace Ice
             }
         }
 
-        public ServantLocator findServantLocator(string prefix)
+        public ServantLocator FindServantLocator(string prefix)
         {
             lock (this)
             {
@@ -452,7 +474,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx createProxy(Identity ident)
+        public ObjectPrx CreateProxy(string ident)
+        {
+            return CreateProxy(Util.stringToIdentity(ident));
+        }
+
+        public ObjectPrx CreateProxy(Identity ident)
         {
             lock (this)
             {
@@ -463,7 +490,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx createDirectProxy(Identity ident)
+        public ObjectPrx CreateDirectProxy(string ident)
+        {
+            return CreateDirectProxy(Util.stringToIdentity(ident));
+        }
+
+        public ObjectPrx CreateDirectProxy(Identity ident)
         {
             lock (this)
             {
@@ -474,7 +506,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx createIndirectProxy(Identity ident)
+        public ObjectPrx CreateIndirectProxy(string ident)
+        {
+            return CreateIndirectProxy(Util.stringToIdentity(ident));
+        }
+
+        public ObjectPrx CreateIndirectProxy(Identity ident)
         {
             lock (this)
             {
@@ -485,7 +522,7 @@ namespace Ice
             }
         }
 
-        public void setLocator(LocatorPrx locator)
+        public void SetLocator(LocatorPrx locator)
         {
             lock (this)
             {
@@ -495,7 +532,7 @@ namespace Ice
             }
         }
 
-        public LocatorPrx getLocator()
+        public LocatorPrx GetLocator()
         {
             lock (this)
             {
@@ -512,7 +549,7 @@ namespace Ice
             }
         }
 
-        public Endpoint[] getEndpoints()
+        public Endpoint[] GetEndpoints()
         {
             lock (this)
             {
@@ -525,7 +562,7 @@ namespace Ice
             }
         }
 
-        public void refreshPublishedEndpoints()
+        public void RefreshPublishedEndpoints()
         {
             LocatorInfo locatorInfo = null;
             EndpointI[] oldPublishedEndpoints;
@@ -535,7 +572,7 @@ namespace Ice
                 checkForDeactivation();
 
                 oldPublishedEndpoints = _publishedEndpoints;
-                _publishedEndpoints = computePublishedEndpoints();
+                _publishedEndpoints = ComputePublishedEndpoints();
 
                 locatorInfo = _locatorInfo;
             }
@@ -544,7 +581,7 @@ namespace Ice
             {
                 Identity dummy = new Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(dummy));
             }
             catch (LocalException)
             {
@@ -559,7 +596,7 @@ namespace Ice
             }
         }
 
-        public Endpoint[] getPublishedEndpoints()
+        public Endpoint[] GetPublishedEndpoints()
         {
             lock (this)
             {
@@ -567,7 +604,7 @@ namespace Ice
             }
         }
 
-        public void setPublishedEndpoints(Endpoint[] newEndpoints)
+        public void SetPublishedEndpoints(Endpoint[] newEndpoints)
         {
             LocatorInfo locatorInfo = null;
             EndpointI[] oldPublishedEndpoints;
@@ -590,7 +627,7 @@ namespace Ice
             {
                 Identity dummy = new Identity();
                 dummy.name = "dummy";
-                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(dummy));
             }
             catch (LocalException)
             {
@@ -800,7 +837,7 @@ namespace Ice
 
             Properties properties = _instance.initializationData().properties;
             List<string> unknownProps = new List<string>();
-            bool noProps = filterProperties(unknownProps);
+            bool noProps = FilterProperties(unknownProps);
 
             //
             // Warn about unknown object adapter properties.
@@ -918,7 +955,7 @@ namespace Ice
                     // Parse the endpoints, but don't store them in the adapter. The connection
                     // factory might change it, for example, to fill in the real port number.
                     //
-                    List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                    List<EndpointI> endpoints = ParseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                     foreach (EndpointI endp in endpoints)
                     {
                         EndpointI publishedEndpoint;
@@ -945,21 +982,21 @@ namespace Ice
                 //
                 // Parse published endpoints.
                 //
-                _publishedEndpoints = computePublishedEndpoints();
+                _publishedEndpoints = ComputePublishedEndpoints();
 
                 if (properties.getProperty(_name + ".Locator").Length > 0)
                 {
-                    setLocator(LocatorPrxHelper.uncheckedCast(
+                    SetLocator(LocatorPrxHelper.uncheckedCast(
                         _instance.proxyFactory().propertyToProxy(_name + ".Locator")));
                 }
                 else
                 {
-                    setLocator(_instance.referenceFactory().getDefaultLocator());
+                    SetLocator(_instance.referenceFactory().getDefaultLocator());
                 }
             }
             catch (LocalException)
             {
-                destroy();
+                Destroy();
                 throw;
             }
         }
@@ -1004,7 +1041,7 @@ namespace Ice
             if (_state >= StateDeactivating)
             {
                 ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
-                ex.name = getName();
+                ex.name = GetName();
                 throw ex;
             }
         }
@@ -1021,7 +1058,7 @@ namespace Ice
             }
         }
 
-        private static void checkServant(Disp servant)
+        private static void CheckServant(Disp servant)
         {
             if (servant == null)
             {
@@ -1029,7 +1066,7 @@ namespace Ice
             }
         }
 
-        private List<EndpointI> parseEndpoints(string endpts, bool oaEndpoints)
+        private List<EndpointI> ParseEndpoints(string endpts, bool oaEndpoints)
         {
             int beg;
             int end = 0;
@@ -1111,7 +1148,7 @@ namespace Ice
             return endpoints;
         }
 
-        private EndpointI[] computePublishedEndpoints()
+        private EndpointI[] ComputePublishedEndpoints()
         {
             List<EndpointI> endpoints;
             if (_routerInfo != null)
@@ -1135,7 +1172,7 @@ namespace Ice
                 // instead of the connection factory endpoints.
                 //
                 string endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
-                endpoints = parseEndpoints(endpts, false);
+                endpoints = ParseEndpoints(endpts, false);
                 if (endpoints.Count == 0)
                 {
                     //
@@ -1182,7 +1219,7 @@ namespace Ice
             return endpoints.ToArray();
         }
 
-        private void updateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy)
+        private void UpdateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
             {
@@ -1336,7 +1373,7 @@ namespace Ice
             "ThreadPool.Serialize"
         };
 
-        private bool filterProperties(List<string> unknownProps)
+        private bool FilterProperties(List<string> unknownProps)
         {
             //
             // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc

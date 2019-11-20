@@ -36,7 +36,7 @@ namespace IceInternal
             //
             foreach (Ice.ObjectAdapter adapter in adapters)
             {
-                adapter.deactivate();
+                adapter.Deactivate();
             }
         }
 
@@ -61,7 +61,7 @@ namespace IceInternal
             //
             foreach (Ice.ObjectAdapter adapter in adapters)
             {
-                adapter.waitForDeactivate();
+                adapter.WaitForDeactivate();
             }
         }
 
@@ -88,7 +88,7 @@ namespace IceInternal
 
             foreach (Ice.ObjectAdapter adapter in adapters)
             {
-                adapter.destroy();
+                adapter.Destroy();
             }
 
             lock (this)
@@ -179,7 +179,7 @@ namespace IceInternal
             {
                 if (adapter != null)
                 {
-                    adapter.destroy();
+                    adapter.Destroy();
                 }
                 throw;
             }
@@ -239,7 +239,7 @@ namespace IceInternal
                 }
 
                 _adapters.Remove(adapter);
-                _adapterNamesInUse.Remove(adapter.getName());
+                _adapterNamesInUse.Remove(adapter.GetName());
             }
         }
 

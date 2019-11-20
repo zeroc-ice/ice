@@ -23,7 +23,7 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new ThrowerI(), Util.stringToIdentity("thrower"));
+                    adapter.Add(new ThrowerI(), "thrower");
                     AllTests.allTests(this);
                 }
             }

@@ -788,7 +788,7 @@ public class AllTests : Test.AllTests
             RelayTraits relayT = default;
             RelayI relayI = new RelayI();
             RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.Add(relayI));
-            adapter.activate();
+            adapter.Activate();
             testPrx.ice_getConnection().setAdapter(adapter);
 
             try
@@ -897,7 +897,7 @@ public class AllTests : Test.AllTests
                 test(false);
             }
 
-            adapter.destroy();
+            adapter.Destroy();
         }
         output.WriteLine("ok");
 

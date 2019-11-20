@@ -42,11 +42,11 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                    adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
-                    adapter.Add(new TestII(), Ice.Util.stringToIdentity("test2"));
-                    adapter.activate();
-                    adapter2.Add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-                    adapter2.activate();
+                    adapter.Add(new TestI(), "test");
+                    adapter.Add(new TestII(), "test2");
+                    adapter.Activate();
+                    adapter2.Add(new TestControllerI(adapter), "testController");
+                    adapter2.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

@@ -14,14 +14,14 @@ namespace Ice
                 {
                     if (activate)
                     {
-                        current.adapter.addServantLocator(new ServantLocatorI(""), "");
-                        current.adapter.addServantLocator(new ServantLocatorI("category"), "category");
+                        current.adapter.AddServantLocator(new ServantLocatorI(""), "");
+                        current.adapter.AddServantLocator(new ServantLocatorI("category"), "category");
                     }
                     else
                     {
-                        var locator = current.adapter.removeServantLocator("");
+                        var locator = current.adapter.RemoveServantLocator("");
                         locator.deactivate("");
-                        locator = current.adapter.removeServantLocator("category");
+                        locator = current.adapter.RemoveServantLocator("category");
                         locator.deactivate("category");
                     }
                 }

@@ -398,7 +398,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
                     var adapter = communicator.createObjectAdapter("TimeoutCollocated");
-                    adapter.activate();
+                    adapter.Activate();
 
                     Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.Add(new TimeoutI()));
                     proxy = (Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
@@ -430,7 +430,7 @@ namespace Ice
                         test(false);
                     }
 
-                    adapter.destroy();
+                    adapter.Destroy();
                 }
                 output.WriteLine("ok");
 

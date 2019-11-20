@@ -30,9 +30,9 @@ public class Collocated : Test.TestHelper
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
+                adapter.Add(new TestI(), "test");
                 //adapter.activate(); // Don't activate OA to ensure collocation is used.
-                adapter2.Add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+                adapter2.Add(new TestControllerI(adapter), "testController");
                 //adapter2.activate(); // Don't activate OA to ensure collocation is used.
 
                 AllTests.allTests(this);

@@ -71,7 +71,7 @@ namespace Ice
                         _pending.SetResult(null);
                         _pending = null;
                     }
-                    current.adapter.getCommunicator().shutdown();
+                    current.adapter.GetCommunicator().shutdown();
                 }
             }
 
@@ -130,7 +130,7 @@ namespace Ice
             Test.TestIntfPrx
             self(Ice.Current current)
             {
-                return Test.TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
+                return Test.TestIntfPrxHelper.uncheckedCast(current.adapter.CreateProxy(current.id));
             }
 
             public Task
@@ -191,13 +191,13 @@ namespace Ice
             public void
             holdAdapter(Ice.Current current)
             {
-                _adapter.hold();
+                _adapter.Hold();
             }
 
             public void
             resumeAdapter(Ice.Current current)
             {
-                _adapter.activate();
+                _adapter.Activate();
             }
 
             public

@@ -18,9 +18,9 @@ namespace Ice
 
             internal void run()
             {
-                _adapter.waitForHold();
+                _adapter.WaitForHold();
                 Thread.Sleep(_timeout);
-                _adapter.activate();
+                _adapter.Activate();
             }
 
             private Ice.ObjectAdapter _adapter;
@@ -52,7 +52,7 @@ namespace Ice
 
             public void holdAdapter(int to, Ice.Current current)
             {
-                _adapter.hold();
+                _adapter.Hold();
                 if (to >= 0)
                 {
                     ActivateAdapterThread act = new ActivateAdapterThread(_adapter, to);
@@ -63,15 +63,15 @@ namespace Ice
 
             public void resumeAdapter(Ice.Current current)
             {
-                _adapter.activate();
+                _adapter.Activate();
             }
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
-            private Ice.ObjectAdapter _adapter;
+            private ObjectAdapter _adapter;
         }
     }
 }

@@ -26,12 +26,12 @@ public class Server : Test.TestHelper
             }
 
             communicator.getProperties().setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
-            communicator.getProperties().setProperty("ControlAdapter.AdapterId", "control" + num);
+            communicator.getProperties().setProperty("ControlAdapter.AdapterId", $"control{num}");
             communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
-            adapter.Add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
-            adapter.activate();
+            adapter.Add(new ControllerI(), $"controller{num}");
+            adapter.Activate();
 
             communicator.waitForShutdown();
         }
@@ -39,6 +39,6 @@ public class Server : Test.TestHelper
 
     public static int Main(string[] args)
     {
-        return Test.TestDriver.runTest<Server>(args);
+        return TestDriver.runTest<Server>(args);
     }
 }

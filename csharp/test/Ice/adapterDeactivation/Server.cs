@@ -17,10 +17,10 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.ServantLocator locator = new ServantLocatorI();
-                    adapter.addServantLocator(locator, "");
-                    adapter.activate();
+                    adapter.AddServantLocator(locator, "");
+                    adapter.Activate();
                     serverReady();
-                    adapter.waitForDeactivate();
+                    adapter.WaitForDeactivate();
                 }
             }
 

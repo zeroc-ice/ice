@@ -92,7 +92,7 @@ namespace Ice
                         _opVoidThread = null;
                     }
 
-                    current.adapter.getCommunicator().shutdown();
+                    current.adapter.GetCommunicator().shutdown();
                     return null;
                 }
 
@@ -280,10 +280,9 @@ namespace Ice
                 opMyClassAsync(Test.MyClassPrx p1, Ice.Current current)
                 {
                     var p2 = p1;
-                    var p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
-                                                            Ice.Util.stringToIdentity("noSuchIdentity")));
+                    var p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.CreateProxy("noSuchIdentity"));
                     return Task.FromResult(new Test.MyClass_OpMyClassResult(
-                        Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3));
+                        Test.MyClassPrxHelper.uncheckedCast(current.adapter.CreateProxy(current.id)), p2, p3));
                 }
 
                 public Task<Test.MyClass_OpMyEnumResult>

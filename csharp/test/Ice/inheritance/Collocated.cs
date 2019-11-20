@@ -17,7 +17,7 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new InitialI(adapter), Ice.Util.stringToIdentity("initial"));
+                    adapter.Add(new InitialI(adapter), "initial");
                     AllTests.allTests(this);
                 }
             }

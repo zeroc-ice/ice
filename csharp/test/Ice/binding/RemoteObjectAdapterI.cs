@@ -13,8 +13,8 @@ namespace Ice
             public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), Util.stringToIdentity("test")));
-                _adapter.activate();
+                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), "test"));
+                _adapter.Activate();
             }
 
             public Test.TestIntfPrx
@@ -28,7 +28,7 @@ namespace Ice
             {
                 try
                 {
-                    _adapter.destroy();
+                    _adapter.Destroy();
                 }
                 catch (Ice.ObjectAdapterDeactivatedException)
                 {

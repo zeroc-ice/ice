@@ -21,6 +21,6 @@ public sealed class CallbackI : Test.Callback
     public void
     shutdown(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 }

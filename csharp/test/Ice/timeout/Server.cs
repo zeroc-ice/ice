@@ -36,12 +36,12 @@ namespace Ice
                     communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new TimeoutI(), Ice.Util.stringToIdentity("timeout"));
-                    adapter.activate();
+                    adapter.Add(new TimeoutI(), "timeout");
+                    adapter.Activate();
 
                     var controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-                    controllerAdapter.Add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
-                    controllerAdapter.activate();
+                    controllerAdapter.Add(new ControllerI(adapter), "controller");
+                    controllerAdapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

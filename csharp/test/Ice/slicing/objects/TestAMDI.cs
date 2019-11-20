@@ -19,7 +19,7 @@ public sealed class TestI : TestIntf
 
     public Task shutdownAsync(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
         return null;
     }
 

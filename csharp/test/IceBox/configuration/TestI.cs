@@ -14,7 +14,7 @@ public class TestI : TestIntf
     public string
     getProperty(string name, Ice.Current current)
     {
-        return current.adapter.getCommunicator().getProperties().getProperty(name);
+        return current.adapter.GetCommunicator().getProperties().getProperty(name);
     }
 
     public string[]

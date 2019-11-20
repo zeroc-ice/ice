@@ -10,7 +10,7 @@ namespace Ice
         {
             public override bool ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
             {
-                var communicator = current.adapter.getCommunicator();
+                var communicator = current.adapter.GetCommunicator();
                 var @out = new Ice.OutputStream(communicator);
                 @out.startEncapsulation(current.encoding, FormatType.DefaultFormat);
                 var ae = new Test.AlsoEmpty();

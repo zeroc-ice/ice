@@ -38,10 +38,10 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                    adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
-                    adapter.Add(new TestII(), Ice.Util.stringToIdentity("test2"));
+                    adapter.Add(new TestI(), "test");
+                    adapter.Add(new TestII(), "test2");
                     //adapter.activate(); // Collocated test doesn't need to activate the OA
-                    adapter2.Add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+                    adapter2.Add(new TestControllerI(adapter), "testController");
                     //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
                     AllTests.allTests(this, true);

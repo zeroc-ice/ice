@@ -13,7 +13,7 @@ namespace Ice
             public RemoteObjectAdapterPrx
             createObjectAdapter(int timeout, int close, int heartbeat, Ice.Current current)
             {
-                Communicator com = current.adapter.getCommunicator();
+                Communicator com = current.adapter.GetCommunicator();
                 Properties properties = com.getProperties();
                 string protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
                 string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
@@ -40,7 +40,7 @@ namespace Ice
             public void
             shutdown(Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
         }
 
@@ -49,8 +49,8 @@ namespace Ice
             public RemoteObjectAdapterI(ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), Util.stringToIdentity("test")));
-                _adapter.activate();
+                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), "test"));
+                _adapter.Activate();
             }
 
             public TestIntfPrx getTestIntf(Current current)
@@ -60,19 +60,19 @@ namespace Ice
 
             public void activate(Current current)
             {
-                _adapter.activate();
+                _adapter.Activate();
             }
 
             public void hold(Current current)
             {
-                _adapter.hold();
+                _adapter.Hold();
             }
 
             public void deactivate(Current current)
             {
                 try
                 {
-                    _adapter.destroy();
+                    _adapter.Destroy();
                 }
                 catch (ObjectAdapterDeactivatedException)
                 {
@@ -97,7 +97,7 @@ namespace Ice
             {
                 lock (this)
                 {
-                    current.adapter.hold();
+                    current.adapter.Hold();
                     System.Threading.Monitor.Wait(this, delay * 1000);
                 }
             }

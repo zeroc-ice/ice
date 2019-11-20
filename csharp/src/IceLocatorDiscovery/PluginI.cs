@@ -701,8 +701,8 @@ namespace IceLocatorDiscovery
             _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
 
             // We don't want those adapters to be registered with the locator so clear their locator.
-            _replyAdapter.setLocator(null);
-            _locatorAdapter.setLocator(null);
+            _replyAdapter.SetLocator(null);
+            _locatorAdapter.SetLocator(null);
 
             Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
             // No colloc optimization or router for the multicast proxy!
@@ -725,8 +725,8 @@ namespace IceLocatorDiscovery
             ObjectPrx lookupReply = _replyAdapter.Add(lookupReplyI).ice_datagram();
             _locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
 
-            _replyAdapter.activate();
-            _locatorAdapter.activate();
+            _replyAdapter.Activate();
+            _locatorAdapter.Activate();
         }
 
         public void
@@ -734,11 +734,11 @@ namespace IceLocatorDiscovery
         {
             if (_replyAdapter != null)
             {
-                _replyAdapter.destroy();
+                _replyAdapter.Destroy();
             }
             if (_locatorAdapter != null)
             {
-                _locatorAdapter.destroy();
+                _locatorAdapter.Destroy();
             }
             if (_communicator.getDefaultLocator().Equals(_locatorPrx))
             {

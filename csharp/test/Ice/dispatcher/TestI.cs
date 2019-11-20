@@ -40,7 +40,7 @@ public class TestI : TestIntf
     shutdown(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 }
 
@@ -58,14 +58,14 @@ public class TestControllerI : TestIntfController
     holdAdapter(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
-        _adapter.hold();
+        _adapter.Hold();
     }
 
     public void
     resumeAdapter(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
-        _adapter.activate();
+        _adapter.Activate();
     }
 
     public

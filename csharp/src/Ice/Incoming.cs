@@ -484,7 +484,7 @@ namespace IceInternal
 
         public static Ice.OutputStream createResponseOutputStream(Ice.Current current)
         {
-            var os = new Ice.OutputStream(current.adapter.getCommunicator(), Ice.Util.currentProtocolEncoding);
+            var os = new Ice.OutputStream(current.adapter.GetCommunicator(), Ice.Util.currentProtocolEncoding);
             os.writeBlob(Protocol.replyHdr);
             os.writeInt(current.requestId);
             os.writeByte(ReplyStatus.replyOK);

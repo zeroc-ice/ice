@@ -916,12 +916,12 @@ namespace Ice
                         ObjectAdapter adapter = communicator.createObjectAdapter("");
                         PingReplyI replyI = new PingReplyI();
                         var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI));
-                        adapter.activate();
+                        adapter.Activate();
 
                         p.ice_getConnection().setAdapter(adapter);
                         p.pingBiDir(reply);
                         test(replyI.checkReceived());
-                        adapter.destroy();
+                        adapter.Destroy();
                     }
                 }
                 output.WriteLine("ok");

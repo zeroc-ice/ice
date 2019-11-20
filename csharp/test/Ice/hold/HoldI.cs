@@ -27,12 +27,12 @@ namespace Ice
             {
                 if (milliSeconds < 0)
                 {
-                    _adapter.hold();
+                    _adapter.Hold();
                 }
                 else if (milliSeconds == 0)
                 {
-                    _adapter.hold();
-                    _adapter.activate();
+                    _adapter.Hold();
+                    _adapter.Activate();
                 }
                 else
                 {
@@ -56,8 +56,8 @@ namespace Ice
                 {
                     try
                     {
-                        current.adapter.waitForHold();
-                        current.adapter.activate();
+                        current.adapter.WaitForHold();
+                        current.adapter.Activate();
                     }
                     catch (Ice.ObjectAdapterDeactivatedException)
                     {
@@ -96,8 +96,8 @@ namespace Ice
             public void
             shutdown(Ice.Current current)
             {
-                _adapter.hold();
-                _adapter.getCommunicator().shutdown();
+                _adapter.Hold();
+                _adapter.GetCommunicator().shutdown();
             }
 
             private Ice.ObjectAdapter _adapter;

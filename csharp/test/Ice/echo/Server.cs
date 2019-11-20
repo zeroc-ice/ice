@@ -20,7 +20,7 @@ public class Server : Test.TestHelper
 
         public void shutdown(Ice.Current current)
         {
-            current.adapter.getCommunicator().shutdown();
+            current.adapter.GetCommunicator().shutdown();
         }
 
         private BlobjectI _blob;
@@ -33,9 +33,9 @@ public class Server : Test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             BlobjectI blob = new BlobjectI();
-            adapter.addDefaultServant((incoming, current) => blob.Dispatch(incoming, current), "");
-            adapter.Add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
-            adapter.activate();
+            adapter.AddDefaultServant((incoming, current) => blob.Dispatch(incoming, current), "");
+            adapter.Add(new EchoI(blob), "__echo");
+            adapter.Activate();
             communicator.waitForShutdown();
         }
     }

@@ -42,7 +42,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             private Test.MA.IAPrx _ia;

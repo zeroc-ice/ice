@@ -13,7 +13,7 @@ namespace Ice
         {
             public void shutdown(Ice.Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             public Ice.Value pingPong(Ice.Value obj, Ice.Current current)

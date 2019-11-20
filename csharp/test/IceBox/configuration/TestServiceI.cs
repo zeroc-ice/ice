@@ -11,8 +11,8 @@ class TestServiceI : Service
     start(string name, Ice.Communicator communicator, string[] args)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
-        adapter.Add(new TestI(args), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
+        adapter.Add(new TestI(args), "test");
+        adapter.Activate();
     }
 
     public void

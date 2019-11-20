@@ -12,7 +12,7 @@ namespace Ice
         {
             public void shutdown(Ice.Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             public Dictionary<int, int> opNV(Dictionary<int, int> i, out Dictionary<int, int> o,

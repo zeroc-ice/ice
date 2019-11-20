@@ -18,8 +18,8 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     var initial = new InitialI(adapter);
-                    adapter.Add(initial, Ice.Util.stringToIdentity("initial"));
-                    adapter.activate();
+                    adapter.Add(initial, "initial");
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

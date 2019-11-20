@@ -14,8 +14,8 @@ public class Server : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), Ice.Util.stringToIdentity("Test"));
-            adapter.activate();
+            adapter.Add(new TestI(), "Test");
+            adapter.Activate();
             communicator.waitForShutdown();
         }
     }

@@ -30,7 +30,7 @@ namespace Ice
                 StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
                 s.Append(_nextPort++);
                 s.Append(" -t 30000");
-                return current.adapter.getCommunicator().stringToProxy(s.ToString());
+                return current.adapter.GetCommunicator().stringToProxy(s.ToString());
             }
 
             public Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)

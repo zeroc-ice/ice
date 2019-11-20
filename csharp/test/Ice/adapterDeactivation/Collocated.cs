@@ -23,11 +23,11 @@ namespace Ice
 
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     var locator = new ServantLocatorI();
-                    adapter.addServantLocator(locator, "");
+                    adapter.AddServantLocator(locator, "");
 
                     AllTests.allTests(this);
 
-                    adapter.waitForDeactivate();
+                    adapter.WaitForDeactivate();
                 }
             }
 

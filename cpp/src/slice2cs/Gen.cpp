@@ -4446,6 +4446,16 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "public static " << getUnqualified("Ice.ObjectPrx", ns) << " Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
          << fixId(p->name()) << " servant, "
+         << "string id, "
+         << "string facet = \"\")";
+    _out << sb;
+    _out << nl << "var traits = default(" << fixId(p->name()) + "Traits" << ");";
+    _out << nl << "return adapter.Add((incoming, current) => traits.Dispatch(servant, incoming, current), id, facet);";
+    _out << eb;
+
+    _out << nl << "public static " << getUnqualified("Ice.ObjectPrx", ns) << " Add("
+         << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
+         << fixId(p->name()) << " servant, "
          << getUnqualified("Ice.Identity", ns) << "? id = null, "
          << "string facet = \"\")";
     _out << sb;

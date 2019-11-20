@@ -34,7 +34,7 @@ namespace IceInternal
                     }
 
                     _sendLogCommunicator =
-                        createSendLogCommunicator(current.adapter.getCommunicator(), _logger.getLocalLogger());
+                        createSendLogCommunicator(current.adapter.GetCommunicator(), _logger.getLocalLogger());
                 }
 
                 Ice.Identity remoteLoggerId = remoteLogger.ice_getIdentity();

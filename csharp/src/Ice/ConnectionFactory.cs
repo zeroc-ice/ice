@@ -1417,7 +1417,7 @@ namespace IceInternal
 
                     try
                     {
-                        connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver,
+                        connection = new Ice.ConnectionI(_adapter.GetCommunicator(), _instance, _monitor, transceiver,
                                                          null, _endpoint, _adapter);
                     }
                     catch (Ice.LocalException ex)
@@ -1550,7 +1550,7 @@ namespace IceInternal
                     }
                     _endpoint = _transceiver.bind();
 
-                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null,
+                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.GetCommunicator(), _instance, null,
                                                                      _transceiver, null, _endpoint, _adapter);
                     connection.startAndWait();
                     _connections.Add(connection);
@@ -1696,7 +1696,7 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_acceptorStarted);
-                _acceptor = _endpoint.acceptor(_adapter.getName());
+                _acceptor = _endpoint.acceptor(_adapter.GetName());
                 Debug.Assert(_acceptor != null);
 
                 if (_instance.traceLevels().network >= 2)

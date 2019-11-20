@@ -199,7 +199,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
                 adapter = communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
-                adapter.activate();
+                adapter.Activate();
                 Console.Out.WriteLine("ok");
             }
 

@@ -48,8 +48,8 @@ public class Server : TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
-            adapter.activate();
+            adapter.Add(new TestI(), "test");
+            adapter.Activate();
             communicator.waitForShutdown();
         }
     }

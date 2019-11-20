@@ -23,7 +23,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
                     communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
                     Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
-                    adapter1.Add(new HoldI(timer, adapter1), Ice.Util.stringToIdentity("hold"));
+                    adapter1.Add(new HoldI(timer, adapter1), "hold");
 
                     communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
@@ -31,10 +31,10 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
                     communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-                    adapter2.Add(new HoldI(timer, adapter2), Ice.Util.stringToIdentity("hold"));
+                    adapter2.Add(new HoldI(timer, adapter2), "hold");
 
-                    adapter1.activate();
-                    adapter2.activate();
+                    adapter1.Activate();
+                    adapter2.Activate();
                     serverReady();
                     communicator.waitForShutdown();
 

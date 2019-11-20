@@ -10,16 +10,16 @@ namespace Ice
         {
             public void transient(Ice.Current current)
             {
-                Ice.Communicator communicator = current.adapter.getCommunicator();
+                Ice.Communicator communicator = current.adapter.GetCommunicator();
 
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-                adapter.activate();
-                adapter.destroy();
+                adapter.Activate();
+                adapter.Destroy();
             }
 
             public void deactivate(Ice.Current current)
             {
-                current.adapter.deactivate();
+                current.adapter.Deactivate();
                 System.Threading.Thread.Sleep(100);
             }
         }

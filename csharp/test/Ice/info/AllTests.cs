@@ -93,9 +93,9 @@ namespace Ice
                         "\" -t 15000:udp -h \"" + host + "\"");
                     adapter = communicator.createObjectAdapter("TestAdapter");
 
-                    Ice.Endpoint[] endpoints = adapter.getEndpoints();
+                    Ice.Endpoint[] endpoints = adapter.GetEndpoints();
                     test(endpoints.Length == 2);
-                    Ice.Endpoint[] publishedEndpoints = adapter.getPublishedEndpoints();
+                    Ice.Endpoint[] publishedEndpoints = adapter.GetPublishedEndpoints();
                     test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
                     Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
@@ -115,20 +115,20 @@ namespace Ice
 
                     endpoints = new Ice.Endpoint[] { endpoints[0] };
                     test(endpoints.Length == 1);
-                    adapter.setPublishedEndpoints(endpoints);
-                    publishedEndpoints = adapter.getPublishedEndpoints();
+                    adapter.SetPublishedEndpoints(endpoints);
+                    publishedEndpoints = adapter.GetPublishedEndpoints();
                     test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
-                    adapter.destroy();
+                    adapter.Destroy();
 
                     int port = helper.getTestPort(1);
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p " + port);
                     communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
                     adapter = communicator.createObjectAdapter("TestAdapter");
 
-                    endpoints = adapter.getEndpoints();
+                    endpoints = adapter.GetEndpoints();
                     test(endpoints.Length >= 1);
-                    publishedEndpoints = adapter.getPublishedEndpoints();
+                    publishedEndpoints = adapter.GetPublishedEndpoints();
                     test(publishedEndpoints.Length == 1);
 
                     foreach (Ice.Endpoint endpoint in endpoints)
@@ -141,7 +141,7 @@ namespace Ice
                     test(tcpEndpoint.host.Equals("127.0.0.1"));
                     test(tcpEndpoint.port == port);
 
-                    adapter.destroy();
+                    adapter.Destroy();
                 }
                 output.WriteLine("ok");
 

@@ -35,10 +35,10 @@ public class Server : Test.TestHelper
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
-                adapter.activate();
-                adapter2.Add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-                adapter2.activate();
+                adapter.Add(new TestI(), "test");
+                adapter.Activate();
+                adapter2.Add(new TestControllerI(adapter), "testController");
+                adapter2.Activate();
 
                 communicator.waitForShutdown();
             }

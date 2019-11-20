@@ -48,13 +48,13 @@ namespace Ice
                         //
                         // Quell mono error that variable second isn't used.
                         //
-                        second.deactivate();
+                        second.Deactivate();
                     }
                     catch (AlreadyRegisteredException)
                     {
                         // Expected
                     }
-                    first.deactivate();
+                    first.Deactivate();
                     output.WriteLine("ok");
                 }
 
@@ -63,10 +63,10 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
                     var obj = new EmptyI();
-                    adapter.Add(obj, Util.stringToIdentity("x"));
+                    adapter.Add(obj, "x");
                     try
                     {
-                        adapter.Add(obj, Util.stringToIdentity("x"));
+                        adapter.Add(obj, "x");
                         test(false);
                     }
                     catch (AlreadyRegisteredException)
@@ -75,7 +75,7 @@ namespace Ice
 
                     try
                     {
-                        adapter.Add(obj, Util.stringToIdentity(""));
+                        adapter.Add(obj, "");
                         test(false);
                     }
                     catch (IllegalIdentityException e)
@@ -85,23 +85,23 @@ namespace Ice
 
                     try
                     {
-                        adapter.Add(null, Util.stringToIdentity("x"));
+                        adapter.Add(null, "x");
                         test(false);
                     }
                     catch (IllegalServantException)
                     {
                     }
 
-                    adapter.remove(Util.stringToIdentity("x"));
+                    adapter.Remove("x");
                     try
                     {
-                        adapter.remove(Util.stringToIdentity("x"));
+                        adapter.Remove("x");
                         test(false);
                     }
                     catch (NotRegisteredException)
                     {
                     }
-                    adapter.deactivate();
+                    adapter.Deactivate();
                     output.WriteLine("ok");
                 }
 
@@ -110,17 +110,17 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter2.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
                     ServantLocator loc = new ServantLocatorI();
-                    adapter.addServantLocator(loc, "x");
+                    adapter.AddServantLocator(loc, "x");
                     try
                     {
-                        adapter.addServantLocator(loc, "x");
+                        adapter.AddServantLocator(loc, "x");
                         test(false);
                     }
                     catch (AlreadyRegisteredException)
                     {
                     }
 
-                    adapter.deactivate();
+                    adapter.Deactivate();
                     output.WriteLine("ok");
                 }
 

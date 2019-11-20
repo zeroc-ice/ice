@@ -26,13 +26,13 @@ public class Server : TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
-            adapter.activate();
+            adapter.Add(new MetricsI(), "metrics");
+            adapter.Activate();
 
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
-            controllerAdapter.activate();
+            controllerAdapter.Add(new ControllerI(adapter), "controller");
+            controllerAdapter.Activate();
 
             communicator.waitForShutdown();
         }

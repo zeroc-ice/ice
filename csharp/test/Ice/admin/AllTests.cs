@@ -404,7 +404,7 @@ namespace Ice
                     Ice.RemoteLoggerPrx myProxy =
                         Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.Add(remoteLogger));
 
-                    adapter.activate();
+                    adapter.Activate();
 
                     //
                     // No filtering

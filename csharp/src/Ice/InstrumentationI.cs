@@ -347,7 +347,7 @@ namespace IceInternal
 
         public string getParent()
         {
-            return _current.adapter.getName();
+            return _current.adapter.GetName();
         }
 
         public Ice.ConnectionInfo getConnectionInfo()
@@ -389,7 +389,7 @@ namespace IceInternal
 
         public string getIdentity()
         {
-            return _current.adapter.getCommunicator().identityToString(_current.id);
+            return _current.adapter.GetCommunicator().identityToString(_current.id);
         }
 
         private readonly Ice.Current _current;
@@ -773,7 +773,7 @@ namespace IceInternal
         public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
             base(_attributes)
         {
-            _id = adapter.getName();
+            _id = adapter.GetName();
             _requestId = requestId;
             _size = size;
         }

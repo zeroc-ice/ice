@@ -29,16 +29,13 @@ namespace Ice.location
                 //
                 ServerLocatorRegistry registry = new ServerLocatorRegistry();
                 var obj = new ServerManagerI(registry, this);
-                adapter.Add(obj, Util.stringToIdentity("ServerManager"));
-                registry.addObject(adapter.createProxy(Util.stringToIdentity("ServerManager")));
+                adapter.Add(obj, "ServerManager");
+                registry.addObject(adapter.CreateProxy("ServerManager"));
                 LocatorRegistryPrx registryPrx =
-                    LocatorRegistryPrxHelper.uncheckedCast(
-                        adapter.Add(registry, Util.stringToIdentity("registry")));
+                    LocatorRegistryPrxHelper.uncheckedCast(adapter.Add(registry, "registry"));
+                adapter.Add(new ServerLocator(registry, registryPrx), "locator");
 
-                var locator = new ServerLocator(registry, registryPrx);
-                adapter.Add(locator, Util.stringToIdentity("locator"));
-
-                adapter.activate();
+                adapter.Activate();
                 serverReady();
                 communicator.waitForShutdown();
             }

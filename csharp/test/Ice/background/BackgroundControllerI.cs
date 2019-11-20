@@ -38,12 +38,12 @@ internal class BackgroundControllerI : BackgroundController
 
     public void holdAdapter(Ice.Current current)
     {
-        _adapter.hold();
+        _adapter.Hold();
     }
 
     public void resumeAdapter(Ice.Current current)
     {
-        _adapter.activate();
+        _adapter.Activate();
     }
 
     public void initializeException(bool enable, Ice.Current current)

@@ -98,14 +98,14 @@ namespace IceDiscovery
             // Add lookup and lookup reply Ice objects
             //
             LookupI lookup = new LookupI(locatorRegistry, LookupPrxHelper.uncheckedCast(lookupPrx), properties);
-            _multicastAdapter.Add(lookup, Ice.Util.stringToIdentity("IceDiscovery/Lookup"));
+            _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
 
             LookupReplyTraits lookupT = default;
             LookupReplyI lookupReply = new LookupReplyI(lookup);
-            _replyAdapter.addDefaultServant(
+            _replyAdapter.AddDefaultServant(
                 (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
             Identity id = new Identity("dummy", "");
-            lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
+            lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(_replyAdapter.CreateProxy(id).ice_datagram()));
 
             //
             // Setup locator on the communicator.
@@ -115,24 +115,24 @@ namespace IceDiscovery
             _locator = LocatorPrxHelper.uncheckedCast(loc);
             _communicator.setDefaultLocator(_locator);
 
-            _multicastAdapter.activate();
-            _replyAdapter.activate();
-            _locatorAdapter.activate();
+            _multicastAdapter.Activate();
+            _replyAdapter.Activate();
+            _locatorAdapter.Activate();
         }
 
         public void destroy()
         {
             if (_multicastAdapter != null)
             {
-                _multicastAdapter.destroy();
+                _multicastAdapter.Destroy();
             }
             if (_replyAdapter != null)
             {
-                _replyAdapter.destroy();
+                _replyAdapter.Destroy();
             }
             if (_locatorAdapter != null)
             {
-                _locatorAdapter.destroy();
+                _locatorAdapter.Destroy();
             }
             if (_communicator.getDefaultLocator().Equals(_locator))
             {

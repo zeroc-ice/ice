@@ -216,7 +216,7 @@ namespace Ice
                     interceptor.clear();
                     runAmdTest(prx, interceptor);
 
-                    oa.activate(); // Only necessary for non-collocation optimized tests
+                    oa.Activate(); // Only necessary for non-collocation optimized tests
 
                     output.WriteLine("Collocation optimization off");
                     interceptor.clear();

@@ -41,13 +41,13 @@ namespace Ice
                     catch (AlreadyRegisteredException)
                     {
                     }
-                    adapter.destroy();
+                    adapter.Destroy();
 
                     //
                     // Use a different port than the first adapter to avoid an "address already in use" error.
                     //
                     adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-                    adapter.destroy();
+                    adapter.Destroy();
                     output.WriteLine("ok");
                 }
 
@@ -76,26 +76,26 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
                     var adapter = communicator.createObjectAdapter("PAdapter");
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    var endpt = adapter.getPublishedEndpoints()[0];
+                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    var endpt = adapter.GetPublishedEndpoints()[0];
                     test(endpt.ToString().Equals("tcp -h localhost -p 12345 -t 30000"));
                     ObjectPrx prx =
                         communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
-                    adapter.setPublishedEndpoints(prx.ice_getEndpoints());
-                    test(adapter.getPublishedEndpoints().Length == 2);
+                    adapter.SetPublishedEndpoints(prx.ice_getEndpoints());
+                    test(adapter.GetPublishedEndpoints().Length == 2);
                     var id = new Identity();
                     id.name = "dummy";
-                    test(IceUtilInternal.Arrays.Equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
-                    test(IceUtilInternal.Arrays.Equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
-                    adapter.refreshPublishedEndpoints();
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].Equals(endpt));
+                    test(IceUtilInternal.Arrays.Equals(adapter.CreateProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
+                    test(IceUtilInternal.Arrays.Equals(adapter.GetPublishedEndpoints(), prx.ice_getEndpoints()));
+                    adapter.RefreshPublishedEndpoints();
+                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints()[0].Equals(endpt));
                     communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
-                    adapter.refreshPublishedEndpoints();
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 12345 -t 20000"));
-                    adapter.destroy();
-                    test(adapter.getPublishedEndpoints().Length == 0);
+                    adapter.RefreshPublishedEndpoints();
+                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 12345 -t 20000"));
+                    adapter.Destroy();
+                    test(adapter.GetPublishedEndpoints().Length == 0);
                 }
                 output.WriteLine("ok");
 
@@ -106,7 +106,7 @@ namespace Ice
                     var adapter = communicator.createObjectAdapter("");
                     obj.ice_getConnection().setAdapter(adapter);
                     obj.ice_getConnection().setAdapter(null);
-                    adapter.deactivate();
+                    adapter.Deactivate();
                     try
                     {
                         obj.ice_getConnection().setAdapter(adapter);
@@ -126,21 +126,21 @@ namespace Ice
                     var router =
                        RouterPrxHelper.uncheckedCast(@base.ice_identity(routerId).ice_connectionId("rc"));
                     var adapter = communicator.createObjectAdapterWithRouter("", router);
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23456 -t 30000"));
-                    adapter.refreshPublishedEndpoints();
-                    test(adapter.getPublishedEndpoints().Length == 1);
-                    test(adapter.getPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23457 -t 30000"));
+                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23456 -t 30000"));
+                    adapter.RefreshPublishedEndpoints();
+                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23457 -t 30000"));
                     try
                     {
-                        adapter.setPublishedEndpoints(router.ice_getEndpoints());
+                        adapter.SetPublishedEndpoints(router.ice_getEndpoints());
                         test(false);
                     }
                     catch (ArgumentException)
                     {
                         // Expected.
                     }
-                    adapter.destroy();
+                    adapter.Destroy();
 
                     try
                     {
@@ -180,7 +180,7 @@ namespace Ice
                     {
                         // Expected can't re-use the same endpoint.
                     }
-                    adapter1.destroy();
+                    adapter1.Destroy();
                 }
                 output.WriteLine("ok");
 

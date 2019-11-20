@@ -60,12 +60,12 @@ namespace Ice
                         ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
                         ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
                         var obj = new ThrowerI();
-                        adapter.Add(obj, Util.stringToIdentity("thrower"));
-                        adapter2.Add(obj, Util.stringToIdentity("thrower"));
-                        adapter3.Add(obj, Util.stringToIdentity("thrower"));
-                        adapter.activate();
-                        adapter2.activate();
-                        adapter3.activate();
+                        adapter.Add(obj, "thrower");
+                        adapter2.Add(obj, "thrower");
+                        adapter3.Add(obj, "thrower");
+                        adapter.Activate();
+                        adapter2.Activate();
+                        adapter3.Activate();
                         serverReady();
                         communicator.waitForShutdown();
                     }

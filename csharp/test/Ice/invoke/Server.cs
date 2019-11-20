@@ -74,13 +74,13 @@ namespace Ice
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     if (async)
                     {
-                        adapter.addServantLocator(new ServantLocatorAsyncI(), "");
+                        adapter.AddServantLocator(new ServantLocatorAsyncI(), "");
                     }
                     else
                     {
-                        adapter.addServantLocator(new ServantLocatorI(), "");
+                        adapter.AddServantLocator(new ServantLocatorI(), "");
                     }
-                    adapter.activate();
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

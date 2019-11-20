@@ -250,7 +250,7 @@ namespace Glacier2
             {
                 Debug.Assert(_adapter == null);
                 _adapter = _communicator.createObjectAdapterWithRouter("", router);
-                _adapter.activate();
+                _adapter.Activate();
             }
 
             lock (_mutex)

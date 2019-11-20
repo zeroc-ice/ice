@@ -22,10 +22,10 @@ namespace Ice
                     communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0");
 
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.addServantLocator(new ServantLocatorI("category"), "category");
-                    adapter.addServantLocator(new ServantLocatorI(""), "");
-                    adapter.Add(new TestI(), Ice.Util.stringToIdentity("asm"));
-                    adapter.Add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
+                    adapter.AddServantLocator(new ServantLocatorI("category"), "category");
+                    adapter.AddServantLocator(new ServantLocatorI(""), "");
+                    adapter.Add(new TestI(), "asm");
+                    adapter.Add(new TestActivationI(), "test/activation");
                     AllTests.allTests(this);
                 }
             }

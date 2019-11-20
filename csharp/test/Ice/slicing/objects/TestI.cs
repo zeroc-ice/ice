@@ -19,7 +19,7 @@ public sealed class TestI : TestIntf
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 
     public Ice.Value SBaseAsObject(Ice.Current current)

@@ -15,19 +15,18 @@ public class Server : TestHelper
 {
     internal class LocatorI : Ice.Locator
     {
-        public Task<Ice.ObjectPrx>
+        public Task<ObjectPrx>
         findAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            Ice.Communicator communicator = current.adapter.getCommunicator();
-            return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
+            return Task.FromResult(current.adapter.CreateDirectProxy("dummy"));
         }
 
-        public Task<Ice.ObjectPrx>
+        public Task<ObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
+            return Task.FromResult(current.adapter.CreateDirectProxy(id));
         }
 
         public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
@@ -120,17 +119,17 @@ public class Server : TestHelper
 
             BackgroundI backgroundI = new BackgroundI(backgroundController);
 
-            adapter.Add(backgroundI, Ice.Util.stringToIdentity("background"));
+            adapter.Add(backgroundI, "background");
 
             LocatorI locatorI = new LocatorI(backgroundController);
-            adapter.Add(locatorI, Ice.Util.stringToIdentity("locator"));
+            adapter.Add(locatorI, "locator");
 
             RouterI routerI = new RouterI(backgroundController);
-            adapter.Add(routerI, Util.stringToIdentity("router"));
-            adapter.activate();
+            adapter.Add(routerI, "router");
+            adapter.Activate();
 
-            adapter2.Add(backgroundController, Util.stringToIdentity("backgroundController"));
-            adapter2.activate();
+            adapter2.Add(backgroundController, "backgroundController");
+            adapter2.Activate();
 
             communicator.waitForShutdown();
         }

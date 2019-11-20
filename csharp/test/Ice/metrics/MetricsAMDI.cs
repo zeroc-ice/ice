@@ -15,13 +15,13 @@ public sealed class ControllerI : Controller
 
     public void hold(Ice.Current current)
     {
-        _adapter.hold();
-        _adapter.waitForHold();
+        _adapter.Hold();
+        _adapter.WaitForHold();
     }
 
     public void resume(Ice.Current current)
     {
-        _adapter.activate();
+        _adapter.Activate();
     }
 
     readonly private Ice.ObjectAdapter _adapter;
@@ -72,12 +72,12 @@ public sealed class MetricsI : Metrics
     public Ice.ObjectPrx
     getAdmin(Ice.Current current)
     {
-        return current.adapter.getCommunicator().getAdmin();
+        return current.adapter.GetCommunicator().getAdmin();
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 }

@@ -11,7 +11,7 @@ namespace Ice
         /// Get the name of this object adapter.
         /// </summary>
         /// <returns>This object adapter's name.</returns>
-        string getName();
+        string GetName();
 
         /// <summary>
         /// Get the communicator this object adapter belongs to.
@@ -19,7 +19,7 @@ namespace Ice
         /// <returns>This object adapter's communicator.
         ///
         /// </returns>
-        Communicator getCommunicator();
+        Communicator GetCommunicator();
 
         /// <summary>
         /// Activate all endpoints that belong to this object adapter.
@@ -27,7 +27,7 @@ namespace Ice
         /// received through its endpoints.
         ///
         /// </summary>
-        void activate();
+        void Activate();
 
         /// <summary>
         /// Temporarily hold receiving and dispatching requests.
@@ -40,7 +40,7 @@ namespace Ice
         /// complete.
         ///
         /// </summary>
-        void hold();
+        void Hold();
 
         /// <summary>
         /// Wait until the object adapter holds requests.
@@ -49,7 +49,7 @@ namespace Ice
         /// when holding of requests has been completed.
         ///
         /// </summary>
-        void waitForHold();
+        void WaitForHold();
 
         /// <summary>
         /// Deactivate all endpoints that belong to this object adapter.
@@ -70,7 +70,7 @@ namespace Ice
         /// for the completion of all requests for this object adapter.
         ///
         /// </summary>
-        void deactivate();
+        void Deactivate();
 
         /// <summary>
         /// Wait until the object adapter has deactivated.
@@ -80,7 +80,7 @@ namespace Ice
         /// been completed.
         ///
         /// </summary>
-        void waitForDeactivate();
+        void WaitForDeactivate();
 
         /// <summary>
         /// Check whether object adapter has been deactivated.
@@ -88,7 +88,7 @@ namespace Ice
         /// <returns>Whether adapter has been deactivated.
         ///
         /// </returns>
-        bool isDeactivated();
+        bool IsDeactivated();
 
         /// <summary>
         /// Destroys the object adapter and cleans up all resources held by
@@ -100,7 +100,7 @@ namespace Ice
         /// another object adapter with the same name.
         ///
         /// </summary>
-        void destroy();
+        void Destroy();
 
         /// <summary>
         /// Add a servant to this object adapter's Active Servant Map.
@@ -125,6 +125,7 @@ namespace Ice
         ///
         /// </returns>
         ObjectPrx Add(Disp servant, Identity? id = null, string facet = "");
+        ObjectPrx Add(Disp servant, string id, string facet = "");
 
         /// <summary>
         /// Add a default servant to handle requests for a specific
@@ -163,7 +164,7 @@ namespace Ice
         /// registered. An empty category means it will handle all categories.
         ///
         /// </param>
-        void addDefaultServant(Disp servant, string category);
+        void AddDefaultServant(Disp servant, string category);
 
         /// <summary>
         /// Remove a servant (that is, the default facet) from the object
@@ -179,7 +180,8 @@ namespace Ice
         /// <returns>The removed servant.
         ///
         /// </returns>
-        Disp remove(Identity id, string facet = "");
+        Disp Remove(Identity id, string facet = "");
+        Disp Remove(string id, string facet = "");
 
         /// <summary>
         /// Remove all facets with the given identity from the Active
@@ -196,7 +198,8 @@ namespace Ice
         /// servants of the removed Ice object.
         ///
         /// </returns>
-        Dictionary<string, Disp> removeAllFacets(Identity id);
+        Dictionary<string, Disp> RemoveAllFacets(Identity id);
+        Dictionary<string, Disp> RemoveAllFacets(string id);
 
         /// <summary>
         /// Remove the default servant for a specific category.
@@ -211,7 +214,7 @@ namespace Ice
         /// <returns>The default servant.
         ///
         /// </returns>
-        Disp removeDefaultServant(string category);
+        Disp RemoveDefaultServant(string category);
 
         /// <summary>
         /// Look up a servant in this object adapter's Active Servant Map
@@ -229,7 +232,7 @@ namespace Ice
         /// given identity, or null if no such servant has been found.
         ///
         /// </returns>
-        Disp find(Identity id, string facet = "");
+        Disp Find(Identity id, string facet = "");
 
         /// <summary>
         /// Find all facets with the given identity in the Active Servant
@@ -244,7 +247,8 @@ namespace Ice
         /// facet for the given identity.
         ///
         /// </returns>
-        Dictionary<string, Disp> findAllFacets(Identity id);
+        Dictionary<string, Disp> FindAllFacets(string id);
+        Dictionary<string, Disp> FindAllFacets(Identity id);
 
         /// <summary>
         /// Look up a servant in this object adapter's Active Servant Map,
@@ -261,7 +265,7 @@ namespace Ice
         /// servant has been found.
         ///
         /// </returns>
-        Disp findByProxy(ObjectPrx proxy);
+        Disp FindByProxy(ObjectPrx proxy);
 
         /// <summary>
         /// Add a Servant Locator to this object adapter.
@@ -306,7 +310,7 @@ namespace Ice
         /// not belong to any specific category.
         ///
         /// </param>
-        void addServantLocator(ServantLocator locator, string category);
+        void AddServantLocator(ServantLocator locator, string category);
 
         /// <summary>
         /// Remove a Servant Locator from this object adapter.
@@ -320,7 +324,7 @@ namespace Ice
         /// if no Servant Locator was found for the given category.
         ///
         /// </returns>
-        ServantLocator removeServantLocator(string category);
+        ServantLocator RemoveServantLocator(string category);
 
         /// <summary>
         /// Find a Servant Locator installed with this object adapter.
@@ -334,7 +338,7 @@ namespace Ice
         /// found for the given category.
         ///
         /// </returns>
-        ServantLocator findServantLocator(string category);
+        ServantLocator FindServantLocator(string category);
 
         /// <summary>
         /// Find the default servant for a specific category.
@@ -346,7 +350,7 @@ namespace Ice
         /// registered for the category.
         ///
         /// </returns>
-        Disp? findDefaultServant(string category);
+        Disp? FindDefaultServant(string category);
 
         /// <summary>
         /// Create a proxy for the object with the given identity.
@@ -365,7 +369,8 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        ObjectPrx createProxy(Identity id);
+        ObjectPrx CreateProxy(string id);
+        ObjectPrx CreateProxy(Identity id);
 
         /// <summary>
         /// Create a direct proxy for the object with the given identity.
@@ -379,7 +384,8 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        ObjectPrx createDirectProxy(Identity id);
+        ObjectPrx CreateDirectProxy(string id);
+        ObjectPrx CreateDirectProxy(Identity id);
 
         /// <summary>
         /// Create an indirect proxy for the object with the given identity.
@@ -394,7 +400,8 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        ObjectPrx createIndirectProxy(Identity id);
+        ObjectPrx CreateIndirectProxy(string id);
+        ObjectPrx CreateIndirectProxy(Identity id);
 
         /// <summary>
         /// Set an Ice locator for this object adapter.
@@ -409,7 +416,7 @@ namespace Ice
         /// <param name="loc">The locator used by this object adapter.
         ///
         /// </param>
-        void setLocator(LocatorPrx loc);
+        void SetLocator(LocatorPrx loc);
 
         /// <summary>
         /// Get the Ice locator used by this object adapter.
@@ -418,7 +425,7 @@ namespace Ice
         /// used by this object adapter.
         ///
         /// </returns>
-        LocatorPrx getLocator();
+        LocatorPrx GetLocator();
 
         /// <summary>
         /// Get the set of endpoints configured with this object adapter.
@@ -426,7 +433,7 @@ namespace Ice
         /// <returns>The set of endpoints.
         ///
         /// </returns>
-        Endpoint[] getEndpoints();
+        Endpoint[] GetEndpoints();
 
         /// <summary>
         /// Refresh the set of published endpoints.
@@ -437,7 +444,7 @@ namespace Ice
         /// information that is published in the proxies that are created by
         /// an object adapter if the network interfaces used by a host changes.
         /// </summary>
-        void refreshPublishedEndpoints();
+        void RefreshPublishedEndpoints();
 
         /// <summary>
         /// Get the set of endpoints that proxies created by this object
@@ -446,7 +453,7 @@ namespace Ice
         /// <returns>The set of published endpoints.
         ///
         /// </returns>
-        Endpoint[] getPublishedEndpoints();
+        Endpoint[] GetPublishedEndpoints();
 
         /// <summary>
         /// Set of the endpoints that proxies created by this object
@@ -455,6 +462,6 @@ namespace Ice
         /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies.
         ///
         /// </param>
-        void setPublishedEndpoints(Endpoint[] newEndpoints);
+        void SetPublishedEndpoints(Endpoint[] newEndpoints);
     }
 }

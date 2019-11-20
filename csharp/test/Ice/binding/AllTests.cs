@@ -852,7 +852,7 @@ namespace Ice
                         try
                         {
                             oa = serverCommunicator.createObjectAdapter("Adapter");
-                            oa.activate();
+                            oa.Activate();
                         }
                         catch (DNSException)
                         {
@@ -869,7 +869,7 @@ namespace Ice
                             continue; // IP version not supported.
                         }
 
-                        ObjectPrx prx = oa.createProxy(Util.stringToIdentity("dummy"));
+                        ObjectPrx prx = oa.CreateProxy("dummy");
                         try
                         {
                             prx.ice_collocationOptimized(false).ice_ping();

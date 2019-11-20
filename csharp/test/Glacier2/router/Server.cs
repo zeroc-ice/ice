@@ -21,23 +21,23 @@ public class Server : Test.TestHelper
             //
             // The test allows "c1" as category.
             //
-            adapter.Add(new CallbackI(), Ice.Util.stringToIdentity("c1/callback"));
+            adapter.Add(new CallbackI(), "c1/callback");
 
             //
             // The test allows "c2" as category.
             //
-            adapter.Add(new CallbackI(), Ice.Util.stringToIdentity("c2/callback"));
+            adapter.Add(new CallbackI(), "c2/callback");
 
             //
             // The test rejects "c3" as category.
             //
-            adapter.Add(new CallbackI(), Ice.Util.stringToIdentity("c3/callback"));
+            adapter.Add(new CallbackI(), "c3/callback");
 
             //
             // The test allows the prefixed userid.
             //
-            adapter.Add(new CallbackI(), Ice.Util.stringToIdentity("_userid/callback"));
-            adapter.activate();
+            adapter.Add(new CallbackI(), "_userid/callback");
+            adapter.Activate();
             communicator.waitForShutdown();
         }
     }

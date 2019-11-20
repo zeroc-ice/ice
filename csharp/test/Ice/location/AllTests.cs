@@ -585,7 +585,7 @@ namespace Ice
                 Identity id = new Identity();
                 id.name = Guid.NewGuid().ToString();
                 adapter.Add(new HelloI(), id);
-                adapter.activate();
+                adapter.Activate();
 
                 // Ensure that calls on the well-known proxy is collocated.
                 var helloPrx = Test.HelloPrxHelper.checkedCast(
@@ -593,11 +593,11 @@ namespace Ice
                 test(helloPrx.ice_getConnection() == null);
 
                 // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createIndirectProxy(id));
+                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.CreateIndirectProxy(id));
                 test(helloPrx.ice_getConnection() == null);
 
                 // Ensure that calls on the direct proxy is collocated
-                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.createDirectProxy(id));
+                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.CreateDirectProxy(id));
                 test(helloPrx.ice_getConnection() == null);
 
                 output.WriteLine("ok");

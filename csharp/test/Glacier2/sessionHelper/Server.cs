@@ -21,8 +21,8 @@ public class Server : Test.TestHelper
             communicator.getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
             var callbackI = new CallbackI();
-            adapter.Add(callbackI, Ice.Util.stringToIdentity("callback"));
-            adapter.activate();
+            adapter.Add(callbackI, "callback");
+            adapter.Activate();
             communicator.waitForShutdown();
         }
     }

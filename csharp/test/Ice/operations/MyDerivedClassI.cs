@@ -52,7 +52,7 @@ namespace Ice
 
             public void shutdown(Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             public bool supportsCompress(Current current)
@@ -224,9 +224,8 @@ namespace Ice
                                                       Current current)
             {
                 p2 = p1;
-                p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
-                                                        Ice.Util.stringToIdentity("noSuchIdentity")));
-                return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
+                p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.CreateProxy("noSuchIdentity"));
+                return Test.MyClassPrxHelper.uncheckedCast(current.adapter.CreateProxy(current.id));
             }
 
             public Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Current current)

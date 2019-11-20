@@ -18,7 +18,7 @@ internal class BackgroundI : Background
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 
     internal BackgroundI(BackgroundControllerI controller)

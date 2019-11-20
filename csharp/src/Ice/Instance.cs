@@ -409,7 +409,7 @@ namespace IceInternal
             {
                 try
                 {
-                    adminAdapter.activate();
+                    adminAdapter.Activate();
                 }
                 catch (Ice.LocalException)
                 {
@@ -418,7 +418,7 @@ namespace IceInternal
                     // (can't call again getAdmin() after fixing the problem)
                     // since all the facets (servants) in the adapter are lost
                     //
-                    adminAdapter.destroy();
+                    adminAdapter.Destroy();
                     lock (this)
                     {
                         _adminAdapter = null;
@@ -427,7 +427,7 @@ namespace IceInternal
                 }
             }
             setServerProcessProxy(adminAdapter, adminIdentity);
-            return adminAdapter.createProxy(adminIdentity);
+            return adminAdapter.CreateProxy(adminIdentity);
         }
 
         public Ice.ObjectPrx
@@ -445,7 +445,7 @@ namespace IceInternal
 
                 if (_adminAdapter != null)
                 {
-                    return _adminAdapter.createProxy(_adminIdentity);
+                    return _adminAdapter.CreateProxy(_adminIdentity);
                 }
                 else if (_adminEnabled)
                 {
@@ -476,7 +476,7 @@ namespace IceInternal
 
             try
             {
-                adminAdapter.activate();
+                adminAdapter.Activate();
             }
             catch (Ice.LocalException)
             {
@@ -485,7 +485,7 @@ namespace IceInternal
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
                 //
-                adminAdapter.destroy();
+                adminAdapter.Destroy();
                 lock (this)
                 {
                     _adminAdapter = null;
@@ -494,7 +494,7 @@ namespace IceInternal
             }
 
             setServerProcessProxy(adminAdapter, adminIdentity);
-            return adminAdapter.createProxy(adminIdentity);
+            return adminAdapter.CreateProxy(adminIdentity);
         }
 
         public void
@@ -550,7 +550,7 @@ namespace IceInternal
                 _adminFacets.Remove(facet);
                 if (_adminAdapter != null)
                 {
-                    _adminAdapter.remove(_adminIdentity, facet);
+                    _adminAdapter.Remove(_adminIdentity, facet);
                 }
                 return result;
             }
@@ -1437,8 +1437,8 @@ namespace IceInternal
 
         internal void setServerProcessProxy(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
         {
-            Ice.ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
-            Ice.LocatorPrx locator = adminAdapter.getLocator();
+            Ice.ObjectPrx admin = adminAdapter.CreateProxy(adminIdentity);
+            Ice.LocatorPrx locator = adminAdapter.GetLocator();
             string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
 
             if (locator != null && serverId.Length > 0)

@@ -23,7 +23,7 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                    adapter.Add(new MyDerivedClassI(), "test");
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
                     AllTests.allTests(this);
                 }

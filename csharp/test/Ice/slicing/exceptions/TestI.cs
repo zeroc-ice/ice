@@ -16,7 +16,7 @@ public sealed class TestI : TestIntf
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 
     public void baseAsBase(Ice.Current current)

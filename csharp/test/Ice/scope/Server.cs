@@ -80,7 +80,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.getCommunicator().shutdown();
+                    current.adapter.GetCommunicator().shutdown();
                 }
             }
 
@@ -132,7 +132,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.getCommunicator().shutdown();
+                    current.adapter.GetCommunicator().shutdown();
                 }
             }
 
@@ -184,7 +184,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.getCommunicator().shutdown();
+                    current.adapter.GetCommunicator().shutdown();
                 }
             }
 
@@ -236,7 +236,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.getCommunicator().shutdown();
+                    current.adapter.GetCommunicator().shutdown();
                 }
             }
 
@@ -249,11 +249,11 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new I1(), Util.stringToIdentity("i1"));
-                    adapter.Add(new I2(), Util.stringToIdentity("i2"));
-                    adapter.Add(new I3(), Util.stringToIdentity("i3"));
-                    adapter.Add(new I4(), Util.stringToIdentity("i4"));
-                    adapter.activate();
+                    adapter.Add(new I1(), "i1");
+                    adapter.Add(new I2(), "i2");
+                    adapter.Add(new I3(), "i3");
+                    adapter.Add(new I4(), "i4");
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

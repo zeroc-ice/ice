@@ -21,10 +21,10 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new InitialI(adapter), Ice.Util.stringToIdentity("initial"));
-                    adapter.Add(new F2I(), Ice.Util.stringToIdentity("F21"));
+                    adapter.Add(new InitialI(adapter), "initial");
+                    adapter.Add(new F2I(), "F21");
                     var uoet = new UnexpectedObjectExceptionTestI();
-                    adapter.Add((incoming, current) => uoet.Dispatch(incoming, current), Util.stringToIdentity("uoet"));
+                    adapter.Add((incoming, current) => uoet.Dispatch(incoming, current), "uoet");
                     Test.AllTests.allTests(this);
                 }
             }

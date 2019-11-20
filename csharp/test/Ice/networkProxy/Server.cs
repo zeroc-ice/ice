@@ -15,7 +15,7 @@ public class Server : Test.TestHelper
     {
         public void shutdown(Ice.Current current)
         {
-            current.adapter.getCommunicator().shutdown();
+            current.adapter.GetCommunicator().shutdown();
         }
     }
 
@@ -25,8 +25,8 @@ public class Server : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
-            adapter.activate();
+            adapter.Add(new TestI(), "test");
+            adapter.Activate();
 
             communicator.waitForShutdown();
         }

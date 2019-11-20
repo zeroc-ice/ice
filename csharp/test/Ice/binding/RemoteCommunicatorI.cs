@@ -18,7 +18,7 @@ namespace Ice
                 {
                     try
                     {
-                        Ice.Communicator communicator = current.adapter.getCommunicator();
+                        Ice.Communicator communicator = current.adapter.GetCommunicator();
                         string endpoints = endpts;
                         if (endpoints.IndexOf("-p") < 0)
                         {
@@ -49,7 +49,7 @@ namespace Ice
             public void
             shutdown(Ice.Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             private int _nextPort = 10;

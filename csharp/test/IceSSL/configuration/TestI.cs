@@ -105,7 +105,7 @@ internal sealed class ServerFactoryI : ServerFactory
         ServerI server = new ServerI(communicator);
         Ice.ObjectPrx obj = adapter.Add(server);
         _servers[obj.ice_getIdentity()] = server;
-        adapter.activate();
+        adapter.Activate();
         return ServerPrxHelper.uncheckedCast(obj);
     }
 
@@ -123,7 +123,7 @@ internal sealed class ServerFactoryI : ServerFactory
     public void shutdown(Ice.Current current)
     {
         test(_servers.Count == 0);
-        current.adapter.getCommunicator().shutdown();
+        current.adapter.GetCommunicator().shutdown();
     }
 
     private string _defaultDir;

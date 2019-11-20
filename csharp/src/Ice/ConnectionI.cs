@@ -2737,7 +2737,7 @@ namespace Ice
             for (ConnectionInfo info = _info; info != null; info = info.underlying)
             {
                 info.connectionId = _endpoint.connectionId();
-                info.adapterName = _adapter != null ? _adapter.getName() : "";
+                info.adapterName = _adapter != null ? _adapter.GetName() : "";
                 info.incoming = _connector == null;
             }
             return _info;

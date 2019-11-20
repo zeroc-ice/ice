@@ -64,16 +64,16 @@ namespace Ice
                         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
                         Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
-                        adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
-                        adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+                        adapter.SetLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+                        adapter2.SetLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 
                         var testI = new TestI(adapter, adapter2, _registry);
-                        _registry.addObject(adapter.Add(testI, Util.stringToIdentity("test")));
-                        _registry.addObject(adapter.Add(testI, Util.stringToIdentity("test2")));
-                        adapter.Add(testI, Util.stringToIdentity("test3"));
+                        _registry.addObject(adapter.Add(testI, "test"));
+                        _registry.addObject(adapter.Add(testI, "test2"));
+                        adapter.Add(testI, "test3");
 
-                        adapter.activate();
-                        adapter2.activate();
+                        adapter.Activate();
+                        adapter2.Activate();
                         break;
                     }
                     catch (Ice.SocketException ex)
@@ -87,11 +87,11 @@ namespace Ice
                         // browser clients if the driver uses ports in the same range as this test, ICE-8148)
                         if (adapter != null)
                         {
-                            adapter.destroy();
+                            adapter.Destroy();
                         }
                         if (adapter2 != null)
                         {
-                            adapter2.destroy();
+                            adapter2.Destroy();
                         }
                     }
                 }
@@ -104,7 +104,7 @@ namespace Ice
                     c.destroy();
                 }
                 _communicators.Clear();
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             private ServerLocatorRegistry _registry;

@@ -20,8 +20,8 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new RetryI(), Ice.Util.stringToIdentity("retry"));
-                    adapter.activate();
+                    adapter.Add(new RetryI(), "retry");
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

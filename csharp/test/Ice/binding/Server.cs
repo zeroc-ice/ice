@@ -19,9 +19,8 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Identity id = Util.stringToIdentity("communicator");
-                    adapter.Add(new RemoteCommunicatorI(), id);
-                    adapter.activate();
+                    adapter.Add(new RemoteCommunicatorI(), "communicator");
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

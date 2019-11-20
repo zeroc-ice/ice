@@ -63,7 +63,7 @@ namespace Ice
                 PingReplyI replyI = new PingReplyI();
                 Test.PingReplyPrx reply =
                   (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
-                adapter.activate();
+                adapter.Activate();
 
                 Console.Out.Write("testing udp... ");
                 Console.Out.Flush();

@@ -84,8 +84,8 @@ public class AllTests : Test.AllTests
             test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
 
             Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
-            adapter.activate();
-            adapter.deactivate();
+            adapter.Activate();
+            adapter.Deactivate();
             com.destroy();
 
             //
@@ -122,8 +122,8 @@ public class AllTests : Test.AllTests
             }
 
             adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
-            adapter.activate();
-            adapter.deactivate();
+            adapter.Activate();
+            adapter.Deactivate();
 
             com.destroy();
 

@@ -16,10 +16,9 @@ namespace Ice
                 using (var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.Identity id = Ice.Util.stringToIdentity("factory");
-                    adapter.Add(new RemoteCommunicatorFactoryI(), id);
-                    adapter.activate();
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.Add(new RemoteCommunicatorFactoryI(), "factory");
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

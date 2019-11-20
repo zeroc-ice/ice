@@ -21,8 +21,8 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     communicator.getProperties().setProperty("TestAdapter.ACM.Timeout", "0");
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new RemoteCommunicatorI(), Util.stringToIdentity("communicator"));
-                    adapter.activate();
+                    adapter.Add(new RemoteCommunicatorI(), "communicator");
+                    adapter.Activate();
                     serverReady();
                     communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
                     communicator.waitForShutdown();

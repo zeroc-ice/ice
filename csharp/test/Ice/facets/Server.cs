@@ -18,13 +18,13 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     var d = new DI();
-                    adapter.Add(d, Util.stringToIdentity("d"));
-                    adapter.Add(d, Util.stringToIdentity("d"), "facetABCD");
+                    adapter.Add(d, "d");
+                    adapter.Add(d, "d", "facetABCD");
                     var f = new FI();
-                    adapter.Add(f, Util.stringToIdentity("d"), "facetEF");
+                    adapter.Add(f, "d", "facetEF");
                     var h = new HI(communicator);
-                    adapter.Add(h, Util.stringToIdentity("d"), "facetGH");
-                    adapter.activate();
+                    adapter.Add(h, "d", "facetGH");
+                    adapter.Activate();
                     serverReady();
                     communicator.waitForShutdown();
                 }

@@ -22,7 +22,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.getCommunicator().shutdown();
+                current.adapter.GetCommunicator().shutdown();
             }
 
             public Dictionary<string, string> getContext(Ice.Current current)

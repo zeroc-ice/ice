@@ -17,11 +17,10 @@ public class Server : TestHelper
         {
             communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
-            adapter.Add(new TestI(), Ice.Util.stringToIdentity(id));
+            adapter.Add(new TestI(), communicator.getProperties().getPropertyWithDefault("Identity", "test"));
             try
             {
-                adapter.activate();
+                adapter.Activate();
             }
             catch (Ice.ObjectAdapterDeactivatedException)
             {

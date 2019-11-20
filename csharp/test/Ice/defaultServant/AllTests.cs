@@ -15,7 +15,7 @@ namespace Ice
                 var output = helper.getWriter();
                 Communicator communicator = helper.communicator();
                 ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
-                oa.activate();
+                oa.Activate();
 
                 var servantI = new MyObjectI();
                 var servantT = default(MyObjectTraits);
@@ -24,7 +24,7 @@ namespace Ice
                 //
                 // Register default servant with category "foo"
                 //
-                oa.addDefaultServant(servantD, "foo");
+                oa.AddDefaultServant(servantD, "foo");
 
                 //
                 // Start test
@@ -32,10 +32,10 @@ namespace Ice
                 output.Write("testing single category... ");
                 output.Flush();
 
-                Disp r = oa.findDefaultServant("foo");
+                Disp r = oa.FindDefaultServant("foo");
                 test(r == servantD);
 
-                r = oa.findDefaultServant("bar");
+                r = oa.FindDefaultServant("bar");
                 test(r == null);
 
                 Ice.Identity identity = new Ice.Identity();
@@ -47,13 +47,13 @@ namespace Ice
                 for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
-                    prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+                    prx = MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
                     prx.ice_ping();
                     test(prx.getName() == names[idx]);
                 }
 
                 identity.name = "ObjectNotExist";
-                prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+                prx = MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
                 try
                 {
                     prx.ice_ping();
@@ -75,7 +75,7 @@ namespace Ice
                 }
 
                 identity.name = "FacetNotExist";
-                prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+                prx = MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
                 try
                 {
                     prx.ice_ping();
@@ -100,7 +100,7 @@ namespace Ice
                 for (int idx = 0; idx < 5; idx++)
                 {
                     identity.name = names[idx];
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
 
                     try
                     {
@@ -123,9 +123,9 @@ namespace Ice
                     }
                 }
 
-                oa.removeDefaultServant("foo");
+                oa.RemoveDefaultServant("foo");
                 identity.category = "foo";
-                prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+                prx = Test.MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
                 try
                 {
                     prx.ice_ping();
@@ -140,18 +140,18 @@ namespace Ice
                 output.Write("testing default category... ");
                 output.Flush();
 
-                oa.addDefaultServant(servantD, "");
+                oa.AddDefaultServant(servantD, "");
 
-                r = oa.findDefaultServant("bar");
+                r = oa.FindDefaultServant("bar");
                 test(r == null);
 
-                r = oa.findDefaultServant("");
+                r = oa.FindDefaultServant("");
                 test(r == servantD);
 
                 for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
+                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
                     prx.ice_ping();
                     test(prx.getName() == names[idx]);
                 }

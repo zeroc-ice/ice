@@ -44,20 +44,20 @@ namespace Ice
                 var emptyT = default(EmptyTraits);
                 var obj = new EmptyI();
 
-                adapter.Add(obj, Util.stringToIdentity("d"));
-                adapter.Add(obj, Util.stringToIdentity("d"), "facetABCD");
+                adapter.Add(obj, "d");
+                adapter.Add(obj, "d", "facetABCD");
                 try
                 {
-                    adapter.Add(obj, Util.stringToIdentity("d"), "facetABCD");
+                    adapter.Add(obj, "d", "facetABCD");
                     test(false);
                 }
                 catch (AlreadyRegisteredException)
                 {
                 }
-                adapter.remove(Util.stringToIdentity("d"), "facetABCD");
+                adapter.Remove("d", "facetABCD");
                 try
                 {
-                    adapter.remove(Util.stringToIdentity("d"), "facetABCD");
+                    adapter.Remove("d", "facetABCD");
                     test(false);
                 }
                 catch (NotRegisteredException)
@@ -70,31 +70,31 @@ namespace Ice
                 var obj2 = new EmptyI();
                 var obj3 = new EmptyI();
 
-                adapter.Add(obj1, Util.stringToIdentity("id1"), "f1");
-                adapter.Add(obj2, Util.stringToIdentity("id1"), "f2");
-                adapter.Add(obj1, Util.stringToIdentity("id2"), "f1");
-                adapter.Add(obj2, Util.stringToIdentity("id2"), "f2");
-                adapter.Add(obj3, Util.stringToIdentity("id2"), "");
-                Dictionary<string, Disp> fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+                adapter.Add(obj1, "id1", "f1");
+                adapter.Add(obj2, "id1", "f2");
+                adapter.Add(obj1, "id2", "f1");
+                adapter.Add(obj2, "id2", "f2");
+                adapter.Add(obj3, "id2", "");
+                Dictionary<string, Disp> fm = adapter.RemoveAllFacets("id1");
                 test(fm.Count == 2);
                 test(fm.ContainsKey("f1"));
                 test(fm.ContainsKey("f2"));
                 try
                 {
-                    adapter.removeAllFacets(Util.stringToIdentity("id1"));
+                    adapter.RemoveAllFacets("id1");
                     test(false);
                 }
                 catch (NotRegisteredException)
                 {
                 }
-                fm = adapter.removeAllFacets(Util.stringToIdentity("id2"));
+                fm = adapter.RemoveAllFacets("id2");
                 test(fm.Count == 3);
                 test(fm.ContainsKey("f1"));
                 test(fm.ContainsKey("f2"));
                 test(fm.ContainsKey(""));
                 output.WriteLine("ok");
 
-                adapter.deactivate();
+                adapter.Deactivate();
 
                 output.Write("testing stringToProxy... ");
                 output.Flush();
