@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.retry.Test;
 
 namespace Ice
 {
@@ -19,7 +20,7 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new RetryI(), Ice.Util.stringToIdentity("retry"));
+                    adapter.Add(new RetryI(), Ice.Util.stringToIdentity("retry"));
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

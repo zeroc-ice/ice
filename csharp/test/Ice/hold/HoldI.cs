@@ -6,7 +6,7 @@ namespace Ice
 {
     namespace hold
     {
-        public sealed class HoldI : Test.HoldDisp_
+        public sealed class HoldI : Test.Hold
         {
             private static void test(bool b)
             {
@@ -22,7 +22,7 @@ namespace Ice
                 _adapter = adapter;
             }
 
-            public override void
+            public void
             putOnHold(int milliSeconds, Ice.Current current)
             {
                 if (milliSeconds < 0)
@@ -49,7 +49,7 @@ namespace Ice
                 }
             }
 
-            public override void
+            public void
             waitForHold(Ice.Current current)
             {
                 _timer.schedule(() =>
@@ -70,7 +70,7 @@ namespace Ice
                 }, 0);
             }
 
-            public override int
+            public int
             set(int value, int delay, Ice.Current current)
             {
                 System.Threading.Thread.Sleep(delay);
@@ -83,7 +83,7 @@ namespace Ice
                 }
             }
 
-            public override void
+            public void
             setOneway(int value, int expected, Ice.Current current)
             {
                 lock (this)
@@ -93,7 +93,7 @@ namespace Ice
                 }
             }
 
-            public override void
+            public void
             shutdown(Ice.Current current)
             {
                 _adapter.hold();

@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.exceptions.AMD.Test;
 
 namespace Ice
 {
@@ -55,13 +56,13 @@ namespace Ice
                         communicator.getProperties().setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
                         communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1");
 
-                        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                        Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-                        Ice.ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
-                        Ice.Object obj = new ThrowerI();
-                        adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
-                        adapter2.add(obj, Ice.Util.stringToIdentity("thrower"));
-                        adapter3.add(obj, Ice.Util.stringToIdentity("thrower"));
+                        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                        ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+                        ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+                        var obj = new ThrowerI();
+                        adapter.Add(obj, Util.stringToIdentity("thrower"));
+                        adapter2.Add(obj, Util.stringToIdentity("thrower"));
+                        adapter3.Add(obj, Util.stringToIdentity("thrower"));
                         adapter.activate();
                         adapter2.activate();
                         adapter3.activate();

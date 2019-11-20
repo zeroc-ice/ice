@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.exceptions.Test;
 
 namespace Ice
 {
@@ -21,9 +22,8 @@ namespace Ice
                 using (var communicator = initialize(initData))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.Object obj = new ThrowerI();
-                    adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.Add(new ThrowerI(), Util.stringToIdentity("thrower"));
                     AllTests.allTests(this);
                 }
             }

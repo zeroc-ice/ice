@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Ice
 {
@@ -13,7 +14,7 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+            public sealed class MyDerivedClassI : Test.MyDerivedClass
             {
                 private static void test(bool b)
                 {
@@ -57,31 +58,33 @@ namespace Ice
                 //
                 // Override the Object "pseudo" operations to verify the operation mode.
                 //
-                public override bool ice_isA(String id, Ice.Current current)
+                public bool ice_isA(string id, Current current)
                 {
                     test(current.mode == Ice.OperationMode.Nonmutating);
-                    return base.ice_isA(id, current);
+                    Test.MyDerivedClassTraits myDerivedClassT = default;
+                    return myDerivedClassT.Ids.Contains(id);
                 }
 
-                public override void ice_ping(Ice.Current current)
+                public void ice_ping(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Nonmutating);
-                    base.ice_ping(current);
                 }
 
-                public override string[] ice_ids(Ice.Current current)
+                public string[] ice_ids(Current current)
+                {
+                    test(current.mode == OperationMode.Nonmutating);
+                    Test.MyDerivedClassTraits myDerivedClassT = default;
+                    return myDerivedClassT.Ids;
+                }
+
+                public string ice_id(Current current)
                 {
                     test(current.mode == Ice.OperationMode.Nonmutating);
-                    return base.ice_ids(current);
+                    Test.MyDerivedClassTraits myDerivedClassT = default;
+                    return myDerivedClassT.Id;
                 }
 
-                public override string ice_id(Ice.Current current)
-                {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
-                    return base.ice_id(current);
-                }
-
-                public override Task shutdownAsync(Ice.Current current)
+                public Task shutdownAsync(Ice.Current current)
                 {
                     while (_opVoidThread != null)
                     {
@@ -93,12 +96,12 @@ namespace Ice
                     return null;
                 }
 
-                public override Task<bool> supportsCompressAsync(Ice.Current current)
+                public Task<bool> supportsCompressAsync(Ice.Current current)
                 {
                     return Task.FromResult<bool>(true);
                 }
 
-                public override Task opVoidAsync(Ice.Current current)
+                public Task opVoidAsync(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Normal);
 
@@ -113,12 +116,12 @@ namespace Ice
                     return _opVoidThread.Task;
                 }
 
-                public override Task<Test.MyClass_OpBoolResult> opBoolAsync(bool p1, bool p2, Ice.Current current)
+                public Task<Test.MyClass_OpBoolResult> opBoolAsync(bool p1, bool p2, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpBoolResult(p2, p1));
                 }
 
-                public override Task<Test.MyClass_OpBoolSResult> opBoolSAsync(bool[] p1, bool[] p2, Ice.Current current)
+                public Task<Test.MyClass_OpBoolSResult> opBoolSAsync(bool[] p1, bool[] p2, Ice.Current current)
                 {
                     bool[] p3 = new bool[p1.Length + p2.Length];
                     Array.Copy(p1, p3, p1.Length);
@@ -133,7 +136,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpBoolSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpBoolSSResult>
+                public Task<Test.MyClass_OpBoolSSResult>
                 opBoolSSAsync(bool[][] p1, bool[][] p2, Ice.Current current)
                 {
                     bool[][] p3 = new bool[p1.Length + p2.Length][];
@@ -149,13 +152,13 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpBoolSSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpByteResult>
+                public Task<Test.MyClass_OpByteResult>
                 opByteAsync(byte p1, byte p2, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpByteResult(p1, (byte)(p1 ^ p2)));
                 }
 
-                public override Task<Test.MyClass_OpByteBoolDResult>
+                public Task<Test.MyClass_OpByteBoolDResult>
                 opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Ice.Current current)
                 {
                     Dictionary<byte, bool> p3 = p1;
@@ -172,7 +175,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpByteBoolDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpByteSResult>
+                public Task<Test.MyClass_OpByteSResult>
                 opByteSAsync(byte[] p1, byte[] p2, Ice.Current current)
                 {
                     byte[] p3 = new byte[p1.Length];
@@ -188,7 +191,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpByteSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpByteSSResult>
+                public Task<Test.MyClass_OpByteSSResult>
                 opByteSSAsync(byte[][] p1, byte[][] p2, Ice.Current current)
                 {
                     byte[][] p3 = new byte[p1.Length][];
@@ -204,13 +207,13 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpByteSSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpFloatDoubleResult>
+                public Task<Test.MyClass_OpFloatDoubleResult>
                 opFloatDoubleAsync(float p1, double p2, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpFloatDoubleResult(p2, p1, p2));
                 }
 
-                public override Task<Test.MyClass_OpFloatDoubleSResult>
+                public Task<Test.MyClass_OpFloatDoubleSResult>
                 opFloatDoubleSAsync(float[] p1, double[] p2, Ice.Current current)
                 {
                     float[] p3 = p1;
@@ -231,7 +234,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpFloatDoubleSResult(r, p3, p4));
                 }
 
-                public override Task<Test.MyClass_OpFloatDoubleSSResult>
+                public Task<Test.MyClass_OpFloatDoubleSSResult>
                 opFloatDoubleSSAsync(float[][] p1, double[][] p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -256,7 +259,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpFloatDoubleSSResult(r, p3, p4));
                 }
 
-                public override Task<Test.MyClass_OpLongFloatDResult>
+                public Task<Test.MyClass_OpLongFloatDResult>
                 opLongFloatDAsync(Dictionary<long, float> p1, Dictionary<long, float> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -273,7 +276,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpLongFloatDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyClassResult>
+                public Task<Test.MyClass_OpMyClassResult>
                 opMyClassAsync(Test.MyClassPrx p1, Ice.Current current)
                 {
                     var p2 = p1;
@@ -283,13 +286,13 @@ namespace Ice
                         Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyEnumResult>
+                public Task<Test.MyClass_OpMyEnumResult>
                 opMyEnumAsync(Test.MyEnum p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpMyEnumResult(Test.MyEnum.enum3, p1));
                 }
 
-                public override Task<Test.MyClass_OpShortIntDResult>
+                public Task<Test.MyClass_OpShortIntDResult>
                 opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -305,13 +308,13 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpShortIntDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpShortIntLongResult>
+                public Task<Test.MyClass_OpShortIntLongResult>
                 opShortIntLongAsync(short p1, int p2, long p3, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpShortIntLongResult(p3, p1, p2, p3));
                 }
 
-                public override Task<Test.MyClass_OpShortIntLongSResult>
+                public Task<Test.MyClass_OpShortIntLongSResult>
                 opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Ice.Current current)
                 {
                     var p4 = p1;
@@ -326,7 +329,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpShortIntLongSResult(p3, p4, p5, p6));
                 }
 
-                public override Task<Test.MyClass_OpShortIntLongSSResult>
+                public Task<Test.MyClass_OpShortIntLongSSResult>
                 opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Ice.Current current)
                 {
                     var p4 = p1;
@@ -343,13 +346,13 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpShortIntLongSSResult(p3, p4, p5, p6));
                 }
 
-                public override Task<Test.MyClass_OpStringResult>
+                public Task<Test.MyClass_OpStringResult>
                 opStringAsync(string p1, string p2, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpStringResult(p1 + " " + p2, p2 + " " + p1));
                 }
 
-                public override Task<Test.MyClass_OpStringMyEnumDResult>
+                public Task<Test.MyClass_OpStringMyEnumDResult>
                 opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -365,7 +368,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringMyEnumDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyEnumStringDResult>
+                public Task<Test.MyClass_OpMyEnumStringDResult>
                 opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -381,7 +384,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpMyEnumStringDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyStructMyEnumDResult>
+                public Task<Test.MyClass_OpMyStructMyEnumDResult>
                 opMyStructMyEnumDAsync(Dictionary<Test.MyStruct, Test.MyEnum> p1,
                                        Dictionary<Test.MyStruct, Test.MyEnum> p2, Ice.Current current)
                 {
@@ -398,7 +401,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpMyStructMyEnumDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpByteBoolDSResult>
+                public Task<Test.MyClass_OpByteBoolDSResult>
                 opByteBoolDSAsync(Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
@@ -413,7 +416,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpByteBoolDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpShortIntDSResult>
+                public Task<Test.MyClass_OpShortIntDSResult>
                 opShortIntDSAsync(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
@@ -428,7 +431,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpShortIntDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpLongFloatDSResult>
+                public Task<Test.MyClass_OpLongFloatDSResult>
                 opLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
@@ -443,7 +446,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpLongFloatDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringStringDSResult>
+                public Task<Test.MyClass_OpStringStringDSResult>
                 opStringStringDSAsync(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
@@ -458,7 +461,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringStringDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringMyEnumDSResult>
+                public Task<Test.MyClass_OpStringMyEnumDSResult>
                 opStringMyEnumDSAsync(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
@@ -473,7 +476,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringMyEnumDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyEnumStringDSResult>
+                public Task<Test.MyClass_OpMyEnumStringDSResult>
                 opMyEnumStringDSAsync(Dictionary<Test.MyEnum, string>[] p1, Dictionary<Test.MyEnum, string>[] p2, Ice.Current current)
                 {
                     var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
@@ -488,7 +491,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpMyEnumStringDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyStructMyEnumDSResult>
+                public Task<Test.MyClass_OpMyStructMyEnumDSResult>
                 opMyStructMyEnumDSAsync(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
                                         Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
                                         Ice.Current current)
@@ -505,7 +508,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpMyStructMyEnumDSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpByteByteSDResult>
+                public Task<Test.MyClass_OpByteByteSDResult>
                 opByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -521,7 +524,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpByteByteSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpBoolBoolSDResult>
+                public Task<Test.MyClass_OpBoolBoolSDResult>
                 opBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -537,7 +540,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpBoolBoolSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpShortShortSDResult>
+                public Task<Test.MyClass_OpShortShortSDResult>
                 opShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -553,7 +556,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpShortShortSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpIntIntSDResult>
+                public Task<Test.MyClass_OpIntIntSDResult>
                 opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -569,7 +572,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpIntIntSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpLongLongSDResult>
+                public Task<Test.MyClass_OpLongLongSDResult>
                 opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -585,7 +588,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpLongLongSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringFloatSDResult>
+                public Task<Test.MyClass_OpStringFloatSDResult>
                 opStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -601,7 +604,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringFloatSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringDoubleSDResult>
+                public Task<Test.MyClass_OpStringDoubleSDResult>
                 opStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -617,7 +620,7 @@ namespace Ice
                     return Task.FromResult<Test.MyClass_OpStringDoubleSDResult>(new Test.MyClass_OpStringDoubleSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringStringSDResult>
+                public Task<Test.MyClass_OpStringStringSDResult>
                 opStringStringSDAsync(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Ice.Current current)
                 {
                     var p3 = p2;
@@ -633,7 +636,7 @@ namespace Ice
                     return Task.FromResult<Test.MyClass_OpStringStringSDResult>(new Test.MyClass_OpStringStringSDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpMyEnumMyEnumSDResult>
+                public Task<Test.MyClass_OpMyEnumMyEnumSDResult>
                 opMyEnumMyEnumSDAsync(Dictionary<Test.MyEnum, Test.MyEnum[]> p1, Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
                     Ice.Current current)
                 {
@@ -650,7 +653,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpMyEnumMyEnumSDResult(r, p3));
                 }
 
-                public override Task<int[]>
+                public Task<int[]>
                 opIntSAsync(int[] s, Ice.Current current)
                 {
                     var r = new int[s.Length];
@@ -661,13 +664,13 @@ namespace Ice
                     return Task.FromResult(r);
                 }
 
-                public override Task<Dictionary<string, string>>
+                public Task<Dictionary<string, string>>
                 opContextAsync(Ice.Current current)
                 {
                     return Task.FromResult(current.ctx);
                 }
 
-                public override Task
+                public Task
                 opByteSOnewayAsync(byte[] s, Ice.Current current)
                 {
                     lock (this)
@@ -677,7 +680,7 @@ namespace Ice
                     return null;
                 }
 
-                public override Task<int>
+                public Task<int>
                 opByteSOnewayCallCountAsync(Ice.Current current)
                 {
                     lock (this)
@@ -688,7 +691,7 @@ namespace Ice
                     }
                 }
 
-                public override Task
+                public Task
                 opDoubleMarshalingAsync(double p1, double[] p2, Ice.Current current)
                 {
                     var d = 1278312346.0 / 13.0;
@@ -700,7 +703,7 @@ namespace Ice
                     return null;
                 }
 
-                public override Task<Test.MyClass_OpStringSResult>
+                public Task<Test.MyClass_OpStringSResult>
                 opStringSAsync(string[] p1, string[] p2, Ice.Current current)
                 {
                     var p3 = new string[p1.Length + p2.Length];
@@ -715,7 +718,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringSSResult>
+                public Task<Test.MyClass_OpStringSSResult>
                 opStringSSAsync(string[][] p1, string[][] p2, Ice.Current current)
                 {
                     var p3 = new string[p1.Length + p2.Length][];
@@ -729,7 +732,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringSSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringSSSResult>
+                public Task<Test.MyClass_OpStringSSSResult>
                 opStringSSSAsync(string[][][] p1, string[][][] p2, Ice.Current current)
                 {
                     var p3 = new string[p1.Length + p2.Length][][];
@@ -744,7 +747,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringSSSResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStringStringDResult>
+                public Task<Test.MyClass_OpStringStringDResult>
                 opStringStringDAsync(Dictionary<string, string> p1, Dictionary<string, string> p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -760,7 +763,7 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStringStringDResult(r, p3));
                 }
 
-                public override Task<Test.MyClass_OpStructResult>
+                public Task<Test.MyClass_OpStructResult>
                 opStructAsync(Test.Structure p1, Test.Structure p2, Ice.Current current)
                 {
                     var p3 = p1;
@@ -768,105 +771,105 @@ namespace Ice
                     return Task.FromResult(new Test.MyClass_OpStructResult(p2, p3));
                 }
 
-                public override Task
+                public Task
                 opIdempotentAsync(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Idempotent);
                     return null;
                 }
 
-                public override Task
+                public Task
                 opNonmutatingAsync(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Nonmutating);
                     return null;
                 }
 
-                public override Task
+                public Task
                 opDerivedAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task<byte>
+                public Task<byte>
                 opByte1Async(byte value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<short>
+                public Task<short>
                 opShort1Async(short value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<int>
+                public Task<int>
                 opInt1Async(int value, Ice.Current current)
                 {
                     return Task.FromResult<int>(value);
                 }
 
-                public override Task<long>
+                public Task<long>
                 opLong1Async(long value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<float>
+                public Task<float>
                 opFloat1Async(float value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<double>
+                public Task<double>
                 opDouble1Async(double value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<string>
+                public Task<string>
                 opString1Async(string value, Ice.Current current)
                 {
                     return Task.FromResult<string>(value);
                 }
 
-                public override Task<string[]>
+                public Task<string[]>
                 opStringS1Async(string[] value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<Dictionary<byte, bool>>
+                public Task<Dictionary<byte, bool>>
                 opByteBoolD1Async(Dictionary<byte, bool> value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<string[]>
+                public Task<string[]>
                 opStringS2Async(string[] value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<Dictionary<byte, bool>>
+                public Task<Dictionary<byte, bool>>
                 opByteBoolD2Async(Dictionary<byte, bool> value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<Test.MyClass1>
+                public Task<Test.MyClass1>
                 opMyClass1Async(Test.MyClass1 value, Ice.Current current)
                 {
                     return Task.FromResult<Test.MyClass1>(value);
                 }
 
-                public override Task<Test.MyStruct1>
+                public Task<Test.MyStruct1>
                 opMyStruct1Async(Test.MyStruct1 value, Ice.Current current)
                 {
                     return Task.FromResult(value);
                 }
 
-                public override Task<string[]>
+                public Task<string[]>
                 opStringLiteralsAsync(Ice.Current current)
                 {
                     return Task.FromResult(new string[]
@@ -908,7 +911,7 @@ namespace Ice
                         });
                 }
 
-                public override Task<string[]>
+                public Task<string[]>
                 opWStringLiteralsAsync(Ice.Current current)
                 {
                     return Task.FromResult(new string[]
@@ -950,42 +953,42 @@ namespace Ice
                         });
                 }
 
-                public override async Task<Test.MyClass_OpMStruct1MarshaledResult>
+                public async Task<Test.MyClass_OpMStruct1MarshaledResult>
                 opMStruct1Async(Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
                 }
 
-                public override async Task<Test.MyClass_OpMStruct2MarshaledResult>
+                public async Task<Test.MyClass_OpMStruct2MarshaledResult>
                 opMStruct2Async(Test.Structure p1, Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
                 }
 
-                public override async Task<Test.MyClass_OpMSeq1MarshaledResult>
+                public async Task<Test.MyClass_OpMSeq1MarshaledResult>
                 opMSeq1Async(Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
                 }
 
-                public override async Task<Test.MyClass_OpMSeq2MarshaledResult>
+                public async Task<Test.MyClass_OpMSeq2MarshaledResult>
                 opMSeq2Async(string[] p1, Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
                 }
 
-                public override async Task<Test.MyClass_OpMDict1MarshaledResult>
+                public async Task<Test.MyClass_OpMDict1MarshaledResult>
                 opMDict1Async(Ice.Current current)
                 {
                     await Task.Delay(0);
                     return new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
                 }
 
-                public override async Task<Test.MyClass_OpMDict2MarshaledResult>
+                public async Task<Test.MyClass_OpMDict2MarshaledResult>
                 opMDict2Async(Dictionary<string, string> p1, Ice.Current current)
                 {
                     await Task.Delay(0);

@@ -211,7 +211,7 @@ namespace IceInternal
 
             try
             {
-                Task<Ice.OutputStream> task = _servant.iceDispatch(this, _current);
+                Task<Ice.OutputStream> task = _servant(this, _current);
                 if (task == null)
                 {
                     completed(null, false);
@@ -908,7 +908,7 @@ namespace IceInternal
 
         private Instance _instance;
         private Ice.Current _current;
-        private Ice.Object _servant;
+        private Ice.Disp _servant;
         private Ice.ServantLocator _locator;
         private object _cookie;
         private Ice.Instrumentation.DispatchObserver _observer;

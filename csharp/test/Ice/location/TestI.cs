@@ -2,11 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.location.Test;
+
 namespace Ice
 {
     namespace location
     {
-        public class TestI : Test.TestIntfDisp_
+        public class TestI : Test.TestIntf
         {
             internal TestI(Ice.ObjectAdapter adapter1,
                            Ice.ObjectAdapter adapter2, ServerLocatorRegistry registry)
@@ -15,36 +17,36 @@ namespace Ice
                 _adapter2 = adapter2;
                 _registry = registry;
 
-                _registry.addObject(_adapter1.add(new HelloI(), Ice.Util.stringToIdentity("hello")));
+                _registry.addObject(_adapter1.Add(new HelloI(), Ice.Util.stringToIdentity("hello")));
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 _adapter1.getCommunicator().shutdown();
             }
 
-            public override Test.HelloPrx getHello(Ice.Current current)
+            public Test.HelloPrx getHello(Ice.Current current)
             {
                 return Test.HelloPrxHelper.uncheckedCast(_adapter1.createIndirectProxy(
                                                                 Ice.Util.stringToIdentity("hello")));
             }
 
-            public override Test.HelloPrx getReplicatedHello(Ice.Current current)
+            public Test.HelloPrx getReplicatedHello(Ice.Current current)
             {
                 return Test.HelloPrxHelper.uncheckedCast(_adapter1.createProxy(
                                                                 Ice.Util.stringToIdentity("hello")));
             }
 
-            public override void migrateHello(Ice.Current current)
+            public void migrateHello(Ice.Current current)
             {
                 Ice.Identity id = Ice.Util.stringToIdentity("hello");
                 try
                 {
-                    _registry.addObject(_adapter2.add(_adapter1.remove(id), id), current);
+                    _registry.addObject(_adapter2.Add(_adapter1.remove(id), id), current);
                 }
                 catch (Ice.NotRegisteredException)
                 {
-                    _registry.addObject(_adapter1.add(_adapter2.remove(id), id), current);
+                    _registry.addObject(_adapter1.Add(_adapter2.remove(id), id), current);
                 }
             }
 

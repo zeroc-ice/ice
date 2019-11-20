@@ -3,15 +3,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.Diagnostics;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
     public override void run(string[] args)
     {
@@ -27,12 +26,12 @@ public class Server : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
+            adapter.Add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
             adapter.activate();
 
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-            controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+            controllerAdapter.Add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
             controllerAdapter.activate();
 
             communicator.waitForShutdown();

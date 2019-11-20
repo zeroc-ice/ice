@@ -4,31 +4,32 @@
 
 using System.Diagnostics;
 using System.Collections.Generic;
+using Ice.admin.Test;
 
 namespace Ice
 {
     namespace admin
     {
-        public class TestFacetI : Test.TestFacetDisp_
+        public class TestFacetI : Test.TestFacet
         {
-            override public void op(Ice.Current current)
+            public void op(Ice.Current current)
             {
             }
         }
 
-        public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
+        public class RemoteCommunicatorI : Test.RemoteCommunicator
         {
             public RemoteCommunicatorI(Ice.Communicator communicator)
             {
                 _communicator = communicator;
             }
 
-            override public Ice.ObjectPrx getAdmin(Ice.Current current)
+            public Ice.ObjectPrx getAdmin(Ice.Current current)
             {
                 return _communicator.getAdmin();
             }
 
-            override public Dictionary<string, string> getChanges(Ice.Current current)
+            public Dictionary<string, string> getChanges(Ice.Current current)
             {
                 lock (this)
                 {
@@ -36,32 +37,32 @@ namespace Ice
                 }
             }
 
-            override public void print(string message, Ice.Current current)
+            public void print(string message, Ice.Current current)
             {
                 _communicator.getLogger().print(message);
             }
 
-            override public void trace(string category, string message, Ice.Current current)
+            public void trace(string category, string message, Ice.Current current)
             {
                 _communicator.getLogger().trace(category, message);
             }
 
-            override public void warning(string message, Ice.Current current)
+            public void warning(string message, Ice.Current current)
             {
                 _communicator.getLogger().warning(message);
             }
 
-            override public void error(string message, Ice.Current current)
+            public void error(string message, Ice.Current current)
             {
                 _communicator.getLogger().error(message);
             }
 
-            override public void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 _communicator.shutdown();
             }
 
-            override public void waitForShutdown(Ice.Current current)
+            public void waitForShutdown(Ice.Current current)
             {
                 //
                 // Note that we are executing in a thread of the *main* communicator,
@@ -70,7 +71,7 @@ namespace Ice
                 _communicator.waitForShutdown();
             }
 
-            override public void destroy(Ice.Current current)
+            public void destroy(Ice.Current current)
             {
                 _communicator.destroy();
             }
@@ -87,9 +88,9 @@ namespace Ice
             private Dictionary<string, string> _changes;
         }
 
-        public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
+        public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactory
         {
-            override public Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
+            public Test.RemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Ice.Current current)
             {
                 //
                 // Prepare the property set using the given properties.
@@ -114,14 +115,20 @@ namespace Ice
                 //
                 // Install a custom admin facet.
                 //
-                communicator.addAdminFacet(new TestFacetI(), "TestFacet");
+                try
+                {
+                    communicator.addAdminFacet<TestFacet, TestFacetTraits>(new TestFacetI(), "TestFacet");
+                }
+                catch (System.ArgumentException ex)
+                {
+                }
 
                 //
                 // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
                 // Set the callback on the admin facet.
                 //
                 RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
-                Ice.Object propFacet = communicator.findAdminFacet("Properties");
+                var propFacet = communicator.findAdminFacet("Properties").servant;
 
                 if (propFacet != null)
                 {
@@ -130,11 +137,11 @@ namespace Ice
                     admin.addUpdateCallback(servant.updated);
                 }
 
-                Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);
+                Ice.ObjectPrx proxy = current.adapter.Add(servant);
                 return Test.RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
             }
 
-            override public void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }

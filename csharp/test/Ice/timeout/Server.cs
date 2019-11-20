@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.timeout.Test;
+
 namespace Ice
 {
     namespace timeout
@@ -34,11 +36,11 @@ namespace Ice
                     communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new TimeoutI(), Ice.Util.stringToIdentity("timeout"));
+                    adapter.Add(new TimeoutI(), Ice.Util.stringToIdentity("timeout"));
                     adapter.activate();
 
                     var controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-                    controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+                    controllerAdapter.Add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
                     controllerAdapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

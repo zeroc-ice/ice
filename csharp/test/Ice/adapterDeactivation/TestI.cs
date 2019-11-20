@@ -6,9 +6,9 @@ namespace Ice
 {
     namespace adapterDeactivation
     {
-        public sealed class TestI : Test.TestIntfDisp_
+        public sealed class TestI : Test.TestIntf
         {
-            public override void transient(Ice.Current current)
+            public void transient(Ice.Current current)
             {
                 Ice.Communicator communicator = current.adapter.getCommunicator();
 
@@ -17,7 +17,7 @@ namespace Ice
                 adapter.destroy();
             }
 
-            public override void deactivate(Ice.Current current)
+            public void deactivate(Ice.Current current)
             {
                 current.adapter.deactivate();
                 System.Threading.Thread.Sleep(100);

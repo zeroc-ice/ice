@@ -8,8 +8,10 @@ namespace Ice
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
-
+    using System.Threading.Tasks;
     using IceInternal;
+
+    public delegate Task<OutputStream> Disp(Incoming inS, Current current);
 
     public sealed class ObjectAdapterI : ObjectAdapter
     {
@@ -310,15 +312,11 @@ namespace Ice
             }
         }
 
-        public ObjectPrx add(Object obj, Identity ident)
-        {
-            return addFacet(obj, ident, "");
-        }
-
-        public ObjectPrx addFacet(Object obj, Identity ident, string facet)
+        public ObjectPrx Add(Disp obj, Identity? ident = null, string facet = "")
         {
             lock (this)
             {
+                ident = ident ?? new Identity(Guid.NewGuid().ToString(), "");
                 checkForDeactivation();
                 checkIdentity(ident);
                 checkServant(obj);
@@ -331,27 +329,13 @@ namespace Ice
                 id.category = ident.category;
                 id.name = ident.name;
 
-                _servantManager.addServant(obj, id, facet);
+                _servantManager.addServant(obj, new Identity(id.name, id.category), facet);
 
                 return newProxy(id, facet);
             }
         }
 
-        public ObjectPrx addWithUUID(Object obj)
-        {
-            return addFacetWithUUID(obj, "");
-        }
-
-        public ObjectPrx addFacetWithUUID(Object obj, string facet)
-        {
-            Identity ident = new Identity();
-            ident.category = "";
-            ident.name = Guid.NewGuid().ToString();
-
-            return addFacet(obj, ident, facet);
-        }
-
-        public void addDefaultServant(Ice.Object servant, string category)
+        public void addDefaultServant(Disp servant, string category)
         {
             checkServant(servant);
 
@@ -363,12 +347,7 @@ namespace Ice
             }
         }
 
-        public Object remove(Identity ident)
-        {
-            return removeFacet(ident, "");
-        }
-
-        public Object removeFacet(Identity ident, string facet)
+        public Disp remove(Identity ident, string facet = "")
         {
             lock (this)
             {
@@ -379,7 +358,7 @@ namespace Ice
             }
         }
 
-        public Dictionary<string, Object> removeAllFacets(Identity ident)
+        public Dictionary<string, Disp> removeAllFacets(Identity ident)
         {
             lock (this)
             {
@@ -390,7 +369,7 @@ namespace Ice
             }
         }
 
-        public Object removeDefaultServant(string category)
+        public Disp removeDefaultServant(string category)
         {
             lock (this)
             {
@@ -400,12 +379,7 @@ namespace Ice
             }
         }
 
-        public Object find(Identity ident)
-        {
-            return findFacet(ident, "");
-        }
-
-        public Object findFacet(Identity ident, string facet)
+        public Disp find(Identity ident, string facet = "")
         {
             lock (this)
             {
@@ -416,7 +390,7 @@ namespace Ice
             }
         }
 
-        public Dictionary<string, Object> findAllFacets(Identity ident)
+        public Dictionary<string, Disp> findAllFacets(Identity ident)
         {
             lock (this)
             {
@@ -427,18 +401,18 @@ namespace Ice
             }
         }
 
-        public Object findByProxy(ObjectPrx proxy)
+        public Disp findByProxy(ObjectPrx proxy)
         {
             lock (this)
             {
                 checkForDeactivation();
 
                 Reference @ref = ((ObjectPrxHelperBase)proxy).iceReference();
-                return findFacet(@ref.getIdentity(), @ref.getFacet());
+                return find(@ref.getIdentity(), @ref.getFacet());
             }
         }
 
-        public Object findDefaultServant(string category)
+        public Disp? findDefaultServant(string category)
         {
             lock (this)
             {
@@ -1047,7 +1021,7 @@ namespace Ice
             }
         }
 
-        private static void checkServant(Object servant)
+        private static void checkServant(Disp servant)
         {
             if (servant == null)
             {

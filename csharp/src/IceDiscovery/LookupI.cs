@@ -219,7 +219,7 @@ namespace IceDiscovery
         }
     };
 
-    internal class LookupI : LookupDisp_
+    internal class LookupI : Lookup
     {
         public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Properties properties)
         {
@@ -274,7 +274,7 @@ namespace IceDiscovery
             }
         }
 
-        public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
+        public void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
                                             Ice.Current current)
         {
             if (!domainId.Equals(_domainId))
@@ -299,7 +299,7 @@ namespace IceDiscovery
             }
         }
 
-        public override void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply,
+        public void findAdapterById(string domainId, string adapterId, LookupReplyPrx reply,
                                              Ice.Current current)
         {
             if (!domainId.Equals(_domainId))
@@ -557,19 +557,19 @@ namespace IceDiscovery
         private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     };
 
-    internal class LookupReplyI : LookupReplyDisp_
+    internal class LookupReplyI : LookupReply
     {
         public LookupReplyI(LookupI lookup)
         {
             _lookup = lookup;
         }
 
-        public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
+        public void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
         {
             _lookup.foundObject(id, c.id.name, proxy);
         }
 
-        public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
+        public void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
         {
             _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
         }

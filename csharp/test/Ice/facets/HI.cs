@@ -6,24 +6,24 @@ namespace Ice
 {
     namespace facets
     {
-        public sealed class HI : Test.HDisp_
+        public sealed class HI : Test.H
         {
             public HI(Ice.Communicator communicator)
             {
                 _communicator = communicator;
             }
 
-            public override string callG(Ice.Current current)
+            public string callG(Ice.Current current)
             {
                 return "G";
             }
 
-            public override string callH(Ice.Current current)
+            public string callH(Ice.Current current)
             {
                 return "H";
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 _communicator.shutdown();
             }

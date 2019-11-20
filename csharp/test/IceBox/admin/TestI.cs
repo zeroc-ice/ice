@@ -6,13 +6,13 @@ using System.Collections.Generic;
 
 using Test;
 
-public class TestFacetI : TestFacetDisp_
+public class TestFacetI : TestFacet
 {
     public TestFacetI()
     {
     }
 
-    override public Dictionary<string, string> getChanges(Ice.Current current)
+    public Dictionary<string, string> getChanges(Ice.Current current)
     {
         return _changes;
     }

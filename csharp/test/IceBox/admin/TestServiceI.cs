@@ -3,8 +3,9 @@
 //
 
 using IceBox;
+using Test;
 
-public class TestServiceI : IceBox.Service
+public class TestServiceI : Service
 {
     public TestServiceI(Ice.Communicator serviceManagerCommunicator)
     {
@@ -13,13 +14,13 @@ public class TestServiceI : IceBox.Service
         //
         // Install a custom admin facet.
         //
-        serviceManagerCommunicator.addAdminFacet(facet, "TestFacet");
+        serviceManagerCommunicator.addAdminFacet<TestFacet, TestFacetTraits>(facet, "TestFacet");
 
         //
         // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
         // Set the callback on the admin facet.
         //
-        Ice.Object propFacet = serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");
+        object propFacet = serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties").servant;
         if (propFacet != null)
         {
             Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;

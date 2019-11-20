@@ -3,13 +3,14 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Ice
 {
     namespace operations
     {
-        public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+        public sealed class MyDerivedClassI : Test.MyDerivedClass, Ice.IObject
         {
             private static void test(bool b)
             {
@@ -23,52 +24,54 @@ namespace Ice
             // Override the Object "pseudo" operations to verify the operation mode.
             //
 
-            public override bool ice_isA(string id, Ice.Current current)
+            public bool IceIsA(string id, Current current)
             {
-                test(current.mode == Ice.OperationMode.Nonmutating);
-                return base.ice_isA(id, current);
+                test(current.mode == OperationMode.Nonmutating);
+                Test.MyDerivedClassTraits myDerivedClassT = default;
+                return myDerivedClassT.Ids.Contains(id);
             }
 
-            public override void ice_ping(Ice.Current current)
+            public void IcePing(Current current)
             {
-                test(current.mode == Ice.OperationMode.Nonmutating);
-                base.ice_ping(current);
+                test(current.mode == OperationMode.Nonmutating);
             }
 
-            public override string[] ice_ids(Ice.Current current)
+            public string[] IceIds(Current current)
             {
-                test(current.mode == Ice.OperationMode.Nonmutating);
-                return base.ice_ids(current);
+                test(current.mode == OperationMode.Nonmutating);
+                Test.MyDerivedClassTraits myDerivedClassT = default;
+                return myDerivedClassT.Ids;
             }
 
-            public override string ice_id(Ice.Current current)
+            public string IceId(Current current)
             {
-                test(current.mode == Ice.OperationMode.Nonmutating);
-                return base.ice_id(current);
+                test(current.mode == OperationMode.Nonmutating);
+                Test.MyDerivedClassTraits myDerivedClassT = default;
+                return myDerivedClassT.Id;
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }
 
-            public override bool supportsCompress(Ice.Current current)
+            public bool supportsCompress(Current current)
             {
                 return IceInternal.BZip2.supported();
             }
 
-            public override void opVoid(Ice.Current current)
+            public void opVoid(Current current)
             {
-                test(current.mode == Ice.OperationMode.Normal);
+                test(current.mode == OperationMode.Normal);
             }
 
-            public override bool opBool(bool p1, bool p2, out bool p3, Ice.Current current)
+            public bool opBool(bool p1, bool p2, out bool p3, Current current)
             {
                 p3 = p1;
                 return p2;
             }
 
-            public override bool[] opBoolS(bool[] p1, bool[] p2, out bool[] p3, Ice.Current current)
+            public bool[] opBoolS(bool[] p1, bool[] p2, out bool[] p3, Current current)
             {
                 p3 = new bool[p1.Length + p2.Length];
                 Array.Copy(p1, p3, p1.Length);
@@ -82,7 +85,7 @@ namespace Ice
                 return r;
             }
 
-            public override bool[][] opBoolSS(bool[][] p1, bool[][] p2, out bool[][] p3, Ice.Current current)
+            public bool[][] opBoolSS(bool[][] p1, bool[][] p2, out bool[][] p3, Current current)
             {
                 p3 = new bool[p1.Length + p2.Length][];
                 Array.Copy(p1, p3, p1.Length);
@@ -96,15 +99,15 @@ namespace Ice
                 return r;
             }
 
-            public override byte opByte(byte p1, byte p2, out byte p3, Ice.Current current)
+            public byte opByte(byte p1, byte p2, out byte p3, Current current)
             {
                 p3 = (byte)(p1 ^ p2);
                 return p1;
             }
 
-            public override Dictionary<byte, bool> opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2,
+            public Dictionary<byte, bool> opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2,
                                                                out Dictionary<byte, bool> p3,
-                                                               Ice.Current current)
+                                                               Current current)
             {
                 p3 = p1;
                 Dictionary<byte, bool> r = new Dictionary<byte, bool>();
@@ -119,7 +122,7 @@ namespace Ice
                 return r;
             }
 
-            public override byte[] opByteS(byte[] p1, byte[] p2, out byte[] p3, Ice.Current current)
+            public byte[] opByteS(byte[] p1, byte[] p2, out byte[] p3, Current current)
             {
                 p3 = new byte[p1.Length];
                 for (int i = 0; i < p1.Length; i++)
@@ -133,7 +136,7 @@ namespace Ice
                 return r;
             }
 
-            public override byte[][] opByteSS(byte[][] p1, byte[][] p2, out byte[][] p3, Ice.Current current)
+            public byte[][] opByteSS(byte[][] p1, byte[][] p2, out byte[][] p3, Current current)
             {
                 p3 = new byte[p1.Length][];
                 for (int i = 0; i < p1.Length; i++)
@@ -147,16 +150,16 @@ namespace Ice
                 return r;
             }
 
-            public override double opFloatDouble(float p1, double p2, out float p3, out double p4, Ice.Current current)
+            public double opFloatDouble(float p1, double p2, out float p3, out double p4, Current current)
             {
                 p3 = p1;
                 p4 = p2;
                 return p2;
             }
 
-            public override double[] opFloatDoubleS(float[] p1, double[] p2,
-                                                    out float[] p3, out double[] p4,
-                                                    Ice.Current current)
+            public double[] opFloatDoubleS(float[] p1, double[] p2,
+                                           out float[] p3, out double[] p4,
+                                           Current current)
             {
                 p3 = p1;
 
@@ -175,9 +178,9 @@ namespace Ice
                 return r;
             }
 
-            public override double[][] opFloatDoubleSS(float[][] p1, double[][] p2,
+            public double[][] opFloatDoubleSS(float[][] p1, double[][] p2,
                                                        out float[][] p3, out double[][] p4,
-                                                       Ice.Current current)
+                                                       Current current)
             {
                 p3 = p1;
 
@@ -200,9 +203,9 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<long, float> opLongFloatD(Dictionary<long, float> p1, Dictionary<long, float> p2,
+            public Dictionary<long, float> opLongFloatD(Dictionary<long, float> p1, Dictionary<long, float> p2,
                                                                  out Dictionary<long, float> p3,
-                                                                 Ice.Current current)
+                                                                 Current current)
             {
                 p3 = p1;
                 Dictionary<long, float> r = new Dictionary<long, float>();
@@ -217,8 +220,8 @@ namespace Ice
                 return r;
             }
 
-            public override Test.MyClassPrx opMyClass(Test.MyClassPrx p1, out Test.MyClassPrx p2, out Test.MyClassPrx p3,
-                                                      Ice.Current current)
+            public Test.MyClassPrx opMyClass(Test.MyClassPrx p1, out Test.MyClassPrx p2, out Test.MyClassPrx p3,
+                                                      Current current)
             {
                 p2 = p1;
                 p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
@@ -226,14 +229,14 @@ namespace Ice
                 return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
             }
 
-            public override Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Ice.Current current)
+            public Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Current current)
             {
                 p2 = p1;
                 return Test.MyEnum.enum3;
             }
 
-            public override Dictionary<short, int> opShortIntD(Dictionary<short, int> p1, Dictionary<short, int> p2,
-                                                               out Dictionary<short, int> p3, Ice.Current current)
+            public Dictionary<short, int> opShortIntD(Dictionary<short, int> p1, Dictionary<short, int> p2,
+                                                               out Dictionary<short, int> p3, Current current)
             {
                 p3 = p1;
                 Dictionary<short, int> r = new Dictionary<short, int>();
@@ -248,8 +251,8 @@ namespace Ice
                 return r;
             }
 
-            public override long opShortIntLong(short p1, int p2, long p3, out short p4, out int p5, out long p6,
-                                                Ice.Current current)
+            public long opShortIntLong(short p1, int p2, long p3, out short p4, out int p5, out long p6,
+                                                Current current)
             {
                 p4 = p1;
                 p5 = p2;
@@ -257,9 +260,9 @@ namespace Ice
                 return p3;
             }
 
-            public override long[] opShortIntLongS(short[] p1, int[] p2, long[] p3,
+            public long[] opShortIntLongS(short[] p1, int[] p2, long[] p3,
                                                    out short[] p4, out int[] p5, out long[] p6,
-                                                   Ice.Current current)
+                                                   Current current)
             {
                 p4 = p1;
 
@@ -276,9 +279,9 @@ namespace Ice
                 return p3;
             }
 
-            public override long[][] opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
+            public long[][] opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
                                                       out short[][] p4, out int[][] p5, out long[][] p6,
-                                                      Ice.Current current)
+                                                      Current current)
             {
                 p4 = p1;
 
@@ -295,16 +298,16 @@ namespace Ice
                 return p3;
             }
 
-            public override string opString(string p1, string p2, out string p3, Ice.Current current)
+            public string opString(string p1, string p2, out string p3, Current current)
             {
                 p3 = p2 + " " + p1;
                 return p1 + " " + p2;
             }
 
-            public override Dictionary<string, Test.MyEnum> opStringMyEnumD(Dictionary<string, Test.MyEnum> p1,
+            public Dictionary<string, Test.MyEnum> opStringMyEnumD(Dictionary<string, Test.MyEnum> p1,
                                                                             Dictionary<string, Test.MyEnum> p2,
                                                                             out Dictionary<string, Test.MyEnum> p3,
-                                                                            Ice.Current current)
+                                                                            Current current)
             {
                 p3 = p1;
                 var r = new Dictionary<string, Test.MyEnum>();
@@ -319,10 +322,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<Test.MyEnum, string> opMyEnumStringD(Dictionary<Test.MyEnum, string> p1,
+            public Dictionary<Test.MyEnum, string> opMyEnumStringD(Dictionary<Test.MyEnum, string> p1,
                                                                             Dictionary<Test.MyEnum, string> p2,
                                                                             out Dictionary<Test.MyEnum, string> p3,
-                                                                            Ice.Current current)
+                                                                            Current current)
             {
                 p3 = p1;
                 var r = new Dictionary<Test.MyEnum, string>();
@@ -337,11 +340,11 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<Test.MyStruct, Test.MyEnum> opMyStructMyEnumD(
+            public Dictionary<Test.MyStruct, Test.MyEnum> opMyStructMyEnumD(
                                                         Dictionary<Test.MyStruct, Test.MyEnum> p1,
                                                         Dictionary<Test.MyStruct, Test.MyEnum> p2,
                                                         out Dictionary<Test.MyStruct, Test.MyEnum> p3,
-                                                        Ice.Current current)
+                                                        Current current)
             {
                 p3 = p1;
                 var r = new Dictionary<Test.MyStruct, Test.MyEnum>();
@@ -356,10 +359,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<byte, bool>[] opByteBoolDS(Dictionary<byte, bool>[] p1,
+            public Dictionary<byte, bool>[] opByteBoolDS(Dictionary<byte, bool>[] p1,
                                                                  Dictionary<byte, bool>[] p2,
                                                                  out Dictionary<byte, bool>[] p3,
-                                                                 Ice.Current current)
+                                                                 Current current)
             {
                 p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -373,10 +376,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<short, int>[] opShortIntDS(Dictionary<short, int>[] p1,
+            public Dictionary<short, int>[] opShortIntDS(Dictionary<short, int>[] p1,
                                                                   Dictionary<short, int>[] p2,
                                                                   out Dictionary<short, int>[] p3,
-                                                                  Ice.Current current)
+                                                                  Current current)
             {
                 p3 = new Dictionary<short, int>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -390,10 +393,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<long, float>[] opLongFloatDS(Dictionary<long, float>[] p1,
+            public Dictionary<long, float>[] opLongFloatDS(Dictionary<long, float>[] p1,
                                                                     Dictionary<long, float>[] p2,
                                                                     out Dictionary<long, float>[] p3,
-                                                                    Ice.Current current)
+                                                                    Current current)
             {
                 p3 = new Dictionary<long, float>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -407,10 +410,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<string, string>[] opStringStringDS(Dictionary<string, string>[] p1,
+            public Dictionary<string, string>[] opStringStringDS(Dictionary<string, string>[] p1,
                                                                           Dictionary<string, string>[] p2,
                                                                           out Dictionary<string, string>[] p3,
-                                                                          Ice.Current current)
+                                                                          Current current)
             {
                 p3 = new Dictionary<string, string>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -424,10 +427,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<string, Test.MyEnum>[] opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1,
+            public Dictionary<string, Test.MyEnum>[] opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1,
                                                                                Dictionary<string, Test.MyEnum>[] p2,
                                                                                out Dictionary<string, Test.MyEnum>[] p3,
-                                                                               Ice.Current current)
+                                                                               Current current)
             {
                 p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -441,10 +444,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<Test.MyEnum, string>[] opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
+            public Dictionary<Test.MyEnum, string>[] opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
                                                                                Dictionary<Test.MyEnum, string>[] p2,
                                                                                out Dictionary<Test.MyEnum, string>[] p3,
-                                                                               Ice.Current current)
+                                                                               Current current)
             {
                 p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -458,11 +461,11 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<Test.MyStruct, Test.MyEnum>[] opMyStructMyEnumDS(
+            public Dictionary<Test.MyStruct, Test.MyEnum>[] opMyStructMyEnumDS(
                 Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
                 Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
                 out Dictionary<Test.MyStruct, Test.MyEnum>[] p3,
-                Ice.Current current)
+                Current current)
             {
                 p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
                 Array.Copy(p2, p3, p2.Length);
@@ -476,10 +479,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<byte, byte[]> opByteByteSD(Dictionary<byte, byte[]> p1,
+            public Dictionary<byte, byte[]> opByteByteSD(Dictionary<byte, byte[]> p1,
                                                                   Dictionary<byte, byte[]> p2,
                                                                   out Dictionary<byte, byte[]> p3,
-                                                                  Ice.Current current)
+                                                                  Current current)
             {
                 p3 = p2;
                 Dictionary<byte, byte[]> r = new Dictionary<byte, byte[]>();
@@ -494,10 +497,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<bool, bool[]> opBoolBoolSD(Dictionary<bool, bool[]> p1,
+            public Dictionary<bool, bool[]> opBoolBoolSD(Dictionary<bool, bool[]> p1,
                                                                   Dictionary<bool, bool[]> p2,
                                                                   out Dictionary<bool, bool[]> p3,
-                                                                  Ice.Current current)
+                                                                  Current current)
             {
                 p3 = p2;
                 Dictionary<bool, bool[]> r = new Dictionary<bool, bool[]>();
@@ -512,10 +515,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<short, short[]> opShortShortSD(Dictionary<short, short[]> p1,
+            public Dictionary<short, short[]> opShortShortSD(Dictionary<short, short[]> p1,
                                                                       Dictionary<short, short[]> p2,
                                                                       out Dictionary<short, short[]> p3,
-                                                                      Ice.Current current)
+                                                                      Current current)
             {
                 p3 = p2;
                 Dictionary<short, short[]> r = new Dictionary<short, short[]>();
@@ -530,10 +533,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<int, int[]> opIntIntSD(Dictionary<int, int[]> p1,
+            public Dictionary<int, int[]> opIntIntSD(Dictionary<int, int[]> p1,
                                                               Dictionary<int, int[]> p2,
                                                               out Dictionary<int, int[]> p3,
-                                                              Ice.Current current)
+                                                              Current current)
             {
                 p3 = p2;
                 Dictionary<int, int[]> r = new Dictionary<int, int[]>();
@@ -548,10 +551,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<long, long[]> opLongLongSD(Dictionary<long, long[]> p1,
+            public Dictionary<long, long[]> opLongLongSD(Dictionary<long, long[]> p1,
                                                                   Dictionary<long, long[]> p2,
                                                                   out Dictionary<long, long[]> p3,
-                                                                  Ice.Current current)
+                                                                  Current current)
             {
                 p3 = p2;
                 Dictionary<long, long[]> r = new Dictionary<long, long[]>();
@@ -566,10 +569,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<string, float[]> opStringFloatSD(Dictionary<string, float[]> p1,
+            public Dictionary<string, float[]> opStringFloatSD(Dictionary<string, float[]> p1,
                                                                         Dictionary<string, float[]> p2,
                                                                         out Dictionary<string, float[]> p3,
-                                                                        Ice.Current current)
+                                                                        Current current)
             {
                 p3 = p2;
                 Dictionary<string, float[]> r = new Dictionary<string, float[]>();
@@ -584,10 +587,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<string, double[]> opStringDoubleSD(Dictionary<string, double[]> p1,
+            public Dictionary<string, double[]> opStringDoubleSD(Dictionary<string, double[]> p1,
                                                                           Dictionary<string, double[]> p2,
                                                                           out Dictionary<string, double[]> p3,
-                                                                          Ice.Current current)
+                                                                          Current current)
             {
                 p3 = p2;
                 Dictionary<string, double[]> r = new Dictionary<string, double[]>();
@@ -602,10 +605,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<string, string[]> opStringStringSD(Dictionary<string, string[]> p1,
+            public Dictionary<string, string[]> opStringStringSD(Dictionary<string, string[]> p1,
                                                                           Dictionary<string, string[]> p2,
                                                                           out Dictionary<string, string[]> p3,
-                                                                          Ice.Current current)
+                                                                          Current current)
             {
                 p3 = p2;
                 Dictionary<string, string[]> r = new Dictionary<string, string[]>();
@@ -620,11 +623,11 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<Test.MyEnum, Test.MyEnum[]> opMyEnumMyEnumSD(
+            public Dictionary<Test.MyEnum, Test.MyEnum[]> opMyEnumMyEnumSD(
                 Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
                 Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
                 out Dictionary<Test.MyEnum, Test.MyEnum[]> p3,
-                Ice.Current ice)
+                Current ice)
             {
                 p3 = p2;
                 var r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
@@ -639,7 +642,7 @@ namespace Ice
                 return r;
             }
 
-            public override int[] opIntS(int[] s, Ice.Current current)
+            public int[] opIntS(int[] s, Current current)
             {
                 int[] r = new int[s.Length];
                 for (int i = 0; i < s.Length; ++i)
@@ -649,7 +652,7 @@ namespace Ice
                 return r;
             }
 
-            public override void opByteSOneway(byte[] s, Ice.Current current)
+            public void opByteSOneway(byte[] s, Current current)
             {
                 lock (this)
                 {
@@ -657,7 +660,7 @@ namespace Ice
                 }
             }
 
-            public override int opByteSOnewayCallCount(Ice.Current current)
+            public int opByteSOnewayCallCount(Current current)
             {
                 lock (this)
                 {
@@ -667,12 +670,12 @@ namespace Ice
                 }
             }
 
-            public override Dictionary<string, string> opContext(Ice.Current current)
+            public Dictionary<string, string> opContext(Current current)
             {
                 return current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
             }
 
-            public override void opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
+            public void opDoubleMarshaling(double p1, double[] p2, Current current)
             {
                 double d = 1278312346.0 / 13.0;
                 test(p1 == d);
@@ -682,7 +685,7 @@ namespace Ice
                 }
             }
 
-            public override string[] opStringS(string[] p1, string[] p2, out string[] p3, Ice.Current current)
+            public string[] opStringS(string[] p1, string[] p2, out string[] p3, Current current)
             {
                 p3 = new string[p1.Length + p2.Length];
                 Array.Copy(p1, p3, p1.Length);
@@ -696,7 +699,7 @@ namespace Ice
                 return r;
             }
 
-            public override string[][] opStringSS(string[][] p1, string[][] p2, out string[][] p3, Ice.Current current)
+            public string[][] opStringSS(string[][] p1, string[][] p2, out string[][] p3, Current current)
             {
                 p3 = new string[p1.Length + p2.Length][];
                 Array.Copy(p1, p3, p1.Length);
@@ -710,7 +713,7 @@ namespace Ice
                 return r;
             }
 
-            public override string[][][] opStringSSS(string[][][] p1, string[][][] p2, out string[][][] p3, Ice.Current current)
+            public string[][][] opStringSSS(string[][][] p1, string[][][] p2, out string[][][] p3, Current current)
             {
                 p3 = new string[p1.Length + p2.Length][][];
                 Array.Copy(p1, p3, p1.Length);
@@ -724,10 +727,10 @@ namespace Ice
                 return r;
             }
 
-            public override Dictionary<string, string> opStringStringD(Dictionary<string, string> p1,
+            public Dictionary<string, string> opStringStringD(Dictionary<string, string> p1,
                                                                        Dictionary<string, string> p2,
                                                                        out Dictionary<string, string> p3,
-                                                                       Ice.Current current)
+                                                                       Current current)
             {
                 p3 = p1;
                 Dictionary<string, string> r = new Dictionary<string, string>();
@@ -742,93 +745,93 @@ namespace Ice
                 return r;
             }
 
-            public override Test.Structure opStruct(Test.Structure p1, Test.Structure p2, out Test.Structure p3, Ice.Current current)
+            public Test.Structure opStruct(Test.Structure p1, Test.Structure p2, out Test.Structure p3, Current current)
             {
                 p3 = p1;
                 p3.s.s = "a new string";
                 return p2;
             }
 
-            public override void opIdempotent(Ice.Current current)
+            public void opIdempotent(Current current)
             {
                 test(current.mode == Ice.OperationMode.Idempotent);
             }
 
-            public override void opNonmutating(Ice.Current current)
+            public void opNonmutating(Current current)
             {
                 test(current.mode == Ice.OperationMode.Nonmutating);
             }
 
-            public override void opDerived(Ice.Current current)
+            public void opDerived(Current current)
             {
             }
 
-            public override byte opByte1(byte opByte1, Ice.Current current)
+            public byte opByte1(byte opByte1, Current current)
             {
                 return opByte1;
             }
 
-            public override short opShort1(short opShort1, Ice.Current current)
+            public short opShort1(short opShort1, Current current)
             {
                 return opShort1;
             }
 
-            public override int opInt1(int opInt1, Ice.Current current)
+            public int opInt1(int opInt1, Current current)
             {
                 return opInt1;
             }
 
-            public override long opLong1(long opLong1, Ice.Current current)
+            public long opLong1(long opLong1, Current current)
             {
                 return opLong1;
             }
 
-            public override float opFloat1(float opFloat1, Ice.Current current)
+            public float opFloat1(float opFloat1, Current current)
             {
                 return opFloat1;
             }
 
-            public override double opDouble1(double opDouble1, Ice.Current current)
+            public double opDouble1(double opDouble1, Current current)
             {
                 return opDouble1;
             }
 
-            public override string opString1(string opString1, Ice.Current current)
+            public string opString1(string opString1, Current current)
             {
                 return opString1;
             }
 
-            public override string[] opStringS1(string[] opStringS1, Ice.Current current)
+            public string[] opStringS1(string[] opStringS1, Current current)
             {
                 return opStringS1;
             }
 
-            public override Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Ice.Current current)
+            public Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Current current)
             {
                 return opByteBoolD1;
             }
 
-            public override string[] opStringS2(string[] opStringS2, Ice.Current current)
+            public string[] opStringS2(string[] opStringS2, Current current)
             {
                 return opStringS2;
             }
 
-            public override Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Ice.Current current)
+            public Dictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Current current)
             {
                 return opByteBoolD2;
             }
 
-            public override Test.MyClass1 opMyClass1(Test.MyClass1 c, Ice.Current current)
+            public Test.MyClass1 opMyClass1(Test.MyClass1 c, Current current)
             {
                 return c;
             }
 
-            public override Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Ice.Current current)
+            public Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Current current)
             {
                 return s;
             }
 
-            public override string[] opStringLiterals(Ice.Current current)
+            public string[] opStringLiterals(Current current)
             {
                 return new string[]
                     {
@@ -869,37 +872,37 @@ namespace Ice
                     };
             }
 
-            public override string[] opWStringLiterals(Ice.Current current)
+            public string[] opWStringLiterals(Current current)
             {
                 return opStringLiterals(current);
             }
 
-            public override Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Ice.Current current)
+            public Test.MyClass_OpMStruct1MarshaledResult opMStruct1(Current current)
             {
                 return new Test.MyClass_OpMStruct1MarshaledResult(new Test.Structure(), current);
             }
 
-            public override Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Ice.Current current)
+            public Test.MyClass_OpMStruct2MarshaledResult opMStruct2(Test.Structure p1, Current current)
             {
                 return new Test.MyClass_OpMStruct2MarshaledResult(p1, p1, current);
             }
 
-            public override Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Ice.Current current)
+            public Test.MyClass_OpMSeq1MarshaledResult opMSeq1(Current current)
             {
                 return new Test.MyClass_OpMSeq1MarshaledResult(new string[0], current);
             }
 
-            public override Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Ice.Current current)
+            public Test.MyClass_OpMSeq2MarshaledResult opMSeq2(string[] p1, Current current)
             {
                 return new Test.MyClass_OpMSeq2MarshaledResult(p1, p1, current);
             }
 
-            public override Test.MyClass_OpMDict1MarshaledResult opMDict1(Ice.Current current)
+            public Test.MyClass_OpMDict1MarshaledResult opMDict1(Current current)
             {
                 return new Test.MyClass_OpMDict1MarshaledResult(new Dictionary<string, string>(), current);
             }
 
-            public override Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Ice.Current current)
+            public Test.MyClass_OpMDict2MarshaledResult opMDict2(Dictionary<string, string> p1, Current current)
             {
                 return new Test.MyClass_OpMDict2MarshaledResult(p1, p1, current);
             }

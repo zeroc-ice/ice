@@ -13,7 +13,7 @@ namespace IceBox
     //
     // NOTE: the class isn't final on purpose to allow users to extend it.
     //
-    public class ServiceManagerI : ServiceManagerDisp_
+    public class ServiceManagerI : ServiceManager
     {
         public ServiceManagerI(Ice.Communicator communicator, string[] args)
         {
@@ -48,7 +48,7 @@ namespace IceBox
             _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
         }
 
-        public override void startService(string name, Ice.Current current)
+        public void startService(string name, Ice.Current current)
         {
             ServiceInfo info = new ServiceInfo();
             lock (this)
@@ -120,7 +120,7 @@ namespace IceBox
             }
         }
 
-        public override void stopService(string name, Ice.Current current)
+        public void stopService(string name, Ice.Current current)
         {
             ServiceInfo info = new ServiceInfo();
             lock (this)
@@ -191,7 +191,7 @@ namespace IceBox
             }
         }
 
-        public override void addObserver(ServiceObserverPrx observer, Ice.Current current)
+        public void addObserver(ServiceObserverPrx observer, Ice.Current current)
         {
             List<string> activeServices = new List<string>();
 
@@ -234,7 +234,7 @@ namespace IceBox
             }
         }
 
-        public override void shutdown(Ice.Current current)
+        public void shutdown(Ice.Current current)
         {
             _communicator.shutdown();
         }
@@ -258,7 +258,7 @@ namespace IceBox
                     Ice.Identity identity = new Ice.Identity();
                     identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
                     identity.name = "ServiceManager";
-                    adapter.add(this, identity);
+                    adapter.Add(this, identity);
                 }
 
                 //
@@ -363,11 +363,11 @@ namespace IceBox
                         // Add all facets created on shared communicator to the IceBox communicator
                         // but renamed <prefix>.<facet-name>, except for the Process facet which is
                         // never added.
-                        foreach (KeyValuePair<string, Ice.Object> p in _sharedCommunicator.findAllAdminFacets())
+                        foreach (var p in _sharedCommunicator.findAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.addAdminFacet(p.Value, facetNamePrefix + p.Key);
+                                _communicator.addAdminFacet(p.Value.servant, p.Value.disp, facetNamePrefix + p.Key);
                             }
                         }
                     }
@@ -381,7 +381,7 @@ namespace IceBox
                 //
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
-                _communicator.addAdminFacet(this, "IceBox.ServiceManager");
+                _communicator.addAdminFacet<ServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
                 _communicator.getAdmin();
                 if (adapter != null)
                 {
@@ -585,11 +585,11 @@ namespace IceBox
                         // Add all facets created on the service communicator to the IceBox communicator
                         // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
                         // which is never added
-                        foreach (KeyValuePair<string, Ice.Object> p in communicator.findAllAdminFacets())
+                        foreach (var p in communicator.findAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.addAdminFacet(p.Value, serviceFacetNamePrefix + p.Key);
+                                _communicator.addAdminFacet(p.Value.servant, p.Value.disp, serviceFacetNamePrefix + p.Key);
                             }
                         }
                     }

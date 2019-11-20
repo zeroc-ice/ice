@@ -10,50 +10,50 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class TestI : Test.TestIntfDisp_
+            public sealed class TestI : Test.TestIntf
             {
-                public override Task requestFailedExceptionAsync(Ice.Current current)
+                public Task requestFailedExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task unknownUserExceptionAsync(Ice.Current current)
+                public Task unknownUserExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task unknownLocalExceptionAsync(Ice.Current current)
+                public Task unknownLocalExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task unknownExceptionAsync(Ice.Current current)
+                public Task unknownExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task localExceptionAsync(Ice.Current current)
+                public Task localExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task userExceptionAsync(Ice.Current current)
+                public Task userExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task csExceptionAsync(Ice.Current current)
+                public Task csExceptionAsync(Ice.Current current)
                 {
                     return null;
                 }
 
-                public override Task
+                public Task
                 unknownExceptionWithServantExceptionAsync(Ice.Current current)
                 {
                     throw new Ice.ObjectNotExistException();
                 }
 
-                public override Task<string>
+                public Task<string>
                 impossibleExceptionAsync(bool @throw, Ice.Current current)
                 {
                     if (@throw)
@@ -70,7 +70,7 @@ namespace Ice
                     }
                 }
 
-                public override Task<string>
+                public Task<string>
                 intfUserExceptionAsync(bool @throw, Ice.Current current)
                 {
                     if (@throw)
@@ -87,19 +87,19 @@ namespace Ice
                     }
                 }
 
-                public override Task asyncResponseAsync(Ice.Current current)
+                public Task asyncResponseAsync(Ice.Current current)
                 {
                     return null;
                     throw new Ice.ObjectNotExistException();
                 }
 
-                public override Task asyncExceptionAsync(Ice.Current current)
+                public Task asyncExceptionAsync(Ice.Current current)
                 {
                     throw new Test.TestIntfUserException();
                     throw new Ice.ObjectNotExistException();
                 }
 
-                public override Task shutdownAsync(Ice.Current current)
+                public Task shutdownAsync(Ice.Current current)
                 {
                     current.adapter.deactivate();
                     return null;

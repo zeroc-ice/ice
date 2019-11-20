@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
     public override void run(string[] args)
     {
@@ -18,7 +18,7 @@ public class Server : Test.TestHelper
             communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
-            adapter.add(new TestI(), Ice.Util.stringToIdentity(id));
+            adapter.Add(new TestI(), Ice.Util.stringToIdentity(id));
             try
             {
                 adapter.activate();

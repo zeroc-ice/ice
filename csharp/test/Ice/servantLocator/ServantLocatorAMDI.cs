@@ -3,6 +3,7 @@
 //
 
 using System;
+using Ice.servantLocator.AMD;
 
 namespace Ice
 {
@@ -35,7 +36,7 @@ namespace Ice
                     }
                 }
 
-                public Ice.Object locate(Ice.Current current, out object cookie)
+                public Disp locate(Current current, out object cookie)
                 {
                     lock (this)
                     {
@@ -70,10 +71,12 @@ namespace Ice
 
                     cookie = new Cookie();
 
-                    return new TestI();
+                    TestI testI = new TestI();
+                    Test.TestIntfTraits testT = default;
+                    return (current, incoming) => testT.Dispatch(testI, current, incoming);
                 }
 
-                public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+                public void finished(Current current, Disp servant, object cookie)
                 {
                     lock (this)
                     {

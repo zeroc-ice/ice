@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.binding.Test;
 
 namespace Ice
 {
@@ -12,14 +13,14 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
+                Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ServerIdleTime", "30");
                 using (var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.Identity id = Ice.Util.stringToIdentity("communicator");
-                    adapter.add(new RemoteCommunicatorI(), id);
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    Identity id = Util.stringToIdentity("communicator");
+                    adapter.Add(new RemoteCommunicatorI(), id);
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

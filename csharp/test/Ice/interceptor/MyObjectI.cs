@@ -22,7 +22,7 @@ namespace Ice
             }
         };
 
-        class MyObjectI : Test.MyObjectDisp_
+        class MyObjectI : Test.MyObject
         {
             protected static void
             test(bool b)
@@ -33,13 +33,13 @@ namespace Ice
                 }
             }
 
-            public override int
+            public int
             add(int x, int y, Ice.Current current)
             {
                 return x + y;
             }
 
-            public override int
+            public int
             addWithRetry(int x, int y, Ice.Current current)
             {
                 test(current != null);
@@ -52,19 +52,19 @@ namespace Ice
                 throw new RetryException();
             }
 
-            public override int
+            public int
             badAdd(int x, int y, Ice.Current current)
             {
                 throw new Test.InvalidInputException();
             }
 
-            public override int
+            public int
             notExistAdd(int x, int y, Ice.Current current)
             {
                 throw new Ice.ObjectNotExistException();
             }
 
-            public override int
+            public int
             badSystemAdd(int x, int y, Ice.Current current)
             {
                 throw new MySystemException();
@@ -73,14 +73,14 @@ namespace Ice
             //
             // AMD
             //
-            public override async Task<int>
+            public async Task<int>
             amdAddAsync(int x, int y, Ice.Current current)
             {
                 await Task.Delay(10);
                 return x + y;
             }
 
-            public override async Task<int>
+            public async Task<int>
             amdAddWithRetryAsync(int x, int y, Ice.Current current)
             {
                 if (current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
@@ -94,21 +94,21 @@ namespace Ice
                 }
             }
 
-            public override async Task<int>
+            public async Task<int>
             amdBadAddAsync(int x, int y, Ice.Current current)
             {
                 await Task.Delay(10);
                 throw new Test.InvalidInputException();
             }
 
-            public override async Task<int>
+            public async Task<int>
             amdNotExistAddAsync(int x, int y, Ice.Current current)
             {
                 await Task.Delay(10);
                 throw new Ice.ObjectNotExistException();
             }
 
-            public override async Task<int>
+            public async Task<int>
             amdBadSystemAddAsync(int x, int y, Ice.Current current)
             {
                 await Task.Delay(10);

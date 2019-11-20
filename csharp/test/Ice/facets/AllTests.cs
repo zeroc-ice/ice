@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
+using Ice.facets.Test;
 
 namespace Ice
 {
@@ -14,12 +14,12 @@ namespace Ice
             public static Test.GPrx allTests(global::Test.TestHelper helper)
             {
 
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
                 output.Write("testing Ice.Admin.Facets property... ");
                 test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").Length == 0);
                 communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
-                String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+                string[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
                 test(facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
                 communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
                 facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
@@ -39,56 +39,59 @@ namespace Ice
 
                 output.Write("testing facet registration exceptions... ");
                 communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *");
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
-                Ice.Object obj = new EmptyI();
-                adapter.add(obj, Ice.Util.stringToIdentity("d"));
-                adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
+                ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
+
+                var emptyT = default(EmptyTraits);
+                var obj = new EmptyI();
+
+                adapter.Add(obj, Util.stringToIdentity("d"));
+                adapter.Add(obj, Util.stringToIdentity("d"), "facetABCD");
                 try
                 {
-                    adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
+                    adapter.Add(obj, Util.stringToIdentity("d"), "facetABCD");
                     test(false);
                 }
-                catch (Ice.AlreadyRegisteredException)
+                catch (AlreadyRegisteredException)
                 {
                 }
-                adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
+                adapter.remove(Util.stringToIdentity("d"), "facetABCD");
                 try
                 {
-                    adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
+                    adapter.remove(Util.stringToIdentity("d"), "facetABCD");
                     test(false);
                 }
-                catch (Ice.NotRegisteredException)
+                catch (NotRegisteredException)
                 {
                 }
                 output.WriteLine("ok");
 
                 output.Write("testing removeAllFacets... ");
-                Ice.Object obj1 = new EmptyI();
-                Ice.Object obj2 = new EmptyI();
-                adapter.addFacet(obj1, Ice.Util.stringToIdentity("id1"), "f1");
-                adapter.addFacet(obj2, Ice.Util.stringToIdentity("id1"), "f2");
-                Ice.Object obj3 = new EmptyI();
-                adapter.addFacet(obj1, Ice.Util.stringToIdentity("id2"), "f1");
-                adapter.addFacet(obj2, Ice.Util.stringToIdentity("id2"), "f2");
-                adapter.addFacet(obj3, Ice.Util.stringToIdentity("id2"), "");
-                Dictionary<string, Ice.Object> fm
-                    = adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+                var obj1 = new EmptyI();
+                var obj2 = new EmptyI();
+                var obj3 = new EmptyI();
+
+                adapter.Add(obj1, Util.stringToIdentity("id1"), "f1");
+                adapter.Add(obj2, Util.stringToIdentity("id1"), "f2");
+                adapter.Add(obj1, Util.stringToIdentity("id2"), "f1");
+                adapter.Add(obj2, Util.stringToIdentity("id2"), "f2");
+                adapter.Add(obj3, Util.stringToIdentity("id2"), "");
+                Dictionary<string, Disp> fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
                 test(fm.Count == 2);
-                test(fm["f1"] == obj1);
-                test(fm["f2"] == obj2);
+                test(fm.ContainsKey("f1"));
+                test(fm.ContainsKey("f2"));
                 try
                 {
-                    adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+                    adapter.removeAllFacets(Util.stringToIdentity("id1"));
                     test(false);
                 }
-                catch (Ice.NotRegisteredException)
+                catch (NotRegisteredException)
                 {
                 }
-                fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id2"));
+                fm = adapter.removeAllFacets(Util.stringToIdentity("id2"));
                 test(fm.Count == 3);
-                test(fm["f1"] == obj1);
-                test(fm["f2"] == obj2);
-                test(fm[""] == obj3);
+                test(fm.ContainsKey("f1"));
+                test(fm.ContainsKey("f2"));
+                test(fm.ContainsKey(""));
                 output.WriteLine("ok");
 
                 adapter.deactivate();
@@ -96,53 +99,53 @@ namespace Ice
                 output.Write("testing stringToProxy... ");
                 output.Flush();
                 string @ref = "d:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx db = communicator.stringToProxy(@ref);
+                ObjectPrx db = communicator.stringToProxy(@ref);
                 test(db != null);
                 output.WriteLine("ok");
 
                 output.Write("testing unchecked cast... ");
                 output.Flush();
-                Ice.ObjectPrx prx = Ice.ObjectPrxHelper.uncheckedCast(db);
+                ObjectPrx prx = Ice.ObjectPrxHelper.uncheckedCast(db);
                 test(prx.ice_getFacet().Length == 0);
                 prx = Ice.ObjectPrxHelper.uncheckedCast(db, "facetABCD");
                 test(prx.ice_getFacet() == "facetABCD");
-                Ice.ObjectPrx prx2 = Ice.ObjectPrxHelper.uncheckedCast(prx);
+                ObjectPrx prx2 = Ice.ObjectPrxHelper.uncheckedCast(prx);
                 test(prx2.ice_getFacet() == "facetABCD");
-                Ice.ObjectPrx prx3 = Ice.ObjectPrxHelper.uncheckedCast(prx, "");
+                ObjectPrx prx3 = Ice.ObjectPrxHelper.uncheckedCast(prx, "");
                 test(prx3.ice_getFacet().Length == 0);
                 var d = Test.DPrxHelper.uncheckedCast(db);
                 test(d.ice_getFacet().Length == 0);
-                var df = Test.DPrxHelper.uncheckedCast(db, "facetABCD");
+                var df = DPrxHelper.uncheckedCast(db, "facetABCD");
                 test(df.ice_getFacet() == "facetABCD");
-                var df2 = Test.DPrxHelper.uncheckedCast(df);
+                var df2 = DPrxHelper.uncheckedCast(df);
                 test(df2.ice_getFacet() == "facetABCD");
-                var df3 = Test.DPrxHelper.uncheckedCast(df, "");
+                var df3 = DPrxHelper.uncheckedCast(df, "");
                 test(df3.ice_getFacet().Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                prx = Ice.ObjectPrxHelper.checkedCast(db);
+                prx = ObjectPrxHelper.checkedCast(db);
                 test(prx.ice_getFacet().Length == 0);
-                prx = Ice.ObjectPrxHelper.checkedCast(db, "facetABCD");
+                prx = ObjectPrxHelper.checkedCast(db, "facetABCD");
                 test(prx.ice_getFacet() == "facetABCD");
-                prx2 = Ice.ObjectPrxHelper.checkedCast(prx);
+                prx2 = ObjectPrxHelper.checkedCast(prx);
                 test(prx2.ice_getFacet() == "facetABCD");
-                prx3 = Ice.ObjectPrxHelper.checkedCast(prx, "");
+                prx3 = ObjectPrxHelper.checkedCast(prx, "");
                 test(prx3.ice_getFacet().Length == 0);
-                d = Test.DPrxHelper.checkedCast(db);
+                d = DPrxHelper.checkedCast(db);
                 test(d.ice_getFacet().Length == 0);
-                df = Test.DPrxHelper.checkedCast(db, "facetABCD");
+                df = DPrxHelper.checkedCast(db, "facetABCD");
                 test(df.ice_getFacet() == "facetABCD");
                 df2 = Test.DPrxHelper.checkedCast(df);
                 test(df2.ice_getFacet() == "facetABCD");
-                df3 = Test.DPrxHelper.checkedCast(df, "");
+                df3 = DPrxHelper.checkedCast(df, "");
                 test(df3.ice_getFacet().Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing non-facets A, B, C, and D... ");
                 output.Flush();
-                d = Test.DPrxHelper.checkedCast(db);
+                d = DPrxHelper.checkedCast(db);
                 test(d != null);
                 test(d.Equals(db));
                 test(d.callA().Equals("A"));
@@ -153,7 +156,7 @@ namespace Ice
 
                 output.Write("testing facets A, B, C, and D... ");
                 output.Flush();
-                df = Test.DPrxHelper.checkedCast(d, "facetABCD");
+                df = DPrxHelper.checkedCast(d, "facetABCD");
                 test(df != null);
                 test(df.callA().Equals("A"));
                 test(df.callB().Equals("B"));
@@ -163,7 +166,7 @@ namespace Ice
 
                 output.Write("testing facets E and F... ");
                 output.Flush();
-                var ff = Test.FPrxHelper.checkedCast(d, "facetEF");
+                var ff = FPrxHelper.checkedCast(d, "facetEF");
                 test(ff != null);
                 test(ff.callE().Equals("E"));
                 test(ff.callF().Equals("F"));

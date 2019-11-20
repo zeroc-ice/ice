@@ -118,7 +118,7 @@ namespace Ice
                     retry2.opAsync(true).Wait();
                     test(false);
                 }
-                catch(System.AggregateException ex)
+                catch (System.AggregateException ex)
                 {
                     test(ex.InnerException is ConnectionLostException ||
                          ex.InnerException is UnknownLocalException);

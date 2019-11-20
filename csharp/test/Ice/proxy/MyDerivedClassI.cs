@@ -3,36 +3,38 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ice
 {
     namespace proxy
     {
-        public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+        public sealed class MyDerivedClassI : Ice.Object<Test.MyDerivedClass, Test.MyDerivedClassTraits>, Test.MyDerivedClass
         {
             public MyDerivedClassI()
             {
             }
 
-            public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c)
+            public Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c)
             {
                 return obj;
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }
 
-            public override Dictionary<string, string> getContext(Ice.Current current)
+            public Dictionary<string, string> getContext(Ice.Current current)
             {
                 return _ctx;
             }
 
-            public override bool ice_isA(string s, Ice.Current current)
+            public override bool IceIsA(string s, Ice.Current current)
             {
                 _ctx = current.ctx;
-                return base.ice_isA(s, current);
+                Test.MyDerivedClassTraits myDerivedClassT = default;
+                return myDerivedClassT.Ids.Contains(s);
             }
 
             private Dictionary<string, string> _ctx;

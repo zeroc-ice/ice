@@ -17,7 +17,7 @@ namespace IceInternal
             writeValue(null, obj, null, output);
         }
 
-        private static void writeValue(string name, object val, Dictionary<Ice.Object, object> objectTable, OutputBase output)
+        private static void writeValue(string name, object val, Dictionary<Ice.IObject, object> objectTable, OutputBase output)
         {
             if (val == null)
             {
@@ -67,12 +67,12 @@ namespace IceInternal
                     Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
                     output.print(proxy.iceReference().ToString());
                 }
-                else if (val is Ice.Object)
+                else if (val is Ice.IObject)
                 {
                     //
                     // Check for recursion.
                     //
-                    if (objectTable != null && objectTable.ContainsKey((Ice.Object)val))
+                    if (objectTable != null && objectTable.ContainsKey((Ice.IObject)val))
                     {
                         writeName(name, output);
                         output.print("(recursive)");
@@ -81,9 +81,9 @@ namespace IceInternal
                     {
                         if (objectTable == null)
                         {
-                            objectTable = new Dictionary<Ice.Object, object>();
+                            objectTable = new Dictionary<Ice.IObject, object>();
                         }
-                        objectTable[(Ice.Object)val] = null;
+                        objectTable[(Ice.IObject)val] = null;
                         writeFields(name, val, c, objectTable, output);
                     }
                 }
@@ -102,7 +102,7 @@ namespace IceInternal
             }
         }
 
-        private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.Object, object> objectTable,
+        private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.IObject, object> objectTable,
                                         OutputBase output)
         {
             if (!c.Equals(typeof(object)))

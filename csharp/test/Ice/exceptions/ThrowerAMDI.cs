@@ -12,38 +12,38 @@ namespace Ice
     {
         namespace AMD
         {
-            public class ThrowerI : Test.ThrowerDisp_
+            public class ThrowerI : Test.Thrower
             {
                 public ThrowerI()
                 {
                 }
 
-                public override Task
+                public Task
                 shutdownAsync(Ice.Current current)
                 {
                     current.adapter.getCommunicator().shutdown();
                     return null;
                 }
 
-                public override Task<bool>
+                public Task<bool>
                 supportsUndeclaredExceptionsAsync(Ice.Current current)
                 {
                     return Task.FromResult(true);
                 }
 
-                public override Task<bool>
+                public Task<bool>
                 supportsAssertExceptionAsync(Ice.Current current)
                 {
                     return Task.FromResult(false);
                 }
 
-                public override Task
+                public Task
                 throwAasAAsync(int a, Ice.Current current)
                 {
                     throw new Test.A(a);
                 }
 
-                public override Task
+                public Task
                 throwAorDasAorDAsync(int a, Ice.Current current)
                 {
                     if (a > 0)
@@ -56,7 +56,7 @@ namespace Ice
                     }
                 }
 
-                public override Task
+                public Task
                 throwBasAAsync(int a, int b, Ice.Current current)
                 {
                     //throw new B(a, b);
@@ -65,80 +65,80 @@ namespace Ice
                     return s.Task;
                 }
 
-                public override Task
+                public Task
                 throwBasBAsync(int a, int b, Ice.Current current)
                 {
                     throw new Test.B(a, b);
                 }
 
-                public override Task
+                public Task
                 throwCasAAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public override Task
+                public Task
                 throwCasBAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public override Task
+                public Task
                 throwCasCAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public override Task
+                public Task
                 throwUndeclaredAAsync(int a, Ice.Current current)
                 {
                     throw new Test.A(a);
                 }
 
-                public override Task
+                public Task
                 throwUndeclaredBAsync(int a, int b, Ice.Current current)
                 {
                     throw new Test.B(a, b);
                 }
 
-                public override Task
+                public Task
                 throwUndeclaredCAsync(int a, int b, int c, Ice.Current current)
                 {
                     throw new Test.C(a, b, c);
                 }
 
-                public override Task
+                public Task
                 throwLocalExceptionAsync(Ice.Current current)
                 {
                     throw new Ice.TimeoutException();
                 }
 
-                public override Task
+                public Task
                 throwNonIceExceptionAsync(Ice.Current current)
                 {
                     throw new System.Exception();
                 }
 
-                public override Task
+                public Task
                 throwAssertExceptionAsync(Ice.Current current)
                 {
                     Debug.Assert(false);
                     return null;
                 }
 
-                public override Task<byte[]>
+                public Task<byte[]>
                 throwMemoryLimitExceptionAsync(byte[] seq, Ice.Current current)
                 {
                     return Task.FromResult(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
                 }
 
-                public override Task
+                public Task
                 throwLocalExceptionIdempotentAsync(Ice.Current current)
                 {
                     throw new Ice.TimeoutException();
                 }
 
-                public override Task
+                public Task
                 throwAfterResponseAsync(Ice.Current current)
                 {
                     // Only supported with callback based AMD API
@@ -146,7 +146,7 @@ namespace Ice
                     //throw new Exception();
                 }
 
-                public override Task
+                public Task
                 throwAfterExceptionAsync(Ice.Current current)
                 {
                     // Only supported with callback based AMD API

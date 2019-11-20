@@ -2229,7 +2229,7 @@ namespace Ice
             internal override void writeValue(Value v)
             {
                 //
-                // Object references are encoded as a negative integer in 1.0.
+                // IObject references are encoded as a negative integer in 1.0.
                 //
                 if (v != null)
                 {
@@ -2270,7 +2270,7 @@ namespace Ice
                 if (_sliceType == SliceType.ValueSlice)
                 {
                     //
-                    // Write the Object slice.
+                    // Write the IObject slice.
                     //
                     startSlice(Value.ice_staticId(), -1, true);
                     _stream.writeSize(0); // For compatibility with the old AFM.
@@ -2671,7 +2671,7 @@ namespace Ice
                 //
                 _marshaledMap.Add(v, ++_valueIdIndex);
 
-                _stream.writeSize(1); // Object instance marker.
+                _stream.writeSize(1); // IObject instance marker.
                 v.iceWrite(_stream);
             }
 

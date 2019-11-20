@@ -4,6 +4,7 @@
 
 namespace IceLocatorDiscovery
 {
+    using Ice;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -68,7 +69,7 @@ namespace IceLocatorDiscovery
         }
 
         private void
-        exception(Exception ex)
+        exception(System.Exception ex)
         {
             try
             {
@@ -94,7 +95,7 @@ namespace IceLocatorDiscovery
             {
                 SetException(new Ice.ObjectNotExistException());
             }
-            catch (Exception exc)
+            catch (System.Exception exc)
             {
                 _exception = exc;
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
@@ -108,24 +109,24 @@ namespace IceLocatorDiscovery
         private readonly byte[] _inParams;
 
         private Ice.LocatorPrx _locatorPrx;
-        private Exception _exception;
+        private System.Exception _exception;
     }
 
-    internal class VoidLocatorI : Ice.LocatorDisp_
+    internal class VoidLocatorI : Ice.Locator
     {
-        public override Task<Ice.ObjectPrx>
+        public Task<Ice.ObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             return null;
         }
 
-        public override Task<Ice.ObjectPrx>
+        public Task<Ice.ObjectPrx>
         findAdapterByIdAsync(string id, Ice.Current current)
         {
             return null;
         }
 
-        public override Ice.LocatorRegistryPrx
+        public Ice.LocatorRegistryPrx
         getRegistry(Ice.Current current)
         {
             return null;
@@ -472,7 +473,7 @@ namespace IceLocatorDiscovery
             }
         }
 
-        private void exception(Exception ex)
+        private void exception(System.Exception ex)
         {
             lock (this)
             {
@@ -626,14 +627,14 @@ namespace IceLocatorDiscovery
         private long _nextRetry;
     };
 
-    internal class LookupReplyI : LookupReplyDisp_
+    internal class LookupReplyI : LookupReply
     {
         public LookupReplyI(LocatorI locator)
         {
             _locator = locator;
         }
 
-        public override void
+        public void
         foundLocator(Ice.LocatorPrx locator, Ice.Current current)
         {
             _locator.foundLocator(locator);
@@ -707,7 +708,7 @@ namespace IceLocatorDiscovery
             // No colloc optimization or router for the multicast proxy!
             lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
-            Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
+            LocatorPrx voidLo = LocatorPrxHelper.uncheckedCast(_locatorAdapter.Add(new VoidLocatorI()));
 
             string instanceName = properties.getProperty(_name + ".InstanceName");
             Ice.Identity id = new Ice.Identity();
@@ -716,10 +717,12 @@ namespace IceLocatorDiscovery
 
             _defaultLocator = _communicator.getDefaultLocator();
             _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
-            _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+            _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.Add(
+                (current, incoming) => _locator.Dispatch(current, incoming)));
             _communicator.setDefaultLocator(_locatorPrx);
 
-            Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
+            LookupReply lookupReplyI = new LookupReplyI(_locator);
+            ObjectPrx lookupReply = _replyAdapter.Add(lookupReplyI).ice_datagram();
             _locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
 
             _replyAdapter.activate();

@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : TestIntf
 {
     private static void test(bool b)
     {
@@ -16,105 +16,105 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override Task shutdownAsync(Ice.Current current)
+    public Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
         return null;
     }
 
-    public override Task baseAsBaseAsync(Ice.Current current)
+    public Task baseAsBaseAsync(Ice.Current current)
     {
         throw new Base("Base.b");
     }
 
-    public override Task unknownDerivedAsBaseAsync(Ice.Current current)
+    public Task unknownDerivedAsBaseAsync(Ice.Current current)
     {
         throw new UnknownDerived("UnknownDerived.b", "UnknownDerived.ud");
     }
 
-    public override Task knownDerivedAsBaseAsync(Ice.Current current)
+    public Task knownDerivedAsBaseAsync(Ice.Current current)
     {
         throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
     }
 
-    public override Task
+    public Task
     knownDerivedAsKnownDerivedAsync(Ice.Current current)
     {
         throw new KnownDerived("KnownDerived.b", "KnownDerived.kd");
     }
 
-    public override Task
+    public Task
     unknownIntermediateAsBaseAsync(Ice.Current current)
     {
         throw new UnknownIntermediate("UnknownIntermediate.b", "UnknownIntermediate.ui");
     }
 
-    public override Task
+    public Task
     knownIntermediateAsBaseAsync(Ice.Current current)
     {
         throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
     }
 
-    public override Task
+    public Task
     knownMostDerivedAsBaseAsync(Ice.Current current)
     {
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public override Task
+    public Task
     knownIntermediateAsKnownIntermediateAsync(Ice.Current current)
     {
         throw new KnownIntermediate("KnownIntermediate.b", "KnownIntermediate.ki");
     }
 
-    public override Task
+    public Task
     knownMostDerivedAsKnownIntermediateAsync(Ice.Current current)
     {
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public override Task
+    public Task
     knownMostDerivedAsKnownMostDerivedAsync(Ice.Current current)
     {
         throw new KnownMostDerived("KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd");
     }
 
-    public override Task
+    public Task
     unknownMostDerived1AsBaseAsync(Ice.Current current)
     {
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
     }
 
-    public override Task
+    public Task
     unknownMostDerived1AsKnownIntermediateAsync(Ice.Current current)
     {
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
     }
 
-    public override Task
+    public Task
     unknownMostDerived2AsBaseAsync(Ice.Current current)
     {
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
     }
 
-    public override Task
+    public Task
     unknownMostDerived2AsBaseCompactAsync(Ice.Current current)
     {
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
     }
 
-    public override Task knownPreservedAsBaseAsync(Ice.Current current)
+    public Task knownPreservedAsBaseAsync(Ice.Current current)
     {
         throw new KnownPreservedDerived("base", "preserved", "derived");
     }
 
-    public override Task
+    public Task
     knownPreservedAsKnownPreservedAsync(Ice.Current current)
     {
         throw new KnownPreservedDerived("base", "preserved", "derived");
     }
 
-    public override Task
+    public Task
     relayKnownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
@@ -123,7 +123,7 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task
+    public Task
     relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
@@ -132,7 +132,7 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task unknownPreservedAsBaseAsync(Ice.Current current)
+    public Task unknownPreservedAsBaseAsync(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -143,7 +143,7 @@ public sealed class TestI : TestIntfDisp_
         throw ex;
     }
 
-    public override Task
+    public Task
     unknownPreservedAsKnownPreservedAsync(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
@@ -155,7 +155,7 @@ public sealed class TestI : TestIntfDisp_
         throw ex;
     }
 
-    public override Task
+    public Task
     relayUnknownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
@@ -164,7 +164,7 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task
+    public Task
     relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));

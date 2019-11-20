@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using Test;
+using Ice.objects.Test;
 
 namespace Ice
 {
@@ -20,13 +21,11 @@ namespace Ice
                 using (var communicator = initialize(initData))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.Object @object = new InitialI(adapter);
-                    adapter.add(@object, Ice.Util.stringToIdentity("initial"));
-                    @object = new F2I();
-                    adapter.add(@object, Ice.Util.stringToIdentity("F21"));
-                    @object = new UnexpectedObjectExceptionTestI();
-                    adapter.add(@object, Ice.Util.stringToIdentity("uoet"));
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.Add(new InitialI(adapter), Util.stringToIdentity("initial"));
+                    adapter.Add(new F2I(), Ice.Util.stringToIdentity("F21"));
+                    var uoet = new UnexpectedObjectExceptionTestI();
+                    adapter.Add((incoming, current) => uoet.Dispatch(incoming, current), Util.stringToIdentity("uoet"));
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

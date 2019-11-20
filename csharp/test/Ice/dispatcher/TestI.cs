@@ -5,7 +5,7 @@
 using Test;
 using System.Threading;
 
-public class TestI : TestIntfDisp_
+public class TestI : TestIntf
 {
     private static void test(bool b)
     {
@@ -19,24 +19,24 @@ public class TestI : TestIntfDisp_
     {
     }
 
-    override public void
+    public void
     op(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
     }
 
-    override public void
+    public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
     }
 
-    public override void sleep(int to, Ice.Current current)
+    public void sleep(int to, Ice.Current current)
     {
         Thread.Sleep(to);
     }
 
-    override public void
+    public void
     shutdown(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
@@ -44,7 +44,7 @@ public class TestI : TestIntfDisp_
     }
 }
 
-public class TestControllerI : TestIntfControllerDisp_
+public class TestControllerI : TestIntfController
 {
     private static void test(bool b)
     {
@@ -54,14 +54,14 @@ public class TestControllerI : TestIntfControllerDisp_
         }
     }
 
-    override public void
+    public void
     holdAdapter(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
         _adapter.hold();
     }
 
-    override public void
+    public void
     resumeAdapter(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());

@@ -2,27 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.binding.Test;
+
 namespace Ice
 {
     namespace binding
     {
-        public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
+        public class RemoteObjectAdapterI : Test.RemoteObjectAdapter
         {
             public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _testIntf = Test.TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(),
-                                                            Ice.Util.stringToIdentity("test")));
+                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), Util.stringToIdentity("test")));
                 _adapter.activate();
             }
 
-            public override Test.TestIntfPrx
+            public Test.TestIntfPrx
             getTestIntf(Ice.Current current)
             {
                 return _testIntf;
             }
 
-            public override void
+            public void
             deactivate(Ice.Current current)
             {
                 try

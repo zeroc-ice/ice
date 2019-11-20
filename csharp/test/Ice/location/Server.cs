@@ -2,54 +2,51 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-
-namespace Ice
+namespace Ice.location
 {
-    namespace location
+    using global::Test;
+    using Ice.location.Test;
+    public class Server : TestHelper
     {
-        public class Server : TestHelper
+        public override void run(string[] args)
         {
-            public override void run(string[] args)
+            //
+            // Register the server manager. The server manager creates a new
+            // 'server'(a server isn't a different process, it's just a new
+            // communicator and object adapter).
+            //
+            Properties properties = createTestProperties(ref args);
+            properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+
+            using (var communicator = initialize(properties))
             {
+                communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+                ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
                 //
-                // Register the server manager. The server manager creates a new
-                // 'server'(a server isn't a different process, it's just a new
-                // communicator and object adapter).
+                // We also register a sample server locator which implements the
+                // locator interface, this locator is used by the clients and the
+                // 'servers' created with the server manager interface.
                 //
-                Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+                ServerLocatorRegistry registry = new ServerLocatorRegistry();
+                var obj = new ServerManagerI(registry, this);
+                adapter.Add(obj, Util.stringToIdentity("ServerManager"));
+                registry.addObject(adapter.createProxy(Util.stringToIdentity("ServerManager")));
+                LocatorRegistryPrx registryPrx =
+                    LocatorRegistryPrxHelper.uncheckedCast(
+                        adapter.Add(registry, Util.stringToIdentity("registry")));
 
-                using (var communicator = initialize(properties))
-                {
-                    communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+                var locator = new ServerLocator(registry, registryPrx);
+                adapter.Add(locator, Util.stringToIdentity("locator"));
 
-                    //
-                    // We also register a sample server locator which implements the
-                    // locator interface, this locator is used by the clients and the
-                    // 'servers' created with the server manager interface.
-                    //
-                    ServerLocatorRegistry registry = new ServerLocatorRegistry();
-                    Ice.Object @object = new ServerManagerI(registry, this);
-                    adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
-                    registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
-                    Ice.LocatorRegistryPrx registryPrx =
-                        Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
-
-                    ServerLocator locator = new ServerLocator(registry, registryPrx);
-                    adapter.add(locator, Ice.Util.stringToIdentity("locator"));
-
-                    adapter.activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
+                adapter.activate();
+                serverReady();
+                communicator.waitForShutdown();
             }
+        }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+        public static int Main(string[] args)
+        {
+            return TestDriver.runTest<Server>(args);
         }
     }
 }

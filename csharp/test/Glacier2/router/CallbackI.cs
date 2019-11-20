@@ -5,39 +5,39 @@
 using Test;
 using System.Diagnostics;
 
-public sealed class CallbackI : Test.CallbackDisp_
+public sealed class CallbackI : Test.Callback
 {
     public CallbackI()
     {
     }
 
-    public override void
+    public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
         proxy.callback(current.ctx);
     }
 
-    public override void
+    public void
     initiateCallbackEx(CallbackReceiverPrx proxy, Ice.Current current)
     {
         proxy.callbackEx(current.ctx);
     }
 
-    public override void
+    public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 }
 
-public sealed class CallbackReceiverI : CallbackReceiverDisp_
+public sealed class CallbackReceiverI : CallbackReceiver
 {
     public CallbackReceiverI()
     {
         _callback = false;
     }
 
-    public override void
+    public void
     callback(Ice.Current current)
     {
         lock (this)
@@ -48,7 +48,7 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
         }
     }
 
-    public override void
+    public void
     callbackEx(Ice.Current current)
     {
         callback(current);

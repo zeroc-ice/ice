@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.objects.Test;
 
 namespace Ice
 {
@@ -20,12 +21,10 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    var initial = new InitialI(adapter);
-                    adapter.add(initial, Ice.Util.stringToIdentity("initial"));
-                    var f2 = new F2I();
-                    adapter.add(f2, Ice.Util.stringToIdentity("F21"));
-                    var uet = new UnexpectedObjectExceptionTestI();
-                    adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
+                    adapter.Add(new InitialI(adapter), Ice.Util.stringToIdentity("initial"));
+                    adapter.Add(new F2I(), Ice.Util.stringToIdentity("F21"));
+                    var uoet = new UnexpectedObjectExceptionTestI();
+                    adapter.Add((incoming, current) => uoet.Dispatch(incoming, current), Util.stringToIdentity("uoet"));
                     Test.AllTests.allTests(this);
                 }
             }

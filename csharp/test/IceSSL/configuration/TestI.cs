@@ -7,14 +7,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-internal sealed class ServerI : ServerDisp_
+internal sealed class ServerI : Test.Server
 {
     internal ServerI(Ice.Communicator communicator)
     {
         _communicator = communicator;
     }
 
-    public override void
+    public void
     noCert(Ice.Current current)
     {
         try
@@ -28,7 +28,7 @@ internal sealed class ServerI : ServerDisp_
         }
     }
 
-    public override void
+    public void
     checkCert(string subjectDN, string issuerDN, Ice.Current current)
     {
         try
@@ -45,7 +45,7 @@ internal sealed class ServerI : ServerDisp_
         }
     }
 
-    public override void
+    public void
     checkCipher(string cipher, Ice.Current current)
     {
         try
@@ -75,7 +75,7 @@ internal sealed class ServerI : ServerDisp_
     private Ice.Communicator _communicator;
 }
 
-internal sealed class ServerFactoryI : ServerFactoryDisp_
+internal sealed class ServerFactoryI : ServerFactory
 {
     private static void test(bool b)
     {
@@ -90,7 +90,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         _defaultDir = defaultDir;
     }
 
-    public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
+    public ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
@@ -103,13 +103,13 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
-        Ice.ObjectPrx obj = adapter.addWithUUID(server);
+        Ice.ObjectPrx obj = adapter.Add(server);
         _servers[obj.ice_getIdentity()] = server;
         adapter.activate();
         return ServerPrxHelper.uncheckedCast(obj);
     }
 
-    public override void destroyServer(ServerPrx srv, Ice.Current current)
+    public void destroyServer(ServerPrx srv, Ice.Current current)
     {
         Ice.Identity key = srv.ice_getIdentity();
         if (_servers.Contains(key))
@@ -120,7 +120,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         }
     }
 
-    public override void shutdown(Ice.Current current)
+    public void shutdown(Ice.Current current)
     {
         test(_servers.Count == 0);
         current.adapter.getCommunicator().shutdown();

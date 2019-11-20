@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.admin.Test;
 
 namespace Ice
 {
@@ -17,7 +18,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.Identity id = Ice.Util.stringToIdentity("factory");
-                    adapter.add(new RemoteCommunicatorFactoryI(), id);
+                    adapter.Add(new RemoteCommunicatorFactoryI(), id);
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

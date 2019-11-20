@@ -22,5 +22,4 @@ IceSSL.EndpointInfo = class extends Ice.EndpointInfo
     }
 };
 
-
 exports.IceSSL = IceSSL;

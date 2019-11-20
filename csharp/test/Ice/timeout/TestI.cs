@@ -27,30 +27,30 @@ namespace Ice
             private int _timeout;
         }
 
-        internal class TimeoutI : Test.TimeoutDisp_
+        internal class TimeoutI : Test.Timeout
         {
-            public override void op(Ice.Current current)
+            public void op(Ice.Current current)
             {
             }
 
-            public override void sendData(byte[] seq, Ice.Current current)
+            public void sendData(byte[] seq, Ice.Current current)
             {
             }
 
-            public override void sleep(int to, Ice.Current current)
+            public void sleep(int to, Ice.Current current)
             {
                 Thread.Sleep(to);
             }
         }
 
-        internal class ControllerI : Test.ControllerDisp_
+        internal class ControllerI : Test.Controller
         {
             public ControllerI(Ice.ObjectAdapter adapter)
             {
                 _adapter = adapter;
             }
 
-            public override void holdAdapter(int to, Ice.Current current)
+            public void holdAdapter(int to, Ice.Current current)
             {
                 _adapter.hold();
                 if (to >= 0)
@@ -61,12 +61,12 @@ namespace Ice
                 }
             }
 
-            public override void resumeAdapter(Ice.Current current)
+            public void resumeAdapter(Ice.Current current)
             {
                 _adapter.activate();
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }

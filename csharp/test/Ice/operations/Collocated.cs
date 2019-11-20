@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using Test;
+using Ice.operations.Test;
 
 namespace Ice
 {
@@ -23,8 +23,8 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.AdapterId", "test");
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    ObjectPrx prx = adapter.Add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
                     if (prx.ice_getConnection() != null)

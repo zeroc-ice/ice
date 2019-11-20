@@ -229,11 +229,6 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-
-    private:
-
-        typedef std::set<std::string> NameSet;
     };
 
     class BaseImplVisitor : public CsVisitor

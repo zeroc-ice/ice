@@ -213,7 +213,7 @@ public class Client : Test.TestHelper
             }
 
             CallbackReceiverI callbackReceiverImpl;
-            Ice.Object callbackReceiver;
+            CallbackReceiver callbackReceiver;
             CallbackReceiverPrx twowayR;
             CallbackReceiverPrx fakeTwowayR;
 
@@ -225,12 +225,12 @@ public class Client : Test.TestHelper
                 Ice.Identity callbackReceiverIdent = new Ice.Identity();
                 callbackReceiverIdent.name = "callbackReceiver";
                 callbackReceiverIdent.category = category;
-                twowayR = CallbackReceiverPrxHelper.uncheckedCast(adapter.add(callbackReceiver, callbackReceiverIdent));
+                twowayR = CallbackReceiverPrxHelper.uncheckedCast(adapter.Add(callbackReceiver, callbackReceiverIdent));
                 Ice.Identity fakeCallbackReceiverIdent = new Ice.Identity();
                 fakeCallbackReceiverIdent.name = "callbackReceiver";
                 fakeCallbackReceiverIdent.category = "dummy";
                 fakeTwowayR =
-                    CallbackReceiverPrxHelper.uncheckedCast(adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
+                    CallbackReceiverPrxHelper.uncheckedCast(adapter.Add(callbackReceiver, fakeCallbackReceiverIdent));
                 Console.Out.WriteLine("ok");
             }
 

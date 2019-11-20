@@ -330,7 +330,8 @@ public class AllTests
             var results = new List<Task>();
             for (int i = 0; i < 10000; ++i)
             {
-                var t = background.opAsync().ContinueWith((Task p) => {
+                var t = background.opAsync().ContinueWith((Task p) =>
+                {
                     try
                     {
                         p.Wait();
@@ -349,7 +350,7 @@ public class AllTests
                 }
                 if (i % 100 == 0)
                 {
-                   t.Wait();
+                    t.Wait();
                 }
             }
             Task.WaitAll(results.ToArray());
@@ -394,7 +395,8 @@ public class AllTests
             }
 
             var sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value => {
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
@@ -415,7 +417,8 @@ public class AllTests
             }));
             test(!sentSynchronously);
 
-            t.ContinueWith((Task p) => {
+            t.ContinueWith((Task p) =>
+            {
                 try
                 {
                     p.Wait();
@@ -516,7 +519,8 @@ public class AllTests
             }
 
             bool sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value => {
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
@@ -531,7 +535,8 @@ public class AllTests
             test(t.IsCompleted);
 
             OpAMICallback cbEx = new OpAMICallback();
-            t = prx.opAsync(progress: new Progress<bool>(value => {
+            t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
                 sentSynchronously = false;
             }));
             test(!sentSynchronously);
@@ -696,7 +701,8 @@ public class AllTests
             configuration.readException(new Ice.SocketException());
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
             bool sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value => {
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
@@ -705,7 +711,7 @@ public class AllTests
                 t.Wait();
                 test(false);
             }
-            catch (AggregateException ex) when  (ex.InnerException is Ice.SocketException)
+            catch (AggregateException ex) when (ex.InnerException is Ice.SocketException)
             {
             }
             test(t.IsCompleted);
@@ -748,7 +754,8 @@ public class AllTests
                 configuration.readReady(false);
                 configuration.readException(new Ice.SocketException());
                 var sentSynchronously = false;
-                var t = background.opAsync(progress: new Progress<bool>(value => {
+                var t = background.opAsync(progress: new Progress<bool>(value =>
+                {
                     sentSynchronously = value;
                 }));
                 test(!sentSynchronously);
@@ -770,10 +777,12 @@ public class AllTests
             ctl.holdAdapter(); // Hold to block in connection validation
             var t1SentSynchronously = false;
             var t2SentSynchronously = false;
-            var t1 = background.opAsync(progress: new Progress<bool>(value => {
+            var t1 = background.opAsync(progress: new Progress<bool>(value =>
+            {
                 t1SentSynchronously = value;
             }));
-            var t2 = background.opAsync(progress: new Progress<bool>(value => {
+            var t2 = background.opAsync(progress: new Progress<bool>(value =>
+            {
                 t2SentSynchronously = value;
             }));
             test(!t1SentSynchronously && !t2SentSynchronously);
@@ -858,7 +867,8 @@ public class AllTests
             background.ice_ping();
             configuration.writeException(new Ice.SocketException());
             var sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value => {
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
@@ -950,7 +960,8 @@ public class AllTests
             configuration.writeReady(false);
             configuration.writeException(new Ice.SocketException());
             bool sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value => {
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
                 sentSynchronously = value;
             }));
             test(!sentSynchronously);
@@ -1040,10 +1051,12 @@ public class AllTests
 
         OpAMICallback cb = new OpAMICallback();
         bool t1Sent = false;
-        var t1 = background.opAsync(progress: new Progress<bool>(value => {
+        var t1 = background.opAsync(progress: new Progress<bool>(value =>
+        {
             cb.sent(value);
             t1Sent = true;
-        })).ContinueWith(p => {
+        })).ContinueWith(p =>
+        {
             try
             {
                 p.Wait();
@@ -1058,10 +1071,12 @@ public class AllTests
 
         OpAMICallback cb2 = new OpAMICallback();
         var t2Sent = false;
-        var t2 = background.opAsync(progress: new Progress<bool>(value => {
+        var t2 = background.opAsync(progress: new Progress<bool>(value =>
+        {
             cb2.sent(value);
             t2Sent = true;
-        })).ContinueWith((Task p) => {
+        })).ContinueWith((Task p) =>
+        {
             try
             {
                 p.Wait();
@@ -1075,11 +1090,13 @@ public class AllTests
         test(!t2Sent);
 
         var t1SentSynchronously = false;
-        t1 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value => {
+        t1 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        {
             t1SentSynchronously = value;
         }));
         test(!t1SentSynchronously);
-        t1.ContinueWith((Task p) => {
+        t1.ContinueWith((Task p) =>
+        {
             try
             {
                 p.Wait();
@@ -1092,11 +1109,13 @@ public class AllTests
         });
 
         var t2SentSynchronously = false;
-        t2 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value => {
+        t2 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        {
             t2SentSynchronously = value;
         }));
         test(!t2SentSynchronously);
-        t2.ContinueWith((Task p) => {
+        t2.ContinueWith((Task p) =>
+        {
             try
             {
                 p.Wait();

@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.inheritance.Test;
 
 namespace Ice
 {
@@ -16,8 +17,8 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.Object @object = new InitialI(adapter);
-                    adapter.add(@object, Ice.Util.stringToIdentity("initial"));
+                    var initial = new InitialI(adapter);
+                    adapter.Add(initial, Ice.Util.stringToIdentity("initial"));
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

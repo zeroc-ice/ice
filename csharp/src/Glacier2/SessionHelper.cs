@@ -113,7 +113,7 @@ namespace Glacier2
         /// <returns>The proxy for the servant. Throws SessionNotExistException
         /// if no session exists.</returns>
         public Ice.ObjectPrx
-        addWithUUID(Ice.Object servant)
+        addWithUUID(Ice.Disp servant)
         {
             lock (_mutex)
             {
@@ -122,7 +122,7 @@ namespace Glacier2
                     throw new SessionNotExistException();
                 }
 
-                return internalObjectAdapter().add(servant, new Ice.Identity(Guid.NewGuid().ToString(), _category));
+                return internalObjectAdapter().Add(servant, new Ice.Identity(Guid.NewGuid().ToString(), _category));
             }
         }
 

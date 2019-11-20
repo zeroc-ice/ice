@@ -10,19 +10,21 @@ using Test;
 namespace Test
 {
     public partial class PNode
-    {    partial void ice_initialize()
-         {
-             ++counter;
-         }
-         internal static int counter = 0;
+    {
+        partial void ice_initialize()
+        {
+            ++counter;
+        }
+        internal static int counter = 0;
     }
 
     public partial class Preserved
-    {    partial void ice_initialize()
-         {
-             ++counter;
-         }
-         internal static int counter = 0;
+    {
+        partial void ice_initialize()
+        {
+            ++counter;
+        }
+        internal static int counter = 0;
     }
 }
 

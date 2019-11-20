@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.info.Test;
 
 namespace Ice
 {
@@ -17,7 +18,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints",
                                                              getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+                    adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

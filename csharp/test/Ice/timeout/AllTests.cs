@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using System.Threading;
+using Ice.timeout.Test;
 
 namespace Ice
 {
@@ -399,7 +400,7 @@ namespace Ice
                     var adapter = communicator.createObjectAdapter("TimeoutCollocated");
                     adapter.activate();
 
-                    Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.addWithUUID(new TimeoutI()));
+                    Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.Add(new TimeoutI()));
                     proxy = (Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
                     try
                     {

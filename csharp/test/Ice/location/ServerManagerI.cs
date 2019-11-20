@@ -3,12 +3,13 @@
 //
 
 using System.Collections;
+using Ice.location.Test;
 
 namespace Ice
 {
     namespace location
     {
-        public class ServerManagerI : Test.ServerManagerDisp_
+        public class ServerManagerI : Test.ServerManager
         {
             internal ServerManagerI(ServerLocatorRegistry registry, global::Test.TestHelper helper)
             {
@@ -17,7 +18,7 @@ namespace Ice
                 _helper = helper;
             }
 
-            public override void startServer(Ice.Current current)
+            public void startServer(Ice.Current current)
             {
                 foreach (Ice.Communicator c in _communicators)
                 {
@@ -66,10 +67,10 @@ namespace Ice
                         adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
                         adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 
-                        Ice.Object @object = new TestI(adapter, adapter2, _registry);
-                        _registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test")));
-                        _registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test2")));
-                        adapter.add(@object, Ice.Util.stringToIdentity("test3"));
+                        var testI = new TestI(adapter, adapter2, _registry);
+                        _registry.addObject(adapter.Add(testI, Util.stringToIdentity("test")));
+                        _registry.addObject(adapter.Add(testI, Util.stringToIdentity("test2")));
+                        adapter.Add(testI, Util.stringToIdentity("test3"));
 
                         adapter.activate();
                         adapter2.activate();
@@ -96,7 +97,7 @@ namespace Ice
                 }
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 foreach (Ice.Communicator c in _communicators)
                 {

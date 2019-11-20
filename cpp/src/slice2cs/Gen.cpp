@@ -387,82 +387,9 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     ClassList allBases = p->allBases();
     StringList ids;
     ClassList bases = p->bases();
-    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
     transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
     _out << sp;
-    if(!p->isInterface())
-    {
-        emitGeneratedCodeAttribute();
-    }
-
-    _out << nl << "private static readonly string[] _ids =";
-    _out << sb;
-    {
-        StringList::const_iterator q = ids.begin();
-        while(q != ids.end())
-        {
-            _out << nl << '"' << *q << '"';
-            if(++q != ids.end())
-            {
-                _out << ',';
-            }
-        }
-    }
-    _out << eb << ";";
-
-    _out << sp;
-    if(!p->isInterface())
-    {
-        emitGeneratedCodeAttribute();
-    }
-    _out << nl << "public override bool ice_isA(string s, " << getUnqualified("Ice.Current", ns) << " current)";
-    _out << sb;
-    _out << nl << "return global::System.Array.BinarySearch(_ids, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
-    _out << eb;
-
-    _out << sp;
-    if(!p->isInterface())
-    {
-        emitGeneratedCodeAttribute();
-    }
-    _out << nl << "public override string[] ice_ids(" << getUnqualified("Ice.Current", ns) << " current)";
-    _out << sb;
-    _out << nl << "return _ids;";
-    _out << eb;
-
-    _out << sp;
-    if(!p->isInterface())
-    {
-        emitGeneratedCodeAttribute();
-    }
-    _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current)";
-    _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
-    _out << eb;
-
-    _out << sp;
-    if(!p->isInterface())
-    {
-        emitGeneratedCodeAttribute();
-    }
-
-    _out << nl << "public static new string ice_staticId()";
-    _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
-    _out << eb;
-
     OperationList ops = p->operations();
 
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
@@ -475,10 +402,6 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
         string opName = op->name();
         _out << sp;
         _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
         _out << nl << "public static global::System.Threading.Tasks.Task<" << getUnqualified("Ice.OutputStream", ns) << ">";
         _out << nl << "iceD_" << opName << "(" << name << (p->isInterface() ? "" : "Disp_") << " obj, "
              <<  "global::IceInternal.Incoming inS, " << getUnqualified("Ice.Current", ns) << " current)";
@@ -488,7 +411,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
         ParamDeclList inParams = op->inParameters();
         ParamDeclList outParams = op->outParameters();
 
-        _out << nl << getUnqualified("Ice.ObjectImpl", ns) << ".iceCheckMode(" << sliceModeToIceMode(op->mode(), ns)
+        _out << nl << getUnqualified("Ice.IObject", ns) << ".iceCheckMode(" << sliceModeToIceMode(op->mode(), ns)
              << ", current.mode);";
         if(!inParams.empty())
         {
@@ -627,110 +550,6 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
             }
             _out << eb;
         }
-    }
-
-    OperationList allOps = p->allOperations();
-    if(!allOps.empty() || (!p->isInterface() && !hasBaseClass))
-    {
-        StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
-        allOpNames.push_back("ice_id");
-        allOpNames.push_back("ice_ids");
-        allOpNames.push_back("ice_isA");
-        allOpNames.push_back("ice_ping");
-        allOpNames.sort();
-        allOpNames.unique();
-
-        _out << sp << nl << "private static readonly string[] _all =";
-        _out << sb;
-        for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-        {
-            _out << nl << '"' << *q << '"';
-            if(++q != allOpNames.end())
-            {
-                _out << ',';
-            }
-        }
-        _out << eb << ';';
-
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public override global::System.Threading.Tasks.Task<"
-             << getUnqualified("Ice.OutputStream", ns) << ">";
-        _out << nl << "iceDispatch(global::IceInternal.Incoming inS, "
-             << getUnqualified("Ice.Current", ns) << " current)";
-        _out << sb;
-        _out << nl << "int pos = global::System.Array.BinarySearch(_all, current.operation, "
-             << "global::IceUtilInternal.StringUtil.OrdinalStringComparer);";
-        _out << nl << "if(pos < 0)";
-        _out << sb;
-        _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-             << "(current.id, current.facet, current.operation);";
-        _out << eb;
-        _out << sp << nl << "switch(pos)";
-        _out << sb;
-        int i = 0;
-        for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
-        {
-            string opName = *q;
-
-            _out << nl << "case " << i++ << ':';
-            _out << sb;
-            if(opName == "ice_id")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns)
-                     << ".iceD_ice_id(this, inS, current);";
-            }
-            else if(opName == "ice_ids")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns)
-                     << ".iceD_ice_ids(this, inS, current);";
-            }
-            else if(opName == "ice_isA")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns)
-                     << ".iceD_ice_isA(this, inS, current);";
-            }
-            else if(opName == "ice_ping")
-            {
-                _out << nl << "return " << getUnqualified("Ice.ObjectImpl", ns)
-                     << ".iceD_ice_ping(this, inS, current);";
-            }
-            else
-            {
-                //
-                // There's probably a better way to do this
-                //
-                for(OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
-                {
-                    if((*t)->name() == (*q))
-                    {
-                        ContainerPtr container = (*t)->container();
-                        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-                        assert(cl);
-                        if(cl->scoped() == p->scoped())
-                        {
-                            _out << nl << "return iceD_" << opName << "(this, inS, current);";
-                        }
-                        else
-                        {
-                            _out << nl << "return " << getUnqualified(cl, ns, "", "Disp_")
-                                 << ".iceD_" << opName << "(this, inS, current);";
-                        }
-                        break;
-                    }
-                }
-            }
-            _out << eb;
-        }
-        _out << eb;
-        _out << sp << nl << "global::System.Diagnostics.Debug.Assert(false);";
-        _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-             << "(current.id, current.facet, current.operation);";
-        _out << eb;
     }
 }
 
@@ -2256,38 +2075,28 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     StringList baseNames;
 
+    if(p->isInterface())
+    {
+        return false;
+    }
+
     _out << sp;
     emitAttributes(p);
 
-    if(p->isInterface())
+    emitComVisibleAttribute();
+    emitPartialTypeAttributes();
+    _out << nl << "[global::System.Serializable]";
+    _out << nl << "public ";
+    _out << "partial class " << fixId(name);
+
+    if(!hasBaseClass)
     {
-        emitComVisibleAttribute();
-        emitPartialTypeAttributes();
-        _out << nl << "public partial interface " << fixId(name);
-        baseNames.push_back(getUnqualified("Ice.Object", ns));
-        baseNames.push_back(name + "Operations_");
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            baseNames.push_back(getUnqualified(*q, ns));
-        }
+        baseNames.push_back(getUnqualified("Ice.Value", ns));
     }
     else
     {
-        emitComVisibleAttribute();
-        emitPartialTypeAttributes();
-        _out << nl << "[global::System.Serializable]";
-        _out << nl << "public ";
-        _out << "partial class " << fixId(name);
-
-        if(!hasBaseClass)
-        {
-            baseNames.push_back(getUnqualified("Ice.Value", ns));
-        }
-        else
-        {
-            baseNames.push_back(getUnqualified(bases.front(), ns));
-            bases.pop_front();
-        }
+        baseNames.push_back(getUnqualified(bases.front(), ns));
+        bases.pop_front();
     }
 
     //
@@ -4501,34 +4310,151 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     ClassList bases = p->bases();
+    ClassList allBases = p->allBases();
     string name = p->name();
     string ns = getNamespace(p);
-    string baseClass = getUnqualified("Ice.ObjectImpl", ns);
 
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
-    _out << nl << "public abstract class " << name << "Disp_ : " << baseClass << ", ";
-    _out << fixId(name);
+    _out << nl << "public interface " << fixId(name);
+    for(auto q = bases.begin(); q != bases.end();)
+    {
+        if(q == bases.begin())
+        {
+            _out << " : ";
+        }
+        _out << getUnqualified(*q, ns);
+        if(++q != bases.end())
+        {
+            _out << ", ";
+        }
+    }
     _out << sb;
 
-    OperationList ops = p->operations();
-    for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
+    _out << nl << "public static string ice_staticId()";
+    _out << sb;
+    _out << nl << "return \"" << p->scoped() << "\";";
+    _out << eb;
+
     {
-        string retS;
-        vector<string> params, args;
-        string opName = getDispatchParams(*i, retS, params, args, ns);
-        _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
+        OperationList ops = p->operations();
+        for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
+        {
+            string retS;
+            vector<string> params, args;
+            string opName = getDispatchParams(*i, retS, params, args, ns);
+            _out << sp << nl << "public " << retS << " " << opName << spar << params << epar << ';';
+        }
+        writeDispatch(p);
+    }
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public struct " << fixId(p->name() + "Traits") << " : global::Ice.IInterfaceTraits<"
+         << fixId(p->name()) << ">";
+    _out << sb;
+    _out << nl << "public string Id => \"" << p->scoped() << "\";";
+
+    StringList ids;
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+    StringList other;
+    other.push_back(p->scoped());
+    other.push_back("::Ice::Object");
+    other.sort();
+    ids.merge(other);
+    ids.unique();
+
+    _out << sp;
+    _out << nl << "public string[] Ids => new string[]";
+    _out << sb;
+    {
+        StringList::const_iterator q = ids.begin();
+        while(q != ids.end())
+        {
+            _out << nl << '"' << *q << '"';
+            if(++q != ids.end())
+            {
+                _out << ',';
+            }
+        }
+    }
+    _out << eb << ";";
+
+    _out << sp;
+    _out << nl << "static private " << getUnqualified("Ice.Object", ns)
+         << "<" << fixId(p->name()) << ", " << fixId(p->name() + "Traits") << ">"
+         << " _defaultObject = new " << getUnqualified("Ice.Object", ns)
+         << "<" << fixId(p->name()) << ", " << fixId(p->name() + "Traits") << ">();";
+
+    _out << sp;
+    _out << nl << "public global::System.Threading.Tasks.Task<global::Ice.OutputStream> Dispatch("
+         << fixId(p->name()) << " servant, global::IceInternal.Incoming incoming, global::Ice.Current current)";
+    _out << sb;
+
+    _out << nl << "incoming.startOver();";
+    _out << nl << "switch(current.operation)";
+    _out << sb;
+
+    StringList allOpNames;
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+
+    for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+    {
+        string opName = *q;
+
+        _out << nl << "case \"" << opName << "\":";
+        _out << sb;
+        _out << nl << "return " << getUnqualified("Ice.IObject", ns) << ".iceD_"
+             << opName << "(servant as " << getUnqualified("Ice.IObject", ns)
+             << " ?? _defaultObject, incoming, current);";
+        _out << eb;
     }
 
-    writeInheritedOperations(p);
-    writeDispatch(p);
-    return true;
-}
-void
-Slice::Gen::DispatcherVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
+    ClassList allInterfaces = allBases;
+    allInterfaces.push_back(p);
+    for(ClassList::const_iterator q = allInterfaces.begin(); q != allInterfaces.end(); ++q)
+    {
+        OperationList ops = (*q)->operations();
+        for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+        {
+            const string opName = (*r)->name();
+            _out << nl << "case \"" << opName << "\":";
+            _out << sb;
+            _out << nl << "return " << getUnqualified(*q, ns) << ".iceD_" << opName << "(servant, incoming, current);";
+            _out << eb;
+        }
+    }
+
+    _out << nl << "default:";
+    _out << sb;
+    _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
+            << "(current.id, current.facet, current.operation);";
     _out << eb;
+    _out << eb;
+    _out << eb;
+
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static class " << fixId(p->name() + "Extensions");
+    _out << sb;
+
+    _out << nl << "public static " << getUnqualified("Ice.ObjectPrx", ns) << " Add("
+         << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
+         << fixId(p->name()) << " servant, "
+         << getUnqualified("Ice.Identity", ns) << "? id = null, "
+         << "string facet = \"\")";
+    _out << sb;
+    _out << nl << "var traits = default(" << fixId(p->name()) + "Traits" << ");";
+    _out << nl << "return adapter.Add((incoming, current) => traits.Dispatch(servant, incoming, current), id, facet);";
+    _out << eb;
+
+    _out << eb;
+    return false;
 }
 
 Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtilInternal::Output& out)

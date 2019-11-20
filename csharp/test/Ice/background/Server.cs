@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.IO;
+using Test;
+using Ice;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
-    internal class LocatorI : Ice.LocatorDisp_
+    internal class LocatorI : Ice.Locator
     {
-        public override Task<Ice.ObjectPrx>
+        public Task<Ice.ObjectPrx>
         findAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
@@ -23,14 +23,14 @@ public class Server : Test.TestHelper
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
         }
 
-        public override Task<Ice.ObjectPrx>
+        public Task<Ice.ObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             _controller.checkCallPause(current);
             return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
         }
 
-        public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
+        public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
         {
             return null;
         }
@@ -43,22 +43,22 @@ public class Server : Test.TestHelper
         private BackgroundControllerI _controller;
     }
 
-    internal class RouterI : Ice.RouterDisp_
+    internal class RouterI : Ice.Router
     {
-        public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable, Ice.Current current)
+        public Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable, Ice.Current current)
         {
             hasRoutingTable = new Ice.Optional<bool>(true);
             _controller.checkCallPause(current);
             return null;
         }
 
-        public override Ice.ObjectPrx getServerProxy(Ice.Current current)
+        public Ice.ObjectPrx getServerProxy(Ice.Current current)
         {
             _controller.checkCallPause(current);
             return null;
         }
 
-        public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
+        public Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
         {
             return new Ice.ObjectPrx[0];
         }
@@ -118,12 +118,18 @@ public class Server : Test.TestHelper
 
             BackgroundControllerI backgroundController = new BackgroundControllerI(adapter);
 
-            adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
-            adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
-            adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
+            BackgroundI backgroundI = new BackgroundI(backgroundController);
+
+            adapter.Add(backgroundI, Ice.Util.stringToIdentity("background"));
+
+            LocatorI locatorI = new LocatorI(backgroundController);
+            adapter.Add(locatorI, Ice.Util.stringToIdentity("locator"));
+
+            RouterI routerI = new RouterI(backgroundController);
+            adapter.Add(routerI, Util.stringToIdentity("router"));
             adapter.activate();
 
-            adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
+            adapter2.Add(backgroundController, Util.stringToIdentity("backgroundController"));
             adapter2.activate();
 
             communicator.waitForShutdown();

@@ -4,6 +4,7 @@
 
 using System;
 using Test;
+using Ice.proxy.Test;
 
 namespace Ice
 {
@@ -22,7 +23,7 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                    adapter.Add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
                     AllTests.allTests(this);
                 }

@@ -6,9 +6,9 @@ namespace Ice
 {
     namespace location
     {
-        public class HelloI : Test.HelloDisp_
+        public class HelloI : Test.Hello
         {
-            public override void sayHello(Ice.Current current)
+            public void sayHello(Ice.Current current)
             {
             }
         }

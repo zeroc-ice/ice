@@ -15,7 +15,7 @@ namespace Ice
         /// <summary>
         /// Returns the Slice type ID of the interface supported by this object.
         /// </summary>
-        /// <returns>The return value is always ::Ice::Object.</returns>
+        /// <returns>The return value is always ::Ice::IObject.</returns>
         public static string ice_staticId()
         {
             return _id;
@@ -24,7 +24,7 @@ namespace Ice
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
-        /// <returns>The return value is always ::Ice::Object.</returns>
+        /// <returns>The return value is always ::Ice::IObject.</returns>
         public virtual string ice_id()
         {
             return _id;

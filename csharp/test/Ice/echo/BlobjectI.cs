@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 public class BlobjectI : Ice.BlobjectAsync
@@ -18,10 +17,10 @@ public class BlobjectI : Ice.BlobjectAsync
             {
                 obj = obj.ice_facet(current.facet);
             }
-           return obj.ice_oneway().ice_invokeAsync(current.operation,
-                                                   current.mode,
-                                                   inEncaps,
-                                                   current.ctx);
+            return obj.ice_oneway().ice_invokeAsync(current.operation,
+                                                    current.mode,
+                                                    inEncaps,
+                                                    current.ctx);
         }
         else
         {

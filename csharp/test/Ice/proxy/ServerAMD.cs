@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.proxy.AMD.Test;
+
 namespace Ice
 {
     namespace proxy
@@ -22,7 +24,7 @@ namespace Ice
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         var adapter = communicator.createObjectAdapter("TestAdapter");
-                        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                        adapter.Add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
                         adapter.activate();
                         serverReady();
                         communicator.waitForShutdown();

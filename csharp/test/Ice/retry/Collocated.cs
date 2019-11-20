@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.retry.Test;
 
 namespace Ice
 {
@@ -33,10 +34,10 @@ namespace Ice
                     initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
                     using (var communicator2 = initialize(initData))
                     {
-                        communicator.createObjectAdapter("").add(new RetryI(), Ice.Util.stringToIdentity("retry"));
-                        communicator2.createObjectAdapter("").add(new RetryI(), Ice.Util.stringToIdentity("retry"));
+                        communicator.createObjectAdapter("").Add(new RetryI(), Ice.Util.stringToIdentity("retry"));
+                        communicator2.createObjectAdapter("").Add(new RetryI(), Ice.Util.stringToIdentity("retry"));
 
-                        Test.RetryPrx retry = AllTests.allTests(this, communicator, communicator2, "retry");
+                        RetryPrx retry = AllTests.allTests(this, communicator, communicator2, "retry");
                         retry.shutdown();
                     }
                 }

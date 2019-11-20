@@ -368,7 +368,7 @@ namespace Ice
                         setState(StateClosed, new ConnectionTimeoutException());
                     }
                     else if (acm.close != ACMClose.CloseOnInvocation &&
-                            _dispatchCount == 0  && _asyncRequests.Count == 0)
+                            _dispatchCount == 0 && _asyncRequests.Count == 0)
                     {
                         //
                         // The connection is idle, close it.

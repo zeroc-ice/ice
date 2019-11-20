@@ -16,16 +16,16 @@ namespace Ice
             }
         }
 
-        public class RouterI : Ice.RouterDisp_
+        public class RouterI : Router
         {
-            public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
+            public Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
                 Ice.Current current)
             {
                 hasRoutingTable = false;
                 return null;
             }
 
-            public override Ice.ObjectPrx getServerProxy(Ice.Current current)
+            public Ice.ObjectPrx getServerProxy(Ice.Current current)
             {
                 StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
                 s.Append(_nextPort++);
@@ -33,7 +33,7 @@ namespace Ice
                 return current.adapter.getCommunicator().stringToProxy(s.ToString());
             }
 
-            public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
+            public Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
             {
                 return null;
             }
@@ -64,7 +64,7 @@ namespace Ice
                 }
             }
 
-            public Ice.Object locate(Ice.Current current, out System.Object cookie)
+            public Ice.Disp locate(Current current, out object cookie)
             {
                 lock (this)
                 {
@@ -74,7 +74,8 @@ namespace Ice
                 if (current.id.name.Equals("router"))
                 {
                     cookie = null;
-                    return _router;
+                    RouterTraits routerT = default;
+                    return (incoming, current) => routerT.Dispatch(_router, incoming, current);
                 }
 
                 test(current.id.category.Length == 0);
@@ -82,10 +83,12 @@ namespace Ice
 
                 cookie = new Cookie();
 
-                return new TestI();
+                var testT = default(Test.TestIntfTraits);
+                var testI = new TestI();
+                return (incoming, current) => testT.Dispatch(testI, incoming, current);
             }
 
-            public void finished(Current current, Object servant, object cookie)
+            public void finished(Current current, Disp servant, object cookie)
             {
                 lock (this)
                 {
@@ -106,7 +109,6 @@ namespace Ice
                 lock (this)
                 {
                     test(!_deactivated);
-
                     _deactivated = true;
                 }
             }

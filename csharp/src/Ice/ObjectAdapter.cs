@@ -3,6 +3,8 @@
 //
 namespace Ice
 {
+    using System.Collections.Generic;
+
     public partial interface ObjectAdapter
     {
         /// <summary>
@@ -52,7 +54,7 @@ namespace Ice
         /// <summary>
         /// Deactivate all endpoints that belong to this object adapter.
         /// After deactivation, the object adapter stops receiving
-        /// requests through its endpoints. Object adapters that have been
+        /// requests through its endpoints. IObject adapters that have been
         /// deactivated must not be reactivated again, and cannot be used
         /// otherwise. Attempts to use a deactivated object adapter raise
         /// ObjectAdapterDeactivatedException however, attempts to
@@ -115,70 +117,14 @@ namespace Ice
         /// the servant.
         ///
         /// </param>
+        /// <param name="facet">The facet. An empty facet means the default facet.
+        ///
+        /// </param>
         /// <returns>A proxy that matches the given identity and this object
         /// adapter.
         ///
         /// </returns>
-        ObjectPrx add(Object servant, Identity id);
-
-        /// <summary>
-        /// Like add, but with a facet.
-        /// Calling add(servant, id)
-        /// is equivalent to calling addFacet with an empty facet.
-        ///
-        /// </summary>
-        /// <param name="servant">The servant to add.
-        ///
-        /// </param>
-        /// <param name="id">The identity of the Ice object that is implemented by
-        /// the servant.
-        ///
-        /// </param>
-        /// <param name="facet">The facet. An empty facet means the default facet.
-        ///
-        /// </param>
-        /// <returns>A proxy that matches the given identity, facet, and
-        /// this object adapter.
-        ///
-        /// </returns>
-        ObjectPrx addFacet(Object servant, Identity id, string facet);
-
-        /// <summary>
-        /// Add a servant to this object adapter's Active Servant Map,
-        /// using an automatically generated UUID as its identity.
-        /// Note that
-        /// the generated UUID identity can be accessed using the proxy's
-        /// ice_getIdentity operation.
-        ///
-        /// </summary>
-        /// <param name="servant">The servant to add.
-        ///
-        /// </param>
-        /// <returns>A proxy that matches the generated UUID identity and
-        /// this object adapter.
-        ///
-        /// </returns>
-        ObjectPrx addWithUUID(Object servant);
-
-        /// <summary>
-        /// Like addWithUUID, but with a facet.
-        /// Calling
-        /// addWithUUID(servant) is equivalent to calling
-        /// addFacetWithUUID with an empty facet.
-        ///
-        /// </summary>
-        /// <param name="servant">The servant to add.
-        ///
-        /// </param>
-        /// <param name="facet">The facet. An empty facet means the default
-        /// facet.
-        ///
-        /// </param>
-        /// <returns>A proxy that matches the generated UUID identity,
-        /// facet, and this object adapter.
-        ///
-        /// </returns>
-        ObjectPrx addFacetWithUUID(Object servant, string facet);
+        ObjectPrx Add(Disp servant, Identity? id = null, string facet = "");
 
         /// <summary>
         /// Add a default servant to handle requests for a specific
@@ -217,7 +163,7 @@ namespace Ice
         /// registered. An empty category means it will handle all categories.
         ///
         /// </param>
-        void addDefaultServant(Object servant, string category);
+        void addDefaultServant(Disp servant, string category);
 
         /// <summary>
         /// Remove a servant (that is, the default facet) from the object
@@ -233,25 +179,7 @@ namespace Ice
         /// <returns>The removed servant.
         ///
         /// </returns>
-        Object remove(Identity id);
-
-        /// <summary>
-        /// Like remove, but with a facet.
-        /// Calling remove(id)
-        /// is equivalent to calling removeFacet with an empty facet.
-        ///
-        /// </summary>
-        /// <param name="id">The identity of the Ice object that is implemented by
-        /// the servant.
-        ///
-        /// </param>
-        /// <param name="facet">The facet. An empty facet means the default facet.
-        ///
-        /// </param>
-        /// <returns>The removed servant.
-        ///
-        /// </returns>
-        Object removeFacet(Identity id, string facet);
+        Disp remove(Identity id, string facet = "");
 
         /// <summary>
         /// Remove all facets with the given identity from the Active
@@ -268,7 +196,7 @@ namespace Ice
         /// servants of the removed Ice object.
         ///
         /// </returns>
-        global::System.Collections.Generic.Dictionary<string, Object> removeAllFacets(Identity id);
+        Dictionary<string, Disp> removeAllFacets(Identity id);
 
         /// <summary>
         /// Remove the default servant for a specific category.
@@ -283,7 +211,7 @@ namespace Ice
         /// <returns>The default servant.
         ///
         /// </returns>
-        Object removeDefaultServant(string category);
+        Disp removeDefaultServant(string category);
 
         /// <summary>
         /// Look up a servant in this object adapter's Active Servant Map
@@ -301,29 +229,7 @@ namespace Ice
         /// given identity, or null if no such servant has been found.
         ///
         /// </returns>
-        Object find(Identity id);
-
-        /// <summary>
-        /// Like find, but with a facet.
-        /// Calling find(id)
-        /// is equivalent to calling findFacet with an empty
-        /// facet.
-        ///
-        /// </summary>
-        /// <param name="id">The identity of the Ice object for which the
-        /// servant should be returned.
-        ///
-        /// </param>
-        /// <param name="facet">The facet. An empty facet means the default
-        /// facet.
-        ///
-        /// </param>
-        /// <returns>The servant that implements the Ice object with the
-        /// given identity and facet, or null if no such servant has been
-        /// found.
-        ///
-        /// </returns>
-        Object findFacet(Identity id, string facet);
+        Disp find(Identity id, string facet = "");
 
         /// <summary>
         /// Find all facets with the given identity in the Active Servant
@@ -338,7 +244,7 @@ namespace Ice
         /// facet for the given identity.
         ///
         /// </returns>
-        global::System.Collections.Generic.Dictionary<string, Object> findAllFacets(Identity id);
+        Dictionary<string, Disp> findAllFacets(Identity id);
 
         /// <summary>
         /// Look up a servant in this object adapter's Active Servant Map,
@@ -355,7 +261,7 @@ namespace Ice
         /// servant has been found.
         ///
         /// </returns>
-        Object findByProxy(ObjectPrx proxy);
+        Disp findByProxy(ObjectPrx proxy);
 
         /// <summary>
         /// Add a Servant Locator to this object adapter.
@@ -440,7 +346,7 @@ namespace Ice
         /// registered for the category.
         ///
         /// </returns>
-        Object findDefaultServant(string category);
+        Disp? findDefaultServant(string category);
 
         /// <summary>
         /// Create a proxy for the object with the given identity.

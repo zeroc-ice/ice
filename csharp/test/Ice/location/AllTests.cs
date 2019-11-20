@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Ice.location.Test;
 
 namespace Ice
 {
@@ -15,12 +16,13 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                var manager = Test.ServerManagerPrxHelper.checkedCast(
-                                                communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
+                var manager = ServerManagerPrxHelper.checkedCast(
+                                    communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
                 test(manager != null);
-                var locator = Test.TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
+                var locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
                 test(locator != null);
-                var registry = Test.TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
+                Console.WriteLine("registry checkedcast");
+                var registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
                 test(registry != null);
 
                 var output = helper.getWriter();
@@ -288,15 +290,16 @@ namespace Ice
                 hello = (Test.HelloPrx)hello.ice_adapterId("unknown");
                 for (int i = 0; i < 1000; i++)
                 {
-                    results.Add(hello.sayHelloAsync().ContinueWith((Task t) => {
-                                try
-                                {
-                                    t.Wait();
-                                }
-                                catch(AggregateException ex) when (ex.InnerException is Ice.NotRegisteredException)
-                                {
-                                }
-                            }));
+                    results.Add(hello.sayHelloAsync().ContinueWith((Task t) =>
+                    {
+                        try
+                        {
+                            t.Wait();
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is Ice.NotRegisteredException)
+                        {
+                        }
+                    }));
                 }
                 Task.WaitAll(results.ToArray());
                 results.Clear();
@@ -581,7 +584,7 @@ namespace Ice
 
                 Identity id = new Identity();
                 id.name = Guid.NewGuid().ToString();
-                adapter.add(new HelloI(), id);
+                adapter.Add(new HelloI(), id);
                 adapter.activate();
 
                 // Ensure that calls on the well-known proxy is collocated.

@@ -11,32 +11,29 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+            public sealed class MyDerivedClassI : Object<Test.MyDerivedClass, Test.MyDerivedClassTraits>, Test.MyDerivedClass
             {
-                public MyDerivedClassI()
-                {
-                }
 
-                public override Task<Ice.ObjectPrx> echoAsync(Ice.ObjectPrx obj, Ice.Current c)
+                public Task<Ice.ObjectPrx> echoAsync(Ice.ObjectPrx obj, Ice.Current c)
                 {
                     return Task.FromResult(obj);
                 }
 
-                public override Task shutdownAsync(Ice.Current current)
+                public Task shutdownAsync(Ice.Current current)
                 {
                     current.adapter.getCommunicator().shutdown();
                     return null;
                 }
 
-                public override Task<Dictionary<string, string>> getContextAsync(Ice.Current current)
+                public Task<Dictionary<string, string>> getContextAsync(Ice.Current current)
                 {
                     return Task.FromResult(_ctx);
                 }
 
-                public override bool ice_isA(string s, Ice.Current current)
+                public override bool IceIsA(string s, Ice.Current current)
                 {
                     _ctx = current.ctx;
-                    return base.ice_isA(s, current);
+                    return base.IceIsA(s, current);
                 }
 
                 private Dictionary<string, string> _ctx;

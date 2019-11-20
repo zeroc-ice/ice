@@ -168,22 +168,27 @@ namespace Ice
             return _instance.getAdmin();
         }
 
-        public void addAdminFacet(Object servant, string facet)
+        public void addAdminFacet<T, Traits>(T servant, string facet) where Traits : struct, IInterfaceTraits<T>
         {
-            _instance.addAdminFacet(servant, facet);
+            _instance.addAdminFacet<T, Traits>(servant, facet);
         }
 
-        public Object removeAdminFacet(string facet)
+        public void addAdminFacet(object servant, Disp disp, string facet)
+        {
+            _instance.addAdminFacet(servant, disp, facet);
+        }
+
+        public (object servant, Disp disp) removeAdminFacet(string facet)
         {
             return _instance.removeAdminFacet(facet);
         }
 
-        public Object findAdminFacet(string facet)
+        public (object servant, Disp disp) findAdminFacet(string facet)
         {
             return _instance.findAdminFacet(facet);
         }
 
-        public Dictionary<string, Object> findAllAdminFacets()
+        public Dictionary<string, (object servant, Disp disp)> findAllAdminFacets()
         {
             return _instance.findAllAdminFacets();
         }

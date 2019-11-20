@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.servantLocator.Test;
 
 namespace Ice
 {
@@ -23,8 +24,8 @@ namespace Ice
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.addServantLocator(new ServantLocatorI("category"), "category");
                     adapter.addServantLocator(new ServantLocatorI(""), "");
-                    adapter.add(new TestI(), Ice.Util.stringToIdentity("asm"));
-                    adapter.add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
+                    adapter.Add(new TestI(), Ice.Util.stringToIdentity("asm"));
+                    adapter.Add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
                     AllTests.allTests(this);
                 }
             }

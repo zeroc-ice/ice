@@ -5,6 +5,8 @@
 using System;
 using System.Text;
 
+using Ice.udp.Test;
+
 namespace Ice
 {
     namespace udp
@@ -35,14 +37,14 @@ namespace Ice
 
                     communicator.getProperties().setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
-                    adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("control"));
+                    adapter.Add(new TestIntfI(), Ice.Util.stringToIdentity("control"));
                     adapter.activate();
                     serverReady();
                     if (num == 0)
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
-                        adapter2.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+                        adapter2.Add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
                         adapter2.activate();
                     }
 
@@ -70,7 +72,7 @@ namespace Ice
                     endpoint.Append(getTestPort(properties, 10));
                     communicator.getProperties().setProperty("McastTestAdapter.Endpoints", endpoint.ToString());
                     Ice.ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
-                    mcastAdapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+                    mcastAdapter.Add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
                     mcastAdapter.activate();
 
                     communicator.waitForShutdown();

@@ -4,19 +4,19 @@
 
 using Test;
 
-internal class BackgroundI : BackgroundDisp_
+internal class BackgroundI : Background
 {
-    public override void op(Ice.Current current)
+    public void op(Ice.Current current)
     {
         _controller.checkCallPause(current);
     }
 
-    public override void opWithPayload(byte[] seq, Ice.Current current)
+    public void opWithPayload(byte[] seq, Ice.Current current)
     {
         _controller.checkCallPause(current);
     }
 
-    public override void shutdown(Ice.Current current)
+    public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

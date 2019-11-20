@@ -6,42 +6,42 @@ namespace Ice
 {
     namespace servantLocator
     {
-        public sealed class TestI : Test.TestIntfDisp_
+        public sealed class TestI : Test.TestIntf
         {
-            public override void requestFailedException(Ice.Current current)
+            public void requestFailedException(Ice.Current current)
             {
             }
 
-            public override void unknownUserException(Ice.Current current)
+            public void unknownUserException(Ice.Current current)
             {
             }
 
-            public override void unknownLocalException(Ice.Current current)
+            public void unknownLocalException(Ice.Current current)
             {
             }
 
-            public override void unknownException(Ice.Current current)
+            public void unknownException(Ice.Current current)
             {
             }
 
-            public override void localException(Ice.Current current)
+            public void localException(Ice.Current current)
             {
             }
 
-            public override void userException(Ice.Current current)
+            public void userException(Ice.Current current)
             {
             }
 
-            public override void csException(Ice.Current current)
+            public void csException(Ice.Current current)
             {
             }
 
-            public override void unknownExceptionWithServantException(Ice.Current current)
+            public void unknownExceptionWithServantException(Ice.Current current)
             {
                 throw new Ice.ObjectNotExistException();
             }
 
-            public override string impossibleException(bool @throw, Ice.Current current)
+            public string impossibleException(bool @throw, Ice.Current current)
             {
                 if (@throw)
                 {
@@ -54,7 +54,7 @@ namespace Ice
                 return "Hello";
             }
 
-            public override string intfUserException(bool @throw, Ice.Current current)
+            public string intfUserException(bool @throw, Ice.Current current)
             {
                 if (@throw)
                 {
@@ -67,21 +67,21 @@ namespace Ice
                 return "Hello";
             }
 
-            public override void asyncResponse(Ice.Current current)
+            public void asyncResponse(Ice.Current current)
             {
                 //
                 // Only relevant for AMD.
                 //
             }
 
-            public override void asyncException(Ice.Current current)
+            public void asyncException(Ice.Current current)
             {
                 //
                 // Only relevant for AMD.
                 //
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 current.adapter.deactivate();
             }

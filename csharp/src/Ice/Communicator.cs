@@ -5,6 +5,8 @@
 
 namespace Ice
 {
+    using System.Collections.Generic;
+
     public interface Communicator : global::System.IDisposable
     {
         /// <summary>
@@ -117,7 +119,7 @@ namespace Ice
         ///
         /// </param>
         /// <returns>The property set.</returns>
-        global::System.Collections.Generic.Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
+        Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
 
         /// <summary>
         /// Convert an identity into a string.
@@ -222,7 +224,7 @@ namespace Ice
         /// Get the observer resolver object for this communicator.
         /// </summary>
         /// <returns>This communicator's observer resolver object.</returns>
-        global::Ice.Instrumentation.CommunicatorObserver getObserver();
+        Instrumentation.CommunicatorObserver getObserver();
 
         /// <summary>
         /// Get the default router this communicator.
@@ -328,7 +330,8 @@ namespace Ice
         /// <param name="servant">The servant that implements the new Admin facet.
         /// </param>
         /// <param name="facet">The name of the new Admin facet.</param>
-        void addAdminFacet(Object servant, string facet);
+        void addAdminFacet<T, Traits>(T servant, string facet) where Traits : struct, IInterfaceTraits<T>;
+        void addAdminFacet(object servant, Disp disp, string facet);
 
         /// <summary>
         /// Remove the following facet to the Admin object.
@@ -339,7 +342,7 @@ namespace Ice
         /// <param name="facet">The name of the Admin facet.
         /// </param>
         /// <returns>The servant associated with this Admin facet.</returns>
-        Object removeAdminFacet(string facet);
+        (object servant, Disp disp) removeAdminFacet(string facet);
 
         /// <summary>
         /// Returns a facet of the Admin object.
@@ -348,7 +351,7 @@ namespace Ice
         /// </param>
         /// <returns>The servant associated with this Admin facet, or
         /// null if no facet is registered with the given name.</returns>
-        Object findAdminFacet(string facet);
+        (object servant, Disp disp) findAdminFacet(string facet);
 
         /// <summary>
         /// Returns a map of all facets of the Admin object.
@@ -357,7 +360,7 @@ namespace Ice
         /// servants of the Admin object.
         ///
         /// </returns>
-        global::System.Collections.Generic.Dictionary<string, Object> findAllAdminFacets();
+        Dictionary<string, (object servant, Disp disp)> findAllAdminFacets();
     }
 
     public enum ToStringMode

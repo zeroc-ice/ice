@@ -6,9 +6,9 @@ namespace Ice
 {
     namespace binding
     {
-        public class TestI : Test.TestIntfDisp_
+        public class TestI : Test.TestIntf
         {
-            public override string getAdapterName(Ice.Current current)
+            public string getAdapterName(Ice.Current current)
             {
                 return current.adapter.getName();
             }

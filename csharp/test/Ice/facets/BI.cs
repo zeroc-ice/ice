@@ -6,18 +6,18 @@ namespace Ice
 {
     namespace facets
     {
-        public sealed class BI : Test.BDisp_
+        public sealed class BI : Test.B
         {
             public BI()
             {
             }
 
-            public override string callA(Ice.Current current)
+            public string callA(Ice.Current current)
             {
                 return "A";
             }
 
-            public override string callB(Ice.Current current)
+            public string callB(Ice.Current current)
             {
                 return "B";
             }

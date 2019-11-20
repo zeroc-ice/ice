@@ -8,9 +8,9 @@ using System.Linq;
 
 namespace IceInternal
 {
-    internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
+    internal sealed class LoggerAdminI : Ice.LoggerAdmin
     {
-        public override void
+        public void
         attachRemoteLogger(Ice.RemoteLoggerPrx prx, Ice.LogMessageType[] messageTypes, string[] categories,
                            int messageMax, Ice.Current current)
         {
@@ -102,7 +102,7 @@ namespace IceInternal
             }
         }
 
-        public override bool
+        public bool
         detachRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Current current)
         {
             if (remoteLogger == null)
@@ -130,7 +130,7 @@ namespace IceInternal
             return found;
         }
 
-        public override Ice.LogMessage[]
+        public Ice.LogMessage[]
         getLog(Ice.LogMessageType[] messageTypes, string[] categories, int messageMax, out string prefix,
                Ice.Current current)
         {

@@ -8,13 +8,13 @@ namespace Ice
     {
         using System.Threading;
 
-        public sealed class RetryI : Test.RetryDisp_
+        public sealed class RetryI : Test.Retry
         {
             public RetryI()
             {
             }
 
-            public override void op(bool kill, Ice.Current current)
+            public void op(bool kill, Ice.Current current)
             {
                 if (kill)
                 {
@@ -29,7 +29,7 @@ namespace Ice
                 }
             }
 
-            public override int opIdempotent(int nRetry, Ice.Current current)
+            public int opIdempotent(int nRetry, Ice.Current current)
             {
                 if (nRetry > _counter)
                 {
@@ -41,22 +41,22 @@ namespace Ice
                 return counter;
             }
 
-            public override void opNotIdempotent(Ice.Current current)
+            public void opNotIdempotent(Ice.Current current)
             {
                 throw new Ice.ConnectionLostException();
             }
 
-            public override void opSystemException(Ice.Current c)
+            public void opSystemException(Ice.Current c)
             {
                 throw new SystemFailure();
             }
 
-            public override void sleep(int delay, Ice.Current c)
+            public void sleep(int delay, Ice.Current c)
             {
                 Thread.Sleep(delay);
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }

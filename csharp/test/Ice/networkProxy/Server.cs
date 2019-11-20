@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -11,9 +11,9 @@ using System.Reflection;
 
 public class Server : Test.TestHelper
 {
-    class TestI : Test.TestIntfDisp_
+    class TestI : TestIntf
     {
-        public override void shutdown(Ice.Current current)
+        public void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
         }
@@ -25,7 +25,7 @@ public class Server : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
             adapter.activate();
 
             communicator.waitForShutdown();

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
+using Test;
 
 public class Server : Test.TestHelper
 {
@@ -14,7 +14,7 @@ public class Server : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), Ice.Util.stringToIdentity("Test"));
+            adapter.Add(new TestI(), Ice.Util.stringToIdentity("Test"));
             adapter.activate();
             communicator.waitForShutdown();
         }

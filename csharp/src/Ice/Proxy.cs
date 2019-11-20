@@ -143,7 +143,7 @@ namespace Ice
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// order. The first element of the returned array is always ::Ice::IObject.</returns>
         string[] ice_ids(OptionalContext context = new OptionalContext());
 
         /// <summary>
@@ -779,7 +779,7 @@ namespace Ice
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// order. The first element of the returned array is always ::Ice::IObject.</returns>
         public string[] ice_ids(OptionalContext context = new OptionalContext())
         {
             try
@@ -2263,10 +2263,10 @@ namespace Ice
         /// Returns the Slice type id of the interface or class associated
         /// with this proxy class.
         /// </summary>
-        /// <returns>The type id, "::Ice::Object".</returns>
+        /// <returns>The type id, "::Ice::IObject".</returns>
         public static string ice_staticId()
         {
-            return ObjectImpl.ice_staticId();
+            return "::Ice::Object";
         }
     }
 }

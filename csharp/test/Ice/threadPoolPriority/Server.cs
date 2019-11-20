@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.threadPoolPriority.Test;
+
 namespace Ice
 {
     namespace threadPoolPriority
@@ -16,7 +18,7 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new PriorityI(), Ice.Util.stringToIdentity("test"));
+                    adapter.Add(new PriorityI(), Util.stringToIdentity("test"));
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

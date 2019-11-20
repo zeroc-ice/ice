@@ -4,7 +4,7 @@
 
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : TestIntf
 {
     private static void test(bool b)
     {
@@ -14,19 +14,19 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdown(Ice.Current current)
+    public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
-    public override void baseAsBase(Ice.Current current)
+    public void baseAsBase(Ice.Current current)
     {
         Base b = new Base();
         b.b = "Base.b";
         throw b;
     }
 
-    public override void unknownDerivedAsBase(Ice.Current current)
+    public void unknownDerivedAsBase(Ice.Current current)
     {
         UnknownDerived d = new UnknownDerived();
         d.b = "UnknownDerived.b";
@@ -34,7 +34,7 @@ public sealed class TestI : TestIntfDisp_
         throw d;
     }
 
-    public override void knownDerivedAsBase(Ice.Current current)
+    public void knownDerivedAsBase(Ice.Current current)
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -42,7 +42,7 @@ public sealed class TestI : TestIntfDisp_
         throw d;
     }
 
-    public override void knownDerivedAsKnownDerived(Ice.Current current)
+    public void knownDerivedAsKnownDerived(Ice.Current current)
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -50,7 +50,7 @@ public sealed class TestI : TestIntfDisp_
         throw d;
     }
 
-    public override void unknownIntermediateAsBase(Ice.Current current)
+    public void unknownIntermediateAsBase(Ice.Current current)
     {
         UnknownIntermediate ui = new UnknownIntermediate();
         ui.b = "UnknownIntermediate.b";
@@ -58,7 +58,7 @@ public sealed class TestI : TestIntfDisp_
         throw ui;
     }
 
-    public override void knownIntermediateAsBase(Ice.Current current)
+    public void knownIntermediateAsBase(Ice.Current current)
     {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
@@ -66,7 +66,7 @@ public sealed class TestI : TestIntfDisp_
         throw ki;
     }
 
-    public override void knownMostDerivedAsBase(Ice.Current current)
+    public void knownMostDerivedAsBase(Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -75,7 +75,7 @@ public sealed class TestI : TestIntfDisp_
         throw kmd;
     }
 
-    public override void knownIntermediateAsKnownIntermediate(Ice.Current current)
+    public void knownIntermediateAsKnownIntermediate(Ice.Current current)
     {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
@@ -83,7 +83,7 @@ public sealed class TestI : TestIntfDisp_
         throw ki;
     }
 
-    public override void knownMostDerivedAsKnownIntermediate(Ice.Current current)
+    public void knownMostDerivedAsKnownIntermediate(Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -92,7 +92,7 @@ public sealed class TestI : TestIntfDisp_
         throw kmd;
     }
 
-    public override void knownMostDerivedAsKnownMostDerived(Ice.Current current)
+    public void knownMostDerivedAsKnownMostDerived(Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -101,7 +101,7 @@ public sealed class TestI : TestIntfDisp_
         throw kmd;
     }
 
-    public override void unknownMostDerived1AsBase(Ice.Current current)
+    public void unknownMostDerived1AsBase(Ice.Current current)
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
@@ -110,7 +110,7 @@ public sealed class TestI : TestIntfDisp_
         throw umd1;
     }
 
-    public override void unknownMostDerived1AsKnownIntermediate(Ice.Current current)
+    public void unknownMostDerived1AsKnownIntermediate(Ice.Current current)
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
@@ -119,7 +119,7 @@ public sealed class TestI : TestIntfDisp_
         throw umd1;
     }
 
-    public override void unknownMostDerived2AsBase(Ice.Current current)
+    public void unknownMostDerived2AsBase(Ice.Current current)
     {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
         umd2.b = "UnknownMostDerived2.b";
@@ -128,7 +128,7 @@ public sealed class TestI : TestIntfDisp_
         throw umd2;
     }
 
-    public override void unknownMostDerived2AsBaseCompact(Ice.Current current)
+    public void unknownMostDerived2AsBaseCompact(Ice.Current current)
     {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
         umd2.b = "UnknownMostDerived2.b";
@@ -137,7 +137,7 @@ public sealed class TestI : TestIntfDisp_
         throw umd2;
     }
 
-    public override void knownPreservedAsBase(Ice.Current current)
+    public void knownPreservedAsBase(Ice.Current current)
     {
         KnownPreservedDerived ex = new KnownPreservedDerived();
         ex.b = "base";
@@ -146,7 +146,7 @@ public sealed class TestI : TestIntfDisp_
         throw ex;
     }
 
-    public override void knownPreservedAsKnownPreserved(Ice.Current current)
+    public void knownPreservedAsKnownPreserved(Ice.Current current)
     {
         KnownPreservedDerived ex = new KnownPreservedDerived();
         ex.b = "base";
@@ -155,21 +155,21 @@ public sealed class TestI : TestIntfDisp_
         throw ex;
     }
 
-    public override void relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
+    public void relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
         p.knownPreservedAsBase();
         test(false);
     }
 
-    public override void relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
+    public void relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
         p.knownPreservedAsKnownPreserved();
         test(false);
     }
 
-    public override void unknownPreservedAsBase(Ice.Current current)
+    public void unknownPreservedAsBase(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -180,7 +180,7 @@ public sealed class TestI : TestIntfDisp_
         throw ex;
     }
 
-    public override void unknownPreservedAsKnownPreserved(Ice.Current current)
+    public void unknownPreservedAsKnownPreserved(Ice.Current current)
     {
         SPreserved2 ex = new SPreserved2();
         ex.b = "base";
@@ -191,14 +191,14 @@ public sealed class TestI : TestIntfDisp_
         throw ex;
     }
 
-    public override void relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
+    public void relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
         p.unknownPreservedAsBase();
         test(false);
     }
 
-    public override void relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
+    public void relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
     {
         RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
         p.unknownPreservedAsKnownPreserved();

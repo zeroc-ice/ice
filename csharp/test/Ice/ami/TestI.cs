@@ -11,7 +11,7 @@ namespace Ice
 {
     namespace ami
     {
-        public class TestI : Test.TestIntfDisp_
+        public class TestI : Test.TestIntf
         {
             protected static void test(bool b)
             {
@@ -26,41 +26,41 @@ namespace Ice
             {
             }
 
-            override public void
+            public void
             op(Ice.Current current)
             {
             }
 
-            override public int
+            public int
             opWithResult(Ice.Current current)
             {
                 return 15;
             }
 
-            override public void
+            public void
             opWithUE(Ice.Current current)
             {
                 throw new Test.TestIntfException();
             }
 
-            override public void
+            public void
             opWithPayload(byte[] seq, Ice.Current current)
             {
             }
 
-            override public void
+            public void
             close(Test.CloseMode mode, Ice.Current current)
             {
                 current.con.close((Ice.ConnectionClose)((int)mode));
             }
 
-            override public void
+            public void
             sleep(int ms, Ice.Current current)
             {
                 Thread.Sleep(ms);
             }
 
-            override public void
+            public void
             shutdown(Ice.Current current)
             {
                 lock (this)
@@ -75,25 +75,25 @@ namespace Ice
                 }
             }
 
-            override public bool
+            public bool
             supportsAMD(Ice.Current current)
             {
                 return true;
             }
 
-            override public bool
+            public bool
             supportsFunctionalTests(Ice.Current current)
             {
                 return false;
             }
 
-            override public async Task
+            public async Task
             opAsyncDispatchAsync(Ice.Current current)
             {
                 await Task.Delay(10);
             }
 
-            override public async Task<int>
+            public async Task<int>
             opWithResultAsyncDispatchAsync(Ice.Current current)
             {
                 await Task.Delay(10);
@@ -103,7 +103,7 @@ namespace Ice
                 return r;
             }
 
-            override public async Task
+            public async Task
             opWithUEAsyncDispatchAsync(Ice.Current current)
             {
                 test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
@@ -112,7 +112,7 @@ namespace Ice
                 await self(current).opWithUEAsync();
             }
 
-            override public void
+            public void
             pingBiDir(Test.PingReplyPrx reply, Ice.Current current)
             {
                 reply = Test.PingReplyPrxHelper.uncheckedCast(reply.ice_fixed(current.con));
@@ -133,7 +133,7 @@ namespace Ice
                 return Test.TestIntfPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
             }
 
-            override public Task
+            public Task
             startDispatchAsync(Ice.Current current)
             {
                 lock (this)
@@ -155,7 +155,7 @@ namespace Ice
                 }
             }
 
-            override public void
+            public void
             finishDispatch(Ice.Current current)
             {
                 lock (this)
@@ -176,9 +176,9 @@ namespace Ice
             private TaskCompletionSource<object> _pending = null;
         }
 
-        public class TestII : Test.Outer.Inner.TestIntfDisp_
+        public class TestII : Test.Outer.Inner.TestIntf
         {
-            override public int
+            public int
             op(int i, out int j, Ice.Current current)
             {
                 j = i;
@@ -186,15 +186,15 @@ namespace Ice
             }
         }
 
-        public class TestControllerI : Test.TestIntfControllerDisp_
+        public class TestControllerI : Test.TestIntfController
         {
-            override public void
+            public void
             holdAdapter(Ice.Current current)
             {
                 _adapter.hold();
             }
 
-            override public void
+            public void
             resumeAdapter(Ice.Current current)
             {
                 _adapter.activate();

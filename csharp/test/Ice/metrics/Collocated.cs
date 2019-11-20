@@ -5,6 +5,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using Ice;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -29,12 +31,12 @@ public class Collocated : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
+            adapter.Add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-            controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+            controllerAdapter.Add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
             Test.MetricsPrx metrics = AllTests.allTests(this, observer);

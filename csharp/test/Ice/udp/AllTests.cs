@@ -4,6 +4,7 @@
 
 using System;
 using System.Text;
+using Ice.udp.Test;
 
 namespace Ice
 {
@@ -11,9 +12,9 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public class PingReplyI : Test.PingReplyDisp_
+            public class PingReplyI : Test.PingReply
             {
-                public override void reply(Ice.Current current)
+                public void reply(Ice.Current current)
                 {
                     lock (this)
                     {
@@ -61,7 +62,7 @@ namespace Ice
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
                 PingReplyI replyI = new PingReplyI();
                 Test.PingReplyPrx reply =
-                  (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                  (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
                 adapter.activate();
 
                 Console.Out.Write("testing udp... ");
@@ -86,7 +87,7 @@ namespace Ice
                     // If the 3 datagrams were not received within the 2 seconds, we try again to
                     // receive 3 new datagrams using a new object. We give up after 5 retries.
                     replyI = new PingReplyI();
-                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                    reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
                 }
                 test(ret == true);
 
@@ -181,7 +182,7 @@ namespace Ice
                         break;
                     }
                     replyI = new PingReplyI();
-                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
                 }
                 if (!ret)
                 {
@@ -209,7 +210,7 @@ namespace Ice
                         break; // Success
                     }
                     replyI = new PingReplyI();
-                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
                 }
                 test(ret);
                 Console.Out.WriteLine("ok");

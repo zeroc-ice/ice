@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : TestIntf
 {
     public TestI()
     {
@@ -23,17 +23,17 @@ public sealed class TestI : TestIntfDisp_
         Thread.Sleep(5000); // Give other threads time to die.
     }
 
-    public override void abort(Ice.Current current)
+    public void abort(Ice.Current current)
     {
         commitSuicide();
     }
 
-    public override void idempotentAbort(Ice.Current current)
+    public void idempotentAbort(Ice.Current current)
     {
         commitSuicide();
     }
 
-    public override int pid(Ice.Current current)
+    public int pid(Ice.Current current)
     {
         lock (this)
         {
@@ -41,7 +41,7 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdown(Ice.Current current)
+    public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }

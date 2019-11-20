@@ -6,10 +6,10 @@ namespace Ice
 {
     namespace defaultServant
     {
-        public sealed class MyObjectI : Test.MyObjectDisp_
+        public sealed class MyObjectI : Ice.Object<Test.MyObject, Test.MyObjectTraits>, Test.MyObject
         {
             public override void
-            ice_ping(Ice.Current current)
+            IcePing(Ice.Current current)
             {
                 string name = current.id.name;
 
@@ -23,7 +23,7 @@ namespace Ice
                 }
             }
 
-            public override string
+            public string
             getName(Ice.Current current)
             {
                 string name = current.id.name;

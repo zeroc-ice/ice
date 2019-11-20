@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -11,14 +11,14 @@ using System.Reflection;
 
 public class Server : Test.TestHelper
 {
-    private class EchoI : Test.EchoDisp_
+    private class EchoI : Test.Echo
     {
         public EchoI(BlobjectI blob)
         {
             _blob = blob;
         }
 
-        public override void shutdown(Ice.Current current)
+        public void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
         }
@@ -33,8 +33,8 @@ public class Server : Test.TestHelper
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             BlobjectI blob = new BlobjectI();
-            adapter.addDefaultServant(blob, "");
-            adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
+            adapter.addDefaultServant((incoming, current) => blob.Dispatch(incoming, current), "");
+            adapter.Add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
             adapter.activate();
             communicator.waitForShutdown();
         }
@@ -42,6 +42,6 @@ public class Server : Test.TestHelper
 
     public static int Main(string[] args)
     {
-        return Test.TestDriver.runTest<Server>(args);
+        return TestDriver.runTest<Server>(args);
     }
 }

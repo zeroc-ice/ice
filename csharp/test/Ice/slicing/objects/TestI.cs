@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : TestIntf
 {
     private static void test(bool b)
     {
@@ -17,26 +17,26 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override void shutdown(Ice.Current current)
+    public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
-    public override Ice.Value SBaseAsObject(Ice.Current current)
+    public Ice.Value SBaseAsObject(Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
-    public override SBase SBaseAsSBase(Ice.Current current)
+    public SBase SBaseAsSBase(Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
-    public override SBase SBSKnownDerivedAsSBase(Ice.Current current)
+    public SBase SBSKnownDerivedAsSBase(Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -44,7 +44,7 @@ public sealed class TestI : TestIntfDisp_
         return sbskd;
     }
 
-    public override SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(Ice.Current current)
+    public SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -52,7 +52,7 @@ public sealed class TestI : TestIntfDisp_
         return sbskd;
     }
 
-    public override SBase SBSUnknownDerivedAsSBase(Ice.Current current)
+    public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -60,7 +60,7 @@ public sealed class TestI : TestIntfDisp_
         return sbsud;
     }
 
-    public override SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
+    public SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -68,7 +68,7 @@ public sealed class TestI : TestIntfDisp_
         return sbsud;
     }
 
-    public override Ice.Value SUnknownAsObject(Ice.Current current)
+    public Ice.Value SUnknownAsObject(Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
@@ -76,7 +76,7 @@ public sealed class TestI : TestIntfDisp_
         return su;
     }
 
-    public override void checkSUnknown(Ice.Value obj, Ice.Current current)
+    public void checkSUnknown(Ice.Value obj, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -89,7 +89,7 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override B oneElementCycle(Ice.Current current)
+    public B oneElementCycle(Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
@@ -97,7 +97,7 @@ public sealed class TestI : TestIntfDisp_
         return b;
     }
 
-    public override B twoElementCycle(Ice.Current current)
+    public B twoElementCycle(Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -108,7 +108,7 @@ public sealed class TestI : TestIntfDisp_
         return b1;
     }
 
-    public override B D1AsB(Ice.Current current)
+    public B D1AsB(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -123,7 +123,7 @@ public sealed class TestI : TestIntfDisp_
         return d1;
     }
 
-    public override D1 D1AsD1(Ice.Current current)
+    public D1 D1AsD1(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -138,7 +138,7 @@ public sealed class TestI : TestIntfDisp_
         return d1;
     }
 
-    public override B D2AsB(Ice.Current current)
+    public B D2AsB(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -153,7 +153,7 @@ public sealed class TestI : TestIntfDisp_
         return d2;
     }
 
-    public override void paramTest1(out B p1, out B p2, Ice.Current current)
+    public void paramTest1(out B p1, out B p2, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -169,12 +169,12 @@ public sealed class TestI : TestIntfDisp_
         p2 = d2;
     }
 
-    public override void paramTest2(out B p1, out B p2, Ice.Current current)
+    public void paramTest2(out B p1, out B p2, Ice.Current current)
     {
         paramTest1(out p2, out p1, current);
     }
 
-    public override B paramTest3(out B p1, out B p2, Ice.Current current)
+    public B paramTest3(out B p1, out B p2, Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
@@ -205,7 +205,7 @@ public sealed class TestI : TestIntfDisp_
         return d3;
     }
 
-    public override B paramTest4(out B p1, Ice.Current current)
+    public B paramTest4(out B p1, Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -218,24 +218,24 @@ public sealed class TestI : TestIntfDisp_
         return d4.p2;
     }
 
-    public override B returnTest1(out B p1, out B p2, Ice.Current current)
+    public B returnTest1(out B p1, out B p2, Ice.Current current)
     {
         paramTest1(out p1, out p2, current);
         return p1;
     }
 
-    public override B returnTest2(out B p1, out B p2, Ice.Current current)
+    public B returnTest2(out B p1, out B p2, Ice.Current current)
     {
         paramTest1(out p2, out p1, current);
         return p1;
     }
 
-    public override B returnTest3(B p1, B p2, Ice.Current current)
+    public B returnTest3(B p1, B p2, Ice.Current current)
     {
         return p1;
     }
 
-    public override SS3 sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
+    public SS3 sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
         SS3 ss = new SS3();
         ss.c1 = p1;
@@ -243,7 +243,7 @@ public sealed class TestI : TestIntfDisp_
         return ss;
     }
 
-    public override Dictionary<int, B> dictionaryTest(Dictionary<int, B> bin, out Dictionary<int, B> bout,
+    public Dictionary<int, B> dictionaryTest(Dictionary<int, B> bin, out Dictionary<int, B> bout,
                                                       Ice.Current current)
     {
         bout = new Dictionary<int, B>();
@@ -272,12 +272,12 @@ public sealed class TestI : TestIntfDisp_
         return r;
     }
 
-    public override PBase exchangePBase(PBase pb, Ice.Current current)
+    public PBase exchangePBase(PBase pb, Ice.Current current)
     {
         return pb;
     }
 
-    public override Preserved PBSUnknownAsPreserved(Ice.Current current)
+    public Preserved PBSUnknownAsPreserved(Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
         r.pi = 5;
@@ -295,7 +295,7 @@ public sealed class TestI : TestIntfDisp_
         return r;
     }
 
-    public override void checkPBSUnknown(Preserved p, Ice.Current current)
+    public void checkPBSUnknown(Preserved p, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -314,7 +314,7 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override Task<Preserved>
+    public Task<Preserved>
     PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown();
@@ -328,7 +328,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<Preserved>(r);
     }
 
-    public override void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
+    public void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -348,7 +348,7 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override Task<Preserved>
+    public Task<Preserved>
     PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown2();
@@ -358,7 +358,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<Preserved>(r);
     }
 
-    public override void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
+    public void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -375,12 +375,12 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override PNode exchangePNode(PNode pn, Ice.Current current)
+    public PNode exchangePNode(PNode pn, Ice.Current current)
     {
         return pn;
     }
 
-    public override void throwBaseAsBase(Ice.Current current)
+    public void throwBaseAsBase(Ice.Current current)
     {
         BaseException be = new BaseException();
         be.sbe = "sbe";
@@ -390,7 +390,7 @@ public sealed class TestI : TestIntfDisp_
         throw be;
     }
 
-    public override void throwDerivedAsBase(Ice.Current current)
+    public void throwDerivedAsBase(Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -406,7 +406,7 @@ public sealed class TestI : TestIntfDisp_
         throw de;
     }
 
-    public override void throwDerivedAsDerived(Ice.Current current)
+    public void throwDerivedAsDerived(Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -422,7 +422,7 @@ public sealed class TestI : TestIntfDisp_
         throw de;
     }
 
-    public override void throwUnknownDerivedAsBase(Ice.Current current)
+    public void throwUnknownDerivedAsBase(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "sb d2";
@@ -438,7 +438,7 @@ public sealed class TestI : TestIntfDisp_
         throw ude;
     }
 
-    public override Task
+    public Task
     throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();
@@ -449,7 +449,7 @@ public sealed class TestI : TestIntfDisp_
         throw ue;
     }
 
-    public override void useForward(out Forward f, Ice.Current current)
+    public void useForward(out Forward f, Ice.Current current)
     {
         f = new Forward();
         f.h = new Hidden();

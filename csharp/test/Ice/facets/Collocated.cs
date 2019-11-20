@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.facets.Test;
 
 namespace Ice
 {
@@ -16,13 +17,13 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.Object d = new DI();
-                    adapter.add(d, Ice.Util.stringToIdentity("d"));
-                    adapter.addFacet(d, Ice.Util.stringToIdentity("d"), "facetABCD");
-                    Ice.Object f = new FI();
-                    adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
-                    Ice.Object h = new HI(communicator);
-                    adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
+                    var d = new DI();
+                    adapter.Add(d, Util.stringToIdentity("d"));
+                    adapter.Add(d, Util.stringToIdentity("d"), "facetABCD");
+                    var f = new FI();
+                    adapter.Add(f, Util.stringToIdentity("d"), "facetEF");
+                    var h = new HI(communicator);
+                    adapter.Add(h, Util.stringToIdentity("d"), "facetGH");
                     AllTests.allTests(this);
                 }
             }

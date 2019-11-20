@@ -4,6 +4,7 @@
 
 using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceDiscoveryTest")]
 [assembly: AssemblyDescription("IceDiscovery test")]
@@ -18,7 +19,7 @@ public class Server : Test.TestHelper
             int num = 0;
             try
             {
-                num = Int32.Parse(args[0]);
+                num = int.Parse(args[0]);
             }
             catch (FormatException)
             {
@@ -29,7 +30,7 @@ public class Server : Test.TestHelper
             communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
-            adapter.add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
+            adapter.Add(new ControllerI(), Ice.Util.stringToIdentity("controller" + num));
             adapter.activate();
 
             communicator.waitForShutdown();

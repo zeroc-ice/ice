@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : TestIntf
 {
     private static void test(bool b)
     {
@@ -17,55 +17,55 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
-    public override Task shutdownAsync(Ice.Current current)
+    public Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
         return null;
     }
 
-    public override Task<Ice.Value>
+    public Task<Ice.Value>
     SBaseAsObjectAsync(Ice.Current current)
     {
         return Task.FromResult<Ice.Value>(new SBase("SBase.sb"));
     }
 
-    public override Task<SBase> SBaseAsSBaseAsync(Ice.Current current)
+    public Task<SBase> SBaseAsSBaseAsync(Ice.Current current)
     {
         return Task.FromResult<SBase>(new SBase("SBase.sb"));
     }
 
-    public override Task<SBase>
+    public Task<SBase>
     SBSKnownDerivedAsSBaseAsync(Ice.Current current)
     {
         return Task.FromResult<SBase>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
     }
 
-    public override Task<SBSKnownDerived>
+    public Task<SBSKnownDerived>
     SBSKnownDerivedAsSBSKnownDerivedAsync(Ice.Current current)
     {
         return Task.FromResult<SBSKnownDerived>(new SBSKnownDerived("SBSKnownDerived.sb", "SBSKnownDerived.sbskd"));
     }
 
-    public override Task<SBase>
+    public Task<SBase>
     SBSUnknownDerivedAsSBaseAsync(Ice.Current current)
     {
         return Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
     }
 
-    public override Task<SBase>
+    public Task<SBase>
     SBSUnknownDerivedAsSBaseCompactAsync(Ice.Current current)
     {
         return Task.FromResult<SBase>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));
     }
 
-    public override Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
+    public Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
     {
         var su = new SUnknown("SUnknown.su", null);
         su.cycle = su;
         return Task.FromResult<Ice.Value>(su);
     }
 
-    public override Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
+    public Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
         {
@@ -79,7 +79,7 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task<B> oneElementCycleAsync(Ice.Current current)
+    public Task<B> oneElementCycleAsync(Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
@@ -87,7 +87,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<B>(b);
     }
 
-    public override Task<B> twoElementCycleAsync(Ice.Current current)
+    public Task<B> twoElementCycleAsync(Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -98,7 +98,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<B>(b1);
     }
 
-    public override Task<B> D1AsBAsync(Ice.Current current)
+    public Task<B> D1AsBAsync(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -113,7 +113,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<B>(d1);
     }
 
-    public override Task<D1> D1AsD1Async(Ice.Current current)
+    public Task<D1> D1AsD1Async(Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -128,7 +128,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<D1>(d1);
     }
 
-    public override Task<B> D2AsBAsync(Ice.Current current)
+    public Task<B> D2AsBAsync(Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -143,7 +143,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<B>(d2);
     }
 
-    public override Task<TestIntf_ParamTest1Result>
+    public Task<TestIntf_ParamTest1Result>
     paramTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -159,7 +159,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_ParamTest1Result>(new TestIntf_ParamTest1Result(d1, d2));
     }
 
-    public override Task<TestIntf_ParamTest2Result>
+    public Task<TestIntf_ParamTest2Result>
     paramTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -175,7 +175,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_ParamTest2Result>(new TestIntf_ParamTest2Result(d2, d1));
     }
 
-    public override Task<TestIntf_ParamTest3Result>
+    public Task<TestIntf_ParamTest3Result>
     paramTest3Async(Ice.Current current)
     {
         D2 d2 = new D2();
@@ -205,7 +205,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_ParamTest3Result>(new TestIntf_ParamTest3Result(d3, d2, d4));
     }
 
-    public override Task<TestIntf_ParamTest4Result>
+    public Task<TestIntf_ParamTest4Result>
     paramTest4Async(Ice.Current current)
     {
         D4 d4 = new D4();
@@ -218,7 +218,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_ParamTest4Result>(new TestIntf_ParamTest4Result(d4.p2, d4));
     }
 
-    public override Task<TestIntf_ReturnTest1Result>
+    public Task<TestIntf_ReturnTest1Result>
     returnTest1Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -234,7 +234,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_ReturnTest1Result>(new TestIntf_ReturnTest1Result(d2, d2, d1));
     }
 
-    public override Task<TestIntf_ReturnTest2Result>
+    public Task<TestIntf_ReturnTest2Result>
     returnTest2Async(Ice.Current current)
     {
         D1 d1 = new D1();
@@ -250,19 +250,19 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_ReturnTest2Result>(new TestIntf_ReturnTest2Result(d1, d1, d2));
     }
 
-    public override Task<B>
+    public Task<B>
     returnTest3Async(B p1, B p2, Ice.Current current)
     {
         return Task.FromResult<B>(p1);
     }
 
-    public override Task<SS3>
+    public Task<SS3>
     sequenceTestAsync(SS1 p1, SS2 p2, Ice.Current current)
     {
         return Task.FromResult<SS3>(new SS3(p1, p2));
     }
 
-    public override Task<TestIntf_DictionaryTestResult>
+    public Task<TestIntf_DictionaryTestResult>
     dictionaryTestAsync(Dictionary<int, B> bin, Ice.Current current)
     {
         var bout = new Dictionary<int, B>();
@@ -291,13 +291,13 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<TestIntf_DictionaryTestResult>(new TestIntf_DictionaryTestResult(r, bout));
     }
 
-    public override Task<PBase>
+    public Task<PBase>
     exchangePBaseAsync(PBase pb, Ice.Current current)
     {
         return Task.FromResult<PBase>(pb);
     }
 
-    public override Task<Preserved>
+    public Task<Preserved>
     PBSUnknownAsPreservedAsync(Ice.Current current)
     {
         PSUnknown r = new PSUnknown();
@@ -316,7 +316,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<Preserved>(r);
     }
 
-    public override Task
+    public Task
     checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
@@ -337,7 +337,7 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task<Preserved>
+    public Task<Preserved>
     PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown();
@@ -351,7 +351,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<Preserved>(r);
     }
 
-    public override Task
+    public Task
     checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
@@ -373,7 +373,7 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task<Preserved>
+    public Task<Preserved>
     PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
     {
         var r = new PSUnknown2();
@@ -383,7 +383,7 @@ public sealed class TestI : TestIntfDisp_
         return Task.FromResult<Preserved>(r);
     }
 
-    public override Task
+    public Task
     checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
         if (current.encoding.Equals(Ice.Util.Encoding_1_0))
@@ -402,13 +402,13 @@ public sealed class TestI : TestIntfDisp_
         return null;
     }
 
-    public override Task<PNode>
+    public Task<PNode>
     exchangePNodeAsync(PNode pn, Ice.Current current)
     {
         return Task.FromResult<PNode>(pn);
     }
 
-    public override Task throwBaseAsBaseAsync(Ice.Current current)
+    public Task throwBaseAsBaseAsync(Ice.Current current)
     {
         var be = new BaseException();
         be.sbe = "sbe";
@@ -418,7 +418,7 @@ public sealed class TestI : TestIntfDisp_
         throw be;
     }
 
-    public override Task throwDerivedAsBaseAsync(Ice.Current current)
+    public Task throwDerivedAsBaseAsync(Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -434,7 +434,7 @@ public sealed class TestI : TestIntfDisp_
         throw de;
     }
 
-    public override Task
+    public Task
     throwDerivedAsDerivedAsync(Ice.Current current)
     {
         var de = new DerivedException();
@@ -451,7 +451,7 @@ public sealed class TestI : TestIntfDisp_
         throw de;
     }
 
-    public override Task throwUnknownDerivedAsBaseAsync(Ice.Current current)
+    public Task throwUnknownDerivedAsBaseAsync(Ice.Current current)
     {
         var d2 = new D2();
         d2.sb = "sb d2";
@@ -468,7 +468,7 @@ public sealed class TestI : TestIntfDisp_
         throw ude;
     }
 
-    public override Task throwPreservedExceptionAsync(Ice.Current current)
+    public Task throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();
         ue.p = new PSUnknown2();
@@ -479,7 +479,7 @@ public sealed class TestI : TestIntfDisp_
         throw ue;
     }
 
-    public override Task<Forward>
+    public Task<Forward>
     useForwardAsync(Ice.Current current)
     {
         var f = new Forward();

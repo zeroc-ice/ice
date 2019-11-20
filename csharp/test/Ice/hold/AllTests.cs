@@ -132,7 +132,7 @@ namespace Ice
                                         cond.set(false);
                                     }
                                 }
-                                catch(Exception )
+                                catch (Exception)
                                 {
                                 }
                             });

@@ -11,27 +11,20 @@ namespace Ice
     {
         public class ServantLocatorI : Ice.ServantLocator
         {
-            public ServantLocatorI(bool async)
+            public ServantLocatorI()
             {
-                if (async)
-                {
-                    _blobject = new BlobjectAsyncI();
-                }
-                else
-                {
-                    _blobject = new BlobjectI();
-                }
+                _blobject = new BlobjectI();
             }
 
-            public Ice.Object
-            locate(Ice.Current current, out System.Object cookie)
+            public Ice.Disp
+            locate(Ice.Current current, out object cookie)
             {
                 cookie = null;
-                return _blobject;
+                return (current, incoming) => _blobject.Dispatch(current, incoming);
             }
 
             public void
-            finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+            finished(Current current, Disp servant, object cookie)
             {
             }
 
@@ -40,7 +33,34 @@ namespace Ice
             {
             }
 
-            private Ice.Object _blobject;
+            private Blobject _blobject;
+        }
+
+        public class ServantLocatorAsyncI : Ice.ServantLocator
+        {
+            public ServantLocatorAsyncI()
+            {
+                _blobject = new BlobjectAsyncI();
+            }
+
+            public Ice.Disp
+            locate(Ice.Current current, out object cookie)
+            {
+                cookie = null;
+                return (current, incoming) => _blobject.Dispatch(current, incoming);
+            }
+
+            public void
+            finished(Current current, Disp servant, object cookie)
+            {
+            }
+
+            public void
+            deactivate(string category)
+            {
+            }
+
+            private BlobjectAsyncI _blobject;
         }
 
         public class Server : TestHelper
@@ -51,8 +71,15 @@ namespace Ice
                 using (var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.addServantLocator(new ServantLocatorI(async), "");
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    if (async)
+                    {
+                        adapter.addServantLocator(new ServantLocatorAsyncI(), "");
+                    }
+                    else
+                    {
+                        adapter.addServantLocator(new ServantLocatorI(), "");
+                    }
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

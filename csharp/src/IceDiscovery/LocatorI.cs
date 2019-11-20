@@ -7,7 +7,7 @@ namespace IceDiscovery
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
+    internal class LocatorRegistryI : Ice.LocatorRegistry
     {
         public
         LocatorRegistryI(Ice.Communicator com)
@@ -15,7 +15,7 @@ namespace IceDiscovery
             _wellKnownProxy = com.stringToProxy("p").ice_locator(null).ice_router(null).ice_collocationOptimized(true);
         }
 
-        public override Task
+        public Task
         setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
         {
             lock (this)
@@ -32,7 +32,7 @@ namespace IceDiscovery
             return null;
         }
 
-        public override Task
+        public Task
         setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.ObjectPrx proxy,
                                              Ice.Current current)
         {
@@ -66,7 +66,7 @@ namespace IceDiscovery
             return null;
         }
 
-        public override Task
+        public Task
         setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current)
         {
             return null;
@@ -167,7 +167,7 @@ namespace IceDiscovery
         private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
     };
 
-    internal class LocatorI : Ice.LocatorDisp_
+    internal class LocatorI : Ice.Locator
     {
         public LocatorI(LookupI lookup, Ice.LocatorRegistryPrx registry)
         {
@@ -175,19 +175,19 @@ namespace IceDiscovery
             _registry = registry;
         }
 
-        public override Task<Ice.ObjectPrx>
+        public Task<Ice.ObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             return _lookup.findObject(id);
         }
 
-        public override Task<Ice.ObjectPrx>
+        public Task<Ice.ObjectPrx>
         findAdapterByIdAsync(string adapterId, Ice.Current current)
         {
             return _lookup.findAdapter(adapterId);
         }
 
-        public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
+        public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
         {
             return _registry;
         }

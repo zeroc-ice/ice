@@ -3,6 +3,7 @@
 //
 
 using System;
+using Ice.servantLocator.Test;
 
 namespace Ice
 {
@@ -10,7 +11,7 @@ namespace Ice
     {
         public sealed class ServantLocatorI : Ice.ServantLocator
         {
-            public ServantLocatorI(String category)
+            public ServantLocatorI(string category)
             {
                 _category = category;
                 _deactivated = false;
@@ -33,7 +34,7 @@ namespace Ice
                 }
             }
 
-            public Ice.Object locate(Ice.Current current, out object cookie)
+            public Disp locate(Current current, out object cookie)
             {
                 lock (this)
                 {
@@ -68,10 +69,12 @@ namespace Ice
 
                 cookie = new Cookie();
 
-                return new TestI();
+                TestI testI = new TestI();
+                TestIntfTraits testT = default;
+                return (current, incoming) => testT.Dispatch(testI, current, incoming);
             }
 
-            public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+            public void finished(Current current, Disp servant, object cookie)
             {
                 lock (this)
                 {
@@ -106,7 +109,7 @@ namespace Ice
                 }
             }
 
-            private void exception(Ice.Current current)
+            private void exception(Current current)
             {
                 if (current.operation.Equals("ice_ids"))
                 {

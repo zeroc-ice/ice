@@ -129,7 +129,7 @@ namespace Ice
 
                 public void ice_id(string id)
                 {
-                    test(id.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
+                    test(id.Equals(Test.MyDerivedClass.ice_staticId()));
                     called();
                 }
 
@@ -1005,7 +1005,7 @@ namespace Ice
                 }
 
                 {
-                    test(p.ice_isAAsync(Test.MyClassDisp_.ice_staticId()).Result);
+                    test(p.ice_isAAsync(Test.MyClass.ice_staticId()).Result);
                 }
 
                 {
@@ -1013,7 +1013,7 @@ namespace Ice
                 }
 
                 {
-                    test(p.ice_idAsync().Result.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
+                    test(p.ice_idAsync().Result.Equals(Test.MyDerivedClass.ice_staticId()));
                 }
 
                 {

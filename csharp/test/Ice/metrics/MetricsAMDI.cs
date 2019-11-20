@@ -6,20 +6,20 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-public sealed class ControllerI : ControllerDisp_
+public sealed class ControllerI : Controller
 {
     public ControllerI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
     }
 
-    override public void hold(Ice.Current current)
+    public void hold(Ice.Current current)
     {
         _adapter.hold();
         _adapter.waitForHold();
     }
 
-    override public void resume(Ice.Current current)
+    public void resume(Ice.Current current)
     {
         _adapter.activate();
     }
@@ -27,55 +27,55 @@ public sealed class ControllerI : ControllerDisp_
     readonly private Ice.ObjectAdapter _adapter;
 };
 
-public sealed class MetricsI : MetricsDisp_
+public sealed class MetricsI : Metrics
 {
-    override public Task opAsync(Ice.Current current)
+    public Task opAsync(Ice.Current current)
     {
         return null;
     }
 
-    override public Task failAsync(Ice.Current current)
+    public Task failAsync(Ice.Current current)
     {
         current.con.close(Ice.ConnectionClose.Forcefully);
         return null;
     }
 
-    override public Task opWithUserExceptionAsync(Ice.Current current)
+    public Task opWithUserExceptionAsync(Ice.Current current)
     {
         throw new UserEx();
     }
 
-    override public Task
+    public Task
     opWithRequestFailedExceptionAsync(Ice.Current current)
     {
         throw new Ice.ObjectNotExistException();
     }
 
-    override public Task
+    public Task
     opWithLocalExceptionAsync(Ice.Current current)
     {
         throw new Ice.SyscallException();
     }
 
-    override public Task
+    public Task
     opWithUnknownExceptionAsync(Ice.Current current)
     {
         throw new ArgumentOutOfRangeException();
     }
 
-    override public Task
+    public Task
     opByteSAsync(byte[] bs, Ice.Current current)
     {
         return null;
     }
 
-    override public Ice.ObjectPrx
+    public Ice.ObjectPrx
     getAdmin(Ice.Current current)
     {
         return current.adapter.getCommunicator().getAdmin();
     }
 
-    override public void
+    public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

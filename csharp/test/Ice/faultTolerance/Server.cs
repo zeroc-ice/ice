@@ -4,12 +4,13 @@
 
 using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
     public override void run(string[] args)
     {
@@ -47,8 +48,7 @@ public class Server : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.Object obj = new TestI();
-            adapter.add(obj, Ice.Util.stringToIdentity("test"));
+            adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
             adapter.activate();
             communicator.waitForShutdown();
         }

@@ -9,9 +9,9 @@ using Test;
 
 public class AllTests : Test.AllTests
 {
-    private class RelayI : RelayDisp_
+    private class RelayI : Relay
     {
-        public override void knownPreservedAsBase(Ice.Current current)
+        public void knownPreservedAsBase(Ice.Current current)
         {
             KnownPreservedDerived ex = new KnownPreservedDerived();
             ex.b = "base";
@@ -20,7 +20,7 @@ public class AllTests : Test.AllTests
             throw ex;
         }
 
-        public override void knownPreservedAsKnownPreserved(Ice.Current current)
+        public void knownPreservedAsKnownPreserved(Ice.Current current)
         {
             KnownPreservedDerived ex = new KnownPreservedDerived();
             ex.b = "base";
@@ -29,7 +29,7 @@ public class AllTests : Test.AllTests
             throw ex;
         }
 
-        public override void unknownPreservedAsBase(Ice.Current current)
+        public void unknownPreservedAsBase(Ice.Current current)
         {
             Preserved2 ex = new Preserved2();
             ex.b = "base";
@@ -40,7 +40,7 @@ public class AllTests : Test.AllTests
             throw ex;
         }
 
-        public override void unknownPreservedAsKnownPreserved(Ice.Current current)
+        public void unknownPreservedAsKnownPreserved(Ice.Current current)
         {
             Preserved2 ex = new Preserved2();
             ex.b = "base";
@@ -58,7 +58,7 @@ public class AllTests : Test.AllTests
         var output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        String @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
+        string @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         output.WriteLine("ok");
@@ -785,7 +785,9 @@ public class AllTests : Test.AllTests
             }
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
+            RelayTraits relayT = default;
+            RelayI relayI = new RelayI();
+            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.Add(relayI));
             adapter.activate();
             testPrx.ice_getConnection().setAdapter(adapter);
 

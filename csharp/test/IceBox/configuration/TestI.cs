@@ -4,20 +4,20 @@
 
 using Test;
 
-public class TestI : TestIntfDisp_
+public class TestI : TestIntf
 {
     public TestI(string[] args)
     {
         _args = args;
     }
 
-    public override string
+    public string
     getProperty(string name, Ice.Current current)
     {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
 
-    public override string[]
+    public string[]
     getArgs(Ice.Current current)
     {
         return _args;

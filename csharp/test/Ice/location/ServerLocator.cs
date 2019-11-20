@@ -9,7 +9,7 @@ namespace Ice
 {
     namespace location
     {
-        public class ServerLocator : Test.TestLocatorDisp_
+        public class ServerLocator : Test.TestLocator
         {
             public ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
             {
@@ -18,7 +18,7 @@ namespace Ice
                 _requestCount = 0;
             }
 
-            public override Task<Ice.ObjectPrx>
+            public Task<Ice.ObjectPrx>
             findAdapterByIdAsync(string adapter, Ice.Current current)
             {
                 ++_requestCount;
@@ -36,7 +36,7 @@ namespace Ice
                 }
             }
 
-            public override Task<Ice.ObjectPrx>
+            public Task<Ice.ObjectPrx>
             findObjectByIdAsync(Ice.Identity id, Ice.Current current)
             {
                 ++_requestCount;
@@ -46,12 +46,12 @@ namespace Ice
                 return Task.FromResult(_registry.getObject(id));
             }
 
-            public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
+            public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
             {
                 return _registryPrx;
             }
 
-            public override int getRequestCount(Ice.Current current)
+            public int getRequestCount(Ice.Current current)
             {
                 return _requestCount;
             }

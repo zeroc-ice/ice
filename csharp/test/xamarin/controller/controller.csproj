@@ -27,7 +27,6 @@
     <SliceCompile Include="..\..\..\..\scripts\Controller.ice" Link="Controller.ice" />
   </ItemGroup>
 
-
   <ItemGroup>
     <EmbeddedResource Include="..\..\..\..\certs\cacert.der" Link="cacert.der" />
     <EmbeddedResource Include="..\..\..\..\certs\client.p12" Link="client.p12" />

@@ -2973,7 +2973,7 @@ namespace Ice
                 Debug.Assert(cb != null);
 
                 //
-                // Object references are encoded as a negative integer in 1.0.
+                // IObject references are encoded as a negative integer in 1.0.
                 //
                 int index = _stream.readInt();
                 if (index > 0)
@@ -3085,7 +3085,7 @@ namespace Ice
             internal override SlicedData endInstance(bool preserve)
             {
                 //
-                // Read the Ice::Object slice.
+                // Read the Ice::IObject slice.
                 //
                 if (_sliceType == SliceType.ValueSlice)
                 {
@@ -3207,7 +3207,7 @@ namespace Ice
                 while (true)
                 {
                     //
-                    // For the 1.0 encoding, the type ID for the base Object class
+                    // For the 1.0 encoding, the type ID for the base IObject class
                     // marks the last slice.
                     //
                     if (_typeId.Equals(Value.ice_staticId()))
@@ -3270,7 +3270,7 @@ namespace Ice
                 unmarshal(index, v);
             }
 
-            // Object/exception attributes
+            // IObject/exception attributes
             private SliceType _sliceType;
             private bool _skipFirstSlice;
 
@@ -3794,7 +3794,7 @@ namespace Ice
                     {
                         //
                         // Provide a factory with an opportunity to supply the instance.
-                        // We pass the "::Ice::Object" ID to indicate that this is the
+                        // We pass the "::Ice::IObject" ID to indicate that this is the
                         // last chance to preserve the instance.
                         //
                         v = newInstance(Value.ice_staticId());

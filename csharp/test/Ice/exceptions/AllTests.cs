@@ -3,8 +3,7 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Threading;
+using Ice.exceptions.Test;
 
 namespace Ice
 {
@@ -63,11 +62,11 @@ namespace Ice
                     output.Write("testing servant registration exceptions... ");
                     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
-                    Object obj = new EmptyI();
-                    adapter.add(obj, Util.stringToIdentity("x"));
+                    var obj = new EmptyI();
+                    adapter.Add(obj, Util.stringToIdentity("x"));
                     try
                     {
-                        adapter.add(obj, Util.stringToIdentity("x"));
+                        adapter.Add(obj, Util.stringToIdentity("x"));
                         test(false);
                     }
                     catch (AlreadyRegisteredException)
@@ -76,7 +75,7 @@ namespace Ice
 
                     try
                     {
-                        adapter.add(obj, Util.stringToIdentity(""));
+                        adapter.Add(obj, Util.stringToIdentity(""));
                         test(false);
                     }
                     catch (IllegalIdentityException e)
@@ -86,7 +85,7 @@ namespace Ice
 
                     try
                     {
-                        adapter.add(null, Util.stringToIdentity("x"));
+                        adapter.Add(null, Util.stringToIdentity("x"));
                         test(false);
                     }
                     catch (IllegalServantException)
@@ -568,7 +567,7 @@ namespace Ice
                     {
                         thrower.throwAasAAsync(1).Wait();
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         test(exc.InnerException is Test.A);
                         var ex = exc.InnerException as Test.A;
@@ -582,7 +581,7 @@ namespace Ice
                         thrower.throwAorDasAorDAsync(1).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -609,7 +608,7 @@ namespace Ice
                         thrower.throwAorDasAorDAsync(-1).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -636,7 +635,7 @@ namespace Ice
                         thrower.throwBasBAsync(1, 2).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -660,7 +659,7 @@ namespace Ice
                         thrower.throwCasCAsync(1, 2, 3).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -690,7 +689,7 @@ namespace Ice
                         thrower.throwBasAAsync(1, 2).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -738,7 +737,7 @@ namespace Ice
                         thrower.throwCasBAsync(1, 2, 3).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -770,7 +769,7 @@ namespace Ice
                             thrower.throwUndeclaredAAsync(1).Wait();
                             test(false);
                         }
-                        catch(AggregateException exc)
+                        catch (AggregateException exc)
                         {
                             try
                             {
@@ -792,7 +791,7 @@ namespace Ice
                             thrower.throwUndeclaredBAsync(1, 2).Wait();
                             test(false);
                         }
-                        catch(AggregateException exc)
+                        catch (AggregateException exc)
                         {
                             try
                             {
@@ -814,7 +813,7 @@ namespace Ice
                             thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
                             test(false);
                         }
-                        catch(AggregateException exc)
+                        catch (AggregateException exc)
                         {
                             try
                             {
@@ -844,7 +843,7 @@ namespace Ice
                         thrower2.throwAasAAsync(1).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -873,7 +872,7 @@ namespace Ice
                         thrower2.throwAasAAsync(1).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -902,7 +901,7 @@ namespace Ice
                         thrower4.noSuchOperationAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -930,7 +929,7 @@ namespace Ice
                         thrower.throwLocalExceptionAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -955,7 +954,7 @@ namespace Ice
                         thrower.throwLocalExceptionIdempotentAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -985,7 +984,7 @@ namespace Ice
                         thrower.throwNonIceExceptionAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -1014,7 +1013,7 @@ namespace Ice
                             thrower.throwUndeclaredAAsync(1).Wait();
                             test(false);
                         }
-                        catch(AggregateException exc)
+                        catch (AggregateException exc)
                         {
                             try
                             {
@@ -1036,7 +1035,7 @@ namespace Ice
                             thrower.throwUndeclaredBAsync(1, 2).Wait();
                             test(false);
                         }
-                        catch(AggregateException exc)
+                        catch (AggregateException exc)
                         {
                             try
                             {
@@ -1058,7 +1057,7 @@ namespace Ice
                             thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
                             test(false);
                         }
-                        catch(AggregateException exc)
+                        catch (AggregateException exc)
                         {
                             try
                             {
@@ -1088,7 +1087,7 @@ namespace Ice
                         thrower2.throwAasAAsync(1).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -1117,7 +1116,7 @@ namespace Ice
                         thrower2.throwAasAAsync(1).Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -1146,7 +1145,7 @@ namespace Ice
                         thrower4.noSuchOperationAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -1174,7 +1173,7 @@ namespace Ice
                         thrower.throwLocalExceptionAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -1199,7 +1198,7 @@ namespace Ice
                         thrower.throwLocalExceptionIdempotentAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {
@@ -1229,7 +1228,7 @@ namespace Ice
                         thrower.throwNonIceExceptionAsync().Wait();
                         test(false);
                     }
-                    catch(AggregateException exc)
+                    catch (AggregateException exc)
                     {
                         try
                         {

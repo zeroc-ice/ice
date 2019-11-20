@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
+using Test;
 using System.Reflection;
 
 [assembly: AssemblyTitle("IceTest")]
@@ -20,7 +20,8 @@ public class Server : Test.TestHelper
 
             communicator.getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
-            adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
+            var callbackI = new CallbackI();
+            adapter.Add(callbackI, Ice.Util.stringToIdentity("callback"));
             adapter.activate();
             communicator.waitForShutdown();
         }
@@ -28,6 +29,6 @@ public class Server : Test.TestHelper
 
     public static int Main(string[] args)
     {
-        return Test.TestDriver.runTest<Server>(args);
+        return TestDriver.runTest<Server>(args);
     }
 }

@@ -3,14 +3,15 @@
 //
 
 using IceBox;
+using Test;
 
-class TestServiceI : IceBox.Service
+class TestServiceI : Service
 {
     public void
     start(string name, Ice.Communicator communicator, string[] args)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
-        adapter.add(new TestI(args), Ice.Util.stringToIdentity("test"));
+        adapter.Add(new TestI(args), Ice.Util.stringToIdentity("test"));
         adapter.activate();
     }
 

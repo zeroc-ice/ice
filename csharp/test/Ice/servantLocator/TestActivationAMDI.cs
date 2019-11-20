@@ -8,9 +8,9 @@ namespace Ice
     {
         namespace AMD
         {
-            public sealed class TestActivationI : Test.TestActivationDisp_
+            public sealed class TestActivationI : Test.TestActivation
             {
-                override public void activateServantLocator(bool activate, Ice.Current current)
+                public void activateServantLocator(bool activate, Ice.Current current)
                 {
                     if (activate)
                     {

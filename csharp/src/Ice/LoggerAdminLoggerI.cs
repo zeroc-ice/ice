@@ -12,7 +12,7 @@ namespace IceInternal
 
     internal interface LoggerAdminLogger : Ice.Logger
     {
-        Ice.Object getFacet();
+        Ice.LoggerAdmin getFacet();
         void destroy();
     }
 
@@ -56,7 +56,7 @@ namespace IceInternal
             return _localLogger.cloneWithPrefix(prefix);
         }
 
-        public Ice.Object getFacet()
+        public Ice.LoggerAdmin getFacet()
         {
             return _loggerAdmin;
         }

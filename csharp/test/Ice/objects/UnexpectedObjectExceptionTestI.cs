@@ -6,13 +6,13 @@ namespace Ice
 {
     namespace objects
     {
-        public sealed class UnexpectedObjectExceptionTestI : Ice.Blobject
+        public sealed class UnexpectedObjectExceptionTestI : Blobject
         {
             public override bool ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
             {
                 var communicator = current.adapter.getCommunicator();
                 var @out = new Ice.OutputStream(communicator);
-                @out.startEncapsulation(current.encoding, Ice.FormatType.DefaultFormat);
+                @out.startEncapsulation(current.encoding, FormatType.DefaultFormat);
                 var ae = new Test.AlsoEmpty();
                 @out.writeValue(ae);
                 @out.writePendingValues();

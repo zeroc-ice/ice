@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using Test;
 
+using Ice.interceptor.Test;
+
 namespace Ice
 {
     namespace interceptor
@@ -15,7 +17,7 @@ namespace Ice
         }
         public class Client : TestHelper
         {
-            private void runTest(Test.MyObjectPrx prx, InterceptorI interceptor)
+            private void runTest(Test.MyObjectPrx prx, InterceptorI<MyObject, MyObjectTraits> interceptor)
             {
                 var output = getWriter();
                 output.Write("testing simple interceptor... ");
@@ -25,7 +27,7 @@ namespace Ice
                 prx.ice_ping();
                 test(interceptor.getLastOperation().Equals("ice_ping"));
                 test(!interceptor.getLastStatus());
-                String typeId = prx.ice_id();
+                string typeId = prx.ice_id();
                 test(interceptor.getLastOperation().Equals("ice_id"));
                 test(!interceptor.getLastStatus());
                 test(prx.ice_isA(typeId));
@@ -100,7 +102,7 @@ namespace Ice
                 output.WriteLine("ok");
             }
 
-            private void runAmdTest(Test.MyObjectPrx prx, InterceptorI interceptor)
+            private void runAmdTest(Test.MyObjectPrx prx, InterceptorI<MyObject, MyObjectTraits> interceptor)
             {
                 var output = getWriter();
                 output.Write("testing simple interceptor... ");
@@ -137,7 +139,7 @@ namespace Ice
                     prx.amdBadAdd(33, 12);
                     test(false);
                 }
-                catch (Test.InvalidInputException)
+                catch (InvalidInputException)
                 {
                     // expected
                 }
@@ -202,10 +204,9 @@ namespace Ice
 
                     Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
 
-                    Ice.Object servant = new MyObjectI();
-                    InterceptorI interceptor = new InterceptorI(servant);
+                    var interceptor = new InterceptorI<MyObject, MyObjectTraits>(new MyObjectI());
 
-                    Test.MyObjectPrx prx = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
+                    var prx = MyObjectPrxHelper.uncheckedCast(oa.Add((incoming, current) => interceptor.Dispatch(incoming, current)));
 
                     var output = getWriter();
 
@@ -219,7 +220,7 @@ namespace Ice
 
                     output.WriteLine("Collocation optimization off");
                     interceptor.clear();
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
+                    prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
                     runTest(prx, interceptor);
 
                     output.WriteLine("Now with AMD");
@@ -235,37 +236,33 @@ namespace Ice
 
             private void testInterceptorExceptions(Test.MyObjectPrx prx)
             {
-                var exceptions = new List<Tuple<string, string>>();
-                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "user"));
-                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "notExist"));
-                exceptions.Add(new Tuple<string, string>("raiseBeforeDispatch", "system"));
-                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "user"));
-                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "notExist"));
-                exceptions.Add(new Tuple<string, string>("raiseAfterDispatch", "system"));
+                var exceptions = new List<(string operation, string kind)>();
+                exceptions.Add(("raiseBeforeDispatch", "user"));
+                exceptions.Add(("raiseBeforeDispatch", "notExist"));
+                exceptions.Add(("raiseBeforeDispatch", "system"));
+                exceptions.Add(("raiseAfterDispatch", "user"));
+                exceptions.Add(("raiseAfterDispatch", "notExist"));
+                exceptions.Add(("raiseAfterDispatch", "system"));
                 foreach (var e in exceptions)
                 {
                     var ctx = new Dictionary<string, string>();
-                    ctx.Add(e.Item1, e.Item2);
+                    ctx.Add(e.operation, e.kind);
                     try
                     {
                         prx.ice_ping(ctx);
                         test(false);
                     }
-                    catch (Ice.UnknownUserException)
+                    catch (UnknownUserException) when (e.kind.Equals("user"))
                     {
-                        test(e.Item2.Equals("user"));
                     }
-                    catch (Ice.ObjectNotExistException)
+                    catch (ObjectNotExistException) when (e.kind.Equals("notExist"))
                     {
-                        test(e.Item2.Equals("notExist"));
                     }
-                    catch (Ice.UnknownException)
+                    catch (UnknownException) when (e.kind.Equals("system")) // non-collocated
                     {
-                        test(e.Item2.Equals("system")); // non-collocated
                     }
-                    catch (MySystemException)
+                    catch (MySystemException) when (e.kind.Equals("system")) // collocated
                     {
-                        test(e.Item2.Equals("system")); // collocated
                     }
                 }
             }

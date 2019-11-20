@@ -18,7 +18,7 @@ namespace Ice
 
 namespace IceInternal
 {
-    internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePropertiesAdmin
+    internal sealed class PropertiesAdminI : Ice.PropertiesAdmin, Ice.NativePropertiesAdmin
     {
         internal PropertiesAdminI(Instance instance)
         {
@@ -26,19 +26,19 @@ namespace IceInternal
             _logger = instance.initializationData().logger;
         }
 
-        public override string
+        public string
         getProperty(string name, Ice.Current current)
         {
             return _properties.getProperty(name);
         }
 
-        public override Dictionary<string, string>
+        public Dictionary<string, string>
         getPropertiesForPrefix(string name, Ice.Current current)
         {
             return _properties.getPropertiesForPrefix(name);
         }
 
-        public override void
+        public void
         setProperties(Dictionary<string, string> props, Ice.Current current)
         {
             lock (this)

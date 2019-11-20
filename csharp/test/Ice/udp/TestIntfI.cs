@@ -8,9 +8,9 @@ namespace Ice
 {
     namespace udp
     {
-        public sealed class TestIntfI : Test.TestIntfDisp_
+        public sealed class TestIntfI : Test.TestIntf
         {
-            public override void ping(Test.PingReplyPrx reply, Ice.Current current)
+            public void ping(Test.PingReplyPrx reply, Ice.Current current)
             {
                 try
                 {
@@ -22,7 +22,7 @@ namespace Ice
                 }
             }
 
-            public override void sendByteSeq(byte[] seq, Test.PingReplyPrx reply, Ice.Current current)
+            public void sendByteSeq(byte[] seq, Test.PingReplyPrx reply, Ice.Current current)
             {
                 try
                 {
@@ -34,7 +34,7 @@ namespace Ice
                 }
             }
 
-            public override void pingBiDir(Ice.Identity id, Ice.Current current)
+            public void pingBiDir(Ice.Identity id, Ice.Current current)
             {
                 try
                 {
@@ -60,7 +60,7 @@ namespace Ice
                 }
             }
 
-            public override void shutdown(Ice.Current current)
+            public void shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }

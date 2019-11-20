@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Ice.ami.Test;
 
 namespace Ice
 {
@@ -14,9 +15,9 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public class PingReplyI : Test.PingReplyDisp_
+            public class PingReplyI : Test.PingReply
             {
-                public override void reply(Current current)
+                public void reply(Current current)
                 {
                     _received = true;
                 }
@@ -914,7 +915,7 @@ namespace Ice
                     {
                         ObjectAdapter adapter = communicator.createObjectAdapter("");
                         PingReplyI replyI = new PingReplyI();
-                        var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+                        var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI));
                         adapter.activate();
 
                         p.ice_getConnection().setAdapter(adapter);

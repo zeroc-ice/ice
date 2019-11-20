@@ -9,6 +9,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
+    using System.Linq;
 
     public sealed class BufSizeWarnInfo
     {
@@ -497,7 +498,15 @@ namespace IceInternal
         }
 
         public void
-        addAdminFacet(Ice.Object servant, string facet)
+        addAdminFacet<T, Traits>(T servant, string facet) where Traits : struct, Ice.IInterfaceTraits<T>
+        {
+            Traits traits = default;
+            Ice.Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
+            addAdminFacet(servant, disp, facet);
+        }
+
+        public void
+        addAdminFacet(object servant, Ice.Disp disp, string facet)
         {
             lock (this)
             {
@@ -506,22 +515,24 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if (_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
+                if (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet))
                 {
-                    if (_adminFacets.ContainsKey(facet))
-                    {
-                        throw new Ice.AlreadyRegisteredException("facet", facet);
-                    }
-                    _adminFacets.Add(facet, servant);
+                    throw new ArgumentException($"facet `{facet}' not allow by Ice.Admin.Facets configuration", facet);
                 }
-                else
+
+                if (_adminFacets.ContainsKey(facet))
                 {
-                    _adminAdapter.addFacet(servant, _adminIdentity, facet);
+                    throw new Ice.AlreadyRegisteredException("facet", facet);
+                }
+                _adminFacets.Add(facet, (servant, disp));
+                if (_adminAdapter != null)
+                {
+                    _adminAdapter.Add(disp, _adminIdentity, facet);
                 }
             }
         }
 
-        public Ice.Object
+        public (object servant, Ice.Disp disp)
         removeAdminFacet(string facet)
         {
             lock (this)
@@ -531,29 +542,21 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                Ice.Object result = null;
-                if (_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
+                (object servant, Ice.Disp disp) result = default;
+                if (!_adminFacets.TryGetValue(facet, out result))
                 {
-                    try
-                    {
-                        result = _adminFacets[facet];
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                        throw new Ice.NotRegisteredException("facet", facet);
-                    }
-
-                    _adminFacets.Remove(facet);
+                    throw new Ice.NotRegisteredException("facet", facet);
                 }
-                else
+                _adminFacets.Remove(facet);
+                if (_adminAdapter != null)
                 {
-                    result = _adminAdapter.removeFacet(_adminIdentity, facet);
+                    _adminAdapter.remove(_adminIdentity, facet);
                 }
                 return result;
             }
         }
 
-        public Ice.Object
+        public (object servant, Ice.Disp disp)
         findAdminFacet(string facet)
         {
             lock (this)
@@ -563,26 +566,19 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                Ice.Object result = null;
-                if (_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
+                (object servant, Ice.Disp disp) result = default;
+                try
                 {
-                    try
-                    {
-                        result = _adminFacets[facet];
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                    }
+                    result = _adminFacets[facet];
                 }
-                else
+                catch (KeyNotFoundException)
                 {
-                    result = _adminAdapter.findFacet(_adminIdentity, facet);
                 }
                 return result;
             }
         }
 
-        public Dictionary<string, Ice.Object>
+        public Dictionary<string, (object servant, Ice.Disp disp)>
         findAllAdminFacets()
         {
             lock (this)
@@ -591,23 +587,7 @@ namespace IceInternal
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-
-                if (_adminAdapter == null)
-                {
-                    return new Dictionary<string, Ice.Object>(_adminFacets);
-                }
-                else
-                {
-                    Dictionary<string, Ice.Object> result = _adminAdapter.findAllFacets(_adminIdentity);
-                    if (_adminFacets.Count > 0)
-                    {
-                        foreach (KeyValuePair<string, Ice.Object> p in _adminFacets)
-                        {
-                            result.Add(p.Key, p.Value);
-                        }
-                    }
-                    return result;
-                }
+                return new Dictionary<string, (object servant, Ice.Disp disp)>(_adminFacets);
             }
         }
 
@@ -997,14 +977,7 @@ namespace IceInternal
                 _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
             }
 
-            string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
-            if (facetFilter.Length > 0)
-            {
-                foreach (string s in facetFilter)
-                {
-                    _adminFacetFilter.Add(s);
-                }
-            }
+            _adminFacetFilter = new HashSet<string>(_initData.properties.getPropertyAsList("Ice.Admin.Facets").Distinct());
 
             if (_adminEnabled)
             {
@@ -1014,7 +987,10 @@ namespace IceInternal
                 string processFacetName = "Process";
                 if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                 {
-                    _adminFacets.Add(processFacetName, new ProcessI(communicator));
+                    Ice.ProcessTraits traits = default;
+                    Ice.Process process = new ProcessI(communicator);
+                    Ice.Disp disp = (current, incoming) => traits.Dispatch(process, current, incoming);
+                    _adminFacets.Add(processFacetName, (process, disp));
                 }
 
                 //
@@ -1025,7 +1001,10 @@ namespace IceInternal
                 {
                     LoggerAdminLogger logger = new LoggerAdminLoggerI(_initData.properties, _initData.logger);
                     setLogger(logger);
-                    _adminFacets.Add(loggerFacetName, logger.getFacet());
+                    Ice.LoggerAdminTraits traits = default;
+                    Ice.LoggerAdmin servant = logger.getFacet();
+                    Ice.Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
+                    _adminFacets.Add(loggerFacetName, (servant, disp));
                 }
 
                 //
@@ -1036,7 +1015,9 @@ namespace IceInternal
                 if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
                 {
                     propsAdmin = new PropertiesAdminI(this);
-                    _adminFacets.Add(propertiesFacetName, propsAdmin);
+                    Ice.PropertiesAdminTraits traits = default;
+                    Ice.Disp disp = (current, incoming) => traits.Dispatch(propsAdmin, current, incoming);
+                    _adminFacets.Add(propertiesFacetName, (propsAdmin, disp));
                 }
 
                 //
@@ -1047,7 +1028,10 @@ namespace IceInternal
                 {
                     CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
                     _initData.observer = observer;
-                    _adminFacets.Add(metricsFacetName, observer.getFacet());
+                    IceMX.MetricsAdminTraits traits = default;
+                    var metricsAdmin = observer.getFacet();
+                    Ice.Disp disp = (current, incoming) => traits.Dispatch(metricsAdmin, current, incoming);
+                    _adminFacets.Add(metricsFacetName, (metricsAdmin, disp));
 
                     //
                     // Make sure the admin plugin receives property updates.
@@ -1220,7 +1204,7 @@ namespace IceInternal
             }
 
             {
-                LoggerAdminLogger logger = _initData.logger as LoggerAdminLogger;
+                LoggerAdminLogger? logger = _initData.logger as LoggerAdminLogger;
                 if (logger != null)
                 {
                     logger.destroy();
@@ -1441,20 +1425,13 @@ namespace IceInternal
         {
             lock (this)
             {
-                Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
-
-                foreach (KeyValuePair<string, Ice.Object> entry in _adminFacets)
+                foreach (var entry in _adminFacets)
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
-                        _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
-                    }
-                    else
-                    {
-                        filteredFacets.Add(entry.Key, entry.Value);
+                        _adminAdapter.Add(entry.Value.disp, _adminIdentity, entry.Key);
                     }
                 }
-                _adminFacets = filteredFacets;
             }
         }
 
@@ -1565,7 +1542,7 @@ namespace IceInternal
         private Ice.PluginManager _pluginManager;
         private bool _adminEnabled = false;
         private Ice.ObjectAdapter _adminAdapter;
-        private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
+        private Dictionary<string, (object servant, Ice.Disp disp)> _adminFacets = new Dictionary<string, (object servant, Ice.Disp disp)>();
         private HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Ice.Identity _adminIdentity;
         private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Ice.admin.Test;
 
 namespace Ice
 {
@@ -13,30 +14,71 @@ namespace Ice
         public class AllTests : global::Test.AllTests
         {
             static void
-            testFacets(Ice.Communicator com, bool builtInFacets)
+            testFacets(Communicator com, bool builtInFacets, bool filtered)
             {
-                if (builtInFacets)
+                if (builtInFacets && !filtered)
                 {
-                    test(com.findAdminFacet("Properties") != null);
-                    test(com.findAdminFacet("Process") != null);
-                    test(com.findAdminFacet("Logger") != null);
-                    test(com.findAdminFacet("Metrics") != null);
+                    test(com.findAdminFacet("Properties").servant != null);
+                    test(com.findAdminFacet("Process").servant != null);
+                    test(com.findAdminFacet("Logger").servant != null);
+                    test(com.findAdminFacet("Metrics").servant != null);
                 }
 
-                Test.TestFacet f1 = new TestFacetI();
-                Test.TestFacet f2 = new TestFacetI();
-                Test.TestFacet f3 = new TestFacetI();
+                var f1 = new TestFacetI();
+                var f2 = new TestFacetI();
+                var f3 = new TestFacetI();
 
-                com.addAdminFacet(f1, "Facet1");
-                com.addAdminFacet(f2, "Facet2");
-                com.addAdminFacet(f3, "Facet3");
+                if (!filtered)
+                {
+                    com.addAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
+                    com.addAdminFacet<TestFacet, TestFacetTraits>(f2, "Facet2");
+                    com.addAdminFacet<TestFacet, TestFacetTraits>(f3, "Facet3");
+                }
+                else
+                {
+                    try
+                    {
+                        com.addAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
+                        test(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
 
-                test(com.findAdminFacet("Facet1") == f1);
-                test(com.findAdminFacet("Facet2") == f2);
-                test(com.findAdminFacet("Facet3") == f3);
-                test(com.findAdminFacet("Bogus") == null);
+                    try
+                    {
+                        com.addAdminFacet<TestFacet, TestFacetTraits>(f2, "Facet2");
+                        test(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
 
-                Dictionary<string, Ice.Object> facetMap = com.findAllAdminFacets();
+                    try
+                    {
+                        com.addAdminFacet<TestFacet, TestFacetTraits>(f3, "Facet3");
+                        test(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+
+                if (!filtered)
+                {
+                    test(com.findAdminFacet("Facet1").servant == f1);
+                    test(com.findAdminFacet("Facet2").servant == f2);
+                    test(com.findAdminFacet("Facet3").servant == f3);
+                }
+                else
+                {
+                    test(com.findAdminFacet("Facet1").servant == null);
+                    test(com.findAdminFacet("Facet2").servant == null);
+                    test(com.findAdminFacet("Facet3").servant == null);
+                }
+                test(com.findAdminFacet("Bogus").servant == null);
+
+                Dictionary<string, (object servant, Disp disp)> facetMap = com.findAllAdminFacets();
                 if (builtInFacets)
                 {
                     test(facetMap.Count == 7);
@@ -45,22 +87,27 @@ namespace Ice
                     test(facetMap.ContainsKey("Logger"));
                     test(facetMap.ContainsKey("Metrics"));
                 }
-                else
+                else if (filtered)
                 {
-                    test(facetMap.Count >= 3);
+                    test(facetMap.Count >= 1);
+                    test(facetMap.ContainsKey("Properties"));
                 }
-                test(facetMap.ContainsKey("Facet1"));
-                test(facetMap.ContainsKey("Facet2"));
-                test(facetMap.ContainsKey("Facet3"));
 
-                try
+                if (!filtered)
                 {
-                    com.addAdminFacet(f1, "Facet1");
-                    test(false);
-                }
-                catch (Ice.AlreadyRegisteredException)
-                {
-                    // Expected
+                    test(facetMap.ContainsKey("Facet1"));
+                    test(facetMap.ContainsKey("Facet2"));
+                    test(facetMap.ContainsKey("Facet3"));
+
+                    try
+                    {
+                        com.addAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
+                        test(false);
+                    }
+                    catch (AlreadyRegisteredException)
+                    {
+                        // Expected
+                    }
                 }
 
                 try
@@ -68,29 +115,31 @@ namespace Ice
                     com.removeAdminFacet("Bogus");
                     test(false);
                 }
-                catch (Ice.NotRegisteredException)
+                catch (NotRegisteredException)
                 {
                     // Expected
                 }
 
-                com.removeAdminFacet("Facet1");
-                com.removeAdminFacet("Facet2");
-                com.removeAdminFacet("Facet3");
-
-                try
+                if (!filtered)
                 {
                     com.removeAdminFacet("Facet1");
-                    test(false);
-                }
-                catch (Ice.NotRegisteredException)
-                {
-                    // Expected
+                    com.removeAdminFacet("Facet2");
+                    com.removeAdminFacet("Facet3");
+                    try
+                    {
+                        com.removeAdminFacet("Facet1");
+                        test(false);
+                    }
+                    catch (NotRegisteredException)
+                    {
+                        // Expected
+                    }
                 }
             }
 
             public static void allTests(global::Test.TestHelper helper)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
                 output.Write("testing communicator operations... ");
                 output.Flush();
@@ -98,12 +147,12 @@ namespace Ice
                     //
                     // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
                     //
-                    Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
+                    InitializationData init = new InitializationData();
+                    init.properties = Util.createProperties();
                     init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-                    Ice.Communicator com = Ice.Util.initialize(init);
-                    testFacets(com, true);
+                    Communicator com = Util.initialize(init);
+                    testFacets(com, true, false);
                     com.destroy();
                 }
                 {
@@ -116,7 +165,7 @@ namespace Ice
                     init.properties.setProperty("Ice.Admin.InstanceName", "Test");
                     init.properties.setProperty("Ice.Admin.Facets", "Properties");
                     Ice.Communicator com = Ice.Util.initialize(init);
-                    testFacets(com, false);
+                    testFacets(com, false, true);
                     com.destroy();
                 }
                 {
@@ -124,7 +173,7 @@ namespace Ice
                     // Test: Verify that the operations work correctly with the Admin object disabled.
                     //
                     Ice.Communicator com = Ice.Util.initialize();
-                    testFacets(com, false);
+                    testFacets(com, false, false);
                     com.destroy();
                 }
                 {
@@ -150,7 +199,7 @@ namespace Ice
                     test(com.createAdmin(adapter, id) != null);
                     test(com.getAdmin() != null);
 
-                    testFacets(com, true);
+                    testFacets(com, true, false);
                     com.destroy();
                 }
                 {
@@ -163,9 +212,9 @@ namespace Ice
                     init.properties.setProperty("Ice.Admin.InstanceName", "Test");
                     init.properties.setProperty("Ice.Admin.DelayCreation", "1");
                     Ice.Communicator com = Ice.Util.initialize(init);
-                    testFacets(com, true);
+                    testFacets(com, true, false);
                     com.getAdmin();
-                    testFacets(com, true);
+                    testFacets(com, true, false);
                     com.destroy();
                 }
                 output.WriteLine("ok");
@@ -353,7 +402,7 @@ namespace Ice
                     RemoteLoggerI remoteLogger = new RemoteLoggerI();
 
                     Ice.RemoteLoggerPrx myProxy =
-                        Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.addWithUUID(remoteLogger));
+                        Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.Add(remoteLogger));
 
                     adapter.activate();
 
@@ -542,9 +591,9 @@ namespace Ice
                 factory.shutdown();
             }
 
-            private class RemoteLoggerI : Ice.RemoteLoggerDisp_
+            private class RemoteLoggerI : Ice.RemoteLogger
             {
-                override public void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
+                public void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
                 {
                     lock (this)
                     {
@@ -558,7 +607,7 @@ namespace Ice
                     }
                 }
 
-                override public void log(Ice.LogMessage message, Ice.Current current)
+                public void log(Ice.LogMessage message, Ice.Current current)
                 {
                     lock (this)
                     {

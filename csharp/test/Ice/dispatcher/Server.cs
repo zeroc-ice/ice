@@ -4,6 +4,7 @@
 
 using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -34,9 +35,9 @@ public class Server : Test.TestHelper
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+                adapter.Add(new TestI(), Ice.Util.stringToIdentity("test"));
                 adapter.activate();
-                adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+                adapter2.Add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
                 adapter2.activate();
 
                 communicator.waitForShutdown();

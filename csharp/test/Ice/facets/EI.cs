@@ -6,13 +6,13 @@ namespace Ice
 {
     namespace facets
     {
-        public sealed class EI : Test.EDisp_
+        public sealed class EI : Test.E
         {
             public EI()
             {
             }
 
-            public override string callE(Ice.Current current)
+            public string callE(Ice.Current current)
             {
                 return "E";
             }

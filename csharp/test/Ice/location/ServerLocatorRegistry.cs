@@ -9,7 +9,7 @@ namespace Ice
 {
     namespace location
     {
-        public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
+        public class ServerLocatorRegistry : Test.TestLocatorRegistry
         {
             public ServerLocatorRegistry()
             {
@@ -17,7 +17,7 @@ namespace Ice
                 _objects = new Hashtable();
             }
 
-            public override Task
+            public Task
             setAdapterDirectProxyAsync(string adapter, Ice.ObjectPrx obj, Ice.Current current)
             {
                 if (obj != null)
@@ -31,7 +31,7 @@ namespace Ice
                 return null;
             }
 
-            public override Task
+            public Task
             setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.ObjectPrx obj,
                 Ice.Current current)
             {
@@ -48,22 +48,22 @@ namespace Ice
                 return null;
             }
 
-            public override Task
+            public Task
             setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current)
             {
                 return null;
             }
 
-            public override void addObject(Ice.ObjectPrx obj, Ice.Current current)
+            public void addObject(Ice.ObjectPrx obj, Ice.Current current)
             {
                 addObject(obj);
             }
             public void addObject(Ice.ObjectPrx obj)
             {
-                 _objects[obj.ice_getIdentity()] = obj;
+                _objects[obj.ice_getIdentity()] = obj;
             }
 
-            public virtual Ice.ObjectPrx getAdapter(string adapter)
+            public Ice.ObjectPrx getAdapter(string adapter)
             {
                 object obj = _adapters[adapter];
                 if (obj == null)
@@ -73,7 +73,7 @@ namespace Ice
                 return (Ice.ObjectPrx)obj;
             }
 
-            public virtual Ice.ObjectPrx getObject(Ice.Identity id)
+            public Ice.ObjectPrx getObject(Ice.Identity id)
             {
                 object obj = _objects[id];
                 if (obj == null)

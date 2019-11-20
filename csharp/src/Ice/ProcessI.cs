@@ -4,19 +4,19 @@
 
 namespace IceInternal
 {
-    public sealed class ProcessI : Ice.ProcessDisp_
+    public sealed class ProcessI : Ice.Process
     {
         public ProcessI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
-        public override void shutdown(Ice.Current current)
+        public void shutdown(Ice.Current current)
         {
             _communicator.shutdown();
         }
 
-        public override void writeMessage(string message, int fd, Ice.Current current)
+        public void writeMessage(string message, int fd, Ice.Current current)
         {
             switch (fd)
             {

@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.operations.AMD.Test;
 
 namespace Ice
 {
@@ -26,7 +27,7 @@ namespace Ice
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                        adapter.Add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
                         adapter.activate();
                         serverReady();
                         communicator.waitForShutdown();

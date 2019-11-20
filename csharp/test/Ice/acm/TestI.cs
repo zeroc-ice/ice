@@ -2,17 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.acm.Test;
+
 namespace Ice
 {
     namespace acm
     {
-        public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
+        public class RemoteCommunicatorI : RemoteCommunicator
         {
-            public override Test.RemoteObjectAdapterPrx
+            public RemoteObjectAdapterPrx
             createObjectAdapter(int timeout, int close, int heartbeat, Ice.Current current)
             {
-                Ice.Communicator com = current.adapter.getCommunicator();
-                Ice.Properties properties = com.getProperties();
+                Communicator com = current.adapter.getCommunicator();
+                Properties properties = com.getProperties();
                 string protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
                 string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
@@ -30,60 +32,60 @@ namespace Ice
                     properties.setProperty(name + ".ACM.Heartbeat", heartbeat.ToString());
                 }
                 properties.setProperty(name + ".ThreadPool.Size", "2");
-                Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
-                return Test.RemoteObjectAdapterPrxHelper.uncheckedCast(
-                    current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
+                RemoteObjectAdapter remoteObjectAdapter = new RemoteObjectAdapterI(adapter);
+                return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.Add(remoteObjectAdapter));
             }
 
-            public override void
-            shutdown(Ice.Current current)
+            public void
+            shutdown(Current current)
             {
                 current.adapter.getCommunicator().shutdown();
             }
         }
 
-        public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
+        public class RemoteObjectAdapterI : RemoteObjectAdapter
         {
-            public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
+            public RemoteObjectAdapterI(ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _testIntf = Test.TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), Util.stringToIdentity("test")));
+                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), Util.stringToIdentity("test")));
                 _adapter.activate();
             }
 
-            public override Test.TestIntfPrx getTestIntf(Ice.Current current)
+            public TestIntfPrx getTestIntf(Current current)
             {
                 return _testIntf;
             }
 
-            public override void activate(Ice.Current current)
+            public void activate(Current current)
             {
                 _adapter.activate();
             }
 
-            public override void hold(Ice.Current current)
+            public void hold(Current current)
             {
                 _adapter.hold();
             }
 
-            public override void deactivate(Ice.Current current)
+            public void deactivate(Current current)
             {
                 try
                 {
                     _adapter.destroy();
                 }
-                catch (Ice.ObjectAdapterDeactivatedException)
+                catch (ObjectAdapterDeactivatedException)
                 {
                 }
             }
 
-            private Ice.ObjectAdapter _adapter;
-            private Test.TestIntfPrx _testIntf;
+            private ObjectAdapter _adapter;
+            private TestIntfPrx _testIntf;
         }
 
-        public class TestI : Test.TestIntfDisp_
+        public class TestI : TestIntf
         {
-            public override void sleep(int delay, Ice.Current current)
+            public void sleep(int delay, Current current)
             {
                 lock (this)
                 {
@@ -91,7 +93,7 @@ namespace Ice
                 }
             }
 
-            public override void sleepAndHold(int delay, Ice.Current current)
+            public void sleepAndHold(int delay, Current current)
             {
                 lock (this)
                 {
@@ -100,7 +102,7 @@ namespace Ice
                 }
             }
 
-            public override void interruptSleep(Ice.Current current)
+            public void interruptSleep(Current current)
             {
                 lock (this)
                 {
@@ -110,7 +112,7 @@ namespace Ice
 
             class HeartbeatCallbackI
             {
-                public void heartbeat(Ice.Connection c)
+                public void heartbeat(Connection c)
                 {
                     lock (this)
                     {
@@ -133,13 +135,13 @@ namespace Ice
                 private int _count = 0;
             }
 
-            public override void startHeartbeatCount(Ice.Current current)
+            public void startHeartbeatCount(Current current)
             {
                 _callback = new HeartbeatCallbackI();
                 current.con.setHeartbeatCallback(_callback.heartbeat);
             }
 
-            public override void waitForHeartbeatCount(int count, Ice.Current current)
+            public void waitForHeartbeatCount(int count, Current current)
             {
                 System.Diagnostics.Debug.Assert(_callback != null);
                 _callback.waitForCount(count);

@@ -5,49 +5,51 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using @abstract;
+using @abstract.System;
 
 public class Client : Test.TestHelper
 {
-    public sealed class caseI : @abstract.caseDisp_
+    public sealed class caseI : @abstract.@case
     {
-        public override Task<int>
+        public Task<int>
         catchAsync(int @checked, Ice.Current current)
         {
             return Task<int>.FromResult(0);
         }
     }
 
-    public sealed class decimalI : @abstract.decimalDisp_
+    public sealed class decimalI : @abstract.@decimal
     {
-        public override void @default(Ice.Current current)
+        public void @default(Ice.Current current)
         {
         }
     }
 
-    public sealed class explicitI : @abstract.explicitDisp_
+    public sealed class explicitI : @abstract.@explicit
     {
-        public override Task<int>
+        public Task<int>
         catchAsync(int @checked, Ice.Current current)
         {
             return Task<int>.FromResult(0);
         }
 
-        public override void @default(Ice.Current current)
+        public void @default(Ice.Current current)
         {
             test(current.operation == "default");
         }
     }
 
-    public sealed class Test1I : @abstract.System.TestDisp_
+    public sealed class Test1I : @abstract.System.Test
     {
-        public override void op(Ice.Current c)
+        public void op(Ice.Current c)
         {
         }
     }
 
-    public sealed class Test2I : System.TestDisp_
+    public sealed class Test2I : System.Test
     {
-        public override void op(Ice.Current c)
+        public void op(Ice.Current c)
         {
         }
     }
@@ -108,9 +110,9 @@ public class Client : Test.TestHelper
         {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
-            adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));
-            adapter.add(new Test2I(), Ice.Util.stringToIdentity("test2"));
+            adapter.Add(new decimalI(), Ice.Util.stringToIdentity("test"));
+            adapter.Add(new Test1I(), Ice.Util.stringToIdentity("test1"));
+            adapter.Add(new Test2I(), Ice.Util.stringToIdentity("test2"));
             adapter.activate();
 
             Console.Out.Write("testing operation name... ");

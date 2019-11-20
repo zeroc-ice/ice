@@ -2,13 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.binding.Test;
+
 namespace Ice
 {
     namespace binding
     {
-        public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
+        public class RemoteCommunicatorI : Test.RemoteCommunicator
         {
-            public override Test.RemoteObjectAdapterPrx
+            public Test.RemoteObjectAdapterPrx
             createObjectAdapter(string name, string endpts, Ice.Current current)
             {
                 int retry = 5;
@@ -26,7 +28,7 @@ namespace Ice
                         communicator.getProperties().setProperty(name + ".ThreadPool.Size", "1");
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
                         return Test.RemoteObjectAdapterPrxHelper.uncheckedCast(
-                            current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                            current.adapter.Add(new RemoteObjectAdapterI(adapter)));
                     }
                     catch (Ice.SocketException)
                     {
@@ -38,13 +40,13 @@ namespace Ice
                 }
             }
 
-            public override void
+            public void
             deactivateObjectAdapter(Test.RemoteObjectAdapterPrx adapter, Ice.Current current)
             {
                 adapter.deactivate(); // Collocated call.
             }
 
-            public override void
+            public void
             shutdown(Ice.Current current)
             {
                 current.adapter.getCommunicator().shutdown();

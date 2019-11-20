@@ -3,6 +3,7 @@
 //
 
 using Test;
+using Ice.optional.AMD.Test;
 
 namespace Ice
 {
@@ -21,7 +22,7 @@ namespace Ice
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         var adapter = communicator.createObjectAdapter("TestAdapter");
-                        adapter.add(new InitialI(), Ice.Util.stringToIdentity("initial"));
+                        adapter.Add(new InitialI(), Util.stringToIdentity("initial"));
                         adapter.activate();
                         serverReady();
                         communicator.waitForShutdown();
