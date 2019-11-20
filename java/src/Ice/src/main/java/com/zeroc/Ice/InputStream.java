@@ -982,7 +982,7 @@ public class InputStream
      *
      * @return The extracted byte sequence.
      **/
-    public @NonNull byte[] readByteSeq()
+    public byte[] readByteSeq()
     {
         try
         {
@@ -1003,7 +1003,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted byte sequence, or null if it wasn't sent.
      **/
-    public @Nullable byte[] readByteSeq(int tag)
+    public byte @Nullable[] readByteSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1020,7 +1020,7 @@ public class InputStream
      *
      * @return A byte buffer "slice" of the internal buffer.
      **/
-    public java.nio.@NonNull ByteBuffer readByteBuffer()
+    public java.nio.ByteBuffer readByteBuffer()
     {
         try
         {
@@ -1050,7 +1050,7 @@ public class InputStream
         int sz = readAndCheckSeqSize(1);
         if (sz == 0)
         {
-            return null; //TODOTODO we should make this method NonNull.
+            return null;
         }
         com.zeroc.IceInternal.ObjectInputStream in = null;
         try
@@ -1143,7 +1143,7 @@ public class InputStream
      *
      * @return The extracted boolean sequence.
      **/
-    public @NonNull boolean[] readBoolSeq()
+    public boolean[] readBoolSeq()
     {
         try
         {
@@ -1167,7 +1167,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted boolean sequence, or null if it wasn't sent.
      **/
-    public @Nullable boolean[] readBoolSeq(int tag)
+    public boolean @Nullable[] readBoolSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1219,7 +1219,7 @@ public class InputStream
      *
      * @return The extracted short sequence.
      **/
-    public @NonNull short[] readShortSeq()
+    public short[] readShortSeq()
     {
         try
         {
@@ -1242,7 +1242,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted short sequence, or null if it wasn't sent.
      **/
-    public @Nullable short[] readShortSeq(int tag)
+    public short @Nullable[] readShortSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1260,7 +1260,7 @@ public class InputStream
      *
      * @return A short buffer "slice" of the internal buffer.
      **/
-    public java.nio.@NonNull ShortBuffer readShortBuffer()
+    public java.nio.ShortBuffer readShortBuffer()
     {
         try
         {
@@ -1319,7 +1319,7 @@ public class InputStream
      *
      * @return The extracted int sequence.
      **/
-    public @NonNull int[] readIntSeq()
+    public int[] readIntSeq()
     {
         try
         {
@@ -1342,7 +1342,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted int sequence, or null if it wasn't sent.
      **/
-    public @Nullable int[] readIntSeq(int tag)
+    public int @Nullable[] readIntSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1360,7 +1360,7 @@ public class InputStream
      *
      * @return An int buffer "slice" of the internal buffer.
      **/
-    public java.nio.@NonNull IntBuffer readIntBuffer()
+    public java.nio.IntBuffer readIntBuffer()
     {
         try
         {
@@ -1419,7 +1419,7 @@ public class InputStream
      *
      * @return The extracted long sequence.
      **/
-    public @NonNull long[] readLongSeq()
+    public long[] readLongSeq()
     {
         try
         {
@@ -1442,7 +1442,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted long sequence, or null if it wasn't sent.
      **/
-    public @Nullable long[] readLongSeq(int tag)
+    public long @Nullable[] readLongSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1460,7 +1460,7 @@ public class InputStream
      *
      * @return A long buffer "slice" of the internal buffer.
      **/
-    public java.nio.@NonNull LongBuffer readLongBuffer()
+    public java.nio.LongBuffer readLongBuffer()
     {
         try
         {
@@ -1519,7 +1519,7 @@ public class InputStream
      *
      * @return The extracted float sequence.
      **/
-    public @NonNull float[] readFloatSeq()
+    public float[] readFloatSeq()
     {
         try
         {
@@ -1542,7 +1542,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted float sequence, or null if it wasn't sent.
      **/
-    public @Nullable float[] readFloatSeq(int tag)
+    public float @Nullable[] readFloatSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1560,7 +1560,7 @@ public class InputStream
      *
      * @return A float buffer "slice" of the internal buffer.
      **/
-    public java.nio.@NonNull FloatBuffer readFloatBuffer()
+    public java.nio.FloatBuffer readFloatBuffer()
     {
         try
         {
@@ -1619,7 +1619,7 @@ public class InputStream
      *
      * @return The extracted double sequence.
      **/
-    public @NonNull double[] readDoubleSeq()
+    public double[] readDoubleSeq()
     {
         try
         {
@@ -1642,7 +1642,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted double sequence, or null if it wasn't sent.
      **/
-    public @Nullable double[] readDoubleSeq(int tag)
+    public double @Nullable[] readDoubleSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.VSize))
         {
@@ -1660,7 +1660,7 @@ public class InputStream
      *
      * @return A double buffer "slice" of the internal buffer.
      **/
-    public java.nio.@NonNull DoubleBuffer readDoubleBuffer()
+    public java.nio.DoubleBuffer readDoubleBuffer()
     {
         try
         {
@@ -1686,7 +1686,7 @@ public class InputStream
      *
      * @return The extracted string.
      **/
-    public @NonNull String readString()
+    public String readString()
     {
         final int len = readSize();
 
@@ -1786,7 +1786,7 @@ public class InputStream
      *
      * @return The extracted string sequence.
      **/
-    public @NonNull String[] readStringSeq()
+    public String[] readStringSeq()
     {
         final int sz = readAndCheckSeqSize(1);
         String[] v = new String[sz];
@@ -1803,7 +1803,7 @@ public class InputStream
      * @param tag The numeric tag associated with the value.
      * @return The extracted string sequence, or null if it wasn't sent.
      **/
-    public @Nullable String[] readStringSeq(int tag)
+    public String @Nullable[] readStringSeq(int tag)
     {
         if(readOptional(tag, OptionalFormat.FSize))
         {
@@ -1828,7 +1828,7 @@ public class InputStream
             throw new MarshalException("cannot unmarshal a proxy without a communicator");
         }
 
-        return _instance.proxyFactory().streamToProxy(this); //TODOTODO it would be nice to also make this NonNull
+        return _instance.proxyFactory().streamToProxy(this);
     }
 
     public <T extends ObjectPrx> T readProxy(java.util.function.Function<ObjectPrx, T> cast)
@@ -1838,7 +1838,7 @@ public class InputStream
             throw new MarshalException("cannot unmarshal a proxy without a communicator");
         }
 
-        return cast.apply(_instance.proxyFactory().streamToProxy(this)); //TODOTODO it would be nice to also make this NonNull
+        return cast.apply(_instance.proxyFactory().streamToProxy(this));
     }
 
     /**
@@ -1921,7 +1921,7 @@ public class InputStream
      *
      * @param cls The type of the Ice.Value to unmarshal.
      **/
-    public <T extends Value> void readValue(java.util.function.@Nullable Consumer<@NonNull T> cb, Class<T> cls)
+    public <T extends Value> void readValue(java.util.function.@Nullable Consumer<T> cb, Class<T> cls)
     {
         initEncaps();
         if(cb == null)
@@ -1950,7 +1950,7 @@ public class InputStream
      * extracts Slice values in stages. The Ice run time calls accept on the consumer when
      * the corresponding instance has been fully unmarshaled.
      **/
-    public void readValue(java.util.function.@Nullable Consumer<@NonNull Value> cb)
+    public void readValue(java.util.function.@Nullable Consumer<Value> cb)
     {
         readValue(cb, Value.class);
     }

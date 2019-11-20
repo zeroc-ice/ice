@@ -642,7 +642,7 @@ public class OutputStream
      * @param v The byte sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeByteSeq(@Nullable byte[] v)
+    public void writeByteSeq(byte @Nullable[] v)
     {
         if(v == null)
         {
@@ -662,7 +662,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The byte sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeByteSeq(int tag, @Nullable byte[] v)
+    public void writeByteSeq(int tag, byte @Nullable[] v)
     {
         if(v != null)
         {
@@ -782,7 +782,7 @@ public class OutputStream
      * @param v The boolean sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeBoolSeq(@Nullable boolean[] v)
+    public void writeBoolSeq(boolean @Nullable[] v)
     {
         if(v == null)
         {
@@ -805,7 +805,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The boolean sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeBoolSeq(int tag, @Nullable boolean[] v)
+    public void writeBoolSeq(int tag, boolean @Nullable[] v)
     {
         if(v != null)
         {
@@ -850,7 +850,7 @@ public class OutputStream
      * @param v The short sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeShortSeq(@Nullable short[] v)
+    public void writeShortSeq(short @Nullable[] v)
     {
         if(v == null)
         {
@@ -872,7 +872,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The short sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeShortSeq(int tag, @Nullable short[] v)
+    public void writeShortSeq(int tag, short @Nullable[] v)
     {
         if(v != null)
         {
@@ -953,7 +953,7 @@ public class OutputStream
      * @param v The int sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeIntSeq(@Nullable int[] v)
+    public void writeIntSeq(int @Nullable[] v)
     {
         if(v == null)
         {
@@ -975,7 +975,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The int sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeIntSeq(int tag, @Nullable int[] v)
+    public void writeIntSeq(int tag, int @Nullable[] v)
     {
         if(v != null)
         {
@@ -1045,7 +1045,7 @@ public class OutputStream
      * @param v The long sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeLongSeq(@Nullable long[] v)
+    public void writeLongSeq(long @Nullable[] v)
     {
         if(v == null)
         {
@@ -1067,7 +1067,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The long sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeLongSeq(int tag, @Nullable long[] v)
+    public void writeLongSeq(int tag, long @Nullable[] v)
     {
         if(v != null)
         {
@@ -1137,7 +1137,7 @@ public class OutputStream
      * @param v The float sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeFloatSeq(@Nullable float[] v)
+    public void writeFloatSeq(float @Nullable[] v)
     {
         if(v == null)
         {
@@ -1159,7 +1159,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The float sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeFloatSeq(int tag, @Nullable float[] v)
+    public void writeFloatSeq(int tag, float @Nullable[] v)
     {
         if(v != null)
         {
@@ -1229,7 +1229,7 @@ public class OutputStream
      * @param v The double sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeDoubleSeq(@Nullable double[] v)
+    public void writeDoubleSeq(double @Nullable[] v)
     {
         if(v == null)
         {
@@ -1251,7 +1251,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The double sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeDoubleSeq(int tag, @Nullable double[] v)
+    public void writeDoubleSeq(int tag, double @Nullable[] v)
     {
         if(v != null)
         {
@@ -1381,7 +1381,7 @@ public class OutputStream
      * @param v The string sequence to write to the stream.
      *          Passing <code>null</code> causes an empty sequence to be written to the stream.
      **/
-    public void writeStringSeq(@Nullable String[] v)
+    public void writeStringSeq(String @Nullable[] v)
     {
         if(v == null)
         {
@@ -1403,7 +1403,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The string sequence to write to the stream. Nothing will be written to the stream if null is passed.
      **/
-    public void writeStringSeq(int tag, @Nullable String[] v)
+    public void writeStringSeq(int tag, String @Nullable[] v)
     {
         if(v != null)
         {
@@ -1419,7 +1419,8 @@ public class OutputStream
     /**
      * Writes a proxy to the stream.
      *
-     * @param v The proxy to write. //TODOTODO Maybe a better comment here about nullability behavior.
+     * @param v The proxy to write.
+     *          Passing <code>null</code> causes a null proxy to be written to the stream.
      **/
     public void writeProxy(@Nullable ObjectPrx v)
     {

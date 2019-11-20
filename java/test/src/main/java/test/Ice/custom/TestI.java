@@ -15,6 +15,8 @@ import java.nio.LongBuffer;
 import java.nio.FloatBuffer;
 import java.nio.DoubleBuffer;
 
+import com.zeroc.Ice.Annotations.*;
+
 import test.Ice.custom.Test.C;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;

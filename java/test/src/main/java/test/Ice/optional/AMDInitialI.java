@@ -403,7 +403,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Initial.OpSmallStructListResult> opSmallStructListAsync(
-        @Nullable java.util.@Nullable List<SmallStruct> p1,
+        java.util.@Nullable List<SmallStruct> p1,
         Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpSmallStructListResult(p1, p1));
@@ -411,7 +411,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Initial.OpSmallStructListReqResult> opSmallStructListReqAsync(
-        @Nullable java.util.@Nullable List<SmallStruct> p1,
+        java.util.@Nullable List<SmallStruct> p1,
         Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpSmallStructListReqResult(p1, p1));
@@ -435,7 +435,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Initial.OpFixedStructListResult> opFixedStructListAsync(
-        @Nullable java.util.@Nullable List<FixedStruct> p1,
+        java.util.@Nullable List<FixedStruct> p1,
         Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpFixedStructListResult(p1, p1));
@@ -443,7 +443,7 @@ public final class AMDInitialI implements Initial
 
     @Override
     public CompletionStage<Initial.OpFixedStructListReqResult> opFixedStructListReqAsync(
-        @Nullable java.util.@Nullable List<FixedStruct> p1,
+        java.util.@Nullable List<FixedStruct> p1,
         Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpFixedStructListReqResult(p1, p1));

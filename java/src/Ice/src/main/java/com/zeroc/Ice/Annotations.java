@@ -31,7 +31,7 @@ public class Annotations
     @Documented
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
-    public static @interface LazyNonNull
+    public static @interface MonotonicNonNull
     {
 
     }
