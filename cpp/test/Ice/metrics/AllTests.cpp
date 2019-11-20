@@ -1357,6 +1357,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     metricsOneway->op();
 #ifdef ICE_CPP11_MAPPING
     metricsOneway->opAsync().get();
+    promise<void> sent;
     metricsOneway->opAsync(
         [cb]()
         {
@@ -1376,10 +1377,12 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             {
                 test(false);
             }
-        });
+        },
+        [&](bool) { sent.set_value(); });
+    sent.get_future().get();
 #else
     metricsOneway->end_op(metricsOneway->begin_op());
-    metricsOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
+    metricsOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception))->waitForSent();
 #endif
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
