@@ -396,6 +396,17 @@ namespace Ice
             }
         }
 
+        public Disp Find(Identity ident, string facet = "")
+        {
+            lock (this)
+            {
+                checkForDeactivation();
+                checkIdentity(ident);
+
+                return _servantManager.findServant(ident, facet);
+            }
+        }
+
         public Dictionary<string, Disp> FindAllFacets(string ident)
         {
             return FindAllFacets(Util.stringToIdentity(ident));
