@@ -396,17 +396,6 @@ namespace Ice
             }
         }
 
-        public Disp Find(Identity ident, string facet = "")
-        {
-            lock (this)
-            {
-                checkForDeactivation();
-                checkIdentity(ident);
-
-                return _servantManager.findServant(ident, facet);
-            }
-        }
-
         public Dictionary<string, Disp> FindAllFacets(string ident)
         {
             return FindAllFacets(Util.stringToIdentity(ident));
@@ -420,17 +409,6 @@ namespace Ice
                 checkIdentity(ident);
 
                 return _servantManager.findAllFacets(ident);
-            }
-        }
-
-        public Disp FindByProxy(ObjectPrx proxy)
-        {
-            lock (this)
-            {
-                checkForDeactivation();
-
-                Reference @ref = ((ObjectPrxHelperBase)proxy).iceReference();
-                return Find(@ref.getIdentity(), @ref.getFacet());
             }
         }
 

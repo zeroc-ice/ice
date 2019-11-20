@@ -217,24 +217,6 @@ namespace Ice
         Disp RemoveDefaultServant(string category);
 
         /// <summary>
-        /// Look up a servant in this object adapter's Active Servant Map
-        /// by the identity of the Ice object it implements.
-        /// This operation only tries to look up a servant in
-        /// the Active Servant Map. It does not attempt to find a servant
-        /// by using any installed ServantLocator.
-        ///
-        /// </summary>
-        /// <param name="id">The identity of the Ice object for which the servant
-        /// should be returned.
-        ///
-        /// </param>
-        /// <returns>The servant that implements the Ice object with the
-        /// given identity, or null if no such servant has been found.
-        ///
-        /// </returns>
-        Disp Find(Identity id, string facet = "");
-
-        /// <summary>
         /// Find all facets with the given identity in the Active Servant
         /// Map.
         /// </summary>
@@ -249,23 +231,6 @@ namespace Ice
         /// </returns>
         Dictionary<string, Disp> FindAllFacets(string id);
         Dictionary<string, Disp> FindAllFacets(Identity id);
-
-        /// <summary>
-        /// Look up a servant in this object adapter's Active Servant Map,
-        /// given a proxy.
-        /// This operation only tries to lookup a servant in
-        /// the Active Servant Map. It does not attempt to find a servant
-        /// by using any installed ServantLocator.
-        ///
-        /// </summary>
-        /// <param name="proxy">The proxy for which the servant should be returned.
-        ///
-        /// </param>
-        /// <returns>The servant that matches the proxy, or null if no such
-        /// servant has been found.
-        ///
-        /// </returns>
-        Disp FindByProxy(ObjectPrx proxy);
 
         /// <summary>
         /// Add a Servant Locator to this object adapter.
