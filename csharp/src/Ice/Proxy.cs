@@ -15,43 +15,6 @@ using IceUtilInternal;
 namespace Ice
 {
     /// <summary>
-    /// Delegate for a successful <code>ice_isA</code> invocation.
-    /// <param name="ret">True if the remote object supports the type, false otherwise.</param>
-    /// </summary>
-    public delegate void Callback_Object_ice_isA(bool ret);
-
-    /// <summary>
-    /// Delegate for a successful <code>ice_ids</code> invocation.
-    /// <param name="ret">The array of Slice type ids supported by the remote object.</param>
-    /// </summary>
-    public delegate void Callback_Object_ice_ids(string[] ret);
-
-    /// <summary>
-    /// Delegate for a successful <code>ice_id</code> invocation.
-    /// <param name="ret">The Slice type id of the most-derived interface supported by the remote object.</param>
-    /// </summary>
-    public delegate void Callback_Object_ice_id(string ret);
-
-    /// <summary>
-    /// Delegate for a successful <code>ice_ping</code> invocation.
-    /// </summary>
-    public delegate void Callback_Object_ice_ping();
-
-    /// <summary>
-    /// Delegate for a successful <code>ice_invoke</code> invocation.
-    /// <param name="ret">True if the invocation succeeded, or false if the invocation
-    /// raised a user exception.</param>
-    /// <param name="outEncaps">The encoded out-parameters or user exception.</param>
-    /// </summary>
-    public delegate void Callback_Object_ice_invoke(bool ret, byte[] outEncaps);
-
-    /// <summary>
-    /// Delegate for a successful <code>ice_getConnection</code> invocation.
-    /// <param name="ret">The connection used by the proxy.</param>
-    /// </summary>
-    public delegate void Callback_Object_ice_getConnection(Connection ret);
-
-    /// <summary>
     /// Value type to allow differenciate between a context that is explicity set to
     /// empty (empty or null dictionary) and a context that has non been set.
     /// </summary>
