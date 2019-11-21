@@ -4318,7 +4318,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
     _out << nl << "public interface " << fixId(name);
-    for(auto q = bases.begin(); q != bases.end();)
+    for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
     {
         if(q == bases.begin())
         {
