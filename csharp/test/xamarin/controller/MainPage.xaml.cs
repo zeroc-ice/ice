@@ -533,27 +533,27 @@ namespace controller
         private string _typename;
     }
 
-    public class ProccessI : Test.Common.ProcessDisp_
+    public class ProccessI : Test.Common.Process
     {
         public ProccessI(ControllerHelperI controllerHelper)
         {
             _controllerHelper = controllerHelper;
         }
 
-        public override void waitReady(int timeout, Current current)
+        public void waitReady(int timeout, Current current)
         {
             _controllerHelper.waitReady(timeout);
         }
 
-        public override int waitSuccess(int timeout, Current current)
+        public int waitSuccess(int timeout, Current current)
         {
             return _controllerHelper.waitSuccess(timeout);
         }
 
-        public override string terminate(Current current)
+        public string terminate(Current current)
         {
             _controllerHelper.shutdown();
-            current.adapter.remove(current.id);
+            current.adapter.Remove(current.id);
             _controllerHelper.join();
             return _controllerHelper.getOutput();
         }
@@ -561,14 +561,14 @@ namespace controller
         private ControllerHelperI _controllerHelper;
     }
 
-    public class ProcessControllerI : Test.Common.ProcessControllerDisp_
+    public class ProcessControllerI : Test.Common.ProcessController
     {
         public ProcessControllerI(MainPage mainPage)
         {
             _mainPage = mainPage;
         }
 
-        public override Test.Common.ProcessPrx start(string testsuite, string exe, string[] args, Current current)
+        public Test.Common.ProcessPrx start(string testsuite, string exe, string[] args, Current current)
         {
             var test = testsuite.Replace("/", ".") + "." + char.ToUpper(exe[0]) + exe.Substring(1);
             _mainPage.print("starting test." + test + "... ");
@@ -577,10 +577,10 @@ namespace controller
             Array.Copy(args, 0, newArgs, 1, args.Length);
             var helper = new ControllerHelperI(test, newArgs, _mainPage, _mainPage.platformAdapter);
             helper.run();
-            return Test.Common.ProcessPrxHelper.uncheckedCast(current.adapter.addWithUUID(new ProccessI(helper)));
+            return Test.Common.ProcessPrxHelper.uncheckedCast(current.adapter.Add(new ProccessI(helper)));
         }
 
-        public override string getHost(string protocol, bool ipv6, Current current)
+        public string getHost(string protocol, bool ipv6, Current current)
         {
             if (_mainPage.platformAdapter.isEmulator())
             {
@@ -622,9 +622,9 @@ namespace controller
 
             _adapter = _communicator.createObjectAdapter("ControllerAdapter");
             _processController = ProcessControllerPrxHelper.uncheckedCast(
-                _adapter.add(new ProcessControllerI(mainPage),
-                             Util.stringToIdentity(mainPage.platformAdapter.processControllerIdentity())));
-            _adapter.activate();
+                _adapter.Add(new ProcessControllerI(mainPage),
+                             mainPage.platformAdapter.processControllerIdentity()));
+            _adapter.Activate();
 
             registerProcessController();
             _mainPage.print(mainPage.platformAdapter.processControllerIdentity());

@@ -11,6 +11,7 @@
     <Compile Include="../../../../Ice/optional/Server.cs" />
     <Compile Include="../../../../Ice/optional/ServerAMD.cs" />
     <Compile Include="../../../../Ice/optional/TestI.cs" />
+    <Compile Include="../../../../Ice/optional/TestAMDI.cs" />
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../../../Ice/optional/Test.ice</SliceCompileSource>
     </Compile>
