@@ -65,7 +65,7 @@ namespace Ice
     /// <summary>
     /// Base interface of all object proxies.
     /// </summary>
-    public interface IObjectPrx : ISerializable, ICloneable
+    public interface IObjectPrx : ISerializable
     {
         public Reference IceReference { get; }
         public RequestHandler? RequestHandler { get; set; }
@@ -974,11 +974,6 @@ namespace Ice
                 IceReference = h.IceReference;
                 RequestHandler = h.RequestHandler;
             }
-        }
-
-        public object Clone()
-        {
-            return new ObjectPrx(this);
         }
 
         public virtual IObjectPrx Clone(Reference reference)
