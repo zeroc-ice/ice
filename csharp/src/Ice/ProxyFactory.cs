@@ -10,18 +10,18 @@ namespace IceInternal
 {
     public sealed class ProxyFactory
     {
-        public Ice.ObjectPrx stringToProxy(string str)
+        public Ice.IObjectPrx stringToProxy(string str)
         {
             Reference r = _instance.referenceFactory().create(str, null);
             return referenceToProxy(r);
         }
 
-        public string proxyToString(Ice.ObjectPrx proxy)
+        public string proxyToString(Ice.IObjectPrx proxy)
         {
             if (proxy != null)
             {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-                return h.iceReference().ToString();
+                Ice.ObjectPrx h = (Ice.ObjectPrx)proxy;
+                return h.IceReference.ToString();
             }
             else
             {
@@ -29,19 +29,19 @@ namespace IceInternal
             }
         }
 
-        public Ice.ObjectPrx propertyToProxy(string prefix)
+        public Ice.IObjectPrx propertyToProxy(string prefix)
         {
             string proxy = _instance.initializationData().properties.getProperty(prefix);
             Reference r = _instance.referenceFactory().create(proxy, prefix);
             return referenceToProxy(r);
         }
 
-        public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
+        public Dictionary<string, string> proxyToProperty(Ice.IObjectPrx proxy, string prefix)
         {
             if (proxy != null)
             {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-                return h.iceReference().toProperty(prefix);
+                Ice.ObjectPrx h = (Ice.ObjectPrx)proxy;
+                return h.IceReference.toProperty(prefix);
             }
             else
             {
@@ -49,7 +49,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
+        public Ice.IObjectPrx streamToProxy(Ice.InputStream s)
         {
             Ice.Identity ident = new Ice.Identity();
             ident.ice_readMembers(s);
@@ -58,18 +58,9 @@ namespace IceInternal
             return referenceToProxy(r);
         }
 
-        public Ice.ObjectPrx referenceToProxy(Reference r)
+        public Ice.IObjectPrx? referenceToProxy(Reference? r)
         {
-            if (r != null)
-            {
-                Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
-                proxy.setup(r);
-                return proxy;
-            }
-            else
-            {
-                return null;
-            }
+            return r == null ? null : new Ice.ObjectPrx(r);
         }
 
         public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)
@@ -77,7 +68,7 @@ namespace IceInternal
             TraceLevels traceLevels = _instance.traceLevels();
             Ice.Logger logger = _instance.initializationData().logger;
 
-            if (@ref.getMode() == Reference.Mode.ModeBatchOneway || @ref.getMode() == Reference.Mode.ModeBatchDatagram)
+            if (@ref.getMode() == Ice.InvocationMode.BatchOneway || @ref.getMode() == Ice.InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // batch no longer implemented anyway
                 throw ex;

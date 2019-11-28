@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Test;
+using Ice;
 
 namespace Test
 {
@@ -36,14 +36,12 @@ public class AllTests : Test.AllTests
         var output = helper.getWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        Ice.ObjectPrx basePrx = communicator.stringToProxy("Test:" + helper.getTestEndpoint(0) + " -t 2000");
-        test(basePrx != null);
+        IObjectPrx basePrx = IObjectPrx.Parse($"Test:{helper.getTestEndpoint(0)} -t 2000", communicator);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(basePrx);
-        test(testPrx != null);
+        TestIntfPrx testPrx = TestIntfPrx.CheckedCast(basePrx);
         test(testPrx.Equals(basePrx));
         output.WriteLine("ok");
 
@@ -59,7 +57,7 @@ public class AllTests : Test.AllTests
                 test(o.ice_id().Equals("::Test::SBase"));
                 sb = (SBase)o;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -90,7 +88,7 @@ public class AllTests : Test.AllTests
                 sb = testPrx.SBaseAsSBase();
                 test(sb.sb.Equals("SBase.sb"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -117,7 +115,7 @@ public class AllTests : Test.AllTests
                 test(sb.sb.Equals("SBSKnownDerived.sb"));
                 sbskd = (SBSKnownDerived)sb;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -147,7 +145,7 @@ public class AllTests : Test.AllTests
                 sbskd = testPrx.SBSKnownDerivedAsSBSKnownDerived();
                 test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -172,20 +170,20 @@ public class AllTests : Test.AllTests
                 sb = testPrx.SBSUnknownDerivedAsSBase();
                 test(sb.sb.Equals("SBSUnknownDerived.sb"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
             }
         }
-        if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+        if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
         {
             try
             {
                 SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompact();
                 test(sb.sb.Equals("SBSUnknownDerived.sb"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -206,7 +204,7 @@ public class AllTests : Test.AllTests
             {
                 // Expected.
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -220,7 +218,7 @@ public class AllTests : Test.AllTests
             SBase sb = testPrx.SBSUnknownDerivedAsSBaseAsync().Result;
             test(sb.sb.Equals("SBSUnknownDerived.sb"));
         }
-        if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+        if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
         {
             //
             // This test succeeds for the 1.0 encoding.
@@ -253,7 +251,7 @@ public class AllTests : Test.AllTests
             try
             {
                 Ice.Value o = testPrx.SUnknownAsObject();
-                test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
                 test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                 test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
@@ -261,9 +259,9 @@ public class AllTests : Test.AllTests
             }
             catch (Ice.NoValueFactoryException)
             {
-                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -276,7 +274,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
                 {
                     try
                     {
@@ -309,7 +307,7 @@ public class AllTests : Test.AllTests
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -328,7 +326,7 @@ public class AllTests : Test.AllTests
                 test(b.sb.Equals("B1.sb"));
                 test(b.pb == b);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -363,7 +361,7 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("B2.sb"));
                 test(b2.pb == b1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -412,7 +410,7 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.ice_id().Equals("::Test::B"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -463,7 +461,7 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == d1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -512,7 +510,7 @@ public class AllTests : Test.AllTests
                 test(d1.sd1.Equals("D1.sd1"));
                 test(d1.pd1 == b2);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -565,7 +563,7 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -619,7 +617,7 @@ public class AllTests : Test.AllTests
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -659,7 +657,7 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest1(out p1, out p2);
                 test(ret == p1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -685,7 +683,7 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest2(out p1, out p2);
                 test(ret == p1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -747,7 +745,7 @@ public class AllTests : Test.AllTests
                 test(b2 != d1);
                 test(b2 != d3);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -849,7 +847,7 @@ public class AllTests : Test.AllTests
                 test(b2 != d1);
                 test(b2 != d3);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -929,7 +927,7 @@ public class AllTests : Test.AllTests
                 test(ret.pb == null);
                 test(ret.ice_id().Equals("::Test::D1"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -980,7 +978,7 @@ public class AllTests : Test.AllTests
                 test(ret.pb == null);
                 test(ret.ice_id().Equals("::Test::B"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1033,7 +1031,7 @@ public class AllTests : Test.AllTests
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1095,7 +1093,7 @@ public class AllTests : Test.AllTests
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1215,7 +1213,7 @@ public class AllTests : Test.AllTests
                 test(ss2d2.ice_id().Equals("::Test::D1"));
                 test(ss2d4.ice_id().Equals("::Test::B"));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1353,7 +1351,7 @@ public class AllTests : Test.AllTests
                     test(d1.pd1 == d1);
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1427,7 +1425,7 @@ public class AllTests : Test.AllTests
                 test(e.pb.sb.Equals("sb"));
                 test(e.pb.pb == e.pb);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1452,7 +1450,7 @@ public class AllTests : Test.AllTests
                     test(e.pb.sb.Equals("sb"));
                     test(e.pb.pb == e.pb);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     output.WriteLine(ex.ToString());
                     test(false);
@@ -1483,7 +1481,7 @@ public class AllTests : Test.AllTests
                 test(e.pd1.sd1.Equals("sd2"));
                 test(e.pd1.pd1 == e.pd1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1514,7 +1512,7 @@ public class AllTests : Test.AllTests
                     test(e.pd1.sd1.Equals("sd2"));
                     test(e.pd1.pd1 == e.pd1);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     output.WriteLine(ex.ToString());
                     test(false);
@@ -1545,7 +1543,7 @@ public class AllTests : Test.AllTests
                 test(e.pd1.sd1.Equals("sd2"));
                 test(e.pd1.pd1 == e.pd1);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1576,7 +1574,7 @@ public class AllTests : Test.AllTests
                     test(e.pd1.sd1.Equals("sd2"));
                     test(e.pd1.pd1 == e.pd1);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     output.WriteLine(ex.ToString());
                     test(false);
@@ -1601,7 +1599,7 @@ public class AllTests : Test.AllTests
                 test(e.pb.sb.Equals("sb d2"));
                 test(e.pb.pb == e.pb);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1626,7 +1624,7 @@ public class AllTests : Test.AllTests
                     test(e.pb.sb.Equals("sb d2"));
                     test(e.pb.pb == e.pb);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     output.WriteLine(ex.ToString());
                     test(false);
@@ -1644,7 +1642,7 @@ public class AllTests : Test.AllTests
                 testPrx.useForward(out f);
                 test(f != null);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);
@@ -1710,7 +1708,7 @@ public class AllTests : Test.AllTests
             pcd.pbs = new PBase[] { pcd };
 
             PBase r = testPrx.exchangePBase(pcd);
-            if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
                 test(!(r is PCDerived));
                 test(r.pi == 3);
@@ -1737,7 +1735,7 @@ public class AllTests : Test.AllTests
             pcd.pbs = new PBase[] { pcd };
 
             PBase r = testPrx.exchangePBase(pcd);
-            if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
                 test(!(r is CompactPCDerived));
                 test(r.pi == 3);
@@ -1778,7 +1776,7 @@ public class AllTests : Test.AllTests
             pcd.pcd3 = pcd.pbs[10];
 
             PBase r = testPrx.exchangePBase(pcd);
-            if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
                 test(!(r is PCDerived3));
                 test(r is Preserved);
@@ -1813,20 +1811,19 @@ public class AllTests : Test.AllTests
             //
             Preserved p = testPrx.PBSUnknownAsPreserved();
             testPrx.checkPBSUnknown(p);
-            if (!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
-                Ice.SlicedData slicedData = p.ice_getSlicedData();
-                test(slicedData != null);
+                SlicedData slicedData = p.ice_getSlicedData();
                 test(slicedData.slices.Length == 1);
                 test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
-                (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
+                testPrx.Clone(encodingVersion: Util.Encoding_1_0).checkPBSUnknown(p);
             }
             else
             {
                 test(p.ice_getSlicedData() == null);
             }
         }
-        catch (Ice.OperationNotExistException)
+        catch (OperationNotExistException)
         {
         }
 
@@ -1871,7 +1868,7 @@ public class AllTests : Test.AllTests
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
                 test(!(r is PCDerived));
@@ -1880,7 +1877,7 @@ public class AllTests : Test.AllTests
             else
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                PCDerived p2 = r as PCDerived;
+                PCDerived p2 = (PCDerived)r;
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
@@ -1895,7 +1892,7 @@ public class AllTests : Test.AllTests
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
                 test(!(r is CompactPCDerived));
@@ -1904,7 +1901,7 @@ public class AllTests : Test.AllTests
             else
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                CompactPCDerived p2 = r as CompactPCDerived;
+                CompactPCDerived p2 = (CompactPCDerived)r;
                 test(p2.pi == 3);
                 test(p2.pbs[0] == p2);
             }
@@ -1932,7 +1929,7 @@ public class AllTests : Test.AllTests
             pcd.pcd2 = pcd.pi;
             pcd.pcd3 = pcd.pbs[10];
 
-            if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
                 test(!(r is PCDerived3));
@@ -1942,11 +1939,11 @@ public class AllTests : Test.AllTests
             else
             {
                 PBase r = testPrx.exchangePBaseAsync(pcd).Result;
-                PCDerived3 p3 = r as PCDerived3;
+                PCDerived3 p3 = (PCDerived3)r;
                 test(p3.pi == 3);
                 for (int i = 0; i < 300; ++i)
                 {
-                    PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                    PCDerived2 p2 = (PCDerived2)p3.pbs[i];
                     test(p2.pi == i);
                     test(p2.pbs.Length == 1);
                     test(p2.pbs[0] == null);
@@ -1966,9 +1963,9 @@ public class AllTests : Test.AllTests
             //
             Preserved p = testPrx.PBSUnknownAsPreserved();
             testPrx.checkPBSUnknown(p);
-            if (!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            if (!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
             {
-                (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
+                testPrx.Clone(encodingVersion: Util.Encoding_1_0).checkPBSUnknown(p);
             }
         }
         catch (Ice.OperationNotExistException)
@@ -2052,7 +2049,7 @@ public class AllTests : Test.AllTests
 
                 Preserved.counter = 0;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 output.WriteLine(ex.ToString());
                 test(false);

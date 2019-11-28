@@ -407,8 +407,8 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "float",
         "double",
         "string",
-        "Ice.Object",
-        "Ice.ObjectPrx",
+        "Ice.IObject",
+        "Ice.IObjectPrx",
         "Ice.Value"
     };
 
@@ -448,7 +448,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         else
         {
-            return getUnqualified("Ice.ObjectPrx", package);
+            return getUnqualified("Ice.IObjectPrx", package);
         }
     }
 
@@ -755,11 +755,12 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 string typeS = typeToString(type, package);
                 if(marshal)
                 {
-                    out << nl << stream << ".writeProxy(" << param << ");";
+                    out << nl << stream << ".WriteProxy(" << param << ");";
                 }
                 else
                 {
-                    out << nl << param << " = " << stream << ".readProxy()" << ';';
+                    out << nl << param << " = " << stream << ".ReadProxy("
+                        << getUnqualified("Ice.IObjectPrx", package) << ".Factory);";
                 }
                 break;
             }
@@ -781,22 +782,23 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
             string typeS = typeToString(type, package);
             if(marshal)
             {
-                out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
+                out << nl << stream << ".WriteProxy(" << param << ");";
             }
             else
             {
-                out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
+                out << nl << param << " = " << stream << ".ReadProxy(" << typeS  << ".Factory);";
             }
         }
         else
         {
             if(marshal)
             {
-                out << nl << stream << ".writeProxy(" << param << ");";
+                out << nl << stream << ".WriteProxy(" << param << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << ".readProxy()" << ';';
+                out << nl << param << " = " << stream << ".ReadProxy(" << getUnqualified("Ice.IObjectPrx", package)
+                    << ".Factory)" << ';';
             }
         }
         return;
@@ -1050,12 +1052,11 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 string typeS = typeToString(type, scope);
                 if(marshal)
                 {
-                    out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
+                    out << nl << stream << ".WriteProxy(" << tag << ", " << param << ");";
                 }
                 else
                 {
-                    out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<"
-                        << getUnqualified("Ice.ObjectPrx", scope) << ">(" << stream << ".readProxy(" << tag << "));";
+                    out << nl << param << " = " << stream << ".ReadProxy(" << tag << ", " << typeS << ".Factory);";
                 }
                 break;
             }
@@ -1333,15 +1334,9 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    ClassDefPtr clsDef;
-    if(proxy)
-    {
-        clsDef = proxy->_class()->definition();
-    }
-    bool isObjectProxySeq = clsDef && !clsDef->isInterface() && clsDef->allOperations().size() == 0;
     Builtin::Kind kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
 
-    if(builtin || isObjectProxySeq)
+    if(builtin || proxy)
     {
         switch(kind)
         {
@@ -1366,11 +1361,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                             // If the collection is a stack, write in top-to-bottom order. Stacks
                             // cannot contain Ice.Object.
                             //
-                            out << nl << getUnqualified("Ice.ObjectPrx", scope) << "[] " << param << "_tmp = " << param
+                            out << nl << typeS << "[] " << param << "_tmp = " << param
                                 << ".ToArray();";
                             out << nl << "for(int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                             out << sb;
-                            out << nl << stream << ".writeProxy(" << param << "_tmp[ix]);";
+                            out << nl << stream << ".WriteProxy(" << param << "_tmp[ix]);";
                             out << eb;
                         }
                         else
@@ -1380,7 +1375,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                             out << nl << "while(e.MoveNext())";
                             out << sb;
                             string func = (kind == Builtin::KindObject ||
-                                           kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
+                                           kind == Builtin::KindValue) ? "writeValue" : "WriteProxy";
                             out << nl << stream << '.' << func << "(e.Current);";
                             out << eb;
                         }
@@ -1390,7 +1385,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         out << nl << "for(int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
                         out << sb;
                         string func = (kind == Builtin::KindObject ||
-                                       kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
+                                       kind == Builtin::KindValue) ? "writeValue" : "WriteProxy";
                         out << nl << stream << '.' << func << '(' << param << "[ix]);";
                         out << eb;
                     }
@@ -1432,22 +1427,19 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         if(isStack)
                         {
-                            out << nl << getUnqualified("Ice.ObjectPrx", scope) << "[] " << param << "_tmp = new "
-                                << getUnqualified("Ice.ObjectPrx", scope) << "[" << param << "_lenx];";
+                            out << nl << typeS << "[] " << param << "_tmp = new " << typeS << "[" << param << "_lenx];";
                         }
                         else if(isArray)
                         {
-                            out << getUnqualified("Ice.ObjectPrx", scope) << "[" << param << "_lenx];";
+                            out << typeS << "[" << param << "_lenx];";
                         }
                         else if(isCustom)
                         {
-                            out << "global::" << genericType << "<" << getUnqualified("Ice.ObjectPrx", scope)
-                                << ">();";
+                            out << "global::" << genericType << "<" << typeS << ">();";
                         }
                         else
                         {
-                            out << "global::System.Collections.Generic." << genericType << "<"
-                                << getUnqualified("Ice.ObjectPrx", scope) << ">(";
+                            out << "global::System.Collections.Generic." << genericType << "<" << typeS << ">(";
                             if(!isLinkedList)
                             {
                                 out << param << "_lenx";
@@ -1460,14 +1452,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         if(isArray || isStack)
                         {
                             string v = isArray ? param : param + "_tmp";
-                            out << nl << v << "[ix] = " << stream << ".readProxy();";
+                            out << nl << v << "[ix] = " << stream << ".ReadProxy(" << typeS << ".Factory);";
                         }
                         else
                         {
-                            out << nl << getUnqualified("Ice.ObjectPrx", scope) << " val = new "
-                                << getUnqualified("Ice.ObjectPrxHelperBase", scope) << "();";
-                            out << nl << "val = " << stream << ".readProxy();";
-                            out << nl << param << "." << addMethod << "(val);";
+                            out << nl << param << "." << addMethod << "(" << stream << ".ReadProxy(" << typeS
+                                << ".Factory));";
                         }
                     }
                     out << eb;
@@ -1475,7 +1465,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     if(isStack)
                     {
                         out << nl << "global::System.Array.Reverse(" << param << "_tmp);";
-                        out << nl << param << " = new global::System.Collections.Generic." << genericType << "<" << typeS << ">("
+                        out << nl << param << " = new global::System.Collections.Generic." << genericType << "<"
+                            << typeS << ">("
                             << param << "_tmp);";
                     }
                 }
@@ -1847,15 +1838,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    string helperName;
-    if(ProxyPtr::dynamicCast(type))
-    {
-        helperName = getUnqualified(ProxyPtr::dynamicCast(type)->_class(), scope, "", "PrxHelper");
-    }
-    else
-    {
-        helperName = getUnqualified(ContainedPtr::dynamicCast(type), scope, "", "Helper");
-    }
+    string helperName = getUnqualified(ContainedPtr::dynamicCast(type), scope, "", "Helper");
 
     string func;
     if(marshal)
@@ -1970,9 +1953,12 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
     const string length = isArray ? param + ".Value.Length" : param + ".Value.Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    Builtin::Kind kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
+
+    if(builtin || proxy)
     {
-        switch(builtin->kind())
+        switch(kind)
         {
         case Builtin::KindByte:
         case Builtin::KindBool:
@@ -2305,12 +2291,12 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
                 if(serialize)
                 {
                     out << nl << "info.AddValue(\"" << param << "\", " << dataMember
-                        << ", typeof(Ice.ObjectPrxHelperBase));";
+                        << ", typeof(Ice.IObjectPrx));";
                 }
                 else
                 {
-                    out << nl << dataMember << " = (Ice.ObjectPrx)info.GetValue(\"" << param
-                        << "\", typeof(Ice.ObjectPrxHelperBase));";
+                    out << nl << dataMember << " = (Ice.IObjectPrx)info.GetValue(\"" << param
+                        << "\", typeof(Ice.IObjectPrx));";
                 }
                 break;
             }
@@ -2324,12 +2310,12 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
         const string typeName = typeToString(type, scope, false);
         if(serialize)
         {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "Helper));";
+            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
         }
         else
         {
             out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "Helper));";
+                << "));";
         }
         return;
     }

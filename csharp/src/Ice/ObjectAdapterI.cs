@@ -312,12 +312,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx Add(Disp disp, string id, string facet = "")
+        public IObjectPrx Add(Disp disp, string id, string facet = "")
         {
             return Add(disp, Util.stringToIdentity(id), facet);
         }
 
-        public ObjectPrx Add(Disp disp, Identity? ident = null, string facet = "")
+        public IObjectPrx Add(Disp disp, Identity? ident = null, string facet = "")
         {
             lock (this)
             {
@@ -463,12 +463,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx CreateProxy(string ident)
+        public IObjectPrx CreateProxy(string ident)
         {
             return CreateProxy(Util.stringToIdentity(ident));
         }
 
-        public ObjectPrx CreateProxy(Identity ident)
+        public IObjectPrx CreateProxy(Identity ident)
         {
             lock (this)
             {
@@ -479,12 +479,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx CreateDirectProxy(string ident)
+        public IObjectPrx CreateDirectProxy(string ident)
         {
             return CreateDirectProxy(Util.stringToIdentity(ident));
         }
 
-        public ObjectPrx CreateDirectProxy(Identity ident)
+        public IObjectPrx CreateDirectProxy(Identity ident)
         {
             lock (this)
             {
@@ -495,12 +495,12 @@ namespace Ice
             }
         }
 
-        public ObjectPrx CreateIndirectProxy(string ident)
+        public IObjectPrx CreateIndirectProxy(string ident)
         {
             return CreateIndirectProxy(Util.stringToIdentity(ident));
         }
 
-        public ObjectPrx CreateIndirectProxy(Identity ident)
+        public IObjectPrx CreateIndirectProxy(Identity ident)
         {
             lock (this)
             {
@@ -631,14 +631,14 @@ namespace Ice
             }
         }
 
-        public bool isLocal(ObjectPrx proxy)
+        public bool isLocal(IObjectPrx proxy)
         {
             //
             // NOTE: it's important that isLocal() doesn't perform any blocking operations as
             // it can be called for AMI invocations if the proxy has no delegate set yet.
             //
 
-            Reference r = ((ObjectPrxHelperBase)proxy).iceReference();
+            Reference r = proxy.IceReference;
             if (r.isWellKnown())
             {
                 //
@@ -871,7 +871,7 @@ namespace Ice
             string proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
             try
             {
-                _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
+                _reference = _instance.referenceFactory().create($"dummy {proxyOptions}", "");
             }
             catch (ProxyParseException)
             {
@@ -904,10 +904,12 @@ namespace Ice
                     _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
                 }
 
-                if (router == null)
+                string property = _name + ".Router";
+                if (router == null && !string.IsNullOrEmpty(properties.getProperty(property)))
                 {
-                    router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(_name + ".Router"));
+                    router = RouterPrx.ParseProperty(property, communicator);
                 }
+
                 if (router != null)
                 {
                     _routerInfo = _instance.routerManager().get(router);
@@ -920,7 +922,7 @@ namespace Ice
                     {
                         AlreadyRegisteredException ex = new AlreadyRegisteredException();
                         ex.kindOfObject = "object adapter with router";
-                        ex.id = Util.identityToString(router.ice_getIdentity(), _instance.toStringMode());
+                        ex.id = Util.identityToString(router.Identity, _instance.toStringMode());
                         throw ex;
                     }
 
@@ -972,11 +974,10 @@ namespace Ice
                 // Parse published endpoints.
                 //
                 _publishedEndpoints = ComputePublishedEndpoints();
-
-                if (properties.getProperty(_name + ".Locator").Length > 0)
+                property = _name + ".Locator";
+                if (!string.IsNullOrEmpty(properties.getProperty(property)))
                 {
-                    SetLocator(LocatorPrxHelper.uncheckedCast(
-                        _instance.proxyFactory().propertyToProxy(_name + ".Locator")));
+                    SetLocator(LocatorPrx.ParseProperty(property, communicator));
                 }
                 else
                 {
@@ -990,7 +991,7 @@ namespace Ice
             }
         }
 
-        private ObjectPrx newProxy(Identity ident, string facet)
+        private IObjectPrx newProxy(Identity ident, string facet)
         {
             if (_id.Length == 0)
             {
@@ -1006,7 +1007,7 @@ namespace Ice
             }
         }
 
-        private ObjectPrx newDirectProxy(Identity ident, string facet)
+        private IObjectPrx newDirectProxy(Identity ident, string facet)
         {
             //
             // Create a reference and return a proxy for this reference.
@@ -1015,7 +1016,7 @@ namespace Ice
             return _instance.proxyFactory().referenceToProxy(reference);
         }
 
-        private ObjectPrx newIndirectProxy(Identity ident, string facet, string id)
+        private IObjectPrx newIndirectProxy(Identity ident, string facet, string id)
         {
             //
             // Create a reference with the adapter id and return a
@@ -1208,7 +1209,7 @@ namespace Ice
             return endpoints.ToArray();
         }
 
-        private void UpdateLocatorRegistry(LocatorInfo locatorInfo, ObjectPrx proxy)
+        private void UpdateLocatorRegistry(LocatorInfo locatorInfo, IObjectPrx proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
             {
@@ -1307,7 +1308,7 @@ namespace Ice
                 s.Append("endpoints = ");
                 if (proxy != null)
                 {
-                    Endpoint[] endpoints = proxy.ice_getEndpoints();
+                    Endpoint[] endpoints = proxy.Endpoints;
                     for (int i = 0; i < endpoints.Length; i++)
                     {
                         s.Append(endpoints[i].ToString());

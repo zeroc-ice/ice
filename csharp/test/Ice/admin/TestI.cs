@@ -24,7 +24,7 @@ namespace Ice
                 _communicator = communicator;
             }
 
-            public Ice.ObjectPrx getAdmin(Ice.Current current)
+            public Ice.IObjectPrx getAdmin(Ice.Current current)
             {
                 return _communicator.getAdmin();
             }
@@ -137,8 +137,7 @@ namespace Ice
                     admin.addUpdateCallback(servant.updated);
                 }
 
-                Ice.ObjectPrx proxy = current.adapter.Add(servant);
-                return Test.RemoteCommunicatorPrxHelper.uncheckedCast(proxy);
+                return current.adapter.Add(servant);
             }
 
             public void shutdown(Ice.Current current)

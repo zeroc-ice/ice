@@ -214,8 +214,6 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
     };

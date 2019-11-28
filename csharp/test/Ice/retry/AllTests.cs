@@ -55,19 +55,15 @@ namespace Ice
                 var output = helper.getWriter();
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                var base1 = communicator.stringToProxy(rf);
-                test(base1 != null);
-                var base2 = communicator.stringToProxy(rf);
-                test(base2 != null);
+                var base1 = IObjectPrx.Parse(rf, communicator);
+                var base2 = IObjectPrx.Parse(rf, communicator);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                Test.RetryPrx retry1 = Test.RetryPrxHelper.checkedCast(base1);
-                test(retry1 != null);
+                Test.RetryPrx retry1 = Test.RetryPrx.CheckedCast(base1);
                 test(retry1.Equals(base1));
-                Test.RetryPrx retry2 = Test.RetryPrxHelper.checkedCast(base2);
-                test(retry2 != null);
+                Test.RetryPrx retry2 = Test.RetryPrx.CheckedCast(base2);
                 test(retry2.Equals(base2));
                 output.WriteLine("ok");
 
@@ -173,7 +169,7 @@ namespace Ice
                 Instrumentation.testRetryCount(0);
                 output.WriteLine("ok");
 
-                if (retry1.ice_getConnection() == null)
+                if (retry1.GetConnection() == null)
                 {
                     Instrumentation.testInvocationCount(1);
 
@@ -208,11 +204,11 @@ namespace Ice
                     output.Write("testing invocation timeout and retries... ");
                     output.Flush();
 
-                    retry2 = Test.RetryPrxHelper.checkedCast(communicator2.stringToProxy(retry1.ToString()));
+                    retry2 = Test.RetryPrx.Parse(retry1.ToString(), communicator2);
                     try
                     {
                         // No more than 2 retries before timeout kicks-in
-                        ((Test.RetryPrx)retry2.ice_invocationTimeout(500)).opIdempotent(4);
+                        retry2.Clone(invocationTimeout: 500).opIdempotent(4);
                         test(false);
                     }
                     catch (InvocationTimeoutException)
@@ -224,7 +220,7 @@ namespace Ice
                     try
                     {
                         // No more than 2 retries before timeout kicks-in
-                        Test.RetryPrx prx = (Test.RetryPrx)retry2.ice_invocationTimeout(500);
+                        Test.RetryPrx prx = retry2.Clone(invocationTimeout: 500);
                         prx.opIdempotentAsync(4).Wait();
                         test(false);
                     }
@@ -235,13 +231,12 @@ namespace Ice
                         retry2.opIdempotent(-1); // Reset the counter
                         Instrumentation.testRetryCount(-1);
                     }
-                    if (retry1.ice_getConnection() != null)
+                    if (retry1.GetConnection() != null)
                     {
                         // The timeout might occur on connection establishment or because of the sleep. What's
                         // important here is to make sure there are 4 retries and that no calls succeed to
                         // ensure retries with the old connection timeout semantics work.
-                        Test.RetryPrx retryWithTimeout =
-                            (Test.RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(200);
+                        Test.RetryPrx retryWithTimeout = retry1.Clone(invocationTimeout: -2, connectionTimeout: 200);
                         try
                         {
                             retryWithTimeout.sleep(500);

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Ice;
 
 namespace IceInternal
 {
@@ -55,7 +56,7 @@ namespace IceInternal
                 _communicator,
                 ident,
                 "", // Facet
-                connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
+                connection.endpoint().datagram() ? Ice.InvocationMode.Datagram : Ice.InvocationMode.Twoway,
                 connection.endpoint().secure(),
                 Ice.Util.Protocol_1_0,
                 _instance.defaultsAndOverrides().defaultEncoding,
@@ -75,7 +76,7 @@ namespace IceInternal
             return (Reference)r.Clone();
         }
 
-        public Reference create(string s, string propertyPrefix)
+        public Reference create(string s, string? propertyPrefix)
         {
             if (s.Length == 0)
             {
@@ -166,7 +167,7 @@ namespace IceInternal
             }
 
             string facet = "";
-            Reference.Mode mode = Reference.Mode.ModeTwoway;
+            Ice.InvocationMode mode = Ice.InvocationMode.Twoway;
             bool secure = false;
             Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
             Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
@@ -278,7 +279,7 @@ namespace IceInternal
                                 e.str = "unexpected argument `" + argument + "' provided for -t option in `" + s + "'";
                                 throw e;
                             }
-                            mode = Reference.Mode.ModeTwoway;
+                            mode = Ice.InvocationMode.Twoway;
                             break;
                         }
 
@@ -290,7 +291,7 @@ namespace IceInternal
                                 e.str = "unexpected argument `" + argument + "' provided for -o option in `" + s + "'";
                                 throw e;
                             }
-                            mode = Reference.Mode.ModeOneway;
+                            mode = Ice.InvocationMode.Oneway;
                             break;
                         }
 
@@ -302,7 +303,7 @@ namespace IceInternal
                                 e.str = "unexpected argument `" + argument + "' provided for -O option in `" + s + "'";
                                 throw e;
                             }
-                            mode = Reference.Mode.ModeBatchOneway;
+                            mode = Ice.InvocationMode.BatchOneway;
                             break;
                         }
 
@@ -314,7 +315,7 @@ namespace IceInternal
                                 e.str = "unexpected argument `" + argument + "' provided for -d option in `" + s + "'";
                                 throw e;
                             }
-                            mode = Reference.Mode.ModeDatagram;
+                            mode = Ice.InvocationMode.Datagram;
                             break;
                         }
 
@@ -326,7 +327,7 @@ namespace IceInternal
                                 e.str = "unexpected argument `" + argument + "' provided for -D option in `" + s + "'";
                                 throw e;
                             }
-                            mode = Reference.Mode.ModeBatchDatagram;
+                            mode = Ice.InvocationMode.BatchDatagram;
                             break;
                         }
 
@@ -580,7 +581,7 @@ namespace IceInternal
             }
 
             int mode = s.readByte();
-            if (mode < 0 || mode > (int)Reference.Mode.ModeLast)
+            if (mode < 0 || mode > (int)Ice.InvocationMode.Last)
             {
                 throw new Ice.ProxyUnmarshalException();
             }
@@ -619,7 +620,7 @@ namespace IceInternal
                 adapterId = s.readString();
             }
 
-            return create(ident, facet, (Reference.Mode)mode, secure, protocol, encoding, endpoints, adapterId, null);
+            return create(ident, facet, (Ice.InvocationMode)mode, secure, protocol, encoding, endpoints, adapterId, null);
         }
 
         public ReferenceFactory setDefaultRouter(Ice.RouterPrx defaultRouter)
@@ -640,7 +641,7 @@ namespace IceInternal
             return _defaultRouter;
         }
 
-        public ReferenceFactory setDefaultLocator(Ice.LocatorPrx defaultLocator)
+        public ReferenceFactory setDefaultLocator(Ice.LocatorPrx? defaultLocator)
         {
             if (_defaultLocator == null ? defaultLocator == null : _defaultLocator.Equals(defaultLocator))
             {
@@ -732,7 +733,7 @@ namespace IceInternal
 
         private Reference create(Ice.Identity ident,
                                  string facet,
-                                 Reference.Mode mode,
+                                 Ice.InvocationMode mode,
                                  bool secure,
                                  Ice.ProtocolVersion protocol,
                                  Ice.EncodingVersion encoding,
@@ -748,10 +749,9 @@ namespace IceInternal
             LocatorInfo locatorInfo = null;
             if (_defaultLocator != null)
             {
-                if (!((Ice.ObjectPrxHelperBase)_defaultLocator).iceReference().getEncoding().Equals(encoding))
+                if (!_defaultLocator.IceReference.getEncoding().Equals(encoding))
                 {
-                    locatorInfo = _instance.locatorManager().get(
-                        (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
+                    locatorInfo = _instance.locatorManager().get(_defaultLocator.Clone(encodingVersion: encoding));
                 }
                 else
                 {
@@ -782,16 +782,13 @@ namespace IceInternal
                     checkForUnknownProperties(propertyPrefix);
                 }
 
-                string property;
-
-                property = propertyPrefix + ".Locator";
-                Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
-                if (locator != null)
+                string property = propertyPrefix + ".Locator";
+                if (!string.IsNullOrEmpty(properties.getProperty(property)))
                 {
-                    if (!((Ice.ObjectPrxHelperBase)locator).iceReference().getEncoding().Equals(encoding))
+                    LocatorPrx locator = LocatorPrx.ParseProperty(property, _communicator);
+                    if (!locator.IceReference.getEncoding().Equals(encoding))
                     {
-                        locatorInfo = _instance.locatorManager().get(
-                            (Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
+                        locatorInfo = _instance.locatorManager().get(locator.Clone(encodingVersion: encoding));
                     }
                     else
                     {
@@ -800,9 +797,9 @@ namespace IceInternal
                 }
 
                 property = propertyPrefix + ".Router";
-                Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
-                if (router != null)
+                if (!string.IsNullOrEmpty(properties.getProperty(property)))
                 {
+                    RouterPrx router = RouterPrx.ParseProperty(property, _communicator);
                     if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
                     {
                         string s = "`" + property + "=" + properties.getProperty(property) +
@@ -916,9 +913,9 @@ namespace IceInternal
         }
 
         private Instance _instance;
-        private Ice.Communicator _communicator;
-        private Ice.RouterPrx _defaultRouter;
-        private Ice.LocatorPrx _defaultLocator;
+        private Communicator _communicator;
+        private RouterPrx _defaultRouter;
+        private LocatorPrx _defaultLocator;
     }
 
 }

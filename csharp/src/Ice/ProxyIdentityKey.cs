@@ -22,7 +22,7 @@ namespace Ice
         public int GetHashCode(object obj)
         {
             int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, ((ObjectPrx)obj).ice_getIdentity());
+            IceInternal.HashUtil.hashAdd(ref h, ((IObjectPrx)obj).Identity);
             return h;
         }
 
@@ -50,13 +50,13 @@ namespace Ice
         /// 0, otherwise.</returns>
         public int Compare(object obj1, object obj2)
         {
-            ObjectPrx proxy1 = obj1 as ObjectPrx;
+            IObjectPrx proxy1 = obj1 as IObjectPrx;
             if (obj1 != null && proxy1 == null)
             {
                 throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
             }
 
-            ObjectPrx proxy2 = obj2 as ObjectPrx;
+            IObjectPrx proxy2 = obj2 as IObjectPrx;
             if (obj2 != null && proxy2 == null)
             {
                 throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));
@@ -79,9 +79,9 @@ namespace Ice
         /// <returns>The hash value for the proxy based on the identity and facet.</returns>
         public int GetHashCode(object obj)
         {
-            ObjectPrx o = (ObjectPrx)obj;
-            Identity identity = o.ice_getIdentity();
-            string facet = o.ice_getFacet();
+            IObjectPrx o = (IObjectPrx)obj;
+            Identity identity = o.Identity;
+            string facet = o.Facet;
             int h = 5381;
             IceInternal.HashUtil.hashAdd(ref h, identity);
             IceInternal.HashUtil.hashAdd(ref h, facet);
@@ -112,13 +112,13 @@ namespace Ice
         /// 0, otherwise.</returns>
         public int Compare(object obj1, object obj2)
         {
-            ObjectPrx proxy1 = obj1 as ObjectPrx;
+            IObjectPrx proxy1 = obj1 as IObjectPrx;
             if (obj1 != null && proxy1 == null)
             {
                 throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
             }
 
-            ObjectPrx proxy2 = obj2 as ObjectPrx;
+            IObjectPrx proxy2 = obj2 as IObjectPrx;
             if (obj2 != null && proxy2 == null)
             {
                 throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));

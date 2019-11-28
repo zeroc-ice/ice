@@ -6,6 +6,7 @@ using Test;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -25,11 +26,11 @@ public class Client : Test.TestHelper
         properties.setProperty("Ice.Warn.Connections", "0");
         using (var communicator = initialize(properties))
         {
-            Ice.ObjectPrx routerBase;
+            IObjectPrx routerBase;
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
-                routerBase = communicator.stringToProxy("Glacier2/router:" + getTestEndpoint(50));
+                routerBase = IObjectPrx.Parse($"Glacier2/router:{getTestEndpoint(50)}", communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -37,7 +38,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("testing checked cast for router... ");
                 Console.Out.Flush();
-                router = Glacier2.RouterPrxHelper.checkedCast(routerBase);
+                router = Glacier2.RouterPrx.CheckedCast(routerBase);
                 test(router != null);
                 Console.Out.WriteLine("ok");
             }
@@ -45,10 +46,8 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                Ice.RouterFinderPrx finder =
-                    Ice.RouterFinderPrxHelper.uncheckedCast(communicator.stringToProxy("Ice/RouterFinder:" +
-                                                                                       getTestEndpoint(50)));
-                test(finder.getRouter().ice_getIdentity().Equals(router.ice_getIdentity()));
+                RouterFinderPrx finder = RouterFinderPrx.Parse($"Ice/RouterFinder:{getTestEndpoint(50)}", communicator);
+                test(finder.getRouter().Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
 
@@ -67,12 +66,11 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            Ice.ObjectPrx @base;
-
+            IObjectPrx @base;
             {
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                @base = communicator.stringToProxy("c1/callback:" + getTestEndpoint(0));
+                @base = IObjectPrx.Parse($"c1/callback:{getTestEndpoint(0)}", communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -81,7 +79,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    @base.ice_ping();
+                    @base.IcePing();
                     test(false);
                 }
                 catch (Ice.ConnectionLostException)
@@ -165,16 +163,16 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("pinging server after session creation... ");
                 Console.Out.Flush();
-                @base.ice_ping();
+                @base.IcePing();
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("pinging object with client endpoint... ");
-                Ice.ObjectPrx baseC = communicator.stringToProxy("collocated:" + getTestEndpoint(50));
+                IObjectPrx baseC = IObjectPrx.Parse($"collocated:{getTestEndpoint(50)}", communicator);
                 try
                 {
-                    baseC.ice_ping();
+                    baseC.IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -187,7 +185,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("testing checked cast for server object... ");
                 Console.Out.Flush();
-                twoway = CallbackPrxHelper.checkedCast(@base);
+                twoway = CallbackPrx.CheckedCast(@base);
                 test(twoway != null);
                 Console.Out.WriteLine("ok");
             }
@@ -203,7 +201,7 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            String category;
+            string category;
 
             {
                 Console.Out.Write("getting category from router... ");
@@ -225,20 +223,19 @@ public class Client : Test.TestHelper
                 Ice.Identity callbackReceiverIdent = new Ice.Identity();
                 callbackReceiverIdent.name = "callbackReceiver";
                 callbackReceiverIdent.category = category;
-                twowayR = CallbackReceiverPrxHelper.uncheckedCast(adapter.Add(callbackReceiver, callbackReceiverIdent));
+                twowayR = adapter.Add(callbackReceiver, callbackReceiverIdent);
                 Ice.Identity fakeCallbackReceiverIdent = new Ice.Identity();
                 fakeCallbackReceiverIdent.name = "callbackReceiver";
                 fakeCallbackReceiverIdent.category = "dummy";
-                fakeTwowayR =
-                    CallbackReceiverPrxHelper.uncheckedCast(adapter.Add(callbackReceiver, fakeCallbackReceiverIdent));
+                fakeTwowayR = adapter.Add(callbackReceiver, fakeCallbackReceiverIdent);
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("testing oneway callback... ");
                 Console.Out.Flush();
-                CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
-                CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
+                CallbackPrx oneway = twoway.Clone(oneway: true);
+                CallbackReceiverPrx onewayR = twowayR.Clone(oneway: true);
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "o";
                 oneway.initiateCallback(onewayR, context);
@@ -297,7 +294,7 @@ public class Client : Test.TestHelper
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 CallbackPrx otherCategoryTwoway =
-                    CallbackPrxHelper.uncheckedCast(twoway.ice_identity(Ice.Util.stringToIdentity("c2/callback")));
+                    CallbackPrx.UncheckedCast(twoway.Clone(Ice.Util.stringToIdentity("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -311,7 +308,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     CallbackPrx otherCategoryTwoway =
-                        CallbackPrxHelper.uncheckedCast(twoway.ice_identity(Ice.Util.stringToIdentity("c3/callback")));
+                        CallbackPrx.UncheckedCast(twoway.Clone(Ice.Util.stringToIdentity("c3/callback")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
@@ -327,7 +324,7 @@ public class Client : Test.TestHelper
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 CallbackPrx otherCategoryTwoway =
-                    CallbackPrxHelper.uncheckedCast(twoway.ice_identity(Ice.Util.stringToIdentity("_userid/callback")));
+                    CallbackPrx.UncheckedCast(twoway.Clone(Ice.Util.stringToIdentity("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -344,7 +341,7 @@ public class Client : Test.TestHelper
                 /*
                   try
                   {
-                  base.ice_ping();
+                  base.IcePing();
                   test(false);
                   }
                   // If we use the glacier router, the exact exception reason gets
@@ -376,7 +373,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    @base.ice_ping();
+                    @base.IcePing();
                     test(false);
                 }
                 catch (Ice.ConnectionLostException)
@@ -398,11 +395,10 @@ public class Client : Test.TestHelper
                     Console.Out.WriteLine("ok");
                 }
 
-                Ice.ObjectPrx processBase;
-
+                IObjectPrx processBase;
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    processBase = communicator.stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+                    processBase = IObjectPrx.Parse($"Glacier2/admin -f Process:{getTestEndpoint(51)}", communicator);
                     Console.Out.WriteLine("ok");
                 }
 
@@ -414,12 +410,11 @@ public class Client : Test.TestHelper
                   }
                 */
 
-                Ice.ProcessPrx process;
-
+                ProcessPrx process;
                 {
                     Console.Out.Write("testing checked cast for process object... ");
-                    process = Ice.ProcessPrxHelper.checkedCast(processBase);
-                    test(process != null);
+                    process = ProcessPrx.CheckedCast(processBase);
+                    process.IcePing();
                     Console.Out.WriteLine("ok");
                 }
 
@@ -427,10 +422,10 @@ public class Client : Test.TestHelper
                 process.shutdown();
                 try
                 {
-                    process.ice_ping();
+                    process.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     Console.Out.WriteLine("ok");
                 }

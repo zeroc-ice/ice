@@ -4,6 +4,7 @@
 
 using System;
 using Test;
+using Ice;
 
 public class AllTests : Test.AllTests
 {
@@ -12,54 +13,42 @@ public class AllTests : Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        String rf = "test @ TestAdapter";
-        Ice.ObjectPrx @base = communicator.stringToProxy(rf);
-        test(@base != null);
+        string rf = "test @ TestAdapter";
+        var @base = IObjectPrx.Parse(rf, communicator);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing IceGrid.Locator is present... ");
-        IceGrid.LocatorPrx locator = IceGrid.LocatorPrxHelper.uncheckedCast(@base);
-        test(locator != null);
+        IceGrid.LocatorPrx locator = IceGrid.LocatorPrx.UncheckedCast(@base);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
-        test(obj != null);
+        TestIntfPrx obj = TestIntfPrx.CheckedCast(@base);
         test(obj.Equals(@base));
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("pinging server... ");
         Console.Out.Flush();
-        obj.ice_ping();
+        obj.IcePing();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing locator finder... ");
         Ice.Identity finderId = new Ice.Identity();
         finderId.category = "Ice";
         finderId.name = "LocatorFinder";
-        Ice.LocatorFinderPrx finder = Ice.LocatorFinderPrxHelper.checkedCast(
-            communicator.getDefaultLocator().ice_identity(finderId));
+        Ice.LocatorFinderPrx finder = Ice.LocatorFinderPrx.CheckedCast(communicator.getDefaultLocator().Clone(finderId));
         test(finder.getLocator() != null);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing discovery... ");
         {
             // Add test well-known object
-            IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
-                communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
-            test(registry != null);
+            IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
+                communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
 
-            try
-            {
-                IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
-                session.getAdmin().addObjectWithType(@base, "::Test");
-                session.destroy();
-            }
-            catch (Ice.UserException)
-            {
-                test(false);
-            }
+            IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
+            session.getAdmin().addObjectWithType(@base, "::Test");
+            session.destroy();
 
             //
             // Ensure the IceGrid discovery locator can discover the
@@ -76,12 +65,12 @@ public class AllTests : Test.AllTests
 
             Ice.Communicator com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
-            com.stringToProxy("test @ TestAdapter").ice_ping();
-            com.stringToProxy("test").ice_ping();
+            IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+            IObjectPrx.Parse("test", com).IcePing();
 
             test(com.getDefaultLocator().getRegistry() != null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
+            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
+            test(IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
 
             Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
             adapter.Activate();
@@ -99,23 +88,23 @@ public class AllTests : Test.AllTests
             test(com.getDefaultLocator() != null);
             try
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
+                IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
             }
             catch (Ice.NoEndpointException)
             {
             }
             try
             {
-                com.stringToProxy("test").ice_ping();
+                IObjectPrx.Parse("test", com).IcePing();
             }
             catch (Ice.NoEndpointException)
             {
             }
             test(com.getDefaultLocator().getRegistry() == null);
-            test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
+            test(IceGrid.LocatorPrx.CheckedCast(com.getDefaultLocator()) == null);
             try
             {
-                IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry();
+                IceGrid.LocatorPrx.UncheckedCast(com.getDefaultLocator()).getLocalRegistry();
             }
             catch (Ice.OperationNotExistException)
             {
@@ -145,15 +134,15 @@ public class AllTests : Test.AllTests
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+                                            $"udp -h {multicast} --interface unknown");
             com = Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             try
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
+                IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                 test(false);
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
             }
             com.destroy();
@@ -165,14 +154,14 @@ public class AllTests : Test.AllTests
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             initData.properties.setProperty("IceLocatorDiscovery.Lookup",
                                              "udp -h " + multicast + " --interface unknown");
-            com = Ice.Util.initialize(initData);
+            com = Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             try
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
+                IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                 test(false);
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
             }
             com.destroy();
@@ -197,9 +186,9 @@ public class AllTests : Test.AllTests
             test(com.getDefaultLocator() != null);
             try
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
+                IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
                 test(false);
             }
@@ -219,37 +208,33 @@ public class AllTests : Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
+        IObjectPrx @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
         test(@base != null);
-        Ice.ObjectPrx @base2 = communicator.stringToProxy("test");
+        IObjectPrx @base2 = IObjectPrx.Parse("test", communicator);
         test(@base2 != null);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
-        test(obj != null);
+        TestIntfPrx obj = TestIntfPrx.CheckedCast(@base);
         test(obj.Equals(@base));
-        TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(@base2);
-        test(obj2 != null);
+        TestIntfPrx obj2 = TestIntfPrx.CheckedCast(@base2);
         test(obj2.Equals(@base2));
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("pinging server... ");
         Console.Out.Flush();
-        obj.ice_ping();
-        obj2.ice_ping();
+        obj.IcePing();
+        obj2.IcePing();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing encoding versioning... ");
         Console.Out.Flush();
-        Ice.ObjectPrx base10 = communicator.stringToProxy("test10 @ TestAdapter10");
-        test(base10 != null);
-        Ice.ObjectPrx base102 = communicator.stringToProxy("test10");
-        test(base102 != null);
+        IObjectPrx base10 = IObjectPrx.Parse("test10 @ TestAdapter10", communicator);
+        IObjectPrx base102 = IObjectPrx.Parse("test10", communicator);
         try
         {
-            base10.ice_ping();
+            base10.IcePing();
             test(false);
         }
         catch (Ice.NoEndpointException)
@@ -257,26 +242,26 @@ public class AllTests : Test.AllTests
         }
         try
         {
-            base102.ice_ping();
+            base102.IcePing();
             test(false);
         }
         catch (Ice.NoEndpointException)
         {
         }
-        base10 = base10.ice_encodingVersion(Ice.Util.Encoding_1_0);
-        base102 = base102.ice_encodingVersion(Ice.Util.Encoding_1_0);
-        base10.ice_ping();
-        base102.ice_ping();
+        base10 = base10.Clone(encodingVersion: Util.Encoding_1_0);
+        base102 = base102.Clone(encodingVersion: Util.Encoding_1_0);
+        base10.IcePing();
+        base102.IcePing();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing reference with unknown identity... ");
         Console.Out.Flush();
         try
         {
-            communicator.stringToProxy("unknown/unknown").ice_ping();
+            IObjectPrx.Parse("unknown/unknown", communicator).IcePing();
             test(false);
         }
-        catch (Ice.NotRegisteredException ex)
+        catch (NotRegisteredException ex)
         {
             test(ex.kindOfObject.Equals("object"));
             test(ex.id.Equals("unknown/unknown"));
@@ -287,59 +272,30 @@ public class AllTests : Test.AllTests
         Console.Out.Flush();
         try
         {
-            communicator.stringToProxy("test @ TestAdapterUnknown").ice_ping();
+            IObjectPrx.Parse("test @ TestAdapterUnknown", communicator).IcePing();
             test(false);
         }
-        catch (Ice.NotRegisteredException ex)
+        catch (NotRegisteredException ex)
         {
             test(ex.kindOfObject.Equals("object adapter"));
             test(ex.id.Equals("TestAdapterUnknown"));
         }
         Console.Out.WriteLine("ok");
 
-        IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
-            communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
-        test(registry != null);
-        IceGrid.AdminSessionPrx session = null;
-        try
-        {
-            session = registry.createAdminSession("foo", "bar");
-        }
-        catch (IceGrid.PermissionDeniedException)
-        {
-            test(false);
-        }
-
-        session.ice_getConnection().setACM(registry.getACMTimeout(),
-                                           Ice.Util.None,
-                                           Ice.ACMHeartbeat.HeartbeatAlways);
+        IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
+            communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
+        IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
+        session.GetConnection().setACM(registry.getACMTimeout(), Util.None, ACMHeartbeat.HeartbeatAlways);
 
         IceGrid.AdminPrx admin = session.getAdmin();
-        test(admin != null);
-
-        try
-        {
-            admin.enableServer("server", false);
-            admin.stopServer("server");
-        }
-        catch (IceGrid.ServerNotExistException)
-        {
-            test(false);
-        }
-        catch (IceGrid.ServerStopException)
-        {
-            test(false);
-        }
-        catch (IceGrid.NodeUnreachableException)
-        {
-            test(false);
-        }
+        admin.enableServer("server", false);
+        admin.stopServer("server");
 
         Console.Out.Write("testing whether server is still reachable... ");
         Console.Out.Flush();
         try
         {
-            obj = TestIntfPrxHelper.checkedCast(@base);
+            obj = TestIntfPrx.CheckedCast(@base);
             test(false);
         }
         catch (Ice.NoEndpointException)
@@ -347,7 +303,7 @@ public class AllTests : Test.AllTests
         }
         try
         {
-            obj2 = TestIntfPrxHelper.checkedCast(@base2);
+            obj2 = TestIntfPrx.CheckedCast(@base2);
             test(false);
         }
         catch (Ice.NoEndpointException)
@@ -369,7 +325,7 @@ public class AllTests : Test.AllTests
 
         try
         {
-            obj = TestIntfPrxHelper.checkedCast(@base);
+            obj = TestIntfPrx.CheckedCast(@base);
         }
         catch (Ice.NoEndpointException)
         {
@@ -377,7 +333,7 @@ public class AllTests : Test.AllTests
         }
         try
         {
-            obj2 = TestIntfPrxHelper.checkedCast(@base2);
+            obj2 = TestIntfPrx.CheckedCast(@base2);
         }
         catch (Ice.NoEndpointException)
         {

@@ -124,8 +124,8 @@ namespace Ice
         /// adapter.
         ///
         /// </returns>
-        ObjectPrx Add(Disp servant, Identity? id = null, string facet = "");
-        ObjectPrx Add(Disp servant, string id, string facet = "");
+        IObjectPrx Add(Disp servant, Identity? id = null, string facet = "");
+        IObjectPrx Add(Disp servant, string id, string facet = "");
 
         /// <summary>
         /// Add a default servant to handle requests for a specific
@@ -352,8 +352,8 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        ObjectPrx CreateProxy(string id);
-        ObjectPrx CreateProxy(Identity id);
+        IObjectPrx CreateProxy(string id);
+        IObjectPrx CreateProxy(Identity id);
 
         /// <summary>
         /// Create a direct proxy for the object with the given identity.
@@ -367,8 +367,8 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        ObjectPrx CreateDirectProxy(string id);
-        ObjectPrx CreateDirectProxy(Identity id);
+        IObjectPrx CreateDirectProxy(string id);
+        IObjectPrx CreateDirectProxy(Identity id);
 
         /// <summary>
         /// Create an indirect proxy for the object with the given identity.
@@ -383,8 +383,8 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        ObjectPrx CreateIndirectProxy(string id);
-        ObjectPrx CreateIndirectProxy(Identity id);
+        IObjectPrx CreateIndirectProxy(string id);
+        IObjectPrx CreateIndirectProxy(Identity id);
 
         /// <summary>
         /// Set an Ice locator for this object adapter.

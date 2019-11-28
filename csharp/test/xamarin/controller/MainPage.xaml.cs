@@ -577,7 +577,7 @@ namespace controller
             Array.Copy(args, 0, newArgs, 1, args.Length);
             var helper = new ControllerHelperI(test, newArgs, _mainPage, _mainPage.platformAdapter);
             helper.run();
-            return Test.Common.ProcessPrxHelper.uncheckedCast(current.adapter.Add(new ProccessI(helper)));
+            return current.adapter.Add(new ProccessI(helper));
         }
 
         public string getHost(string protocol, bool ipv6, Current current)
@@ -621,9 +621,8 @@ namespace controller
             _communicator = Util.initialize(initData);
 
             _adapter = _communicator.createObjectAdapter("ControllerAdapter");
-            _processController = ProcessControllerPrxHelper.uncheckedCast(
-                _adapter.Add(new ProcessControllerI(mainPage),
-                             mainPage.platformAdapter.processControllerIdentity()));
+            _processController = _adapter.Add(new ProcessControllerI(mainPage),
+                mainPage.platformAdapter.processControllerIdentity());
             _adapter.Activate();
 
             registerProcessController();
@@ -642,18 +641,16 @@ namespace controller
                             ProcessControllerRegistryPrx registry;
                             if (_mainPage.processControllerRegistryHost().Length == 0)
                             {
-                                registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
-                                    _communicator.stringToProxy("Util/ProcessControllerRegistry"));
+                                registry = ProcessControllerRegistryPrx.Parse("Util/ProcessControllerRegistry", _communicator);
                             }
                             else
                             {
-                                registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
-                                    _communicator.stringToProxy(string.Format(
-                                        "Util/ProcessControllerRegistry:tcp -h {0} -p 15001",
-                                        _mainPage.processControllerRegistryHost())));
+                                registry = ProcessControllerRegistryPrx.Parse(
+                                    $"Util/ProcessControllerRegistry:tcp -h {_mainPage.processControllerRegistryHost()} -p 15001",
+                                    _communicator);
                             }
-                            await registry.ice_pingAsync();
-                            var connection = registry.ice_getConnection();
+                            await registry.IcePingAsync();
+                            var connection = registry.GetConnection();
                             connection.setAdapter(_adapter);
                             connection.setACM(5, ACMClose.CloseOff, ACMHeartbeat.HeartbeatAlways);
                             connection.setCloseCallback(conn =>

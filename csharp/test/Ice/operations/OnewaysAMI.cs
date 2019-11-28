@@ -73,11 +73,11 @@ namespace Ice
             internal static void onewaysAMI(global::Test.TestHelper helper, Test.MyClassPrx proxy)
             {
                 Communicator communicator = helper.communicator();
-                Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
+                Test.MyClassPrx p = proxy.Clone(oneway: true);
 
                 {
                     Callback cb = new Callback();
-                    p.ice_pingAsync(progress: new Progress<bool>(
+                    p.IcePingAsync(progress: new Progress<bool>(
                         sentSynchronously =>
                         {
                             cb.sent(sentSynchronously);
@@ -88,7 +88,7 @@ namespace Ice
                 {
                     try
                     {
-                        p.ice_isAAsync("::Test::MyClass");
+                        p.IceIsAAsync("::Test::MyClass");
                         test(false);
                     }
                     catch (TwowayOnlyException)
@@ -99,7 +99,7 @@ namespace Ice
                 {
                     try
                     {
-                        p.ice_idAsync();
+                        p.IceIdAsync();
                         test(false);
                     }
                     catch (TwowayOnlyException)
@@ -110,7 +110,7 @@ namespace Ice
                 {
                     try
                     {
-                        p.ice_idsAsync();
+                        p.IceIdsAsync();
                         test(false);
                     }
                     catch (TwowayOnlyException)

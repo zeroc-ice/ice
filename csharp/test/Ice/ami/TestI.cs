@@ -115,7 +115,7 @@ namespace Ice
             public void
             pingBiDir(Test.PingReplyPrx reply, Ice.Current current)
             {
-                reply = Test.PingReplyPrxHelper.uncheckedCast(reply.ice_fixed(current.con));
+                reply = reply.Clone(fixedConnection: current.con);
                 Thread dispatchThread = Thread.CurrentThread;
                 reply.replyAsync().ContinueWith(
                    (t) =>
@@ -124,13 +124,13 @@ namespace Ice
                         test(dispatchThread != callbackThread);
                         test(callbackThread.Name.Contains("Ice.ThreadPool.Server"));
                     },
-                    reply.ice_scheduler()).Wait();
+                    reply.Scheduler).Wait();
             }
 
             Test.TestIntfPrx
             self(Ice.Current current)
             {
-                return Test.TestIntfPrxHelper.uncheckedCast(current.adapter.CreateProxy(current.id));
+                return Test.TestIntfPrx.UncheckedCast(current.adapter.CreateProxy(current.id));
             }
 
             public Task

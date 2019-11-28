@@ -230,7 +230,7 @@ namespace IceInternal
         }
 
         protected OutgoingAsyncBase(Instance instance, OutgoingAsyncCompletionCallback completionCallback,
-                                    Ice.OutputStream os = null, Ice.InputStream iss = null)
+                                    Ice.OutputStream? os = null, Ice.InputStream? iss = null)
         {
             instance_ = instance;
             sentSynchronously_ = false;
@@ -424,7 +424,7 @@ namespace IceInternal
             }
 
             cachedConnection_ = null;
-            if (proxy_.iceReference().getInvocationTimeout() == -2)
+            if (proxy_.IceReference.getInvocationTimeout() == -2)
             {
                 instance_.timer().cancel(this);
             }
@@ -440,7 +440,7 @@ namespace IceInternal
                 // the retry interval is 0. This method can be called with the
                 // connection locked so we can't just retry here.
                 //
-                instance_.retryQueue().add(this, proxy_.iceHandleException(exc, handler_, mode_, _sent, ref _cnt));
+                instance_.retryQueue().add(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
                 return false;
             }
             catch (Ice.Exception ex)
@@ -451,7 +451,7 @@ namespace IceInternal
 
         public override void cancelable(CancellationHandler handler)
         {
-            if (proxy_.iceReference().getInvocationTimeout() == -2 && cachedConnection_ != null)
+            if (proxy_.IceReference.getInvocationTimeout() == -2 && cachedConnection_ != null)
             {
                 int timeout = cachedConnection_.timeout();
                 if (timeout > 0)
@@ -472,7 +472,7 @@ namespace IceInternal
                 // require could end up waiting for the flush of the
                 // connection to be done.
                 //
-                proxy_.iceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
+                proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
                 instance_.retryQueue().add(this, 0);
             }
             catch (Ice.Exception exc)
@@ -506,11 +506,11 @@ namespace IceInternal
             }
         }
 
-        protected ProxyOutgoingAsyncBase(Ice.ObjectPrxHelperBase prx,
+        protected ProxyOutgoingAsyncBase(Ice.IObjectPrx prx,
                                          OutgoingAsyncCompletionCallback completionCallback,
-                                         Ice.OutputStream os = null,
-                                         Ice.InputStream iss = null) :
-            base(prx.iceReference().getInstance(), completionCallback, os, iss)
+                                         Ice.OutputStream? os = null,
+                                         Ice.InputStream? iss = null) :
+            base(prx.IceReference.getInstance(), completionCallback, os, iss)
         {
             proxy_ = prx;
             mode_ = Ice.OperationMode.Normal;
@@ -524,7 +524,7 @@ namespace IceInternal
             {
                 if (userThread)
                 {
-                    int invocationTimeout = proxy_.iceReference().getInvocationTimeout();
+                    int invocationTimeout = proxy_.IceReference.getInvocationTimeout();
                     if (invocationTimeout > 0)
                     {
                         instance_.timer().schedule(this, invocationTimeout);
@@ -540,7 +540,7 @@ namespace IceInternal
                     try
                     {
                         _sent = false;
-                        handler_ = proxy_.iceGetRequestHandler();
+                        handler_ = proxy_.IceGetRequestHandler();
                         int status = handler_.sendAsyncRequest(this);
                         if ((status & AsyncStatusSent) != 0)
                         {
@@ -564,7 +564,7 @@ namespace IceInternal
                     }
                     catch (RetryException)
                     {
-                        proxy_.iceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
+                        proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
                     }
                     catch (Ice.Exception ex)
                     {
@@ -574,7 +574,7 @@ namespace IceInternal
                             childObserver_.detach();
                             childObserver_ = null;
                         }
-                        int interval = proxy_.iceHandleException(ex, handler_, mode_, _sent, ref _cnt);
+                        int interval = proxy_.IceHandleException(ex, handler_, mode_, _sent, ref _cnt);
                         if (interval > 0)
                         {
                             instance_.retryQueue().add(this, interval);
@@ -608,7 +608,7 @@ namespace IceInternal
             _sent = true;
             if (done)
             {
-                if (proxy_.iceReference().getInvocationTimeout() != -1)
+                if (proxy_.IceReference.getInvocationTimeout() != -1)
                 {
                     instance_.timer().cancel(this);
                 }
@@ -617,7 +617,7 @@ namespace IceInternal
         }
         protected override bool exceptionImpl(Ice.Exception ex)
         {
-            if (proxy_.iceReference().getInvocationTimeout() != -1)
+            if (proxy_.IceReference.getInvocationTimeout() != -1)
             {
                 instance_.timer().cancel(this);
             }
@@ -626,7 +626,7 @@ namespace IceInternal
 
         protected override bool responseImpl(bool userThread, bool ok, bool invoke)
         {
-            if (proxy_.iceReference().getInvocationTimeout() != -1)
+            if (proxy_.IceReference.getInvocationTimeout() != -1)
             {
                 instance_.timer().cancel(this);
             }
@@ -635,7 +635,7 @@ namespace IceInternal
 
         public void runTimerTask()
         {
-            if (proxy_.iceReference().getInvocationTimeout() == -2)
+            if (proxy_.IceReference.getInvocationTimeout() == -2)
             {
                 cancel(new Ice.ConnectionTimeoutException());
             }
@@ -645,7 +645,7 @@ namespace IceInternal
             }
         }
 
-        protected readonly Ice.ObjectPrxHelperBase proxy_;
+        protected readonly Ice.IObjectPrx proxy_;
         protected RequestHandler handler_;
         protected Ice.OperationMode mode_;
 
@@ -658,41 +658,41 @@ namespace IceInternal
     //
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
-        public OutgoingAsync(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback,
-                             Ice.OutputStream os = null, Ice.InputStream iss = null) :
+        public OutgoingAsync(Ice.IObjectPrx prx, OutgoingAsyncCompletionCallback completionCallback,
+                             Ice.OutputStream? os = null, Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
-            encoding_ = Protocol.getCompatibleEncoding(proxy_.iceReference().getEncoding());
+            encoding_ = Protocol.getCompatibleEncoding(proxy_.IceReference.getEncoding());
             synchronous_ = false;
         }
 
         public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
         {
-            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.iceReference().getProtocol()));
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.IceReference.getProtocol()));
 
             mode_ = mode;
 
             observer_ = ObserverHelper.get(proxy_, operation, context);
 
-            switch (proxy_.iceReference().getMode())
+            switch (proxy_.IceReference.getMode())
             {
-                case Reference.Mode.ModeTwoway:
-                case Reference.Mode.ModeOneway:
-                case Reference.Mode.ModeDatagram:
+                case Ice.InvocationMode.Twoway:
+                case Ice.InvocationMode.Oneway:
+                case Ice.InvocationMode.Datagram:
                     {
                         os_.writeBlob(Protocol.requestHdr);
                         break;
                     }
 
-                case Reference.Mode.ModeBatchOneway:
-                case Reference.Mode.ModeBatchDatagram:
+                case Ice.InvocationMode.BatchOneway:
+                case Ice.InvocationMode.BatchDatagram:
                     {
                         Debug.Assert(false); // not implemented
                         break;
                     }
             }
 
-            Reference rf = proxy_.iceReference();
+            Reference rf = proxy_.IceReference;
 
             rf.getIdentity().ice_writeMembers(os_);
 
@@ -741,7 +741,7 @@ namespace IceInternal
         }
         public override bool sent()
         {
-            return base.sentImpl(!proxy_.ice_isTwoway()); // done = true if it's not a two-way proxy
+            return base.sentImpl(!proxy_.IsTwoway); // done = true if it's not a two-way proxy
         }
 
         public override bool response()
@@ -751,7 +751,7 @@ namespace IceInternal
             // with the connection locked. Therefore, it must not invoke
             // any user callbacks.
             //
-            Debug.Assert(proxy_.ice_isTwoway()); // Can only be called for twoways.
+            Debug.Assert(proxy_.IsTwoway); // Can only be called for twoways.
 
             if (childObserver_ != null)
             {
@@ -903,7 +903,7 @@ namespace IceInternal
         public override int invokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-            if (!proxy_.ice_isTwoway() || proxy_.iceReference().getInvocationTimeout() != -1)
+            if (!proxy_.IsTwoway || proxy_.IceReference.getInvocationTimeout() != -1)
             {
                 // Disable caching by marking the streams as cached!
                 state_ |= StateCachedBuffers;
@@ -913,20 +913,18 @@ namespace IceInternal
 
         public new void abort(Ice.Exception ex)
         {
-            Reference.Mode mode = proxy_.iceReference().getMode();
-            if (mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
-            {
-                Debug.Assert(false); // not implemented
-            }
+            Ice.InvocationMode mode = proxy_.IceReference.getMode();
 
+            Debug.Assert(mode != Ice.InvocationMode.BatchOneway &&
+                         mode != Ice.InvocationMode.BatchDatagram); // not implemented
             base.abort(ex);
         }
 
         protected void invoke(string operation, bool synchronous)
         {
             synchronous_ = synchronous;
-            Reference.Mode mode = proxy_.iceReference().getMode();
-            if (mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
+            Ice.InvocationMode mode = proxy_.IceReference.getMode();
+            if (mode == Ice.InvocationMode.BatchOneway || mode == Ice.InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // not implemented
                 return;
@@ -988,7 +986,7 @@ namespace IceInternal
 
         public override void cacheMessageBuffers()
         {
-            if (proxy_.iceReference().getInstance().cacheMessageBuffers() > 0)
+            if (proxy_.IceReference.getInstance().cacheMessageBuffers() > 0)
             {
                 lock (this)
                 {
@@ -1005,7 +1003,7 @@ namespace IceInternal
                 }
                 os_.reset();
 
-                proxy_.cacheMessageBuffers(is_, os_);
+                proxy_.CacheMessageBuffers(is_, os_);
 
                 is_ = null;
                 os_ = null;
@@ -1018,10 +1016,10 @@ namespace IceInternal
 
     public class OutgoingAsyncT<T> : OutgoingAsync
     {
-        public OutgoingAsyncT(Ice.ObjectPrxHelperBase prx,
+        public OutgoingAsyncT(Ice.IObjectPrx prx,
                               OutgoingAsyncCompletionCallback completionCallback,
-                              Ice.OutputStream os = null,
-                              Ice.InputStream iss = null) :
+                              Ice.OutputStream? os = null,
+                              Ice.InputStream? iss = null) :
             base(prx, completionCallback, os, iss)
         {
         }
@@ -1031,9 +1029,9 @@ namespace IceInternal
                            Ice.FormatType format,
                            Dictionary<string, string> context,
                            bool synchronous,
-                           System.Action<Ice.OutputStream> write = null,
-                           System.Action<Ice.UserException> userException = null,
-                           System.Func<Ice.InputStream, T> read = null)
+                           System.Action<Ice.OutputStream>? write = null,
+                           System.Action<Ice.UserException>? userException = null,
+                           System.Func<Ice.InputStream, T>? read = null)
         {
             read_ = read;
             userException_ = userException;
@@ -1081,7 +1079,7 @@ namespace IceInternal
             }
         }
 
-        protected System.Func<Ice.InputStream, T> read_;
+        protected System.Func<Ice.InputStream, T>? read_;
     }
 
     //
@@ -1089,7 +1087,7 @@ namespace IceInternal
     //
     internal class ProxyGetConnection : ProxyOutgoingAsyncBase
     {
-        public ProxyGetConnection(Ice.ObjectPrxHelperBase prx, OutgoingAsyncCompletionCallback completionCallback) :
+        public ProxyGetConnection(Ice.IObjectPrx prx, OutgoingAsyncCompletionCallback completionCallback) :
             base(prx, completionCallback)
         {
         }
@@ -1128,7 +1126,7 @@ namespace IceInternal
 
     public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback
     {
-        public TaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken)
+        public TaskCompletionCallback(System.IProgress<bool>? progress, CancellationToken cancellationToken)
         {
             progress_ = progress;
             _cancellationToken = cancellationToken;
@@ -1210,12 +1208,12 @@ namespace IceInternal
 
         private readonly CancellationToken _cancellationToken;
 
-        protected readonly System.IProgress<bool> progress_;
+        protected readonly System.IProgress<bool>? progress_;
     }
 
     public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
     {
-        public OperationTaskCompletionCallback(System.IProgress<bool> progress, CancellationToken cancellationToken) :
+        public OperationTaskCompletionCallback(System.IProgress<bool>? progress, CancellationToken cancellationToken) :
             base(progress, cancellationToken)
         {
         }

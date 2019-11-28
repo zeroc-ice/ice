@@ -174,15 +174,14 @@ namespace Ice
             public Test.F2Prx
             opF2(Test.F2Prx f21, out Test.F2Prx f22, Ice.Current current)
             {
-                f22 = Test.F2PrxHelper.uncheckedCast(current.adapter.GetCommunicator().stringToProxy("F22"));
+                f22 = Test.F2Prx.Parse("F22", current.adapter.GetCommunicator());
                 return f21;
             }
 
             public Test.F3
             opF3(Test.F3 f31, out Test.F3 f32, Ice.Current current)
             {
-                f32 = new Test.F3(new Test.F1("F12"),
-                    Test.F2PrxHelper.uncheckedCast(current.adapter.GetCommunicator().stringToProxy("F22")));
+                f32 = new Test.F3(new Test.F1("F12"), Test.F2Prx.Parse("F22", current.adapter.GetCommunicator()));
                 return f31;
             }
 

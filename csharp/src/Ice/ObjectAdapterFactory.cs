@@ -198,7 +198,7 @@ namespace IceInternal
             return adapter;
         }
 
-        public Ice.ObjectAdapter findObjectAdapter(Ice.ObjectPrx proxy)
+        public Ice.ObjectAdapter findObjectAdapter(Ice.IObjectPrx proxy)
         {
             List<Ice.ObjectAdapterI> adapters;
             lock (this)

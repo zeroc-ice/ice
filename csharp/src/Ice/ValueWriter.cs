@@ -17,7 +17,7 @@ namespace IceInternal
             writeValue(null, obj, null, output);
         }
 
-        private static void writeValue(string name, object val, Dictionary<Ice.IObject, object> objectTable, OutputBase output)
+        private static void writeValue(string? name, object val, Dictionary<Ice.IObject, object?>? objectTable, OutputBase output)
         {
             if (val == null)
             {
@@ -61,11 +61,11 @@ namespace IceInternal
                         writeValue(elem + "value", entry.Value, objectTable, output);
                     }
                 }
-                else if (val is Ice.ObjectPrxHelperBase)
+                else if (val is Ice.IObjectPrx)
                 {
                     writeName(name, output);
-                    Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
-                    output.print(proxy.iceReference().ToString());
+                    Ice.IObjectPrx proxy = (Ice.IObjectPrx)val;
+                    output.print(proxy.IceReference.ToString());
                 }
                 else if (val is Ice.IObject)
                 {
@@ -81,7 +81,7 @@ namespace IceInternal
                     {
                         if (objectTable == null)
                         {
-                            objectTable = new Dictionary<Ice.IObject, object>();
+                            objectTable = new Dictionary<Ice.IObject, object?>();
                         }
                         objectTable[(Ice.IObject)val] = null;
                         writeFields(name, val, c, objectTable, output);
@@ -102,7 +102,7 @@ namespace IceInternal
             }
         }
 
-        private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.IObject, object> objectTable,
+        private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.IObject, object?> objectTable,
                                         OutputBase output)
         {
             if (!c.Equals(typeof(object)))
@@ -135,7 +135,7 @@ namespace IceInternal
             }
         }
 
-        private static void writeName(string name, OutputBase output)
+        private static void writeName(string? name, OutputBase output)
         {
             if (name != null)
             {

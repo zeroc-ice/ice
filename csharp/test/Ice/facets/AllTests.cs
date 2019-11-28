@@ -96,58 +96,37 @@ namespace Ice
 
                 adapter.Deactivate();
 
-                output.Write("testing stringToProxy... ");
-                output.Flush();
-                string @ref = "d:" + helper.getTestEndpoint(0);
-                ObjectPrx db = communicator.stringToProxy(@ref);
-                test(db != null);
-                output.WriteLine("ok");
+                var prx = IObjectPrx.Parse($"d:{helper.getTestEndpoint(0)}", communicator);
 
                 output.Write("testing unchecked cast... ");
                 output.Flush();
-                ObjectPrx prx = Ice.ObjectPrxHelper.uncheckedCast(db);
-                test(prx.ice_getFacet().Length == 0);
-                prx = Ice.ObjectPrxHelper.uncheckedCast(db, "facetABCD");
-                test(prx.ice_getFacet() == "facetABCD");
-                ObjectPrx prx2 = Ice.ObjectPrxHelper.uncheckedCast(prx);
-                test(prx2.ice_getFacet() == "facetABCD");
-                ObjectPrx prx3 = Ice.ObjectPrxHelper.uncheckedCast(prx, "");
-                test(prx3.ice_getFacet().Length == 0);
-                var d = Test.DPrxHelper.uncheckedCast(db);
-                test(d.ice_getFacet().Length == 0);
-                var df = DPrxHelper.uncheckedCast(db, "facetABCD");
-                test(df.ice_getFacet() == "facetABCD");
-                var df2 = DPrxHelper.uncheckedCast(df);
-                test(df2.ice_getFacet() == "facetABCD");
-                var df3 = DPrxHelper.uncheckedCast(df, "");
-                test(df3.ice_getFacet().Length == 0);
+                var d = DPrx.UncheckedCast(prx);
+                test(d.Facet.Length == 0);
+                var df = DPrx.UncheckedCast(prx.Clone(facet: "facetABCD"));
+                test(df.Facet == "facetABCD");
+                var df2 = DPrx.UncheckedCast(df);
+                test(df2.Facet == "facetABCD");
+                var df3 = DPrx.UncheckedCast(df.Clone(facet: ""));
+                test(df3.Facet.Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                prx = ObjectPrxHelper.checkedCast(db);
-                test(prx.ice_getFacet().Length == 0);
-                prx = ObjectPrxHelper.checkedCast(db, "facetABCD");
-                test(prx.ice_getFacet() == "facetABCD");
-                prx2 = ObjectPrxHelper.checkedCast(prx);
-                test(prx2.ice_getFacet() == "facetABCD");
-                prx3 = ObjectPrxHelper.checkedCast(prx, "");
-                test(prx3.ice_getFacet().Length == 0);
-                d = DPrxHelper.checkedCast(db);
-                test(d.ice_getFacet().Length == 0);
-                df = DPrxHelper.checkedCast(db, "facetABCD");
-                test(df.ice_getFacet() == "facetABCD");
-                df2 = Test.DPrxHelper.checkedCast(df);
-                test(df2.ice_getFacet() == "facetABCD");
-                df3 = DPrxHelper.checkedCast(df, "");
-                test(df3.ice_getFacet().Length == 0);
+                d = DPrx.CheckedCast(prx);
+                test(d.Facet.Length == 0);
+                df = DPrx.CheckedCast(prx.Clone(facet: "facetABCD"));
+                test(df.Facet == "facetABCD");
+                df2 = DPrx.CheckedCast(df);
+                test(df2.Facet == "facetABCD");
+                df3 = DPrx.CheckedCast(df.Clone(facet: ""));
+                test(df3.Facet.Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing non-facets A, B, C, and D... ");
                 output.Flush();
-                d = DPrxHelper.checkedCast(db);
+                d = DPrx.CheckedCast(prx);
                 test(d != null);
-                test(d.Equals(db));
+                test(d.Equals(prx));
                 test(d.callA().Equals("A"));
                 test(d.callB().Equals("B"));
                 test(d.callC().Equals("C"));
@@ -156,7 +135,7 @@ namespace Ice
 
                 output.Write("testing facets A, B, C, and D... ");
                 output.Flush();
-                df = DPrxHelper.checkedCast(d, "facetABCD");
+                df = DPrx.CheckedCast(d.Clone(facet: "facetABCD"));
                 test(df != null);
                 test(df.callA().Equals("A"));
                 test(df.callB().Equals("B"));
@@ -166,23 +145,20 @@ namespace Ice
 
                 output.Write("testing facets E and F... ");
                 output.Flush();
-                var ff = FPrxHelper.checkedCast(d, "facetEF");
-                test(ff != null);
+                var ff = FPrx.CheckedCast(d.Clone(facet: "facetEF"));
                 test(ff.callE().Equals("E"));
                 test(ff.callF().Equals("F"));
                 output.WriteLine("ok");
 
                 output.Write("testing facet G... ");
                 output.Flush();
-                var gf = Test.GPrxHelper.checkedCast(ff, "facetGH");
-                test(gf != null);
+                var gf = GPrx.CheckedCast(ff.Clone(facet: "facetGH"));
                 test(gf.callG().Equals("G"));
                 output.WriteLine("ok");
 
                 output.Write("testing whether casting preserves the facet... ");
                 output.Flush();
-                var hf = Test.HPrxHelper.checkedCast(gf);
-                test(hf != null);
+                var hf = HPrx.CheckedCast(gf);
                 test(hf.callG().Equals("G"));
                 test(hf.callH().Equals("H"));
                 output.WriteLine("ok");

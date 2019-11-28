@@ -12,11 +12,9 @@ namespace Ice
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
-                output.Flush();
-                string rf = "test:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
-                var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
-                var derivedProxy = Test.MyDerivedClassPrxHelper.checkedCast(cl);
+
+                var cl = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                var derivedProxy = Test.MyDerivedClassPrx.CheckedCast(cl);
 
                 output.Write("testing twoway operations... ");
                 output.Flush();

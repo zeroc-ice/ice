@@ -24,13 +24,13 @@ namespace Ice
                 output.Flush();
                 test(interceptor.getLastOperation() == null);
                 test(!interceptor.getLastStatus());
-                prx.ice_ping();
+                prx.IcePing();
                 test(interceptor.getLastOperation().Equals("ice_ping"));
                 test(!interceptor.getLastStatus());
-                string typeId = prx.ice_id();
+                string typeId = prx.IceId();
                 test(interceptor.getLastOperation().Equals("ice_id"));
                 test(!interceptor.getLastStatus());
-                test(prx.ice_isA(typeId));
+                test(prx.IceIsA(typeId));
                 test(interceptor.getLastOperation().Equals("ice_isA"));
                 test(!interceptor.getLastStatus());
                 test(prx.add(33, 12) == 45);
@@ -82,11 +82,11 @@ namespace Ice
                 }
                 catch (Ice.UnknownException)
                 {
-                    test(!prx.ice_isCollocationOptimized());
+                    test(!prx.IsCollocationOptimized);
                 }
                 catch (MySystemException)
                 {
-                    test(prx.ice_isCollocationOptimized());
+                    test(prx.IsCollocationOptimized);
                 }
                 catch (Exception)
                 {
@@ -173,11 +173,11 @@ namespace Ice
                 }
                 catch (Ice.UnknownException)
                 {
-                    test(!prx.ice_isCollocationOptimized());
+                    test(!prx.IsCollocationOptimized);
                 }
                 catch (MySystemException)
                 {
-                    test(prx.ice_isCollocationOptimized());
+                    test(prx.IsCollocationOptimized);
                 }
                 catch (Exception)
                 {
@@ -206,7 +206,7 @@ namespace Ice
 
                     var interceptor = new InterceptorI<MyObject, MyObjectTraits>(new MyObjectI());
 
-                    var prx = MyObjectPrxHelper.uncheckedCast(oa.Add((incoming, current) => interceptor.Dispatch(incoming, current)));
+                    var prx = MyObjectPrx.UncheckedCast(oa.Add((incoming, current) => interceptor.Dispatch(incoming, current)));
 
                     var output = getWriter();
 
@@ -220,7 +220,7 @@ namespace Ice
 
                     output.WriteLine("Collocation optimization off");
                     interceptor.clear();
-                    prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
+                    prx = prx.Clone(collocationOptimized: false);
                     runTest(prx, interceptor);
 
                     output.WriteLine("Now with AMD");
@@ -249,7 +249,7 @@ namespace Ice
                     ctx.Add(e.operation, e.kind);
                     try
                     {
-                        prx.ice_ping(ctx);
+                        prx.IcePing(ctx);
                         test(false);
                     }
                     catch (UnknownUserException) when (e.kind.Equals("user"))

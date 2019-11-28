@@ -164,16 +164,9 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper, bool collocated)
             {
                 Communicator communicator = helper.communicator();
-                string sref = "test:" + helper.getTestEndpoint(0);
-                ObjectPrx obj = communicator.stringToProxy(sref);
-                test(obj != null);
 
-                Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
-                sref = "testController:" + helper.getTestEndpoint(1);
-                obj = communicator.stringToProxy(sref);
-                test(obj != null);
-
-                Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
+                var p = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                var testController = TestIntfControllerPrx.Parse($"testController:{helper.getTestEndpoint(1)}", communicator);
 
                 var output = helper.getWriter();
 
@@ -182,21 +175,21 @@ namespace Ice
                 {
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
 
-                    test(p.ice_isAAsync("::Test::TestIntf").Result);
-                    test(p.ice_isAAsync("::Test::TestIntf", ctx).Result);
+                    test(p.IceIsAAsync("::Test::TestIntf").Result);
+                    test(p.IceIsAAsync("::Test::TestIntf", ctx).Result);
 
-                    p.ice_pingAsync().Wait();
-                    p.ice_pingAsync(ctx).Wait();
+                    p.IcePingAsync().Wait();
+                    p.IcePingAsync(ctx).Wait();
 
-                    test(p.ice_idAsync().Result.Equals("::Test::TestIntf"));
-                    test(p.ice_idAsync(ctx).Result.Equals("::Test::TestIntf"));
+                    test(p.IceIdAsync().Result.Equals("::Test::TestIntf"));
+                    test(p.IceIdAsync(ctx).Result.Equals("::Test::TestIntf"));
 
-                    test(p.ice_idsAsync().Result.Length == 2);
-                    test(p.ice_idsAsync(ctx).Result.Length == 2);
+                    test(p.IceIdsAsync().Result.Length == 2);
+                    test(p.IceIdsAsync(ctx).Result.Length == 2);
 
                     if (!collocated)
                     {
-                        test(p.ice_getConnectionAsync().Result != null);
+                        test(p.GetConnectionAsync().Result != null);
                     }
 
                     p.opAsync().Wait();
@@ -234,25 +227,25 @@ namespace Ice
                         {
                             Dictionary<string, string> ctx = new Dictionary<string, string>();
 
-                            test(await p.ice_isAAsync("::Test::TestIntf"));
-                            test(await p.ice_isAAsync("::Test::TestIntf", ctx));
+                            test(await p.IceIsAAsync("::Test::TestIntf"));
+                            test(await p.IceIsAAsync("::Test::TestIntf", ctx));
 
-                            await p.ice_pingAsync();
-                            await p.ice_pingAsync(ctx);
+                            await p.IcePingAsync();
+                            await p.IcePingAsync(ctx);
 
-                            var id = await p.ice_idAsync();
+                            var id = await p.IceIdAsync();
                             test(id.Equals("::Test::TestIntf"));
-                            id = await p.ice_idAsync(ctx);
+                            id = await p.IceIdAsync(ctx);
                             test(id.Equals("::Test::TestIntf"));
 
-                            var ids = await p.ice_idsAsync();
+                            var ids = await p.IceIdsAsync();
                             test(ids.Length == 2);
-                            ids = await p.ice_idsAsync(ctx);
+                            ids = await p.IceIdsAsync(ctx);
                             test(ids.Length == 2);
 
                             if (!collocated)
                             {
-                                var conn = await p.ice_getConnectionAsync();
+                                var conn = await p.GetConnectionAsync();
                                 test(conn != null);
                             }
 
@@ -292,49 +285,49 @@ namespace Ice
                 {
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
 
-                    p.ice_isAAsync("::Test::TestIntf").ContinueWith(previous =>
+                    p.IceIsAAsync("::Test::TestIntf").ContinueWith(previous =>
                         {
                             test(previous.Result);
                         }).Wait();
 
-                    p.ice_isAAsync("::Test::TestIntf", ctx).ContinueWith(previous =>
+                    p.IceIsAAsync("::Test::TestIntf", ctx).ContinueWith(previous =>
                         {
                             test(previous.Result);
                         }).Wait();
 
-                    p.ice_pingAsync().ContinueWith(previous =>
+                    p.IcePingAsync().ContinueWith(previous =>
                         {
                             previous.Wait();
                         }).Wait();
 
-                    p.ice_pingAsync(ctx).ContinueWith(previous =>
+                    p.IcePingAsync(ctx).ContinueWith(previous =>
                         {
                             previous.Wait();
                         }).Wait();
 
-                    p.ice_idAsync().ContinueWith(previous =>
+                    p.IceIdAsync().ContinueWith(previous =>
                         {
                             test(previous.Result.Equals("::Test::TestIntf"));
                         }).Wait();
 
-                    p.ice_idAsync(ctx).ContinueWith(previous =>
+                    p.IceIdAsync(ctx).ContinueWith(previous =>
                         {
                             test(previous.Result.Equals("::Test::TestIntf"));
                         }).Wait();
 
-                    p.ice_idsAsync().ContinueWith(previous =>
+                    p.IceIdsAsync().ContinueWith(previous =>
                         {
                             test(previous.Result.Length == 2);
                         }).Wait();
 
-                    p.ice_idsAsync(ctx).ContinueWith(previous =>
+                    p.IceIdsAsync(ctx).ContinueWith(previous =>
                         {
                             test(previous.Result.Length == 2);
                         }).Wait();
 
                     if (!collocated)
                     {
-                        p.ice_getConnectionAsync().ContinueWith(previous =>
+                        p.GetConnectionAsync().ContinueWith(previous =>
                             {
                                 test(previous.Result != null);
                             }).Wait();
@@ -382,7 +375,7 @@ namespace Ice
                 output.Write("testing local exceptions with async tasks... ");
                 output.Flush();
                 {
-                    Test.TestIntfPrx indirect = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
+                    TestIntfPrx indirect = p.Clone(adapterId: "dummy");
 
                     try
                     {
@@ -399,7 +392,7 @@ namespace Ice
 
                     try
                     {
-                        ((Test.TestIntfPrx)p.ice_oneway()).opWithResultAsync();
+                        p.Clone(oneway: true).opWithResultAsync();
                         test(false);
                     }
                     catch (TwowayOnlyException)
@@ -409,13 +402,13 @@ namespace Ice
                     //
                     // Check that CommunicatorDestroyedException is raised directly.
                     //
-                    if (p.ice_getConnection() != null)
+                    if (p.GetConnection() != null)
                     {
                         InitializationData initData = new InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
                         Communicator ic = helper.initialize(initData);
-                        ObjectPrx o = ic.stringToProxy(p.ToString());
-                        Test.TestIntfPrx p2 = Test.TestIntfPrxHelper.checkedCast(o);
+                        IObjectPrx o = IObjectPrx.Parse(p.ToString(), ic);
+                        TestIntfPrx p2 = Test.TestIntfPrx.CheckedCast(o);
                         ic.destroy();
 
                         try
@@ -434,11 +427,11 @@ namespace Ice
                 output.Write("testing exception with async task... ");
                 output.Flush();
                 {
-                    Test.TestIntfPrx i = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
+                    TestIntfPrx i = p.Clone(adapterId: "dummy");
 
                     try
                     {
-                        i.ice_isAAsync("::Test::TestIntf").Wait();
+                        i.IceIsAAsync("::Test::TestIntf").Wait();
                         test(false);
                     }
                     catch (AggregateException)
@@ -473,7 +466,7 @@ namespace Ice
                     }
 
                     // Ensures no exception is called when response is received
-                    test(p.ice_isAAsync("::Test::TestIntf").Result);
+                    test(p.IceIsAAsync("::Test::TestIntf").Result);
                     p.opAsync().Wait();
                     p.opWithResultAsync().Wait();
 
@@ -499,7 +492,7 @@ namespace Ice
                     {
                         SentCallback cb = new SentCallback();
 
-                        Task t = p.ice_isAAsync("",
+                        Task t = p.IceIsAAsync("",
                             progress: new Progress(sentSynchronously =>
                             {
                                 cb.sent(sentSynchronously);
@@ -507,7 +500,7 @@ namespace Ice
                         cb.check();
                         t.Wait();
 
-                        t = p.ice_pingAsync(
+                        t = p.IcePingAsync(
                             progress: new Progress(sentSynchronously =>
                             {
                                 cb.sent(sentSynchronously);
@@ -515,7 +508,7 @@ namespace Ice
                         cb.check();
                         t.Wait();
 
-                        t = p.ice_idAsync(
+                        t = p.IceIdAsync(
                             progress: new Progress(sentSynchronously =>
                             {
                                 cb.sent(sentSynchronously);
@@ -523,7 +516,7 @@ namespace Ice
                         cb.check();
                         t.Wait();
 
-                        t = p.ice_idsAsync(
+                        t = p.IceIdsAsync(
                             progress: new Progress(sentSynchronously =>
                             {
                                 cb.sent(sentSynchronously);
@@ -608,7 +601,7 @@ namespace Ice
                 task().Wait();
                 output.WriteLine("ok");
 
-                if (p.ice_getConnection() != null)
+                if (p.GetConnection() != null)
                 {
                     output.Write("testing async Task cancellation... ");
                     output.Flush();
@@ -632,10 +625,10 @@ namespace Ice
 
                             test(!cb.Sent);
 
-                            t1 = p.ice_pingAsync(cancel: cs1.Token);
-                            t2 = p.ice_pingAsync(cancel: cs2.Token);
+                            t1 = p.IcePingAsync(cancel: cs1.Token);
+                            t2 = p.IcePingAsync(cancel: cs2.Token);
                             cs3.Cancel();
-                            t3 = p.ice_pingAsync(cancel: cs3.Token);
+                            t3 = p.IcePingAsync(cancel: cs3.Token);
                             cs1.Cancel();
                             cs2.Cancel();
                             try
@@ -680,13 +673,13 @@ namespace Ice
                         finally
                         {
                             testController.resumeAdapter();
-                            p.ice_ping();
+                            p.IcePing();
                         }
                     }
                     output.WriteLine("ok");
                 }
 
-                if (p.ice_getConnection() != null && p.supportsAMD())
+                if (p.GetConnection() != null && p.supportsAMD())
                 {
                     output.Write("testing graceful close connection with wait... ");
                     output.Flush();
@@ -695,7 +688,7 @@ namespace Ice
                         // Local case: begin a request, close the connection gracefully, and make sure it waits
                         // for the request to complete.
                         //
-                        Connection con = p.ice_getConnection();
+                        Connection con = p.GetConnection();
                         CallbackBase cb = new CallbackBase();
                         con.setCloseCallback(_ =>
                             {
@@ -722,7 +715,7 @@ namespace Ice
                         while (!done && maxQueue < 50)
                         {
                             done = true;
-                            p.ice_ping();
+                            p.IcePing();
                             List<Task> results = new List<Task>();
                             for (int i = 0; i < maxQueue; ++i)
                             {
@@ -768,8 +761,8 @@ namespace Ice
                         // without waiting for the pending invocation to complete. There will be no retry and we expect the
                         // invocation to fail with ConnectionManuallyClosedException.
                         //
-                        p = (Test.TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
-                        Connection con = p.ice_getConnection();
+                        p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
+                        Connection con = p.GetConnection();
                         CallbackBase cb = new CallbackBase();
                         Task t = p.startDispatchAsync(
                             progress: new Progress(sentSynchronously =>
@@ -794,7 +787,7 @@ namespace Ice
                         // Remote case: the server closes the connection gracefully, which means the connection
                         // will not be closed until all pending dispatched requests have completed.
                         //
-                        con = p.ice_getConnection();
+                        con = p.GetConnection();
                         cb = new CallbackBase();
                         con.setCloseCallback(_ =>
                             {
@@ -814,8 +807,8 @@ namespace Ice
                         // Local case: start an operation and then close the connection forcefully on the client side.
                         // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
                         //
-                        p.ice_ping();
-                        Connection con = p.ice_getConnection();
+                        p.IcePing();
+                        Connection con = p.GetConnection();
                         CallbackBase cb = new CallbackBase();
                         Task t = p.startDispatchAsync(
                             progress: new Progress(sentSynchronously =>
@@ -857,18 +850,18 @@ namespace Ice
                 output.Write("testing ice_scheduler... ");
                 output.Flush();
                 {
-                    p.ice_pingAsync().ContinueWith(
+                    p.IcePingAsync().ContinueWith(
                        (t) =>
                         {
                             test(Thread.CurrentThread.Name == null ||
                                  !Thread.CurrentThread.Name.Contains("ThreadPool.Client"));
                         }).Wait();
 
-                    p.ice_pingAsync().ContinueWith(
+                    p.IcePingAsync().ContinueWith(
                        (t) =>
                         {
                             test(Thread.CurrentThread.Name.Contains("ThreadPool.Client"));
-                        }, p.ice_scheduler()).Wait();
+                        }, p.Scheduler).Wait();
 
                     {
                         TaskCompletionSource<int> s1 = new TaskCompletionSource<int>();
@@ -877,7 +870,7 @@ namespace Ice
                         Task t2 = s2.Task;
                         Task t3 = null;
                         Task t4 = null;
-                        p.ice_pingAsync().ContinueWith(
+                        p.IcePingAsync().ContinueWith(
                            (t) =>
                             {
                                 test(Thread.CurrentThread.Name.Contains("ThreadPool.Client"));
@@ -891,7 +884,7 @@ namespace Ice
                                     },
                                     CancellationToken.None,
                                     TaskContinuationOptions.ExecuteSynchronously,
-                                    p.ice_scheduler());
+                                    p.Scheduler);
                                 s1.SetResult(1);
 
                                 //
@@ -905,8 +898,8 @@ namespace Ice
                                             },
                                             CancellationToken.None,
                                             TaskContinuationOptions.ExecuteSynchronously,
-                                            p.ice_scheduler());
-                            }, p.ice_scheduler()).Wait();
+                                            p.Scheduler);
+                            }, p.Scheduler).Wait();
                         s2.SetResult(1);
                         Task.WaitAll(t1, t2, t3, t4);
                     }
@@ -915,10 +908,10 @@ namespace Ice
                     {
                         ObjectAdapter adapter = communicator.createObjectAdapter("");
                         PingReplyI replyI = new PingReplyI();
-                        var reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI));
+                        var reply = adapter.Add(replyI);
                         adapter.Activate();
 
-                        p.ice_getConnection().setAdapter(adapter);
+                        p.GetConnection().setAdapter(adapter);
                         p.pingBiDir(reply);
                         test(replyI.checkReceived());
                         adapter.Destroy();
@@ -929,8 +922,7 @@ namespace Ice
                 output.Write("testing result struct... ");
                 output.Flush();
                 {
-                    var q = Test.Outer.Inner.TestIntfPrxHelper.uncheckedCast(
-                        communicator.stringToProxy("test2:" + helper.getTestEndpoint(0)));
+                    var q = Test.Outer.Inner.TestIntfPrx.Parse($"test2:{helper.getTestEndpoint(0)}", communicator);
                     q.opAsync(1).ContinueWith(t =>
                         {
                             var r = t.Result;

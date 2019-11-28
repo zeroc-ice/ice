@@ -58,26 +58,7 @@ namespace Ice
         /// </returns>
         bool isShutdown();
 
-        /// <summary>
-        /// Convert a stringified proxy into a proxy.
-        /// For example,
-        /// MyCategory/MyObject:tcp -h some_host -p
-        /// 10000 creates a proxy that refers to the Ice object
-        /// having an identity with a name "MyObject" and a category
-        /// "MyCategory", with the server running on host "some_host", port
-        /// 10000. If the stringified proxy does not parse correctly, the
-        /// operation throws one of ProxyParseException, EndpointParseException,
-        /// or IdentityParseException. Refer to the Ice manual for a detailed
-        /// description of the syntax supported by stringified proxies.
-        ///
-        /// </summary>
-        /// <param name="str">The stringified proxy to convert into a proxy.
-        ///
-        /// </param>
-        /// <returns>The proxy, or nil if str is an empty string.
-        ///
-        /// </returns>
-        ObjectPrx stringToProxy(string str);
+        IceInternal.Reference StringToReference(string s, string? propertyPrefix = null);
 
         /// <summary>
         /// Convert a proxy into a string.
@@ -89,25 +70,7 @@ namespace Ice
         /// obj is nil.
         ///
         /// </returns>
-        string proxyToString(ObjectPrx obj);
-
-        /// <summary>
-        /// Convert a set of proxy properties into a proxy.
-        /// The "base"
-        /// name supplied in the property argument refers to a
-        /// property containing a stringified proxy, such as
-        /// MyProxy=id:tcp -h localhost -p 10000. Additional
-        /// properties configure local settings for the proxy, such as
-        /// MyProxy.PreferSecure=1. The "Properties"
-        /// appendix in the Ice manual describes each of the supported
-        /// proxy properties.
-        ///
-        /// </summary>
-        /// <param name="property">The base property name.
-        ///
-        /// </param>
-        /// <returns>The proxy.</returns>
-        ObjectPrx propertyToProxy(string property);
+        string proxyToString(IObjectPrx obj);
 
         /// <summary>
         /// Convert a proxy to a set of proxy properties.
@@ -119,7 +82,7 @@ namespace Ice
         ///
         /// </param>
         /// <returns>The property set.</returns>
-        Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
+        Dictionary<string, string> proxyToProperty(IObjectPrx proxy, string property);
 
         /// <summary>
         /// Convert an identity into a string.
@@ -302,7 +265,7 @@ namespace Ice
         /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
         ///
         /// </returns>
-        ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId);
+        IObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId);
 
         /// <summary>
         /// Get a proxy to the main facet of the Admin object.
@@ -319,7 +282,7 @@ namespace Ice
         /// Admin object is configured.
         ///
         /// </returns>
-        ObjectPrx getAdmin();
+        IObjectPrx getAdmin();
 
         /// <summary>
         /// Add a new facet to the Admin object.

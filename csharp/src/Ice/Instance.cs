@@ -10,6 +10,7 @@ namespace IceInternal
     using System.Text;
     using System.Threading;
     using System.Linq;
+    using Ice;
 
     public sealed class BufSizeWarnInfo
     {
@@ -361,7 +362,7 @@ namespace IceInternal
             return _implicitContext;
         }
 
-        public Ice.ObjectPrx
+        public Ice.IObjectPrx
         createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
         {
             bool createAdapter = (adminAdapter == null);
@@ -430,7 +431,7 @@ namespace IceInternal
             return adminAdapter.CreateProxy(adminIdentity);
         }
 
-        public Ice.ObjectPrx
+        public Ice.IObjectPrx
         getAdmin()
         {
             Ice.ObjectAdapter adminAdapter;
@@ -665,7 +666,7 @@ namespace IceInternal
                             c = helper.GetProperty("targetClass").PropertyType;
                             break; // foreach
                         }
-                        catch (Exception)
+                        catch (System.Exception)
                         {
                         }
                     }
@@ -707,7 +708,7 @@ namespace IceInternal
                         break; // foreach
                     }
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                 }
             }
@@ -1062,7 +1063,7 @@ namespace IceInternal
                 _timer = new Timer(this, Util.stringToThreadPriority(
                                                 initializationData().properties.getProperty("Ice.ThreadPriority")));
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 string s = "cannot create thread for timer:\n" + ex;
                 _initData.logger.error(s);
@@ -1073,7 +1074,7 @@ namespace IceInternal
             {
                 _endpointHostResolver = new EndpointHostResolver(this);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 string s = "cannot create thread for endpoint host resolver:\n" + ex;
                 _initData.logger.error(s);
@@ -1087,21 +1088,19 @@ namespace IceInternal
             //
             if (_referenceFactory.getDefaultRouter() == null)
             {
-                Ice.RouterPrx r = Ice.RouterPrxHelper.uncheckedCast(
-                    _proxyFactory.propertyToProxy("Ice.Default.Router"));
-                if (r != null)
+                if (!string.IsNullOrEmpty(_initData.properties.getProperty("Ice.Default.Router")))
                 {
-                    _referenceFactory = _referenceFactory.setDefaultRouter(r);
+                    _referenceFactory = _referenceFactory.setDefaultRouter(
+                        RouterPrx.ParseProperty("Ice.Default.Router", communicator));
                 }
             }
 
             if (_referenceFactory.getDefaultLocator() == null)
             {
-                Ice.LocatorPrx l = Ice.LocatorPrxHelper.uncheckedCast(
-                    _proxyFactory.propertyToProxy("Ice.Default.Locator"));
-                if (l != null)
+                if (!string.IsNullOrEmpty(_initData.properties.getProperty("Ice.Default.Locator")))
                 {
-                    _referenceFactory = _referenceFactory.setDefaultLocator(l);
+                    _referenceFactory = _referenceFactory.setDefaultLocator(
+                        LocatorPrx.ParseProperty("Ice.Default.Locator", communicator));
                 }
             }
 
@@ -1112,7 +1111,7 @@ namespace IceInternal
             {
                 if (!_printProcessIdDone && _initData.properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
                 {
-                    using (Process p = Process.GetCurrentProcess())
+                    using (var p = System.Diagnostics.Process.GetCurrentProcess())
                     {
                         Console.WriteLine(p.Id);
                     }
@@ -1435,15 +1434,15 @@ namespace IceInternal
             }
         }
 
-        internal void setServerProcessProxy(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
+        internal void setServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
-            Ice.ObjectPrx admin = adminAdapter.CreateProxy(adminIdentity);
-            Ice.LocatorPrx locator = adminAdapter.GetLocator();
+            IObjectPrx admin = adminAdapter.CreateProxy(adminIdentity);
+            LocatorPrx locator = adminAdapter.GetLocator();
             string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
 
             if (locator != null && serverId.Length > 0)
             {
-                Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
+                ProcessPrx process = ProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
                 try
                 {
                     //
@@ -1452,11 +1451,11 @@ namespace IceInternal
                     //
                     locator.getRegistry().setServerProcessProxy(serverId, process);
                 }
-                catch (Ice.ServerNotFoundException)
+                catch (ServerNotFoundException)
                 {
                     if (_traceLevels.location >= 1)
                     {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        StringBuilder s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                         s.Append("the server is not known to the locator registry");
                         _initData.logger.trace(_traceLevels.locationCat, s.ToString());
@@ -1468,7 +1467,7 @@ namespace IceInternal
                 {
                     if (_traceLevels.location >= 1)
                     {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        StringBuilder s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
                         _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                     }
@@ -1477,7 +1476,7 @@ namespace IceInternal
 
                 if (_traceLevels.location >= 1)
                 {
-                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    StringBuilder s = new StringBuilder();
                     s.Append("registered server `" + serverId + "' with the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                 }

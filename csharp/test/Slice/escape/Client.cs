@@ -117,16 +117,16 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
-            @abstract.@decimalPrx p = @abstract.@decimalPrxHelper.uncheckedCast(adapter.CreateProxy("test"));
+            @abstract.@decimalPrx p = @abstract.@decimalPrx.UncheckedCast(adapter.CreateProxy("test"));
             p.@default();
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing System as module name... ");
             Console.Out.Flush();
-            @abstract.System.TestPrx t1 = @abstract.System.TestPrxHelper.uncheckedCast(adapter.CreateProxy("test1"));
+            @abstract.System.TestPrx t1 = @abstract.System.TestPrx.UncheckedCast(adapter.CreateProxy("test1"));
             t1.op();
 
-            System.TestPrx t2 = System.TestPrxHelper.uncheckedCast(adapter.CreateProxy("test2"));
+            System.TestPrx t2 = System.TestPrx.UncheckedCast(adapter.CreateProxy("test2"));
 
             t2.op();
             Console.Out.WriteLine("ok");

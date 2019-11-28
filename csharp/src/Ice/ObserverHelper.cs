@@ -24,15 +24,14 @@ namespace IceInternal
             return null;
         }
 
-        public static InvocationObserver get(Ice.ObjectPrx proxy, string op)
+        public static InvocationObserver get(Ice.IObjectPrx proxy, string op)
         {
             return get(proxy, op, null);
         }
 
-        public static InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
+        public static InvocationObserver get(Ice.IObjectPrx proxy, string op, Dictionary<string, string> context)
         {
-            CommunicatorObserver obsv =
-                ((Ice.ObjectPrxHelperBase)proxy).iceReference().getInstance().initializationData().observer;
+            CommunicatorObserver obsv = proxy.IceReference.getInstance().initializationData().observer;
             if (obsv != null)
             {
                 InvocationObserver observer;

@@ -5,6 +5,7 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -18,8 +19,8 @@ public class Client : Test.TestHelper
         {
             Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
             Console.Error.Flush();
-            Dictionary<int, Ice.ObjectPrx> seenProxy = new Dictionary<int, Ice.ObjectPrx>();
-            Dictionary<int, Ice.Endpoint> seenEndpoint = new Dictionary<int, Ice.Endpoint>();
+            Dictionary<int, IObjectPrx> seenProxy = new Dictionary<int, IObjectPrx>();
+            Dictionary<int, Endpoint> seenEndpoint = new Dictionary<int, Endpoint>();
             int proxyCollisions = 0;
             int endpointCollisions = 0;
             int i = 0;
@@ -43,8 +44,8 @@ public class Client : Test.TestHelper
                     sw.Write(" -h ");
                     sw.Write(rand.Next(100));
 
-                    Ice.ObjectPrx obj = communicator.stringToProxy(sw.ToString());
-                    List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>(obj.ice_getEndpoints());
+                    Ice.IObjectPrx obj = IObjectPrx.Parse(sw.ToString(), communicator);
+                    List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>(obj.Endpoints);
 
                     if (seenProxy.ContainsKey(obj.GetHashCode()))
                     {
@@ -59,7 +60,7 @@ public class Client : Test.TestHelper
                         seenProxy[obj.GetHashCode()] = obj;
                     }
 
-                    foreach (Ice.Endpoint endpoint in endpoints)
+                    foreach (Endpoint endpoint in endpoints)
                     {
                         if (seenEndpoint.ContainsKey(endpoint.GetHashCode()))
                         {
@@ -86,9 +87,9 @@ public class Client : Test.TestHelper
                 test(proxyCollisions < maxCollisions);
                 test(endpointCollisions < maxCollisions);
                 {
-                    Ice.ProxyIdentityKey comparer = new Ice.ProxyIdentityKey();
+                    Ice.ProxyIdentityKey comparer = new ProxyIdentityKey();
                     proxyCollisions = 0;
-                    seenProxy = new Dictionary<int, Ice.ObjectPrx>();
+                    seenProxy = new Dictionary<int, IObjectPrx>();
                     for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                     {
                         System.IO.StringWriter sw = new System.IO.StringWriter();
@@ -102,7 +103,7 @@ public class Client : Test.TestHelper
                         sw.Write(" -h ");
                         sw.Write(rand.Next(100));
 
-                        Ice.ObjectPrx obj = communicator.stringToProxy(sw.ToString());
+                        var obj = IObjectPrx.Parse(sw.ToString(), communicator);
 
                         if (seenProxy.ContainsKey(comparer.GetHashCode(obj)))
                         {
@@ -125,7 +126,7 @@ public class Client : Test.TestHelper
                 Random rand = new Random();
                 Ice.ProxyIdentityFacetKey comparer = new Ice.ProxyIdentityFacetKey();
                 proxyCollisions = 0;
-                seenProxy = new Dictionary<int, Ice.ObjectPrx>();
+                seenProxy = new Dictionary<int, IObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                 {
                     System.IO.StringWriter sw = new System.IO.StringWriter();
@@ -139,7 +140,7 @@ public class Client : Test.TestHelper
                     sw.Write(" -h ");
                     sw.Write(rand.Next(100));
 
-                    Ice.ObjectPrx obj = communicator.stringToProxy(sw.ToString());
+                    var obj = IObjectPrx.Parse(sw.ToString(), communicator);
 
                     if (seenProxy.ContainsKey(comparer.GetHashCode(obj)))
                     {
@@ -160,15 +161,15 @@ public class Client : Test.TestHelper
             Ice.ProxyIdentityFacetKey iComparer = new Ice.ProxyIdentityFacetKey();
             Ice.ProxyIdentityFacetKey ifComparer = new Ice.ProxyIdentityFacetKey();
 
-            Ice.ObjectPrx prx1 = communicator.stringToProxy("Glacier2/router:tcp -p 10010");
+            var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator);
             //Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");
-            Ice.ObjectPrx prx3 = communicator.stringToProxy("Glacier2/router:udp -p 10012");
-            Ice.ObjectPrx prx4 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010");
+            var prx3 = IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator);
+            var prx4 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator);
             //Ice.ObjectPrx prx5 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011");
-            Ice.ObjectPrx prx6 = communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012");
-            Ice.ObjectPrx prx7 = communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000");
+            var prx6 = IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator);
+            var prx7 = IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator);
             //Ice.ObjectPrx prx8 = communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000");
-            Ice.ObjectPrx prx9 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
+            var prx9 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator);
             //Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
             Dictionary<string, int> proxyMap = new Dictionary<string, int>();
@@ -183,15 +184,15 @@ public class Client : Test.TestHelper
             proxyMap["prx9"] = prx9.GetHashCode();
             //proxyMap["prx10"] = prx10.GetHashCode();
 
-            test(communicator.stringToProxy("Glacier2/router:tcp -p 10010").GetHashCode() == proxyMap["prx1"]);
+            test(IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
             //test(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
-            test(communicator.stringToProxy("Glacier2/router:udp -p 10012").GetHashCode() == proxyMap["prx3"]);
-            test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010").GetHashCode() == proxyMap["prx4"]);
+            test(IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator).GetHashCode() == proxyMap["prx3"]);
+            test(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() == proxyMap["prx4"]);
             //test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
-            test(communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").GetHashCode() == proxyMap["prx6"]);
-            test(communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").GetHashCode() == proxyMap["prx7"]);
+            test(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() == proxyMap["prx6"]);
+            test(IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx7"]);
             //test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
-            test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").GetHashCode() == proxyMap["prx9"]);
+            test(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx9"]);
             //test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
 
             test(iComparer.GetHashCode(prx1) == iComparer.GetHashCode(prx1));

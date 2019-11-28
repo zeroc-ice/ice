@@ -14,14 +14,14 @@ namespace IceInternal
         }
 
         public RequestHandler
-        getRequestHandler(RoutableReference rf, Ice.ObjectPrxHelperBase proxy)
+        getRequestHandler(RoutableReference rf, Ice.IObjectPrx proxy)
         {
             if (rf.getCollocationOptimized())
             {
                 Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
                 if (adapter != null)
                 {
-                    return proxy.iceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
+                    return proxy.IceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
                 }
             }
 
@@ -49,7 +49,7 @@ namespace IceInternal
             {
                 rf.getConnection(handler);
             }
-            return proxy.iceSetRequestHandler(handler.connect(proxy));
+            return proxy.IceSetRequestHandler(handler.connect(proxy));
         }
 
         internal void

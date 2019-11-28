@@ -850,7 +850,7 @@ namespace Ice
             return _endpoint; // No mutex protection necessary, _endpoint is immutable.
         }
 
-        public ObjectPrx createProxy(Identity ident)
+        public IObjectPrx createProxy(Identity ident)
         {
             //
             // Create a reference and return a reverse proxy for this

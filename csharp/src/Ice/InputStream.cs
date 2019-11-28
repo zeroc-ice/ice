@@ -2360,9 +2360,19 @@ namespace Ice
         /// Extracts a proxy from the stream. The stream must have been initialized with a communicator.
         /// </summary>
         /// <returns>The extracted proxy.</returns>
-        public ObjectPrx readProxy()
+        public T? ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            return _instance.proxyFactory().streamToProxy(this);
+            Identity ident = new Identity();
+            ident.ice_readMembers(this);
+            var reference = _instance.referenceFactory().create(ident, this);
+            if (reference == null)
+            {
+                return null;
+            }
+            else
+            {
+                return factory(reference);
+            }
         }
 
         /// <summary>
@@ -2370,16 +2380,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<ObjectPrx> readProxy(int tag)
+        public Optional<T> ReadProxy<T>(int tag, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
             if (readOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
-                return new Optional<ObjectPrx>(readProxy());
+                return new Optional<T>(ReadProxy(factory));
             }
             else
             {
-                return new Optional<ObjectPrx>();
+                return new Optional<T>();
             }
         }
 
@@ -2389,12 +2399,12 @@ namespace Ice
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <param name="isset">True if the optional value is present, false otherwise.</param>
         /// <param name="v">The optional value.</param>
-        public void readProxy(int tag, out bool isset, out ObjectPrx v)
+        public void ReadProxy<T>(int tag, ProxyFactory<T> factory, out bool isset, out T? v) where T : class, IObjectPrx
         {
             if (isset = readOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
-                v = readProxy();
+                v = ReadProxy(factory);
             }
             else
             {

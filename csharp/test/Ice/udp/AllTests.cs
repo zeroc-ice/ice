@@ -57,18 +57,17 @@ namespace Ice
 
             public static void allTests(global::Test.TestHelper helper)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
                 communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+                ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
                 PingReplyI replyI = new PingReplyI();
-                Test.PingReplyPrx reply =
-                  (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
+                PingReplyPrx reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
                 adapter.Activate();
 
                 Console.Out.Write("testing udp... ");
                 Console.Out.Flush();
-                Ice.ObjectPrx @base = communicator.stringToProxy("test:" + helper.getTestEndpoint(0, "udp")).ice_datagram();
-                Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(@base);
+                var obj = TestIntfPrx.Parse("test:" + helper.getTestEndpoint(0, "udp"),
+                                            communicator).Clone(invocationMode: InvocationMode.Datagram);
 
                 int nRetry = 5;
                 bool ret = false;
@@ -87,7 +86,7 @@ namespace Ice
                     // If the 3 datagrams were not received within the 2 seconds, we try again to
                     // receive 3 new datagrams using a new object. We give up after 5 retries.
                     replyI = new PingReplyI();
-                    reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
+                    reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
                 }
                 test(ret == true);
 
@@ -117,7 +116,7 @@ namespace Ice
                         //
                         test(seq.Length > 16384);
                     }
-                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
                     seq = new byte[50000];
                     try
@@ -168,8 +167,7 @@ namespace Ice
                 }
                 endpoint.Append(" -p ");
                 endpoint.Append(helper.getTestPort(10));
-                @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
-                var objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
+                var objMcast = TestIntfPrx.Parse($"test -d:{endpoint}", communicator);
 
                 nRetry = 5;
                 while (nRetry-- > 0)
@@ -182,7 +180,7 @@ namespace Ice
                         break;
                     }
                     replyI = new PingReplyI();
-                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
+                    reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
                 }
                 if (!ret)
                 {
@@ -195,22 +193,22 @@ namespace Ice
 
                 Console.Out.Write("testing udp bi-dir connection... ");
                 Console.Out.Flush();
-                obj.ice_getConnection().setAdapter(adapter);
-                objMcast.ice_getConnection().setAdapter(adapter);
+                obj.GetConnection().setAdapter(adapter);
+                objMcast.GetConnection().setAdapter(adapter);
                 nRetry = 5;
                 while (nRetry-- > 0)
                 {
                     replyI.reset();
-                    obj.pingBiDir(reply.ice_getIdentity());
-                    obj.pingBiDir(reply.ice_getIdentity());
-                    obj.pingBiDir(reply.ice_getIdentity());
+                    obj.pingBiDir(reply.Identity);
+                    obj.pingBiDir(reply.Identity);
+                    obj.pingBiDir(reply.Identity);
                     ret = replyI.waitReply(3, 2000);
                     if (ret)
                     {
                         break; // Success
                     }
                     replyI = new PingReplyI();
-                    reply = (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.Add(replyI)).ice_datagram();
+                    reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
                 }
                 test(ret);
                 Console.Out.WriteLine("ok");
@@ -226,7 +224,7 @@ namespace Ice
                 //         while(nRetry-- > 0)
                 //         {
                 //             replyI.reset();
-                //             objMcast.pingBiDir(reply.ice_getIdentity());
+                //             objMcast.pingBiDir(reply.Identity);
                 //             ret = replyI.waitReply(5, 2000);
                 //             if(ret)
                 //             {

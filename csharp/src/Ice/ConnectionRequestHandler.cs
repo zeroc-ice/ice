@@ -54,7 +54,7 @@ namespace IceInternal
         public ConnectionRequestHandler(Reference @ref, Ice.ConnectionI connection, bool compress)
         {
             _reference = @ref;
-            _response = _reference.getMode() == Reference.Mode.ModeTwoway;
+            _response = _reference.getMode() == Ice.InvocationMode.Twoway;
             _connection = connection;
             _compress = compress;
         }

@@ -3321,7 +3321,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(baseInterfaces.empty())
     {
-        baseInterfaces.push_back(getUnqualified("Ice.ObjectPrx", ns));
+        baseInterfaces.push_back(getUnqualified("Ice.IObjectPrx", ns));
     }
 
     for(vector<string>::const_iterator q = baseInterfaces.begin(); q != baseInterfaces.end();)
@@ -3338,8 +3338,152 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
+Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
+    string ns = getNamespace(p);
+    ClassList bases = p->bases();
+    //
+    // Proxy static methods
+    //
+    _out << sp;
+    _out << nl << "public static " << getUnqualified("Ice.ProxyFactory", ns) << "<" << p->name()
+         << "Prx> Factory = (reference) => new _" << p->name() << "Prx(reference);";
+
+    _out << sp;
+    _out << nl << "public static new " <<p->name() << "Prx Parse("
+         << "string s, "
+         << getUnqualified("Ice.Communicator", ns) << " communicator)";
+    _out << sb;
+    _out << nl << "return new _" << p->name() << "Prx(communicator.StringToReference(s));";
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static bool TryParse("
+         << "string s, "
+         << getUnqualified("Ice.Communicator", ns) << " communicator, "
+         << "out " << p->name() << "Prx? prx)";
+    _out << sb;
+    _out << nl << "try";
+    _out << sb;
+    _out << nl << "prx = new _" << p->name() << "Prx(communicator.StringToReference(s));";
+    _out << eb;
+    _out << nl << "catch (global::System.Exception)";
+    _out << sb;
+    _out << nl << "prx = null;";
+    _out << nl << "return false;";
+    _out << eb;
+    _out << nl << "return true;";
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static new " <<p->name() << "Prx ParseProperty("
+         << "string prefix, "
+         << getUnqualified("Ice.Communicator", ns) << " communicator)";
+    _out << sb;
+    _out << nl << "string proxy = communicator.getProperties().getProperty(prefix);";
+    _out << nl << "return new _" << p->name() << "Prx(communicator.StringToReference(proxy, prefix));";
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static bool TryParseProperty("
+         << "string prefix, "
+         << getUnqualified("Ice.Communicator", ns) << " communicator, "
+         << "out " << p->name() << "Prx? prx)";
+    _out << sb;
+    _out << nl << "try";
+    _out << sb;
+    _out << nl << "string proxy = communicator.getProperties().getProperty(prefix);";
+    _out << nl << "prx = new _" << p->name() << "Prx(communicator.StringToReference(proxy, prefix));";
+    _out << eb;
+    _out << nl << "catch (global::System.Exception)";
+    _out << sb;
+    _out << nl << "prx = null;";
+    _out << nl << "return false;";
+    _out << eb;
+    _out << nl << "return true;";
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static ";
+    if(!bases.empty())
+    {
+        _out << "new ";
+    }
+    _out << p->name() << "Prx UncheckedCast("
+         << getUnqualified("Ice.IObjectPrx", ns) << " prx)";
+    _out << sb;
+    _out << nl << "if(prx == null)";
+    _out << sb;
+    _out << nl << "throw new global::System.ArgumentNullException(nameof(prx));";
+    _out << eb;
+    _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public static ";
+    if(!bases.empty())
+    {
+        _out << "new ";
+    }
+    _out << p->name() << "Prx CheckedCast("
+         << getUnqualified("Ice.IObjectPrx", ns) << " prx, "
+         << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
+    _out << sb;
+    _out << nl << "if(prx == null)";
+    _out << sb;
+    _out << nl << "throw new global::System.ArgumentNullException(nameof(prx));";
+    _out << eb;
+    _out << nl << "var r = prx as " << p->name() << "Prx;";
+    _out << nl << "try";
+    _out << sb;
+
+    _out << nl << "if(r == null && prx.IceIsA(\"" << p->scoped() << "\", context))";
+    _out << sb;
+    _out << nl << "r = new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
+    _out << eb;
+    _out << eb;
+    _out << nl << "catch (" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
+    _out << sb;
+    _out << eb;
+    _out << nl << "return r;";
+    _out << eb;
+
+    _out << eb;
+
+    //
+    // Proxy instance
+    //
+    _out << sp;
+    _out << nl << "[global::System.Serializable]";
+    _out << nl << "public class _" << p->name() << "Prx : " << getUnqualified("Ice.ObjectPrx", ns) << ", "
+         << p->name() << "Prx";
+    _out << sb;
+
+    _out << nl << "public _" << p->name() << "Prx(" << getUnqualified("Ice.IObjectPrx", ns) << " other) : "
+         << "base(other)";
+    _out << sb;
+    _out << eb;
+
+    _out << nl << "public _" << p->name() << "Prx("
+         << "global::System.Runtime.Serialization.SerializationInfo info, "
+         << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
+    _out << sb;
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public _" << p->name() << "Prx("
+         << "IceInternal.Reference reference, "
+         << "IceInternal.RequestHandler? requestHandler = null) : base(reference, requestHandler)";
+    _out << sb;
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "public override " << getUnqualified("Ice.IObjectPrx", ns)
+         << " Clone(global::IceInternal.Reference reference)";
+    _out << sb;
+    _out << nl << "return new _" << p->name() << "Prx(reference);";
+    _out << eb;
+
     _out << eb;
 }
 
@@ -3349,16 +3493,41 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
     string ns = getNamespace(cl);
     string name = fixId(p->name(), DotNet::ICloneable, true);
+
+    string opName = p->name();
+    TypePtr ret = p->returnType();
+    string retS = typeToString(ret, ns, p->returnIsOptional());
+    string returnTypeS = resultType(p, ns);
+
     vector<string> inParams = getInParams(p, ns);
-    ParamDeclList inParamDecls = p->inParameters();
-    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
+    ParamDeclList inParamsDecl = p->inParameters();
+    ParamDeclList outParamsDecl = p->outParameters();
+
+    vector<string> args = getArgs(p);
+    vector<string> argsAMI = getInArgs(p);
+
     string deprecateReason = getDeprecateReason(p, cl, "operation");
+
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+
+    //
+    // Arrange exceptions into most-derived to least-derived order. If we don't
+    // do this, a base exception handler can appear before a derived exception
+    // handler, causing compiler warnings and resulting in the base exception
+    // being marshaled instead of the derived exception.
+    //
+    throws.sort(Slice::DerivedToBaseCompare());
+
+    string context = getEscapedParamName(p, "context");
+    string cancel = getEscapedParamName(p, "cancel");
+    string progress = getEscapedParamName(p, "progress");
 
     {
         //
         // Write the synchronous version of the operation.
         //
-        string context = getEscapedParamName(p, "context");
         _out << sp;
         writeDocComment(p, deprecateReason,
             "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
@@ -3368,17 +3537,67 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << retS << " " << name << spar << getParams(p, ns)
              << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()") << epar << ';';
+                 getUnqualified("Ice.OptionalContext", ns) + "()") << epar;
+        _out << sb;
+
+        _out << nl << "try";
+        _out << sb;
+
+        _out << nl;
+
+        if(ret || !outParamsDecl.empty())
+        {
+            if(outParamsDecl.empty())
+            {
+                _out << "return ";
+            }
+            else if(ret || outParamsDecl.size() > 1)
+            {
+                _out << "var result_ = ";
+            }
+            else
+            {
+                _out << fixId(outParamsDecl.front()->name()) << " = ";
+            }
+        }
+        _out << "_iceI_" << p->name() << "Async" << spar << argsAMI << context
+             << "null" << "global::System.Threading.CancellationToken.None" << "true" << epar;
+
+        if(ret || outParamsDecl.size() > 0)
+        {
+            _out << ".Result;";
+        }
+        else
+        {
+            _out << ".Wait();";
+        }
+
+        if((ret && outParamsDecl.size() > 0) || outParamsDecl.size() > 1)
+        {
+            for(ParamDeclList::const_iterator i = outParamsDecl.begin(); i != outParamsDecl.end(); ++i)
+            {
+                ParamDeclPtr param = *i;
+                _out << nl << fixId(param->name()) << " = result_." << fixId(param->name()) << ";";
+            }
+
+            if(ret)
+            {
+                _out << nl << "return result_." << resultStructReturnValueName(outParamsDecl) << ";";
+            }
+        }
+        _out << eb;
+        _out << nl << "catch(global::System.AggregateException ex_)";
+        _out << sb;
+        _out << nl << "throw ex_.InnerException;";
+        _out << eb;
+
+        _out << eb;
     }
 
     {
         //
         // Write the async version of the operation (using Async Task API)
         //
-        string context = getEscapedParamName(p, "context");
-        string cancel = getEscapedParamName(p, "cancel");
-        string progress = getEscapedParamName(p, "progress");
-
         _out << sp;
         writeDocCommentTaskAsyncAMI(p, deprecateReason,
             "<param name=\"" + context + "\">Context map to send with the invocation.</param>",
@@ -3394,8 +3613,190 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
                  getUnqualified("Ice.OptionalContext", ns) + "()")
              << ("global::System.IProgress<bool> " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = new global::System.Threading.CancellationToken()")
-             << epar << ";";
+             << epar;
+        _out << sb;
+        _out << nl << "return _iceI_" << opName << "Async" << spar << argsAMI
+             << context << progress << cancel << "false" << epar << ";";
+        _out << eb;
     }
+
+    //
+    // Write the Async method implementation.
+    //
+    _out << sp;
+    _out << nl << "private global::System.Threading.Tasks.Task";
+    if(!returnTypeS.empty())
+    {
+        _out << "<" << returnTypeS << ">";
+    }
+    _out << " _iceI_" << opName << "Async" << spar << getInParams(p, ns, true)
+         << getUnqualified("Ice.OptionalContext", ns) + " context"
+         << "global::System.IProgress<bool> progress"
+         << "global::System.Threading.CancellationToken cancel"
+         << "bool synchronous" << epar;
+    _out << sb;
+
+    if(p->returnsData())
+    {
+        _out << nl << "iceCheckTwowayOnly(\"" << opName << "\");";
+    }
+    if(returnTypeS.empty())
+    {
+        _out << nl << "var completed = "
+             << "new global::IceInternal.OperationTaskCompletionCallback<object>(progress, cancel);";
+    }
+    else
+    {
+        _out << nl << "var completed = "
+             << "new global::IceInternal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
+    }
+
+    _out << nl << "_iceI_" << opName << spar << getInArgs(p, true) << "context" << "synchronous" << "completed"
+         << epar << ";";
+    _out << nl << "return completed.Task;";
+
+    _out << eb;
+
+    //
+    // Write the common invoke method
+    //
+    _out << sp << nl;
+    _out << "private void _iceI_" << p->name() << spar << getInParams(p, ns, true)
+         << "global::System.Collections.Generic.Dictionary<string, string> context"
+         << "bool synchronous"
+         << "global::IceInternal.OutgoingAsyncCompletionCallback completed" << epar;
+    _out << sb;
+
+    if(returnTypeS.empty())
+    {
+        _out << nl << "var outAsync = getOutgoingAsync<object>(completed);";
+    }
+    else
+    {
+        _out << nl << "var outAsync = getOutgoingAsync<" << returnTypeS << ">(completed);";
+    }
+
+    _out << nl << "outAsync.invoke(";
+    _out.inc();
+    _out << nl << '"' << opName << '"' << ",";
+    _out << nl << sliceModeToIceMode(p->sendMode(), ns) << ",";
+    _out << nl << opFormatTypeToString(p, ns) << ",";
+    _out << nl << "context,";
+    _out << nl << "synchronous";
+    if(!inParamsDecl.empty())
+    {
+        _out << ",";
+        _out << nl << "write: (" << getUnqualified("Ice.OutputStream", ns) << " ostr) =>";
+        _out << sb;
+        writeMarshalUnmarshalParams(inParamsDecl, 0, true, ns);
+        if(p->sendsClasses(false))
+        {
+            _out << nl << "ostr.writePendingValues();";
+        }
+        _out << eb;
+    }
+
+    if(!throws.empty())
+    {
+        _out << ",";
+        _out << nl << "userException: (" << getUnqualified("Ice.UserException", ns) << " ex) =>";
+        _out << sb;
+        _out << nl << "try";
+        _out << sb;
+        _out << nl << "throw ex;";
+        _out << eb;
+
+        //
+        // Generate a catch block for each legal user exception.
+        //
+        for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+        {
+            _out << nl << "catch(" << getUnqualified(*i, ns) << ")";
+            _out << sb;
+            _out << nl << "throw;";
+            _out << eb;
+        }
+
+        _out << nl << "catch(" << getUnqualified("Ice.UserException", ns) << ")";
+        _out << sb;
+        _out << eb;
+
+        _out << eb;
+    }
+
+    if(ret || !outParamsDecl.empty())
+    {
+        _out << ",";
+        _out << nl << "read: (" << getUnqualified("Ice.InputStream", ns) << " istr) =>";
+        _out << sb;
+        if(outParamsDecl.empty())
+        {
+            _out << nl << returnTypeS << " ret";
+            if(!p->returnIsOptional())
+            {
+                StructPtr st = StructPtr::dynamicCast(ret);
+                if(st && isValueType(st))
+                {
+                    _out << " = " << "new " + returnTypeS + "()";
+                }
+                else if(isClassType(ret) || st)
+                {
+                    _out << " = null";
+                }
+            }
+            else if(isClassType(ret))
+            {
+                _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
+            }
+            _out << ";";
+        }
+        else if(ret || outParamsDecl.size() > 1)
+        {
+            _out << nl << returnTypeS << " ret = new " << returnTypeS << "();";
+        }
+        else
+        {
+            TypePtr t = outParamsDecl.front()->type();
+            _out << nl << typeToString(t, ns, (outParamsDecl.front()->optional())) << " iceP_"
+                 << outParamsDecl.front()->name();
+            if(!outParamsDecl.front()->optional())
+            {
+                StructPtr st = StructPtr::dynamicCast(t);
+                if(st && isValueType(st))
+                {
+                    _out << " = " << "new " << typeToString(t, ns) << "()";
+                }
+                else if(isClassType(t) || st)
+                {
+                    _out << " = null";
+                }
+            }
+            else if(isClassType(t))
+            {
+                _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
+            }
+            _out << ";";
+        }
+
+        writeMarshalUnmarshalParams(outParamsDecl, p, false, ns, true);
+        if(p->returnsClasses(false))
+        {
+            _out << nl << "istr.readPendingValues();";
+        }
+
+        if(!ret && outParamsDecl.size() == 1)
+        {
+            _out << nl << "return iceP_" << outParamsDecl.front()->name() << ";";
+        }
+        else
+        {
+            _out << nl << "return ret;";
+        }
+        _out << eb;
+    }
+    _out << ");";
+    _out.dec();
+    _out << eb;
 }
 
 Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out)
@@ -3573,545 +3974,6 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
 {
     _out << eb;
     moduleEnd(p);
-}
-
-bool
-Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isInterface() && p->allOperations().size() == 0)
-    {
-        return false;
-    }
-
-    string name = p->name();
-    string ns = getNamespace(p);
-    ClassList bases = p->bases();
-
-    _out << sp;
-    emitComVisibleAttribute();
-    emitGeneratedCodeAttribute();
-    _out << nl << "[global::System.Serializable]";
-    _out << nl << "public sealed class " << name << "PrxHelper : " << getUnqualified("Ice.ObjectPrxHelperBase", ns)
-         << ", " << name << "Prx";
-    _out << sb;
-
-    _out << sp;
-    _out << nl << "public " << name << "PrxHelper()";
-    _out << sb;
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "public " << name << "PrxHelper(global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
-    _out << sb;
-    _out << eb;
-
-    OperationList ops = p->allOperations();
-
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        string opName = fixId(op->name(), DotNet::ICloneable, true);
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, ns, op->returnIsOptional());
-
-        vector<string> params = getParams(op, ns);
-        vector<string> args = getArgs(op);
-        vector<string> argsAMI = getInArgs(op);
-
-        string deprecateReason = getDeprecateReason(op, p, "operation");
-
-        ParamDeclList inParams = op->inParameters();
-        ParamDeclList outParams = op->outParameters();
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        //
-        throws.sort(Slice::DerivedToBaseCompare());
-
-        string context = getEscapedParamName(op, "context");
-
-        _out << sp;
-        _out << nl << "public " << retS << " " << opName << spar << params
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()") << epar;
-        _out << sb;
-        _out << nl << "try";
-        _out << sb;
-
-        _out << nl;
-
-        if(ret || !outParams.empty())
-        {
-            if(outParams.empty())
-            {
-                _out << "return ";
-            }
-            else if(ret || outParams.size() > 1)
-            {
-                _out << "var result_ = ";
-            }
-            else
-            {
-                _out << fixId(outParams.front()->name()) << " = ";
-            }
-        }
-        _out << "_iceI_" << op->name() << "Async" << spar << argsAMI << context
-             << "null" << "global::System.Threading.CancellationToken.None" << "true" << epar;
-
-        if(ret || outParams.size() > 0)
-        {
-            _out << ".Result;";
-        }
-        else
-        {
-            _out << ".Wait();";
-        }
-
-        if((ret && outParams.size() > 0) || outParams.size() > 1)
-        {
-            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-            {
-                ParamDeclPtr param = *i;
-                _out << nl << fixId(param->name()) << " = result_." << fixId(param->name()) << ";";
-            }
-
-            if(ret)
-            {
-                _out << nl << "return result_." << resultStructReturnValueName(outParams) << ";";
-            }
-        }
-        _out << eb;
-        _out << nl << "catch(global::System.AggregateException ex_)";
-        _out << sb;
-        _out << nl << "throw ex_.InnerException;";
-        _out << eb;
-        _out << eb;
-    }
-
-    //
-    // Async Task AMI mapping.
-    //
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-        vector<string> paramsAMI = getInParams(op, ns);
-        vector<string> argsAMI = getInArgs(op);
-
-        string opName = op->name();
-
-        ParamDeclList inParams = op->inParameters();
-        ParamDeclList outParams = op->outParameters();
-
-        string context = getEscapedParamName(op, "context");
-        string cancel = getEscapedParamName(op, "cancel");
-        string progress = getEscapedParamName(op, "progress");
-
-        TypePtr ret = op->returnType();
-
-        string retS = typeToString(ret, ns, op->returnIsOptional());
-
-        string returnTypeS = resultType(op, ns);
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        //
-        throws.sort(Slice::DerivedToBaseCompare());
-
-        //
-        // Write the public Async method.
-        //
-        _out << sp;
-        _out << nl << "public global::System.Threading.Tasks.Task";
-        if(!returnTypeS.empty())
-        {
-            _out << "<" << returnTypeS << ">";
-        }
-        _out << " " << opName << "Async" << spar << paramsAMI
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()")
-             << ("global::System.IProgress<bool> " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel + " = new global::System.Threading.CancellationToken()")
-             << epar;
-
-        _out << sb;
-        _out << nl << "return _iceI_" << opName << "Async" << spar << argsAMI
-             << context << progress << cancel << "false" << epar << ";";
-        _out << eb;
-
-        //
-        // Write the Async method implementation.
-        //
-        _out << sp;
-        _out << nl << "private global::System.Threading.Tasks.Task";
-        if(!returnTypeS.empty())
-        {
-            _out << "<" << returnTypeS << ">";
-        }
-        _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
-             << getUnqualified("Ice.OptionalContext", ns) + " context"
-             << "global::System.IProgress<bool> progress"
-             << "global::System.Threading.CancellationToken cancel"
-             << "bool synchronous" << epar;
-        _out << sb;
-
-        string flatName = "_" + opName + "_name";
-        if(op->returnsData())
-        {
-            _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
-        }
-        if(returnTypeS.empty())
-        {
-            _out << nl << "var completed = "
-                 << "new global::IceInternal.OperationTaskCompletionCallback<object>(progress, cancel);";
-        }
-        else
-        {
-            _out << nl << "var completed = "
-                 << "new global::IceInternal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
-        }
-
-        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context" << "synchronous" << "completed"
-             << epar << ";";
-        _out << nl << "return completed.Task;";
-
-        _out << eb;
-
-        _out << sp << nl << "private const string " << flatName << " = \"" << op->name() << "\";";
-
-        //
-        // Write the common invoke method
-        //
-        _out << sp << nl;
-        _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string> context"
-             << "bool synchronous"
-             << "global::IceInternal.OutgoingAsyncCompletionCallback completed" << epar;
-        _out << sb;
-
-        if(returnTypeS.empty())
-        {
-            _out << nl << "var outAsync = getOutgoingAsync<object>(completed);";
-        }
-        else
-        {
-            _out << nl << "var outAsync = getOutgoingAsync<" << returnTypeS << ">(completed);";
-        }
-
-        _out << nl << "outAsync.invoke(";
-        _out.inc();
-        _out << nl << flatName << ",";
-        _out << nl << sliceModeToIceMode(op->sendMode(), ns) << ",";
-        _out << nl << opFormatTypeToString(op, ns) << ",";
-        _out << nl << "context,";
-        _out << nl << "synchronous";
-        if(!inParams.empty())
-        {
-            _out << ",";
-            _out << nl << "write: (" << getUnqualified("Ice.OutputStream", ns) << " ostr) =>";
-            _out << sb;
-            writeMarshalUnmarshalParams(inParams, 0, true, ns);
-            if(op->sendsClasses(false))
-            {
-                _out << nl << "ostr.writePendingValues();";
-            }
-            _out << eb;
-        }
-
-        if(!throws.empty())
-        {
-            _out << ",";
-            _out << nl << "userException: (" << getUnqualified("Ice.UserException", ns) << " ex) =>";
-            _out << sb;
-            _out << nl << "try";
-            _out << sb;
-            _out << nl << "throw ex;";
-            _out << eb;
-
-            //
-            // Generate a catch block for each legal user exception.
-            //
-            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-            {
-                _out << nl << "catch(" << getUnqualified(*i, ns) << ")";
-                _out << sb;
-                _out << nl << "throw;";
-                _out << eb;
-            }
-
-            _out << nl << "catch(" << getUnqualified("Ice.UserException", ns) << ")";
-            _out << sb;
-            _out << eb;
-
-            _out << eb;
-        }
-
-        if(ret || !outParams.empty())
-        {
-            _out << ",";
-            _out << nl << "read: (" << getUnqualified("Ice.InputStream", ns) << " istr) =>";
-            _out << sb;
-            if(outParams.empty())
-            {
-                _out << nl << returnTypeS << " ret";
-                if(!op->returnIsOptional())
-                {
-                    StructPtr st = StructPtr::dynamicCast(ret);
-                    if(st && isValueType(st))
-                    {
-                        _out << " = " << "new " + returnTypeS + "()";
-                    }
-                    else if(isClassType(ret) || st)
-                    {
-                        _out << " = null";
-                    }
-                }
-                else if(isClassType(ret))
-                {
-                    _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
-                }
-                _out << ";";
-            }
-            else if(ret || outParams.size() > 1)
-            {
-                _out << nl << returnTypeS << " ret = new " << returnTypeS << "();";
-            }
-            else
-            {
-                TypePtr t = outParams.front()->type();
-                _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                     << outParams.front()->name();
-                if(!outParams.front()->optional())
-                {
-                    StructPtr st = StructPtr::dynamicCast(t);
-                    if(st && isValueType(st))
-                    {
-                        _out << " = " << "new " << typeToString(t, ns) << "()";
-                    }
-                    else if(isClassType(t) || st)
-                    {
-                        _out << " = null";
-                    }
-                }
-                else if(isClassType(t))
-                {
-                    _out << " = " << getUnqualified("Ice.Util", ns) << ".None";
-                }
-                _out << ";";
-            }
-
-            writeMarshalUnmarshalParams(outParams, op, false, ns, true);
-            if(op->returnsClasses(false))
-            {
-                _out << nl << "istr.readPendingValues();";
-            }
-
-            if(!ret && outParams.size() == 1)
-            {
-                _out << nl << "return iceP_" << outParams.front()->name() << ";";
-            }
-            else
-            {
-                _out << nl << "return ret;";
-            }
-            _out << eb;
-        }
-        _out << ");";
-        _out.dec();
-        _out << eb;
-    }
-
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns) << " b)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(ice_staticId()))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name
-         << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, global::System.Collections.Generic.Dictionary<string, string> ctx)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "if(bb.ice_isA(ice_staticId()))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
-    _out << eb;
-    _out << eb;
-    _out << nl << "catch(" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
-    _out << sb;
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name
-         << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns) << " b, string f, "
-         << "global::System.Collections.Generic.Dictionary<string, string> ctx)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "if(bb.ice_isA(ice_staticId(), ctx))";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
-    _out << eb;
-    _out << eb;
-    _out << nl << "catch(" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
-    _out << sb;
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns) << " b)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if(r == null)";
-    _out << sb;
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(b);";
-    _out << nl << "r = h;";
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx uncheckedCast(" << getUnqualified("Ice.ObjectPrx", ns)
-         << " b, string f)";
-    _out << sb;
-    _out << nl << "if(b == null)";
-    _out << sb;
-    _out << nl << "return null;";
-    _out << eb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " bb = b.ice_facet(f);";
-    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    _out << nl << "h.iceCopyFrom(bb);";
-    _out << nl << "return h;";
-    _out << eb;
-
-    string scoped = p->scoped();
-    ClassList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
-
-    //
-    // Need static-readonly for arrays in C# (not const)
-    //
-    _out << sp << nl << "private static readonly string[] _ids =";
-    _out << sb;
-
-    {
-        StringList::const_iterator q = ids.begin();
-        while(q != ids.end())
-        {
-            _out << nl << '"' << *q << '"';
-            if(++q != ids.end())
-            {
-                _out << ',';
-            }
-        }
-    }
-    _out << eb << ";";
-
-    _out << sp << nl << "public static string ice_staticId()";
-    _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
-    _out << eb;
-
-    _out << sp << nl << "public static void write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << name
-         << "Prx v)";
-    _out << sb;
-    _out << nl << "ostr.writeProxy(v);";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
-    _out << sb;
-    _out << nl << getUnqualified("Ice.ObjectPrx", ns) << " proxy = istr.readProxy();";
-    _out << nl << "if(proxy != null)";
-    _out << sb;
-    _out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
-    _out << nl << "result.iceCopyFrom(proxy);";
-    _out << nl << "return result;";
-    _out << eb;
-    _out << nl << "return null;";
-    _out << eb;
-    return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    _out << eb;
 }
 
 void
@@ -4332,11 +4194,6 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << sb;
 
-    _out << nl << "public static string ice_staticId()";
-    _out << sb;
-    _out << nl << "return \"" << p->scoped() << "\";";
-    _out << eb;
-
     {
         OperationList ops = p->operations();
         for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
@@ -4443,24 +4300,26 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "public static class " << fixId(p->name() + "Extensions");
     _out << sb;
 
-    _out << nl << "public static " << getUnqualified("Ice.ObjectPrx", ns) << " Add("
+    _out << nl << "public static " << p->name() << "Prx Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
          << fixId(p->name()) << " servant, "
          << "string id, "
          << "string facet = \"\")";
     _out << sb;
     _out << nl << "var traits = default(" << fixId(p->name()) + "Traits" << ");";
-    _out << nl << "return adapter.Add((incoming, current) => traits.Dispatch(servant, incoming, current), id, facet);";
+    _out << nl << "return " << p->name() << "Prx.UncheckedCast(adapter.Add((incoming, current) => "
+         << "traits.Dispatch(servant, incoming, current), id, facet));";
     _out << eb;
 
-    _out << nl << "public static " << getUnqualified("Ice.ObjectPrx", ns) << " Add("
+    _out << nl << "public static " << p->name() << "Prx Add("
          << "this " << getUnqualified("Ice.ObjectAdapter", ns) << " adapter, "
          << fixId(p->name()) << " servant, "
          << getUnqualified("Ice.Identity", ns) << "? id = null, "
          << "string facet = \"\")";
     _out << sb;
     _out << nl << "var traits = default(" << fixId(p->name()) + "Traits" << ");";
-    _out << nl << "return adapter.Add((incoming, current) => traits.Dispatch(servant, incoming, current), id, facet);";
+    _out << nl << "return " << p->name() << "Prx.UncheckedCast(adapter.Add((incoming, current) => "
+         << "traits.Dispatch(servant, incoming, current), id, facet));";
     _out << eb;
 
     _out << eb;

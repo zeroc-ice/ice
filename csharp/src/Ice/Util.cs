@@ -367,7 +367,7 @@ namespace Ice
         /// <returns>-1 if the identity in lhs compares
         /// less than the identity in rhs; 0 if the identities
         /// compare equal; 1, otherwise.</returns>
-        public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
+        public static int proxyIdentityCompare(IObjectPrx lhs, IObjectPrx rhs)
         {
             if (lhs == null && rhs == null)
             {
@@ -383,8 +383,8 @@ namespace Ice
             }
             else
             {
-                Identity lhsIdentity = lhs.ice_getIdentity();
-                Identity rhsIdentity = rhs.ice_getIdentity();
+                Identity lhsIdentity = lhs.Identity;
+                Identity rhsIdentity = rhs.Identity;
                 int n;
                 n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
                 if (n != 0)
@@ -403,7 +403,7 @@ namespace Ice
         /// <returns>-1 if the identity and facet in lhs compare
         /// less than the identity and facet in rhs; 0 if the identities
         /// and facets compare equal; 1, otherwise.</returns>
-        public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
+        public static int proxyIdentityAndFacetCompare(IObjectPrx lhs, IObjectPrx rhs)
         {
             if (lhs == null && rhs == null)
             {
@@ -419,8 +419,8 @@ namespace Ice
             }
             else
             {
-                Identity lhsIdentity = lhs.ice_getIdentity();
-                Identity rhsIdentity = rhs.ice_getIdentity();
+                Identity lhsIdentity = lhs.Identity;
+                Identity rhsIdentity = rhs.Identity;
                 int n;
                 n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
                 if (n != 0)
@@ -433,8 +433,8 @@ namespace Ice
                     return n;
                 }
 
-                string lhsFacet = lhs.ice_getFacet();
-                string rhsFacet = rhs.ice_getFacet();
+                string lhsFacet = lhs.Facet;
+                string rhsFacet = rhs.Facet;
                 if (lhsFacet == null && rhsFacet == null)
                 {
                     return 0;

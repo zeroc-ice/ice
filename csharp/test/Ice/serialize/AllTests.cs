@@ -68,7 +68,7 @@ namespace Ice
                 output.Write("testing serialization... ");
                 output.Flush();
 
-                var proxy = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+                var proxy = Test.MyInterfacePrx.Parse("test", communicator);
 
                 Test.MyException ex, ex2;
                 ex = new Test.MyException();
@@ -131,7 +131,7 @@ namespace Ice
                 rs.s = "RefStruct";
                 rs.sp = "prop";
                 rs.c = null;
-                rs.p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+                rs.p = Test.MyInterfacePrx.Parse("test", communicator);
                 rs.seq = new Test.MyInterfacePrx[] { rs.p };
                 rs2 = inOut(rs, communicator);
                 test(rs.Equals(rs2));

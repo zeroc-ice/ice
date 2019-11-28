@@ -21,7 +21,7 @@ namespace IceInternal
         {
             _reference = @ref;
             _dispatcher = _reference.getInstance().initializationData().dispatcher != null;
-            _response = _reference.getMode() == Reference.Mode.ModeTwoway;
+            _response = _reference.getMode() == Ice.InvocationMode.Twoway;
             _adapter = (Ice.ObjectAdapterI)adapter;
 
             _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.

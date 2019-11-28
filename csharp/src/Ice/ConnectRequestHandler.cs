@@ -10,7 +10,7 @@ namespace IceInternal
 {
     public class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
     {
-        public RequestHandler connect(Ice.ObjectPrxHelperBase proxy)
+        public RequestHandler connect(Ice.IObjectPrx proxy)
         {
             lock (this)
             {
@@ -184,11 +184,11 @@ namespace IceInternal
             flushRequests();
         }
 
-        public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
+        public ConnectRequestHandler(Reference @ref, Ice.IObjectPrx proxy)
         {
             _reference = @ref;
-            _response = _reference.getMode() == Reference.Mode.ModeTwoway;
-            _proxy = (Ice.ObjectPrxHelperBase)proxy;
+            _response = _reference.getMode() == Ice.InvocationMode.Twoway;
+            _proxy = proxy;
             _initialized = false;
             _flushing = false;
             _requestHandler = this;
@@ -282,9 +282,9 @@ namespace IceInternal
             if (_reference.getCacheConnection() && exception == null)
             {
                 _requestHandler = new ConnectionRequestHandler(_reference, _connection, _compress);
-                foreach (Ice.ObjectPrxHelperBase prx in _proxies)
+                foreach (Ice.IObjectPrx prx in _proxies)
                 {
-                    prx.iceUpdateRequestHandler(this, _requestHandler);
+                    prx.IceUpdateRequestHandler(this, _requestHandler);
                 }
             }
 
@@ -310,12 +310,12 @@ namespace IceInternal
         private Reference _reference;
         private bool _response;
 
-        private Ice.ObjectPrxHelperBase _proxy;
-        private HashSet<Ice.ObjectPrxHelperBase> _proxies = new HashSet<Ice.ObjectPrxHelperBase>();
+        private Ice.IObjectPrx? _proxy;
+        private HashSet<Ice.IObjectPrx> _proxies = new HashSet<Ice.IObjectPrx>();
 
-        private Ice.ConnectionI _connection;
+        private Ice.ConnectionI? _connection;
         private bool _compress;
-        private Ice.LocalException _exception;
+        private Ice.LocalException? _exception;
         private bool _initialized;
         private bool _flushing;
 

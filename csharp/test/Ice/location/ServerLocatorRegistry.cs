@@ -18,7 +18,7 @@ namespace Ice
             }
 
             public Task
-            setAdapterDirectProxyAsync(string adapter, Ice.ObjectPrx obj, Ice.Current current)
+            setAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
             {
                 if (obj != null)
                 {
@@ -32,7 +32,7 @@ namespace Ice
             }
 
             public Task
-            setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.ObjectPrx obj,
+            setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.IObjectPrx obj,
                 Ice.Current current)
             {
                 if (obj != null)
@@ -54,16 +54,16 @@ namespace Ice
                 return null;
             }
 
-            public void addObject(Ice.ObjectPrx obj, Ice.Current current)
+            public void addObject(Ice.IObjectPrx obj, Ice.Current current)
             {
                 addObject(obj);
             }
-            public void addObject(Ice.ObjectPrx obj)
+            public void addObject(Ice.IObjectPrx obj)
             {
-                _objects[obj.ice_getIdentity()] = obj;
+                _objects[obj.Identity] = obj;
             }
 
-            public Ice.ObjectPrx getAdapter(string adapter)
+            public Ice.IObjectPrx getAdapter(string adapter)
             {
                 object obj = _adapters[adapter];
                 if (obj == null)
@@ -73,7 +73,7 @@ namespace Ice
                 return (Ice.ObjectPrx)obj;
             }
 
-            public Ice.ObjectPrx getObject(Ice.Identity id)
+            public Ice.IObjectPrx getObject(Ice.Identity id)
             {
                 object obj = _objects[id];
                 if (obj == null)

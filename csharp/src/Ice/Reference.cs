@@ -7,28 +7,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Globalization;
+using Ice;
+using System.Linq;
 
 namespace IceInternal
 {
     public abstract class Reference : ICloneable
     {
-        public enum Mode
-        {
-            ModeTwoway,
-            ModeOneway,
-            ModeBatchOneway,
-            ModeDatagram,
-            ModeBatchDatagram,
-            ModeLast = ModeBatchDatagram
-        };
-
         public interface GetConnectionCallback
         {
             void setConnection(Ice.ConnectionI connection, bool compress);
             void setException(Ice.LocalException ex);
         }
 
-        public Mode getMode()
+        public Ice.InvocationMode getMode()
         {
             return _mode;
         }
@@ -80,7 +72,7 @@ namespace IceInternal
             return overrideCompress_ ? compress_ : new Ice.Optional<bool>();
         }
 
-        public Ice.Communicator getCommunicator()
+        public Communicator getCommunicator()
         {
             return _communicator;
         }
@@ -121,7 +113,7 @@ namespace IceInternal
             return r;
         }
 
-        public Reference changeMode(Mode newMode)
+        public Reference changeMode(Ice.InvocationMode newMode)
         {
             if (newMode == _mode)
             {
@@ -356,31 +348,31 @@ namespace IceInternal
 
             switch (_mode)
             {
-                case Mode.ModeTwoway:
+                case Ice.InvocationMode.Twoway:
                     {
                         s.Append(" -t");
                         break;
                     }
 
-                case Mode.ModeOneway:
+                case Ice.InvocationMode.Oneway:
                     {
                         s.Append(" -o");
                         break;
                     }
 
-                case Mode.ModeBatchOneway:
+                case Ice.InvocationMode.BatchOneway:
                     {
                         s.Append(" -O");
                         break;
                     }
 
-                case Mode.ModeDatagram:
+                case Ice.InvocationMode.Datagram:
                     {
                         s.Append(" -d");
                         break;
                     }
 
-                case Mode.ModeBatchDatagram:
+                case Ice.InvocationMode.BatchDatagram:
                     {
                         s.Append(" -D");
                         break;
@@ -419,7 +411,7 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> toProperty(string prefix);
 
-        public abstract RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy);
+        public abstract RequestHandler getRequestHandler(Ice.IObjectPrx proxy);
 
         public override bool Equals(object obj)
         {
@@ -481,6 +473,169 @@ namespace IceInternal
             return true;
         }
 
+        public Reference ChangeOptions(string? adapterId = null,
+                                       bool clearLocator = false,
+                                       bool clearRouter = false,
+                                       bool? collocationOptimized = null,
+                                       bool? compress = null,
+                                       bool? connectionCached = null,
+                                       string? connectionId = null,
+                                       int? connectionTimeout = null,
+                                       Dictionary<string, string>? context = null,
+                                       EncodingVersion? encodingVersion = null,
+                                       EndpointSelectionType? endpointSelectionType = null,
+                                       Endpoint[]? endpoints = null,
+                                       Connection? fixedConnection = null,
+                                       InvocationMode? invocationMode = null,
+                                       int? invocationTimeout = null,
+                                       LocatorPrx? locator = null,
+                                       int? locatorCacheTimeout = null,
+                                       bool? oneway = null,
+                                       bool? preferSecure = null,
+                                       RouterPrx? router = null,
+                                       bool? secure = null)
+        {
+            Reference reference = this;
+
+            if (locator != null && clearLocator != false)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
+            }
+
+            if (router != null && clearRouter != false)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
+            }
+
+            if (oneway != null && invocationMode != null)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+            }
+
+            //
+            // Process newFixedConnection first so that updates to the fixed reference
+            // throw ArgumentException.
+            //
+            if (fixedConnection != null)
+            {
+                reference = reference.changeConnection((ConnectionI)fixedConnection);
+            }
+
+            if (adapterId != null)
+            {
+                reference = reference.changeAdapterId(adapterId);
+            }
+
+            if (collocationOptimized is bool collocationOptimizedValue)
+            {
+                reference = reference.changeCollocationOptimized(collocationOptimizedValue);
+            }
+
+            if (compress is bool compressValue)
+            {
+                reference = reference.changeCompress(compressValue);
+            }
+
+            if (connectionCached is bool connectionCachedValue)
+            {
+                reference = reference.changeCacheConnection(connectionCachedValue);
+            }
+
+            if (connectionId != null)
+            {
+                reference = reference.changeConnectionId(connectionId);
+            }
+
+            if (context != null)
+            {
+                reference = reference.changeContext(context);
+            }
+
+            if (encodingVersion is EncodingVersion encodingVersionValue)
+            {
+                reference = reference.changeEncoding(encodingVersionValue);
+            }
+
+            if (endpointSelectionType is EndpointSelectionType endpointSelectionTypeValue)
+            {
+                reference = reference.changeEndpointSelection(endpointSelectionTypeValue);
+            }
+
+            if (endpoints != null)
+            {
+                reference = reference.changeEndpoints(endpoints.Select(e => (EndpointI)e).ToArray());
+            }
+
+            if (invocationMode is InvocationMode invocationModeValue)
+            {
+                reference = reference.changeMode(invocationModeValue);
+            }
+            else if (oneway is bool onewayValue)
+            {
+                reference = reference.changeMode(onewayValue ? InvocationMode.Oneway : InvocationMode.Twoway);
+            }
+
+            if (invocationTimeout is int invocationTimeoutValue)
+            {
+                if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1 && invocationTimeoutValue != -2)
+                {
+                    throw new ArgumentException($"invalid value passed to ice_invocationTimeout: {invocationTimeoutValue}",
+                                                nameof(invocationTimeout));
+                }
+                reference = reference.changeInvocationTimeout(invocationTimeoutValue);
+            }
+
+            if (locator != null)
+            {
+                reference = reference.changeLocator(locator);
+            }
+            else if (clearLocator)
+            {
+                reference = reference.changeLocator(null);
+            }
+
+            if (locatorCacheTimeout is int locatorCacheTimeoutValue)
+            {
+                if (locatorCacheTimeoutValue < -1)
+                {
+                    throw new ArgumentException($"invalid value passed to ice_locatorCacheTimeout: {locatorCacheTimeoutValue}",
+                                                nameof(locatorCacheTimeout));
+                }
+                reference = reference.changeLocatorCacheTimeout(locatorCacheTimeoutValue);
+            }
+
+            if (secure is bool secureValue)
+            {
+                reference = reference.changeSecure(secureValue);
+            }
+
+            if (preferSecure is bool preferSecureValue)
+            {
+                reference = reference.changePreferSecure(preferSecureValue);
+            }
+
+            if (connectionTimeout is int connectionTimeoutValue)
+            {
+                if (connectionTimeoutValue < 1 && connectionTimeoutValue != -1)
+                {
+                    throw new ArgumentException($"invalid value passed to ice_timeout: {connectionTimeoutValue}",
+                                                nameof(connectionTimeout));
+                }
+                reference = reference.changeTimeout(connectionTimeoutValue);
+            }
+
+            if (router != null)
+            {
+                reference = reference.changeRouter(router);
+            }
+            else if (clearRouter)
+            {
+                reference = reference.changeRouter(null);
+            }
+
+            return reference;
+        }
+
         public object Clone()
         {
             //
@@ -496,7 +651,7 @@ namespace IceInternal
         private Instance _instance;
         private Ice.Communicator _communicator;
 
-        private Mode _mode;
+        private Ice.InvocationMode _mode;
         private Ice.Identity _identity;
         private Dictionary<string, string> _context;
         private string _facet;
@@ -512,7 +667,7 @@ namespace IceInternal
                             Ice.Communicator communicator,
                             Ice.Identity identity,
                             string facet,
-                            Mode mode,
+                            Ice.InvocationMode mode,
                             bool secure,
                             Ice.ProtocolVersion protocol,
                             Ice.EncodingVersion encoding,
@@ -550,7 +705,7 @@ namespace IceInternal
                               Ice.Communicator communicator,
                               Ice.Identity identity,
                               string facet,
-                              Mode mode,
+                              Ice.InvocationMode mode,
                               bool secure,
                               Ice.ProtocolVersion protocol,
                               Ice.EncodingVersion encoding,
@@ -714,13 +869,13 @@ namespace IceInternal
             throw new Ice.FixedProxyException();
         }
 
-        public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
+        public override RequestHandler getRequestHandler(Ice.IObjectPrx proxy)
         {
             switch (getMode())
             {
-                case Mode.ModeTwoway:
-                case Mode.ModeOneway:
-                case Mode.ModeBatchOneway:
+                case Ice.InvocationMode.Twoway:
+                case Ice.InvocationMode.Oneway:
+                case Ice.InvocationMode.BatchOneway:
                     {
                         if (_fixedConnection.endpoint().datagram())
                         {
@@ -729,8 +884,8 @@ namespace IceInternal
                         break;
                     }
 
-                case Mode.ModeDatagram:
-                case Mode.ModeBatchDatagram:
+                case Ice.InvocationMode.Datagram:
+                case Ice.InvocationMode.BatchDatagram:
                     {
                         if (!_fixedConnection.endpoint().datagram())
                         {
@@ -771,7 +926,7 @@ namespace IceInternal
                 compress = compress_;
             }
 
-            return proxy.iceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
+            return proxy.IceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
         }
 
         public override bool Equals(object obj)
@@ -780,7 +935,7 @@ namespace IceInternal
             {
                 return true;
             }
-            FixedReference rhs = obj as FixedReference;
+            FixedReference? rhs = obj as FixedReference;
             if (rhs == null)
             {
                 return false;
@@ -872,10 +1027,10 @@ namespace IceInternal
             if (r != this)
             {
                 LocatorInfo locInfo = r._locatorInfo;
-                if (locInfo != null && !locInfo.getLocator().ice_getEncodingVersion().Equals(newEncoding))
+                if (locInfo != null && !locInfo.getLocator().EncodingVersion.Equals(newEncoding))
                 {
                     r._locatorInfo = getInstance().locatorManager().get(
-                        (Ice.LocatorPrx)locInfo.getLocator().ice_encodingVersion(newEncoding));
+                        locInfo.getLocator().Clone(encodingVersion: newEncoding));
                 }
             }
             return r;
@@ -1151,8 +1306,8 @@ namespace IceInternal
 
             if (_routerInfo != null)
             {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
-                Dictionary<string, string> routerProperties = h.iceReference().toProperty(prefix + ".Router");
+                var h = _routerInfo.getRouter();
+                Dictionary<string, string> routerProperties = h.IceReference.toProperty(prefix + ".Router");
                 foreach (KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1161,8 +1316,8 @@ namespace IceInternal
 
             if (_locatorInfo != null)
             {
-                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
-                Dictionary<string, string> locatorProperties = h.iceReference().toProperty(prefix + ".Locator");
+                var h = _locatorInfo.getLocator();
+                Dictionary<string, string> locatorProperties = h.IceReference.toProperty(prefix + ".Locator");
                 foreach (KeyValuePair<string, string> entry in locatorProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1288,7 +1443,7 @@ namespace IceInternal
             private GetConnectionCallback _cb;
         }
 
-        public override RequestHandler getRequestHandler(Ice.ObjectPrxHelperBase proxy)
+        public override RequestHandler getRequestHandler(Ice.IObjectPrx proxy)
         {
             return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
         }
@@ -1409,7 +1564,7 @@ namespace IceInternal
                                  Ice.Communicator communicator,
                                  Ice.Identity identity,
                                  string facet,
-                                 Mode mode,
+                                 Ice.InvocationMode mode,
                                  bool secure,
                                  Ice.ProtocolVersion protocol,
                                  Ice.EncodingVersion encoding,
@@ -1487,9 +1642,9 @@ namespace IceInternal
             //
             switch (getMode())
             {
-                case Mode.ModeTwoway:
-                case Mode.ModeOneway:
-                case Mode.ModeBatchOneway:
+                case Ice.InvocationMode.Twoway:
+                case Ice.InvocationMode.Oneway:
+                case Ice.InvocationMode.BatchOneway:
                     {
                         //
                         // Filter out datagram endpoints.
@@ -1506,8 +1661,8 @@ namespace IceInternal
                         break;
                     }
 
-                case Mode.ModeDatagram:
-                case Mode.ModeBatchDatagram:
+                case Ice.InvocationMode.Datagram:
+                case Ice.InvocationMode.BatchDatagram:
                     {
                         //
                         // Filter out non-datagram endpoints.

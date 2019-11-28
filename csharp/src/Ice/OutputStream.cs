@@ -1956,11 +1956,11 @@ namespace Ice
         /// Writes a proxy to the stream.
         /// </summary>
         /// <param name="v">The proxy to write.</param>
-        public void writeProxy(ObjectPrx v)
+        public void WriteProxy(IObjectPrx v)
         {
             if (v != null)
             {
-                v.iceWrite(this);
+                v.IceWrite(this);
             }
             else
             {
@@ -1974,11 +1974,11 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The optional proxy to write.</param>
-        public void writeProxy(int tag, Optional<ObjectPrx> v)
+        public void WriteProxy(int tag, Optional<IObjectPrx> v)
         {
             if (v.HasValue)
             {
-                writeProxy(tag, v.Value);
+                WriteProxy(tag, v.Value);
             }
         }
 
@@ -1987,12 +1987,12 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">The proxy to write.</param>
-        public void writeProxy(int tag, ObjectPrx v)
+        public void WriteProxy(int tag, IObjectPrx v)
         {
             if (writeOptional(tag, OptionalFormat.FSize))
             {
                 int pos = startSize();
-                writeProxy(v);
+                WriteProxy(v);
                 endSize(pos);
             }
         }

@@ -16,13 +16,12 @@ namespace Ice
                 var output = helper.getWriter();
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                var @base = communicator.stringToProxy("initial:" + helper.getTestEndpoint(0));
-                test(@base != null);
+                var @base = IObjectPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var initial = Test.InitialPrxHelper.checkedCast(@base);
+                var initial = Test.InitialPrx.CheckedCast(@base);
                 test(initial != null);
                 test(initial.Equals(@base));
                 output.WriteLine("ok");

@@ -53,22 +53,21 @@ namespace Ice
             }
         }
 
-        public ObjectPrx stringToProxy(string s)
+        public Reference StringToReference(string stringifiedProxy, string? propertyPrefix = null)
         {
-            return _instance.proxyFactory().stringToProxy(s);
+            if (stringifiedProxy == null)
+            {
+                throw new ArgumentNullException(nameof(stringifiedProxy));
+            }
+            return _instance.referenceFactory().create(stringifiedProxy, propertyPrefix);
         }
 
-        public string proxyToString(ObjectPrx proxy)
+        public string proxyToString(IObjectPrx proxy)
         {
             return _instance.proxyFactory().proxyToString(proxy);
         }
 
-        public ObjectPrx propertyToProxy(string s)
-        {
-            return _instance.proxyFactory().propertyToProxy(s);
-        }
-
-        public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix)
+        public Dictionary<string, string> proxyToProperty(IObjectPrx proxy, string prefix)
         {
             return _instance.proxyFactory().proxyToProperty(proxy, prefix);
         }
@@ -158,12 +157,12 @@ namespace Ice
             return _instance.pluginManager();
         }
 
-        public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
+        public IObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
             return _instance.createAdmin(adminAdapter, adminIdentity);
         }
 
-        public ObjectPrx getAdmin()
+        public IObjectPrx getAdmin()
         {
             return _instance.getAdmin();
         }
