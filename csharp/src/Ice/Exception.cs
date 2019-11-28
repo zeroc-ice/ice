@@ -89,47 +89,6 @@ namespace Ice
         /// </summary>
         /// <returns>The type id of this exception.</returns>
         public abstract string ice_id();
-
-        /// <summary>
-        /// Returns a string representation of this exception, including
-        /// any inner exceptions.
-        /// </summary>
-        /// <returns>The string representation of this exception.</returns>
-        public override string ToString()
-        {
-            //
-            // This prints the exception Java style. That is, the outermost
-            // exception, "Caused by:" to the innermost exception. The
-            // stack trace is not nicely indented as with Java, but
-            // without string parsing (perhaps tokenize on "\n"), it
-            // doesn't appear to be possible to reformat it.
-            //
-            System.IO.StringWriter sw = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-            IceUtilInternal.OutputBase op = new IceUtilInternal.OutputBase(sw);
-            op.setUseTab(false);
-            op.print(GetType().FullName);
-            op.inc();
-            IceInternal.ValueWriter.write(this, op);
-            sw.Write("\n");
-            sw.Write(StackTrace);
-
-            System.Exception curr = InnerException;
-            while (curr != null)
-            {
-                sw.Write("\nCaused by: ");
-                sw.Write(curr.GetType().FullName);
-                if (!(curr is Ice.Exception))
-                {
-                    sw.Write(": ");
-                    sw.Write(curr.Message);
-                }
-                sw.Write("\n");
-                sw.Write(curr.StackTrace);
-                curr = curr.InnerException;
-            }
-
-            return sw.ToString();
-        }
     }
 
     /// <summary>
