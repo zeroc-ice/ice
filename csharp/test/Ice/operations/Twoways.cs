@@ -1435,7 +1435,7 @@ namespace Ice
                     for (int i = 0; i < 2; i++)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                         Ice.Communicator ic = helper.initialize(initData);

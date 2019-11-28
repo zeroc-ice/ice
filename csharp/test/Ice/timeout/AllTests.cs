@@ -269,7 +269,7 @@ namespace Ice
                     // endpoint timeouts.
                     //
                     var initData = new Ice.InitializationData();
-                    initData.properties = communicator.getProperties().ice_clone_();
+                    initData.properties = communicator.getProperties().Clone();
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
                     initData.properties.setProperty("Ice.Override.Timeout", "100");
                     var comm = helper.initialize(initData);
@@ -312,7 +312,7 @@ namespace Ice
                     // Test Ice.Override.ConnectTimeout.
                     //
                     var initData = new InitializationData();
-                    initData.properties = communicator.getProperties().ice_clone_();
+                    initData.properties = communicator.getProperties().Clone();
                     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
                     var comm = helper.initialize(initData);
                     controller.holdAdapter(-1);
@@ -370,7 +370,7 @@ namespace Ice
                     // Test Ice.Override.CloseTimeout.
                     //
                     var initData = new InitializationData();
-                    initData.properties = communicator.getProperties().ice_clone_();
+                    initData.properties = communicator.getProperties().Clone();
                     initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
                     var comm = helper.initialize(initData);
                     IObjectPrx.Parse(sref, comm).GetConnection();

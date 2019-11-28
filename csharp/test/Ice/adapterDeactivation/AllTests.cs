@@ -63,7 +63,7 @@ namespace Ice
                     for (int i = 0; i < 10; ++i)
                     {
                         var initData = new InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         var comm = Util.initialize(initData);
                         IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator).IcePingAsync();
                         comm.destroy();

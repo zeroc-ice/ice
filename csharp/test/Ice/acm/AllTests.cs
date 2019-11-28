@@ -157,7 +157,7 @@ namespace Ice
                 _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
                 var initData = new InitializationData();
-                initData.properties = _com.Communicator.getProperties().ice_clone_();
+                initData.properties = _com.Communicator.getProperties().Clone();
                 initData.logger = _logger;
                 initData.properties.setProperty("Ice.ACM.Timeout", "2");
                 if (_clientACMTimeout >= 0)

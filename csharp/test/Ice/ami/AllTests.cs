@@ -405,7 +405,7 @@ namespace Ice
                     if (p.GetConnection() != null)
                     {
                         InitializationData initData = new InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         Communicator ic = helper.initialize(initData);
                         IObjectPrx o = IObjectPrx.Parse(p.ToString(), ic);
                         TestIntfPrx p2 = Test.TestIntfPrx.CheckedCast(o);

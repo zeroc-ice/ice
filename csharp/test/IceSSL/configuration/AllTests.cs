@@ -553,7 +553,7 @@ public class AllTests
                     //
                     // Test using localhost as target host
                     //
-                    Ice.Properties props = defaultProperties.ice_clone_();
+                    Ice.Properties props = defaultProperties.Clone();
                     props.setProperty("Ice.Default.Host", "localhost");
 
                     //

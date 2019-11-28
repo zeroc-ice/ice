@@ -36,7 +36,7 @@ namespace Ice
                 // the adapter id instead of the endpoints.
                 //
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = _helper.communicator().getProperties().ice_clone_();
+                initData.properties = _helper.communicator().getProperties().Clone();
                 initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
                 initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
                 initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");

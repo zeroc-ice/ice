@@ -55,7 +55,7 @@ public class AllTests : Test.AllTests
             // registries and make sure locator requests are forwarded.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
@@ -129,7 +129,7 @@ public class AllTests : Test.AllTests
             //
             // Test invalid lookup endpoints
             //
-            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
@@ -147,7 +147,7 @@ public class AllTests : Test.AllTests
             }
             com.destroy();
 
-            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
@@ -166,7 +166,7 @@ public class AllTests : Test.AllTests
             }
             com.destroy();
 
-            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",

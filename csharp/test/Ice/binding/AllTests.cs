@@ -815,11 +815,11 @@ namespace Ice
 
                     string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
 
-                    Properties anyipv4 = ipv4.ice_clone_();
+                    Properties anyipv4 = ipv4.Clone();
                     anyipv4.setProperty("Adapter.Endpoints", endpoint);
                     anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
-                    Properties anyipv6 = ipv6.ice_clone_();
+                    Properties anyipv6 = ipv6.Clone();
                     anyipv6.setProperty("Adapter.Endpoints", endpoint);
                     anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
@@ -829,10 +829,10 @@ namespace Ice
                     anyboth.setProperty("Adapter.Endpoints", endpoint);
                     anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
-                    Properties localipv4 = ipv4.ice_clone_();
+                    Properties localipv4 = ipv4.Clone();
                     localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
 
-                    Properties localipv6 = ipv6.ice_clone_();
+                    Properties localipv6 = ipv6.Clone();
                     localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
 
                     List<Properties> serverProps = new List<Properties>(clientProps);

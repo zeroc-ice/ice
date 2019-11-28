@@ -208,7 +208,7 @@ public class AllTests : Test.AllTests
 
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
@@ -224,7 +224,7 @@ public class AllTests : Test.AllTests
             }
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties = communicator.getProperties().Clone();
                 string intf = initData.properties.getProperty("IceDiscovery.Interface");
                 if (!intf.Equals(""))
                 {
