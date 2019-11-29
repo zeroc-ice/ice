@@ -1020,8 +1020,7 @@ namespace Ice
             //
             // Create a reference and return a proxy for this reference.
             //
-            Reference reference = _instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints);
-            return _instance.proxyFactory().referenceToProxy(reference);
+            return new ObjectPrx(_instance.referenceFactory().create(ident, facet, _reference, _publishedEndpoints));
         }
 
         private IObjectPrx newIndirectProxy(Identity ident, string facet, string id)
@@ -1030,8 +1029,7 @@ namespace Ice
             // Create a reference with the adapter id and return a
             // proxy for the reference.
             //
-            Reference reference = _instance.referenceFactory().create(ident, facet, _reference, id);
-            return _instance.proxyFactory().referenceToProxy(reference);
+            return new ObjectPrx(_instance.referenceFactory().create(ident, facet, _reference, id));
         }
 
         private void checkForDeactivation()

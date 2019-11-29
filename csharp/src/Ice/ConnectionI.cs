@@ -856,7 +856,7 @@ namespace Ice
             // Create a reference and return a reverse proxy for this
             // reference.
             //
-            return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
+            return new ObjectPrx(_instance.referenceFactory().create(ident, this));
         }
 
         public void setAdapterAndServantManager(ObjectAdapter adapter, IceInternal.ServantManager servantManager)

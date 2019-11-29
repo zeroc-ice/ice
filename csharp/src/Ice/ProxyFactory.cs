@@ -10,32 +10,6 @@ namespace IceInternal
 {
     public sealed class ProxyFactory
     {
-        public Ice.IObjectPrx stringToProxy(string str)
-        {
-            Reference r = _instance.referenceFactory().create(str, null);
-            return referenceToProxy(r);
-        }
-
-        public string proxyToString(Ice.IObjectPrx proxy)
-        {
-            if (proxy != null)
-            {
-                Ice.ObjectPrx h = (Ice.ObjectPrx)proxy;
-                return h.IceReference.ToString();
-            }
-            else
-            {
-                return "";
-            }
-        }
-
-        public Ice.IObjectPrx propertyToProxy(string prefix)
-        {
-            string proxy = _instance.initializationData().properties.getProperty(prefix);
-            Reference r = _instance.referenceFactory().create(proxy, prefix);
-            return referenceToProxy(r);
-        }
-
         public Dictionary<string, string> proxyToProperty(Ice.IObjectPrx proxy, string prefix)
         {
             if (proxy != null)
@@ -47,20 +21,6 @@ namespace IceInternal
             {
                 return new Dictionary<string, string>();
             }
-        }
-
-        public Ice.IObjectPrx streamToProxy(Ice.InputStream s)
-        {
-            Ice.Identity ident = new Ice.Identity();
-            ident.ice_readMembers(s);
-
-            Reference r = _instance.referenceFactory().create(ident, s);
-            return referenceToProxy(r);
-        }
-
-        public Ice.IObjectPrx? referenceToProxy(Reference? r)
-        {
-            return r == null ? null : new Ice.ObjectPrx(r);
         }
 
         public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)

@@ -61,18 +61,6 @@ namespace Ice
         IceInternal.Reference StringToReference(string s, string? propertyPrefix = null);
 
         /// <summary>
-        /// Convert a proxy into a string.
-        /// </summary>
-        /// <param name="obj">The proxy to convert into a stringified proxy.
-        ///
-        /// </param>
-        /// <returns>The stringified proxy, or an empty string if
-        /// obj is nil.
-        ///
-        /// </returns>
-        string proxyToString(IObjectPrx obj);
-
-        /// <summary>
         /// Convert a proxy to a set of proxy properties.
         /// </summary>
         /// <param name="proxy">The proxy.

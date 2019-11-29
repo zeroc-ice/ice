@@ -67,10 +67,17 @@ namespace IceInternal
             return _invocationTimeout;
         }
 
-        public Optional<bool>
+        public bool?
         getCompress()
         {
-            return overrideCompress_ ? compress_ : new Optional<bool>();
+            if (overrideCompress_)
+            {
+                return compress_;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public Communicator getCommunicator()
@@ -88,7 +95,7 @@ namespace IceInternal
         public abstract EndpointSelectionType getEndpointSelection();
         public abstract int getLocatorCacheTimeout();
         public abstract string getConnectionId();
-        public abstract Optional<int> getTimeout();
+        public abstract int? getTimeout();
         public abstract ThreadPool getThreadPool();
 
         public override int GetHashCode()
@@ -218,8 +225,8 @@ namespace IceInternal
                 // the facet string in quotes.
                 //
                 s.Append(" -f ");
-                string fs = IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
-                if (IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
+                string fs = StringUtil.escapeString(_facet, "", toStringMode);
+                if (StringUtil.findFirstOf(fs, " :@") != -1)
                 {
                     s.Append('"');
                     s.Append(fs);
@@ -555,15 +562,15 @@ namespace IceInternal
                               EncodingVersion encoding,
                               ConnectionI connection,
                               int invocationTimeout,
-                              Dictionary<string, string> context,
-                              Optional<bool> compress)
+                              Dictionary<string, string>? context,
+                              bool? compress)
         : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
-            if (compress.HasValue)
+            if (compress is bool compressValue)
             {
                 overrideCompress_ = true;
-                compress_ = compress.Value;
+                compress_ = compressValue;
             }
         }
 
@@ -617,9 +624,9 @@ namespace IceInternal
             return "";
         }
 
-        public override Optional<int> getTimeout()
+        public override int? getTimeout()
         {
-            return new Optional<int>();
+            return null;
         }
 
         public override ThreadPool getThreadPool()
@@ -651,12 +658,12 @@ namespace IceInternal
                                         RouterPrx? router = null,
                                         bool? secure = null)
         {
-            if (locator != null && clearLocator != false)
+            if (locator != null && clearLocator)
             {
                 throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
 
-            if (router != null && clearRouter != false)
+            if (router != null && clearRouter)
             {
                 throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
@@ -964,9 +971,16 @@ namespace IceInternal
             return _connectionId;
         }
 
-        public override Optional<int> getTimeout()
+        public override int? getTimeout()
         {
-            return _overrideTimeout ? _timeout : new Optional<int>();
+            if (_overrideTimeout)
+            {
+                return _timeout;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override ThreadPool getThreadPool()
@@ -998,12 +1012,12 @@ namespace IceInternal
                                         RouterPrx? router = null,
                                         bool? secure = null)
         {
-            if (locator != null && clearLocator != false)
+            if (locator != null && clearLocator)
             {
                 throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
 
-            if (router != null && clearRouter != false)
+            if (router != null && clearRouter)
             {
                 throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
             }
@@ -1022,37 +1036,16 @@ namespace IceInternal
             // Pass down options handle by the base class
             //
             var reference = (RoutableReference)base.Clone(identity: identity,
-                                                           facet: facet,
-                                                           compress: compress,
-                                                           context: context,
-                                                           encodingVersion: encodingVersion,
-                                                           invocationMode: invocationMode,
-                                                           invocationTimeout: invocationTimeout,
-                                                           oneway: oneway);
+                                                          facet: facet,
+                                                          compress: compress,
+                                                          context: context,
+                                                          encodingVersion: encodingVersion,
+                                                          invocationMode: invocationMode,
+                                                          invocationTimeout: invocationTimeout,
+                                                          oneway: oneway);
 
             if (fixedConnection != null)
             {
-                var mode = reference.getMode();
-                switch (fixedConnection.type())
-                {
-                    case "udp":
-                        {
-                            if (mode != InvocationMode.BatchDatagram && mode != InvocationMode.Datagram)
-                            {
-                                throw new ArgumentException($"InvocationMode {mode} cannot be used with an UDP connection");
-                            }
-                            break;
-                        }
-                    default:
-                        {
-                            if (mode == InvocationMode.BatchDatagram || mode == InvocationMode.Datagram)
-                            {
-                                throw new ArgumentException($"InvocationMode {mode} requires an UDP connection");
-                            }
-                            break;
-                        }
-                }
-
                 FixedReference fixedReference = new FixedReference(reference.getInstance(),
                                                                    reference.getCommunicator(),
                                                                    reference.getIdentity(),
@@ -1075,6 +1068,7 @@ namespace IceInternal
                                             connectionTimeout: connectionTimeout,
                                             endpointSelectionType: endpointSelectionType,
                                             endpoints: endpoints,
+                                            fixedConnection: fixedConnection,
                                             locator: locator,
                                             locatorCacheTimeout: locatorCacheTimeout,
                                             preferSecure: preferSecure,
@@ -1124,7 +1118,7 @@ namespace IceInternal
             {
                 if (connectionTimeoutValue < 1 && connectionTimeoutValue != -1)
                 {
-                    throw new ArgumentException($"invalid value passed to ice_timeout: {connectionTimeoutValue}",
+                    throw new ArgumentException($"invalid connectionTimeout value: {connectionTimeoutValue}",
                                                 nameof(connectionTimeout));
                 }
 
@@ -1600,15 +1594,15 @@ namespace IceInternal
                                  EncodingVersion encoding,
                                  EndpointI[] endpoints,
                                  string adapterId,
-                                 LocatorInfo locatorInfo,
-                                 RouterInfo routerInfo,
+                                 LocatorInfo? locatorInfo,
+                                 RouterInfo? routerInfo,
                                  bool collocationOptimized,
                                  bool cacheConnection,
                                  bool preferSecure,
                                  EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout,
                                  int invocationTimeout,
-                                 Dictionary<string, string> context)
+                                 Dictionary<string, string>? context)
         : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _endpoints = endpoints;
@@ -1914,8 +1908,8 @@ namespace IceInternal
 
         private EndpointI[] _endpoints;
         private string _adapterId;
-        private LocatorInfo _locatorInfo; // Null if no locator is used.
-        private RouterInfo _routerInfo; // Null if no router is used.
+        private LocatorInfo? _locatorInfo; // Null if no locator is used.
+        private RouterInfo? _routerInfo; // Null if no router is used.
         private bool _collocationOptimized;
         private bool _cacheConnection;
         private bool _preferSecure;

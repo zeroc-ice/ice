@@ -63,7 +63,7 @@ namespace IceInternal
                 connection,
                 -1,
                 null,
-                new Ice.Optional<bool>());
+                null);
         }
 
         public Reference create(string s, string? propertyPrefix)

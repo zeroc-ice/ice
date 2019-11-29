@@ -62,11 +62,6 @@ namespace Ice
             return _instance.referenceFactory().create(stringifiedProxy, propertyPrefix);
         }
 
-        public string proxyToString(IObjectPrx proxy)
-        {
-            return _instance.proxyFactory().proxyToString(proxy);
-        }
-
         public Dictionary<string, string> proxyToProperty(IObjectPrx proxy, string prefix)
         {
             return _instance.proxyFactory().proxyToProperty(proxy, prefix);

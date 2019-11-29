@@ -388,13 +388,13 @@ namespace Ice
                 output.Write("testing proxyToString... ");
                 output.Flush();
                 b1 = IObjectPrx.Parse(rf, communicator);
-                var b2 = IObjectPrx.Parse(communicator.proxyToString(b1), communicator);
+                var b2 = IObjectPrx.Parse(b1.ToString(), communicator);
                 test(b1.Equals(b2));
 
                 if (b1.GetConnection() != null) // not colloc-optimized target
                 {
                     b2 = b1.GetConnection().createProxy(Util.stringToIdentity("fixed"));
-                    string str = communicator.proxyToString(b2);
+                    string str = b2.ToString();
                     test(b2.ToString() == str);
                     string str2 = b1.Clone(b2.Identity).Clone(secure: b2.IsSecure).ToString();
 
@@ -1098,13 +1098,13 @@ namespace Ice
                 // Legal TCP endpoint expressed as opaque endpoint
                 var p1 = IObjectPrx.Parse("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
                     communicator);
-                string pstr = communicator.proxyToString(p1);
+                string pstr = p1.ToString();
                 test(pstr.Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
                 // Opaque endpoint encoded with 1.1 encoding.
                 var p2 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
                     communicator);
-                test(communicator.proxyToString(p2).Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+                test(p2.ToString().Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
                 if (communicator.getProperties().getPropertyAsInt("IPv6") == 0)
                 {
@@ -1116,13 +1116,13 @@ namespace Ice
                     p1 = IObjectPrx.Parse("test -e 1.0:" + "" +
                         "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
                         "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
-                    pstr = communicator.proxyToString(p1);
+                    pstr = p1.ToString();
                     test(pstr.Equals("test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
                     // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
                     p1 = IObjectPrx.Parse("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch",
                         communicator);
-                    pstr = communicator.proxyToString(p1);
+                    pstr = p1.ToString();
                     if (ssl)
                     {
                         test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));

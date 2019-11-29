@@ -213,8 +213,7 @@ namespace IceBox
 
                     if (_traceServiceObserver >= 1)
                     {
-                        _logger.trace("IceBox.ServiceObserver",
-                                      "Added service observer " + _communicator.proxyToString(observer));
+                        _logger.trace("IceBox.ServiceObserver", $"Added service observer {observer}");
                     }
 
                     foreach (ServiceInfo info in _services)
@@ -835,8 +834,7 @@ namespace IceBox
                 if (!(ex is Ice.CommunicatorDestroyedException))
                 {
                     _logger.trace("IceBox.ServiceObserver",
-                                  "Removed service observer " + _communicator.proxyToString(observer)
-                                  + "\nafter catching " + ex.ToString());
+                                  $"Removed service observer {observer}\nafter catching {ex}");
                 }
             }
         }

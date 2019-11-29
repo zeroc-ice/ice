@@ -523,7 +523,7 @@ namespace Ice
         /// </summary>
         /// <returns>The compression override setting. If no optional value is present, no override is
         /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
-        public Ice.Optional<bool> Compress
+        public bool? Compress
         {
             get
             {
@@ -536,7 +536,7 @@ namespace Ice
         /// </summary>
         /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
         /// returns the timeout override value.</returns>
-        public Ice.Optional<int> ConnectionTimeout
+        public int? ConnectionTimeout
         {
             get
             {
@@ -1007,10 +1007,7 @@ namespace Ice
             {
                 throw new ArgumentException("Cannot deserialize proxy: Ice.Communicator not found in StreamingContext");
             }
-
-            var proxy = (ObjectPrx)instance.proxyFactory().stringToProxy(info.GetString("proxy"));
-            IceReference = proxy.IceReference;
-            Debug.Assert(proxy.RequestHandler == null);
+            IceReference = instance.referenceFactory().create(info.GetString("proxy"), null);
         }
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -1024,7 +1021,8 @@ namespace Ice
         /// <returns>The stringified proxy.</returns>
         public override string ToString()
         {
-            return IceReference == null ? "reference: (null)" : IceReference.ToString();
+            Debug.Assert(IceReference != null);
+            return IceReference.ToString();
         }
 
         /// <summary>
