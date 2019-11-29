@@ -833,7 +833,14 @@ namespace Ice
                         Test.MyClassPrx prx = cl.Clone(fixedConnection: connection);
                         test(prx.IsFixed);
                         prx.IcePing();
-                        test(cl.Clone(secure: true, fixedConnection: connection).IsSecure);
+                        try
+                        {
+                            cl.Clone(secure: true, fixedConnection: connection);
+                            test(false);
+                        }
+                        catch (ArgumentException)
+                        {
+                        }
                         test(cl.Clone(facet: "facet", fixedConnection: connection).Facet.Equals("facet"));
                         test(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection).IsOneway);
                         Dictionary<string, string> ctx = new Dictionary<string, string>();
@@ -852,16 +859,18 @@ namespace Ice
                         try
                         {
                             cl.Clone(secure: !connection.getEndpoint().getInfo().secure(),
-                                fixedConnection: connection).IcePing();
+                                fixedConnection: connection);
+                            test(false);
                         }
-                        catch (NoEndpointException)
+                        catch (ArgumentException)
                         {
                         }
                         try
                         {
-                            cl.Clone(invocationMode: InvocationMode.Datagram, fixedConnection: connection).IcePing();
+                            cl.Clone(invocationMode: InvocationMode.Datagram, fixedConnection: connection);
+                            test(false);
                         }
-                        catch (NoEndpointException)
+                        catch (ArgumentException)
                         {
                         }
                     }

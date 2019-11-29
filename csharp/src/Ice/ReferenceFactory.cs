@@ -66,16 +66,6 @@ namespace IceInternal
                 new Ice.Optional<bool>());
         }
 
-        public Reference copy(Reference r)
-        {
-            Ice.Identity ident = r.getIdentity();
-            if (ident.name.Length == 0 && ident.category.Length == 0)
-            {
-                return null;
-            }
-            return (Reference)r.Clone();
-        }
-
         public Reference create(string s, string? propertyPrefix)
         {
             if (s.Length == 0)

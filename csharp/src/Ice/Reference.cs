@@ -9,18 +9,19 @@ using System.Text;
 using System.Globalization;
 using Ice;
 using System.Linq;
+using IceUtilInternal;
 
 namespace IceInternal
 {
-    public abstract class Reference : ICloneable
+    public abstract class Reference
     {
         public interface GetConnectionCallback
         {
-            void setConnection(Ice.ConnectionI connection, bool compress);
-            void setException(Ice.LocalException ex);
+            void setConnection(ConnectionI connection, bool compress);
+            void setException(LocalException ex);
         }
 
-        public Ice.InvocationMode getMode()
+        public InvocationMode getMode()
         {
             return _mode;
         }
@@ -30,17 +31,17 @@ namespace IceInternal
             return secure_;
         }
 
-        public Ice.ProtocolVersion getProtocol()
+        public ProtocolVersion getProtocol()
         {
             return _protocol;
         }
 
-        public Ice.EncodingVersion getEncoding()
+        public EncodingVersion getEncoding()
         {
             return _encoding;
         }
 
-        public Ice.Identity getIdentity()
+        public Identity getIdentity()
         {
             return _identity;
         }
@@ -66,10 +67,10 @@ namespace IceInternal
             return _invocationTimeout;
         }
 
-        public Ice.Optional<bool>
+        public Optional<bool>
         getCompress()
         {
-            return overrideCompress_ ? compress_ : new Ice.Optional<bool>();
+            return overrideCompress_ ? compress_ : new Optional<bool>();
         }
 
         public Communicator getCommunicator()
@@ -84,127 +85,11 @@ namespace IceInternal
         public abstract bool getCollocationOptimized();
         public abstract bool getCacheConnection();
         public abstract bool getPreferSecure();
-        public abstract Ice.EndpointSelectionType getEndpointSelection();
+        public abstract EndpointSelectionType getEndpointSelection();
         public abstract int getLocatorCacheTimeout();
         public abstract string getConnectionId();
-        public abstract Ice.Optional<int> getTimeout();
+        public abstract Optional<int> getTimeout();
         public abstract ThreadPool getThreadPool();
-
-        //
-        // The change* methods (here and in derived classes) create
-        // a new reference based on the existing one, with the
-        // corresponding value changed.
-        //
-        public Reference changeContext(Dictionary<string, string> newContext)
-        {
-            if (newContext == null)
-            {
-                newContext = _emptyContext;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            if (newContext.Count == 0)
-            {
-                r._context = _emptyContext;
-            }
-            else
-            {
-                r._context = new Dictionary<string, string>(newContext);
-            }
-            return r;
-        }
-
-        public Reference changeMode(Ice.InvocationMode newMode)
-        {
-            if (newMode == _mode)
-            {
-                return this;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            r._mode = newMode;
-            return r;
-        }
-
-        public Reference changeSecure(bool newSecure)
-        {
-            if (newSecure == secure_)
-            {
-                return this;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            r.secure_ = newSecure;
-            return r;
-        }
-
-        public Reference changeIdentity(Ice.Identity newIdentity)
-        {
-            if (newIdentity.Equals(_identity))
-            {
-                return this;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            r._identity = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
-            return r;
-        }
-
-        public Reference changeFacet(string newFacet)
-        {
-            if (newFacet.Equals(_facet))
-            {
-                return this;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            r._facet = newFacet;
-            return r;
-        }
-
-        public Reference changeInvocationTimeout(int newTimeout)
-        {
-            if (newTimeout == _invocationTimeout)
-            {
-                return this;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            r._invocationTimeout = newTimeout;
-            return r;
-        }
-
-        public virtual Reference changeEncoding(Ice.EncodingVersion newEncoding)
-        {
-            if (newEncoding.Equals(_encoding))
-            {
-                return this;
-            }
-            Reference r = _instance.referenceFactory().copy(this);
-            r._encoding = newEncoding;
-            return r;
-        }
-
-        public virtual Reference changeCompress(bool newCompress)
-        {
-            if (overrideCompress_ && compress_ == newCompress)
-            {
-                return this;
-            }
-
-            Reference r = _instance.referenceFactory().copy(this);
-            r.compress_ = newCompress;
-            r.overrideCompress_ = true;
-            return r;
-        }
-
-        public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
-        public abstract Reference changeAdapterId(string newAdapterId);
-        public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-        public abstract Reference changeRouter(Ice.RouterPrx newRouter);
-        public abstract Reference changeCollocationOptimized(bool newCollocationOptimized);
-        public abstract Reference changeCacheConnection(bool newCache);
-        public abstract Reference changePreferSecure(bool newPreferSecure);
-        public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
-        public abstract Reference changeLocatorCacheTimeout(int newTimeout);
-
-        public abstract Reference changeTimeout(int newTimeout);
-        public abstract Reference changeConnectionId(string connectionId);
-        public abstract Reference changeConnection(Ice.ConnectionI connection);
 
         public override int GetHashCode()
         {
@@ -259,7 +144,7 @@ namespace IceInternal
         //
         // Marshal the reference.
         //
-        public virtual void streamWrite(Ice.OutputStream s)
+        public virtual void streamWrite(OutputStream s)
         {
             //
             // Don't write the identity here. Operations calling streamWrite
@@ -306,7 +191,7 @@ namespace IceInternal
             //
             StringBuilder s = new StringBuilder();
 
-            Ice.ToStringMode toStringMode = _instance.toStringMode();
+            ToStringMode toStringMode = _instance.toStringMode();
 
             //
             // If the encoded identity string contains characters which
@@ -314,7 +199,7 @@ namespace IceInternal
             // the identity string in quotes.
             //
             string id = Ice.Util.identityToString(_identity, toStringMode);
-            if (IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
+            if (StringUtil.findFirstOf(id, " :@") != -1)
             {
                 s.Append('"');
                 s.Append(id);
@@ -348,31 +233,31 @@ namespace IceInternal
 
             switch (_mode)
             {
-                case Ice.InvocationMode.Twoway:
+                case InvocationMode.Twoway:
                     {
                         s.Append(" -t");
                         break;
                     }
 
-                case Ice.InvocationMode.Oneway:
+                case InvocationMode.Oneway:
                     {
                         s.Append(" -o");
                         break;
                     }
 
-                case Ice.InvocationMode.BatchOneway:
+                case InvocationMode.BatchOneway:
                     {
                         s.Append(" -O");
                         break;
                     }
 
-                case Ice.InvocationMode.Datagram:
+                case InvocationMode.Datagram:
                     {
                         s.Append(" -d");
                         break;
                     }
 
-                case Ice.InvocationMode.BatchDatagram:
+                case InvocationMode.BatchDatagram:
                     {
                         s.Append(" -D");
                         break;
@@ -411,7 +296,7 @@ namespace IceInternal
 
         public abstract Dictionary<string, string> toProperty(string prefix);
 
-        public abstract RequestHandler getRequestHandler(Ice.IObjectPrx proxy);
+        public abstract RequestHandler getRequestHandler(IObjectPrx proxy);
 
         public override bool Equals(object obj)
         {
@@ -436,7 +321,7 @@ namespace IceInternal
                 return false;
             }
 
-            if (!Ice.CollectionComparer.Equals(_context, r._context))
+            if (!CollectionComparer.Equals(_context, r._context))
             {
                 return false;
             }
@@ -473,7 +358,9 @@ namespace IceInternal
             return true;
         }
 
-        public Reference ChangeOptions(string? adapterId = null,
+        public virtual Reference Clone(Identity? identity = null,
+                                       string? facet = null,
+                                       string? adapterId = null,
                                        bool clearLocator = false,
                                        bool clearRouter = false,
                                        bool? collocationOptimized = null,
@@ -497,151 +384,108 @@ namespace IceInternal
         {
             Reference reference = this;
 
-            if (locator != null && clearLocator != false)
-            {
-                throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
-            }
-
-            if (router != null && clearRouter != false)
-            {
-                throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
-            }
-
-            if (oneway != null && invocationMode != null)
-            {
-                throw new ArgumentException($"You cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
-            }
-
             //
-            // Process newFixedConnection first so that updates to the fixed reference
-            // throw ArgumentException.
+            // This options must always be handled by one of the super classe.
             //
-            if (fixedConnection != null)
+            Debug.Assert(adapterId == null);
+            Debug.Assert(clearLocator == false);
+            Debug.Assert(clearRouter == false);
+            Debug.Assert(collocationOptimized == null);
+            Debug.Assert(connectionCached == null);
+            Debug.Assert(connectionId == null);
+            Debug.Assert(connectionTimeout == null);
+            Debug.Assert(endpointSelectionType == null);
+            Debug.Assert(endpoints == null);
+            Debug.Assert(locator == null);
+            Debug.Assert(locatorCacheTimeout == null);
+            Debug.Assert(preferSecure == null);
+            Debug.Assert(router == null);
+            Debug.Assert(secure == null);
+
+            if (identity != null && !identity.Equals(_identity))
             {
-                reference = reference.changeConnection((ConnectionI)fixedConnection);
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference._identity = (Identity)identity.Clone();
             }
 
-            if (adapterId != null)
+            if (facet != null && !facet.Equals(_facet))
             {
-                reference = reference.changeAdapterId(adapterId);
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference._facet = facet;
             }
 
-            if (collocationOptimized is bool collocationOptimizedValue)
+            if (compress is bool compressValue && (!overrideCompress_ || compressValue != compress_))
             {
-                reference = reference.changeCollocationOptimized(collocationOptimizedValue);
-            }
-
-            if (compress is bool compressValue)
-            {
-                reference = reference.changeCompress(compressValue);
-            }
-
-            if (connectionCached is bool connectionCachedValue)
-            {
-                reference = reference.changeCacheConnection(connectionCachedValue);
-            }
-
-            if (connectionId != null)
-            {
-                reference = reference.changeConnectionId(connectionId);
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference.compress_ = compressValue;
+                reference.overrideCompress_ = true;
             }
 
             if (context != null)
             {
-                reference = reference.changeContext(context);
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference._context = context.Count == 0 ? _emptyContext : new Dictionary<string, string>(context);
             }
 
-            if (encodingVersion is EncodingVersion encodingVersionValue)
+            if (encodingVersion is EncodingVersion encodingVersionValue && encodingVersionValue != _encoding)
             {
-                reference = reference.changeEncoding(encodingVersionValue);
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference._encoding = encodingVersionValue;
             }
 
-            if (endpointSelectionType is EndpointSelectionType endpointSelectionTypeValue)
+            if (invocationMode is InvocationMode invocationModeValue && invocationModeValue != _mode)
             {
-                reference = reference.changeEndpointSelection(endpointSelectionTypeValue);
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference._mode = invocationModeValue;
+            }
+            else if (oneway is bool onewayValue && (onewayValue && reference._mode != InvocationMode.Oneway ||
+                                                    !onewayValue && reference._mode != InvocationMode.Twoway))
+            {
+                if (reference == this)
+                {
+                    reference = Clone();
+                }
+                reference._mode = onewayValue ? InvocationMode.Oneway : InvocationMode.Twoway;
             }
 
-            if (endpoints != null)
-            {
-                reference = reference.changeEndpoints(endpoints.Select(e => (EndpointI)e).ToArray());
-            }
-
-            if (invocationMode is InvocationMode invocationModeValue)
-            {
-                reference = reference.changeMode(invocationModeValue);
-            }
-            else if (oneway is bool onewayValue)
-            {
-                reference = reference.changeMode(onewayValue ? InvocationMode.Oneway : InvocationMode.Twoway);
-            }
-
-            if (invocationTimeout is int invocationTimeoutValue)
+            if (invocationTimeout is int invocationTimeoutValue && invocationTimeoutValue != _invocationTimeout)
             {
                 if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1 && invocationTimeoutValue != -2)
                 {
                     throw new ArgumentException($"invalid value passed to ice_invocationTimeout: {invocationTimeoutValue}",
                                                 nameof(invocationTimeout));
                 }
-                reference = reference.changeInvocationTimeout(invocationTimeoutValue);
-            }
 
-            if (locator != null)
-            {
-                reference = reference.changeLocator(locator);
-            }
-            else if (clearLocator)
-            {
-                reference = reference.changeLocator(null);
-            }
-
-            if (locatorCacheTimeout is int locatorCacheTimeoutValue)
-            {
-                if (locatorCacheTimeoutValue < -1)
+                if (reference == this)
                 {
-                    throw new ArgumentException($"invalid value passed to ice_locatorCacheTimeout: {locatorCacheTimeoutValue}",
-                                                nameof(locatorCacheTimeout));
+                    reference = Clone();
                 }
-                reference = reference.changeLocatorCacheTimeout(locatorCacheTimeoutValue);
+                reference._invocationTimeout = invocationTimeoutValue;
             }
-
-            if (secure is bool secureValue)
-            {
-                reference = reference.changeSecure(secureValue);
-            }
-
-            if (preferSecure is bool preferSecureValue)
-            {
-                reference = reference.changePreferSecure(preferSecureValue);
-            }
-
-            if (connectionTimeout is int connectionTimeoutValue)
-            {
-                if (connectionTimeoutValue < 1 && connectionTimeoutValue != -1)
-                {
-                    throw new ArgumentException($"invalid value passed to ice_timeout: {connectionTimeoutValue}",
-                                                nameof(connectionTimeout));
-                }
-                reference = reference.changeTimeout(connectionTimeoutValue);
-            }
-
-            if (router != null)
-            {
-                reference = reference.changeRouter(router);
-            }
-            else if (clearRouter)
-            {
-                reference = reference.changeRouter(null);
-            }
-
             return reference;
         }
 
-        public object Clone()
+        public Reference Clone()
         {
-            //
-            // A member-wise copy is safe because the members are immutable.
-            //
-            return MemberwiseClone();
+            return (Reference)MemberwiseClone();
         }
 
         protected int hashValue_;
@@ -649,28 +493,28 @@ namespace IceInternal
         private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
         private Instance _instance;
-        private Ice.Communicator _communicator;
+        private Communicator _communicator;
 
-        private Ice.InvocationMode _mode;
-        private Ice.Identity _identity;
+        private InvocationMode _mode;
+        private Identity _identity;
         private Dictionary<string, string> _context;
         private string _facet;
         protected bool secure_;
-        private Ice.ProtocolVersion _protocol;
-        private Ice.EncodingVersion _encoding;
+        private ProtocolVersion _protocol;
+        private EncodingVersion _encoding;
         private int _invocationTimeout;
 
         protected bool overrideCompress_;
         protected bool compress_; // Only used if _overrideCompress == true
 
         protected Reference(Instance instance,
-                            Ice.Communicator communicator,
-                            Ice.Identity identity,
+                            Communicator communicator,
+                            Identity identity,
                             string facet,
-                            Ice.InvocationMode mode,
+                            InvocationMode mode,
                             bool secure,
-                            Ice.ProtocolVersion protocol,
-                            Ice.EncodingVersion encoding,
+                            ProtocolVersion protocol,
+                            EncodingVersion encoding,
                             int invocationTimeout,
                             Dictionary<string, string> context)
         {
@@ -702,17 +546,17 @@ namespace IceInternal
     public class FixedReference : Reference
     {
         public FixedReference(Instance instance,
-                              Ice.Communicator communicator,
-                              Ice.Identity identity,
+                              Communicator communicator,
+                              Identity identity,
                               string facet,
-                              Ice.InvocationMode mode,
+                              InvocationMode mode,
                               bool secure,
-                              Ice.ProtocolVersion protocol,
-                              Ice.EncodingVersion encoding,
-                              Ice.ConnectionI connection,
+                              ProtocolVersion protocol,
+                              EncodingVersion encoding,
+                              ConnectionI connection,
                               int invocationTimeout,
                               Dictionary<string, string> context,
-                              Ice.Optional<bool> compress)
+                              Optional<bool> compress)
         : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
@@ -725,7 +569,7 @@ namespace IceInternal
 
         public override EndpointI[] getEndpoints()
         {
-            return _emptyEndpoints;
+            return Array.Empty<EndpointI>();
         }
 
         public override string getAdapterId()
@@ -758,9 +602,9 @@ namespace IceInternal
             return false;
         }
 
-        public override Ice.EndpointSelectionType getEndpointSelection()
+        public override EndpointSelectionType getEndpointSelection()
         {
-            return Ice.EndpointSelectionType.Random;
+            return EndpointSelectionType.Random;
         }
 
         public override int getLocatorCacheTimeout()
@@ -773,9 +617,9 @@ namespace IceInternal
             return "";
         }
 
-        public override Ice.Optional<int> getTimeout()
+        public override Optional<int> getTimeout()
         {
-            return new Ice.Optional<int>();
+            return new Optional<int>();
         }
 
         public override ThreadPool getThreadPool()
@@ -783,70 +627,180 @@ namespace IceInternal
             return _fixedConnection.getThreadPool();
         }
 
-        public override Reference changeEndpoints(EndpointI[] newEndpoints)
+        public override Reference Clone(Identity? identity = null,
+                                        string? facet = null,
+                                        string? adapterId = null,
+                                        bool clearLocator = false,
+                                        bool clearRouter = false,
+                                        bool? collocationOptimized = null,
+                                        bool? compress = null,
+                                        bool? connectionCached = null,
+                                        string? connectionId = null,
+                                        int? connectionTimeout = null,
+                                        Dictionary<string, string>? context = null,
+                                        EncodingVersion? encodingVersion = null,
+                                        EndpointSelectionType? endpointSelectionType = null,
+                                        Endpoint[]? endpoints = null,
+                                        Connection? fixedConnection = null,
+                                        InvocationMode? invocationMode = null,
+                                        int? invocationTimeout = null,
+                                        LocatorPrx? locator = null,
+                                        int? locatorCacheTimeout = null,
+                                        bool? oneway = null,
+                                        bool? preferSecure = null,
+                                        RouterPrx? router = null,
+                                        bool? secure = null)
         {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeAdapterId(string newAdapterId)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeLocator(Ice.LocatorPrx newLocator)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeRouter(Ice.RouterPrx newRouter)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeCollocationOptimized(bool newCollocationOptimized)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeCacheConnection(bool newCache)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changePreferSecure(bool prefSec)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeLocatorCacheTimeout(int newTimeout)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeTimeout(int newTimeout)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeConnectionId(string connectionId)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeConnection(Ice.ConnectionI connection)
-        {
-            if (_fixedConnection == connection)
+            if (locator != null && clearLocator != false)
             {
-                return this;
+                throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
             }
-            FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
-            r._fixedConnection = connection;
-            return r;
+
+            if (router != null && clearRouter != false)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
+            }
+
+            if (oneway != null && invocationMode != null)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+            }
+
+            if (endpoints != null && adapterId != null)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
+            }
+
+            //
+            // Check that invocation mode and connection are compatible
+            //
+            if (invocationMode != null || oneway != null || fixedConnection != null)
+            {
+                var conn = fixedConnection ?? _fixedConnection;
+                var mode = invocationMode;
+
+                if (mode == null && oneway != null)
+                {
+                    mode = oneway == true ? InvocationMode.Twoway : InvocationMode.Oneway;
+                }
+
+                if (mode == null)
+                {
+                    mode = getMode();
+                }
+                Debug.Assert(mode != null);
+
+                switch (conn.type())
+                {
+                    case "udp":
+                        {
+                            if (mode != InvocationMode.BatchDatagram && mode != InvocationMode.Datagram)
+                            {
+                                throw new ArgumentException($"InvocationMode {mode} requires a TCP connection");
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            if (mode == InvocationMode.BatchDatagram || mode == InvocationMode.Datagram)
+                            {
+                                throw new ArgumentException($"InvocationMode {mode} requires an UDP connection");
+                            }
+                            break;
+                        }
+                }
+            }
+
+            //
+            // Pass down options handle by the base class
+            //
+            var reference = (FixedReference)base.Clone(identity: identity,
+                                                       facet: facet,
+                                                       compress: compress,
+                                                       context: context,
+                                                       encodingVersion: encodingVersion,
+                                                       invocationMode: invocationMode,
+                                                       invocationTimeout: invocationTimeout,
+                                                       oneway: oneway);
+
+            if (fixedConnection != null && fixedConnection != _fixedConnection)
+            {
+                if (reference == this)
+                {
+                    reference = (FixedReference)Clone();
+                }
+                reference._fixedConnection = (ConnectionI)fixedConnection;
+                reference.secure_ = fixedConnection.getEndpoint().getInfo().secure();
+            }
+
+            if (adapterId != null)
+            {
+                throw new ArgumentException($"Cannot change the adapter ID of a fixed proxy", nameof(adapterId));
+            }
+
+            if (collocationOptimized != null)
+            {
+                throw new ArgumentException($"Cannot change the collocation optimization configuration of a fixed proxy", nameof(collocationOptimized));
+            }
+
+            if (connectionCached != null)
+            {
+                throw new ArgumentException($"Cannot change the connection caching configuration of a fixed proxy", nameof(connectionCached));
+            }
+
+            if (connectionId != null)
+            {
+                throw new ArgumentException($"Cannot change the connection ID of a fixed proxy", nameof(connectionId));
+            }
+
+            if (connectionTimeout != null)
+            {
+                throw new ArgumentException($"Cannot change the connection timeout of a fixed proxy", nameof(connectionTimeout));
+            }
+
+            if (endpointSelectionType != null)
+            {
+                throw new ArgumentException($"Cannot change the endpoint selection policy of a fixed proxy", nameof(endpointSelectionType));
+            }
+
+            if (endpoints != null)
+            {
+                throw new ArgumentException($"Cannot change the endpoints of a fixed proxy", nameof(endpoints));
+            }
+
+            if (locator != null)
+            {
+                throw new ArgumentException($"Cannot change the locator of a fixed proxy", nameof(locator));
+            }
+            else if (clearLocator)
+            {
+                throw new ArgumentException($"Cannot change the locator of a fixed proxy", nameof(clearLocator));
+            }
+
+            if (locatorCacheTimeout != null)
+            {
+                throw new ArgumentException($"Cannot change the locator cache timeout of a fixed proxy", nameof(locatorCacheTimeout));
+            }
+
+            if (preferSecure != null)
+            {
+                throw new ArgumentException($"Cannot change the prefer sercure configuration of a fixed proxy", nameof(preferSecure));
+            }
+
+            if (router != null)
+            {
+                throw new ArgumentException($"Cannot change the router of a fixed proxy", nameof(router));
+            }
+            else if (clearRouter)
+            {
+                throw new ArgumentException($"Cannot change the router of a fixed proxy", nameof(clearRouter));
+            }
+
+            if (secure != null)
+            {
+                throw new ArgumentException($"Cannot change the secure configuration of a fixed proxy", nameof(secure));
+            }
+            return reference;
         }
 
         public override bool isIndirect()
@@ -859,37 +813,37 @@ namespace IceInternal
             return false;
         }
 
-        public override void streamWrite(Ice.OutputStream s)
+        public override void streamWrite(OutputStream s)
         {
-            throw new Ice.FixedProxyException();
+            throw new NotSupportedException("You cannot marshal a fixed proxy");
         }
 
         public override Dictionary<string, string> toProperty(string prefix)
         {
-            throw new Ice.FixedProxyException();
+            throw new NotSupportedException("You cannot convert a fixed proxy to propery dictionary");
         }
 
-        public override RequestHandler getRequestHandler(Ice.IObjectPrx proxy)
+        public override RequestHandler getRequestHandler(IObjectPrx proxy)
         {
             switch (getMode())
             {
-                case Ice.InvocationMode.Twoway:
-                case Ice.InvocationMode.Oneway:
-                case Ice.InvocationMode.BatchOneway:
+                case InvocationMode.Twoway:
+                case InvocationMode.Oneway:
+                case InvocationMode.BatchOneway:
                     {
                         if (_fixedConnection.endpoint().datagram())
                         {
-                            throw new Ice.NoEndpointException(ToString());
+                            throw new NoEndpointException(ToString());
                         }
                         break;
                     }
 
-                case Ice.InvocationMode.Datagram:
-                case Ice.InvocationMode.BatchDatagram:
+                case InvocationMode.Datagram:
+                case InvocationMode.BatchDatagram:
                     {
                         if (!_fixedConnection.endpoint().datagram())
                         {
-                            throw new Ice.NoEndpointException(ToString());
+                            throw new NoEndpointException(ToString());
                         }
                         break;
                     }
@@ -911,7 +865,7 @@ namespace IceInternal
             }
             if (secure && !_fixedConnection.endpoint().secure())
             {
-                throw new Ice.NoEndpointException(ToString());
+                throw new NoEndpointException(ToString());
             }
 
             _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -955,8 +909,7 @@ namespace IceInternal
             return base.GetHashCode();
         }
 
-        private Ice.ConnectionI _fixedConnection;
-        private static EndpointI[] _emptyEndpoints = Array.Empty<EndpointI>();
+        private ConnectionI _fixedConnection;
     }
 
     public class RoutableReference : Reference
@@ -996,7 +949,7 @@ namespace IceInternal
             return _preferSecure;
         }
 
-        public override Ice.EndpointSelectionType getEndpointSelection()
+        public override EndpointSelectionType getEndpointSelection()
         {
             return _endpointSelection;
         }
@@ -1011,9 +964,9 @@ namespace IceInternal
             return _connectionId;
         }
 
-        public override Ice.Optional<int> getTimeout()
+        public override Optional<int> getTimeout()
         {
-            return _overrideTimeout ? _timeout : new Ice.Optional<int>();
+            return _overrideTimeout ? _timeout : new Optional<int>();
         }
 
         public override ThreadPool getThreadPool()
@@ -1021,196 +974,275 @@ namespace IceInternal
             return getInstance().clientThreadPool();
         }
 
-        public override Reference changeEncoding(Ice.EncodingVersion newEncoding)
+        public override Reference Clone(Identity? identity = null,
+                                        string? facet = null,
+                                        string? adapterId = null,
+                                        bool clearLocator = false,
+                                        bool clearRouter = false,
+                                        bool? collocationOptimized = null,
+                                        bool? compress = null,
+                                        bool? connectionCached = null,
+                                        string? connectionId = null,
+                                        int? connectionTimeout = null,
+                                        Dictionary<string, string>? context = null,
+                                        EncodingVersion? encodingVersion = null,
+                                        EndpointSelectionType? endpointSelectionType = null,
+                                        Endpoint[]? endpoints = null,
+                                        Connection? fixedConnection = null,
+                                        InvocationMode? invocationMode = null,
+                                        int? invocationTimeout = null,
+                                        LocatorPrx? locator = null,
+                                        int? locatorCacheTimeout = null,
+                                        bool? oneway = null,
+                                        bool? preferSecure = null,
+                                        RouterPrx? router = null,
+                                        bool? secure = null)
         {
-            RoutableReference r = (RoutableReference)base.changeEncoding(newEncoding);
-            if (r != this)
+            if (locator != null && clearLocator != false)
             {
-                LocatorInfo locInfo = r._locatorInfo;
-                if (locInfo != null && !locInfo.getLocator().EncodingVersion.Equals(newEncoding))
+                throw new ArgumentException($"You cannot set both {nameof(locator)} and {nameof(clearLocator)}");
+            }
+
+            if (router != null && clearRouter != false)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(router)} and {nameof(clearRouter)}");
+            }
+
+            if (oneway != null && invocationMode != null)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(oneway)} and {nameof(invocationMode)}");
+            }
+
+            if (endpoints != null && adapterId != null)
+            {
+                throw new ArgumentException($"You cannot set both {nameof(endpoints)} and {nameof(adapterId)}");
+            }
+
+            //
+            // Pass down options handle by the base class
+            //
+            var reference = (RoutableReference)base.Clone(identity: identity,
+                                                           facet: facet,
+                                                           compress: compress,
+                                                           context: context,
+                                                           encodingVersion: encodingVersion,
+                                                           invocationMode: invocationMode,
+                                                           invocationTimeout: invocationTimeout,
+                                                           oneway: oneway);
+
+            if (fixedConnection != null)
+            {
+                var mode = reference.getMode();
+                switch (fixedConnection.type())
                 {
-                    r._locatorInfo = getInstance().locatorManager().get(
-                        locInfo.getLocator().Clone(encodingVersion: newEncoding));
+                    case "udp":
+                        {
+                            if (mode != InvocationMode.BatchDatagram && mode != InvocationMode.Datagram)
+                            {
+                                throw new ArgumentException($"InvocationMode {mode} cannot be used with an UDP connection");
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            if (mode == InvocationMode.BatchDatagram || mode == InvocationMode.Datagram)
+                            {
+                                throw new ArgumentException($"InvocationMode {mode} requires an UDP connection");
+                            }
+                            break;
+                        }
+                }
+
+                FixedReference fixedReference = new FixedReference(reference.getInstance(),
+                                                                   reference.getCommunicator(),
+                                                                   reference.getIdentity(),
+                                                                   reference.getFacet(),
+                                                                   reference.getMode(),
+                                                                   fixedConnection.getEndpoint().getInfo().secure(),
+                                                                   reference.getProtocol(),
+                                                                   reference.getEncoding(),
+                                                                   (ConnectionI)fixedConnection,
+                                                                   reference.getInvocationTimeout(),
+                                                                   reference.getContext(),
+                                                                   reference.getCompress());
+
+                return fixedReference.Clone(adapterId: adapterId,
+                                            clearLocator: clearLocator,
+                                            clearRouter: clearRouter,
+                                            collocationOptimized: collocationOptimized,
+                                            connectionCached: connectionCached,
+                                            connectionId: connectionId,
+                                            connectionTimeout: connectionTimeout,
+                                            endpointSelectionType: endpointSelectionType,
+                                            endpoints: endpoints,
+                                            locator: locator,
+                                            locatorCacheTimeout: locatorCacheTimeout,
+                                            preferSecure: preferSecure,
+                                            router: router,
+                                            secure: secure);
+            }
+
+            if (adapterId != null && !adapterId.Equals(_adapterId))
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._adapterId = adapterId;
+                reference._endpoints = Array.Empty<EndpointI>();
+            }
+
+            if (collocationOptimized is bool collocationOptimizedValue && collocationOptimizedValue != _collocationOptimized)
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._collocationOptimized = collocationOptimizedValue;
+            }
+
+            if (connectionCached is bool connectionCachedValue && connectionCachedValue != _cacheConnection)
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._cacheConnection = connectionCachedValue;
+            }
+
+            if (connectionId != null && !connectionId.Equals(_connectionId))
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._connectionId = connectionId;
+                reference._endpoints = reference._endpoints.Select(e => e.connectionId(connectionId)).ToArray();
+            }
+
+            if (connectionTimeout is int connectionTimeoutValue && (!_overrideTimeout || connectionTimeoutValue != _timeout))
+            {
+                if (connectionTimeoutValue < 1 && connectionTimeoutValue != -1)
+                {
+                    throw new ArgumentException($"invalid value passed to ice_timeout: {connectionTimeoutValue}",
+                                                nameof(connectionTimeout));
+                }
+
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._timeout = connectionTimeoutValue;
+                reference._endpoints = reference._endpoints.Select(e => e.timeout(connectionTimeoutValue)).ToArray();
+                reference._overrideTimeout = true;
+            }
+
+            if (encodingVersion is EncodingVersion encodingVersionValue)
+            {
+                if (_locatorInfo != null && !_locatorInfo.getLocator().EncodingVersion.Equals(encodingVersionValue))
+                {
+                    if (reference == this)
+                    {
+                        reference = (RoutableReference)Clone();
+                    }
+                    reference._locatorInfo = getInstance().locatorManager().get(
+                        _locatorInfo.getLocator().Clone(encodingVersion: encodingVersionValue));
                 }
             }
-            return r;
-        }
 
-        public override Reference changeCompress(bool newCompress)
-        {
-            RoutableReference r = (RoutableReference)base.changeCompress(newCompress);
-            if (r != this && _endpoints.Length > 0) // Also override the compress flag on the endpoints if it was updated
+            if (endpointSelectionType is EndpointSelectionType endpointSelectionTypeValue && endpointSelectionTypeValue != _endpointSelection)
             {
-                EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-                for (int i = 0; i < _endpoints.Length; i++)
+                if (reference == this)
                 {
-                    newEndpoints[i] = _endpoints[i].compress(newCompress);
+                    reference = (RoutableReference)Clone();
                 }
-                r._endpoints = newEndpoints;
-            }
-            return r;
-        }
-
-        public override Reference changeEndpoints(EndpointI[] newEndpoints)
-        {
-            if (Equals(newEndpoints, _endpoints))
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._endpoints = newEndpoints;
-            r._adapterId = "";
-            r.applyOverrides(ref r._endpoints);
-            return r;
-        }
-
-        public override Reference changeAdapterId(string newAdapterId)
-        {
-            if (_adapterId.Equals(newAdapterId))
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._adapterId = newAdapterId;
-            r._endpoints = _emptyEndpoints;
-            return r;
-        }
-
-        public override Reference changeLocator(Ice.LocatorPrx newLocator)
-        {
-            LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-            if (newLocatorInfo != null && _locatorInfo != null && newLocatorInfo.Equals(_locatorInfo))
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._locatorInfo = newLocatorInfo;
-            return r;
-        }
-
-        public override Reference changeRouter(Ice.RouterPrx newRouter)
-        {
-            RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-            if (newRouterInfo != null && _routerInfo != null && newRouterInfo.Equals(_routerInfo))
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._routerInfo = newRouterInfo;
-            return r;
-        }
-
-        public override Reference changeCollocationOptimized(bool newCollocationOptimized)
-        {
-            if (newCollocationOptimized == _collocationOptimized)
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._collocationOptimized = newCollocationOptimized;
-            return r;
-        }
-
-        public override Reference changeCacheConnection(bool newCache)
-        {
-            if (newCache == _cacheConnection)
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._cacheConnection = newCache;
-            return r;
-        }
-
-        public override Reference changePreferSecure(bool newPreferSecure)
-        {
-            if (newPreferSecure == _preferSecure)
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._preferSecure = newPreferSecure;
-            return r;
-        }
-
-        public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
-        {
-            if (newType == _endpointSelection)
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._endpointSelection = newType;
-            return r;
-        }
-
-        public override Reference changeLocatorCacheTimeout(int newTimeout)
-        {
-            if (newTimeout == _locatorCacheTimeout)
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._locatorCacheTimeout = newTimeout;
-            return r;
-        }
-
-        public override Reference changeTimeout(int newTimeout)
-        {
-            if (_overrideTimeout && _timeout == newTimeout)
-            {
-                return this;
+                reference._endpointSelection = endpointSelectionTypeValue;
             }
 
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._timeout = newTimeout;
-            r._overrideTimeout = true;
-            if (_endpoints.Length > 0)
+            if (endpoints != null && !endpoints.SequenceEqual(_endpoints))
             {
-                EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-                for (int i = 0; i < _endpoints.Length; i++)
+                if (reference == this)
                 {
-                    newEndpoints[i] = _endpoints[i].timeout(newTimeout);
+                    reference = (RoutableReference)Clone();
                 }
-                r._endpoints = newEndpoints;
+                reference._adapterId = "";
+                reference._endpoints = reference.applyOverrides(endpoints.Select(e => (EndpointI)e).ToArray());
             }
-            return r;
-        }
 
-        public override Reference changeConnectionId(string id)
-        {
-            if (_connectionId.Equals(id))
+            if (locator != null)
             {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._connectionId = id;
-            if (_endpoints.Length > 0)
-            {
-                EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-                for (int i = 0; i < _endpoints.Length; i++)
+                LocatorInfo locatorInfo = getInstance().locatorManager().get(locator);
+                if (!locatorInfo.Equals(_locatorInfo))
                 {
-                    newEndpoints[i] = _endpoints[i].connectionId(id);
+                    if (reference == this)
+                    {
+                        reference = (RoutableReference)Clone();
+                    }
+                    reference._locatorInfo = locatorInfo;
                 }
-                r._endpoints = newEndpoints;
             }
-            return r;
-        }
+            else if (clearLocator && _locatorInfo != null)
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._locatorInfo = null;
+            }
 
-        public override Reference changeConnection(Ice.ConnectionI connection)
-        {
-            return new FixedReference(getInstance(),
-                                      getCommunicator(),
-                                      getIdentity(),
-                                      getFacet(),
-                                      getMode(),
-                                      getSecure(),
-                                      getProtocol(),
-                                      getEncoding(),
-                                      connection,
-                                      getInvocationTimeout(),
-                                      getContext(),
-                                      getCompress());
+            if (locatorCacheTimeout is int locatorCacheTimeoutValue && locatorCacheTimeoutValue != _locatorCacheTimeout)
+            {
+                if (locatorCacheTimeoutValue < -1)
+                {
+                    throw new ArgumentException($"invalid value passed to ice_locatorCacheTimeout: {locatorCacheTimeoutValue}",
+                                                nameof(locatorCacheTimeout));
+                }
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._locatorCacheTimeout = locatorCacheTimeoutValue;
+            }
+
+            if (preferSecure is bool preferSecureValue && preferSecureValue != _preferSecure)
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._preferSecure = preferSecureValue;
+            }
+
+            if (router != null)
+            {
+                RouterInfo routerInfo = getInstance().routerManager().get(router);
+                if (!routerInfo.Equals(_routerInfo))
+                {
+                    if (reference == this)
+                    {
+                        reference = (RoutableReference)Clone();
+                    }
+                    reference._routerInfo = routerInfo;
+                }
+            }
+            else if (clearRouter && _routerInfo != null)
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference._routerInfo = null;
+            }
+
+            if (secure is bool secureValue && secureValue != secure_)
+            {
+                if (reference == this)
+                {
+                    reference = (RoutableReference)Clone();
+                }
+                reference.secure_ = secureValue;
+            }
+            return reference;
         }
 
         public override bool isIndirect()
@@ -1223,7 +1255,7 @@ namespace IceInternal
             return _endpoints.Length == 0 && _adapterId.Length == 0;
         }
 
-        public override void streamWrite(Ice.OutputStream s)
+        public override void streamWrite(OutputStream s)
         {
             base.streamWrite(s);
 
@@ -1300,7 +1332,7 @@ namespace IceInternal
             properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
             properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
             properties[prefix + ".EndpointSelection"] =
-                       _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
+                       _endpointSelection == EndpointSelectionType.Random ? "Random" : "Ordered";
             properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString(CultureInfo.InvariantCulture);
             properties[prefix + ".InvocationTimeout"] = getInvocationTimeout().ToString(CultureInfo.InvariantCulture);
 
@@ -1351,7 +1383,7 @@ namespace IceInternal
                 return true;
             }
 
-            RoutableReference rhs = obj as RoutableReference;
+            RoutableReference? rhs = obj as RoutableReference;
             if (rhs == null)
             {
                 return false;
@@ -1406,7 +1438,7 @@ namespace IceInternal
             {
                 return false;
             }
-            if (!IceUtilInternal.Arrays.Equals(_endpoints, rhs._endpoints))
+            if (!Arrays.Equals(_endpoints, rhs._endpoints))
             {
                 return false;
             }
@@ -1425,8 +1457,7 @@ namespace IceInternal
             {
                 if (endpts.Length > 0)
                 {
-                    _ir.applyOverrides(ref endpts);
-                    _ir.createConnection(endpts, _cb);
+                    _ir.createConnection(_ir.applyOverrides(endpts), _cb);
                 }
                 else
                 {
@@ -1434,7 +1465,7 @@ namespace IceInternal
                 }
             }
 
-            public void setException(Ice.LocalException ex)
+            public void setException(LocalException ex)
             {
                 _cb.setException(ex);
             }
@@ -1443,7 +1474,7 @@ namespace IceInternal
             private GetConnectionCallback _cb;
         }
 
-        public override RequestHandler getRequestHandler(Ice.IObjectPrx proxy)
+        public override RequestHandler getRequestHandler(IObjectPrx proxy)
         {
             return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
         }
@@ -1476,15 +1507,14 @@ namespace IceInternal
             {
                 if (endpoints.Length == 0)
                 {
-                    _cb.setException(new Ice.NoEndpointException(_ir.ToString()));
+                    _cb.setException(new NoEndpointException(_ir.ToString()));
                     return;
                 }
 
-                _ir.applyOverrides(ref endpoints);
-                _ir.createConnection(endpoints, new ConnectionCallback(_ir, _cb, cached));
+                _ir.createConnection(_ir.applyOverrides(endpoints), new ConnectionCallback(_ir, _cb, cached));
             }
 
-            public void setException(Ice.LocalException ex)
+            public void setException(LocalException ex)
             {
                 _cb.setException(ex);
             }
@@ -1502,22 +1532,22 @@ namespace IceInternal
                 _cached = cached;
             }
 
-            public void setConnection(Ice.ConnectionI connection, bool compress)
+            public void setConnection(ConnectionI connection, bool compress)
             {
                 _cb.setConnection(connection, compress);
             }
 
-            public void setException(Ice.LocalException exc)
+            public void setException(LocalException exc)
             {
                 try
                 {
                     throw exc;
                 }
-                catch (Ice.NoEndpointException ex)
+                catch (NoEndpointException ex)
                 {
                     _cb.setException(ex); // No need to retry if there's no endpoints.
                 }
-                catch (Ice.LocalException ex)
+                catch (LocalException ex)
                 {
                     Debug.Assert(_ir._locatorInfo != null);
                     _ir._locatorInfo.clearCache(_ir);
@@ -1556,18 +1586,18 @@ namespace IceInternal
             }
             else
             {
-                callback.setException(new Ice.NoEndpointException(ToString()));
+                callback.setException(new NoEndpointException(ToString()));
             }
         }
 
         public RoutableReference(Instance instance,
-                                 Ice.Communicator communicator,
-                                 Ice.Identity identity,
+                                 Communicator communicator,
+                                 Identity identity,
                                  string facet,
-                                 Ice.InvocationMode mode,
+                                 InvocationMode mode,
                                  bool secure,
-                                 Ice.ProtocolVersion protocol,
-                                 Ice.EncodingVersion encoding,
+                                 ProtocolVersion protocol,
+                                 EncodingVersion encoding,
                                  EndpointI[] endpoints,
                                  string adapterId,
                                  LocatorInfo locatorInfo,
@@ -1575,7 +1605,7 @@ namespace IceInternal
                                  bool collocationOptimized,
                                  bool cacheConnection,
                                  bool preferSecure,
-                                 Ice.EndpointSelectionType endpointSelection,
+                                 EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout,
                                  int invocationTimeout,
                                  Dictionary<string, string> context)
@@ -1606,20 +1636,22 @@ namespace IceInternal
             Debug.Assert(_adapterId.Length == 0 || _endpoints.Length == 0);
         }
 
-        protected void applyOverrides(ref EndpointI[] endpts)
+        protected EndpointI[] applyOverrides(EndpointI[] endpts)
         {
-            for (int i = 0; i < endpts.Length; ++i)
-            {
-                endpts[i] = endpts[i].connectionId(_connectionId);
-                if (overrideCompress_)
+            return endpts.Select(endpoint =>
                 {
-                    endpts[i] = endpts[i].compress(compress_);
-                }
-                if (_overrideTimeout)
-                {
-                    endpts[i] = endpts[i].timeout(_timeout);
-                }
-            }
+                    endpoint = endpoint.connectionId(_connectionId);
+                    if (overrideCompress_)
+                    {
+                        endpoint = endpoint.compress(compress_);
+                    }
+
+                    if (_overrideTimeout)
+                    {
+                        endpoint.timeout(_timeout);
+                    }
+                    return endpoint;
+                }).ToArray();
         }
 
         private EndpointI[] filterEndpoints(EndpointI[] allEndpoints)
@@ -1642,9 +1674,9 @@ namespace IceInternal
             //
             switch (getMode())
             {
-                case Ice.InvocationMode.Twoway:
-                case Ice.InvocationMode.Oneway:
-                case Ice.InvocationMode.BatchOneway:
+                case InvocationMode.Twoway:
+                case InvocationMode.Oneway:
+                case InvocationMode.BatchOneway:
                     {
                         //
                         // Filter out datagram endpoints.
@@ -1661,8 +1693,8 @@ namespace IceInternal
                         break;
                     }
 
-                case Ice.InvocationMode.Datagram:
-                case Ice.InvocationMode.BatchDatagram:
+                case InvocationMode.Datagram:
+                case InvocationMode.BatchDatagram:
                     {
                         //
                         // Filter out non-datagram endpoints.
@@ -1685,7 +1717,7 @@ namespace IceInternal
             //
             switch (getEndpointSelection())
             {
-                case Ice.EndpointSelectionType.Random:
+                case EndpointSelectionType.Random:
                     {
                         lock (rand_)
                         {
@@ -1703,7 +1735,7 @@ namespace IceInternal
                         }
                         break;
                     }
-                case Ice.EndpointSelectionType.Ordered:
+                case EndpointSelectionType.Ordered:
                     {
                         // Nothing to do.
                         break;
@@ -1758,7 +1790,7 @@ namespace IceInternal
                 _callback = cb;
             }
 
-            public void setConnection(Ice.ConnectionI connection, bool compress)
+            public void setConnection(ConnectionI connection, bool compress)
             {
                 //
                 // If we have a router, set the object adapter for this router
@@ -1772,7 +1804,7 @@ namespace IceInternal
                 _callback.setConnection(connection, compress);
             }
 
-            public void setException(Ice.LocalException ex)
+            public void setException(LocalException ex)
             {
                 if (_exception == null)
                 {
@@ -1794,7 +1826,7 @@ namespace IceInternal
             private EndpointI[] _endpoints;
             private GetConnectionCallback _callback;
             private int _i = 0;
-            private Ice.LocalException _exception = null;
+            private LocalException? _exception = null;
         }
 
         protected void createConnection(EndpointI[] allEndpoints, GetConnectionCallback callback)
@@ -1802,7 +1834,7 @@ namespace IceInternal
             EndpointI[] endpoints = filterEndpoints(allEndpoints);
             if (endpoints.Length == 0)
             {
-                callback.setException(new Ice.NoEndpointException(ToString()));
+                callback.setException(new NoEndpointException(ToString()));
                 return;
             }
 
@@ -1887,7 +1919,7 @@ namespace IceInternal
         private bool _collocationOptimized;
         private bool _cacheConnection;
         private bool _preferSecure;
-        private Ice.EndpointSelectionType _endpointSelection;
+        private EndpointSelectionType _endpointSelection;
         private int _locatorCacheTimeout;
 
         private bool _overrideTimeout;

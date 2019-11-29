@@ -517,11 +517,19 @@ namespace Ice
             {
                 checkForDeactivation();
 
-                _locatorInfo = _instance.locatorManager().get(locator);
+                if (locator != null)
+                {
+                    _locatorInfo = _instance.locatorManager().get(locator);
+                }
+                else
+                {
+                    _locatorInfo = null;
+                }
+
             }
         }
 
-        public LocatorPrx GetLocator()
+        public LocatorPrx? GetLocator()
         {
             lock (this)
             {
@@ -1427,7 +1435,7 @@ namespace Ice
         private List<IncomingConnectionFactory> _incomingConnectionFactories;
         private RouterInfo _routerInfo;
         private EndpointI[] _publishedEndpoints;
-        private LocatorInfo _locatorInfo;
+        private LocatorInfo? _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
         private bool _noConfig;
         private int _messageSizeMax;

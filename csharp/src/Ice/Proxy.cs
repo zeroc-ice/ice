@@ -65,7 +65,7 @@ namespace Ice
     /// <summary>
     /// Base interface of all object proxies.
     /// </summary>
-    public interface IObjectPrx : ISerializable
+    public interface IObjectPrx
     {
         public Reference IceReference { get; }
         public RequestHandler? RequestHandler { get; set; }
@@ -308,7 +308,7 @@ namespace Ice
         {
             get
             {
-                return (Identity)IceReference.getIdentity().Clone();
+                return IceReference.getIdentity();
             }
         }
 
@@ -960,7 +960,7 @@ namespace Ice
     /// Base class of all object proxies.
     /// </summary>
     [Serializable]
-    public class ObjectPrx : IObjectPrx
+    public class ObjectPrx : IObjectPrx, ISerializable
     {
         public Reference IceReference { get; private set; }
         public RequestHandler? RequestHandler { get; set; }
@@ -1111,7 +1111,9 @@ namespace Ice
                                        RouterPrx? router = null,
                                        bool? secure = null)
         {
-            var reference = prx.IceReference.changeIdentity(id).ChangeOptions(
+            var reference = prx.IceReference.Clone(
+                id,
+                null,
                 adapterId,
                 clearLocator,
                 clearRouter,
@@ -1160,7 +1162,9 @@ namespace Ice
                                        RouterPrx? router = null,
                                        bool? secure = null)
         {
-            var reference = prx.IceReference.changeFacet(facet).ChangeOptions(
+            var reference = prx.IceReference.Clone(
+                null,
+                facet,
                 adapterId,
                 clearLocator,
                 clearRouter,
@@ -1208,7 +1212,9 @@ namespace Ice
                                      RouterPrx? router = null,
                                      bool? secure = null) where Prx : IObjectPrx
         {
-            var reference = prx.IceReference.ChangeOptions(
+            var reference = prx.IceReference.Clone(
+                null,
+                null,
                 adapterId,
                 clearLocator,
                 clearRouter,
@@ -1240,15 +1246,12 @@ namespace Ice
                                                        CancellationToken cancellationToken = new CancellationToken()) :
                 base(progress, cancellationToken)
             {
-                _proxy = proxy;
             }
 
             public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
                 SetResult(((ProxyGetConnection)og).getConnection());
             }
-
-            private IObjectPrx _proxy;
         }
 
         /// <summary>

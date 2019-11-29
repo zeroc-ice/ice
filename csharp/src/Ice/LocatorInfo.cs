@@ -756,24 +756,24 @@ namespace IceInternal
         // Returns locator info for a given locator. Automatically creates
         // the locator info if it doesn't exist yet.
         //
-        public LocatorInfo get(Ice.LocatorPrx loc)
+        public LocatorInfo get(LocatorPrx loc)
         {
             if (loc == null)
             {
-                return null;
+                throw new System.ArgumentNullException(nameof(loc));
             }
 
             //
             // The locator can't be located.
             //
-            Ice.LocatorPrx locator = loc.Clone(clearLocator: true);
+            LocatorPrx locator = loc.Clone(clearLocator: true);
 
             //
             // TODO: reap unused locator info objects?
             //
             lock (this)
             {
-                LocatorInfo info = null;
+                LocatorInfo info;
                 if (!_table.TryGetValue(locator, out info))
                 {
                     //
@@ -781,7 +781,7 @@ namespace IceInternal
                     // have only one table per locator (not one per locator
                     // proxy).
                     //
-                    LocatorTable table = null;
+                    LocatorTable? table = null;
                     LocatorKey key = new LocatorKey(locator);
                     if (!_locatorTables.TryGetValue(key, out table))
                     {
