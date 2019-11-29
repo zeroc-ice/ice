@@ -308,7 +308,7 @@ namespace Ice
         {
             get
             {
-                return IceReference.getIdentity();
+                return (Identity)IceReference.getIdentity().Clone();
             }
         }
 
