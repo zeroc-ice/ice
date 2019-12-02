@@ -2262,7 +2262,7 @@ class RemoteProcessController(ProcessController):
 
             # If the controller isn't up after 30s, we restart it. With the iOS simulator,
             # it's not uncommon to get Springoard crashes when starting the controller.
-            if nRetry == 6:
+            if nRetry == 10:
                 sys.stdout.write("controller application unreachable, restarting... ")
                 sys.stdout.flush()
                 self.restartControllerApp(current, ident)
@@ -2515,12 +2515,24 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.flush()
         try:
             run("xcrun simctl boot \"{0}\"".format(self.device))
+            run("xcrun simctl bootstatus \"{0}\"".format(self.device)) # Wait for the boot to complete
         except Exception as ex:
             if str(ex).find("Booted") >= 0:
                 pass
             elif str(ex).find("Invalid device") >= 0:
+                #
                 # Create the simulator device if it doesn't exist
+                #
+                # We update the watchdog timer scale to prevent issues with the controller app taking too long
+                # to start on the simulator. The security validation of the app can take a significant time and
+                # causes the watch dog to kick-in leaving the springboard app in a bogus state where it's not
+                # possible to terminate and restart the controller
+                #
                 self.simulatorID = run("xcrun simctl create \"{0}\" {1} {2}".format(self.device, self.deviceID, self.runtimeID))
+                run("xcrun simctl boot \"{0}\"".format(self.device))
+                run("xcrun simctl bootstatus \"{0}\"".format(self.device)) # Wait for the boot to complete
+                run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
+                run("xcrun simctl shutdown \"{0}\"".format(self.device))
                 run("xcrun simctl boot \"{0}\"".format(self.device))
             else:
                 raise
@@ -2536,10 +2548,11 @@ class iOSSimulatorProcessController(RemoteProcessController):
         print("ok")
 
     def restartControllerApp(self, current, ident):
-        try:
-            run("xcrun simctl terminate \"{0}\" {1}".format(self.device, ident.name))
-        except:
-            pass
+        # We reboot the simulator if the controller fails to start. Terminating the controller app
+        # with simctl terminate doesn't always work, it can hang if the controller app died because
+        # of the springboard watchdog.
+        run("xcrun simctl shutdown \"{0}\"".format(self.device))
+        run("xcrun simctl boot \"{0}\"".format(self.device))
         run("xcrun simctl launch \"{0}\" {1}".format(self.device, ident.name))
 
     def stopControllerApp(self, ident):
