@@ -17,11 +17,11 @@ namespace IceInternal
         public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static readonly bool isMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
 
-        public static Type findType(string csharpId)
+        public static Type? findType(string csharpId)
         {
             lock (_mutex)
             {
-                Type t;
+                Type? t;
                 if (_typeTable.TryGetValue(csharpId, out t))
                 {
                     return t;
@@ -75,7 +75,7 @@ namespace IceInternal
             return result;
         }
 
-        public static object createInstance(Type t)
+        public static object? createInstance(Type t)
         {
             try
             {

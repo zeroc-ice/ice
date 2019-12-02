@@ -1766,7 +1766,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     printGeneratedHeader(_out, fileBase + ".ice");
 
-    _out << sp << nl << "using _System = global::System;";
+    _out << nl << "#nullable enable";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 
@@ -3354,7 +3354,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << "string s, "
          << getUnqualified("Ice.Communicator", ns) << " communicator)";
     _out << sb;
-    _out << nl << "return new _" << p->name() << "Prx(communicator.StringToReference(s));";
+    _out << nl << "return new _" << p->name() << "Prx(communicator.CreateReference(s));";
     _out << eb;
 
     _out << sp;
@@ -3365,7 +3365,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "try";
     _out << sb;
-    _out << nl << "prx = new _" << p->name() << "Prx(communicator.StringToReference(s));";
+    _out << nl << "prx = new _" << p->name() << "Prx(communicator.CreateReference(s));";
     _out << eb;
     _out << nl << "catch (global::System.Exception)";
     _out << sb;
@@ -3381,7 +3381,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << getUnqualified("Ice.Communicator", ns) << " communicator)";
     _out << sb;
     _out << nl << "string proxy = communicator.getProperties().getProperty(prefix);";
-    _out << nl << "return new _" << p->name() << "Prx(communicator.StringToReference(proxy, prefix));";
+    _out << nl << "return new _" << p->name() << "Prx(communicator.CreateReference(proxy, prefix));";
     _out << eb;
 
     _out << sp;
@@ -3393,7 +3393,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "try";
     _out << sb;
     _out << nl << "string proxy = communicator.getProperties().getProperty(prefix);";
-    _out << nl << "prx = new _" << p->name() << "Prx(communicator.StringToReference(proxy, prefix));";
+    _out << nl << "prx = new _" << p->name() << "Prx(communicator.CreateReference(proxy, prefix));";
     _out << eb;
     _out << nl << "catch (global::System.Exception)";
     _out << sb;
@@ -3412,10 +3412,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << p->name() << "Prx UncheckedCast("
          << getUnqualified("Ice.IObjectPrx", ns) << " prx)";
     _out << sb;
-    _out << nl << "if(prx == null)";
-    _out << sb;
-    _out << nl << "throw new global::System.ArgumentNullException(nameof(prx));";
-    _out << eb;
     _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
     _out << eb;
 
@@ -3429,10 +3425,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << getUnqualified("Ice.IObjectPrx", ns) << " prx, "
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
     _out << sb;
-    _out << nl << "if(prx == null)";
-    _out << sb;
-    _out << nl << "throw new global::System.ArgumentNullException(nameof(prx));";
-    _out << eb;
     _out << nl << "var r = prx as " << p->name() << "Prx;";
     _out << nl << "try";
     _out << sb;
@@ -3588,6 +3580,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << eb;
         _out << nl << "catch(global::System.AggregateException ex_)";
         _out << sb;
+        _out << nl << "global::System.Diagnostics.Debug.Assert(ex_.InnerException != null);";
         _out << nl << "throw ex_.InnerException;";
         _out << eb;
 
@@ -3611,7 +3604,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << " " << p->name() << "Async" << spar << inParams
              << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
                  getUnqualified("Ice.OptionalContext", ns) + "()")
-             << ("global::System.IProgress<bool> " + progress + " = null")
+             << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = new global::System.Threading.CancellationToken()")
              << epar;
         _out << sb;
@@ -3631,7 +3624,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     _out << " _iceI_" << opName << "Async" << spar << getInParams(p, ns, true)
          << getUnqualified("Ice.OptionalContext", ns) + " context"
-         << "global::System.IProgress<bool> progress"
+         << "global::System.IProgress<bool>? progress"
          << "global::System.Threading.CancellationToken cancel"
          << "bool synchronous" << epar;
     _out << sb;

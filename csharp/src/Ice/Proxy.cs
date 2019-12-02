@@ -588,14 +588,14 @@ namespace Ice
 
         public static IObjectPrx Parse(string s, Communicator communicator)
         {
-            return new ObjectPrx(communicator.StringToReference(s));
+            return new ObjectPrx(communicator.CreateReference(s));
         }
 
         public static bool TryParse(string s, Communicator communicator, out IObjectPrx? prx)
         {
             try
             {
-                prx = new ObjectPrx(communicator.StringToReference(s));
+                prx = new ObjectPrx(communicator.CreateReference(s));
             }
             catch (System.Exception)
             {
@@ -608,7 +608,7 @@ namespace Ice
         public static IObjectPrx ParseProperty(string prefix, Communicator communicator)
         {
             string proxy = communicator.getProperties().getProperty(prefix);
-            return new ObjectPrx(communicator.StringToReference(proxy, prefix));
+            return new ObjectPrx(communicator.CreateReference(proxy, prefix));
         }
 
         public static bool TryParseProperty(string prefix, Communicator communicator, out IObjectPrx? prx)
@@ -616,7 +616,7 @@ namespace Ice
             try
             {
                 string proxy = communicator.getProperties().getProperty(prefix);
-                prx = new ObjectPrx(communicator.StringToReference(proxy, prefix));
+                prx = new ObjectPrx(communicator.CreateReference(proxy, prefix));
             }
             catch (LocalException)
             {
@@ -682,9 +682,8 @@ namespace Ice
             {
                 try
                 {
-                    return IceReference.getInstance().proxyFactory().checkRetryAfterException((LocalException)ex,
-                                                                                            IceReference,
-                                                                                            ref cnt);
+                    return IceReference.getCommunicator().CheckRetryAfterException((LocalException)ex, IceReference,
+                        ref cnt);
                 }
                 catch (CommunicatorDestroyedException)
                 {
@@ -763,7 +762,7 @@ namespace Ice
             InputStream iss = null;
             OutputStream os = null;
 
-            if (IceReference.getInstance().cacheMessageBuffers() > 0)
+            if (IceReference.getCommunicator().cacheMessageBuffers() > 0)
             {
                 lock (this)
                 {
@@ -794,7 +793,7 @@ namespace Ice
             InputStream iss = null;
             OutputStream os = null;
 
-            if (IceReference.getInstance().cacheMessageBuffers() > 0)
+            if (IceReference.getCommunicator().cacheMessageBuffers() > 0)
             {
                 lock (this)
                 {
@@ -993,21 +992,12 @@ namespace Ice
 
         protected ObjectPrx(SerializationInfo info, StreamingContext context)
         {
-            Instance instance;
-
-            if (context.Context is Communicator)
-            {
-                instance = IceInternal.Util.getInstance((Communicator)context.Context);
-            }
-            else if (context.Context is Instance)
-            {
-                instance = (Instance)context.Context;
-            }
-            else
+            Communicator communicator = context.Context as Communicator;
+            if (communicator == null)
             {
                 throw new ArgumentException("Cannot deserialize proxy: Ice.Communicator not found in StreamingContext");
             }
-            IceReference = instance.referenceFactory().create(info.GetString("proxy"), null);
+            IceReference = communicator.CreateReference(info.GetString("proxy"), null);
         }
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)

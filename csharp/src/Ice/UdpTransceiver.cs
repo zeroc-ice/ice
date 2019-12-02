@@ -824,7 +824,7 @@ namespace IceInternal
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        BufSizeWarnInfo winfo = _instance.getBufSizeWarn(Ice.UDPEndpointType.value);
+                        Ice.BufSizeWarnInfo winfo = _instance.getBufSizeWarn(Ice.UDPEndpointType.value);
                         if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
                         {

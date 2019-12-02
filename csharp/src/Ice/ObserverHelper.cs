@@ -9,9 +9,9 @@ namespace IceInternal
 
     public sealed class ObserverHelper
     {
-        public static InvocationObserver get(Instance instance, string op)
+        public static InvocationObserver get(Ice.Communicator communicator, string op)
         {
-            CommunicatorObserver obsv = instance.initializationData().observer;
+            CommunicatorObserver obsv = communicator.initializationData().observer;
             if (obsv != null)
             {
                 InvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
@@ -31,7 +31,7 @@ namespace IceInternal
 
         public static InvocationObserver get(Ice.IObjectPrx proxy, string op, Dictionary<string, string> context)
         {
-            CommunicatorObserver obsv = proxy.IceReference.getInstance().initializationData().observer;
+            CommunicatorObserver obsv = proxy.Communicator.initializationData().observer;
             if (obsv != null)
             {
                 InvocationObserver observer;

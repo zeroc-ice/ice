@@ -20,10 +20,10 @@ namespace IceInternal
 {
     internal sealed class PropertiesAdminI : Ice.PropertiesAdmin, Ice.NativePropertiesAdmin
     {
-        internal PropertiesAdminI(Instance instance)
+        internal PropertiesAdminI(Ice.Communicator communicator)
         {
-            _properties = instance.initializationData().properties;
-            _logger = instance.initializationData().logger;
+            _properties = communicator.initializationData().properties;
+            _logger = communicator.initializationData().logger;
         }
 
         public string

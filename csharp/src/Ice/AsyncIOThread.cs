@@ -10,14 +10,14 @@ namespace IceInternal
 
     public class AsyncIOThread
     {
-        internal AsyncIOThread(Instance instance)
+        internal AsyncIOThread(Ice.Communicator communicator)
         {
-            _instance = instance;
+            _communicator = communicator;
 
             _thread = new HelperThread(this);
             updateObserver();
             _thread.Start(Util.stringToThreadPriority(
-                                        instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
+                                        communicator.initializationData().properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void
@@ -25,7 +25,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -114,12 +114,12 @@ namespace IceInternal
                     catch (Ice.LocalException ex)
                     {
                         string s = "exception in asynchronous IO thread:\n" + ex;
-                        _instance.initializationData().logger.error(s);
+                        _communicator.initializationData().logger.error(s);
                     }
                     catch (System.Exception ex)
                     {
                         string s = "unknown exception in asynchronous IO thread:\n" + ex;
-                        _instance.initializationData().logger.error(s);
+                        _communicator.initializationData().logger.error(s);
                     }
                 }
                 queue.Clear();
@@ -131,7 +131,7 @@ namespace IceInternal
             }
         }
 
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private bool _destroyed;
         private LinkedList<ThreadPoolWorkItem> _queue = new LinkedList<ThreadPoolWorkItem>();
         private Ice.Instrumentation.ThreadObserver _observer;
@@ -141,7 +141,7 @@ namespace IceInternal
             internal HelperThread(AsyncIOThread asyncIOThread)
             {
                 _asyncIOThread = asyncIOThread;
-                _name = _asyncIOThread._instance.initializationData().properties.getProperty("Ice.ProgramName");
+                _name = _asyncIOThread._communicator.initializationData().properties.getProperty("Ice.ProgramName");
                 if (_name.Length > 0)
                 {
                     _name += "-";

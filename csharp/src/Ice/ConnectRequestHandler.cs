@@ -147,7 +147,7 @@ namespace IceInternal
             //
             try
             {
-                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                _reference.getCommunicator().requestHandlerFactory().removeRequestHandler(_reference, this);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -258,7 +258,7 @@ namespace IceInternal
                     exception = ex.get();
 
                     // Remove the request handler before retrying.
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                    _reference.getCommunicator().requestHandlerFactory().removeRequestHandler(_reference, this);
 
                     outAsync.retryException(ex.get());
                 }
@@ -299,7 +299,7 @@ namespace IceInternal
                 // Only remove once all the requests are flushed to
                 // guarantee serialization.
                 //
-                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+                _reference.getCommunicator().requestHandlerFactory().removeRequestHandler(_reference, this);
 
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.

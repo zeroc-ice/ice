@@ -15,7 +15,7 @@ namespace IceInternal
             if (tl.protocol >= 1)
             {
                 int p = str.pos();
-                Ice.InputStream iss = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
+                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.getEncoding(), str.getBuffer(), false);
                 iss.pos(0);
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -50,7 +50,7 @@ namespace IceInternal
             if (tl.protocol >= 1)
             {
                 int p = str.pos();
-                Ice.InputStream iss = new Ice.InputStream(str.instance(), str.getEncoding(), str.getBuffer(), false);
+                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.getEncoding(), str.getBuffer(), false);
                 iss.pos(0);
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -171,9 +171,9 @@ namespace IceInternal
             try
             {
                 Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
-                if (str.instance() != null)
+                if (str.communicator() != null)
                 {
-                    toStringMode = str.instance().toStringMode();
+                    toStringMode = str.communicator().toStringMode();
                 }
 
                 Ice.Identity identity = new Ice.Identity();

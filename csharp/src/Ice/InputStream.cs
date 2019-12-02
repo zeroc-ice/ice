@@ -182,35 +182,6 @@ namespace Ice
             _buf = new IceInternal.Buffer(buf, adopt);
         }
 
-        public InputStream(IceInternal.Instance instance, EncodingVersion encoding)
-        {
-            initialize(instance, encoding);
-            _buf = new IceInternal.Buffer();
-        }
-
-        public InputStream(IceInternal.Instance instance, EncodingVersion encoding, byte[] data)
-        {
-            initialize(instance, encoding);
-            _buf = new IceInternal.Buffer(data);
-        }
-
-        public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.ByteBuffer buf)
-        {
-            initialize(instance, encoding);
-            _buf = new IceInternal.Buffer(buf);
-        }
-
-        public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf) :
-            this(instance, encoding, buf, false)
-        {
-        }
-
-        public InputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
-        {
-            initialize(instance, encoding);
-            _buf = new IceInternal.Buffer(buf, adopt);
-        }
-
         /// <summary>
         /// Initializes the stream to use the communicator's default encoding version.
         /// </summary>
@@ -218,36 +189,23 @@ namespace Ice
         public void initialize(Communicator communicator)
         {
             Debug.Assert(communicator != null);
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
+            initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding);
         }
 
-        /// <summary>
-        /// Initializes the stream to use the given communicator and encoding version.
-        /// </summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="encoding">The desired encoding version.</param>
-        public void initialize(Communicator communicator, EncodingVersion encoding)
-        {
-            Debug.Assert(communicator != null);
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            initialize(instance, encoding);
-        }
-
-        private void initialize(IceInternal.Instance instance, EncodingVersion encoding)
+        private void initialize(Ice.Communicator communicator, EncodingVersion encoding)
         {
             initialize(encoding);
 
-            _instance = instance;
-            _traceSlicing = _instance.traceLevels().slicing > 0;
-            _classGraphDepthMax = _instance.classGraphDepthMax();
-            _logger = _instance.initializationData().logger;
-            _classResolver = _instance.resolveClass;
+            _communicator = communicator;
+            _traceSlicing = _communicator.traceLevels().slicing > 0;
+            _classGraphDepthMax = _communicator.classGraphDepthMax();
+            _logger = _communicator.initializationData().logger;
+            _classResolver = _communicator.resolveClass;
         }
 
         private void initialize(EncodingVersion encoding)
         {
-            _instance = null;
+            _communicator = null;
             _encoding = encoding;
             _encapsStack = null;
             _encapsCache = null;
@@ -380,9 +338,9 @@ namespace Ice
             return prev;
         }
 
-        public IceInternal.Instance instance()
+        public Ice.Communicator communicator()
         {
-            return _instance;
+            return _communicator;
         }
 
         /// <summary>
@@ -391,7 +349,7 @@ namespace Ice
         /// <param name="other">The other stream.</param>
         public void swap(InputStream other)
         {
-            Debug.Assert(_instance == other._instance);
+            Debug.Assert(_communicator == other._communicator);
 
             IceInternal.Buffer tmpBuf = other._buf;
             other._buf = _buf;
@@ -1080,7 +1038,7 @@ namespace Ice
             }
             try
             {
-                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _instance));
+                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator));
                 return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
             }
             catch (System.Exception ex)
@@ -2364,7 +2322,7 @@ namespace Ice
         {
             Identity ident = new Identity();
             ident.ice_readMembers(this);
-            var reference = _instance.referenceFactory().create(ident, this);
+            var reference = _communicator.CreateReference(ident, this);
             if (reference == null)
             {
                 return null;
@@ -2736,7 +2694,7 @@ namespace Ice
             return userEx;
         }
 
-        private IceInternal.Instance _instance;
+        private Ice.Communicator _communicator;
         private IceInternal.Buffer _buf;
         private object _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
@@ -2848,9 +2806,9 @@ namespace Ice
                 return cls;
             }
 
-            protected Value newInstance(string typeId)
+            protected Value? newInstance(string typeId)
             {
-                Value v = null;
+                Value? v = null;
 
                 Type cls = resolveClass(typeId);
 
@@ -2859,7 +2817,7 @@ namespace Ice
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
+                        v = (Value?)IceInternal.AssemblyUtil.createInstance(cls);
                     }
                     catch (Exception ex)
                     {
@@ -3155,10 +3113,10 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if (_stream.instance().traceLevels().slicing > 0)
+                if (_stream.communicator().traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.instance().initializationData().logger;
-                    string slicingCat = _stream.instance().traceLevels().slicingCat;
+                    Logger logger = _stream.communicator().initializationData().logger;
+                    string slicingCat = _stream.communicator().traceLevels().slicingCat;
                     if (_sliceType == SliceType.ValueSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3559,10 +3517,10 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if (_stream.instance().traceLevels().slicing > 0)
+                if (_stream.communicator().traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.instance().initializationData().logger;
-                    string slicingCat = _stream.instance().traceLevels().slicingCat;
+                    Logger logger = _stream.communicator().initializationData().logger;
+                    string slicingCat = _stream.communicator().traceLevels().slicingCat;
                     if (_current.sliceType == SliceType.ExceptionSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
@@ -3693,7 +3651,7 @@ namespace Ice
                 //
                 startSlice();
                 string mostDerivedId = _current.typeId;
-                Value v = null;
+                Value? v = null;
                 while (true)
                 {
                     bool updateCache = false;
@@ -3714,14 +3672,14 @@ namespace Ice
                             //
                             // Check the cache to see if we've already translated the compact type ID into a class.
                             //
-                            Type cls = null;
+                            Type? cls = null;
                             _compactIdCache.TryGetValue(_current.compactId, out cls);
                             if (cls != null)
                             {
                                 try
                                 {
                                     Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                                    v = (Value)IceInternal.AssemblyUtil.createInstance(cls);
+                                    v = (Value?)IceInternal.AssemblyUtil.createInstance(cls);
                                     updateCache = false;
                                 }
                                 catch (Exception ex)
@@ -3758,7 +3716,7 @@ namespace Ice
 
                             if (_current.typeId.Length == 0)
                             {
-                                _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
+                                _current.typeId = _stream.communicator().resolveCompactId(_current.compactId);
                             }
                         }
                     }
@@ -3840,14 +3798,11 @@ namespace Ice
                     throw new MarshalException("index for class received, but no instance");
                 }
 
-                if (cb != null)
-                {
-                    cb(v);
-                }
+                cb?.Invoke(v);
                 return index;
             }
 
-            private SlicedData readSlicedData()
+            private SlicedData? readSlicedData()
             {
                 if (_current.slices == null) // No preserved slices.
                 {
@@ -3873,7 +3828,7 @@ namespace Ice
                     for (int j = 0; j < info.instances.Length; ++j)
                     {
                         var cj = j;
-                        addPatchEntry(table[j], (Ice.Value v) => info.instances[cj] = v);
+                        addPatchEntry(table[j], (Value v) => info.instances[cj] = v);
                     }
                 }
 
@@ -3902,7 +3857,7 @@ namespace Ice
 
             private sealed class InstanceData
             {
-                internal InstanceData(InstanceData previous)
+                internal InstanceData(InstanceData? previous)
                 {
                     if (previous != null)
                     {
@@ -3925,8 +3880,8 @@ namespace Ice
                 internal int compactId;
                 internal Stack<IndirectPatchEntry> indirectPatchList;
 
-                internal InstanceData previous;
-                internal InstanceData next;
+                internal InstanceData? previous;
+                internal InstanceData? next;
             }
 
             private System.Func<int, string> _compactIdResolver;

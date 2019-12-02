@@ -25,7 +25,7 @@ namespace Ice
         public OutputStream()
         {
             _buf = new IceInternal.Buffer();
-            _instance = null;
+            _communicator = null;
             _closure = null;
             _encoding = Util.currentEncoding;
             _format = FormatType.CompactFormat;
@@ -38,8 +38,7 @@ namespace Ice
         public OutputStream(Communicator communicator)
         {
             Debug.Assert(communicator != null);
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
+            initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding, new IceInternal.Buffer());
         }
 
         /// <summary>
@@ -50,24 +49,12 @@ namespace Ice
         public OutputStream(Communicator communicator, EncodingVersion encoding)
         {
             Debug.Assert(communicator != null);
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            initialize(instance, encoding);
+            initialize(communicator, encoding);
         }
 
-        public OutputStream(IceInternal.Instance instance, EncodingVersion encoding)
+        public OutputStream(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
         {
-            initialize(instance, encoding);
-        }
-
-        public OutputStream(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
-        {
-            initialize(instance, encoding, new IceInternal.Buffer(buf, adopt));
-        }
-
-        public OutputStream(IceInternal.Instance instance, EncodingVersion encoding, byte[] data)
-        {
-            initialize(instance, encoding);
-            _buf = new IceInternal.Buffer(data);
+            initialize(communicator, encoding, new IceInternal.Buffer(buf, adopt));
         }
 
         /// <summary>
@@ -78,8 +65,13 @@ namespace Ice
         public void initialize(Communicator communicator)
         {
             Debug.Assert(communicator != null);
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
+            initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding);
+        }
+
+        public void initialize(Communicator communicator, EncodingVersion encoding)
+        {
+            Debug.Assert(communicator != null);
+            initialize(communicator, encoding, new IceInternal.Buffer());
         }
 
         /// <summary>
@@ -88,28 +80,16 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="encoding">The desired encoding version.</param>
-        public void initialize(Communicator communicator, EncodingVersion encoding)
+        private void initialize(Ice.Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf)
         {
             Debug.Assert(communicator != null);
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            initialize(instance, encoding);
-        }
 
-        private void initialize(IceInternal.Instance instance, EncodingVersion encoding)
-        {
-            initialize(instance, encoding, new IceInternal.Buffer());
-        }
-
-        private void initialize(IceInternal.Instance instance, EncodingVersion encoding, IceInternal.Buffer buf)
-        {
-            Debug.Assert(instance != null);
-
-            _instance = instance;
+            _communicator = communicator;
             _buf = buf;
             _closure = null;
             _encoding = encoding;
 
-            _format = _instance.defaultsAndOverrides().defaultFormat;
+            _format = _communicator.defaultsAndOverrides().defaultFormat;
 
             _encapsStack = null;
             _encapsCache = null;
@@ -140,9 +120,9 @@ namespace Ice
             }
         }
 
-        public IceInternal.Instance instance()
+        public Ice.Communicator communicator()
         {
-            return _instance;
+            return _communicator;
         }
 
         /// <summary>
@@ -193,7 +173,7 @@ namespace Ice
         /// <param name="other">The other stream.</param>
         public void swap(OutputStream other)
         {
-            Debug.Assert(_instance == other._instance);
+            Debug.Assert(_communicator == other._communicator);
 
             IceInternal.Buffer tmpBuf = other._buf;
             other._buf = _buf;
@@ -2153,7 +2133,7 @@ namespace Ice
             _buf.expand(n);
         }
 
-        private IceInternal.Instance _instance;
+        private Ice.Communicator _communicator;
         private IceInternal.Buffer _buf;
         private object _closure;
         private FormatType _format;
@@ -2764,7 +2744,7 @@ namespace Ice
 
             if (_encapsStack.format == FormatType.DefaultFormat)
             {
-                _encapsStack.format = _instance.defaultsAndOverrides().defaultFormat;
+                _encapsStack.format = _communicator.defaultsAndOverrides().defaultFormat;
             }
 
             if (_encapsStack.encoder == null) // Lazy initialization.

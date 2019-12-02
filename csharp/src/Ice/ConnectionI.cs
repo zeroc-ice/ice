@@ -296,11 +296,10 @@ namespace Ice
                     return;
                 }
 
-                Debug.Assert(_instance.initializationData().observer != null);
-                _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
-                                                                                          _endpoint,
-                                                                                          toConnectionState(_state),
-                                                                                          _observer);
+                Debug.Assert(_communicator.initializationData().observer != null);
+                _communicatorObserver = _communicator.initializationData().observer;
+                _observer = _communicatorObserver.getConnectionObserver(initConnectionInfo(), _endpoint, toConnectionState(_state),
+                    _observer);
                 if (_observer != null)
                 {
                     _observer.attach();
@@ -502,7 +501,7 @@ namespace Ice
 
         private class HeartbeatTaskCompletionCallback : TaskCompletionCallback<object>
         {
-            public HeartbeatTaskCompletionCallback(System.IProgress<bool> progress,
+            public HeartbeatTaskCompletionCallback(IProgress<bool> progress,
                                                    CancellationToken cancellationToken) :
                 base(progress, cancellationToken)
             {
@@ -516,10 +515,10 @@ namespace Ice
 
         private class HeartbeatAsync : OutgoingAsyncBase
         {
-            public HeartbeatAsync(Ice.ConnectionI connection,
-                                  Instance instance,
+            public HeartbeatAsync(ConnectionI connection,
+                                  Communicator communicator,
                                   OutgoingAsyncCompletionCallback completionCallback) :
-                base(instance, completionCallback)
+                base(communicator, completionCallback)
             {
                 _connection = connection;
             }
@@ -575,7 +574,7 @@ namespace Ice
         public Task heartbeatAsync(IProgress<bool> progress = null, CancellationToken cancel = new CancellationToken())
         {
             var completed = new HeartbeatTaskCompletionCallback(progress, cancel);
-            var outgoing = new HeartbeatAsync(this, _instance, completed);
+            var outgoing = new HeartbeatAsync(this, _communicator, completed);
             outgoing.invoke();
             return completed.Task;
         }
@@ -816,7 +815,7 @@ namespace Ice
             {
                 // Go through the adapter to set the adapter and servant manager on this connection
                 // to ensure the object adapter is still active.
-                ((ObjectAdapterI)adapter).setAdapterOnConnection(this);
+                adapter.setAdapterOnConnection(this);
             }
             else
             {
@@ -856,7 +855,7 @@ namespace Ice
             // Create a reference and return a reverse proxy for this
             // reference.
             //
-            return new ObjectPrx(_instance.referenceFactory().create(ident, this));
+            return new ObjectPrx(_communicator.CreateReference(ident, this));
         }
 
         public void setAdapterAndServantManager(ObjectAdapter adapter, IceInternal.ServantManager servantManager)
@@ -927,7 +926,7 @@ namespace Ice
                     IceInternal.Buffer buf = _writeStream.getBuffer();
                     int start = buf.b.position();
                     _transceiver.finishWrite(buf);
-                    if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
+                    if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
                     {
                         StringBuilder s = new StringBuilder("sent ");
                         s.Append(buf.b.position() - start);
@@ -940,7 +939,7 @@ namespace Ice
                         s.Append(_endpoint.protocol());
                         s.Append("\n");
                         s.Append(ToString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                        _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                     }
 
                     if (_observer != null)
@@ -953,7 +952,7 @@ namespace Ice
                     IceInternal.Buffer buf = _readStream.getBuffer();
                     int start = buf.b.position();
                     _transceiver.finishRead(buf);
-                    if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
+                    if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
                     {
                         StringBuilder s = new StringBuilder("received ");
                         if (_endpoint.datagram())
@@ -970,7 +969,7 @@ namespace Ice
                         s.Append(_endpoint.protocol());
                         s.Append("\n");
                         s.Append(ToString());
-                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                        _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                     }
 
                     if (_observer != null && !_readHeader)
@@ -1408,7 +1407,7 @@ namespace Ice
         {
             if (!_initialized)
             {
-                if (_instance.traceLevels().network >= 2)
+                if (_communicator.traceLevels().network >= 2)
                 {
                     StringBuilder s = new StringBuilder("failed to ");
                     s.Append(_connector != null ? "establish" : "accept");
@@ -1418,12 +1417,12 @@ namespace Ice
                     s.Append(ToString());
                     s.Append("\n");
                     s.Append(_exception);
-                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                 }
             }
             else
             {
-                if (_instance.traceLevels().network >= 1)
+                if (_communicator.traceLevels().network >= 1)
                 {
                     StringBuilder s = new StringBuilder("closed ");
                     s.Append(_endpoint.protocol());
@@ -1434,16 +1433,16 @@ namespace Ice
                     // Trace the cause of unexpected connection closures
                     //
                     if (!(_exception is CloseConnectionException ||
-                         _exception is ConnectionManuallyClosedException ||
-                         _exception is ConnectionTimeoutException ||
-                         _exception is CommunicatorDestroyedException ||
-                         _exception is ObjectAdapterDeactivatedException))
+                          _exception is ConnectionManuallyClosedException ||
+                          _exception is ConnectionTimeoutException ||
+                          _exception is CommunicatorDestroyedException ||
+                          _exception is ObjectAdapterDeactivatedException))
                     {
                         s.Append("\n");
                         s.Append(_exception);
                     }
 
-                    _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                    _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                 }
             }
 
@@ -1628,11 +1627,10 @@ namespace Ice
             _compressionSupported = BZip2.supported();
         }
 
-        internal ConnectionI(Communicator communicator, Instance instance, ACMMonitor monitor, Transceiver transceiver,
-                             Connector connector, EndpointI endpoint, ObjectAdapterI adapter)
+        internal ConnectionI(Communicator communicator, ACMMonitor monitor, Transceiver transceiver,
+                             Connector connector, EndpointI endpoint, ObjectAdapter adapter)
         {
             _communicator = communicator;
-            _instance = instance;
             _monitor = monitor;
             _transceiver = transceiver;
             _desc = transceiver.ToString();
@@ -1640,17 +1638,18 @@ namespace Ice
             _connector = connector;
             _endpoint = endpoint;
             _adapter = adapter;
-            InitializationData initData = instance.initializationData();
+            InitializationData initData = communicator.initializationData();
+            _communicatorObserver = initData.observer;
             _logger = initData.logger; // Cached for better performance.
-            _traceLevels = instance.traceLevels(); // Cached for better performance.
-            _timer = instance.timer();
+            _traceLevels = communicator.traceLevels(); // Cached for better performance.
+            _timer = communicator.timer();
             _writeTimeout = new TimeoutCallback(this);
             _writeTimeoutScheduled = false;
             _readTimeout = new TimeoutCallback(this);
             _readTimeoutScheduled = false;
             _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = initData.properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-            _cacheBuffers = instance.cacheMessageBuffers() > 0;
+            _cacheBuffers = communicator.cacheMessageBuffers() > 0;
             if (_monitor != null && _monitor.getACM().timeout > 0)
             {
                 _acmLastActivity = Time.currentMonotonicTimeMillis();
@@ -1660,11 +1659,11 @@ namespace Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _messageSizeMax = adapter != null ? adapter.messageSizeMax() : instance.messageSizeMax();
-            _readStream = new InputStream(instance, Util.currentProtocolEncoding);
+            _messageSizeMax = adapter != null ? adapter.messageSizeMax() : communicator.messageSizeMax();
+            _readStream = new InputStream(communicator, Util.currentProtocolEncoding);
             _readHeader = false;
             _readStreamPos = -1;
-            _writeStream = new OutputStream(instance, Util.currentProtocolEncoding);
+            _writeStream = new OutputStream(communicator, Util.currentProtocolEncoding);
             _writeStreamPos = -1;
             _dispatchCount = 0;
             _state = StateNotInitialized;
@@ -1692,7 +1691,7 @@ namespace Ice
                 }
                 else
                 {
-                    _threadPool = instance.clientThreadPool();
+                    _threadPool = communicator.clientThreadPool();
                 }
                 _threadPool.initialize(this);
             }
@@ -1901,16 +1900,14 @@ namespace Ice
                 }
             }
 
-            if (_instance.initializationData().observer != null)
+            if (_communicatorObserver != null)
             {
                 ConnectionState oldState = toConnectionState(_state);
                 ConnectionState newState = toConnectionState(state);
                 if (oldState != newState)
                 {
-                    _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
-                                                                                              _endpoint,
-                                                                                              newState,
-                                                                                              _observer);
+                    _observer = _communicatorObserver.getConnectionObserver(initConnectionInfo(), _endpoint,
+                        newState, _observer);
                     if (_observer != null)
                     {
                         _observer.attach();
@@ -1937,7 +1934,6 @@ namespace Ice
             _state = state;
 
             Monitor.PulseAll(this);
-
             if (_state == StateClosing && _dispatchCount == 0)
             {
                 try
@@ -1966,7 +1962,7 @@ namespace Ice
                 //
                 // Before we shut down, we send a close connection message.
                 //
-                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                OutputStream os = new OutputStream(_communicator, Util.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
                 Util.currentProtocol.ice_writeMembers(os);
                 Util.currentProtocolEncoding.ice_writeMembers(os);
@@ -1997,7 +1993,7 @@ namespace Ice
 
             if (!_endpoint.datagram())
             {
-                OutputStream os = new OutputStream(_instance, Util.currentProtocolEncoding);
+                OutputStream os = new OutputStream(_communicator, Util.currentProtocolEncoding);
                 os.writeBlob(Protocol.magic);
                 Util.currentProtocol.ice_writeMembers(os);
                 Util.currentProtocolEncoding.ice_writeMembers(os);
@@ -2147,7 +2143,7 @@ namespace Ice
             _readStream.pos(0);
             _readHeader = true;
 
-            if (_instance.traceLevels().network >= 1)
+            if (_communicator.traceLevels().network >= 1)
             {
                 StringBuilder s = new StringBuilder();
                 if (_endpoint.datagram())
@@ -2167,7 +2163,7 @@ namespace Ice
                     s.Append(" connection\n");
                     s.Append(ToString());
                 }
-                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
             }
 
             return true;
@@ -2363,7 +2359,7 @@ namespace Ice
                     if (cbuf != null)
                     {
                         OutputStream cstream =
-                            new OutputStream(uncompressed.instance(), uncompressed.getEncoding(), cbuf, true);
+                            new OutputStream(uncompressed.communicator(), uncompressed.getEncoding(), cbuf, true);
 
                         //
                         // Set compression status.
@@ -2419,7 +2415,7 @@ namespace Ice
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
 
-            info.stream = new InputStream(_instance, Util.currentProtocolEncoding);
+            info.stream = new InputStream(_communicator, Util.currentProtocolEncoding);
             _readStream.swap(info.stream);
             _readStream.resize(Protocol.headerSize);
             _readStream.pos(0);
@@ -2441,7 +2437,7 @@ namespace Ice
                     {
                         IceInternal.Buffer ubuf = BZip2.uncompress(info.stream.getBuffer(), Protocol.headerSize,
                                                                    _messageSizeMax);
-                        info.stream = new InputStream(info.stream.instance(), info.stream.getEncoding(), ubuf, true);
+                        info.stream = new InputStream(info.stream.communicator(), info.stream.getEncoding(), ubuf, true);
                     }
                     else
                     {
@@ -2648,7 +2644,7 @@ namespace Ice
             int timeout;
             if (_state < StateActive)
             {
-                DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+                DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
                 if (defaultsAndOverrides.overrideConnectTimeout)
                 {
                     timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -2668,7 +2664,7 @@ namespace Ice
             }
             else
             {
-                DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+                DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
                 if (defaultsAndOverrides.overrideCloseTimeout)
                 {
                     timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
@@ -2819,20 +2815,20 @@ namespace Ice
                 {
                     if (_incomingCache == null)
                     {
-                        inc = new Incoming(_instance, this, this, adapter, response, compress, requestId);
+                        inc = new Incoming(_communicator, this, this, adapter, response, compress, requestId);
                     }
                     else
                     {
                         inc = _incomingCache;
                         _incomingCache = _incomingCache.next;
-                        inc.reset(_instance, this, this, adapter, response, compress, requestId);
+                        inc.reset(_communicator, this, this, adapter, response, compress, requestId);
                         inc.next = null;
                     }
                 }
             }
             else
             {
-                inc = new Incoming(_instance, this, this, adapter, response, compress, requestId);
+                inc = new Incoming(_communicator, this, this, adapter, response, compress, requestId);
             }
 
             return inc;
@@ -2854,7 +2850,7 @@ namespace Ice
         {
             int start = buf.b.position();
             int op = _transceiver.read(buf, ref _hasMoreData);
-            if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
+            if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
             {
                 StringBuilder s = new StringBuilder("received ");
                 if (_endpoint.datagram())
@@ -2871,7 +2867,7 @@ namespace Ice
                 s.Append(_endpoint.protocol());
                 s.Append("\n");
                 s.Append(ToString());
-                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
             }
             return op;
         }
@@ -2880,7 +2876,7 @@ namespace Ice
         {
             int start = buf.b.position();
             int op = _transceiver.write(buf);
-            if (_instance.traceLevels().network >= 3 && buf.b.position() != start)
+            if (_communicator.traceLevels().network >= 3 && buf.b.position() != start)
             {
                 StringBuilder s = new StringBuilder("sent ");
                 s.Append(buf.b.position() - start);
@@ -2893,7 +2889,7 @@ namespace Ice
                 s.Append(_endpoint.protocol());
                 s.Append("\n");
                 s.Append(ToString());
-                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
+                _logger.trace(_communicator.traceLevels().networkCat, s.ToString());
             }
             return op;
         }
@@ -2925,7 +2921,7 @@ namespace Ice
             {
                 if (_adopt)
                 {
-                    OutputStream stream = new OutputStream(this.stream.instance(), Util.currentProtocolEncoding);
+                    OutputStream stream = new OutputStream(this.stream.communicator(), Util.currentProtocolEncoding);
                     stream.swap(this.stream);
                     this.stream = stream;
                     _adopt = false;
@@ -2967,7 +2963,6 @@ namespace Ice
         }
 
         private Communicator _communicator;
-        private Instance _instance;
         private ACMMonitor _monitor;
         private Transceiver _transceiver;
         private string _desc;
@@ -3011,6 +3006,7 @@ namespace Ice
         private bool _readHeader;
         private OutputStream _writeStream;
 
+        private CommunicatorObserver _communicatorObserver;
         private ConnectionObserver _observer;
         private int _readStreamPos;
         private int _writeStreamPos;

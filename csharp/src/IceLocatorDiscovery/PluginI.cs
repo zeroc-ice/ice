@@ -154,7 +154,7 @@ namespace IceLocatorDiscovery
             {
                 _retryDelay = 0;
             }
-            _timer = IceInternal.Util.getInstance(lookup.Communicator).timer();
+            _timer = lookup.Communicator.timer();
             _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;

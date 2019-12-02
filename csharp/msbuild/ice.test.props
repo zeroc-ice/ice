@@ -2,9 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- If ICE_BIN_DIST was not set to all, set IceHome
        to point to this source distribution. -->
-  <ImportGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
-      <Import Project="$(MSbuildThisFileDirectory)ice.common.props"/>
-  </ImportGroup>
+  <Import Project="$(MSbuildThisFileDirectory)ice.common.props"/>
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -16,10 +14,6 @@
     <WarningLevel>4</WarningLevel>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-
-  <Target Name="Info">
-      <Message Text="IceAssembliesDir: $(IceAssembliesDir)"/>
-  </Target>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

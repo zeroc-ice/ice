@@ -51,11 +51,6 @@ namespace IceInternal
             return _facet;
         }
 
-        public Instance getInstance()
-        {
-            return _instance;
-        }
-
         public Dictionary<string, string> getContext()
         {
             return _context;
@@ -128,7 +123,7 @@ namespace IceInternal
 
         public bool getCompressOverride(out bool compress)
         {
-            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+            DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
             if (defaultsAndOverrides.overrideCompress)
             {
                 compress = defaultsAndOverrides.overrideCompressValue;
@@ -198,7 +193,7 @@ namespace IceInternal
             //
             StringBuilder s = new StringBuilder();
 
-            ToStringMode toStringMode = _instance.toStringMode();
+            ToStringMode toStringMode = _communicator.toStringMode();
 
             //
             // If the encoded identity string contains characters which
@@ -499,8 +494,7 @@ namespace IceInternal
         protected bool hashInitialized_;
         private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
-        private Instance _instance;
-        private Communicator _communicator;
+        protected Communicator _communicator;
 
         private InvocationMode _mode;
         private Identity _identity;
@@ -514,8 +508,7 @@ namespace IceInternal
         protected bool overrideCompress_;
         protected bool compress_; // Only used if _overrideCompress == true
 
-        protected Reference(Instance instance,
-                            Communicator communicator,
+        protected Reference(Communicator communicator,
                             Identity identity,
                             string facet,
                             InvocationMode mode,
@@ -532,7 +525,6 @@ namespace IceInternal
             Debug.Assert(identity.category != null);
             Debug.Assert(facet != null);
 
-            _instance = instance;
             _communicator = communicator;
             _mode = mode;
             _identity = identity;
@@ -552,8 +544,7 @@ namespace IceInternal
 
     public class FixedReference : Reference
     {
-        public FixedReference(Instance instance,
-                              Communicator communicator,
+        public FixedReference(Communicator communicator,
                               Identity identity,
                               string facet,
                               InvocationMode mode,
@@ -564,7 +555,7 @@ namespace IceInternal
                               int invocationTimeout,
                               Dictionary<string, string>? context,
                               bool? compress)
-        : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
+        : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
             if (compress is bool compressValue)
@@ -861,7 +852,7 @@ namespace IceInternal
             // check if the connection is secure.
             //
             bool secure;
-            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+            DefaultsAndOverrides defaultsAndOverrides = _communicator.defaultsAndOverrides();
             if (defaultsAndOverrides.overrideSecure)
             {
                 secure = defaultsAndOverrides.overrideSecureValue;
@@ -985,7 +976,7 @@ namespace IceInternal
 
         public override ThreadPool getThreadPool()
         {
-            return getInstance().clientThreadPool();
+            return _communicator.clientThreadPool();
         }
 
         public override Reference Clone(Identity? identity = null,
@@ -1046,8 +1037,7 @@ namespace IceInternal
 
             if (fixedConnection != null)
             {
-                FixedReference fixedReference = new FixedReference(reference.getInstance(),
-                                                                   reference.getCommunicator(),
+                FixedReference fixedReference = new FixedReference(reference.getCommunicator(),
                                                                    reference.getIdentity(),
                                                                    reference.getFacet(),
                                                                    reference.getMode(),
@@ -1139,7 +1129,7 @@ namespace IceInternal
                     {
                         reference = (RoutableReference)Clone();
                     }
-                    reference._locatorInfo = getInstance().locatorManager().get(
+                    reference._locatorInfo = _communicator.locatorManager().get(
                         _locatorInfo.getLocator().Clone(encodingVersion: encodingVersionValue));
                 }
             }
@@ -1165,7 +1155,7 @@ namespace IceInternal
 
             if (locator != null)
             {
-                LocatorInfo locatorInfo = getInstance().locatorManager().get(locator);
+                LocatorInfo locatorInfo = _communicator.locatorManager().get(locator);
                 if (!locatorInfo.Equals(_locatorInfo))
                 {
                     if (reference == this)
@@ -1209,7 +1199,7 @@ namespace IceInternal
 
             if (router != null)
             {
-                RouterInfo routerInfo = getInstance().routerManager().get(router);
+                RouterInfo routerInfo = _communicator.routerManager().get(router);
                 if (!routerInfo.Equals(_routerInfo))
                 {
                     if (reference == this)
@@ -1302,7 +1292,7 @@ namespace IceInternal
                 // the reference parser uses as separators, then we enclose
                 // the adapter id string in quotes.
                 //
-                string a = IceUtilInternal.StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
+                string a = IceUtilInternal.StringUtil.escapeString(_adapterId, null, _communicator.toStringMode());
                 if (IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
                 {
                     s.Append('"');
@@ -1470,7 +1460,7 @@ namespace IceInternal
 
         public override RequestHandler getRequestHandler(IObjectPrx proxy)
         {
-            return getInstance().requestHandlerFactory().getRequestHandler(this, proxy);
+            return _communicator.requestHandlerFactory().getRequestHandler(this, proxy);
         }
 
         public void getConnection(GetConnectionCallback callback)
@@ -1547,12 +1537,12 @@ namespace IceInternal
                     _ir._locatorInfo.clearCache(_ir);
                     if (_cached)
                     {
-                        TraceLevels traceLevels = _ir.getInstance().traceLevels();
+                        TraceLevels traceLevels = _ir._communicator.traceLevels();
                         if (traceLevels.retry >= 2)
                         {
                             string s = "connection to cached endpoints failed\n" +
                                        "removing endpoints from cache and trying again\n" + ex;
-                            _ir.getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
+                            _ir._communicator.initializationData().logger.trace(traceLevels.retryCat, s);
                         }
                         _ir.getConnectionNoRouterInfo(_cb); // Retry.
                         return;
@@ -1584,8 +1574,7 @@ namespace IceInternal
             }
         }
 
-        public RoutableReference(Instance instance,
-                                 Communicator communicator,
+        public RoutableReference(Communicator communicator,
                                  Identity identity,
                                  string facet,
                                  InvocationMode mode,
@@ -1603,7 +1592,7 @@ namespace IceInternal
                                  int locatorCacheTimeout,
                                  int invocationTimeout,
                                  Dictionary<string, string>? context)
-        : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
+        : base(communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _endpoints = endpoints;
             _adapterId = adapterId;
@@ -1748,7 +1737,7 @@ namespace IceInternal
             // partitioning the endpoint vector, so that non-secure
             // endpoints come first.
             //
-            DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
+            DefaultsAndOverrides overrides = _communicator.defaultsAndOverrides();
             if (overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
             {
                 List<EndpointI> tmp = new List<EndpointI>();
@@ -1813,7 +1802,7 @@ namespace IceInternal
 
                 bool more = _i != _endpoints.Length - 1;
                 EndpointI[] endpoint = new EndpointI[] { _endpoints[_i] };
-                _rr.getInstance().outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
+                _rr._communicator.outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
             }
 
             private RoutableReference _rr;
@@ -1835,7 +1824,7 @@ namespace IceInternal
             //
             // Finally, create the connection.
             //
-            OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
+            OutgoingConnectionFactory factory = _communicator.outgoingConnectionFactory();
             if (getCacheConnection() || endpoints.Length == 1)
             {
                 //

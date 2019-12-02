@@ -952,7 +952,7 @@ namespace IceInternal
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                    Ice.BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
                     if (!winfo.rcvWarn || rcvSize != winfo.rcvSize)
                     {
                         instance.logger().warning("TCP receive buffer size: requested size of " + rcvSize +
@@ -975,7 +975,7 @@ namespace IceInternal
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
+                    Ice.BufSizeWarnInfo winfo = instance.getBufSizeWarn(Ice.TCPEndpointType.value);
                     if (!winfo.sndWarn || sndSize != winfo.sndSize)
                     {
                         instance.logger().warning("TCP send buffer size: requested size of " + sndSize +

@@ -8,9 +8,9 @@ namespace IceInternal
 {
     public class RequestHandlerFactory
     {
-        internal RequestHandlerFactory(Instance instance)
+        internal RequestHandlerFactory(Ice.Communicator communicator)
         {
-            _instance = instance;
+            _communicator = communicator;
         }
 
         public RequestHandler
@@ -18,7 +18,7 @@ namespace IceInternal
         {
             if (rf.getCollocationOptimized())
             {
-                Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
+                Ice.ObjectAdapter adapter = _communicator.objectAdapterFactory().findObjectAdapter(proxy);
                 if (adapter != null)
                 {
                     return proxy.IceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
@@ -68,7 +68,7 @@ namespace IceInternal
             }
         }
 
-        private readonly Instance _instance;
+        private readonly Ice.Communicator _communicator;
         private readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
             new Dictionary<Reference, ConnectRequestHandler>();
     }

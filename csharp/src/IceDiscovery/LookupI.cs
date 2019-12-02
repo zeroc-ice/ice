@@ -228,7 +228,7 @@ namespace IceDiscovery
             _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
             _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
             _domainId = properties.getProperty("IceDiscovery.DomainId");
-            _timer = IceInternal.Util.getInstance(lookup.Communicator).timer();
+            _timer = lookup.Communicator.timer();
 
             //
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast

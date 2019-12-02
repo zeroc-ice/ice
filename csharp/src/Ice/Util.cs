@@ -174,7 +174,7 @@ namespace Ice
 
             initData.properties = createProperties(ref args, initData.properties);
 
-            CommunicatorI result = new CommunicatorI(initData);
+            Communicator result = new Communicator(initData);
             result.finishSetup(ref args);
             return result;
         }
@@ -216,7 +216,7 @@ namespace Ice
                 initData = (InitializationData)initData.Clone();
             }
 
-            CommunicatorI result = new CommunicatorI(initData);
+            Communicator result = new Communicator(initData);
             string[] args = Array.Empty<string>();
             result.finishSetup(ref args);
             return result;
@@ -693,12 +693,6 @@ namespace IceInternal
 
     public sealed class Util
     {
-        public static Instance getInstance(Ice.Communicator communicator)
-        {
-            Ice.CommunicatorI p = (Ice.CommunicatorI)communicator;
-            return p.getInstance();
-        }
-
         public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
         {
             return new ProtocolPluginFacadeI(communicator);

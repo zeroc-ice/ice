@@ -188,7 +188,7 @@ namespace Ice
                     Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
                     try
                     {
-                        com.createAdmin(null, id);
+                        com.CreateAdmin(null, id);
                         test(false);
                     }
                     catch (Ice.InitializationException)
@@ -196,7 +196,7 @@ namespace Ice
                     }
 
                     ObjectAdapter adapter = com.createObjectAdapter("");
-                    test(com.createAdmin(adapter, id) != null);
+                    test(com.CreateAdmin(adapter, id) != null);
                     test(com.getAdmin() != null);
 
                     testFacets(com, true, false);

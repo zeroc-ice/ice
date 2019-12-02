@@ -49,7 +49,7 @@ namespace IceInternal
             //
             try
             {
-                instance_.clientThreadPool().dispatch(invokeSent, cachedConnection_);
+                communicator_.clientThreadPool().dispatch(invokeSent, cachedConnection_);
             }
             catch (Ice.CommunicatorDestroyedException)
             {
@@ -62,7 +62,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            instance_.clientThreadPool().dispatch(invokeException, cachedConnection_);
+            communicator_.clientThreadPool().dispatch(invokeException, cachedConnection_);
         }
 
         public void invokeResponseAsync()
@@ -71,7 +71,7 @@ namespace IceInternal
             // CommunicatorDestroyedCompleted is the only exception that can propagate directly
             // from this method.
             //
-            instance_.clientThreadPool().dispatch(invokeResponse, cachedConnection_);
+            communicator_.clientThreadPool().dispatch(invokeResponse, cachedConnection_);
         }
 
         public void invokeSent()
@@ -229,17 +229,17 @@ namespace IceInternal
             return synchronous_;
         }
 
-        protected OutgoingAsyncBase(Instance instance, OutgoingAsyncCompletionCallback completionCallback,
+        protected OutgoingAsyncBase(Ice.Communicator communicator, OutgoingAsyncCompletionCallback completionCallback,
                                     Ice.OutputStream? os = null, Ice.InputStream? iss = null)
         {
-            instance_ = instance;
+            communicator_ = communicator;
             sentSynchronously_ = false;
             synchronous_ = false;
             _doneInSent = false;
             _alreadySent = false;
             state_ = 0;
-            os_ = os ?? new Ice.OutputStream(instance, Ice.Util.currentProtocolEncoding);
-            is_ = iss ?? new Ice.InputStream(instance, Ice.Util.currentProtocolEncoding);
+            os_ = os ?? new Ice.OutputStream(communicator, Ice.Util.currentProtocolEncoding);
+            is_ = iss ?? new Ice.InputStream(communicator, Ice.Util.currentProtocolEncoding);
             _completionCallback = completionCallback;
             if (_completionCallback != null)
             {
@@ -357,9 +357,9 @@ namespace IceInternal
 
         protected void warning(System.Exception ex)
         {
-            if (instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+            if (communicator_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
             {
-                instance_.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
+                communicator_.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
             }
         }
 
@@ -373,7 +373,7 @@ namespace IceInternal
             return sentSynchronously_;
         }
 
-        protected Instance instance_;
+        protected Ice.Communicator communicator_;
         protected Ice.Connection cachedConnection_;
         protected bool sentSynchronously_;
         protected bool synchronous_;
@@ -426,7 +426,7 @@ namespace IceInternal
             cachedConnection_ = null;
             if (proxy_.IceReference.getInvocationTimeout() == -2)
             {
-                instance_.timer().cancel(this);
+                communicator_.timer().cancel(this);
             }
 
             //
@@ -440,7 +440,7 @@ namespace IceInternal
                 // the retry interval is 0. This method can be called with the
                 // connection locked so we can't just retry here.
                 //
-                instance_.retryQueue().add(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
+                communicator_.retryQueue().add(this, proxy_.IceHandleException(exc, handler_, mode_, _sent, ref _cnt));
                 return false;
             }
             catch (Ice.Exception ex)
@@ -456,7 +456,7 @@ namespace IceInternal
                 int timeout = cachedConnection_.timeout();
                 if (timeout > 0)
                 {
-                    instance_.timer().schedule(this, timeout);
+                    communicator_.timer().schedule(this, timeout);
                 }
             }
             base.cancelable(handler);
@@ -473,7 +473,7 @@ namespace IceInternal
                 // connection to be done.
                 //
                 proxy_.IceUpdateRequestHandler(handler_, null); // Clear request handler and always retry.
-                instance_.retryQueue().add(this, 0);
+                communicator_.retryQueue().add(this, 0);
             }
             catch (Ice.Exception exc)
             {
@@ -510,7 +510,7 @@ namespace IceInternal
                                          OutgoingAsyncCompletionCallback completionCallback,
                                          Ice.OutputStream? os = null,
                                          Ice.InputStream? iss = null) :
-            base(prx.IceReference.getInstance(), completionCallback, os, iss)
+            base(prx.Communicator, completionCallback, os, iss)
         {
             proxy_ = prx;
             mode_ = Ice.OperationMode.Normal;
@@ -527,7 +527,7 @@ namespace IceInternal
                     int invocationTimeout = proxy_.IceReference.getInvocationTimeout();
                     if (invocationTimeout > 0)
                     {
-                        instance_.timer().schedule(this, invocationTimeout);
+                        communicator_.timer().schedule(this, invocationTimeout);
                     }
                 }
                 else if (observer_ != null)
@@ -577,7 +577,7 @@ namespace IceInternal
                         int interval = proxy_.IceHandleException(ex, handler_, mode_, _sent, ref _cnt);
                         if (interval > 0)
                         {
-                            instance_.retryQueue().add(this, interval);
+                            communicator_.retryQueue().add(this, interval);
                             return;
                         }
                         else if (observer_ != null)
@@ -610,7 +610,7 @@ namespace IceInternal
             {
                 if (proxy_.IceReference.getInvocationTimeout() != -1)
                 {
-                    instance_.timer().cancel(this);
+                    communicator_.timer().cancel(this);
                 }
             }
             return base.sentImpl(done);
@@ -619,7 +619,7 @@ namespace IceInternal
         {
             if (proxy_.IceReference.getInvocationTimeout() != -1)
             {
-                instance_.timer().cancel(this);
+                communicator_.timer().cancel(this);
             }
             return base.exceptionImpl(ex);
         }
@@ -628,7 +628,7 @@ namespace IceInternal
         {
             if (proxy_.IceReference.getInvocationTimeout() != -1)
             {
-                instance_.timer().cancel(this);
+                communicator_.timer().cancel(this);
             }
             return base.responseImpl(userThread, ok, invoke);
         }
@@ -726,7 +726,7 @@ namespace IceInternal
                 //
                 // Implicit context
                 //
-                Ice.ImplicitContextI implicitContext = rf.getInstance().getImplicitContext();
+                Ice.ImplicitContextI implicitContext = (Ice.ImplicitContextI)rf.getCommunicator().getImplicitContext();
                 Dictionary<string, string> prxContext = rf.getContext();
 
                 if (implicitContext == null)
@@ -986,7 +986,7 @@ namespace IceInternal
 
         public override void cacheMessageBuffers()
         {
-            if (proxy_.IceReference.getInstance().cacheMessageBuffers() > 0)
+            if (proxy_.Communicator.cacheMessageBuffers() > 0)
             {
                 lock (this)
                 {

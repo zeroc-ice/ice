@@ -20,12 +20,12 @@ namespace IceInternal
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
-            _dispatcher = _reference.getInstance().initializationData().dispatcher != null;
+            _dispatcher = _reference.getCommunicator().initializationData().dispatcher != null;
             _response = _reference.getMode() == Ice.InvocationMode.Twoway;
-            _adapter = (Ice.ObjectAdapterI)adapter;
+            _adapter = adapter;
 
-            _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
-            _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
+            _logger = _reference.getCommunicator().initializationData().logger; // Cached for better performance.
+            _traceLevels = _reference.getCommunicator().traceLevels(); // Cached for better performance.
             _requestId = 0;
         }
 
@@ -80,7 +80,7 @@ namespace IceInternal
 
         public void sendResponse(int requestId, Ice.OutputStream os, byte status, bool amd)
         {
-            OutgoingAsyncBase outAsync;
+            OutgoingAsyncBase? outAsync;
             lock (this)
             {
                 Debug.Assert(_response);
@@ -91,7 +91,7 @@ namespace IceInternal
                 }
 
                 // Adopt the OutputStream's buffer.
-                Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), true);
+                Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.getEncoding(), os.getBuffer(), true);
 
                 iss.pos(Protocol.replyHdr.Length + 4);
 
@@ -252,7 +252,7 @@ namespace IceInternal
                 TraceUtil.traceSend(os, _logger, _traceLevels);
             }
 
-            Ice.InputStream iss = new Ice.InputStream(os.instance(), os.getEncoding(), os.getBuffer(), false);
+            Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.getEncoding(), os.getBuffer(), false);
 
             iss.pos(Protocol.requestHdr.Length);
 
@@ -278,7 +278,7 @@ namespace IceInternal
                         break;
                     }
 
-                    Incoming inS = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
+                    Incoming inS = new Incoming(_reference.getCommunicator(), this, null, _adapter, _response, (byte)0,
                                                 requestId);
                     inS.invoke(servantManager, iss);
                     --invokeNum;
@@ -300,7 +300,7 @@ namespace IceInternal
                 return; // Ignore exception for oneway messages.
             }
 
-            OutgoingAsyncBase outAsync;
+            OutgoingAsyncBase? outAsync;
             lock (this)
             {
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
@@ -334,7 +334,7 @@ namespace IceInternal
         private readonly Reference _reference;
         private readonly bool _dispatcher;
         private readonly bool _response;
-        private readonly Ice.ObjectAdapterI _adapter;
+        private readonly Ice.ObjectAdapter _adapter;
         private readonly Ice.Logger _logger;
         private readonly TraceLevels _traceLevels;
 

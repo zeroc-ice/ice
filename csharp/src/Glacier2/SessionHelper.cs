@@ -232,7 +232,7 @@ namespace Glacier2
             {
                 acmTimeout = router.getACMTimeout();
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
 
@@ -305,7 +305,7 @@ namespace Glacier2
         destroyInternal()
         {
             RouterPrx router;
-            Ice.Communicator communicator;
+            Communicator communicator;
             lock (_mutex)
             {
                 Debug.Assert(_destroy);
@@ -325,7 +325,7 @@ namespace Glacier2
             {
                 router.destroySession();
             }
-            catch (Ice.ConnectionLostException)
+            catch (ConnectionLostException)
             {
                 //
                 // Expected if another thread invoked on an object from the session concurrently.
@@ -354,12 +354,11 @@ namespace Glacier2
         private void
         destroyCommunicator()
         {
-            Ice.Communicator communicator;
+            Communicator communicator;
             lock (_mutex)
             {
                 communicator = _communicator;
             }
-
             communicator.destroy();
         }
 
@@ -375,10 +374,10 @@ namespace Glacier2
                 {
                     lock (_mutex)
                     {
-                        _communicator = Ice.Util.initialize(_initData);
+                        _communicator = Util.initialize(_initData);
                     }
                 }
-                catch (Ice.LocalException ex)
+                catch (LocalException ex)
                 {
                     lock (_mutex)
                     {
@@ -390,17 +389,17 @@ namespace Glacier2
 
                 if (_communicator.getDefaultRouter() == null)
                 {
-                    var finder = Ice.RouterFinderPrx.Parse(_finderStr, _communicator);
+                    var finder = RouterFinderPrx.Parse(_finderStr, _communicator);
                     try
                     {
                         _communicator.setDefaultRouter(finder.getRouter());
                     }
-                    catch (Ice.CommunicatorDestroyedException ex)
+                    catch (CommunicatorDestroyedException ex)
                     {
                         dispatchCallback(() => _callback.connectFailed(this, ex), null);
                         return;
                     }
-                    catch (System.Exception)
+                    catch (System.Exception ex)
                     {
                         //
                         // In case of error getting router identity from RouterFinder use default identity.

@@ -32,9 +32,7 @@ namespace Ice
                 ex.reason = "Logger cannot be null";
                 throw ex;
             }
-
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            instance.setLogger(logger);
+            communicator.setLogger(logger);
         }
 
         /// <summary>
