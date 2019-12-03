@@ -26,43 +26,6 @@ namespace Ice
     public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
 
     /// <summary>
-    /// Value type to allow differenciate between a context that is explicity set to
-    /// empty (empty or null dictionary) and a context that has non been set.
-    /// </summary>
-    public struct OptionalContext
-    {
-        private OptionalContext(Dictionary<string, string> ctx)
-        {
-            _ctx = ctx == null ? _emptyContext : ctx;
-        }
-
-        /// <summary>
-        /// Implicit conversion between Dictionary&lt;string, string&gt; and
-        /// OptionalContext.
-        /// </summary>
-        /// <param name="ctx">Dictionary to convert.</param>
-        /// <returns>OptionalContext value representing the dictionary</returns>
-        public static implicit operator OptionalContext(Dictionary<string, string> ctx)
-        {
-            return new OptionalContext(ctx);
-        }
-
-        /// <summary>
-        /// Implicit conversion between OptionalContext and
-        /// Dictionary&lt;string, string&gt;
-        /// </summary>
-        /// <param name="value">OptionalContext value to convert</param>
-        /// <returns>The Dictionary object.</returns>
-        public static implicit operator Dictionary<string, string>(OptionalContext value)
-        {
-            return value._ctx;
-        }
-
-        private Dictionary<string, string> _ctx;
-        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
-    }
-
-    /// <summary>
     /// Base interface of all object proxies.
     /// </summary>
     public interface IObjectPrx
@@ -92,7 +55,7 @@ namespace Ice
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>True if the target object has the interface specified by id or derives
         /// from the interface specified by id.</returns>
-        public bool IceIsA(string id, OptionalContext context = new OptionalContext())
+        public bool IceIsA(string id, Dictionary<string, string>? context = null)
         {
             try
             {
@@ -113,7 +76,7 @@ namespace Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<bool> IceIsAAsync(string id,
-                                      OptionalContext context = new OptionalContext(),
+                                      Dictionary<string, string>? context = null,
                                       IProgress<bool>? progress = null,
                                       CancellationToken cancel = new CancellationToken())
         {
@@ -121,7 +84,7 @@ namespace Ice
         }
 
         private Task<bool>
-        iceI_ice_isAAsync(string id, OptionalContext context, IProgress<bool>? progress, CancellationToken cancel,
+        iceI_ice_isAAsync(string id, Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel,
                           bool synchronous)
         {
             iceCheckTwowayOnly("ice_isA");
@@ -131,7 +94,7 @@ namespace Ice
         }
 
         private void iceI_ice_isA(string id,
-                                  Dictionary<string, string> context,
+                                  Dictionary<string, string>? context,
                                   OutgoingAsyncCompletionCallback completed,
                                   bool synchronous)
         {
@@ -150,7 +113,7 @@ namespace Ice
         /// Tests whether the target object of this proxy can be reached.
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
-        public void IcePing(OptionalContext context = new OptionalContext())
+        public void IcePing(Dictionary<string, string>? context = null)
         {
             try
             {
@@ -169,7 +132,7 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task IcePingAsync(OptionalContext context = new OptionalContext(),
+        public Task IcePingAsync(Dictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
                                  CancellationToken cancel = new CancellationToken())
         {
@@ -177,15 +140,14 @@ namespace Ice
         }
 
         private Task
-        iceI_IcePingAsync(OptionalContext context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+        iceI_IcePingAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
         {
             var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
             iceI_IcePing(context, completed, synchronous);
             return completed.Task;
         }
 
-        private void iceI_IcePing(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
-                                       bool synchronous)
+        private void iceI_IcePing(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             getOutgoingAsync<object>(completed).invoke("ice_ping",
                                                        OperationMode.Nonmutating,
@@ -200,7 +162,7 @@ namespace Ice
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
-        public string[] IceIds(OptionalContext context = new OptionalContext())
+        public string[] IceIds(Dictionary<string, string>? context = null)
         {
             try
             {
@@ -220,14 +182,15 @@ namespace Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<string[]>
-        IceIdsAsync(OptionalContext context = new OptionalContext(),
+        IceIdsAsync(Dictionary<string, string>? context = null,
                     IProgress<bool>? progress = null,
                     CancellationToken cancel = new CancellationToken())
         {
             return iceI_ice_idsAsync(context, progress, cancel, false);
         }
 
-        private Task<string[]> iceI_ice_idsAsync(OptionalContext context, IProgress<bool>? progress,
+        private Task<string[]> iceI_ice_idsAsync(Dictionary<string, string>? context,
+                                                 IProgress<bool>? progress,
                                                  CancellationToken cancel,
                                                  bool synchronous)
         {
@@ -237,8 +200,7 @@ namespace Ice
             return completed.Task;
         }
 
-        private void iceI_ice_ids(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
-                                  bool synchronous)
+        private void iceI_ice_ids(Dictionary<string, string>? context, OutgoingAsyncCompletionCallback completed, bool synchronous)
         {
             iceCheckAsyncTwowayOnly("ice_ids");
             getOutgoingAsync<string[]>(completed).invoke("ice_ids",
@@ -253,7 +215,7 @@ namespace Ice
         /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
         /// </summary>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(OptionalContext context = new OptionalContext())
+        public string IceId(Dictionary<string, string>? context = null)
         {
             try
             {
@@ -272,15 +234,15 @@ namespace Ice
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
-        public Task<string> IceIdAsync(OptionalContext context = new OptionalContext(),
-                                        IProgress<bool>? progress = null,
-                                        CancellationToken cancel = new CancellationToken())
+        public Task<string> IceIdAsync(Dictionary<string, string>? context = null,
+                                       IProgress<bool>? progress = null,
+                                       CancellationToken cancel = new CancellationToken())
         {
             return iceI_ice_idAsync(context, progress, cancel, false);
         }
 
         private Task<string>
-        iceI_ice_idAsync(OptionalContext context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
+        iceI_ice_idAsync(Dictionary<string, string>? context, IProgress<bool>? progress, CancellationToken cancel, bool synchronous)
         {
             iceCheckTwowayOnly("ice_id");
             var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
@@ -288,7 +250,7 @@ namespace Ice
             return completed.Task;
         }
 
-        private void iceI_ice_id(Dictionary<string, string> context,
+        private void iceI_ice_id(Dictionary<string, string>? context,
                                  OutgoingAsyncCompletionCallback completed,
                                  bool synchronous)
         {
@@ -317,11 +279,19 @@ namespace Ice
         /// </summary>
         /// <returns>The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
         /// is null.</returns>
-        public Dictionary<string, string> Context
+        public Dictionary<string, string>? Context
         {
             get
             {
-                return new Dictionary<string, string>(IceReference.getContext());
+                var context = IceReference.getContext();
+                if (context == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new Dictionary<string, string>(context);
+                }
             }
         }
 
@@ -883,7 +853,7 @@ namespace Ice
         }
 
         public void invoke(string operation, OperationMode mode, byte[] inParams,
-                           Dictionary<string, string> context, bool synchronous)
+                           Dictionary<string, string>? context, bool synchronous)
         {
             try
             {
@@ -1323,7 +1293,7 @@ namespace Ice
                                   OperationMode mode,
                                   byte[] inEncaps,
                                   out byte[] outEncaps,
-                                  OptionalContext context = new OptionalContext())
+                                  Dictionary<string, string>? context = null)
         {
             try
             {
@@ -1352,7 +1322,7 @@ namespace Ice
                     string operation,
                     OperationMode mode,
                     byte[] inEncaps,
-                    OptionalContext context = new OptionalContext(),
+                    Dictionary<string, string>? context = null,
                     IProgress<bool>? progress = null,
                     CancellationToken cancel = new CancellationToken())
         {
@@ -1364,7 +1334,7 @@ namespace Ice
                              string operation,
                              OperationMode mode,
                              byte[] inEncaps,
-                             OptionalContext context,
+                             Dictionary<string, string>? context,
                              IProgress<bool>? progress,
                              CancellationToken cancel,
                              bool synchronous)
@@ -1378,7 +1348,7 @@ namespace Ice
                                      string operation,
                                      OperationMode mode,
                                      byte[] inEncaps,
-                                     Dictionary<string, string> context,
+                                     Dictionary<string, string>? context,
                                      OutgoingAsyncCompletionCallback completed,
                                      bool synchronous)
         {

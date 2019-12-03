@@ -666,7 +666,7 @@ namespace IceInternal
             synchronous_ = false;
         }
 
-        public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
+        public void prepare(string operation, Ice.OperationMode mode, Dictionary<string, string>? context)
         {
             Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.IceReference.getProtocol()));
 
@@ -941,7 +941,7 @@ namespace IceInternal
         public void invoke(string operation,
                            Ice.OperationMode mode,
                            Ice.FormatType format,
-                           Dictionary<string, string> context,
+                           Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream> write)
         {
@@ -1027,7 +1027,7 @@ namespace IceInternal
         public void invoke(string operation,
                            Ice.OperationMode mode,
                            Ice.FormatType format,
-                           Dictionary<string, string> context,
+                           Dictionary<string, string>? context,
                            bool synchronous,
                            System.Action<Ice.OutputStream>? write = null,
                            System.Action<Ice.UserException>? userException = null,
