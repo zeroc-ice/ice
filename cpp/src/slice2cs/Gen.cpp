@@ -2313,15 +2313,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     const bool hasDataMemberInitializers = requiresDataMemberInitializers(dataMembers);
-    if(hasDataMemberInitializers)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "private void _initDM()";
-        _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::Exception);
-        _out << eb;
-    }
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2329,7 +2320,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     if(hasDataMemberInitializers)
     {
-        _out << nl << "_initDM();";
+        writeDataMemberInitializers(dataMembers, ns, DotNet::Exception);
     }
     _out << eb;
 
@@ -2339,7 +2330,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     if(hasDataMemberInitializers)
     {
-        _out << nl << "_initDM();";
+        writeDataMemberInitializers(dataMembers, ns, DotNet::Exception);
     }
     _out << eb;
     _out << sp;
@@ -2356,20 +2347,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     if(!allDataMembers.empty())
     {
-        if(!dataMembers.empty())
-        {
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "private void _initDM" << spar << paramDecl << epar;
-            _out << sb;
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                string memberName = fixId((*q)->name(), DotNet::Exception, false);
-                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
-            }
-            _out << eb;
-        }
-
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << spar << allParamDecl << epar;
@@ -2380,7 +2357,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         if(!dataMembers.empty())
         {
-            _out << nl << "_initDM" << spar << paramNames << epar << ';';
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                string memberName = fixId((*q)->name(), DotNet::Exception, false);
+                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
+            }
         }
         _out << eb;
 
@@ -2400,7 +2381,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         if(!dataMembers.empty())
         {
-            _out << nl << "_initDM" << spar << paramNames << epar << ';';
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                string memberName = fixId((*q)->name(), DotNet::Exception, false);
+                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
+            }
         }
         _out << eb;
     }
