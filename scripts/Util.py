@@ -2248,7 +2248,7 @@ class RemoteProcessController(ProcessController):
                 pass
 
         nRetry = 0
-        while nRetry < 10:
+        while nRetry < 24:
             nRetry += 1
 
             if self.supportsDiscovery():
@@ -2262,7 +2262,7 @@ class RemoteProcessController(ProcessController):
 
             # If the controller isn't up after 30s, we restart it. With the iOS simulator,
             # it's not uncommon to get Springoard crashes when starting the controller.
-            if nRetry == 10:
+            if nRetry == 18:
                 sys.stdout.write("controller application unreachable, restarting... ")
                 sys.stdout.flush()
                 self.restartControllerApp(current, ident)
@@ -2552,7 +2552,14 @@ class iOSSimulatorProcessController(RemoteProcessController):
         # with simctl terminate doesn't always work, it can hang if the controller app died because
         # of the springboard watchdog.
         run("xcrun simctl shutdown \"{0}\"".format(self.device))
-        run("xcrun simctl boot \"{0}\"".format(self.device))
+        nRetry = 0
+        while nRetry < 20:
+            try:
+                run("xcrun simctl boot \"{0}\"".format(self.device))
+                break
+            except Exception:
+                time.sleep(1.0)
+                nRetry += 1
         run("xcrun simctl launch \"{0}\" {1}".format(self.device, ident.name))
 
     def stopControllerApp(self, ident):
