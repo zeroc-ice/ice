@@ -3362,7 +3362,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         _out << "new ";
     }
-    _out << p->name() << "Prx CheckedCast("
+    _out << p->name() << "Prx? CheckedCast("
          << getUnqualified("Ice.IObjectPrx", ns) << " prx, "
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
     _out << sb;
