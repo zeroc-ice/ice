@@ -965,16 +965,6 @@ namespace Ice
         public RequestHandler? RequestHandler { get; set; }
         public LinkedList<IObjectPrx.StreamCacheEntry>? StreamCache { get; set; }
 
-        public ObjectPrx(IObjectPrx other)
-        {
-            lock (other)
-            {
-                var h = (ObjectPrx)other;
-                IceReference = h.IceReference;
-                RequestHandler = h.RequestHandler;
-            }
-        }
-
         public virtual IObjectPrx Clone(Reference reference)
         {
             return new ObjectPrx(reference);

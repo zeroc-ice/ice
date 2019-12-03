@@ -3385,11 +3385,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << p->name() << "Prx";
     _out << sb;
 
-    _out << nl << "public _" << p->name() << "Prx(" << getUnqualified("Ice.IObjectPrx", ns) << " other) : "
-         << "base(other)";
-    _out << sb;
-    _out << eb;
-
     _out << nl << "public _" << p->name() << "Prx("
          << "global::System.Runtime.Serialization.SerializationInfo info, "
          << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
