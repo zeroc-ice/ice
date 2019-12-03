@@ -2419,51 +2419,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;
 
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override int GetHashCode()";
-    _out << sb;
-    if(p->base())
-    {
-        _out << nl << "int h_ = base.GetHashCode();";
-    }
-    else
-    {
-        _out << nl << "int h_ = 5381;";
-    }
-    _out << nl << "global::IceInternal.HashUtil.hashAdd(ref h_, \"" << p->scoped() << "\");";
-    writeMemberHashCode(dataMembers, DotNet::Exception);
-    _out << nl << "return h_;";
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public override bool Equals(object other)";
-    _out << sb;
-    _out << nl << "if(other == null)";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << "if(object.ReferenceEquals(this, other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << name << " o = other as " << name << ";";
-    _out << nl << "if(o == null)";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    if(p->base())
-    {
-        _out << nl << "if(!base.Equals(other))";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-    }
-    writeMemberEquals(dataMembers, DotNet::Exception);
-    _out << nl << "return true;";
-    _out << eb;
-
     if(!dataMembers.empty())
     {
         _out << sp;
@@ -2479,20 +2434,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sp << nl << "base.GetObjectData(info, context);";
         _out << eb;
     }
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator==(" << name << " lhs, " << name << " rhs)";
-    _out << sb;
-    _out << nl << "return Equals(lhs, rhs);";
-    _out << eb;
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static bool operator!=(" << name << " lhs, " << name << " rhs)";
-    _out << sb;
-    _out << nl << "return !Equals(lhs, rhs);";
-    _out << eb;
 
     string scoped = p->scoped();
     ExceptionPtr base = p->base();
