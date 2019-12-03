@@ -6,7 +6,8 @@ package com.zeroc.Ice;
 
 import java.io.IOException;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.zeroc.IceInternal.Buffer;
 import com.zeroc.IceInternal.Instance;
 import com.zeroc.IceInternal.Protocol;

@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * The user-level interface to a connection.

@@ -15,7 +15,7 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Determines the retry behavior an invocation in case of a (potentially) recoverable error.

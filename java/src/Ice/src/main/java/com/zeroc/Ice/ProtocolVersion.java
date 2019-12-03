@@ -15,7 +15,7 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A version structure for the protocol version.

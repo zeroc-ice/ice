@@ -4,7 +4,7 @@
 
 package com.zeroc.IceInternal;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 class ConnectionACMMonitor implements ACMMonitor
 {

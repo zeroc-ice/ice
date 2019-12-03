@@ -4,7 +4,7 @@
 
 package com.zeroc.Ice;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.*;
 
 /**
  * Interface to marshal (write) Slice types into sequence of bytes encoded using the

@@ -6,6 +6,8 @@ package com.zeroc.Ice;
 
 import java.util.concurrent.Callable;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.zeroc.IceInternal.AsyncStatus;
 import com.zeroc.IceInternal.Buffer;
 import com.zeroc.IceInternal.Incoming;
@@ -14,7 +16,6 @@ import com.zeroc.IceInternal.Protocol;
 import com.zeroc.IceInternal.SocketOperation;
 import com.zeroc.IceInternal.Time;
 import com.zeroc.IceInternal.TraceUtil;
-import com.zeroc.Ice.Annotations.*;
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 
 public final class ConnectionI extends com.zeroc.IceInternal.EventHandler

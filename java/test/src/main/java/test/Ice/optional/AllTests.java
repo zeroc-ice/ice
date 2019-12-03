@@ -6,7 +6,8 @@ package test.Ice.optional;
 
 import java.io.PrintWriter;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OperationMode;
 import com.zeroc.Ice.OptionalFormat;
@@ -67,7 +68,7 @@ public class AllTests
         mo1.setB(true);
         mo1.setC((short)19);
         mo1.setD(78);
-        mo1.setE(99);
+        mo1.setE(99L);
         mo1.setF(5.5f);
         mo1.setG(1.0);
         mo1.setH("test");
@@ -344,9 +345,9 @@ public class AllTests
         {
             OptionalWithCustom owc1 = new OptionalWithCustom();
             java.util.ArrayList<SmallStruct> l = new java.util.ArrayList<>();
-            l.add(new SmallStruct(5));
-            l.add(new SmallStruct(6));
-            l.add(new SmallStruct(7));
+            l.add(new SmallStruct((byte)5));
+            l.add(new SmallStruct((byte)6));
+            l.add(new SmallStruct((byte)7));
             owc1.setL(l);
             owc1.setS(new ClassVarStruct(5));
             OptionalWithCustom owc2 = (OptionalWithCustom)initial.pingPong(owc1);
@@ -393,7 +394,7 @@ public class AllTests
         //
         // Use the 1.0 encoding with operations whose only class parameters are optional.
         //
-        OneOptional oo = new OneOptional(53);
+        @Nullable OneOptional oo = new OneOptional(53);
         initial.sendOptionalClass(true, oo);
         InitialPrx initial2 = initial.ice_encodingVersion(com.zeroc.Ice.Util.Encoding_1_0);
         initial2.sendOptionalClass(true, oo);
@@ -634,7 +635,7 @@ public class AllTests
             Initial.OpByteResult r = initial.opByte(p1);
             test(r.returnValue == null && r.p3 == null);
 
-            p1 = 56;
+            p1 = (byte)56;
             r = initial.opByte(p1);
             test(r.returnValue == 56 && r.p3 == 56);
             r = initial.opByteAsync(p1).join();
@@ -782,7 +783,7 @@ public class AllTests
             Initial.OpLongResult r = initial.opLong(p1);
             test(r.returnValue == null && r.p3 == null);
 
-            p1 = 56;
+            p1 = 56L;
             r = initial.opLong(p1);
             test(r.returnValue == 56 && r.p3 == 56);
             r = initial.opLongAsync(p1).join();
@@ -819,7 +820,7 @@ public class AllTests
             Initial.OpFloatResult r = initial.opFloat(p1);
             test(r.returnValue == null && r.p3 == null);
 
-            p1 = 1.0;
+            p1 = 1.0f;
             r = initial.opFloat(p1);
             test(r.returnValue == 1.0 && r.p3 == 1.0);
             r = initial.opFloatAsync(p1).join();
@@ -969,7 +970,7 @@ public class AllTests
             Initial.OpSmallStructResult r = initial.opSmallStruct(p1);
             test(r.returnValue == null && r.p3 == null);
 
-            p1 = new SmallStruct(56);
+            p1 = new SmallStruct((byte)56);
             r = initial.opSmallStruct(p1);
             test(r.returnValue.m == 56 && r.p3.m == 56);
             r = initial.opSmallStruct(new SmallStruct());
@@ -1187,7 +1188,7 @@ public class AllTests
             test(r.returnValue == null && r.p3 == null);
 
             p1 = new byte[100];
-            java.util.Arrays.fill(p1, 56);
+            java.util.Arrays.fill(p1, (byte)56);
             r = initial.opByteSeq(p1);
             test(java.util.Arrays.equals(r.returnValue, p1) && java.util.Arrays.equals(r.p3, p1));
             r = initial.opByteSeqAsync(p1).join();
@@ -1262,7 +1263,7 @@ public class AllTests
             test(r.returnValue == null && r.p3 == null);
 
             p1 = new short[100];
-            java.util.Arrays.fill(p1, 56);
+            java.util.Arrays.fill(p1, (short)56);
             r = initial.opShortSeq(p1);
             test(java.util.Arrays.equals(r.returnValue, p1) && java.util.Arrays.equals(r.p3, p1));
             r = initial.opShortSeqAsync(p1).join();
@@ -1379,7 +1380,7 @@ public class AllTests
             test(r.returnValue == null && r.p3 == null);
 
             p1 = new float[100];
-            java.util.Arrays.fill(p1, 1.0);
+            java.util.Arrays.fill(p1, 1.0f);
             r = initial.opFloatSeq(p1);
             test(java.util.Arrays.equals(r.returnValue, p1) && java.util.Arrays.equals(r.p3, p1));
             r = initial.opFloatSeqAsync(p1).join();

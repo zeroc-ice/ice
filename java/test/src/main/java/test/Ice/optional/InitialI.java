@@ -4,7 +4,8 @@
 
 package test.Ice.optional;
 
-import com.zeroc.Ice.Annotations.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.zeroc.Ice.Current;
 
 import test.Ice.optional.Test.*;
