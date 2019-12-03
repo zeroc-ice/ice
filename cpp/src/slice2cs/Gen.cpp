@@ -3381,18 +3381,18 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     _out << sp;
     _out << nl << "[global::System.Serializable]";
-    _out << nl << "public class _" << p->name() << "Prx : " << getUnqualified("Ice.ObjectPrx", ns) << ", "
+    _out << nl << "internal sealed class _" << p->name() << "Prx : " << getUnqualified("Ice.ObjectPrx", ns) << ", "
          << p->name() << "Prx";
     _out << sb;
 
-    _out << nl << "public _" << p->name() << "Prx("
+    _out << nl << "internal _" << p->name() << "Prx("
          << "global::System.Runtime.Serialization.SerializationInfo info, "
          << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
     _out << sb;
     _out << eb;
 
     _out << sp;
-    _out << nl << "public _" << p->name() << "Prx("
+    _out << nl << "internal _" << p->name() << "Prx("
          << "IceInternal.Reference reference, "
          << "IceInternal.RequestHandler? requestHandler = null) : base(reference, requestHandler)";
     _out << sb;
