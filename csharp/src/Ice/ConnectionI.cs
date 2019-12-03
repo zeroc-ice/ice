@@ -809,7 +809,7 @@ namespace Ice
             return _connector; // No mutex protection necessary, _endpoint is immutable.
         }
 
-        public void setAdapter(ObjectAdapter adapter)
+        public void setAdapter(ObjectAdapter? adapter)
         {
             if (adapter != null)
             {
@@ -1622,13 +1622,12 @@ namespace Ice
             return _threadPool;
         }
 
-        static ConnectionI()
-        {
-            _compressionSupported = BZip2.supported();
-        }
-
-        internal ConnectionI(Communicator communicator, ACMMonitor monitor, Transceiver transceiver,
-                             Connector connector, EndpointI endpoint, ObjectAdapter adapter)
+        internal ConnectionI(Communicator communicator,
+                             ACMMonitor? monitor,
+                             Transceiver transceiver,
+                             Connector? connector,
+                             EndpointI endpoint,
+                             ObjectAdapter? adapter)
         {
             _communicator = communicator;
             _monitor = monitor;
@@ -2963,15 +2962,15 @@ namespace Ice
         }
 
         private Communicator _communicator;
-        private ACMMonitor _monitor;
+        private ACMMonitor? _monitor;
         private Transceiver _transceiver;
         private string _desc;
         private string _type;
-        private Connector _connector;
+        private Connector? _connector;
         private EndpointI _endpoint;
 
-        private ObjectAdapter _adapter;
-        private ServantManager _servantManager;
+        private ObjectAdapter? _adapter;
+        private ServantManager? _servantManager;
 
         private Logger _logger;
         private TraceLevels _traceLevels;
@@ -2983,7 +2982,7 @@ namespace Ice
         private TimerTask _readTimeout;
         private bool _readTimeoutScheduled;
 
-        private StartCallback _startCallback = null;
+        private StartCallback? _startCallback = null;
 
         private bool _warn;
         private bool _warnUdp;
@@ -2996,7 +2995,7 @@ namespace Ice
 
         private Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
 
-        private LocalException _exception;
+        private LocalException? _exception;
 
         private readonly int _messageSizeMax;
 
@@ -3007,7 +3006,7 @@ namespace Ice
         private OutputStream _writeStream;
 
         private CommunicatorObserver _communicatorObserver;
-        private ConnectionObserver _observer;
+        private ConnectionObserver? _observer;
         private int _readStreamPos;
         private int _writeStreamPos;
 
@@ -3018,10 +3017,10 @@ namespace Ice
         private bool _initialized = false;
         private bool _validated = false;
 
-        private Incoming _incomingCache;
+        private Incoming? _incomingCache;
         private object _incomingCacheMutex = new object();
 
-        private static bool _compressionSupported;
+        private static bool _compressionSupported = BZip2.supported();
 
         private bool _cacheBuffers;
 

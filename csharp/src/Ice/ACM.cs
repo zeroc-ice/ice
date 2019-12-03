@@ -215,7 +215,7 @@ namespace IceInternal
             return acm;
         }
 
-        internal List<Ice.ConnectionI> swapReapedConnections()
+        internal List<Ice.ConnectionI>? swapReapedConnections()
         {
             lock (this)
             {
@@ -378,6 +378,6 @@ namespace IceInternal
         private readonly Timer _timer;
         private readonly ACMConfig _config;
 
-        private Ice.ConnectionI _connection;
+        private Ice.ConnectionI? _connection;
     }
 }
