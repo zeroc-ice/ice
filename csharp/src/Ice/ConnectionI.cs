@@ -1867,7 +1867,6 @@ namespace Ice
                         {
                             Debug.Assert(_state == StateClosed);
                             _transceiver.destroy();
-                            _communicator = null;
                             break;
                         }
                 }
