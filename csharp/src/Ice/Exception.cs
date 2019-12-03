@@ -54,17 +54,8 @@ namespace Ice
     /// Base class for Ice exceptions.
     /// </summary>
     [Serializable]
-    public abstract class Exception : System.Exception, ICloneable
+    public abstract class Exception : System.Exception
     {
-        /// <summary>
-        /// Creates and returns a copy of this exception.
-        /// </summary>
-        /// <returns>A copy of this exception.</returns>
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-
         /// <summary>
         /// Creates a default-initialized exception.
         /// </summary>
