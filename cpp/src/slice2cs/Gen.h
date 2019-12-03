@@ -156,19 +156,6 @@ private:
         void writeMemberEquals(const DataMemberList&, unsigned int);
     };
 
-    class AsyncDelegateVisitor : public CsVisitor
-    {
-    public:
-
-        AsyncDelegateVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
-    };
-
     class ResultVisitor : public CsVisitor
     {
     public:

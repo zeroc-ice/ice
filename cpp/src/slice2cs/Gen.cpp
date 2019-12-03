@@ -1821,13 +1821,6 @@ Slice::Gen::generate(const UnitPtr& p)
     TypeIdVisitor typeIdVisitor(_out);
     p->visit(&typeIdVisitor, false);
 
-    //
-    // The async delegates are emitted before the proxy definition
-    // because the proxy methods need to know the type.
-    //
-    AsyncDelegateVisitor asyncDelegateVisitor(_out);
-    p->visit(&asyncDelegateVisitor, false);
-
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor, false);
 
@@ -3731,62 +3724,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     _out << ");";
     _out.dec();
     _out << eb;
-}
-
-Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out)
-    : CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::AsyncDelegateVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(p->hasOperations())
-    {
-        moduleStart(p);
-        _out << sp << nl << "namespace " << fixId(p->name());
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::AsyncDelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    return p->hasOperations();
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
-void
-Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
-{
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-
-    string ns = getNamespace(cl);
-    vector<string> paramDeclAMI = getOutParams(p, ns, false, false);
-    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
-    string delName = "Callback_" + cl->name() + "_" + p->name();
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public delegate void " << delName << spar;
-    if(p->returnType())
-    {
-        _out << retS + " ret";
-    }
-    _out << paramDeclAMI << epar << ';';
 }
 
 Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
