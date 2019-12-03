@@ -2643,7 +2643,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     emitGeneratedCodeAttribute();
-    _out << nl << "public override bool Equals(object other)";
+    _out << nl << "public override bool Equals(object? other)";
     _out << sb;
     if(isClass)
     {
