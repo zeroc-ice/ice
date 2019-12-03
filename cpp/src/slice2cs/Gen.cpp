@@ -3359,19 +3359,16 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
          << getUnqualified("Ice.IObjectPrx", ns) << " prx, "
          << "global::System.Collections.Generic.Dictionary<string, string>? context = null)";
     _out << sb;
-    _out << nl << "var r = prx as " << p->name() << "Prx;";
-    _out << nl << "try";
-    _out << sb;
 
-    _out << nl << "if(r == null && prx.IceIsA(\"" << p->scoped() << "\", context))";
+    _out << nl << "if(prx.IceIsA(\"" << p->scoped() << "\", context))";
     _out << sb;
-    _out << nl << "r = new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
+    _out << nl << "return new _" << p->name() << "Prx(prx.IceReference, prx.RequestHandler);";
     _out << eb;
-    _out << eb;
-    _out << nl << "catch (" << getUnqualified("Ice.FacetNotExistException", ns) << ")";
+    _out << nl << "else";
     _out << sb;
+    _out << nl << "return null;";
     _out << eb;
-    _out << nl << "return r;";
+
     _out << eb;
 
     _out << eb;
