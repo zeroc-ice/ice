@@ -582,7 +582,7 @@ Parser::parse(FILE* file, bool debug)
     parser = this;
 
     _errors = 0;
-    _commands.empty();
+    _commands.clear();
     yyin = file;
     assert(yyin);
 
