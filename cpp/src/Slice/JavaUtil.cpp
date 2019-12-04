@@ -716,11 +716,6 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             print(package.c_str());
             print(";");
         }
-
-        separator();
-        print("import org.checkerframework.checker.nullness.qual.Nullable;");// TODOTODO check if we should check the location of this! Also only add this when actually necessary
-        separator();
-        print("import org.checkerframework.checker.nullness.qual.MonotonicNonNull;");// TODOTODO check if we should check the location of this! Also only add this when actually necessary
     }
     else
     {
@@ -881,10 +876,12 @@ Slice::JavaGenerator::convertScopedName(const string& scoped, const string& pref
 string
 Slice::JavaGenerator::addAnnotation(const string& str, const string& annotation) const
 {
-    auto index = str.find_last_of('.');
+    // Find the last scope delimeter in the type (ignoring generic type parameters).
+    auto genericsStartIndex = str.find_first_of('<');
+    auto index = str.find_last_of('.', genericsStartIndex);
     if(index == string::npos)
     {
-        return str;
+        return annotation + " " + str;
     }
     else
     {

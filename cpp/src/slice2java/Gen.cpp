@@ -2151,6 +2151,61 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     //
+    // Check for annotated types to import the corresponding annotations.
+    //
+    bool hasOptionals = false;
+    bool hasRequiredDataMembers = false;
+    for(const auto& d : p->allDataMembers())
+    {
+        if(d->optional())
+        {
+            hasOptionals = true;
+            if(hasRequiredDataMembers)
+            {
+                break;
+            }
+        }
+        else
+        {
+            hasRequiredDataMembers = true;
+            if(hasOptionals)
+            {
+                break;
+            }
+        }
+    }
+    for(const auto& op : p->allOperations())
+    {
+        if(op->sendsOptionals() || op->returnIsOptional())
+        {
+            hasOptionals = true;
+            break;
+        }
+
+        for(const auto& q : op->outParameters())
+        {
+            if(q->optional())
+            {
+                hasOptionals = true;
+                break;
+            }
+        }
+    }
+
+    if(hasOptionals || hasRequiredDataMembers)
+    {
+        out << sp;
+        if(hasRequiredDataMembers)
+        {
+            out << nl << "import org.checkerframework.checker.nullness.qual.MonotonicNonNull;";
+        }
+        if(hasOptionals)
+        {
+            out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+        }
+    }
+
+    //
     // Check for java:implements metadata.
     //
     const StringList metaData = p->getMetaData();
@@ -2525,6 +2580,44 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
+
+    //
+    // Check for annotated types to import the corresponding annotations.
+    //
+    bool hasOptionalDataMembers = false;
+    bool hasRequiredDataMembers = false;
+    for(const auto& d : p->allDataMembers())
+    {
+        if(d->optional())
+        {
+            hasOptionalDataMembers = true;
+            if(hasRequiredDataMembers)
+            {
+                break;
+            }
+        }
+        else
+        {
+            hasRequiredDataMembers = true;
+            if(hasOptionalDataMembers)
+            {
+                break;
+            }
+        }
+    }
+
+    if(hasOptionalDataMembers || hasRequiredDataMembers)
+    {
+        out << sp;
+        if(hasRequiredDataMembers)
+        {
+            out << nl << "import org.checkerframework.checker.nullness.qual.MonotonicNonNull;";
+        }
+        if(hasOptionalDataMembers)
+        {
+            out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+        }
+    }
 
     out << sp;
 
@@ -3292,7 +3385,10 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const bool classType = isValue(type);
 
     const string typeS = typeToString(type, TypeModeMember, getPackage(contained), metaData);
-    const string typeN = typeToAnnotatedString(type, TypeModeMember, getPackage(contained), metaData, optional);
+    // Optional data members are only allowed in classes and exceptions.
+    const string typeN = (cls || ex) ?
+                             typeToAnnotatedString(type, TypeModeMember, getPackage(contained), metaData, optional)
+                             : typeToString(type, TypeModeMember, getPackage(contained), metaData);
 
     Output& out = output();
 
@@ -3851,6 +3947,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     open(helper, p->file());
     Output& out = output();
 
+    out << sp;
+    out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+
     int iter;
 
     out << sp;
@@ -3984,10 +4083,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     open(helper, p->file());
     Output& out = output();
 
+    out << sp;
+    out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+
     int iter;
 
+    out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
-    out << sp << nl << "public final class " << name << "Helper";
+    out << nl << "public final class " << name << "Helper";
     out << sb;
 
     out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr, "
