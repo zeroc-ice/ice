@@ -65,10 +65,10 @@ subprojects {
     }
 
     checkerFramework {
-        checkers = ["org.checkerframework.checker.nullness.NullnessChecker"]
+        //checkers = ["org.checkerframework.checker.nullness.NullnessChecker"]
         // Workaround for https://github.com/typetools/checker-framework/issues/2878
         // TODO remove this when we switch targets to JDK11.
-        extraJavacArgs = ["-Aignorejdkastub"]
+        //extraJavacArgs = ["-Aignorejdkastub"]
     }
 
     dependencies {
