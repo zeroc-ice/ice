@@ -3628,7 +3628,7 @@ void
 Slice::ClassDef::destroy()
 {
     _declaration = 0;
-    _bases.empty();
+    _bases.clear();
     Container::destroy();
 }
 
