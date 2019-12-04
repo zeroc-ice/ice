@@ -3062,6 +3062,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
+    out << sp;
+    out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+
     //
     // Check for java:implements metadata.
     //
@@ -3661,7 +3664,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     Output& out = output();
 
     out << sp;
+    out << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
 
+    out << sp;
     CommentPtr dc = p->parseComment(false);
     writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
@@ -4189,6 +4194,27 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
+
+    //
+    // Check for optional parameters and import the necessary annotations if they're present.
+    //
+    for(const auto& op : ops)
+    {
+        if(op->sendsOptionals() || op->returnIsOptional())
+        {
+            out << sp << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+            break;
+        }
+
+        for(const auto& q : op->outParameters())
+        {
+            if(q->optional())
+            {
+                out << sp << nl << "import org.checkerframework.checker.nullness.qual.Nullable;";
+                break;
+            }
+        }
+    }
 
     //
     // For proxy purposes, we can ignore a base class if it has no operations.
