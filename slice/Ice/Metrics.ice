@@ -31,7 +31,7 @@ module IceMX
 
 /**
  *
- * A dictionnary of strings to integers.
+ * A dictionary of strings to integers.
  *
  **/
 dictionary<string, int> StringIntDict;
