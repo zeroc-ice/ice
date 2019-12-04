@@ -24,8 +24,6 @@ public:
     RouterI(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>, const std::string&,
             std::shared_ptr<SessionPrx>, const Ice::Identity&, std::shared_ptr<FilterManager>, const Ice::Context&);
 
-    ~RouterI() override;
-
     void destroy(std::function<void(std::exception_ptr)>);
 
     std::shared_ptr<Ice::ObjectPrx> getClientProxy(Ice::optional<bool>&, const Ice::Current&) const override;

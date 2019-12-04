@@ -12,8 +12,8 @@ using namespace Glacier2;
 
 Glacier2::Request::Request(shared_ptr<ObjectPrx> proxy, const std::pair<const Byte*, const Byte*>& inParams,
                  const Current& current, bool forwardContext, const Ice::Context& sslContext,
-                 function<void(bool, const pair<const Byte*, const Byte*>&)>&& response,
-                 function<void(exception_ptr)>&& exception) :
+                 function<void(bool, pair<const Byte*, const Byte*>)> response,
+                 function<void(exception_ptr)> exception) :
     _proxy(move(proxy)),
     _inParams(inParams.first, inParams.second),
     _current(current),
@@ -30,18 +30,18 @@ Glacier2::Request::Request(shared_ptr<ObjectPrx> proxy, const std::pair<const By
 }
 
 void
-Glacier2::Request::invoke(function<void(bool, const pair<const Byte*, const Byte*>&)>&& response,
+Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&& response,
                           function<void(exception_ptr)>&& exception,
                           std::function<void(bool)>&& sent)
 {
     pair<const Byte*, const Byte*> inPair;
     if(_inParams.size() == 0)
     {
-        inPair.first = inPair.second = 0;
+        inPair.first = inPair.second = nullptr;
     }
     else
     {
-        inPair.first = &_inParams[0];
+        inPair.first = _inParams.data();
         inPair.second = inPair.first + _inParams.size();
     }
 

@@ -17,7 +17,6 @@ class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_
 public:
 
     Blobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>, const Ice::Context&);
-    virtual ~Blobject() override;
 
     void destroy();
 
@@ -28,9 +27,10 @@ public:
 protected:
 
     void invoke(std::shared_ptr<Ice::ObjectPrx>&,
+                const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                 std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
                 std::function<void(std::exception_ptr)>,
-                const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
+                const Ice::Current&);
 
     const std::shared_ptr<Instance> _instance;
     const std::shared_ptr<Ice::Connection> _reverseConnection;

@@ -63,10 +63,6 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
     }
 }
 
-Glacier2::RouterI::~RouterI()
-{
-}
-
 void
 Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
 {

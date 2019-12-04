@@ -5,7 +5,6 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Ice/UniqueRef.h>
 
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -37,102 +36,16 @@ using namespace Glacier2;
 namespace
 {
 
-#if defined(__FreeBSD__) && !defined(__GLIBC__)
-
-//
-// FreeBSD crypt is no reentrat we use this global mutex
-// to serialize access.
-//
-IceUtil::Mutex* _staticMutex = 0;
-
-class Init
+#if defined(__APPLE__)
+template <typename T>
+struct CFTypeRefDeleter
 {
-public:
-
-    Init()
+    using pointer = T; // This is used by std::unique_ptr to determine the type
+    void operator()(T ref)
     {
-        _staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete _staticMutex;
-        _staticMutex = 0;
+        CFRelease(ref);
     }
 };
-
-Init init;
-
-#elif defined(__APPLE__)
-
-// UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
-
-template<typename R>
-class UniqueRef
-{
-public:
-
-    explicit UniqueRef(R ref = 0) :
-        _ref(ref)
-    {
-    }
-
-    ~UniqueRef()
-    {
-        if(_ref != 0)
-        {
-            CFRelease(_ref);
-        }
-    }
-
-    R release()
-    {
-        R r = _ref;
-        _ref = 0;
-        return r;
-    }
-
-    void reset(R ref = 0)
-    {
-        assert(ref == 0 || ref != _ref);
-
-        if(_ref != 0)
-        {
-            CFRelease(_ref);
-        }
-        _ref = ref;
-    }
-
-    R& get()
-    {
-        return _ref;
-    }
-
-    R get() const
-    {
-        return _ref;
-    }
-
-    operator bool() const
-    {
-        return _ref != 0;
-    }
-
-    void swap(UniqueRef& a)
-    {
-        R tmp = a._ref;
-        a._ref = _ref;
-        _ref = tmp;
-    }
-
-private:
-
-    UniqueRef(UniqueRef&);
-    UniqueRef& operator=(UniqueRef&);
-
-    R _ref;
-};
-
 #endif
 
 class CryptPermissionsVerifierI final : public PermissionsVerifier
@@ -269,7 +182,7 @@ CryptPermissionsVerifierI::checkPermissions(string userId, string password, stri
     data.initialized = 0;
     return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
 #   else
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
+    lock_guard<mutex> lg(_cryptMutex);
     return p->second == crypt(password.c_str(), salt.c_str());
 #   endif
 #elif defined(__APPLE__) || defined(_WIN32)
@@ -390,27 +303,31 @@ CryptPermissionsVerifierI::checkPermissions(string userId, string password, stri
     std::replace(checksum.begin(), checksum.end(), '.', '+');
     checksum += paddingBytes(checksum.size());
 #   if defined(__APPLE__)
-    UniqueRef<CFErrorRef> error;
-    UniqueRef<SecTransformRef> decoder(SecDecodeTransformCreate(kSecBase64Encoding, &error.get()));
+    CFErrorRef error = nullptr;
+    unique_ptr<SecTransformRef, CFTypeRefDeleter<SecTransformRef>> decoder(SecDecodeTransformCreate(kSecBase64Encoding, &error));
+
     if(error)
     {
+        CFRelease(error);
         return false;
     }
 
-    UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+    unique_ptr<CFDataRef, CFTypeRefDeleter<CFDataRef>> data(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                                           reinterpret_cast<const uint8_t*>(salt.c_str()),
                                                           static_cast<CFIndex>(salt.size()),
                                                           kCFAllocatorNull));
 
-    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error.get());
+    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
     if(error)
     {
+        CFRelease(error);
         return false;
     }
 
-    UniqueRef<CFDataRef> saltBuffer(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &error.get())));
+    unique_ptr<CFDataRef, CFTypeRefDeleter<CFDataRef>> saltBuffer(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &error)));
     if(error)
     {
+        CFRelease(error);
         return false;
     }
 
@@ -422,31 +339,34 @@ CryptPermissionsVerifierI::checkPermissions(string userId, string password, stri
                                            static_cast<size_t>(CFDataGetLength(saltBuffer.get())),
                                            algorithmId,
                                            static_cast<unsigned int>(rounds),
-                                           &checksumBuffer1[0],
+                                           checksumBuffer1.data(),
                                            checksumLength);
     if(status != errSecSuccess)
     {
         return false;
     }
 
-    decoder.reset(SecDecodeTransformCreate(kSecBase64Encoding, &error.get()));
+    decoder.reset(SecDecodeTransformCreate(kSecBase64Encoding, &error));
     if(error)
     {
+        CFRelease(error);
         return false;
     }
     data.reset(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                            reinterpret_cast<const uint8_t*>(checksum.c_str()),
                                            static_cast<CFIndex>(checksum.size()),
                                            kCFAllocatorNull));
-    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error.get());
+    SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
     if(error)
     {
+        CFRelease(error);
         return false;
     }
 
-    data.reset(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &error.get())));
+    data.reset(static_cast<CFDataRef>(SecTransformExecute(decoder.get(), &error)));
     if(error)
     {
+        CFRelease(error);
         return false;
     }
 
@@ -504,7 +424,7 @@ CryptPermissionsVerifierI::checkPermissions(string userId, string password, stri
     }
     string salt = p->second.substr(0, 2);
 
-    IceUtil::Mutex::Lock lock(_cryptMutex);
+    lock_guard<mutex> lg(_cryptMutex);
     return p->second == crypt(password.c_str(), salt.c_str());
 
 #endif

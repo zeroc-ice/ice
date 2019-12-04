@@ -20,7 +20,6 @@ public:
 
     ClientBlobject(std::shared_ptr<Instance>, std::shared_ptr<FilterManager>, const Ice::Context&,
                    std::shared_ptr<RoutingTable>);
-    ~ClientBlobject() override;
 
     void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
                          std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,

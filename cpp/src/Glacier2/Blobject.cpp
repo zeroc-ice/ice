@@ -26,7 +26,7 @@ const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, shared_ptr<Connection> reverseConnection,
                              const Context& context) :
     _instance(move(instance)),
-    _reverseConnection(reverseConnection),
+    _reverseConnection(move(reverseConnection)),
     _forwardContext(_reverseConnection ?
                     _instance->properties()->getPropertyAsInt(serverForwardContext) > 0 :
                     _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
@@ -45,10 +45,6 @@ Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, shared_ptr<Connectio
                                                                                          _instance,
                                                                                          _reverseConnection);
     }
-}
-
-Glacier2::Blobject::~Blobject()
-{
 }
 
 void
@@ -71,9 +67,10 @@ Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::S
 
 void
 Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
+                           const std::pair<const Byte*, const Byte*>& inParams,
                            function<void(bool, const pair<const Byte*, const Byte*>&)> response,
                            function<void(exception_ptr)> exception,
-                           const std::pair<const Byte*, const Byte*>& inParams, const Current& current)
+                           const Current& current)
 {
     //
     // Set the correct facet on the proxy.
@@ -210,7 +207,7 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
         try
         {
             override = _requestQueue->addRequest(make_shared<Request>(proxy, inParams, current, _forwardContext,
-                                                                      _context, move(response), move(exception)));
+                                                                      _context, move(response), exception));
         }
         catch(const ObjectNotExistException&)
         {
@@ -255,11 +252,11 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
 
         try
         {
-            function<void(bool, const pair<const Byte*, const Byte*>&)> amiResponse = nullptr;
+            function<void(bool, pair<const Byte*, const Byte*>)> amiResponse = nullptr;
             function<void(bool)> amiSent = nullptr;
 
             function<void(exception_ptr)> amiException = [self = shared_from_this(),
-                                                          amdException = move(exception)](exception_ptr ex)
+                                                          amdException = exception](exception_ptr ex)
                 {
                     //
                     // If the connection has been lost, destroy the session.

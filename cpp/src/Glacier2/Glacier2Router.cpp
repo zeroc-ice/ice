@@ -8,7 +8,6 @@
 #include <Ice/Service.h>
 #include <Glacier2/Instance.h>
 #include <Glacier2/RouterI.h>
-#include <Glacier2/ServantLocator.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/NullPermissionsVerifier.h>
@@ -19,6 +18,66 @@ using namespace Glacier2;
 using namespace IceInternal;
 namespace
 {
+
+class ClientLocator final : public ServantLocator
+{
+public:
+
+    ClientLocator(shared_ptr<SessionRouterI> sessionRouter) :
+        _sessionRouter(move(sessionRouter))
+    {
+    }
+
+    shared_ptr<Object>
+    locate(const Current& current, shared_ptr<void>&) override
+    {
+        return _sessionRouter->getClientBlobject(current.con, current.id);
+    }
+
+    void
+    finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) override
+    {
+    }
+
+    void
+    deactivate(const string&) override
+    {
+    }
+
+private:
+
+    const shared_ptr<SessionRouterI> _sessionRouter;
+};
+
+class ServerLocator final : public ServantLocator
+{
+public:
+
+    ServerLocator(shared_ptr<SessionRouterI> sessionRouter) :
+        _sessionRouter(move(sessionRouter))
+    {
+    }
+
+    shared_ptr<Object>
+    locate(const Current& current, shared_ptr<void>&) override
+    {
+        return _sessionRouter->getServerBlobject(current.id.category);
+    }
+
+    void
+    finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) override
+    {
+    }
+
+    void
+    deactivate(const string&) override
+    {
+    }
+
+private:
+
+    const std::shared_ptr<SessionRouterI> _sessionRouter;
+};
 
 class RouterService : public Service
 {
@@ -336,11 +395,6 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
-    // Create the session router. The session router registers itself
-    // and all required servant locators, so no registration has to be
-    // done here.
-    //
     _sessionRouter = make_shared<SessionRouterI>(_instance, move(verifier), move(sessionManager), move(sslVerifier),
                                                  move(sslSessionManager));
 
@@ -373,7 +427,7 @@ RouterService::start(int argc, char* argv[], int& status)
     _instance->setSessionRouter(_sessionRouter);
 
     //
-    // Th session router is used directly as servant for the main
+    // The session router is used directly as a servant for the main
     // Glacier2 router Ice object.
     //
     auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(clientAdapter->add(_sessionRouter, {"router", instanceName}));

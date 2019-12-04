@@ -872,7 +872,7 @@ SessionRouterI::updateSessionObservers()
 {
     lock_guard<mutex> lg(_mutex);
 
-    auto& observer = _instance->getObserver();
+    const auto& observer = _instance->getObserver();
     assert(observer);
 
     for(auto& router : _routersByConnection)

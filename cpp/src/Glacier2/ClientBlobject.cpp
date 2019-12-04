@@ -23,10 +23,6 @@ Glacier2::ClientBlobject::ClientBlobject(shared_ptr<Instance>instance,
 {
 }
 
-Glacier2::ClientBlobject::~ClientBlobject()
-{
-}
-
 void
 Glacier2::ClientBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
                                           function<void(bool, const pair<const Byte*, const Byte*>&)> response,
@@ -117,7 +113,7 @@ Glacier2::ClientBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParam
         throw ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    invoke(proxy, move(response), move(error), inParams, current);
+    invoke(proxy, inParams, move(response), move(error), current);
 }
 
 shared_ptr<StringSet>
