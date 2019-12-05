@@ -706,7 +706,18 @@ void
 LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
 {
     Lock sync(*this);
-    if(!locator || (!_instanceName.empty() && locator->ice_getIdentity().category != _instanceName))
+
+    if(!locator)
+    {
+        if(_traceLevel > 2)
+        {
+            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+            out << "ignoring locator reply: (null locator)";
+        }
+        return;
+    }
+
+    if(!_instanceName.empty() && locator->ice_getIdentity().category != _instanceName)
     {
         if(_traceLevel > 2)
         {

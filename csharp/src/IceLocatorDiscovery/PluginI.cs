@@ -267,8 +267,17 @@ namespace IceLocatorDiscovery
         {
             lock(this)
             {
-                if(locator == null ||
-                   (_instanceName.Length > 0 && !locator.ice_getIdentity().category.Equals(_instanceName)))
+                if(locator == null)
+                {
+                    if(_traceLevel > 2)
+                    {
+                        _lookup.ice_getCommunicator().getLogger().trace("Lookup",
+                                                                        "ignoring locator reply: (null locator)");
+                    }
+                    return;
+                }
+
+                if(_instanceName.Length > 0 && !locator.ice_getIdentity().category.Equals(_instanceName))
                 {
                     if(_traceLevel > 2)
                     {

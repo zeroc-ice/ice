@@ -271,8 +271,16 @@ class PluginI implements Plugin
         public synchronized void
         foundLocator(Ice.LocatorPrx locator)
         {
-            if(locator == null ||
-               (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)))
+            if(locator == null)
+            {
+                if(_traceLevel > 2)
+                {
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", "ignoring locator reply: (null locator)");
+                }
+                return;
+            }
+
+            if(!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName))
             {
                 if(_traceLevel > 2)
                 {
