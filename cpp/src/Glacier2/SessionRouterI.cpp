@@ -561,8 +561,8 @@ SessionRouterI::SessionRouterI(shared_ptr<Instance> instance,
     _sessionManager(move(sessionManager)),
     _sslVerifier(move(sslVerifier)),
     _sslSessionManager(move(sslSessionManager)),
-    _routersByConnectionHint(_routersByConnection.end()),
-    _routersByCategoryHint(_routersByCategory.end()),
+    _routersByConnectionHint(_routersByConnection.cend()),
+    _routersByCategoryHint(_routersByCategory.cend()),
     _destroy(false)
 {
 }
@@ -586,13 +586,12 @@ SessionRouterI::destroy()
 
         assert(!_destroy);
         _destroy = true;
-        _condVar.notify_one();
 
         _routersByConnection.swap(routers);
-        _routersByConnectionHint = _routersByConnection.end();
+        _routersByConnectionHint = _routersByConnection.cend();
 
         _routersByCategory.clear();
-        _routersByCategoryHint = _routersByCategory.end();
+        _routersByCategoryHint = _routersByCategory.cend();
     }
 
     //
@@ -813,9 +812,9 @@ SessionRouterI::destroySession(const shared_ptr<Connection>& connection)
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
 
-        map<shared_ptr<Connection>, shared_ptr<RouterI>>::iterator p;
+        map<shared_ptr<Connection>, shared_ptr<RouterI>>::const_iterator p;
 
-        if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == connection)
+        if(_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
         {
             p = _routersByConnectionHint;
         }
@@ -824,7 +823,7 @@ SessionRouterI::destroySession(const shared_ptr<Connection>& connection)
             p = _routersByConnection.find(connection);
         }
 
-        if(p == _routersByConnection.end())
+        if(p == _routersByConnection.cend())
         {
             throw SessionNotExistException();
         }
@@ -839,7 +838,7 @@ SessionRouterI::destroySession(const shared_ptr<Connection>& connection)
             string category = router->getServerProxy(Current())->ice_getIdentity().category;
             assert(!category.empty());
             _routersByCategory.erase(category);
-            _routersByCategoryHint = _routersByCategory.end();
+            _routersByCategoryHint = _routersByCategory.cend();
         }
     }
 
@@ -905,16 +904,14 @@ SessionRouterI::getServerBlobject(const string& category) const
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    auto& routers = const_cast<map<string, shared_ptr<RouterI>>&>(_routersByCategory);
-
-    if(_routersByCategoryHint != routers.end() && _routersByCategoryHint->first == category)
+    if(_routersByCategoryHint != _routersByCategory.cend() && _routersByCategoryHint->first == category)
     {
         return _routersByCategoryHint->second->getServerBlobject();
     }
 
-    auto p = routers.find(category);
+    auto p = _routersByCategory.find(category);
 
-    if(p != routers.end())
+    if(p != _routersByCategory.cend())
     {
         _routersByCategoryHint = p;
         return p->second->getServerBlobject();
@@ -938,17 +935,15 @@ SessionRouterI::getRouterImpl(const shared_ptr<Connection>& connection, const Ic
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    auto& routers = const_cast<map<shared_ptr<Connection>, shared_ptr<RouterI>>&>(_routersByConnection);
-
-    if(_routersByConnectionHint != routers.end() && _routersByConnectionHint->first == connection)
+    if(_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
     {
         _routersByConnectionHint->second->updateTimestamp();
         return _routersByConnectionHint->second;
     }
 
-    auto p = routers.find(connection);
+    auto p = _routersByConnection.find(connection);
 
-    if(p != routers.end())
+    if(p != _routersByConnection.cend())
     {
         _routersByConnectionHint = p;
         p->second->updateTimestamp();
@@ -999,8 +994,8 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const sh
     // Check whether a session already exists for the connection.
     //
     {
-        map<shared_ptr<Connection>, shared_ptr<RouterI>>::iterator p;
-        if(_routersByConnectionHint != _routersByConnection.end() &&
+        map<shared_ptr<Connection>, shared_ptr<RouterI>>::const_iterator p;
+        if(_routersByConnectionHint != _routersByConnection.cend() &&
            _routersByConnectionHint->first == connection)
         {
             p = _routersByConnectionHint;
@@ -1010,7 +1005,7 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const sh
             p = _routersByConnection.find(connection);
         }
 
-        if(p != _routersByConnection.end())
+        if(p != _routersByConnection.cend())
         {
             throw CannotCreateSessionException("session exists");
         }
@@ -1048,7 +1043,6 @@ SessionRouterI::finishCreateSession(const shared_ptr<Connection>& connection, co
     // establish a session for our connection;
     //
     _pending.erase(connection);
-    _condVar.notify_one();
 
     if(!router)
     {

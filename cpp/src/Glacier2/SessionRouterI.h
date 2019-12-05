@@ -122,17 +122,16 @@ private:
     const std::shared_ptr<SSLSessionManagerPrx> _sslSessionManager;
 
     std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>> _routersByConnection;
-    mutable std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>>::iterator _routersByConnectionHint;
+    mutable std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>>::const_iterator _routersByConnectionHint;
 
     std::map<std::string, std::shared_ptr<RouterI>> _routersByCategory;
-    mutable std::map<std::string, std::shared_ptr<RouterI>>::iterator _routersByCategoryHint;
+    mutable std::map<std::string, std::shared_ptr<RouterI>>::const_iterator _routersByCategoryHint;
 
     std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<CreateSession>> _pending;
 
     bool _destroy;
 
     mutable std::mutex _mutex;
-    std::condition_variable _condVar; //TODO is this variable necessary?
 };
 
 }
