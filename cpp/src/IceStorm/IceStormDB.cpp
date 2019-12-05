@@ -14,15 +14,7 @@
 using namespace std;
 using namespace IceInternal;
 
-int run(const Ice::StringSeq&);
-
-Ice::CommunicatorPtr communicator;
-
-void
-destroyCommunicator(int)
-{
-    communicator->destroy();
-}
+int run(const shared_ptr<Ice::Communicator>&, const Ice::StringSeq&);
 
 int
 #ifdef _WIN32
@@ -35,13 +27,8 @@ main(int argc, char* argv[])
 
     try
     {
-        IceUtil::CtrlCHandler ctrlCHandler;
         Ice::CommunicatorHolder ich(argc, argv);
-        communicator = ich.communicator();
-
-        ctrlCHandler.setCallback(&destroyCommunicator);
-
-        status = run(Ice::argsToStringSeq(argc, argv));
+        status = run(ich.communicator(), Ice::argsToStringSeq(argc, argv));
     }
     catch(const std::exception& ex)
     {
@@ -70,7 +57,7 @@ usage(const string& name)
 }
 
 int
-run(const Ice::StringSeq& args)
+run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& args)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -144,10 +131,7 @@ run(const Ice::StringSeq& args)
     {
         IceStorm::AllData data;
 
-        IceDB::IceContext dbContext;
-        dbContext.communicator = communicator;
-        dbContext.encoding.major = 1;
-        dbContext.encoding.minor = 1;
+        IceDB::IceContext dbContext = { communicator, {1, 1} };
 
         if(import)
         {
@@ -234,14 +218,14 @@ run(const Ice::StringSeq& args)
                 IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
 
-                for(IceStorm::SubscriberRecordDict::const_iterator q = data.subscribers.begin(); q != data.subscribers.end(); ++q)
+                for(const auto& subscriber : data.subscribers)
                 {
                     if(debug)
                     {
-                        consoleOut << "  KEY = TOPIC(" << communicator->identityToString(q->first.topic)
-                                   << ") ID(" << communicator->identityToString(q->first.id) << ")" << endl;
+                        consoleOut << "  KEY = TOPIC(" << communicator->identityToString(subscriber.first.topic)
+                                   << ") ID(" << communicator->identityToString(subscriber.first.id) << ")" << endl;
                     }
-                    subscriberMap.put(txn, q->first, q->second);
+                    subscriberMap.put(txn, subscriber.first, subscriber.second);
                 }
 
                 txn.commit();

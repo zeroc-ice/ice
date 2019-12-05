@@ -45,6 +45,6 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
 icestormdb_targetdir            := $(bindir)
 icestormdb_dependencies         := IceDB
 icestormdb_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
-icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp DBTypes.ice)
+icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp SubscriberRecord.ice DBTypes.ice)
 
 projects += $(project)

@@ -35,7 +35,13 @@ LMDBException::ice_print(ostream& out) const
     out << ": " << mdb_strerror(_error);
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+IceUtil::Exception*
+LMDBException::ice_cloneImpl() const
+{
+    return new LMDBException(*this);
+}
+#else
 LMDBException*
 LMDBException::ice_clone() const
 {
@@ -85,7 +91,13 @@ KeyTooLongException::ice_print(ostream& out) const
     out << "Max size = " << maxKeySize;
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+IceUtil::Exception*
+KeyTooLongException::ice_cloneImpl() const
+{
+    return new KeyTooLongException(*this);
+}
+#else
 KeyTooLongException*
 KeyTooLongException::ice_clone() const
 {
@@ -125,7 +137,13 @@ BadEnvException::ice_print(ostream& out) const
     out << ", IceDB max key size = " << maxKeySize;
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+IceUtil::Exception*
+BadEnvException::ice_cloneImpl() const
+{
+    return new BadEnvException(*this);
+}
+#else
 BadEnvException*
 BadEnvException::ice_clone() const
 {
