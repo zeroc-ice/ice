@@ -166,6 +166,7 @@ final class WSEndpoint extends EndpointI
             if(p instanceof com.zeroc.Ice.IPEndpointInfo)
             {
                 ipInfo = (com.zeroc.Ice.IPEndpointInfo)p;
+                break;
             }
         }
         final String host = ipInfo != null ? (ipInfo.host + ":" + ipInfo.port) : "";

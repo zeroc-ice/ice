@@ -164,8 +164,10 @@ final class WSEndpoint extends IceInternal.EndpointI
             if(p instanceof Ice.IPEndpointInfo)
             {
                 ipInfo = (Ice.IPEndpointInfo)p;
+                break;
             }
         }
+
         final String host = ipInfo != null ? (ipInfo.host + ":" + ipInfo.port) : "";
         EndpointI_connectors cb = new EndpointI_connectors()
         {

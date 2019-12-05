@@ -195,6 +195,7 @@ namespace IceInternal
                 {
                     Ice.IPEndpointInfo ipInfo = (Ice.IPEndpointInfo)p;
                     host = ipInfo.host + ":" + ipInfo.port;
+                    break;
                 }
             }
             _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, _resource, callback));
