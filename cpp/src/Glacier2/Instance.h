@@ -51,7 +51,7 @@ private:
     const std::shared_ptr<RequestQueueThread> _clientRequestQueueThread;
     const std::shared_ptr<RequestQueueThread> _serverRequestQueueThread;
     const std::shared_ptr<ProxyVerifier> _proxyVerifier;
-    const std::shared_ptr<SessionRouterI> _sessionRouter;
+    std::shared_ptr<SessionRouterI> _sessionRouter;
     const std::shared_ptr<Glacier2::Instrumentation::RouterObserver> _observer;
 };
 

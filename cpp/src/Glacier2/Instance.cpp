@@ -66,12 +66,12 @@ Glacier2::Instance::destroy()
         _serverRequestQueueThread->destroy();
     }
 
-    const_cast<shared_ptr<SessionRouterI>&>(_sessionRouter) = nullptr;
+    _sessionRouter = nullptr;
 }
 
 void
 Glacier2::Instance::setSessionRouter(shared_ptr<SessionRouterI> sessionRouter)
 {
     assert(_sessionRouter == nullptr);
-    const_cast<shared_ptr<SessionRouterI>&>(_sessionRouter) = move(sessionRouter);
+    _sessionRouter = move(sessionRouter);
 }
