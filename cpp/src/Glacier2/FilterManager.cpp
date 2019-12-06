@@ -8,7 +8,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Glacier2/FilterManager.h>
-#include <Glacier2/FilterI.h>
+#include <Glacier2/FilterT.h>
 
 using namespace std;
 using namespace Ice;
@@ -105,7 +105,7 @@ Glacier2::FilterManager::~FilterManager()
 void
 Glacier2::FilterManager::destroy()
 {
-    Ice::ObjectAdapterPtr adapter = _instance->serverObjectAdapter();
+    auto adapter = _instance->serverObjectAdapter();
     if(adapter)
     {
         try
@@ -141,22 +141,22 @@ Glacier2::FilterManager::destroy()
     }
 }
 
-Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacier2::StringSetIPtr& categories,
-                                       const Glacier2::StringSetIPtr& adapters,
-                                       const Glacier2::IdentitySetIPtr& identities) :
-    _categories(categories),
-    _adapters(adapters),
-    _identities(identities),
-    _instance(instance)
+Glacier2::FilterManager::FilterManager(shared_ptr<Instance> instance, shared_ptr<Glacier2::StringSetI> categories,
+                                       shared_ptr<Glacier2::StringSetI> adapters,
+                                       shared_ptr<Glacier2::IdentitySetI> identities) :
+    _categories(move(categories)),
+    _adapters(move(adapters)),
+    _identities(move(identities)),
+    _instance(move(instance))
 {
     try
     {
-        Ice::ObjectAdapterPtr adapter = _instance->serverObjectAdapter();
+        auto adapter = _instance->serverObjectAdapter();
         if(adapter)
         {
-            _categoriesPrx = Glacier2::StringSetPrx::uncheckedCast(adapter->addWithUUID(_categories));
-            _adapterIdsPrx = Glacier2::StringSetPrx::uncheckedCast(adapter->addWithUUID(_adapters));
-            _identitiesPrx = Glacier2::IdentitySetPrx::uncheckedCast(adapter->addWithUUID(_identities));
+            _categoriesPrx = Ice::uncheckedCast<Glacier2::StringSetPrx>(adapter->addWithUUID(_categories));
+            _adapterIdsPrx = Ice::uncheckedCast<Glacier2::StringSetPrx>(adapter->addWithUUID(_adapters));
+            _identitiesPrx = Ice::uncheckedCast<Glacier2::IdentitySetPrx>(adapter->addWithUUID(_identities));
         }
     }
     catch(...)
@@ -166,10 +166,10 @@ Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacie
     }
 }
 
-Glacier2::FilterManagerPtr
-Glacier2::FilterManager::create(const InstancePtr& instance, const string& userId, const bool allowAddUser)
+shared_ptr<Glacier2::FilterManager>
+Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& userId, bool allowAddUser)
 {
-    PropertiesPtr props = instance->properties();
+    auto props = instance->properties();
     string allow = props->getProperty("Glacier2.Filter.Category.Accept");
     vector<string> allowSeq;
     stringToSeq(allow, allowSeq);
@@ -194,14 +194,15 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
             }
         }
     }
-    Glacier2::StringSetIPtr categoryFilter = new Glacier2::StringSetI(allowSeq);
+
+    auto categoryFilter = make_shared<Glacier2::StringSetI>(allowSeq);
 
     //
     // TODO: refactor initialization of filters.
     //
     allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
     stringToSeq(allow, allowSeq);
-    Glacier2::StringSetIPtr adapterIdFilter = new Glacier2::StringSetI(allowSeq);
+    auto adapterIdFilter = make_shared<Glacier2::StringSetI>(allowSeq);
 
     //
     // TODO: Object id's from configurations?
@@ -209,7 +210,7 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
     IdentitySeq allowIdSeq;
     allow = props->getProperty("Glacier2.Filter.Identity.Accept");
     stringToSeq(allow, allowIdSeq);
-    Glacier2::IdentitySetIPtr identityFilter = new Glacier2::IdentitySetI(allowIdSeq);
+    auto identityFilter = make_shared<Glacier2::IdentitySetI>(allowIdSeq);
 
-    return new Glacier2::FilterManager(instance, categoryFilter, adapterIdFilter, identityFilter);
+    return make_shared<Glacier2::FilterManager>(move(instance), move(categoryFilter), move(adapterIdFilter), move(identityFilter));
 }

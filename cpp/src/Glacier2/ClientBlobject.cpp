@@ -4,33 +4,30 @@
 
 #include <Glacier2/ClientBlobject.h>
 #include <Glacier2/FilterManager.h>
-#include <Glacier2/FilterI.h>
+#include <Glacier2/FilterT.h>
 #include <Glacier2/RoutingTable.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ClientBlobject::ClientBlobject(const InstancePtr& instance,
-                                         const FilterManagerPtr& filters,
+Glacier2::ClientBlobject::ClientBlobject(shared_ptr<Instance>instance,
+                                         shared_ptr<FilterManager> filters,
                                          const Ice::Context& sslContext,
-                                         const RoutingTablePtr& routingTable):
+                                         shared_ptr<RoutingTable>routingTable):
 
-    Glacier2::Blobject(instance, 0, sslContext),
-    _routingTable(routingTable),
-    _filters(filters),
+    Glacier2::Blobject(move(instance), nullptr, sslContext),
+    _routingTable(move(routingTable)),
+    _filters(move(filters)),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
 
-Glacier2::ClientBlobject::~ClientBlobject()
-{
-}
-
 void
-Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB,
-                                           const std::pair<const Byte*, const Byte*>& inParams,
-                                           const Current& current)
+Glacier2::ClientBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
+                                          function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+                                          function<void(exception_ptr)> error,
+                                          const Current& current)
 {
     bool matched = false;
     bool hasFilters = false;
@@ -72,7 +69,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
         }
     }
 
-    ObjectPrx proxy = _routingTable->get(current.id);
+    auto proxy = _routingTable->get(current.id);
     if(!proxy)
     {
         //
@@ -115,22 +112,23 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 
         throw ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
-    invoke(proxy, amdCB, inParams, current);
+
+    invoke(proxy, inParams, move(response), move(error), current);
 }
 
-StringSetPtr
+shared_ptr<StringSet>
 ClientBlobject::categories()
 {
     return _filters->categories();
 }
 
-StringSetPtr
+shared_ptr<StringSet>
 ClientBlobject::adapterIds()
 {
     return _filters->adapterIds();
 }
 
-IdentitySetPtr
+shared_ptr<IdentitySet>
 ClientBlobject::identities()
 {
     return _filters->identities();

@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3}</ProjectGuid>
+    <ProjectGuid>{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B4}</ProjectGuid>
     <RootNamespace>Glacier2CryptPermissionsVerifier</RootNamespace>
+    <ProjectName>glacier2cryptpermissionsverifier++11</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -44,7 +45,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp11.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -99,13 +100,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\CryptPermissionsVerifierI.cpp" />
+    <ClCompile Include="..\..\CryptPermissionsVerifierI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\CryptPermissionsVerifier.rc" />
+    <ResourceCompile Include="..\..\CryptPermissionsVerifier.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
 </Project>
