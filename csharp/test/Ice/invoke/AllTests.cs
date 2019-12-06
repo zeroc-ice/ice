@@ -17,9 +17,8 @@ namespace Ice
             public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                ObjectPrx baseProxy = communicator.stringToProxy("test:" + helper.getTestEndpoint(0));
-                var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
-                var oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
+                var cl = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                var oneway = cl.Clone(oneway: true);
 
                 var output = helper.getWriter();
                 output.Write("testing ice_invoke... ");
@@ -27,7 +26,7 @@ namespace Ice
 
                 {
                     byte[] inEncaps, outEncaps;
-                    if (!oneway.ice_invoke("opOneway", OperationMode.Normal, null, out outEncaps))
+                    if (!oneway.Invoke("opOneway", OperationMode.Normal, null, out outEncaps))
                     {
                         test(false);
                     }
@@ -38,7 +37,7 @@ namespace Ice
                     outS.endEncapsulation();
                     inEncaps = outS.finished();
 
-                    if (cl.ice_invoke("opString", OperationMode.Normal, inEncaps, out outEncaps))
+                    if (cl.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps))
                     {
                         InputStream inS = new InputStream(communicator, outEncaps);
                         inS.startEncapsulation();
@@ -64,7 +63,7 @@ namespace Ice
                         ctx["raise"] = "";
                     }
 
-                    if (cl.ice_invoke("opException", OperationMode.Normal, null, out outEncaps, ctx))
+                    if (cl.Invoke("opException", OperationMode.Normal, null, out outEncaps, ctx))
                     {
                         test(false);
                     }
@@ -96,7 +95,7 @@ namespace Ice
                 {
                     try
                     {
-                        oneway.ice_invokeAsync("opOneway", OperationMode.Normal, null).Wait();
+                        oneway.InvokeAsync("opOneway", OperationMode.Normal, null).Wait();
                     }
                     catch (Exception)
                     {
@@ -110,7 +109,7 @@ namespace Ice
                     byte[] inEncaps = outS.finished();
 
                     // begin_ice_invoke with no callback
-                    var result = cl.ice_invokeAsync("opString", OperationMode.Normal, inEncaps).Result;
+                    var result = cl.InvokeAsync("opString", OperationMode.Normal, inEncaps).Result;
                     if (result.returnValue)
                     {
                         InputStream inS = new InputStream(communicator, result.outEncaps);
@@ -128,7 +127,7 @@ namespace Ice
                 }
 
                 {
-                    var result = cl.ice_invokeAsync("opException", OperationMode.Normal, null).Result;
+                    var result = cl.InvokeAsync("opException", OperationMode.Normal, null).Result;
                     if (result.returnValue)
                     {
                         test(false);

@@ -9,9 +9,9 @@ namespace IceInternal
 
     public class RetryTask : TimerTask, CancellationHandler
     {
-        public RetryTask(Instance instance, RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
+        public RetryTask(Ice.Communicator communicator, RetryQueue retryQueue, ProxyOutgoingAsyncBase outAsync)
         {
-            _instance = instance;
+            _communicator = communicator;
             _retryQueue = retryQueue;
             _outAsync = outAsync;
         }
@@ -34,9 +34,9 @@ namespace IceInternal
             Debug.Assert(_outAsync == outAsync);
             if (_retryQueue.cancel(this))
             {
-                if (_instance.traceLevels().retry >= 1)
+                if (_communicator.traceLevels().retry >= 1)
                 {
-                    _instance.initializationData().logger.trace(_instance.traceLevels().retryCat,
+                    _communicator.initializationData().logger.trace(_communicator.traceLevels().retryCat,
                                                                 string.Format("operation retry canceled\n{0}", ex));
                 }
                 if (_outAsync.exception(ex))
@@ -58,29 +58,29 @@ namespace IceInternal
             }
         }
 
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private RetryQueue _retryQueue;
         private ProxyOutgoingAsyncBase _outAsync;
     }
 
     public class RetryQueue
     {
-        public RetryQueue(Instance instance)
+        public RetryQueue(Ice.Communicator communicator)
         {
-            _instance = instance;
+            _communicator = communicator;
         }
 
         public void add(ProxyOutgoingAsyncBase outAsync, int interval)
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                RetryTask task = new RetryTask(_instance, this, outAsync);
+                RetryTask task = new RetryTask(_communicator, this, outAsync);
                 outAsync.cancelable(task); // This will throw if the request is canceled.
-                _instance.timer().schedule(task, interval);
+                _communicator.timer().schedule(task, interval);
                 _requests.Add(task, null);
             }
         }
@@ -92,7 +92,7 @@ namespace IceInternal
                 Dictionary<RetryTask, object> keep = new Dictionary<RetryTask, object>();
                 foreach (RetryTask task in _requests.Keys)
                 {
-                    if (_instance.timer().cancel(task))
+                    if (_communicator.timer().cancel(task))
                     {
                         task.destroy();
                     }
@@ -102,7 +102,7 @@ namespace IceInternal
                     }
                 }
                 _requests = keep;
-                _instance = null;
+                _communicator = null;
                 while (_requests.Count > 0)
                 {
                     System.Threading.Monitor.Wait(this);
@@ -116,7 +116,7 @@ namespace IceInternal
             {
                 if (_requests.Remove(task))
                 {
-                    if (_instance == null && _requests.Count == 0)
+                    if (_communicator == null && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
@@ -131,18 +131,18 @@ namespace IceInternal
             {
                 if (_requests.Remove(task))
                 {
-                    if (_instance == null && _requests.Count == 0)
+                    if (_communicator == null && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
                         System.Threading.Monitor.Pulse(this);
                     }
-                    return _instance.timer().cancel(task);
+                    return _communicator.timer().cancel(task);
                 }
                 return false;
             }
         }
 
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private Dictionary<RetryTask, object> _requests = new Dictionary<RetryTask, object>();
     }
 }

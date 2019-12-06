@@ -6,17 +6,20 @@ namespace IceDiscovery
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Ice;
 
     internal class LocatorRegistryI : Ice.LocatorRegistry
     {
         public
-        LocatorRegistryI(Ice.Communicator com)
+        LocatorRegistryI(Communicator com)
         {
-            _wellKnownProxy = com.stringToProxy("p").ice_locator(null).ice_router(null).ice_collocationOptimized(true);
+            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(clearLocator: true,
+                                                                  clearRouter: true,
+                                                                  collocationOptimized: true);
         }
 
         public Task
-        setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
+        setAdapterDirectProxyAsync(string adapterId, IObjectPrx proxy, Current current)
         {
             lock (this)
             {
@@ -33,7 +36,7 @@ namespace IceDiscovery
         }
 
         public Task
-        setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.ObjectPrx proxy,
+        setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, Ice.IObjectPrx proxy,
                                              Ice.Current current)
         {
             lock (this)
@@ -72,7 +75,7 @@ namespace IceDiscovery
             return null;
         }
 
-        internal Ice.ObjectPrx findObject(Ice.Identity id)
+        internal Ice.IObjectPrx findObject(Ice.Identity id)
         {
             lock (this)
             {
@@ -81,14 +84,14 @@ namespace IceDiscovery
                     return null;
                 }
 
-                Ice.ObjectPrx prx = _wellKnownProxy.ice_identity(id);
+                Ice.IObjectPrx prx = _wellKnownProxy.Clone(id);
 
                 List<string> adapterIds = new List<string>();
                 foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
                 {
                     try
                     {
-                        prx.ice_adapterId(entry.Key).ice_ping();
+                        prx.Clone(adapterId: entry.Key).IcePing();
                         adapterIds.Add(entry.Key);
                     }
                     catch (Ice.Exception)
@@ -97,11 +100,11 @@ namespace IceDiscovery
                 }
                 if (adapterIds.Count == 0)
                 {
-                    foreach (KeyValuePair<string, Ice.ObjectPrx> entry in _adapters)
+                    foreach (KeyValuePair<string, Ice.IObjectPrx> entry in _adapters)
                     {
                         try
                         {
-                            prx.ice_adapterId(entry.Key).ice_ping();
+                            prx.Clone(adapterId: entry.Key).IcePing();
                             adapterIds.Add(entry.Key);
                         }
                         catch (Ice.Exception)
@@ -115,15 +118,15 @@ namespace IceDiscovery
                     return null;
                 }
                 //adapterIds.Suffle();
-                return prx.ice_adapterId(adapterIds[0]);
+                return prx.Clone(adapterId: adapterIds[0]);
             }
         }
 
-        internal Ice.ObjectPrx findAdapter(string adapterId, out bool isReplicaGroup)
+        internal Ice.IObjectPrx findAdapter(string adapterId, out bool isReplicaGroup)
         {
             lock (this)
             {
-                Ice.ObjectPrx result = null;
+                Ice.IObjectPrx result = null;
                 if (_adapters.TryGetValue(adapterId, out result))
                 {
                     isReplicaGroup = false;
@@ -136,7 +139,7 @@ namespace IceDiscovery
                     List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
                     foreach (string a in adapterIds)
                     {
-                        Ice.ObjectPrx proxy;
+                        Ice.IObjectPrx proxy;
                         if (!_adapters.TryGetValue(a, out proxy))
                         {
                             continue; // TODO: Inconsistency
@@ -147,13 +150,13 @@ namespace IceDiscovery
                             result = proxy;
                         }
 
-                        endpoints.AddRange(proxy.ice_getEndpoints());
+                        endpoints.AddRange(proxy.Endpoints);
                     }
 
                     if (result != null)
                     {
                         isReplicaGroup = true;
-                        return result.ice_endpoints(endpoints.ToArray());
+                        return result.Clone(endpoints: endpoints.ToArray());
                     }
                 }
 
@@ -162,8 +165,8 @@ namespace IceDiscovery
             }
         }
 
-        private readonly Ice.ObjectPrx _wellKnownProxy;
-        private Dictionary<string, Ice.ObjectPrx> _adapters = new Dictionary<string, Ice.ObjectPrx>();
+        private readonly Ice.IObjectPrx _wellKnownProxy;
+        private Dictionary<string, Ice.IObjectPrx> _adapters = new Dictionary<string, Ice.IObjectPrx>();
         private Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
     };
 
@@ -175,13 +178,13 @@ namespace IceDiscovery
             _registry = registry;
         }
 
-        public Task<Ice.ObjectPrx>
+        public Task<Ice.IObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             return _lookup.findObject(id);
         }
 
-        public Task<Ice.ObjectPrx>
+        public Task<Ice.IObjectPrx>
         findAdapterByIdAsync(string adapterId, Ice.Current current)
         {
             return _lookup.findAdapter(adapterId);

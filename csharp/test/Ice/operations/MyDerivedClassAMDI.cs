@@ -65,7 +65,7 @@ namespace Ice
                     return myDerivedClassT.Ids.Contains(id);
                 }
 
-                public void ice_ping(Ice.Current current)
+                public void IcePing(Ice.Current current)
                 {
                     test(current.mode == Ice.OperationMode.Nonmutating);
                 }
@@ -280,9 +280,9 @@ namespace Ice
                 opMyClassAsync(Test.MyClassPrx p1, Ice.Current current)
                 {
                     var p2 = p1;
-                    var p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.CreateProxy("noSuchIdentity"));
+                    var p3 = Test.MyClassPrx.UncheckedCast(current.adapter.CreateProxy("noSuchIdentity"));
                     return Task.FromResult(new Test.MyClass_OpMyClassResult(
-                        Test.MyClassPrxHelper.uncheckedCast(current.adapter.CreateProxy(current.id)), p2, p3));
+                        Test.MyClassPrx.UncheckedCast(current.adapter.CreateProxy(current.id)), p2, p3));
                 }
 
                 public Task<Test.MyClass_OpMyEnumResult>

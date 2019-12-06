@@ -14,69 +14,66 @@ namespace Glacier2
 {
 
 class RoutingTable;
-typedef IceUtil::Handle<RoutingTable> RoutingTablePtr;
-
 class RouterI;
-typedef IceUtil::Handle<RouterI> RouterIPtr;
-
 class FilterManager;
-typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
 
-class RouterI : public Router
+class RouterI final : public Router
 {
 public:
 
-    RouterI(const InstancePtr&, const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, const Ice::Identity&,
-            const FilterManagerPtr&, const Ice::Context&);
+    RouterI(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>, const std::string&,
+            std::shared_ptr<SessionPrx>, const Ice::Identity&, std::shared_ptr<FilterManager>, const Ice::Context&);
 
-    virtual ~RouterI();
+    void destroy(std::function<void(std::exception_ptr)>);
 
-    void destroy(const Callback_Session_destroyPtr&);
+    std::shared_ptr<Ice::ObjectPrx> getClientProxy(Ice::optional<bool>&, const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override;
+    Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
+    std::string getCategoryForClient(const Ice::Current&) const override;
+    void createSessionAsync(std::string, std::string,
+                            std::function<void(const std::shared_ptr<SessionPrx>& returnValue)>,
+                            std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void createSessionFromSecureConnectionAsync(
+        std::function<void(const std::shared_ptr<SessionPrx>& returnValue)>,
+        std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void refreshSessionAsync(std::function<void()>,
+                             std::function<void(std::exception_ptr)>,
+                             const Ice::Current&) override;
+    void destroySession(const Ice::Current&) override;
+    long long int getSessionTimeout(const Ice::Current&) const override;
+    int getACMTimeout(const Ice::Current&) const override;
 
-    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const;
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
-    virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
-    virtual std::string getCategoryForClient(const Ice::Current&) const;
-    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
-                                     const Ice::Current&);
-    virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
-                                                         const Ice::Current&);
-    virtual void refreshSession_async(const AMD_Router_refreshSessionPtr&, const ::Ice::Current&);
-    virtual void destroySession(const ::Ice::Current&);
-    virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
-    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
+    std::shared_ptr<ClientBlobject> getClientBlobject() const;
+    std::shared_ptr<ServerBlobject> getServerBlobject() const;
 
-    ClientBlobjectPtr getClientBlobject() const;
-    ServerBlobjectPtr getServerBlobject() const;
+    std::shared_ptr<SessionPrx> getSession() const;
 
-    SessionPrx getSession() const;
-
-    IceUtil::Time getTimestamp() const;
+    std::chrono::steady_clock::time_point getTimestamp() const;
     void updateTimestamp() const;
 
-    void updateObserver(const Glacier2::Instrumentation::RouterObserverPtr&);
+    void updateObserver(const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&);
 
     std::string toString() const;
 
 private:
 
-    const InstancePtr _instance;
-    const RoutingTablePtr _routingTable;
-    const Ice::ObjectPrx _clientProxy;
-    const Ice::ObjectPrx _serverProxy;
-    const ClientBlobjectPtr _clientBlobject;
-    const ServerBlobjectPtr _serverBlobject;
+    const std::shared_ptr<Instance> _instance;
+    const std::shared_ptr<RoutingTable> _routingTable;
+    const std::shared_ptr<Ice::ObjectPrx> _clientProxy;
+    const std::shared_ptr<Ice::ObjectPrx> _serverProxy;
+    const std::shared_ptr<ClientBlobject> _clientBlobject;
+    const std::shared_ptr<ServerBlobject> _serverBlobject;
     const bool _clientBlobjectBuffered;
     const bool _serverBlobjectBuffered;
-    const Ice::ConnectionPtr _connection;
+    const std::shared_ptr<Ice::Connection> _connection;
     const std::string _userId;
-    const SessionPrx _session;
+    const std::shared_ptr<SessionPrx> _session;
     const Ice::Identity _controlId;
     const Ice::Context _context;
-    const IceUtil::Mutex _timestampMutex;
-    mutable IceUtil::Time _timestamp;
+    const std::mutex _timestampMutex;
+    mutable std::chrono::steady_clock::time_point _timestamp;
 
-    Glacier2::Instrumentation::SessionObserverPtr _observer;
+    std::shared_ptr<Glacier2::Instrumentation::SessionObserver> _observer;
 };
 
 }

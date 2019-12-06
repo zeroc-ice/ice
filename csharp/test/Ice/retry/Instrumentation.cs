@@ -100,7 +100,7 @@ namespace Ice
                 }
 
                 public Ice.Instrumentation.InvocationObserver
-                getInvocationObserver(Ice.ObjectPrx p, string o, Dictionary<string, string> c)
+                getInvocationObserver(Ice.IObjectPrx p, string o, Dictionary<string, string> c)
                 {
                     return invocationObserver;
                 }

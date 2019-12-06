@@ -110,7 +110,7 @@ namespace Ice
                     _d = d;
                 }
 
-                public void ice_ping()
+                public void IcePing()
                 {
                     called();
                 }
@@ -129,7 +129,7 @@ namespace Ice
 
                 public void ice_id(string id)
                 {
-                    test(id.Equals(Test.MyDerivedClass.ice_staticId()));
+                    test(id.Equals("::Test::MyDerivedClass"));
                     called();
                 }
 
@@ -190,9 +190,9 @@ namespace Ice
 
                 public void opMyClass(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
                 {
-                    test(c1.ice_getIdentity().Equals(Util.stringToIdentity("test")));
-                    test(c2.ice_getIdentity().Equals(Util.stringToIdentity("noSuchIdentity")));
-                    test(r.ice_getIdentity().Equals(Util.stringToIdentity("test")));
+                    test(c1.Identity.Equals(Util.stringToIdentity("test")));
+                    test(c2.Identity.Equals(Util.stringToIdentity("noSuchIdentity")));
+                    test(r.Identity.Equals(Util.stringToIdentity("test")));
 
                     //
                     // We can't do the callbacks below in connection serialization mode.
@@ -1001,19 +1001,19 @@ namespace Ice
                 Communicator communicator = helper.communicator();
 
                 {
-                    p.ice_pingAsync().Wait();
+                    p.IcePingAsync().Wait();
                 }
 
                 {
-                    test(p.ice_isAAsync(Test.MyClass.ice_staticId()).Result);
+                    test(p.IceIsAAsync("::Test::MyClass").Result);
                 }
 
                 {
-                    test(p.ice_idsAsync().Result.Length == 3);
+                    test(p.IceIdsAsync().Result.Length == 3);
                 }
 
                 {
-                    test(p.ice_idAsync().Result.Equals(Test.MyDerivedClass.ice_staticId()));
+                    test(p.IceIdAsync().Result.Equals("::Test::MyDerivedClass"));
                 }
 
                 {
@@ -1639,23 +1639,23 @@ namespace Ice
                     ctx["two"] = "TWO";
                     ctx["three"] = "THREE";
                     {
-                        test(p.ice_getContext().Count == 0);
+                        test(p.Context.Count == 0);
                         var cb = new Callback(ctx);
                         cb.opContextNotEqual(p.opContextAsync().Result);
                     }
                     {
-                        test(p.ice_getContext().Count == 0);
+                        test(p.Context.Count == 0);
                         var cb = new Callback(ctx);
                         cb.opContextEqual(p.opContextAsync(ctx).Result);
                     }
                     {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        test(CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                        var p2 = p.Clone(context: ctx);
+                        test(CollectionComparer.Equals(p2.Context, ctx));
                         var cb = new Callback(ctx);
                         cb.opContextEqual(p2.opContextAsync().Result);
                     }
                     {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                        var p2 = p.Clone(context: ctx);
                         Callback cb = new Callback(ctx);
                         cb.opContextEqual(p2.opContextAsync(ctx).Result);
                     }
@@ -1664,13 +1664,13 @@ namespace Ice
                 //
                 // Test implicit context propagation with async task
                 //
-                if (p.ice_getConnection() != null)
+                if (p.GetConnection() != null)
                 {
                     string[] impls = { "Shared", "PerThread" };
                     for (int i = 0; i < 2; i++)
                     {
                         InitializationData initData = new InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                         Communicator ic = helper.initialize(initData);
@@ -1680,8 +1680,7 @@ namespace Ice
                         ctx["two"] = "TWO";
                         ctx["three"] = "THREE";
 
-                        var p3 =
-                            Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
+                        var p3 = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
                         ic.getImplicitContext().setContext(ctx);
                         test(CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -1714,7 +1713,7 @@ namespace Ice
                         }
                         test(combined["one"].Equals("UN"));
 
-                        p3 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(prxContext));
+                        p3 = p.Clone(context: prxContext);
 
                         ic.getImplicitContext().setContext(null);
                         {
@@ -1740,7 +1739,7 @@ namespace Ice
                 }
 
                 {
-                    var derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
+                    var derived = Test.MyDerivedClassPrx.CheckedCast(p);
                     test(derived != null);
                     var cb = new Callback();
                     derived.opDerivedAsync().Wait();

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Test;
+using Ice;
 
 public class Client : TestHelper
 {
@@ -25,7 +26,7 @@ public class Client : TestHelper
         def_il[2] = 3;
         Dictionary<string, string> def_sd = new Dictionary<string, string>();
         def_sd.Add("abc", "def");
-        Ice.ObjectPrx def_prx = communicator.stringToProxy("test");
+        var def_prx = Ice.IObjectPrx.Parse("test", communicator);
         S2 def_s2 = new S2(true, (byte)98, (short)99, 100, 101, (float)1.0, 2.0, "string", def_ss, def_il, def_sd,
                            def_s, def_cls, def_prx);
 
@@ -233,11 +234,11 @@ public class Client : TestHelper
             S2 v1, v2;
 
             v1 = (S2)def_s2.Clone();
-            v1.prx = communicator.stringToProxy("test");
+            v1.prx = IObjectPrx.Parse("test", communicator);
             test(v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();
-            v1.prx = communicator.stringToProxy("test2");
+            v1.prx = IObjectPrx.Parse("test2", communicator);
             test(!v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();

@@ -68,7 +68,7 @@ namespace Ice
                 output.Write("testing serialization... ");
                 output.Flush();
 
-                var proxy = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+                var proxy = Test.MyInterfacePrx.Parse("test", communicator);
 
                 Test.MyException ex, ex2;
                 ex = new Test.MyException();
@@ -90,7 +90,23 @@ namespace Ice
                 ex.optClass = new Ice.Optional<Test.MyClass>();
                 ex.optProxy = new Ice.Optional<Test.MyInterfacePrx>();
                 ex2 = inOut(ex, communicator);
-                test(ex.Equals(ex2));
+
+                test(ex2.name.Equals(""));
+                test(ex2.vss.Length == 0);
+                test(ex2.vsll.Count == 0);
+                test(ex2.vssk.Count == 0);
+                test(ex2.vsq.Count == 0);
+                test(ex2.isd.Count == 0);
+                test(ex2.ivd.Count == 0);
+                test(ex2.ipd == null);
+                test(ex2.issd.Count == 0);
+                test(!ex2.optName.HasValue);
+                test(!ex2.optInt.HasValue);
+                test(!ex2.optValStruct.HasValue);
+                test(!ex2.optRefStruct.HasValue);
+                test(!ex2.optEnum.HasValue);
+                test(!ex2.optClass.HasValue);
+                test(!ex2.optProxy.HasValue);
 
                 ex.name = "MyException";
                 ex.b = 1;
@@ -124,14 +140,36 @@ namespace Ice
                 ex.optClass = new Ice.Optional<Test.MyClass>(null);
                 ex.optProxy = new Ice.Optional<Test.MyInterfacePrx>(proxy);
                 ex2 = inOut(ex, communicator);
-                test(ex.Equals(ex2));
+
+                test(ex2.name.Equals(ex.name));
+                test(ex2.b == ex.b);
+                test(ex2.s == ex.s);
+                test(ex2.i == ex.i);
+                test(ex2.l == ex.l);
+                test(ex2.vs.Equals(ex.vs));
+                test(ex2.rs.Equals(ex.rs));
+                test(ex2.vss[0].Equals(ex.vs));
+                test(ex2.vsll.Count == 1 && ex2.vsll.Last!.Value.Equals(ex.vs));
+                test(ex2.vssk.Count == 1 && ex2.vssk.Peek().Equals(ex.vs));
+                test(ex2.vsq.Count == 1 && ex2.vsq.Peek().Equals(ex.vs));
+                test(ex2.isd.Count == 1 && ex2.isd[5].Equals("five"));
+                test(ex2.ivd.Count == 1 && ex2.ivd[1].Equals(ex.vs));
+                test(ex2.ipd.Count == 3 && ex2.ipd[2] == null);
+                test(ex2.issd.Count == 1 && ex2.issd[3] == "three");
+                test(ex2.optName.HasValue && ex2.optName.Value == "MyException");
+                test(ex2.optInt.HasValue && ex2.optInt.Value == 99);
+                test(ex2.optValStruct.HasValue && ex2.optValStruct.Value.Equals(ex.vs));
+                test(ex2.optRefStruct.HasValue && ex2.optRefStruct.Value.Equals(ex.rs));
+                test(ex2.optEnum.HasValue && ex2.optEnum.Value == Test.MyEnum.enum3);
+                test(ex2.optClass.HasValue && ex2.optClass.Value == null);
+                test(ex2.optProxy.HasValue && ex2.optProxy.Value.Equals(proxy));
 
                 Test.RefStruct rs, rs2;
                 rs = new Test.RefStruct();
                 rs.s = "RefStruct";
                 rs.sp = "prop";
                 rs.c = null;
-                rs.p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+                rs.p = Test.MyInterfacePrx.Parse("test", communicator);
                 rs.seq = new Test.MyInterfacePrx[] { rs.p };
                 rs2 = inOut(rs, communicator);
                 test(rs.Equals(rs2));

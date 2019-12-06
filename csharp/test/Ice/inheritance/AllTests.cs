@@ -12,19 +12,7 @@ namespace Ice
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
-                output.Write("testing stringToProxy... ");
-                output.Flush();
-                string ref_Renamed = "initial:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx @base = communicator.stringToProxy(ref_Renamed);
-                test(@base != null);
-                output.WriteLine("ok");
-
-                output.Write("testing checked cast... ");
-                output.Flush();
-                var initial = Test.InitialPrxHelper.checkedCast(@base);
-                test(initial != null);
-                test(initial.Equals(@base));
-                output.WriteLine("ok");
+                var initial = Test.InitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
 
                 output.Write("getting proxies for interface hierarchy... ");
                 output.Flush();

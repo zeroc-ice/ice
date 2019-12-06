@@ -8,5 +8,45 @@
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+        <Compile Update="generated\BuiltinSequences.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Context.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Context.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Identity.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Identity.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Locator.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\LocatorF.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\LocatorF.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Metrics.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\OperationMode.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\OperationMode.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Process.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Process.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\ProcessF.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\ProcessF.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\PropertiesAdmin.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\RemoteLogger.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Router.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\Router.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\RouterF.cs">
+          <SliceCompileSource>..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
+        </Compile>
     </ItemGroup>
+    <ItemGroup />
 </Project>

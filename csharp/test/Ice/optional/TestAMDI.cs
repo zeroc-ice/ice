@@ -143,7 +143,7 @@ namespace Ice
                 }
 
                 public Task<Test.Initial_OpOneOptionalProxyResult>
-                opOneOptionalProxyAsync(Ice.Optional<Ice.ObjectPrx> p1, Ice.Current current)
+                opOneOptionalProxyAsync(Ice.Optional<Ice.IObjectPrx> p1, Ice.Current current)
                 {
                     return Task.FromResult(new Test.Initial_OpOneOptionalProxyResult(p1, p1));
                 }

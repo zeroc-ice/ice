@@ -27,12 +27,12 @@ namespace Ice
 
             public Test.HelloPrx getHello(Ice.Current current)
             {
-                return Test.HelloPrxHelper.uncheckedCast(_adapter1.CreateIndirectProxy("hello"));
+                return Test.HelloPrx.UncheckedCast(_adapter1.CreateIndirectProxy("hello"));
             }
 
             public Test.HelloPrx getReplicatedHello(Ice.Current current)
             {
-                return Test.HelloPrxHelper.uncheckedCast(_adapter1.CreateProxy("hello"));
+                return Test.HelloPrx.UncheckedCast(_adapter1.CreateProxy("hello"));
             }
 
             public void migrateHello(Ice.Current current)

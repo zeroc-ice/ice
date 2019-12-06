@@ -5,6 +5,7 @@
 using Test;
 using System;
 using System.Collections.Generic;
+using Ice;
 
 public class AllTests : Test.AllTests
 {
@@ -18,8 +19,8 @@ public class AllTests : Test.AllTests
         for (int i = 0; i < num; ++i)
         {
             string id = "controller" + i;
-            proxies.Add(ControllerPrxHelper.uncheckedCast(communicator.stringToProxy(id)));
-            indirectProxies.Add(ControllerPrxHelper.uncheckedCast(communicator.stringToProxy(id + "@control" + i)));
+            proxies.Add(ControllerPrx.Parse(id, communicator));
+            indirectProxies.Add(ControllerPrx.Parse($"{id}@control{i}", communicator));
         }
 
         output.Write("testing indirect proxies... ");
@@ -27,7 +28,7 @@ public class AllTests : Test.AllTests
         {
             foreach (ControllerPrx prx in indirectProxies)
             {
-                prx.ice_ping();
+                prx.IcePing();
             }
         }
         output.WriteLine("ok");
@@ -37,7 +38,7 @@ public class AllTests : Test.AllTests
         {
             foreach (ControllerPrx prx in proxies)
             {
-                prx.ice_ping();
+                prx.IcePing();
             }
         }
         output.WriteLine("ok");
@@ -47,10 +48,10 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
                 test(false);
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
             }
 
@@ -58,10 +59,10 @@ public class AllTests : Test.AllTests
 
             try
             {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
                 test(false);
             }
-            catch (Ice.ObjectNotExistException)
+            catch (ObjectNotExistException)
             {
             }
 
@@ -69,10 +70,10 @@ public class AllTests : Test.AllTests
 
             try
             {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
                 test(false);
             }
-            catch (Ice.NoEndpointException)
+            catch (NoEndpointException)
             {
             }
         }
@@ -83,13 +84,13 @@ public class AllTests : Test.AllTests
         {
             proxies[0].activateObjectAdapter("oa", "oa1", "");
             proxies[0].addObject("oa", "object");
-            communicator.stringToProxy("object @ oa1").ice_ping();
+            IObjectPrx.Parse("object @ oa1", communicator).IcePing();
             proxies[0].removeObject("oa", "object");
             proxies[0].deactivateObjectAdapter("oa");
 
             proxies[1].activateObjectAdapter("oa", "oa1", "");
             proxies[1].addObject("oa", "object");
-            communicator.stringToProxy("object @ oa1").ice_ping();
+            IObjectPrx.Parse("object @ oa1", communicator).IcePing();
             proxies[1].removeObject("oa", "object");
             proxies[1].deactivateObjectAdapter("oa");
         }
@@ -102,27 +103,27 @@ public class AllTests : Test.AllTests
             proxies[1].activateObjectAdapter("oa", "oa2", "");
 
             proxies[0].addObject("oa", "object");
-            communicator.stringToProxy("object @ oa1").ice_ping();
-            communicator.stringToProxy("object").ice_ping();
+            IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+            IObjectPrx.Parse("object", communicator).IcePing();
             proxies[0].removeObject("oa", "object");
 
             proxies[1].addObject("oa", "object");
-            communicator.stringToProxy("object @ oa2").ice_ping();
-            communicator.stringToProxy("object").ice_ping();
+            IObjectPrx.Parse("object @ oa2", communicator).IcePing();
+            IObjectPrx.Parse("object", communicator).IcePing();
             proxies[1].removeObject("oa", "object");
 
             try
             {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                IObjectPrx.Parse("object @ oa1", communicator).IcePing();
             }
-            catch (Ice.ObjectNotExistException)
+            catch (ObjectNotExistException)
             {
             }
             try
             {
-                communicator.stringToProxy("object @ oa2").ice_ping();
+                IObjectPrx.Parse("object @ oa2", communicator).IcePing();
             }
-            catch (Ice.ObjectNotExistException)
+            catch (ObjectNotExistException)
             {
             }
 
@@ -142,18 +143,19 @@ public class AllTests : Test.AllTests
             proxies[1].addObject("oa", "object");
             proxies[2].addObject("oa", "object");
 
-            communicator.stringToProxy("object @ oa1").ice_ping();
-            communicator.stringToProxy("object @ oa2").ice_ping();
-            communicator.stringToProxy("object @ oa3").ice_ping();
+            IObjectPrx.Parse("object @ oa1", communicator).IcePing();
+            IObjectPrx.Parse("object @ oa2", communicator).IcePing();
+            IObjectPrx.Parse("object @ oa3", communicator).IcePing();
 
-            communicator.stringToProxy("object @ rg").ice_ping();
+            IObjectPrx.Parse("object @ rg", communicator).IcePing();
 
             List<string> adapterIds = new List<string>();
             adapterIds.Add("oa1");
             adapterIds.Add("oa2");
             adapterIds.Add("oa3");
-            TestIntfPrx intf = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("object"));
-            intf = (TestIntfPrx)intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
+            TestIntfPrx intf = TestIntfPrx.Parse("object", communicator).Clone(
+                connectionCached: false,
+                locatorCacheTimeout: 0);
             while (adapterIds.Count > 0)
             {
                 adapterIds.Remove(intf.getAdapterId());
@@ -164,8 +166,7 @@ public class AllTests : Test.AllTests
                 adapterIds.Add("oa1");
                 adapterIds.Add("oa2");
                 adapterIds.Add("oa3");
-                intf = TestIntfPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("object @ rg").ice_connectionCached(false));
+                intf = TestIntfPrx.Parse("object @ rg", communicator).Clone(connectionCached: false);
                 int nRetry = 100;
                 while (adapterIds.Count > 0 && --nRetry > 0)
                 {
@@ -177,19 +178,17 @@ public class AllTests : Test.AllTests
                 }
 
                 // The previous locator lookup probably didn't return all the replicas... try again.
-                communicator.stringToProxy("object @ rg").ice_locatorCacheTimeout(0).ice_ping();
+                IObjectPrx.Parse("object @ rg", communicator).Clone(locatorCacheTimeout: 0).IcePing();
             }
 
             proxies[0].deactivateObjectAdapter("oa");
             proxies[1].deactivateObjectAdapter("oa");
-            test(TestIntfPrxHelper.uncheckedCast(
-                     communicator.stringToProxy("object @ rg")).getAdapterId().Equals("oa3"));
+            test(TestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa3"));
             proxies[2].deactivateObjectAdapter("oa");
 
             proxies[0].activateObjectAdapter("oa", "oa1", "rg");
             proxies[0].addObject("oa", "object");
-            test(TestIntfPrxHelper.uncheckedCast(
-                     communicator.stringToProxy("object @ rg")).getAdapterId().Equals("oa1"));
+            test(TestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa1"));
             proxies[0].deactivateObjectAdapter("oa");
         }
         output.WriteLine("ok");
@@ -209,13 +208,13 @@ public class AllTests : Test.AllTests
 
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties = communicator.getProperties().Clone();
                 initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
                 try
                 {
-                    comm.stringToProxy("controller0@control0").ice_ping();
+                    IObjectPrx.Parse("controller0@control0", comm).IcePing();
                     test(false);
                 }
                 catch (Ice.LocalException)
@@ -225,7 +224,7 @@ public class AllTests : Test.AllTests
             }
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties = communicator.getProperties().Clone();
                 string intf = initData.properties.getProperty("IceDiscovery.Interface");
                 if (!intf.Equals(""))
                 {
@@ -235,9 +234,9 @@ public class AllTests : Test.AllTests
                 initData.properties.setProperty("IceDiscovery.Lookup",
                                                  "udp -h " + multicast + " --interface unknown:" +
                                                  "udp -h " + multicast + " -p " + port + intf);
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                Communicator comm = Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
-                comm.stringToProxy("controller0@control0").ice_ping();
+                IObjectPrx.Parse("controller0@control0", comm).IcePing();
                 comm.destroy();
             }
         }

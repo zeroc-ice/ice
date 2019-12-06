@@ -845,7 +845,7 @@ endef
 define create-translator-project
 $1_programs     := $(notdir $1)
 $1_dependencies := Slice IceUtil
-$1_cppflags     := -I$1
+$1_cppflags     := -I$1 -std=c++17
 $1_targetdir    := $(call bindir,$1)
 
 #

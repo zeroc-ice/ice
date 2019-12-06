@@ -261,7 +261,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            InvocationObserver getInvocationObserver(global::Ice.ObjectPrx prx, string operation, global::System.Collections.Generic.Dictionary<string, string> ctx);
+            InvocationObserver getInvocationObserver(global::Ice.IObjectPrx prx, string operation, global::System.Collections.Generic.Dictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given

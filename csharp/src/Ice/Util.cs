@@ -103,7 +103,7 @@ namespace Ice
         /// <returns>A new empty property set.</returns>
         public static Properties createProperties()
         {
-            return new PropertiesI();
+            return new Properties();
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Ice
         /// that were removed from args.</returns>
         public static Properties createProperties(ref string[] args)
         {
-            return new PropertiesI(ref args, null);
+            return new Properties(ref args, null);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Ice
         /// that were removed from args.</returns>
         public static Properties createProperties(ref string[] args, Properties defaults)
         {
-            return new PropertiesI(ref args, defaults);
+            return new Properties(ref args, defaults);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Ice
 
             initData.properties = createProperties(ref args, initData.properties);
 
-            CommunicatorI result = new CommunicatorI(initData);
+            Communicator result = new Communicator(initData);
             result.finishSetup(ref args);
             return result;
         }
@@ -216,7 +216,7 @@ namespace Ice
                 initData = (InitializationData)initData.Clone();
             }
 
-            CommunicatorI result = new CommunicatorI(initData);
+            Communicator result = new Communicator(initData);
             string[] args = Array.Empty<string>();
             result.finishSetup(ref args);
             return result;
@@ -367,7 +367,7 @@ namespace Ice
         /// <returns>-1 if the identity in lhs compares
         /// less than the identity in rhs; 0 if the identities
         /// compare equal; 1, otherwise.</returns>
-        public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
+        public static int proxyIdentityCompare(IObjectPrx lhs, IObjectPrx rhs)
         {
             if (lhs == null && rhs == null)
             {
@@ -383,8 +383,8 @@ namespace Ice
             }
             else
             {
-                Identity lhsIdentity = lhs.ice_getIdentity();
-                Identity rhsIdentity = rhs.ice_getIdentity();
+                Identity lhsIdentity = lhs.Identity;
+                Identity rhsIdentity = rhs.Identity;
                 int n;
                 n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
                 if (n != 0)
@@ -403,7 +403,7 @@ namespace Ice
         /// <returns>-1 if the identity and facet in lhs compare
         /// less than the identity and facet in rhs; 0 if the identities
         /// and facets compare equal; 1, otherwise.</returns>
-        public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
+        public static int proxyIdentityAndFacetCompare(IObjectPrx lhs, IObjectPrx rhs)
         {
             if (lhs == null && rhs == null)
             {
@@ -419,8 +419,8 @@ namespace Ice
             }
             else
             {
-                Identity lhsIdentity = lhs.ice_getIdentity();
-                Identity rhsIdentity = rhs.ice_getIdentity();
+                Identity lhsIdentity = lhs.Identity;
+                Identity rhsIdentity = rhs.Identity;
                 int n;
                 n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
                 if (n != 0)
@@ -433,8 +433,8 @@ namespace Ice
                     return n;
                 }
 
-                string lhsFacet = lhs.ice_getFacet();
-                string rhsFacet = rhs.ice_getFacet();
+                string lhsFacet = lhs.Facet;
+                string rhsFacet = rhs.Facet;
                 if (lhsFacet == null && rhsFacet == null)
                 {
                     return 0;
@@ -693,12 +693,6 @@ namespace IceInternal
 
     public sealed class Util
     {
-        public static Instance getInstance(Ice.Communicator communicator)
-        {
-            Ice.CommunicatorI p = (Ice.CommunicatorI)communicator;
-            return p.getInstance();
-        }
-
         public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
         {
             return new ProtocolPluginFacadeI(communicator);

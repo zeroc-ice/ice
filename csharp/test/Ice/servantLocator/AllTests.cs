@@ -19,8 +19,8 @@ namespace Ice
                 }
                 catch (Ice.ObjectNotExistException ex)
                 {
-                    test(ex.id.Equals(obj.ice_getIdentity()));
-                    test(ex.facet.Equals(obj.ice_getFacet()));
+                    test(ex.id.Equals(obj.Identity));
+                    test(ex.facet.Equals(obj.Facet));
                     test(ex.operation.Equals("requestFailedException"));
                 }
                 catch (Exception)
@@ -200,14 +200,12 @@ namespace Ice
                 output.Write("testing stringToProxy... ");
                 output.Flush();
                 string @ref = "asm:" + helper.getTestEndpoint(0);
-                var @base = communicator.stringToProxy(@ref);
-                test(@base != null);
+                var @base = IObjectPrx.Parse(@ref, communicator);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.TestIntfPrxHelper.checkedCast(@base);
-                test(obj != null);
+                var obj = Test.TestIntfPrx.CheckedCast(@base);
                 test(obj.Equals(@base));
                 output.WriteLine("ok");
 
@@ -215,8 +213,8 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    var o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-                    o.ice_ids();
+                    var o = IObjectPrx.Parse($"category/locate:{helper.getTestEndpoint(0)}", communicator);
+                    o.IceIds();
                     test(false);
                 }
                 catch (Ice.UnknownUserException ex)
@@ -230,8 +228,8 @@ namespace Ice
 
                 try
                 {
-                    var o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
-                    o.ice_ids();
+                    var o = IObjectPrx.Parse($"category/finished:{helper.getTestEndpoint(0)}", communicator);
+                    o.IceIds();
                     test(false);
                 }
                 catch (Ice.UnknownUserException ex)
@@ -246,11 +244,11 @@ namespace Ice
 
                 output.Write("testing servant locator...");
                 output.Flush();
-                @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                @base = IObjectPrx.Parse($"category/locate:{helper.getTestEndpoint(0)}", communicator);
+                obj = Test.TestIntfPrx.CheckedCast(@base);
                 try
                 {
-                    Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
+                    Test.TestIntfPrx.Parse($"category/unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -259,20 +257,20 @@ namespace Ice
 
                 output.Write("testing default servant locator...");
                 output.Flush();
-                @base = communicator.stringToProxy("anothercat/locate:" + helper.getTestEndpoint(0));
-                obj = Test.TestIntfPrxHelper.checkedCast(@base);
-                @base = communicator.stringToProxy("locate:" + helper.getTestEndpoint(0));
-                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                @base = IObjectPrx.Parse($"anothercat/locate:{helper.getTestEndpoint(0)}", communicator);
+                obj = Test.TestIntfPrx.CheckedCast(@base);
+                @base = IObjectPrx.Parse($"locate:{helper.getTestEndpoint(0)}", communicator);
+                obj = Test.TestIntfPrx.CheckedCast(@base);
                 try
                 {
-                    Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
+                    Test.TestIntfPrx.Parse($"anothercat/unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
                 }
                 try
                 {
-                    Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
+                    Test.TestIntfPrx.Parse($"unknown:{helper.getTestEndpoint(0)}", communicator).IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -281,15 +279,15 @@ namespace Ice
 
                 output.Write("testing locate exceptions... ");
                 output.Flush();
-                @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                @base = IObjectPrx.Parse($"category/locate:{helper.getTestEndpoint(0)}", communicator);
+                obj = Test.TestIntfPrx.CheckedCast(@base);
                 testExceptions(obj);
                 output.WriteLine("ok");
 
                 output.Write("testing finished exceptions... ");
                 output.Flush();
-                @base = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
-                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                @base = IObjectPrx.Parse($"category/finished:{helper.getTestEndpoint(0)}", communicator);
+                obj = Test.TestIntfPrx.CheckedCast(@base);
                 testExceptions(obj);
 
                 //
@@ -332,12 +330,12 @@ namespace Ice
 
                 output.Write("testing servant locator removal... ");
                 output.Flush();
-                @base = communicator.stringToProxy("test/activation:" + helper.getTestEndpoint(0));
-                var activation = Test.TestActivationPrxHelper.checkedCast(@base);
+                @base = IObjectPrx.Parse($"test/activation:{helper.getTestEndpoint(0)}", communicator);
+                var activation = Test.TestActivationPrx.CheckedCast(@base);
                 activation.activateServantLocator(false);
                 try
                 {
-                    obj.ice_ping();
+                    obj.IcePing();
                     test(false);
                 }
                 catch (Ice.ObjectNotExistException)
@@ -349,7 +347,7 @@ namespace Ice
                 activation.activateServantLocator(true);
                 try
                 {
-                    obj.ice_ping();
+                    obj.IcePing();
                     output.WriteLine("ok");
                 }
                 catch (Exception)

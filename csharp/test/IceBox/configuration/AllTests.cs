@@ -10,14 +10,10 @@ public class AllTests : Test.AllTests
     public static void allTests(Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        TestIntfPrx service1 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(0)));
-        TestIntfPrx service2 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(1)));
-        TestIntfPrx service3 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(2)));
-        TestIntfPrx service4 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                          helper.getTestEndpoint(3)));
+        var service1 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+        var service2 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
+        var service3 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(2)}", communicator);
+        var service4 = TestIntfPrx.Parse($"test:{helper.getTestEndpoint(3)}", communicator);
 
         if (service1.getProperty("IceBox.InheritProperties").Equals(""))
         {

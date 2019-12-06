@@ -29,9 +29,7 @@ namespace Ice
                 ex.reason = "Communicator cannot be null";
                 throw ex;
             }
-
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            instance.setThreadHook(threadStart, threadStop);
+            communicator.setThreadHook(threadStart, threadStop);
         }
 
         /// <summary>

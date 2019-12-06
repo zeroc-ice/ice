@@ -221,7 +221,7 @@ namespace Ice
                     s.d = 6.0;
                     s.str = "7";
                     s.e = Test.MyEnum.enum2;
-                    s.p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+                    s.p = Test.MyInterfacePrx.Parse("test:default", communicator);
                     Test.SmallStruct.ice_write(outS, s);
                     var data = outS.finished();
                     var s2 = Test.SmallStruct.ice_read(new Ice.InputStream(communicator, data));
@@ -399,7 +399,7 @@ namespace Ice
 
                 {
                     double[] arr =
-                    {
+                        {
                             1,
                             2,
                             3,
@@ -475,7 +475,7 @@ namespace Ice
                     smallStructArray[i].d = 6.0;
                     smallStructArray[i].str = "7";
                     smallStructArray[i].e = Test.MyEnum.enum2;
-                    smallStructArray[i].p = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+                    smallStructArray[i].p = Test.MyInterfacePrx.Parse("test:default", communicator);
                 }
 
                 var myClassArray = new Test.MyClass[4];
@@ -781,11 +781,11 @@ namespace Ice
                 }
 
                 {
-                    var arr = new Ice.ObjectPrx[2];
-                    arr[0] = communicator.stringToProxy("zero");
-                    arr[1] = communicator.stringToProxy("one");
+                    var arr = new IObjectPrx[2];
+                    arr[0] = IObjectPrx.Parse("zero", communicator);
+                    arr[1] = IObjectPrx.Parse("one", communicator);
                     outS = new Ice.OutputStream(communicator);
-                    var l = new List<Ice.ObjectPrx>(arr);
+                    var l = new List<Ice.IObjectPrx>(arr);
                     Test.MyClassProxyListHelper.write(outS, l);
                     byte[] data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
@@ -795,8 +795,8 @@ namespace Ice
 
                 {
                     var arr = new Test.MyInterfacePrx[2];
-                    arr[0] = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
-                    arr[1] = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+                    arr[0] = Test.MyInterfacePrx.Parse("zero", communicator);
+                    arr[1] = Test.MyInterfacePrx.Parse("one", communicator);
                     outS = new Ice.OutputStream(communicator);
                     var l = new List<Test.MyInterfacePrx>(arr);
                     Test.MyInterfaceProxyListHelper.write(outS, l);
@@ -894,11 +894,11 @@ namespace Ice
                 }
 
                 {
-                    var arr = new Ice.ObjectPrx[2];
-                    arr[0] = communicator.stringToProxy("zero");
-                    arr[1] = communicator.stringToProxy("one");
+                    var arr = new IObjectPrx[2];
+                    arr[0] = IObjectPrx.Parse("zero", communicator);
+                    arr[1] = IObjectPrx.Parse("one", communicator);
                     outS = new Ice.OutputStream(communicator);
-                    var l = new Stack<Ice.ObjectPrx>(arr);
+                    var l = new Stack<Ice.IObjectPrx>(arr);
                     Test.MyClassProxyStackHelper.write(outS, l);
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
@@ -908,8 +908,8 @@ namespace Ice
 
                 {
                     var arr = new Test.MyInterfacePrx[2];
-                    arr[0] = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
-                    arr[1] = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+                    arr[0] = Test.MyInterfacePrx.Parse("zero", communicator);
+                    arr[1] = Test.MyInterfacePrx.Parse("one", communicator);
                     outS = new Ice.OutputStream(communicator);
                     var l = new Stack<Test.MyInterfacePrx>(arr);
                     Test.MyInterfaceProxyStackHelper.write(outS, l);

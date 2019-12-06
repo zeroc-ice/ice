@@ -5,21 +5,22 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Ice;
 
 namespace IceInternal
 {
     internal sealed class LoggerAdminI : Ice.LoggerAdmin
     {
         public void
-        attachRemoteLogger(Ice.RemoteLoggerPrx prx, Ice.LogMessageType[] messageTypes, string[] categories,
-                           int messageMax, Ice.Current current)
+        attachRemoteLogger(RemoteLoggerPrx prx, LogMessageType[] messageTypes, string[] categories,
+                           int messageMax, Current current)
         {
             if (prx == null)
             {
                 return; // can't send this null RemoteLogger anything!
             }
 
-            Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(prx.ice_twoway());
+            var remoteLogger = prx.Clone(oneway: false);
 
             Filters filters = new Filters(messageTypes, categories);
             LinkedList<Ice.LogMessage> initLogMessages = null;
@@ -37,7 +38,7 @@ namespace IceInternal
                         createSendLogCommunicator(current.adapter.GetCommunicator(), _logger.getLocalLogger());
                 }
 
-                Ice.Identity remoteLoggerId = remoteLogger.ice_getIdentity();
+                Ice.Identity remoteLoggerId = remoteLogger.Identity;
 
                 if (_remoteLoggerMap.ContainsKey(remoteLoggerId))
                 {
@@ -313,7 +314,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                return _remoteLoggerMap.Remove(remoteLogger.ice_getIdentity());
+                return _remoteLoggerMap.Remove(remoteLogger.Identity);
             }
         }
 
@@ -378,15 +379,14 @@ namespace IceInternal
         //
         // Change this proxy's communicator, while keeping its invocation timeout
         //
-        private static Ice.RemoteLoggerPrx changeCommunicator(Ice.RemoteLoggerPrx prx, Ice.Communicator communicator)
+        private static RemoteLoggerPrx changeCommunicator(Ice.RemoteLoggerPrx prx, Ice.Communicator communicator)
         {
             if (prx == null)
             {
                 return null;
             }
 
-            Ice.ObjectPrx result = communicator.stringToProxy(prx.ToString());
-            return Ice.RemoteLoggerPrxHelper.uncheckedCast(result.ice_invocationTimeout(prx.ice_getInvocationTimeout()));
+            return RemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
         }
 
         private static void copyProperties(string prefix, Ice.Properties from, Ice.Properties to)

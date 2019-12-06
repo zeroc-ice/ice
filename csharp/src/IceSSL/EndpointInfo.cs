@@ -3,20 +3,16 @@
 //
 namespace IceSSL
 {
-    [global::System.Serializable]
-    public abstract partial class EndpointInfo : global::Ice.EndpointInfo
+    [System.Serializable]
+    public abstract class EndpointInfo : Ice.EndpointInfo
     {
-        partial void ice_initialize();
-
-        protected EndpointInfo() : base()
+        protected EndpointInfo()
         {
-            ice_initialize();
         }
 
-        protected EndpointInfo(global::Ice.EndpointInfo underlying, int timeout, bool compress) :
+        protected EndpointInfo(Ice.EndpointInfo underlying, int timeout, bool compress) :
             base(underlying, timeout, compress)
         {
-            ice_initialize();
         }
     }
 }

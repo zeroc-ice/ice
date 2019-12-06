@@ -25,12 +25,12 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     return;
                 }
 
-                _instance = null;
+                _communicator = null;
                 Monitor.Pulse(this);
 
                 _tokens.Clear();
@@ -44,7 +44,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
@@ -72,7 +72,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
@@ -100,7 +100,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     return false;
                 }
@@ -119,16 +119,11 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
-        internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal)
+        internal Timer(Ice.Communicator communicator, ThreadPriority priority = ThreadPriority.Normal)
         {
-            init(instance, priority, true);
-        }
+            _communicator = communicator;
 
-        internal void init(Instance instance, ThreadPriority priority, bool hasPriority)
-        {
-            _instance = instance;
-
-            string threadName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
+            string threadName = _communicator.initializationData().properties.getProperty("Ice.ProgramName");
             if (threadName.Length > 0)
             {
                 threadName += "-";
@@ -137,10 +132,7 @@ namespace IceInternal
             _thread = new Thread(new ThreadStart(Run));
             _thread.IsBackground = true;
             _thread.Name = threadName + "Ice.Timer";
-            if (hasPriority)
-            {
-                _thread.Priority = priority;
-            }
+            _thread.Priority = priority;
             _thread.Start();
         }
 
@@ -162,12 +154,12 @@ namespace IceInternal
 
         public void Run()
         {
-            Token token = null;
+            Token? token = null;
             while (true)
             {
                 lock (this)
                 {
-                    if (_instance != null)
+                    if (_communicator != null)
                     {
                         //
                         // If the task we just ran is a repeated task, schedule it
@@ -184,7 +176,7 @@ namespace IceInternal
                     }
                     token = null;
 
-                    if (_instance == null)
+                    if (_communicator == null)
                     {
                         break;
                     }
@@ -195,16 +187,16 @@ namespace IceInternal
                         Monitor.Wait(this);
                     }
 
-                    if (_instance == null)
+                    if (_communicator == null)
                     {
                         break;
                     }
 
-                    while (_tokens.Count > 0 && _instance != null)
+                    while (_tokens.Count > 0 && _communicator != null)
                     {
                         long now = Time.currentMonotonicTimeMillis();
 
-                        Token first = null;
+                        Token? first = null;
                         foreach (Token t in _tokens.Keys)
                         {
                             first = t;
@@ -227,7 +219,7 @@ namespace IceInternal
                         Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
 
-                    if (_instance == null)
+                    if (_communicator == null)
                     {
                         break;
                     }
@@ -261,10 +253,10 @@ namespace IceInternal
                     {
                         lock (this)
                         {
-                            if (_instance != null)
+                            if (_communicator != null)
                             {
                                 string s = "unexpected exception from task run method in timer thread:\n" + ex;
-                                _instance.initializationData().logger.error(s);
+                                _communicator.initializationData().logger.error(s);
                             }
                         }
                     }
@@ -316,7 +308,7 @@ namespace IceInternal
                 {
                     return true;
                 }
-                Token t = o as Token;
+                Token? t = o as Token;
                 return t == null ? false : CompareTo(t) == 0;
             }
 
@@ -334,9 +326,9 @@ namespace IceInternal
             public TimerTask task;
         }
 
-        private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
+        private IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
         private Thread _thread;
@@ -346,7 +338,7 @@ namespace IceInternal
         // _observer. Reference assignement is atomic in Java so it
         // also doesn't need to be synchronized.
         //
-        private volatile Ice.Instrumentation.ThreadObserver _observer;
+        private volatile Ice.Instrumentation.ThreadObserver? _observer;
     }
 
 }

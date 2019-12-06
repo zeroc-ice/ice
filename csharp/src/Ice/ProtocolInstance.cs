@@ -10,23 +10,11 @@ namespace IceInternal
     {
         public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)
         {
-            instance_ = Util.getInstance(communicator);
-            traceLevel_ = instance_.traceLevels().network;
-            traceCategory_ = instance_.traceLevels().networkCat;
-            logger_ = instance_.initializationData().logger;
-            properties_ = instance_.initializationData().properties;
-            type_ = type;
-            protocol_ = protocol;
-            secure_ = secure;
-        }
-
-        public ProtocolInstance(Instance instance, short type, string protocol, bool secure)
-        {
-            instance_ = instance;
-            traceLevel_ = instance_.traceLevels().network;
-            traceCategory_ = instance_.traceLevels().networkCat;
-            logger_ = instance_.initializationData().logger;
-            properties_ = instance_.initializationData().properties;
+            communicator_ = communicator;
+            traceLevel_ = communicator_.traceLevels().network;
+            traceCategory_ = communicator_.traceLevels().networkCat;
+            logger_ = communicator_.initializationData().logger;
+            properties_ = communicator_.initializationData().properties;
             type_ = type;
             protocol_ = protocol;
             secure_ = secure;
@@ -49,7 +37,7 @@ namespace IceInternal
 
         public EndpointFactory getEndpointFactory(short type)
         {
-            return instance_.endpointFactoryManager().get(type);
+            return communicator_.endpointFactoryManager().get(type);
         }
 
         public string protocol()
@@ -74,66 +62,66 @@ namespace IceInternal
 
         public bool preferIPv6()
         {
-            return instance_.preferIPv6();
+            return communicator_.preferIPv6();
         }
 
         public int protocolSupport()
         {
-            return instance_.protocolSupport();
+            return communicator_.protocolSupport();
         }
 
         public string defaultHost()
         {
-            return instance_.defaultsAndOverrides().defaultHost;
+            return communicator_.defaultsAndOverrides().defaultHost;
         }
 
         public EndPoint defaultSourceAddress()
         {
-            return instance_.defaultsAndOverrides().defaultSourceAddress;
+            return communicator_.defaultsAndOverrides().defaultSourceAddress;
         }
 
         public Ice.EncodingVersion defaultEncoding()
         {
-            return instance_.defaultsAndOverrides().defaultEncoding;
+            return communicator_.defaultsAndOverrides().defaultEncoding;
         }
 
         public int defaultTimeout()
         {
-            return instance_.defaultsAndOverrides().defaultTimeout;
+            return communicator_.defaultsAndOverrides().defaultTimeout;
         }
 
         public NetworkProxy networkProxy()
         {
-            return instance_.networkProxy();
+            return communicator_.networkProxy();
         }
 
         public int messageSizeMax()
         {
-            return instance_.messageSizeMax();
+            return communicator_.messageSizeMax();
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpointI endpt,
                             EndpointI_connectors callback)
         {
-            instance_.endpointHostResolver().resolve(host, port, type, endpt, callback);
+            communicator_.endpointHostResolver().resolve(host, port, type, endpt, callback);
         }
 
-        public BufSizeWarnInfo getBufSizeWarn(short type)
+        internal Ice.BufSizeWarnInfo getBufSizeWarn(short type)
         {
-            return instance_.getBufSizeWarn(type);
+            return communicator_.GetBufSizeWarn(type);
         }
 
         public void setSndBufSizeWarn(short type, int size)
         {
-            instance_.setSndBufSizeWarn(type, size);
+            communicator_.SetSndBufSizeWarn(type, size);
         }
 
         public void setRcvBufSizeWarn(short type, int size)
         {
-            instance_.setRcvBufSizeWarn(type, size);
+            communicator_.SetRcvBufSizeWarn(type, size);
         }
 
-        protected Instance instance_;
+        protected Ice.Communicator communicator_;
         protected int traceLevel_;
         protected string traceCategory_;
         protected Ice.Logger logger_;

@@ -271,31 +271,31 @@ namespace Ice
                 }
 
                 public Task<Test.MyClass_OpAObjectPrxSResult>
-                opAObjectPrxSAsync(Ice.ObjectPrx[] i, Ice.Current current)
+                opAObjectPrxSAsync(Ice.IObjectPrx[] i, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpAObjectPrxSResult(i, i));
                 }
 
                 public Task<Test.MyClass_OpLObjectPrxSResult>
-                opLObjectPrxSAsync(List<Ice.ObjectPrx> i, Ice.Current current)
+                opLObjectPrxSAsync(List<Ice.IObjectPrx> i, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpLObjectPrxSResult(i, i));
                 }
 
                 public Task<Test.MyClass_OpKObjectPrxSResult>
-                opKObjectPrxSAsync(LinkedList<Ice.ObjectPrx> i, Ice.Current current)
+                opKObjectPrxSAsync(LinkedList<Ice.IObjectPrx> i, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpKObjectPrxSResult(i, i));
                 }
 
                 public Task<Test.MyClass_OpQObjectPrxSResult>
-                opQObjectPrxSAsync(Queue<Ice.ObjectPrx> i, Ice.Current current)
+                opQObjectPrxSAsync(Queue<Ice.IObjectPrx> i, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpQObjectPrxSResult(i, i));
                 }
 
                 public Task<Test.MyClass_OpSObjectPrxSResult>
-                opSObjectPrxSAsync(Stack<Ice.ObjectPrx> i, Ice.Current current)
+                opSObjectPrxSAsync(Stack<Ice.IObjectPrx> i, Ice.Current current)
                 {
                     return Task.FromResult(new Test.MyClass_OpSObjectPrxSResult(i, i));
                 }

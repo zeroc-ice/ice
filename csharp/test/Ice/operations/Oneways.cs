@@ -18,11 +18,11 @@ namespace Ice
 
             internal static void oneways(global::Test.TestHelper helper, Test.MyClassPrx p)
             {
-                Ice.Communicator communicator = helper.communicator();
-                p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+                Communicator communicator = helper.communicator();
+                p = p.Clone(oneway: true);
 
                 {
-                    p.ice_ping();
+                    p.IcePing();
                 }
 
                 {
@@ -41,10 +41,10 @@ namespace Ice
                     byte b;
                     try
                     {
-                        p.opByte((byte)0xff, (byte)0x0f, out b);
+                        p.opByte(0xff, 0x0f, out b);
                         test(false);
                     }
-                    catch (Ice.TwowayOnlyException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }

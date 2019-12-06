@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Test;
-
+using Ice;
 public class AllTests : Test.AllTests
 {
     private class RelayI : Relay
@@ -59,13 +59,13 @@ public class AllTests : Test.AllTests
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
-        Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
+        var @base = IObjectPrx.Parse(@ref, communicator);
         test(@base != null);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(@base);
+        TestIntfPrx testPrx = TestIntfPrx.CheckedCast(@base);
         test(testPrx != null);
         test(testPrx.Equals(@base));
         output.WriteLine("ok");
@@ -83,7 +83,7 @@ public class AllTests : Test.AllTests
                 test(b.b.Equals("Base.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -109,7 +109,7 @@ public class AllTests : Test.AllTests
                     test(b.b.Equals("Base.b"));
                     test(b.GetType().Name.Equals("Base"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -130,7 +130,7 @@ public class AllTests : Test.AllTests
                 test(b.b.Equals("UnknownDerived.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -156,7 +156,7 @@ public class AllTests : Test.AllTests
                     test(b.b.Equals("UnknownDerived.b"));
                     test(b.GetType().Name.Equals("Base"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -178,7 +178,7 @@ public class AllTests : Test.AllTests
                 test(k.kd.Equals("KnownDerived.kd"));
                 test(k.GetType().FullName.Equals("Test.KnownDerived"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -205,7 +205,7 @@ public class AllTests : Test.AllTests
                     test(k.kd.Equals("KnownDerived.kd"));
                     test(k.GetType().Name.Equals("KnownDerived"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -227,7 +227,7 @@ public class AllTests : Test.AllTests
                 test(k.kd.Equals("KnownDerived.kd"));
                 test(k.GetType().FullName.Equals("Test.KnownDerived"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -254,7 +254,7 @@ public class AllTests : Test.AllTests
                     test(k.kd.Equals("KnownDerived.kd"));
                     test(k.GetType().Name.Equals("KnownDerived"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -275,7 +275,7 @@ public class AllTests : Test.AllTests
                 test(b.b.Equals("UnknownIntermediate.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -301,7 +301,7 @@ public class AllTests : Test.AllTests
                     test(b.b.Equals("UnknownIntermediate.b"));
                     test(b.GetType().Name.Equals("Base"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -323,7 +323,7 @@ public class AllTests : Test.AllTests
                 test(ki.ki.Equals("KnownIntermediate.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -350,7 +350,7 @@ public class AllTests : Test.AllTests
                     test(ki.ki.Equals("KnownIntermediate.ki"));
                     test(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -373,7 +373,7 @@ public class AllTests : Test.AllTests
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -401,7 +401,7 @@ public class AllTests : Test.AllTests
                     test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                     test(kmd.GetType().Name.Equals("KnownMostDerived"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -423,7 +423,7 @@ public class AllTests : Test.AllTests
                 test(ki.ki.Equals("KnownIntermediate.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -450,7 +450,7 @@ public class AllTests : Test.AllTests
                     test(ki.ki.Equals("KnownIntermediate.ki"));
                     test(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -473,7 +473,7 @@ public class AllTests : Test.AllTests
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -501,7 +501,7 @@ public class AllTests : Test.AllTests
                     test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                     test(kmd.GetType().Name.Equals("KnownMostDerived"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -524,7 +524,7 @@ public class AllTests : Test.AllTests
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -552,7 +552,7 @@ public class AllTests : Test.AllTests
                     test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                     test(kmd.GetType().Name.Equals("KnownMostDerived"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -574,7 +574,7 @@ public class AllTests : Test.AllTests
                 test(ki.ki.Equals("UnknownMostDerived1.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -601,7 +601,7 @@ public class AllTests : Test.AllTests
                     test(ki.ki.Equals("UnknownMostDerived1.ki"));
                     test(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -623,7 +623,7 @@ public class AllTests : Test.AllTests
                 test(ki.ki.Equals("UnknownMostDerived1.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -650,7 +650,7 @@ public class AllTests : Test.AllTests
                     test(ki.ki.Equals("UnknownMostDerived1.ki"));
                     test(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -671,7 +671,7 @@ public class AllTests : Test.AllTests
                 test(b.b.Equals("UnknownMostDerived2.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -697,7 +697,7 @@ public class AllTests : Test.AllTests
                     test(b.b.Equals("UnknownMostDerived2.b"));
                     test(b.GetType().Name.Equals("Base"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -718,7 +718,7 @@ public class AllTests : Test.AllTests
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to Base.
                 //
-                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
             }
             catch (Ice.UnknownUserException)
             {
@@ -726,12 +726,12 @@ public class AllTests : Test.AllTests
                 // A MarshalException is raised for the compact format because the
                 // most-derived type is unknown and the exception cannot be sliced.
                 //
-                test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(!testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
             }
             catch (Ice.OperationNotExistException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -748,7 +748,7 @@ public class AllTests : Test.AllTests
             }
             catch (Base ex)
             {
-                if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
                 {
                     test(ex.ice_getSlicedData() == null);
                 }
@@ -770,7 +770,7 @@ public class AllTests : Test.AllTests
             catch (KnownPreserved ex)
             {
                 test(ex.kp.Equals("preserved"));
-                if (testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                if (testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0))
                 {
                     test(ex.ice_getSlicedData() == null);
                 }
@@ -785,11 +785,9 @@ public class AllTests : Test.AllTests
             }
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
-            RelayTraits relayT = default;
-            RelayI relayI = new RelayI();
-            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.Add(relayI));
+            RelayPrx relay = adapter.Add(new RelayI());
             adapter.Activate();
-            testPrx.ice_getConnection().setAdapter(adapter);
+            testPrx.GetConnection().setAdapter(adapter);
 
             try
             {
@@ -805,7 +803,7 @@ public class AllTests : Test.AllTests
             catch (Ice.OperationNotExistException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -824,7 +822,7 @@ public class AllTests : Test.AllTests
             catch (Ice.OperationNotExistException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -850,7 +848,7 @@ public class AllTests : Test.AllTests
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
                 //
-                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
                 test(ex.b.Equals("base"));
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
@@ -858,7 +856,7 @@ public class AllTests : Test.AllTests
             catch (Ice.OperationNotExistException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -884,7 +882,7 @@ public class AllTests : Test.AllTests
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
                 //
-                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(testPrx.EncodingVersion.Equals(Ice.Util.Encoding_1_0));
                 test(ex.b.Equals("base"));
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
@@ -892,7 +890,7 @@ public class AllTests : Test.AllTests
             catch (Ice.OperationNotExistException)
             {
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }

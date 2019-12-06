@@ -20,62 +20,37 @@ const string clientBuffered = "Glacier2.Client.Buffered";
 
 }
 
-Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& clientAdapter,
-                             const Ice::ObjectAdapterPtr& serverAdapter) :
-    _communicator(communicator),
-    _properties(communicator->getProperties()),
-    _logger(communicator->getLogger()),
-    _clientAdapter(clientAdapter),
-    _serverAdapter(serverAdapter)
+Glacier2::Instance::Instance(shared_ptr<Ice::Communicator> communicator, shared_ptr<Ice::ObjectAdapter> clientAdapter,
+                   shared_ptr<Ice::ObjectAdapter> serverAdapter) :
+    _communicator(move(communicator)),
+    _properties(_communicator->getProperties()),
+    _logger(_communicator->getLogger()),
+    _clientAdapter(move(clientAdapter)),
+    _serverAdapter(move(serverAdapter)),
+    _proxyVerifier(make_shared<ProxyVerifier>(_communicator))
 {
-    if(_properties->getPropertyAsIntWithDefault(serverBuffered, 1) > 0)
+    if(_properties->getPropertyAsIntWithDefault(serverBuffered, 0) > 0)
     {
-        IceUtil::Time sleepTime = IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime));
-        const_cast<RequestQueueThreadPtr&>(_serverRequestQueueThread) = new RequestQueueThread(sleepTime);
-        try
-        {
-            _serverRequestQueueThread->start();
-        }
-        catch(const IceUtil::Exception&)
-        {
-            _serverRequestQueueThread->destroy();
-            throw;
-        }
+        auto sleepTime = chrono::milliseconds(_properties->getPropertyAsInt(serverSleepTime));
+        const_cast<shared_ptr<RequestQueueThread>&>(_serverRequestQueueThread) = make_shared<RequestQueueThread>(sleepTime);
     }
 
-    if(_properties->getPropertyAsIntWithDefault(clientBuffered, 1) > 0)
+    if(_properties->getPropertyAsIntWithDefault(clientBuffered, 0) > 0)
     {
-        IceUtil::Time sleepTime = IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime));
-        const_cast<RequestQueueThreadPtr&>(_clientRequestQueueThread) = new RequestQueueThread(sleepTime);
-        try
-        {
-            _clientRequestQueueThread->start();
-        }
-        catch(const IceUtil::Exception&)
-        {
-            _clientRequestQueueThread->destroy();
-            throw;
-        }
+        auto sleepTime = chrono::milliseconds(_properties->getPropertyAsInt(clientSleepTime));
+        const_cast<shared_ptr<RequestQueueThread>&>(_clientRequestQueueThread) = make_shared<RequestQueueThread>(sleepTime);
     }
 
-    const_cast<ProxyVerifierPtr&>(_proxyVerifier) = new ProxyVerifier(communicator);
-
     //
-    // If an Ice metrics observer is setup on the communicator, also
-    // enable metrics for IceStorm.
+    // If an Ice metrics observer is setup on the communicator, also enable metrics for Glacier2.
     //
-    IceInternal::CommunicatorObserverIPtr o =
-        IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
+    auto o = dynamic_pointer_cast<IceInternal::CommunicatorObserverI>(_communicator->getObserver());
     if(o)
     {
-        const_cast<Glacier2::Instrumentation::RouterObserverPtr&>(_observer) =
-            new RouterObserverI(o->getFacet(),
-                                _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
+        const_cast<shared_ptr<Instrumentation::RouterObserver>&>(_observer) =
+            make_shared<RouterObserverI>(o->getFacet(),
+                                         _properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2"));
     }
-}
-
-Glacier2::Instance::~Instance()
-{
 }
 
 void
@@ -91,11 +66,12 @@ Glacier2::Instance::destroy()
         _serverRequestQueueThread->destroy();
     }
 
-    const_cast<SessionRouterIPtr&>(_sessionRouter) = 0;
+    _sessionRouter = nullptr;
 }
 
 void
-Glacier2::Instance::setSessionRouter(const SessionRouterIPtr& sessionRouter)
+Glacier2::Instance::setSessionRouter(shared_ptr<SessionRouterI> sessionRouter)
 {
-    const_cast<SessionRouterIPtr&>(_sessionRouter) = sessionRouter;
+    assert(_sessionRouter == nullptr);
+    _sessionRouter = move(sessionRouter);
 }

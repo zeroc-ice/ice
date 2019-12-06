@@ -8,8 +8,30 @@
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+        <Compile Update="generated\Metrics.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\Metrics.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\PermissionsVerifier.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\PermissionsVerifier.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\PermissionsVerifierF.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\PermissionsVerifierF.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Router.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\RouterF.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\RouterF.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Session.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\Session.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\SSLInfo.cs">
+          <SliceCompileSource>..\..\..\slice\Glacier2\SSLInfo.ice</SliceCompileSource>
+        </Compile>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../Ice/ice.csproj" />
     </ItemGroup>
+    <ItemGroup />
 </Project>

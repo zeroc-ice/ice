@@ -12,9 +12,9 @@ namespace Ice
             {
                 Ice.Communicator communicator = helper.communicator();
                 string sref = "test:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+                var obj = IObjectPrx.Parse(sref, communicator);
                 test(obj != null);
-                var proxy = Test.TestIntfPrxHelper.uncheckedCast(obj);
+                var proxy = Test.TestIntfPrx.UncheckedCast(obj);
                 test(proxy != null);
 
                 var output = helper.getWriter();

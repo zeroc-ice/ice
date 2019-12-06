@@ -12,8 +12,8 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
+                Properties properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Default.Locator", $"locator:{getTestEndpoint(properties, 0)}");
                 using (var communicator = initialize(properties))
                 {
                     AllTests.allTests(this);

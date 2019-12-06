@@ -9,9 +9,9 @@ namespace IceInternal
 
     public sealed class EndpointFactoryManager
     {
-        internal EndpointFactoryManager(Instance instance)
+        internal EndpointFactoryManager(Ice.Communicator communicator)
         {
-            _instance = instance;
+            _communicator = communicator;
             _factories = new List<EndpointFactory>();
         }
 
@@ -76,7 +76,7 @@ namespace IceInternal
 
             if (protocol.Equals("default"))
             {
-                protocol = _instance.defaultsAndOverrides().defaultProtocol;
+                protocol = _communicator.defaultsAndOverrides().defaultProtocol;
             }
 
             EndpointFactory factory = null;
@@ -141,11 +141,11 @@ namespace IceInternal
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    Ice.OutputStream os = new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding);
+                    Ice.OutputStream os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
                     os.writeShort(ue.type());
                     ue.streamWrite(os);
                     Ice.InputStream iss =
-                        new Ice.InputStream(_instance, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
+                        new Ice.InputStream(_communicator, Ice.Util.currentProtocolEncoding, os.getBuffer(), true);
                     iss.pos(0);
                     iss.readShort(); // type
                     iss.startEncapsulation();
@@ -200,7 +200,7 @@ namespace IceInternal
             _factories.Clear();
         }
 
-        private readonly Instance _instance;
+        private readonly Ice.Communicator _communicator;
         private readonly List<EndpointFactory> _factories;
     }
 

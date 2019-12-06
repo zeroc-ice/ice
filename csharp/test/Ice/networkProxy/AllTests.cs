@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 public class AllTests : Test.AllTests
 {
     private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
@@ -20,7 +22,7 @@ public class AllTests : Test.AllTests
     {
         Ice.Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
-        Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        var obj = IObjectPrx.Parse(sref, communicator);
         test(obj != null);
 
         int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
@@ -29,20 +31,19 @@ public class AllTests : Test.AllTests
             proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
         }
 
-        Test.TestIntfPrx testPrx = Test.TestIntfPrxHelper.checkedCast(obj);
-        test(testPrx != null);
+        Test.TestIntfPrx testPrx = Test.TestIntfPrx.CheckedCast(obj);
         var output = helper.getWriter();
         output.Write("testing connection... ");
         output.Flush();
         {
-            testPrx.ice_ping();
+            testPrx.IcePing();
         }
         output.WriteLine("ok");
 
         output.Write("testing connection information... ");
         output.Flush();
         {
-            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.ice_getConnection().getInfo());
+            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().getInfo());
             test(info.remotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         output.WriteLine("ok");
@@ -59,7 +60,7 @@ public class AllTests : Test.AllTests
         {
             try
             {
-                testPrx.ice_ping();
+                testPrx.IcePing();
                 test(false);
             }
             catch (Ice.LocalException)

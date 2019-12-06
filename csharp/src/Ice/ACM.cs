@@ -97,9 +97,9 @@ namespace IceInternal
             public readonly bool remove;
         }
 
-        internal FactoryACMMonitor(Instance instance, ACMConfig config)
+        internal FactoryACMMonitor(Ice.Communicator communicator, ACMConfig config)
         {
-            _instance = instance;
+            _communicator = communicator;
             _config = config;
         }
 
@@ -107,7 +107,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     //
                     // Ensure all the connections have been cleared, it's important to wait here
@@ -126,11 +126,11 @@ namespace IceInternal
                     // Cancel the scheduled timer task and schedule it again now to clear the
                     // connection set from the timer thread.
                     //
-                    _instance.timer().cancel(this);
-                    _instance.timer().schedule(this, 0);
+                    _communicator.timer().cancel(this);
+                    _communicator.timer().schedule(this, 0);
                 }
 
-                _instance = null;
+                _communicator = null;
                 _changes.Clear();
 
                 //
@@ -155,7 +155,7 @@ namespace IceInternal
                 if (_connections.Count == 0)
                 {
                     _connections.Add(connection);
-                    _instance.timer().scheduleRepeated(this, _config.timeout / 2);
+                    _communicator.timer().scheduleRepeated(this, _config.timeout / 2);
                 }
                 else
                 {
@@ -173,7 +173,7 @@ namespace IceInternal
 
             lock (this)
             {
-                Debug.Assert(_instance != null);
+                Debug.Assert(_communicator != null);
                 _changes.Add(new Change(connection, true));
             }
         }
@@ -188,7 +188,7 @@ namespace IceInternal
 
         public ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h)
         {
-            Debug.Assert(_instance != null);
+            Debug.Assert(_communicator != null);
 
             ACMConfig config = (ACMConfig)_config.Clone();
             if (timeout.HasValue)
@@ -203,7 +203,7 @@ namespace IceInternal
             {
                 config.heartbeat = h.Value;
             }
-            return new ConnectionACMMonitor(this, _instance.timer(), config);
+            return new ConnectionACMMonitor(this, _communicator.timer(), config);
         }
 
         public Ice.ACM getACM()
@@ -215,7 +215,7 @@ namespace IceInternal
             return acm;
         }
 
-        internal List<Ice.ConnectionI> swapReapedConnections()
+        internal List<Ice.ConnectionI>? swapReapedConnections()
         {
             lock (this)
             {
@@ -233,7 +233,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     _connections.Clear();
                     System.Threading.Monitor.PulseAll(this);
@@ -255,7 +255,7 @@ namespace IceInternal
 
                 if (_connections.Count == 0)
                 {
-                    _instance.timer().cancel(this);
+                    _communicator.timer().cancel(this);
                     return;
                 }
             }
@@ -282,15 +282,15 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     return;
                 }
-                _instance.initializationData().logger.error("exception in connection monitor:\n" + ex);
+                _communicator.initializationData().logger.error("exception in connection monitor:\n" + ex);
             }
         }
 
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private readonly ACMConfig _config;
 
         private HashSet<Ice.ConnectionI> _connections = new HashSet<Ice.ConnectionI>();
@@ -378,6 +378,6 @@ namespace IceInternal
         private readonly Timer _timer;
         private readonly ACMConfig _config;
 
-        private Ice.ConnectionI _connection;
+        private Ice.ConnectionI? _connection;
     }
 }

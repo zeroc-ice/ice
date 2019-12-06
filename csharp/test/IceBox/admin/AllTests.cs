@@ -6,13 +6,14 @@ using System;
 using System.Collections.Generic;
 
 using Test;
+using Ice;
 
 public class AllTests : Test.AllTests
 {
     public static void allTests(Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
-        Ice.ObjectPrx admin = communicator.stringToProxy("DemoIceBox/admin:default -p 9996 -t 10000");
+        var admin = IObjectPrx.Parse("DemoIceBox/admin:default -p 9996 -t 10000", communicator);
 
         TestFacetPrx facet = null;
 
@@ -22,16 +23,15 @@ public class AllTests : Test.AllTests
             //
             // Test: Verify that the custom facet is present.
             //
-            facet = TestFacetPrxHelper.checkedCast(admin, "TestFacet");
-            facet.ice_ping();
+            facet = TestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet"));
+            facet.IcePing();
         }
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing properties facet... ");
         Console.Out.Flush();
         {
-            Ice.PropertiesAdminPrx pa =
-                Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
+            var pa = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
 
             //
             // Test: PropertiesAdmin::getProperty()
@@ -84,11 +84,8 @@ public class AllTests : Test.AllTests
         Console.Out.Write("testing metrics admin facet... ");
         Console.Out.Flush();
         {
-            IceMX.MetricsAdminPrx ma =
-                IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Metrics");
-
-            Ice.PropertiesAdminPrx pa =
-                Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
+            var ma = IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Metrics"));
+            var pa = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
 
             string[] views;
             string[] disabledViews;
@@ -106,8 +103,7 @@ public class AllTests : Test.AllTests
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin,
-                                                         "Metrics").getMetricsViewNames(out disabledViews).Length == 0);
+            test(IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics")).getMetricsViewNames(out disabledViews).Length == 0);
         }
         Console.Out.WriteLine("ok");
     }

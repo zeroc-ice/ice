@@ -351,7 +351,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.InvocationObserver
-    getInvocationObserver(Ice.ObjectPrx p, String op, Dictionary<String, String> ctx)
+    getInvocationObserver(Ice.IObjectPrx p, String op, Dictionary<String, String> ctx)
     {
         lock (this)
         {

@@ -157,7 +157,7 @@ namespace Ice
                 _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
                 var initData = new InitializationData();
-                initData.properties = _com.ice_getCommunicator().getProperties().ice_clone_();
+                initData.properties = _com.Communicator.getProperties().Clone();
                 initData.logger = _logger;
                 initData.properties.setProperty("Ice.ACM.Timeout", "2");
                 if (_clientACMTimeout >= 0)
@@ -208,11 +208,10 @@ namespace Ice
 
             public void run()
             {
-                var proxy = Test.TestIntfPrxHelper.uncheckedCast(_communicator.stringToProxy(
-                                                                        _adapter.getTestIntf().ToString()));
+                var proxy = Test.TestIntfPrx.Parse(_adapter.getTestIntf().ToString(), _communicator);
                 try
                 {
-                    proxy.ice_getConnection().setCloseCallback(_ =>
+                    proxy.GetConnection().setCloseCallback(_ =>
                     {
                         lock (this)
                         {
@@ -221,7 +220,7 @@ namespace Ice
                         }
                     });
 
-                    proxy.ice_getConnection().setHeartbeatCallback(_ =>
+                    proxy.GetConnection().setHeartbeatCallback(_ =>
                     {
                         lock (this)
                         {
@@ -511,7 +510,7 @@ namespace Ice
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        proxy.ice_ping();
+                        proxy.IcePing();
                         Thread.Sleep(300);
                     }
 
@@ -537,7 +536,7 @@ namespace Ice
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
                 {
                     proxy.startHeartbeatCount();
-                    Ice.Connection con = proxy.ice_getConnection();
+                    Ice.Connection con = proxy.GetConnection();
                     con.heartbeat();
                     con.heartbeat();
                     con.heartbeat();
@@ -557,7 +556,7 @@ namespace Ice
 
                 public override void runTestCase(Test.RemoteObjectAdapterPrx adapter, Test.TestIntfPrx proxy)
                 {
-                    Ice.Connection con = proxy.ice_getCachedConnection();
+                    Ice.Connection con = proxy.GetCachedConnection();
 
                     try
                     {
@@ -615,8 +614,7 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
-                string @ref = "communicator:" + helper.getTestEndpoint(0);
-                var com = Test.RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
+                var com = Test.RemoteCommunicatorPrx.Parse($"communicator:{helper.getTestEndpoint(0)}", communicator);
 
                 var output = helper.getWriter();
 

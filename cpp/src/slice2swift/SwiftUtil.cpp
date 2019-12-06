@@ -137,7 +137,7 @@ Slice::fixIdent(const string& ident)
         return lookupKwd(ident);
     }
     StringList ids = splitScopedName(ident);
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    transform(ids.begin(), ids.end(), ids.begin(), lookupKwd);
     ostringstream result;
     for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {

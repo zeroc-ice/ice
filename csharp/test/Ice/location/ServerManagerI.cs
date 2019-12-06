@@ -36,7 +36,7 @@ namespace Ice
                 // the adapter id instead of the endpoints.
                 //
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = _helper.communicator().getProperties().ice_clone_();
+                initData.properties = _helper.communicator().getProperties().Clone();
                 initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
                 initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
                 initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
@@ -63,9 +63,9 @@ namespace Ice
                         adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-                        Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
-                        adapter.SetLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
-                        adapter2.SetLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+                        var locator = LocatorPrx.Parse($"locator:{_helper.getTestEndpoint(0)}", serverCommunicator);
+                        adapter.SetLocator(locator);
+                        adapter2.SetLocator(locator);
 
                         var testI = new TestI(adapter, adapter2, _registry);
                         _registry.addObject(adapter.Add(testI, "test"));

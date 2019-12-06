@@ -31,8 +31,7 @@ namespace Ice
 
                     for (int i = 0; i < num; ++i)
                     {
-                        var prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
-                        Test.TestIntfPrxHelper.uncheckedCast(prx).shutdown();
+                        Test.TestIntfPrx.Parse("control:" + getTestEndpoint(i, "tcp"), communicator).shutdown();
                     }
                 }
             }

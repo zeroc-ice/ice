@@ -24,10 +24,10 @@ namespace IceInternal
 
     public class Incoming : Ice.Request
     {
-        public Incoming(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
+        public Incoming(Ice.Communicator communicator, ResponseHandler handler, Ice.ConnectionI connection,
                         Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
-            _instance = instance;
+            _communicator = communicator;
             _responseHandler = handler;
             _response = response;
             _compress = compress;
@@ -44,10 +44,10 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection,
+        public void reset(Ice.Communicator communicator, ResponseHandler handler, Ice.ConnectionI connection,
                           Ice.ObjectAdapter adapter, bool response, byte compress, int requestId)
         {
-            _instance = instance;
+            _communicator = communicator;
             _responseHandler = handler;
             _response = response;
             _compress = compress;
@@ -140,7 +140,7 @@ namespace IceInternal
                 _current.ctx[first] = second;
             }
 
-            Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+            Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
             if (obsv != null)
             {
                 // Read the encapsulation size.
@@ -500,7 +500,7 @@ namespace IceInternal
 
             if (os == null) // Create the output stream if none is provided
             {
-                os = new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding);
+                os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
             }
             Debug.Assert(os.pos() == 0);
             os.writeBlob(Protocol.replyHdr);
@@ -529,7 +529,7 @@ namespace IceInternal
             {
                 if (os == null) // Create the output stream if none is provided
                 {
-                    os = new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding);
+                    os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
                 }
                 Debug.Assert(os.pos() == 0);
                 os.writeBlob(Protocol.replyHdr);
@@ -560,7 +560,7 @@ namespace IceInternal
             {
                 if (os == null) // Create the output stream if none is provided
                 {
-                    os = new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding);
+                    os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
                 }
                 Debug.Assert(os.pos() == 0);
                 os.writeBlob(Protocol.replyHdr);
@@ -584,12 +584,12 @@ namespace IceInternal
 
         private void warning(Exception ex)
         {
-            Debug.Assert(_instance != null);
+            Debug.Assert(_communicator != null);
 
             using (StringWriter sw = new StringWriter(CultureInfo.CurrentCulture))
             {
                 IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
-                Ice.ToStringMode toStringMode = _instance.toStringMode();
+                Ice.ToStringMode toStringMode = _communicator.toStringMode();
                 output.setUseTab(false);
                 output.print("dispatch exception:");
                 output.print("\nidentity: " + Ice.Util.identityToString(_current.id, toStringMode));
@@ -615,7 +615,7 @@ namespace IceInternal
                 }
                 output.print("\n");
                 output.print(ex.ToString());
-                _instance.initializationData().logger.warning(sw.ToString());
+                _communicator.initializationData().logger.warning(sw.ToString());
             }
         }
 
@@ -642,7 +642,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    _os = new Ice.OutputStream(_instance, Ice.Util.currentProtocolEncoding);
+                    _os = new Ice.OutputStream(_communicator, Ice.Util.currentProtocolEncoding);
                 }
             }
 
@@ -667,7 +667,7 @@ namespace IceInternal
                     ex.operation = _current.operation;
                 }
 
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                if (_communicator.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
                 {
                     warning(ex);
                 }
@@ -727,7 +727,7 @@ namespace IceInternal
             }
             catch (Ice.UnknownLocalException ex)
             {
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if (_communicator.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
                     warning(ex);
                 }
@@ -756,7 +756,7 @@ namespace IceInternal
             }
             catch (Ice.UnknownUserException ex)
             {
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if (_communicator.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
                     warning(ex);
                 }
@@ -786,7 +786,7 @@ namespace IceInternal
             }
             catch (Ice.UnknownException ex)
             {
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if (_communicator.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
                     warning(ex);
                 }
@@ -841,7 +841,7 @@ namespace IceInternal
             }
             catch (Ice.Exception ex)
             {
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if (_communicator.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
                     warning(ex);
                 }
@@ -870,7 +870,7 @@ namespace IceInternal
             }
             catch (Exception ex)
             {
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if (_communicator.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
                     warning(ex);
                 }
@@ -906,7 +906,7 @@ namespace IceInternal
             _responseHandler = null;
         }
 
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private Ice.Current _current;
         private Ice.Disp _servant;
         private Ice.ServantLocator _locator;

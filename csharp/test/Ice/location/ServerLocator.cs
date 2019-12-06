@@ -18,7 +18,7 @@ namespace Ice
                 _requestCount = 0;
             }
 
-            public Task<Ice.ObjectPrx>
+            public Task<Ice.IObjectPrx>
             findAdapterByIdAsync(string adapter, Ice.Current current)
             {
                 ++_requestCount;
@@ -36,7 +36,7 @@ namespace Ice
                 }
             }
 
-            public Task<Ice.ObjectPrx>
+            public Task<Ice.IObjectPrx>
             findObjectByIdAsync(Ice.Identity id, Ice.Current current)
             {
                 ++_requestCount;

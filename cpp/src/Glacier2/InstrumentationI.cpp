@@ -35,17 +35,17 @@ public:
     };
     static Attributes attributes;
 
-    SessionHelper(const string& instanceName, const string& id, const ::Ice::ConnectionPtr& connection, int rtSize) :
-        _instanceName(instanceName), _id(id), _connection(connection), _routingTableSize(rtSize)
+    SessionHelper(const string& instanceName, const string& id, shared_ptr<Ice::Connection> connection, int rtSize) :
+        _instanceName(instanceName), _id(id), _connection(move(connection)), _routingTableSize(rtSize)
     {
     }
 
-    virtual string operator()(const string& attribute) const
+    string operator()(const string& attribute) const override
     {
         return attributes(this, attribute);
     }
 
-    virtual void initMetrics(const SessionMetricsPtr& v) const
+    void initMetrics(const shared_ptr<SessionMetrics>& v) const override
     {
         v->routingTableSize += _routingTableSize;
     }
@@ -60,25 +60,25 @@ public:
         return _id;
     }
 
-    ::Ice::ConnectionInfoPtr
+    shared_ptr<Ice::ConnectionInfo>
     getConnectionInfo() const
     {
         return _connection->getInfo();
     }
 
-    ::Ice::EndpointPtr
+    shared_ptr<Ice::Endpoint>
     getEndpoint() const
     {
         return _connection->getEndpoint();
     }
 
-    const ::Ice::ConnectionPtr&
+    const shared_ptr<Ice::Connection>&
     getConnection() const
     {
         return _connection;
     }
 
-    const ::Ice::EndpointInfoPtr&
+    shared_ptr<Ice::EndpointInfo>
     getEndpointInfo() const
     {
         if(!_endpointInfo)
@@ -92,9 +92,9 @@ private:
 
     const string& _instanceName;
     const string& _id;
-    const ::Ice::ConnectionPtr& _connection;
+    const shared_ptr<Ice::Connection>& _connection;
     const int _routingTableSize;
-    mutable ::Ice::EndpointInfoPtr _endpointInfo;
+    mutable shared_ptr<Ice::EndpointInfo> _endpointInfo;
 };
 
 SessionHelper::Attributes SessionHelper::attributes;
@@ -108,7 +108,7 @@ struct ForwardedUpdate
     {
     }
 
-    void operator()(const SessionMetricsPtr& v)
+    void operator()(const shared_ptr<SessionMetrics>& v)
     {
         if(client)
         {
@@ -173,22 +173,22 @@ SessionObserverI::routingTableSize(int delta)
     forEach(add(&SessionMetrics::routingTableSize, delta));
 }
 
-RouterObserverI::RouterObserverI(const IceInternal::MetricsAdminIPtr& metrics, const string& instanceName) :
-    _metrics(metrics), _instanceName(instanceName), _sessions(metrics, "Session")
+RouterObserverI::RouterObserverI(shared_ptr<IceInternal::MetricsAdminI> metrics, const string& instanceName) :
+    _metrics(move(metrics)), _instanceName(instanceName), _sessions(_metrics, "Session")
 {
 }
 
 void
-RouterObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
+RouterObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& updater)
 {
     _sessions.setUpdater(newUpdater(updater, &ObserverUpdater::updateSessionObservers));
 }
 
-SessionObserverPtr
+shared_ptr<SessionObserver>
 RouterObserverI::getSessionObserver(const string& id,
-                                    const ::Ice::ConnectionPtr& connection,
+                                    const shared_ptr<Ice::Connection>& connection,
                                     int routingTableSize,
-                                    const SessionObserverPtr& old)
+                                    const shared_ptr<SessionObserver>& old)
 {
     if(_sessions.isEnabled())
     {
@@ -198,7 +198,7 @@ RouterObserverI::getSessionObserver(const string& id,
         }
         catch(const exception& ex)
         {
-            ::Ice::Error error(_metrics->getLogger());
+            Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }

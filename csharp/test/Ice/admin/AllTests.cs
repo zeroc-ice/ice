@@ -188,15 +188,15 @@ namespace Ice
                     Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
                     try
                     {
-                        com.createAdmin(null, id);
+                        com.CreateAdmin(null, id);
                         test(false);
                     }
                     catch (Ice.InitializationException)
                     {
                     }
 
-                    Ice.ObjectAdapter adapter = com.createObjectAdapter("");
-                    test(com.createAdmin(adapter, id) != null);
+                    ObjectAdapter adapter = com.createObjectAdapter("");
+                    test(com.CreateAdmin(adapter, id) != null);
                     test(com.getAdmin() != null);
 
                     testFacets(com, true, false);
@@ -219,9 +219,8 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                string @ref = "factory:" + helper.getTestEndpoint(0) + " -t 10000";
-                Test.RemoteCommunicatorFactoryPrx factory =
-                    Test.RemoteCommunicatorFactoryPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
+                var factory = RemoteCommunicatorFactoryPrx.Parse($"factory:{helper.getTestEndpoint(0)} -t 10000",
+                    communicator);
 
                 output.Write("testing process facet... ");
                 output.Flush();
@@ -233,8 +232,8 @@ namespace Ice
                     props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     props.Add("Ice.Admin.InstanceName", "Test");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
+                    IObjectPrx obj = com.getAdmin();
+                    ProcessPrx proc = ProcessPrx.UncheckedCast(obj.Clone(facet: "Process"));
                     proc.shutdown();
                     com.waitForShutdown();
                     com.destroy();
@@ -251,8 +250,8 @@ namespace Ice
                     props.Add("Prop2", "2");
                     props.Add("Prop3", "3");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
+                    IObjectPrx obj = com.getAdmin();
+                    PropertiesAdminPrx pa = PropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
 
                     //
                     // Test: PropertiesAdmin::getProperty()
@@ -306,7 +305,7 @@ namespace Ice
                 output.Write("testing logger facet... ");
                 output.Flush();
                 {
-                    Dictionary<String, String> props = new Dictionary<String, String>();
+                    Dictionary<string, string> props = new Dictionary<string, string>();
                     props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     props.Add("Ice.Admin.InstanceName", "Test");
                     props.Add("NullLogger", "1");
@@ -317,8 +316,8 @@ namespace Ice
                     com.error("error");
                     com.print("print");
 
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.LoggerAdminPrx logger = Ice.LoggerAdminPrxHelper.checkedCast(obj, "Logger");
+                    IObjectPrx obj = com.getAdmin();
+                    LoggerAdminPrx logger = LoggerAdminPrx.UncheckedCast(obj.Clone(facet: "Logger"));
                     test(logger != null);
 
                     string prefix = null;
@@ -326,7 +325,7 @@ namespace Ice
                     //
                     // Get all
                     //
-                    Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
+                    LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
 
                     test(logMessages.Length == 4);
                     test(prefix.Equals("NullLogger"));
@@ -343,10 +342,7 @@ namespace Ice
                     com.trace("testCat", "trace2");
                     com.warning("warning2");
 
-                    Ice.LogMessageType[] messageTypes = {
-                                Ice.LogMessageType.ErrorMessage,
-                                Ice.LogMessageType.WarningMessage
-                            };
+                    LogMessageType[] messageTypes = { LogMessageType.ErrorMessage, LogMessageType.WarningMessage };
 
                     logMessages = logger.getLog(messageTypes, null, -1, out prefix);
 
@@ -355,8 +351,7 @@ namespace Ice
 
                     foreach (var msg in logMessages)
                     {
-                        test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                             msg.type == Ice.LogMessageType.WarningMessage);
+                        test(msg.type == LogMessageType.ErrorMessage || msg.type == LogMessageType.WarningMessage);
                     }
 
                     //
@@ -366,10 +361,7 @@ namespace Ice
                     com.trace("testCat", "trace3");
                     com.trace("testCat2", "B");
 
-                    messageTypes = new Ice.LogMessageType[] {
-                                Ice.LogMessageType.ErrorMessage,
-                                Ice.LogMessageType.TraceMessage
-                            };
+                    messageTypes = new LogMessageType[] { LogMessageType.ErrorMessage, LogMessageType.TraceMessage };
                     string[] categories = { "testCat" };
                     logMessages = logger.getLog(messageTypes, categories, -1, out prefix);
                     test(logMessages.Length == 5);
@@ -377,8 +369,8 @@ namespace Ice
 
                     foreach (var msg in logMessages)
                     {
-                        test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                            (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory.Equals("testCat")));
+                        test(msg.type == LogMessageType.ErrorMessage ||
+                            (msg.type == LogMessageType.TraceMessage && msg.traceCategory.Equals("testCat")));
                     }
 
                     //
@@ -396,13 +388,12 @@ namespace Ice
                     //
                     // Now, test RemoteLogger
                     //
-                    Ice.ObjectAdapter adapter =
+                    ObjectAdapter adapter =
                         communicator.createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
                     RemoteLoggerI remoteLogger = new RemoteLoggerI();
 
-                    Ice.RemoteLoggerPrx myProxy =
-                        Ice.RemoteLoggerPrxHelper.uncheckedCast(adapter.Add(remoteLogger));
+                    RemoteLoggerPrx myProxy = adapter.Add(remoteLogger);
 
                     adapter.Activate();
 
@@ -464,8 +455,7 @@ namespace Ice
                     //
                     try
                     {
-                        logger.attachRemoteLogger(Ice.RemoteLoggerPrxHelper.uncheckedCast(myProxy.ice_oneway()),
-                                                  messageTypes, categories, 4);
+                        logger.attachRemoteLogger(myProxy.Clone(oneway: true), messageTypes, categories, 4);
                         test(false);
                     }
                     catch (Ice.RemoteLoggerAlreadyAttachedException)
@@ -487,8 +477,8 @@ namespace Ice
                     props.Add("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
                     props.Add("Ice.Admin.InstanceName", "Test");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+                    IObjectPrx obj = com.getAdmin();
+                    var tf = TestFacetPrx.UncheckedCast(obj.Clone(facet: "TestFacet"));
                     tf.op();
                     com.destroy();
                 }
@@ -506,11 +496,24 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     props.Add("Ice.Admin.Facets", "Properties");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
-                    test(proc == null);
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
-                    test(tf == null);
+                    IObjectPrx obj = com.getAdmin();
+                    try
+                    {
+                        ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
+
+                    try
+                    {
+                        TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
                     com.destroy();
                 }
                 {
@@ -523,11 +526,24 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     props.Add("Ice.Admin.Facets", "Process");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa == null);
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
-                    test(tf == null);
+                    IObjectPrx obj = com.getAdmin();
+                    try
+                    {
+                        PropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
+
+                    try
+                    {
+                        TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
                     com.destroy();
                 }
                 {
@@ -540,11 +556,24 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     props.Add("Ice.Admin.Facets", "TestFacet");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa == null);
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
-                    test(proc == null);
+                    IObjectPrx obj = com.getAdmin();
+                    try
+                    {
+                        PropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
+
+                    try
+                    {
+                        ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
                     com.destroy();
                 }
                 {
@@ -557,13 +586,19 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     props.Add("Ice.Admin.Facets", "Properties TestFacet");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
+                    IObjectPrx obj = com.getAdmin();
+                    PropertiesAdminPrx pa = PropertiesAdminPrx.UncheckedCast(obj.Clone(facet: "Properties"));
                     test(pa.getProperty("Ice.Admin.InstanceName").Equals("Test"));
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
-                    tf.op();
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
-                    test(proc == null);
+                    var tf = TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
+                    tf!.op();
+                    try
+                    {
+                        ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
                     com.destroy();
                 }
                 {
@@ -576,12 +611,18 @@ namespace Ice
                     props.Add("Ice.Admin.InstanceName", "Test");
                     props.Add("Ice.Admin.Facets", "TestFacet, Process");
                     var com = factory.createCommunicator(props);
-                    Ice.ObjectPrx obj = com.getAdmin();
-                    Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa == null);
-                    var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
+                    IObjectPrx obj = com.getAdmin();
+                    try
+                    {
+                        PropertiesAdminPrx.CheckedCast(obj.Clone(facet: "Properties"));
+                        test(false);
+                    }
+                    catch (FacetNotExistException)
+                    {
+                    }
+                    var tf = Test.TestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet"));
                     tf.op();
-                    Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");
+                    ProcessPrx proc = Ice.ProcessPrx.CheckedCast(obj.Clone(facet: "Process"));
                     proc.shutdown();
                     com.waitForShutdown();
                     com.destroy();

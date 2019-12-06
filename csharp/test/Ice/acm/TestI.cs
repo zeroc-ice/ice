@@ -33,8 +33,7 @@ namespace Ice
                 }
                 properties.setProperty(name + ".ThreadPool.Size", "2");
                 ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
-                RemoteObjectAdapter remoteObjectAdapter = new RemoteObjectAdapterI(adapter);
-                return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.Add(remoteObjectAdapter));
+                return current.adapter.Add(new RemoteObjectAdapterI(adapter));
             }
 
             public void
@@ -49,7 +48,7 @@ namespace Ice
             public RemoteObjectAdapterI(ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), "test"));
+                _testIntf = _adapter.Add(new TestI(), "test");
                 _adapter.Activate();
             }
 

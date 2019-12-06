@@ -15,8 +15,7 @@ namespace Ice
                     var output = getWriter();
                     output.Write("testing server priority... ");
                     output.Flush();
-                    var obj = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
-                    Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
+                    var priority = Test.PriorityPrx.Parse($"test:{getTestEndpoint(0)} -t 10000", communicator);
                     test("AboveNormal".Equals(priority.getPriority()));
                     output.WriteLine("ok");
                     priority.shutdown();

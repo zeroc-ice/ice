@@ -117,7 +117,7 @@ public sealed class TestI : TestIntf
     public Task
     relayKnownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
         p.knownPreservedAsBase();
         test(false);
         return null;
@@ -126,7 +126,7 @@ public sealed class TestI : TestIntf
     public Task
     relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
         p.knownPreservedAsKnownPreserved();
         test(false);
         return null;
@@ -158,7 +158,7 @@ public sealed class TestI : TestIntf
     public Task
     relayUnknownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
         p.unknownPreservedAsBase();
         test(false);
         return null;
@@ -167,7 +167,7 @@ public sealed class TestI : TestIntf
     public Task
     relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
         p.unknownPreservedAsKnownPreserved();
         test(false);
         return null;

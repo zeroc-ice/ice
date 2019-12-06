@@ -362,8 +362,8 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(
-                        x => communicator.stringToProxy(x.ToString())).ToArray();
-                    ObjectPrx[] o;
+                        x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray();
+                    IObjectPrx[] o;
                     var r = p.opAObjectPrxS(i, out o);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
@@ -371,35 +371,35 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(
-                        x => communicator.stringToProxy(x.ToString())).ToList();
-                    List<ObjectPrx> o;
+                        x => IObjectPrx.Parse(x.ToString(), communicator)).ToList();
+                    List<IObjectPrx> o;
                     var r = p.opLObjectPrxS(i, out o);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
-                    var i = new LinkedList<ObjectPrx>(Enumerable.Range(0, Length).Select(
-                        x => communicator.stringToProxy(x.ToString())).ToArray());
-                    LinkedList<ObjectPrx> o;
+                    var i = new LinkedList<IObjectPrx>(Enumerable.Range(0, Length).Select(
+                        x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
+                    LinkedList<IObjectPrx> o;
                     var r = p.opKObjectPrxS(i, out o);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
-                    var i = new Queue<ObjectPrx>(Enumerable.Range(0, Length).Select(
-                        x => communicator.stringToProxy(x.ToString())).ToArray());
-                    Queue<ObjectPrx> o;
+                    var i = new Queue<IObjectPrx>(Enumerable.Range(0, Length).Select(
+                        x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
+                    Queue<IObjectPrx> o;
                     var r = p.opQObjectPrxS(i, out o);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
                 }
 
                 {
-                    var i = new Stack<ObjectPrx>(Enumerable.Range(0, Length).Select(
-                        x => communicator.stringToProxy(x.ToString())).ToArray());
-                    Stack<ObjectPrx> o;
+                    var i = new Stack<IObjectPrx>(Enumerable.Range(0, Length).Select(
+                        x => IObjectPrx.Parse(x.ToString(), communicator)).ToArray());
+                    Stack<IObjectPrx> o;
                     var r = p.opSObjectPrxS(i, out o);
                     test(r.SequenceEqual(i));
                     test(o.SequenceEqual(i));
@@ -559,7 +559,7 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(
-                        x => Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(x.ToString()))).ToArray();
+                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToArray();
                     Test.IPrx[] o;
                     var r = p.opAIPrxS(i, out o);
                     test(r.SequenceEqual(i));
@@ -568,7 +568,7 @@ namespace Ice
 
                 {
                     var i = Enumerable.Range(0, Length).Select(
-                        x => Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(x.ToString()))).ToList();
+                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToList();
                     List<Test.IPrx> o;
                     var r = p.opLIPrxS(i, out o);
                     test(r.SequenceEqual(i));
@@ -577,7 +577,7 @@ namespace Ice
 
                 {
                     var i = new LinkedList<Test.IPrx>(Enumerable.Range(0, Length).Select(
-                        x => Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(x.ToString()))).ToList());
+                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToList());
                     LinkedList<Test.IPrx> o;
                     var r = p.opKIPrxS(i, out o);
                     test(r.SequenceEqual(i));
@@ -586,7 +586,7 @@ namespace Ice
 
                 {
                     var i = new Queue<Test.IPrx>(Enumerable.Range(0, Length).Select(
-                        x => Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(x.ToString()))).ToList());
+                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToList());
                     Queue<Test.IPrx> o;
                     var r = p.opQIPrxS(i, out o);
                     test(r.SequenceEqual(i));
@@ -595,7 +595,7 @@ namespace Ice
 
                 {
                     var i = new Stack<Test.IPrx>(Enumerable.Range(0, Length).Select(
-                        x => Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(x.ToString()))).ToList());
+                        x => Test.IPrx.Parse(x.ToString(), communicator)).ToList());
                     Stack<Test.IPrx> o;
                     var r = p.opSIPrxS(i, out o);
                     test(r.SequenceEqual(i));

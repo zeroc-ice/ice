@@ -11,15 +11,15 @@ namespace IceInternal
 
     public class EndpointHostResolver
     {
-        internal EndpointHostResolver(Instance instance)
+        internal EndpointHostResolver(Ice.Communicator communicator)
         {
-            _instance = instance;
-            _protocol = instance.protocolSupport();
-            _preferIPv6 = instance.preferIPv6();
+            _communicator = communicator;
+            _protocol = communicator.protocolSupport();
+            _preferIPv6 = communicator.preferIPv6();
             _thread = new HelperThread(this);
             updateObserver();
             _thread.Start(Util.stringToThreadPriority(
-                    instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
+                    communicator.initializationData().properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
@@ -29,7 +29,7 @@ namespace IceInternal
             // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
             // entry and the thread will take care of getting the endpoint addresses.
             //
-            NetworkProxy networkProxy = _instance.networkProxy();
+            NetworkProxy networkProxy = _communicator.networkProxy();
             if (networkProxy == null)
             {
                 try
@@ -59,7 +59,7 @@ namespace IceInternal
                 entry.endpoint = endpoint;
                 entry.callback = callback;
 
-                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
                 if (obsv != null)
                 {
                     entry.observer = obsv.getEndpointLookupObserver(endpoint);
@@ -125,7 +125,7 @@ namespace IceInternal
                 try
                 {
 
-                    NetworkProxy networkProxy = _instance.networkProxy();
+                    NetworkProxy networkProxy = _communicator.networkProxy();
                     int protocol = _protocol;
                     if (networkProxy != null)
                     {
@@ -187,7 +187,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -212,7 +212,7 @@ namespace IceInternal
             internal Ice.Instrumentation.Observer observer;
         }
 
-        private readonly Instance _instance;
+        private readonly Ice.Communicator _communicator;
         private readonly int _protocol;
         private readonly bool _preferIPv6;
         private bool _destroyed;
@@ -224,7 +224,7 @@ namespace IceInternal
             internal HelperThread(EndpointHostResolver resolver)
             {
                 _resolver = resolver;
-                _name = _resolver._instance.initializationData().properties.getProperty("Ice.ProgramName");
+                _name = _resolver._communicator.initializationData().properties.getProperty("Ice.ProgramName");
                 if (_name.Length > 0)
                 {
                     _name += "-";
@@ -255,7 +255,7 @@ namespace IceInternal
                 catch (System.Exception ex)
                 {
                     string s = "exception in endpoint host resolver thread " + _name + ":\n" + ex;
-                    _resolver._instance.initializationData().logger.error(s);
+                    _resolver._communicator.initializationData().logger.error(s);
                 }
             }
 

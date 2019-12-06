@@ -22,25 +22,25 @@ namespace Ice
             }
 
             public void opOptionalException(Ice.Optional<int> a,
-                                                     Ice.Optional<string> b,
-                                                     Ice.Optional<Test.OneOptional> o,
-                                                     Ice.Current current)
+                                            Ice.Optional<string> b,
+                                            Ice.Optional<Test.OneOptional> o,
+                                            Ice.Current current)
             {
                 throw new Test.OptionalException(false, a, b, o);
             }
 
             public void opDerivedException(Ice.Optional<int> a,
-                                                    Ice.Optional<string> b,
-                                                    Ice.Optional<Test.OneOptional> o,
-                                                    Ice.Current current)
+                                           Ice.Optional<string> b,
+                                           Ice.Optional<Test.OneOptional> o,
+                                           Ice.Current current)
             {
                 throw new Test.DerivedException(false, a, b, o, b, o);
             }
 
             public void opRequiredException(Ice.Optional<int> a,
-                                                     Ice.Optional<string> b,
-                                                     Ice.Optional<Test.OneOptional> o,
-                                                     Ice.Current current)
+                                            Ice.Optional<string> b,
+                                            Ice.Optional<Test.OneOptional> o,
+                                            Ice.Current current)
             {
                 Test.RequiredException e = new Test.RequiredException();
                 e.a = a;
@@ -58,112 +58,112 @@ namespace Ice
             }
 
             public Ice.Optional<byte> opByte(Ice.Optional<byte> p1,
-                                                              out Ice.Optional<byte> p3,
-                                                              Ice.Current current)
+                                             out Ice.Optional<byte> p3,
+                                             Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<bool> opBool(Ice.Optional<bool> p1,
-                                                              out Ice.Optional<bool> p3,
-                                                              Ice.Current current)
+                                             out Ice.Optional<bool> p3,
+                                             Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<short> opShort(Ice.Optional<short> p1,
-                                                                out Ice.Optional<short> p3,
-                                                                Ice.Current current)
+                                               out Ice.Optional<short> p3,
+                                               Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<int> opInt(Ice.Optional<int> p1,
-                                                            out Ice.Optional<int> p3,
-                                                            Ice.Current current)
+                                           out Ice.Optional<int> p3,
+                                           Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<long> opLong(Ice.Optional<long> p1,
-                                                              out Ice.Optional<long> p3,
-                                                              Ice.Current current)
+                                             out Ice.Optional<long> p3,
+                                             Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<float> opFloat(Ice.Optional<float> p1,
-                                                                out Ice.Optional<float> p3,
-                                                                Ice.Current current)
+                                               out Ice.Optional<float> p3,
+                                               Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<double> opDouble(Ice.Optional<double> p1,
-                                                                  out Ice.Optional<double> p3,
-                                                                  Ice.Current current)
+                                                 out Ice.Optional<double> p3,
+                                                 Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<string> opString(Ice.Optional<string> p1,
-                                                                  out Ice.Optional<string> p3,
-                                                                  Ice.Current current)
+                                                 out Ice.Optional<string> p3,
+                                                 Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<Test.MyEnum> opMyEnum(Ice.Optional<Test.MyEnum> p1,
-                                                                       out Ice.Optional<Test.MyEnum> p3,
-                                                                       Ice.Current current)
+                                                      out Ice.Optional<Test.MyEnum> p3,
+                                                      Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<Test.SmallStruct> opSmallStruct(Ice.Optional<Test.SmallStruct> p1,
-                                                                                 out Ice.Optional<Test.SmallStruct> p3,
-                                                                                 Ice.Current current)
+                                                                out Ice.Optional<Test.SmallStruct> p3,
+                                                                Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<Test.FixedStruct> opFixedStruct(Ice.Optional<Test.FixedStruct> p1,
-                                                                                 out Ice.Optional<Test.FixedStruct> p3,
-                                                                                 Ice.Current current)
+                                                                out Ice.Optional<Test.FixedStruct> p3,
+                                                                Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<Test.VarStruct> opVarStruct(Ice.Optional<Test.VarStruct> p1,
-                                                                             out Ice.Optional<Test.VarStruct> p3,
-                                                                             Ice.Current current)
+                                                            out Ice.Optional<Test.VarStruct> p3,
+                                                            Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<Test.OneOptional> opOneOptional(Ice.Optional<Test.OneOptional> p1,
-                                                                                 out Ice.Optional<Test.OneOptional> p3,
-                                                                                 Ice.Current current)
+                                                                out Ice.Optional<Test.OneOptional> p3,
+                                                                Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Ice.ObjectPrx>
-            opOneOptionalProxy(Ice.Optional<Ice.ObjectPrx> p1,
-                               out Ice.Optional<Ice.ObjectPrx> p3,
+            public Ice.Optional<Ice.IObjectPrx>
+            opOneOptionalProxy(Ice.Optional<Ice.IObjectPrx> p1,
+                               out Ice.Optional<Ice.IObjectPrx> p3,
                                Ice.Current current)
             {
                 p3 = p1;
@@ -171,64 +171,64 @@ namespace Ice
             }
 
             public Ice.Optional<byte[]> opByteSeq(Ice.Optional<byte[]> p1,
-                                                                   out Ice.Optional<byte[]> p3,
-                                                                   Ice.Current current)
+                                                  out Ice.Optional<byte[]> p3,
+                                                  Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<bool[]> opBoolSeq(Ice.Optional<bool[]> p1,
-                                                                   out Ice.Optional<bool[]> p3,
-                                                                   Ice.Current current)
+                                                  out Ice.Optional<bool[]> p3,
+                                                  Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<short[]> opShortSeq(Ice.Optional<short[]> p1,
-                                                                     out Ice.Optional<short[]> p3,
-                                                                     Ice.Current current)
+                                                    out Ice.Optional<short[]> p3,
+                                                    Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<int[]> opIntSeq(Ice.Optional<int[]> p1,
-                                                                 out Ice.Optional<int[]> p3,
-                                                                 Ice.Current current)
+                                                out Ice.Optional<int[]> p3,
+                                                Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<long[]> opLongSeq(Ice.Optional<long[]> p1,
-                                                                   out Ice.Optional<long[]> p3,
-                                                                   Ice.Current current)
+                                                  out Ice.Optional<long[]> p3,
+                                                  Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<float[]> opFloatSeq(Ice.Optional<float[]> p1,
-                                                                     out Ice.Optional<float[]> p3,
-                                                                     Ice.Current current)
+                                                    out Ice.Optional<float[]> p3,
+                                                    Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<double[]> opDoubleSeq(Ice.Optional<double[]> p1,
-                                                                       out Ice.Optional<double[]> p3,
-                                                                       Ice.Current current)
+                                                      out Ice.Optional<double[]> p3,
+                                                      Ice.Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
             public Ice.Optional<String[]> opStringSeq(Ice.Optional<String[]> p1,
-                                                                       out Ice.Optional<String[]> p3,
-                                                                       Ice.Current current)
+                                                      out Ice.Optional<String[]> p3,
+                                                      Ice.Current current)
             {
                 p3 = p1;
                 return p1;
@@ -320,14 +320,14 @@ namespace Ice
             }
 
             public void sendOptionalClass(bool req,
-                                                   Ice.Optional<Test.OneOptional> o,
-                                                   Ice.Current current)
+                                          Ice.Optional<Test.OneOptional> o,
+                                          Ice.Current current)
             {
             }
 
             public void returnOptionalClass(bool req,
-                                                     out Ice.Optional<Test.OneOptional> o,
-                                                     Ice.Current current)
+                                            out Ice.Optional<Test.OneOptional> o,
+                                            Ice.Current current)
             {
                 o = new Test.OneOptional(53);
             }

@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 using Test;
-
+using Ice;
 public class AllTests : Test.AllTests
 {
     public class Progress : IProgress<bool>
@@ -102,18 +102,18 @@ public class AllTests : Test.AllTests
     public static void allTests(Test.TestHelper helper)
     {
         var output = helper.getWriter();
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
-        Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+        var obj = IObjectPrx.Parse(sref, communicator);
         test(obj != null);
 
-        Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
+        TestIntfPrx p = TestIntfPrx.UncheckedCast(obj);
 
         sref = "testController:" + helper.getTestEndpoint(1);
-        obj = communicator.stringToProxy(sref);
+        obj = IObjectPrx.Parse(sref, communicator);
         test(obj != null);
 
-        Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
+        var testController = TestIntfControllerPrx.UncheckedCast(obj);
 
         output.Write("testing dispatcher with continuations... ");
         output.Flush();
@@ -139,7 +139,7 @@ public class AllTests : Test.AllTests
             t.Wait();
             cb.check();
 
-            var i = (TestIntfPrx)p.ice_adapterId("dummy");
+            var i = p.Clone(connectionId: "dummy");
 
             //
             // sleepAsync doesn't help here as the test will fail with Ice.NoEndpointException and sleepAsync
@@ -155,7 +155,7 @@ public class AllTests : Test.AllTests
                 // The continuation might be (rarely) executed on the current thread if the setup of the
                 // continuation occurs after the invocation timeout.
                 var thread = Thread.CurrentThread;
-                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(20));
+                TestIntfPrx to = p.Clone(invocationTimeout: 20);
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -177,18 +177,18 @@ public class AllTests : Test.AllTests
             // are waranted to run with the dispatcher even if not executed synchronously.
             //
 
-            t = p.opAsync().ContinueWith(continuation, p.ice_scheduler());
+            t = p.opAsync().ContinueWith(continuation, p.Scheduler);
             t.Wait();
             cb.check();
 
-            i.opAsync().ContinueWith(continuation, i.ice_scheduler()).Wait();
+            i.opAsync().ContinueWith(continuation, i.Scheduler).Wait();
             cb.check();
 
             //
             // Expect InvocationTimeoutException.
             //
             {
-                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                TestIntfPrx to = p.Clone(invocationTimeout: 10);
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -202,7 +202,7 @@ public class AllTests : Test.AllTests
                             test(ex.InnerException is Ice.InvocationTimeoutException);
                             test(Dispatcher.isDispatcherThread());
                         }
-                    }, p.ice_scheduler()).Wait();
+                    }, p.Scheduler).Wait();
             }
 
             //
@@ -210,7 +210,7 @@ public class AllTests : Test.AllTests
             // Also disable collocation optimization on p
             //
             testController.holdAdapter();
-            var p2 = TestIntfPrxHelper.uncheckedCast(p.ice_collocationOptimized(false));
+            var p2 = p.Clone(collocationOptimized: false);
             Action<Task> continuation2 = (Task previous) =>
             {
                 test(Dispatcher.isDispatcherThread());
@@ -253,16 +253,16 @@ public class AllTests : Test.AllTests
 
                     try
                     {
-                        TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
+                        TestIntfPrx i = p.Clone(adapterId: "dummy");
                         await i.opAsync();
                         test(false);
                     }
-                    catch (Exception)
+                    catch (System.Exception)
                     {
                         test(Dispatcher.isDispatcherThread());
                     }
 
-                    TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                    TestIntfPrx to = p.Clone(invocationTimeout: 10);
                     try
                     {
                         await to.sleepAsync(500);
@@ -274,11 +274,11 @@ public class AllTests : Test.AllTests
                     }
                     t.SetResult(null);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     t.SetException(ex);
                 }
-            }, p.ice_scheduler());
+            }, p.Scheduler);
 
             t.Task.Wait();
         }

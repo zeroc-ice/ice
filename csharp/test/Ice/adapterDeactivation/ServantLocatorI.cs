@@ -18,22 +18,22 @@ namespace Ice
 
         public class RouterI : Router
         {
-            public Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
+            public Ice.IObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
                 Ice.Current current)
             {
                 hasRoutingTable = false;
                 return null;
             }
 
-            public Ice.ObjectPrx getServerProxy(Ice.Current current)
+            public Ice.IObjectPrx getServerProxy(Ice.Current current)
             {
                 StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
                 s.Append(_nextPort++);
                 s.Append(" -t 30000");
-                return current.adapter.GetCommunicator().stringToProxy(s.ToString());
+                return IObjectPrx.Parse(s.ToString(), current.adapter.GetCommunicator());
             }
 
-            public Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
+            public Ice.IObjectPrx[] addProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
             {
                 return null;
             }

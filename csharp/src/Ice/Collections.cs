@@ -10,42 +10,36 @@ namespace IceUtilInternal
 {
     public sealed class Collections
     {
-        public static bool SequenceEquals(ICollection seq1, ICollection seq2)
+        public static bool SequenceEquals(ICollection? seq1, ICollection? seq2)
         {
             if (ReferenceEquals(seq1, seq2))
             {
                 return true;
             }
 
-            if ((seq1 == null && seq2 != null) || (seq1 != null && seq2 == null))
+            if (seq1 == null || seq2 == null || seq1.Count != seq2.Count)
             {
                 return false;
             }
 
-            if (seq1.Count == seq2.Count)
+            IEnumerator e1 = seq1.GetEnumerator();
+            IEnumerator e2 = seq2.GetEnumerator();
+            while (e1.MoveNext())
             {
-                IEnumerator e1 = seq1.GetEnumerator();
-                IEnumerator e2 = seq2.GetEnumerator();
-                while (e1.MoveNext())
+                e2.MoveNext();
+                if (e1.Current == null)
                 {
-                    e2.MoveNext();
-                    if (e1.Current == null)
-                    {
-                        if (e2.Current != null)
-                        {
-                            return false;
-                        }
-                    }
-                    else if (!e1.Current.Equals(e2.Current))
+                    if (e2.Current != null)
                     {
                         return false;
                     }
                 }
-
-                return true;
+                else if (!e1.Current.Equals(e2.Current))
+                {
+                    return false;
+                }
             }
-
-            return false;
+            return true;
         }
 
         public static bool SequenceEquals(IEnumerable seq1, IEnumerable seq2)
@@ -55,7 +49,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            if ((seq1 == null && seq2 != null) || (seq1 != null && seq2 == null))
+            if (seq1 == null || seq2 == null)
             {
                 return false;
             }
@@ -107,39 +101,34 @@ namespace IceUtilInternal
                 return true;
             }
 
-            if ((d1 == null && d2 != null) || (d1 != null && d2 == null))
+            if (d1 == null || d2 == null || d1.Count != d2.Count)
             {
                 return false;
             }
 
-            if (d1.Count == d2.Count)
+            IDictionaryEnumerator e1 = d1.GetEnumerator();
+            IDictionaryEnumerator e2 = d2.GetEnumerator();
+            while (e1.MoveNext())
             {
-                IDictionaryEnumerator e1 = d1.GetEnumerator();
-                IDictionaryEnumerator e2 = d2.GetEnumerator();
-                while (e1.MoveNext())
+                e2.MoveNext();
+                if (!e1.Key.Equals(e2.Key))
                 {
-                    e2.MoveNext();
-                    if (!e1.Key.Equals(e2.Key))
-                    {
-                        return false;
-                    }
-                    if (e1.Value == null)
-                    {
-                        if (e2.Value != null)
-                        {
-                            return false;
-                        }
-                    }
-                    else if (!e1.Value.Equals(e2.Value))
+                    return false;
+                }
+                if (e1.Value == null)
+                {
+                    if (e2.Value != null)
                     {
                         return false;
                     }
                 }
-
-                return true;
+                else if (!e1.Value.Equals(e2.Value))
+                {
+                    return false;
+                }
             }
 
-            return false;
+            return true;
         }
 
         public static int DictionaryGetHashCode(IDictionary d)

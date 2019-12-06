@@ -24,31 +24,30 @@ public:
     //
     // Checks to see if the proxy passes.
     //
-    virtual bool check(const Ice::ObjectPrx&) const = 0;
+    virtual bool check(const std::shared_ptr<Ice::ObjectPrx>&) const = 0;
 };
 
-class ProxyVerifier : public IceUtil::Shared
+class ProxyVerifier final
 {
 public:
 
-    ProxyVerifier(const Ice::CommunicatorPtr&);
+    ProxyVerifier(std::shared_ptr<Ice::Communicator>);
     ~ProxyVerifier();
 
     //
     // Verifies that the proxy is permissible under the configured
     // rules.
     //
-    bool verify(const Ice::ObjectPrx&);
+    bool verify(const std::shared_ptr<Ice::ObjectPrx>&);
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
+    const std::shared_ptr<Ice::Communicator> _communicator;
     const int _traceLevel;
 
     std::vector<ProxyRule*> _acceptRules;
     std::vector<ProxyRule*> _rejectRules;
 };
-typedef IceUtil::Handle<ProxyVerifier> ProxyVerifierPtr;
 
 }
 #endif

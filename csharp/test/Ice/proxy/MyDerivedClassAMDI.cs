@@ -14,7 +14,7 @@ namespace Ice
             public sealed class MyDerivedClassI : Object<Test.MyDerivedClass, Test.MyDerivedClassTraits>, Test.MyDerivedClass
             {
 
-                public Task<Ice.ObjectPrx> echoAsync(Ice.ObjectPrx obj, Ice.Current c)
+                public Task<Ice.IObjectPrx> echoAsync(Ice.IObjectPrx obj, Ice.Current c)
                 {
                     return Task.FromResult(obj);
                 }
