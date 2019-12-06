@@ -255,38 +255,6 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
             function<void(bool, pair<const Byte*, const Byte*>)> amiResponse = nullptr;
             function<void(bool)> amiSent = nullptr;
 
-            function<void(exception_ptr)> amiException = [self = shared_from_this(),
-                                                          amdException = exception](exception_ptr ex)
-                {
-                    //
-                    // If the connection has been lost, destroy the session.
-                    //
-                    if(self->_reverseConnection)
-                    {
-                        try
-                        {
-                            rethrow_exception(ex);
-                        }
-                        catch(const Ice::LocalException& e)
-                        {
-                            if(dynamic_cast<const SocketException*>(&e) ||
-                            dynamic_cast<const TimeoutException*>(&e) ||
-                            dynamic_cast<const ProtocolException*>(&e))
-                            {
-                                try
-                                {
-                                    self->_instance->sessionRouter()->destroySession(self->_reverseConnection);
-                                }
-                                catch(const Exception&)
-                                {
-                                }
-                            }
-                        }
-                    }
-
-                    amdException(ex);
-                };
-
             if(proxy->ice_isTwoway())
             {
                 amiResponse = move(response);
@@ -306,12 +274,12 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
                     Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(amiException), move(amiSent), ctx);
+                                           move(amiResponse), move(exception), move(amiSent), ctx);
                 }
                 else
                 {
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(amiException), move(amiSent), current.ctx);
+                                           move(amiResponse), move(exception), move(amiSent), current.ctx);
                 }
             }
             else
@@ -319,12 +287,12 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
                 if(_context.size() > 0)
                 {
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(amiException), move(amiSent), _context);
+                                           move(amiResponse), move(exception), move(amiSent), _context);
                 }
                 else
                 {
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(amiException), move(amiSent));
+                                           move(amiResponse), move(exception), move(amiSent));
                 }
             }
         }

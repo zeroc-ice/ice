@@ -311,31 +311,8 @@ Glacier2::RequestQueue::response(bool ok, const pair<const Byte*, const Byte*>& 
 void
 Glacier2::RequestQueue::exception(exception_ptr ex, const shared_ptr<Request>& request)
 {
-    //
-    // If the connection has been lost, destroy the session.
-    //
     if(_connection)
     {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch(const Ice::LocalException& e)
-        {
-            if(dynamic_cast<const Ice::SocketException*>(&e) ||
-               dynamic_cast<const Ice::TimeoutException*>(&e) ||
-               dynamic_cast<const Ice::ProtocolException*>(&e))
-            {
-                try
-                {
-                    _instance->sessionRouter()->destroySession(_connection);
-                }
-                catch(const Exception&)
-                {
-                }
-            }
-        }
-
         lock_guard<mutex> lg(_mutex);
         if(request == _pendingSendRequest)
         {
