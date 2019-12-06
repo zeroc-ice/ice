@@ -1269,6 +1269,10 @@ Slice::JavaGenerator::typeToAnnotatedString(const TypePtr& type,
                     {
                         return typeString;
                     }
+                    default:
+                    {
+                        break;
+                    }
                 }
             }
             return addAnnotation(typeString, "@MonotonicNonNull");
