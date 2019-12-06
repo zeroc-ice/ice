@@ -77,6 +77,6 @@ private:
     const std::shared_ptr<IdentitySetI> _identities;
     const std::shared_ptr<Instance> _instance;
 };
-};
+}
 
 #endif /* FILTER_MANAGER_H */

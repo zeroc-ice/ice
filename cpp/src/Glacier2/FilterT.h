@@ -158,6 +158,6 @@ FilterT<T, P>::get(const Ice::Current&)
 using IdentitySetI = FilterT<Ice::Identity, Glacier2::IdentitySet>;
 using StringSetI = FilterT<std::string, Glacier2::StringSet>;
 
-};
+}
 
 #endif

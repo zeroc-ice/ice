@@ -41,7 +41,7 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
 
     if(_instance->serverObjectAdapter())
     {
-        Identity ident = { "dummy", {} };
+        Identity ident = { "dummy", "" };
 
         random_device rd;
         mt19937 gen(rd());

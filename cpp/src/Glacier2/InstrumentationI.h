@@ -44,6 +44,6 @@ private:
     IceMX::ObserverFactoryT<SessionObserverI> _sessions;
 };
 
-};
+}
 
 #endif
