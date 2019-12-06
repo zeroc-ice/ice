@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\CryptPermissionsVerifierI.cpp">
+    <ClCompile Include="..\..\CryptPermissionsVerifierI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\CryptPermissionsVerifier.rc">
+    <ResourceCompile Include="..\..\CryptPermissionsVerifier.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

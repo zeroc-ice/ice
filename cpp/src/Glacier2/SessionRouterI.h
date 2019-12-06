@@ -5,9 +5,6 @@
 #ifndef GLACIER2_SESSION_ROUTER_I_H
 #define GLACIER2_SESSION_ROUTER_I_H
 
-#include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
-
 #include <Ice/Ice.h>
 
 #include <Glacier2/PermissionsVerifierF.h>
@@ -19,161 +16,122 @@
 namespace Glacier2
 {
 
-class RouterI;
-typedef IceUtil::Handle<RouterI> RouterIPtr;
-
-class SessionRouterI;
-typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
-
 class FilterManager;
-typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
-
-class CreateSession;
-typedef IceUtil::Handle<CreateSession> CreateSessionPtr;
-
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+class RouterI;
+class SessionRouterI;
+class SSLCreateSession;
+class UserPasswordCreateSession;
 
-class ClientBlobject;
-typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
-
-class ServerBlobject;
-typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
-
-class CreateSession : public IceUtil::Shared
+class CreateSession : public std::enable_shared_from_this<CreateSession>
 {
 public:
 
-    CreateSession(const SessionRouterIPtr&, const std::string&, const Ice::Current&);
+    CreateSession(std::shared_ptr<SessionRouterI>, const std::string&, const Ice::Current&);
 
     void create();
-    void addPendingCallback(const CreateSessionPtr&);
+    void addPendingCallback(std::shared_ptr<CreateSession>);
 
     void authorized(bool);
-    void unexpectedAuthorizeException(const Ice::Exception&);
+    void unexpectedAuthorizeException(std::exception_ptr);
 
-    void sessionCreated(const SessionPrx&);
-    void unexpectedCreateSessionException(const Ice::Exception&);
+    void sessionCreated(const std::shared_ptr<SessionPrx>&);
+    void unexpectedCreateSessionException(std::exception_ptr);
 
-    void exception(const Ice::Exception&);
+    void exception(std::exception_ptr);
 
-    void createException(const Ice::Exception&);
+    void createException(std::exception_ptr);
 
     virtual void authorize() = 0;
     virtual void createSession() = 0;
-    virtual FilterManagerPtr createFilterManager() = 0;
-    virtual void finished(const SessionPrx&) = 0;
-    virtual void finished(const Ice::Exception&) = 0;
+    virtual std::shared_ptr<FilterManager> createFilterManager() = 0;
+    virtual void finished(const std::shared_ptr<SessionPrx>&) = 0;
+    virtual void finished(std::exception_ptr) = 0;
 
 protected:
 
-    const InstancePtr _instance;
-    const SessionRouterIPtr _sessionRouter;
+    const std::shared_ptr<Instance> _instance;
+    const std::shared_ptr<SessionRouterI> _sessionRouter;
     const std::string _user;
     const Ice::Current _current;
     Ice::Context _context;
-    std::vector<CreateSessionPtr> _pendingCallbacks;
-    SessionControlPrx _control;
-    FilterManagerPtr _filterManager;
+    std::vector<std::shared_ptr<CreateSession>> _pendingCallbacks;
+    std::shared_ptr<SessionControlPrx> _control;
+    std::shared_ptr<FilterManager> _filterManager;
 };
 
-class UserPasswordCreateSession;
-typedef IceUtil::Handle<UserPasswordCreateSession> UserPasswordCreateSessionPtr;
-
-class SSLCreateSession;
-typedef IceUtil::Handle<SSLCreateSession> SSLCreateSessionPtr;
-
-class SessionRouterI : public Router,
-                       public Glacier2::Instrumentation::ObserverUpdater,
-                       private IceUtil::Monitor<IceUtil::Mutex>
+class SessionRouterI final : public Router, public Glacier2::Instrumentation::ObserverUpdater,
+                             public std::enable_shared_from_this<SessionRouterI>
 {
 public:
 
-    SessionRouterI(const InstancePtr&, const PermissionsVerifierPrx&, const SessionManagerPrx&,
-                   const SSLPermissionsVerifierPrx&, const SSLSessionManagerPrx&);
-    virtual ~SessionRouterI();
+    SessionRouterI(std::shared_ptr<Instance>, std::shared_ptr<PermissionsVerifierPrx>,
+                   std::shared_ptr<SessionManagerPrx>, std::shared_ptr<SSLPermissionsVerifierPrx>,
+                   std::shared_ptr<SSLSessionManagerPrx>);
+    ~SessionRouterI() override;
     void destroy();
 
-    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const;
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
-    virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
-    virtual std::string getCategoryForClient(const Ice::Current&) const;
-    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
-                               const Ice::Current&);
-    virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
-                                                         const Ice::Current&);
-    virtual void refreshSession_async(const AMD_Router_refreshSessionPtr&, const Ice::Current&);
-    virtual void destroySession(const ::Ice::Current&);
-    virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
-    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
+    std::shared_ptr<Ice::ObjectPrx> getClientProxy(Ice::optional<bool>&, const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override;
+    Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
+    std::string getCategoryForClient(const Ice::Current&) const override;
+    void createSessionAsync(std::string, std::string,
+                            std::function<void(const std::shared_ptr<SessionPrx>&)>,
+                            std::function<void(std::exception_ptr)>, const ::Ice::Current&) override;
+    void createSessionFromSecureConnectionAsync(
+        std::function<void(const std::shared_ptr<SessionPrx>&)>,
+        std::function<void(std::exception_ptr)>, const ::Ice::Current&) override;
+    void refreshSessionAsync(std::function<void()>,
+                             std::function<void(std::exception_ptr)>,
+                             const ::Ice::Current&) override;
+    void destroySession(const ::Ice::Current&) override;
+    long long int getSessionTimeout(const ::Ice::Current&) const override;
+    int getACMTimeout(const ::Ice::Current&) const override;
 
-    virtual void updateSessionObservers();
+    void updateSessionObservers() override;
 
-    RouterIPtr getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
+    std::shared_ptr<RouterI> getRouter(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&, bool = true) const;
 
-    Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
-    Ice::ObjectPtr getServerBlobject(const std::string&) const;
+    std::shared_ptr<Ice::Object> getClientBlobject(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&) const;
+    std::shared_ptr<Ice::Object> getServerBlobject(const std::string&) const;
 
-    void expireSessions();
-
-    void refreshSession(const ::Ice::ConnectionPtr&);
-    void destroySession(const ::Ice::ConnectionPtr&);
+    void refreshSession(const std::shared_ptr<Ice::Connection>&);
+    void destroySession(const std::shared_ptr<Ice::Connection>&);
 
     int sessionTraceLevel() const { return _sessionTraceLevel; }
 
 private:
 
-    RouterIPtr getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
+    std::shared_ptr<RouterI> getRouterImpl(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&, bool) const;
 
-    void sessionDestroyException(const Ice::Exception&);
+    void sessionDestroyException(std::exception_ptr);
 
-    bool startCreateSession(const CreateSessionPtr&, const Ice::ConnectionPtr&);
-    void finishCreateSession(const Ice::ConnectionPtr&, const RouterIPtr&);
+    bool startCreateSession(const std::shared_ptr<CreateSession>&, const std::shared_ptr<Ice::Connection>&);
+    void finishCreateSession(const std::shared_ptr<Ice::Connection>&, const std::shared_ptr<RouterI>&);
+
     friend class Glacier2::CreateSession;
     friend class Glacier2::UserPasswordCreateSession;
     friend class Glacier2::SSLCreateSession;
 
-    const InstancePtr _instance;
+    const std::shared_ptr<Instance> _instance;
     const int _sessionTraceLevel;
     const int _rejectTraceLevel;
-    const PermissionsVerifierPrx _verifier;
-    const SessionManagerPrx _sessionManager;
-    const SSLPermissionsVerifierPrx _sslVerifier;
-    const SSLSessionManagerPrx _sslSessionManager;
+    const std::shared_ptr<PermissionsVerifierPrx> _verifier;
+    const std::shared_ptr<SessionManagerPrx> _sessionManager;
+    const std::shared_ptr<SSLPermissionsVerifierPrx> _sslVerifier;
+    const std::shared_ptr<SSLSessionManagerPrx> _sslSessionManager;
 
-    IceUtil::Time _sessionTimeout;
-    Ice::CloseCallbackPtr _closeCallback;
-    Ice::HeartbeatCallbackPtr _heartbeatCallback;
+    std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>> _routersByConnection;
+    mutable std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>>::const_iterator _routersByConnectionHint;
 
-    class SessionThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-    {
-    public:
+    std::map<std::string, std::shared_ptr<RouterI>> _routersByCategory;
+    mutable std::map<std::string, std::shared_ptr<RouterI>>::const_iterator _routersByCategoryHint;
 
-        SessionThread(const SessionRouterIPtr&, const IceUtil::Time&);
-        virtual ~SessionThread();
-        void destroy();
-
-        virtual void run();
-
-    private:
-
-        SessionRouterIPtr _sessionRouter;
-        const IceUtil::Time _sessionTimeout;
-    };
-    typedef IceUtil::Handle<SessionThread> SessionThreadPtr;
-    SessionThreadPtr _sessionThread;
-
-    std::map<Ice::ConnectionPtr, RouterIPtr> _routersByConnection;
-    mutable std::map<Ice::ConnectionPtr, RouterIPtr>::iterator _routersByConnectionHint;
-
-    std::map<std::string, RouterIPtr> _routersByCategory;
-    mutable std::map<std::string, RouterIPtr>::iterator _routersByCategoryHint;
-
-    std::map<Ice::ConnectionPtr, CreateSessionPtr> _pending;
-
-    Callback_Session_destroyPtr _sessionDestroyCallback;
+    std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<CreateSession>> _pending;
 
     bool _destroy;
+
+    mutable std::mutex _mutex;
 };
 
 }

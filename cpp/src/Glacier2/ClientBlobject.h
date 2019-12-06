@@ -11,35 +11,32 @@
 namespace Glacier2
 {
 
-class RoutingTable;
-typedef IceUtil::Handle<RoutingTable> RoutingTablePtr;
-
-class ClientBlobject;
-typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
-
 class FilterManager;
-typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
+class RoutingTable;
 
-class ClientBlobject : public Glacier2::Blobject
+class ClientBlobject final : public Glacier2::Blobject
 {
 public:
 
-    ClientBlobject(const InstancePtr&, const FilterManagerPtr&, const Ice::Context&, const RoutingTablePtr&);
-    virtual ~ClientBlobject();
+    ClientBlobject(std::shared_ptr<Instance>, std::shared_ptr<FilterManager>, const Ice::Context&,
+                   std::shared_ptr<RoutingTable>);
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
+    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                         std::function<void(std::exception_ptr)> error,
+                         const Ice::Current& current) override;
 
-    StringSetPtr categories();
-    StringSetPtr adapterIds();
-    IdentitySetPtr identities();
+    std::shared_ptr<StringSet> categories();
+    std::shared_ptr<StringSet> adapterIds();
+    std::shared_ptr<IdentitySet> identities();
 
 private:
 
-    const RoutingTablePtr _routingTable;
-    const FilterManagerPtr _filters;
+    const std::shared_ptr<RoutingTable> _routingTable;
+    const std::shared_ptr<FilterManager> _filters;
     const int _rejectTraceLevel;
 };
+
 }
 
 #endif
