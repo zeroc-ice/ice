@@ -94,24 +94,6 @@ Glacier2::Blobject::invokeSent(bool, const AMD_Object_ice_invokePtr& amdCB)
 void
 Glacier2::Blobject::invokeException(const Exception& ex, const AMD_Object_ice_invokePtr& amdCB)
 {
-    //
-    // If the connection has been lost, destroy the session.
-    //
-    if(_reverseConnection)
-    {
-        if(dynamic_cast<const SocketException*>(&ex) ||
-            dynamic_cast<const TimeoutException*>(&ex) ||
-            dynamic_cast<const ProtocolException*>(&ex))
-        {
-            try
-            {
-                _instance->sessionRouter()->destroySession(_reverseConnection);
-            }
-            catch(const Exception&)
-            {
-            }
-        }
-    }
     amdCB->ice_exception(ex);
 }
 

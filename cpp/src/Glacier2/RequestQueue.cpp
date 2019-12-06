@@ -407,19 +407,6 @@ Glacier2::RequestQueue::exception(const Ice::Exception& ex, const RequestPtr& re
     //
     if(_connection)
     {
-        if(dynamic_cast<const Ice::SocketException*>(&ex) ||
-           dynamic_cast<const Ice::TimeoutException*>(&ex) ||
-           dynamic_cast<const Ice::ProtocolException*>(&ex))
-        {
-            try
-            {
-                _instance->sessionRouter()->destroySession(_connection);
-            }
-            catch(const Exception&)
-            {
-            }
-        }
-
         IceUtil::Mutex::Lock lock(*this);
         if(request == _pendingSendRequest)
         {
