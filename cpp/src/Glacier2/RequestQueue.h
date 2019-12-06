@@ -104,7 +104,6 @@ private:
     bool _destroy;
     bool _sleep;
 
-    std::chrono::nanoseconds _sleepDuration;
     std::vector<std::shared_ptr<RequestQueue>> _queues;
 
     std::mutex _mutex;

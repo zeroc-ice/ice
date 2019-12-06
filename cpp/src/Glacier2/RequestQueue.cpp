@@ -411,6 +411,8 @@ Glacier2::RequestQueueThread::flushRequestQueue(shared_ptr<RequestQueue> queue)
 void
 Glacier2::RequestQueueThread::run()
 {
+    std::chrono::nanoseconds sleepDuration = 0ns;
+
     while(true)
     {
         vector<shared_ptr<RequestQueue>> queues;
@@ -430,16 +432,16 @@ Glacier2::RequestQueueThread::run()
                 {
                     auto now = chrono::steady_clock::now();
 
-                    if(_condVar.wait_for(lock, _sleepDuration) == cv_status::no_timeout)
+                    if(_condVar.wait_for(lock, sleepDuration) == cv_status::no_timeout)
                     {
-                        _sleepDuration = 0ns;
+                        sleepDuration = 0ns;
                     }
                     else
                     {
-                        _sleepDuration -= chrono::steady_clock::now() - now;
+                        sleepDuration -= chrono::steady_clock::now() - now;
                     }
 
-                    if(_sleepDuration <= 0ns)
+                    if(sleepDuration <= 0ns)
                     {
                         _sleep = false;
                     }
@@ -466,7 +468,7 @@ Glacier2::RequestQueueThread::run()
             if(_sleepTime > 0ms)
             {
                 _sleep = true;
-                _sleepDuration = _sleepTime;
+                sleepDuration = _sleepTime;
             }
         }
 
