@@ -778,6 +778,13 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         return dictionaryTypeToString(dict, scope, metaData, typeCtx);
     }
 
+    OptionalPtr opt = OptionalPtr::dynamicCast(type);
+    if(opt)
+    {
+        auto underlying = typeToString(opt->underlying(), scope, metaData, typeCtx);
+        return "std::optional<" + underlying + ">";
+    }
+
     return "???";
 }
 

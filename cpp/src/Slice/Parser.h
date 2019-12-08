@@ -102,6 +102,7 @@ class Constructed;
 class ClassDecl;
 class ClassDef;
 class Proxy;
+class Optional;
 class Exception;
 class Struct;
 class Operation;
@@ -128,6 +129,7 @@ typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
 typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
 typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
 typedef ::IceUtil::Handle<Proxy> ProxyPtr;
+typedef ::IceUtil::Handle<Optional> OptionalPtr;
 typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
 typedef ::IceUtil::Handle<Operation> OperationPtr;
@@ -749,25 +751,39 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// Proxy
+// Optional (for T? types)
 // ----------------------------------------------------------------------
 
-class Proxy : public virtual Type
+class Optional : public Type
 {
 public:
 
-    virtual std::string typeId() const;
-    virtual bool usesClasses() const;
-    virtual size_t minWireSize() const;
-    virtual bool isVariableLength() const;
+    Optional(const TypePtr& underlying);
 
-    ClassDeclPtr _class() const;
+    std::string typeId() const override;
+    bool usesClasses() const override;
+    size_t minWireSize() const override;
+    bool isVariableLength() const override;
+    TypePtr underlying() const { return _underlying; }
+
+private:
+
+    const TypePtr _underlying;
+};
+
+// ----------------------------------------------------------------------
+// Proxy
+// ----------------------------------------------------------------------
+
+class Proxy : public Optional
+{
+public:
 
     Proxy(const ClassDeclPtr&);
 
-protected:
-
-    ClassDeclPtr _classDecl;
+    bool usesClasses() const override;
+    size_t minWireSize() const override;
+    ClassDeclPtr _class() const;
 };
 
 // ----------------------------------------------------------------------
@@ -1104,7 +1120,6 @@ public:
     std::string getTypeId(int) const;
     bool hasCompactTypeId() const;
 
-    bool usesNonLocals() const;
     bool usesConsts() const;
 
     //
@@ -1122,7 +1137,9 @@ public:
     virtual void destroy();
     virtual void visit(ParserVisitor*, bool);
 
-    BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
+    // Not const, as builtins are created on the fly. (Lazy initialization.)
+    BuiltinPtr builtin(Builtin::Kind);
+    OptionalPtr optionalBuiltin(Builtin::Kind);
 
     void addTopLevelModule(const std::string&, const std::string&);
     std::set<std::string> getTopLevelModules(const std::string&) const;
@@ -1147,6 +1164,7 @@ private:
     StringList _includeFiles;
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
+    std::map<Builtin::Kind, OptionalPtr> _optionalBuiltins;
     std::map<std::string, ContainedList> _contentMap;
     std::map<std::string, DefinitionContextPtr> _definitionContextMap;
     std::map<int, std::string> _typeIds;
