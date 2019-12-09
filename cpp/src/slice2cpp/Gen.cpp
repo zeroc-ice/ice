@@ -890,11 +890,8 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <Ice/ExceptionHelpers.h>";
     }
 
-    if(p->usesNonLocals())
-    {
-        C << "\n#include <Ice/InputStream.h>";
-        C << "\n#include <Ice/OutputStream.h>";
-    }
+    C << "\n#include <Ice/InputStream.h>";
+    C << "\n#include <Ice/OutputStream.h>";
 
     if(p->hasNonLocalExceptions())
     {

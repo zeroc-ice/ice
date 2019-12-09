@@ -54,7 +54,7 @@ slice_error(const char* s)
 
 %}
 
-%pure-parser
+%define api.pure
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this
@@ -1887,45 +1887,86 @@ type
 {
     $$ = unit->builtin(Builtin::KindByte);
 }
+| ICE_BYTE '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindByte);
+}
 | ICE_BOOL
 {
     $$ = unit->builtin(Builtin::KindBool);
+}
+| ICE_BOOL '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindBool);
 }
 | ICE_SHORT
 {
     $$ = unit->builtin(Builtin::KindShort);
 }
+| ICE_SHORT '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindShort);
+}
 | ICE_INT
 {
     $$ = unit->builtin(Builtin::KindInt);
+}
+| ICE_INT '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindInt);
 }
 | ICE_LONG
 {
     $$ = unit->builtin(Builtin::KindLong);
 }
+| ICE_LONG '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindLong);
+}
 | ICE_FLOAT
 {
     $$ = unit->builtin(Builtin::KindFloat);
+}
+| ICE_FLOAT '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindFloat);
 }
 | ICE_DOUBLE
 {
     $$ = unit->builtin(Builtin::KindDouble);
 }
+| ICE_DOUBLE '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindDouble);
+}
 | ICE_STRING
 {
     $$ = unit->builtin(Builtin::KindString);
+}
+| ICE_STRING '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindString);
 }
 | ICE_OBJECT
 {
     $$ = unit->builtin(Builtin::KindObject);
 }
+| ICE_OBJECT '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindObjectProxy);
+}
 | ICE_OBJECT '*'
 {
+    // TODO: equivalent to ICE_OBJECT ? above, need to merge KindObject / KindObjectProxy
     $$ = unit->builtin(Builtin::KindObjectProxy);
 }
 | ICE_VALUE
 {
     $$ = unit->builtin(Builtin::KindValue);
+}
+| ICE_VALUE '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindValue);
 }
 | scoped_name
 {
@@ -1948,6 +1989,7 @@ type
 }
 | scoped_name '*'
 {
+    // TODO: keep '*' only as an alias for T? where T = interface
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     if(cont)
@@ -1970,6 +2012,29 @@ type
             }
             cont->checkIntroduced(scoped->v);
             *p = new Proxy(cl);
+        }
+        $$ = types.front();
+    }
+    else
+    {
+        $$ = 0;
+    }
+}
+| scoped_name '?'
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
+    ContainerPtr cont = unit->currentContainer();
+    if(cont)
+    {
+        TypeList types = cont->lookupType(scoped->v);
+        if(types.empty())
+        {
+            YYERROR; // Can't continue, jump to next yyerrok
+        }
+        for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
+        {
+            cont->checkIntroduced(scoped->v);
+            *p = new Optional(*p);
         }
         $$ = types.front();
     }

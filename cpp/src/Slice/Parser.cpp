@@ -4208,15 +4208,46 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     }
 }
 
+
+// ----------------------------------------------------------------------
+// Optional
+// ----------------------------------------------------------------------
+
+Slice::Optional::Optional(const TypePtr& underlying) :
+    SyntaxTreeBase(underlying->unit(), underlying->definitionContext()),
+    Type(underlying->unit()),
+    _underlying(underlying)
+{
+}
+
+string
+Slice::Optional::typeId() const
+{
+    return _underlying->typeId();
+}
+
+bool
+Slice::Optional::usesClasses() const
+{
+    return _underlying->usesClasses();
+}
+
+size_t
+Slice::Optional::minWireSize() const
+{
+    // TODO: should be 2 for proxies with the 1.1 encoding
+    return 1;
+}
+
+bool
+Slice::Optional::isVariableLength() const
+{
+    return true;
+}
+
 // ----------------------------------------------------------------------
 // Proxy
 // ----------------------------------------------------------------------
-
-string
-Slice::Proxy::typeId() const
-{
-    return _classDecl->scoped();
-}
 
 bool
 Slice::Proxy::usesClasses() const
@@ -4230,22 +4261,15 @@ Slice::Proxy::minWireSize() const
     return 2; // At least two bytes for a nil proxy (empty name and empty category strings).
 }
 
-bool
-Slice::Proxy::isVariableLength() const
-{
-    return true;
-}
-
 ClassDeclPtr
 Slice::Proxy::_class() const
 {
-    return _classDecl;
+    return ClassDeclPtr::dynamicCast(underlying());
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
     SyntaxTreeBase(cl->unit(), cl->definitionContext()),
-    Type(cl->unit()),
-    _classDecl(cl)
+    Optional(cl)
 {
 }
 
@@ -6523,45 +6547,6 @@ Slice::Unit::hasCompactTypeId() const
 }
 
 bool
-Slice::Unit::usesNonLocals() const
-{
-    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
-    {
-        for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-        {
-            ConstructedPtr constr = ConstructedPtr::dynamicCast(*q);
-            if(constr)
-            {
-                return true;
-            }
-
-            ExceptionPtr exc = ExceptionPtr::dynamicCast(*q);
-            if(exc)
-            {
-                return true;
-            }
-        }
-    }
-
-    if(_builtins.find(Builtin::KindObject) != _builtins.end())
-    {
-        return true;
-    }
-
-    if(_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
-    {
-        return true;
-    }
-
-    if(_builtins.find(Builtin::KindValue) != _builtins.end())
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool
 Slice::Unit::usesConsts() const
 {
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
@@ -6670,7 +6655,7 @@ Slice::Unit::visit(ParserVisitor* visitor, bool all)
 BuiltinPtr
 Slice::Unit::builtin(Builtin::Kind kind)
 {
-    map<Builtin::Kind, BuiltinPtr>::const_iterator p = _builtins.find(kind);
+    auto p = _builtins.find(kind);
     if(p != _builtins.end())
     {
         return p->second;
@@ -6678,6 +6663,19 @@ Slice::Unit::builtin(Builtin::Kind kind)
     BuiltinPtr builtin = new Builtin(this, kind);
     _builtins.insert(make_pair(kind, builtin));
     return builtin;
+}
+
+OptionalPtr
+Slice::Unit::optionalBuiltin(Builtin::Kind kind)
+{
+    auto p = _optionalBuiltins.find(kind);
+    if(p != _optionalBuiltins.end())
+    {
+        return p->second;
+    }
+    OptionalPtr optionalBuiltin = new Optional(builtin(kind));
+    _optionalBuiltins.insert(make_pair(kind, optionalBuiltin));
+    return optionalBuiltin;
 }
 
 void
