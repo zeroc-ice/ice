@@ -4,7 +4,17 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["python:pkgdir:Ice"]]
+
+[["java:package:com.zeroc"]]
 
 module Ice
 {
