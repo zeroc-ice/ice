@@ -66,8 +66,9 @@ subprojects {
 
     checkerFramework {
         //checkers = ["org.checkerframework.checker.nullness.NullnessChecker"]
+
         // Workaround for https://github.com/typetools/checker-framework/issues/2878
-        // TODO remove this when we switch targets to JDK11.
+        // Only necessary because we target java 8.
         //extraJavacArgs = ["-Aignorejdkastub"]
     }
 
