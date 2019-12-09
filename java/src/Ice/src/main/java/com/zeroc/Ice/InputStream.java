@@ -964,18 +964,11 @@ public class InputStream
      * Extracts an optional byte value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted byte value, or null if it wasn't sent.
+     * @return The extracted byte value.
      **/
     public @Nullable Byte readByte(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F1))
-        {
-            return readByte();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F1) ? readByte() : null;
     }
 
     /**
@@ -1002,18 +995,11 @@ public class InputStream
      * Extracts an optional byte sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted byte sequence, or null if it wasn't sent.
+     * @return The extracted byte sequence.
      **/
     public byte @Nullable[] readByteSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
-        {
-            return readByteSeq();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.VSize) ? readByteSeq() : null;
     }
 
     /**
@@ -1090,18 +1076,11 @@ public class InputStream
      * @param <T> The serializable type.
      * @param tag The numeric tag associated with the value.
      * @param cl The class for the serializable type.
-     * @return The deserialized Java object, or null if it wasn't sent.
+     * @return The deserialized Java object.
      **/
     public <T extends java.io.Serializable> @Nullable T readSerializable(int tag, Class<T> cl)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
-        {
-            return readSerializable(cl);
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.VSize) ? readSerializable(cl) : null;
     }
 
     /**
@@ -1125,18 +1104,11 @@ public class InputStream
      * Extracts an optional boolean value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted boolean, or null if it wasn't sent.
+     * @return The extracted boolean.
      **/
     public @Nullable Boolean readBool(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F1))
-        {
-            return readBool();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F1) ? readBool() : null;
     }
 
     /**
@@ -1166,18 +1138,11 @@ public class InputStream
      * Extracts an optional boolean sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted boolean sequence, or null if it wasn't sent.
+     * @return The extracted boolean sequence.
      **/
     public boolean @Nullable[] readBoolSeq(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
-        {
-            return readBoolSeq();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.VSize) ? readBoolSeq() : null;
     }
 
     /**
@@ -1201,18 +1166,11 @@ public class InputStream
      * Extracts an optional short value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted short, or null if it wasn't sent.
+     * @return The extracted short.
      **/
     public @Nullable Short readShort(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F2))
-        {
-            return readShort();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F2) ? readShort() : null;
     }
 
     /**
@@ -1241,7 +1199,7 @@ public class InputStream
      * Extracts an optional short sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted short sequence, or null if it wasn't sent.
+     * @return The extracted short sequence.
      **/
     public short @Nullable[] readShortSeq(int tag)
     {
@@ -1301,18 +1259,11 @@ public class InputStream
      * Extracts an optional int value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted int, or null if it wasn't sent.
+     * @return The extracted int.
      **/
     public @Nullable Integer readInt(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F4))
-        {
-            return readInt();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F4) ? readInt() : null;
     }
 
     /**
@@ -1341,7 +1292,7 @@ public class InputStream
      * Extracts an optional int sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted int sequence, or null if it wasn't sent.
+     * @return The extracted int sequence.
      **/
     public int @Nullable[] readIntSeq(int tag)
     {
@@ -1401,18 +1352,11 @@ public class InputStream
      * Extracts an optional long value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted long, or null if it wasn't sent.
+     * @return The extracted long.
      **/
     public @Nullable Long readLong(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F8))
-        {
-            return readLong();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F8) ? readLong() : null;
     }
 
     /**
@@ -1441,7 +1385,7 @@ public class InputStream
      * Extracts an optional long sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted long sequence, or null if it wasn't sent.
+     * @return The extracted long sequence.
      **/
     public long @Nullable[] readLongSeq(int tag)
     {
@@ -1501,18 +1445,11 @@ public class InputStream
      * Extracts an optional float value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted float, or null if it wasn't sent.
+     * @return The extracted float.
      **/
     public @Nullable Float readFloat(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F4))
-        {
-            return readFloat();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F4) ? readFloat() : null;
     }
 
     /**
@@ -1541,7 +1478,7 @@ public class InputStream
      * Extracts an optional float sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted float sequence, or null if it wasn't sent.
+     * @return The extracted float sequence.
      **/
     public float @Nullable[] readFloatSeq(int tag)
     {
@@ -1601,18 +1538,11 @@ public class InputStream
      * Extracts an optional double value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted double, or null if it wasn't sent.
+     * @return The extracted double.
      **/
     public @Nullable Double readDouble(int tag)
     {
-        if(readOptional(tag, OptionalFormat.F8))
-        {
-            return readDouble();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.F8) ? readDouble() : null;
     }
 
     /**
@@ -1641,7 +1571,7 @@ public class InputStream
      * Extracts an optional double sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted double sequence, or null if it wasn't sent.
+     * @return The extracted double sequence.
      **/
     public double @Nullable[] readDoubleSeq(int tag)
     {
@@ -1768,18 +1698,11 @@ public class InputStream
      * Extracts an optional string value from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted string, or null if it wasn't sent.
+     * @return The extracted string.
      **/
     public @Nullable String readString(int tag)
     {
-        if(readOptional(tag, OptionalFormat.VSize))
-        {
-            return readString();
-        }
-        else
-        {
-            return null;
-        }
+        return readOptional(tag, OptionalFormat.VSize) ? readString() : null;
     }
 
     /**
@@ -1802,7 +1725,7 @@ public class InputStream
      * Extracts an optional string sequence from the stream.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted string sequence, or null if it wasn't sent.
+     * @return The extracted string sequence.
      **/
     public String @Nullable[] readStringSeq(int tag)
     {
@@ -1846,7 +1769,7 @@ public class InputStream
      * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
      *
      * @param tag The numeric tag associated with the value.
-     * @return The extracted proxy, or null if it wasn't sent.
+     * @return The extracted proxy.
      **/
     public @Nullable ObjectPrx readProxy(int tag)
     {
@@ -1867,7 +1790,7 @@ public class InputStream
      * @param <T> The proxy type.
      * @param tag The numeric tag associated with the value.
      * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type.
-     * @return The extracted proxy, or null if it wasn't sent.
+     * @return The extracted proxy.
      **/
     public <T extends ObjectPrx> @Nullable T readProxy(int tag, java.util.function.Function<ObjectPrx, T> cast)
     {

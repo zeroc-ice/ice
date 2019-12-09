@@ -614,7 +614,7 @@ public interface ObjectPrx
      * Obtains the compression override setting of this proxy.
      *
      * @return The compression override setting. If no override is set, this method returns null.
-     * Otherwise it is true if compression is enabled, and false otherwise.
+     * Otherwise it returns true if compression is enabled, and false otherwise.
      */
     @Nullable Boolean ice_getCompress();
 

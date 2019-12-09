@@ -628,4 +628,10 @@ public final class AMDInitialI implements Initial
     {
         return CompletableFuture.completedFuture(false);
     }
+
+    @Override
+    public CompletionStage<Boolean> supportsNullOptionalAsync(Current current)
+    {
+        return CompletableFuture.completedFuture(false);
+    }
 }

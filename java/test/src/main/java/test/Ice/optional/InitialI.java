@@ -581,4 +581,10 @@ public final class InitialI implements Initial
     {
         return false;
     }
+
+    @Override
+    public boolean supportsNullOptional(Current current)
+    {
+        return false;
+    }
 }
