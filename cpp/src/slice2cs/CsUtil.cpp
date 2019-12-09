@@ -56,41 +56,6 @@ lookupKwd(const string& name, unsigned int baseTypes, bool mangleCasts = false)
     return Slice::DotNet::mangleName(name, baseTypes);
 }
 
-//
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-StringList
-splitScopedName(const string& scoped)
-{
-    assert(scoped[0] == ':');
-    StringList ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while((pos = scoped.find("::", next)) != string::npos)
-    {
-        pos += 2;
-        if(pos != scoped.size())
-        {
-            string::size_type endpos = scoped.find("::", pos);
-            if(endpos != string::npos)
-            {
-                ids.push_back(scoped.substr(pos, endpos - pos));
-            }
-        }
-        next = pos;
-    }
-    if(next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
-    }
-
-    return ids;
-}
-
 }
 
 string
@@ -219,16 +184,16 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangl
     {
         return lookupKwd(name, baseTypes, mangleCasts);
     }
-    StringList ids = splitScopedName(name);
-    StringList newIds;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        newIds.push_back(lookupKwd(*i, baseTypes));
-    }
+    auto ids = splitScopedName(name);
+    transform(begin(ids), end(ids), begin(ids), [baseTypes](const std::string& i)
+                                                {
+                                                    return lookupKwd(i, baseTypes);
+                                                });
+
     stringstream result;
-    for(StringList::const_iterator j = newIds.begin(); j != newIds.end(); ++j)
+    for(vector<string>::const_iterator j = ids.begin(); j != ids.end(); ++j)
     {
-        if(j != newIds.begin())
+        if(j != ids.begin())
         {
             result << '.';
         }

@@ -45,6 +45,9 @@ toStringLiteral(const std::string&, const std::string&, const std::string&, Esca
 void
 writeDependencies(const std::string&, const std::string&);
 
+std::vector<std::string>
+splitScopedName(const std::string&);
+
 }
 
 #endif

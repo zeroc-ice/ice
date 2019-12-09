@@ -1189,41 +1189,6 @@ lookupKwd(const string& name)
 }
 
 //
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-static StringList
-splitScopedName(const string& scoped)
-{
-    assert(scoped[0] == ':');
-    StringList ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while((pos = scoped.find("::", next)) != string::npos)
-    {
-        pos += 2;
-        if(pos != scoped.size())
-        {
-            string::size_type endpos = scoped.find("::", pos);
-            if(endpos != string::npos)
-            {
-                ids.push_back(scoped.substr(pos, endpos - pos));
-            }
-        }
-        next = pos;
-    }
-    if(next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
-    }
-
-    return ids;
-}
-
-//
 // If the passed name is a scoped name, return the identical scoped name,
 // but with all components that are C++ keywords replaced by
 // their "_cpp_"-prefixed version; otherwise, if the passed name is
@@ -1237,12 +1202,12 @@ Slice::fixKwd(const string& name)
     {
         return lookupKwd(name);
     }
-    StringList ids = splitScopedName(name);
+    auto ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), lookupKwd);
     stringstream result;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for(auto id : ids)
     {
-        result << "::" + *i;
+        result << "::" + id;
     }
     return result.str();
 }

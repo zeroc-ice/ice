@@ -118,52 +118,6 @@ lookupKwd(const string& name)
     return name;
 }
 
-//
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-static StringList
-splitScopedName(const string& scoped)
-{
-    assert(scoped[0] == ':');
-    StringList ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while((pos = scoped.find("::", next)) != string::npos)
-    {
-        pos += 2;
-        if(pos != scoped.size())
-        {
-            string::size_type endpos = scoped.find("::", pos);
-            if(endpos != string::npos)
-            {
-                ids.push_back(scoped.substr(pos, endpos - pos));
-            }
-        }
-        next = pos;
-    }
-    if(next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
-    }
-
-    return ids;
-}
-
-static StringList
-fixIds(const StringList& ids)
-{
-    StringList newIds;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        newIds.push_back(lookupKwd(*i));
-    }
-    return newIds;
-}
-
 string
 Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
 {
@@ -232,13 +186,13 @@ Slice::JsGenerator::fixId(const string& name)
         return lookupKwd(name);
     }
 
-    const StringList ids = splitScopedName(name);
-    const StringList newIds = fixIds(ids);
+    auto ids = splitScopedName(name);
+    transform(begin(ids), end(ids), begin(ids), lookupKwd);
 
     stringstream result;
-    for(StringList::const_iterator j = newIds.begin(); j != newIds.end(); ++j)
+    for(vector<string>::const_iterator j = ids.begin(); j != ids.end(); ++j)
     {
-        if(j != newIds.begin())
+        if(j != ids.begin())
         {
             result << '.';
         }
@@ -630,13 +584,14 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
     {
         return "";
     }
-    const StringList ids = fixIds(splitScopedName(fixedScope));
+    auto ids = splitScopedName(fixedScope);
+    transform(begin(ids), end(ids), begin(ids), lookupKwd);
 
     //
     // Return local scope for "::A::B::C" as A.B.C
     //
     stringstream result;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
         if(i != ids.begin())
         {
