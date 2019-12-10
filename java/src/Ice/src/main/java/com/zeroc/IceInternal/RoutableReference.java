@@ -259,7 +259,7 @@ public class RoutableReference extends Reference
     public Reference
     changeTimeout(int newTimeout)
     {
-        if(_timeout == newTimeout)
+        if(_timeout != null && _timeout == newTimeout)
         {
             return this;
         }
