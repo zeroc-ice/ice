@@ -816,9 +816,9 @@ Slice::JavaGenerator::fixKwd(const string& name) const
     StringList ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), lookupKwd);
     stringstream result;
-    for(const auto& i : ids)
+    for(const auto& id : ids)
     {
-        result << "::" + i;
+        result << "::" << id;
     }
     return result.str();
 }
