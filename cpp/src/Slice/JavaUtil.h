@@ -93,6 +93,11 @@ protected:
                                   const std::string& = std::string()) const;
 
     //
+    // Adds a Java annotation to a type in a scope-aware manner.
+    //
+    std::string addAnnotation(const std::string&, const std::string&) const;
+
+    //
     // Returns the package prefix of a Contained entity.
     //
     std::string getPackagePrefix(const ContainedPtr&) const;
@@ -124,11 +129,6 @@ protected:
     std::string getStaticId(const TypePtr&, const std::string&) const;
 
     //
-    // Determines whether an operation should use the optional mapping.
-    //
-    bool useOptionalMapping(const OperationPtr&);
-
-    //
     // Returns the optional type corresponding to the given Slice type.
     //
     std::string getOptionalFormat(const TypePtr&);
@@ -145,15 +145,23 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList(), bool = true, bool = false) const;
+                             const StringList& = StringList(), bool = true) const;
 
     //
     // Get the Java object name for a type. For primitive types, this returns the
-    // Java class type (e.g., Integer). For all other types, this function delegates
+    // Java boxed type (e.g., Integer). For all other types, this function delegates
     // to typeToString.
     //
     std::string typeToObjectString(const TypePtr&, TypeMode, const std::string& = std::string(),
                                    const StringList& = StringList(), bool = true) const;
+
+    //
+    // Get the Java name (with nullability annotations) for a type. This function uses
+    // typeToObjectString for nullable types, and typeToString for non-nullable types
+    // and applies the corresponding annotation to the result if necessary.
+    //
+    std::string typeToAnnotatedString(const TypePtr&, TypeMode, const std::string& = std::string(),
+                                      const StringList& = StringList(), bool = false, bool = false) const;
 
     //
     // Generate code to marshal or unmarshal a type.

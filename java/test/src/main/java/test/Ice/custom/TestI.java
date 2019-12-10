@@ -15,6 +15,8 @@ import java.nio.LongBuffer;
 import java.nio.FloatBuffer;
 import java.nio.DoubleBuffer;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import test.Ice.custom.Test.C;
 import test.Ice.custom.Test.E;
 import test.Ice.custom.Test.S;
@@ -189,127 +191,127 @@ public final class TestI implements TestIntf
     }
 
     @Override
-    public TestIntf.OpOptCArrayResult opOptCArray(java.util.Optional<List<C>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptCArrayResult opOptCArray(@Nullable List<C> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptCArrayResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptCListResult opOptCList(java.util.Optional<List<C>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptCListResult opOptCList(@Nullable List<C> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptCListResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptCSeqResult opOptCSeq(java.util.Optional<C[]> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptCSeqResult opOptCSeq(C @Nullable[] inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptCSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptBoolSeqResult opOptBoolSeq(java.util.Optional<List<Boolean>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptBoolSeqResult opOptBoolSeq(@Nullable List<Boolean> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptBoolSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptByteSeqResult opOptByteSeq(java.util.Optional<List<Byte>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptByteSeqResult opOptByteSeq(@Nullable List<Byte> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptByteSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptDSeqResult opOptDSeq(java.util.Optional<List<Map<Integer,String>>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptDSeqResult opOptDSeq(@Nullable List<Map<Integer,String>> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptDSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptDoubleSeqResult opOptDoubleSeq(java.util.Optional<List<Double>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptDoubleSeqResult opOptDoubleSeq(@Nullable List<Double> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptDoubleSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptESeqResult opOptESeq(java.util.Optional<List<E>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptESeqResult opOptESeq(@Nullable List<E> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptESeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptFloatSeqResult opOptFloatSeq(java.util.Optional<List<Float>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptFloatSeqResult opOptFloatSeq(@Nullable List<Float> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptFloatSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptIntSeqResult opOptIntSeq(java.util.Optional<List<Integer>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptIntSeqResult opOptIntSeq(@Nullable List<Integer> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptIntSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptLongSeqResult opOptLongSeq(java.util.Optional<List<Long>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptLongSeqResult opOptLongSeq(@Nullable List<Long> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptLongSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptSSeqResult opOptSSeq(java.util.Optional<List<S>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptSSeqResult opOptSSeq(@Nullable List<S> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptSSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptShortSeqResult opOptShortSeq(java.util.Optional<List<Short>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptShortSeqResult opOptShortSeq(@Nullable List<Short> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptShortSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptStringSeqResult opOptStringSeq(java.util.Optional<List<String>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptStringSeqResult opOptStringSeq(@Nullable List<String> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptStringSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptStringSeqSeqResult opOptStringSeqSeq(java.util.Optional<List<List<String>>> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptStringSeqSeqResult opOptStringSeqSeq(@Nullable List<List<String>> inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptStringSeqSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptByteBufferSeqResult opOptByteBufferSeq(java.util.Optional<ByteBuffer> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptByteBufferSeqResult opOptByteBufferSeq(@Nullable ByteBuffer inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptByteBufferSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptShortBufferSeqResult opOptShortBufferSeq(java.util.Optional<ShortBuffer> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptShortBufferSeqResult opOptShortBufferSeq(@Nullable ShortBuffer inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptShortBufferSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptIntBufferSeqResult opOptIntBufferSeq(java.util.Optional<IntBuffer> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptIntBufferSeqResult opOptIntBufferSeq(@Nullable IntBuffer inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptIntBufferSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptLongBufferSeqResult opOptLongBufferSeq(java.util.Optional<LongBuffer> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptLongBufferSeqResult opOptLongBufferSeq(@Nullable LongBuffer inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptLongBufferSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptFloatBufferSeqResult opOptFloatBufferSeq(java.util.Optional<FloatBuffer> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptFloatBufferSeqResult opOptFloatBufferSeq(@Nullable FloatBuffer inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptFloatBufferSeqResult(inSeq, inSeq);
     }
 
     @Override
-    public TestIntf.OpOptDoubleBufferSeqResult opOptDoubleBufferSeq(java.util.Optional<DoubleBuffer> inSeq, com.zeroc.Ice.Current current)
+    public TestIntf.OpOptDoubleBufferSeqResult opOptDoubleBufferSeq(@Nullable DoubleBuffer inSeq, com.zeroc.Ice.Current current)
     {
         return new TestIntf.OpOptDoubleBufferSeqResult(inSeq, inSeq);
     }

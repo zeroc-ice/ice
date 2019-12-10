@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 public class FixedReference extends Reference
 {
     public
@@ -18,14 +20,14 @@ public class FixedReference extends Reference
                    com.zeroc.Ice.ConnectionI connection,
                    int invocationTimeout,
                    java.util.Map<String, String> context,
-                   java.util.Optional<Boolean> compress)
+                   @Nullable Boolean compress)
     {
         super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         _fixedConnection = connection;
-        if(compress.isPresent())
+        if(compress != null)
         {
             _overrideCompress = true;
-            _compress = compress.get();
+            _compress = compress;
         }
     }
 
@@ -100,10 +102,10 @@ public class FixedReference extends Reference
     }
 
     @Override
-    public java.util.OptionalInt
+    public @Nullable Integer
     getTimeout()
     {
-        return  java.util.OptionalInt.empty();
+        return null;
     }
 
     @Override

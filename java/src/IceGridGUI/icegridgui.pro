@@ -114,6 +114,11 @@
 }
 
 #
+# This directive preserves the checker framework nullness annotations.
+#
+-keepnames @interface org.checkerframework.checker.nullness.qual.*
+
+#
 # More keeps to suppress Notes
 #
 -keep,includedescriptorclasses public class * {

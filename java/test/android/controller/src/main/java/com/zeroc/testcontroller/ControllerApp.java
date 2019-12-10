@@ -241,9 +241,8 @@ public class ControllerApp extends Application
                     {
                         com.zeroc.Ice.Connection connection = registry.ice_getConnection();
                         connection.setAdapter(adapter);
-                        connection.setACM(OptionalInt.of(5),
-                                Optional.of(com.zeroc.Ice.ACMClose.CloseOff),
-                                Optional.of(com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways));
+                        connection.setACM(5, com.zeroc.Ice.ACMClose.CloseOff,
+                                          com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways);
                         connection.setCloseCallback(
                                 con ->
                                 {

@@ -26,6 +26,5 @@ apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
 javadoc.dependsOn(compileJava)
 
 javadoc {
-    classpath = project.sourceSets.main.output
     excludes = ["**/IceInternal/*.java", "**/IceUtilInternal/*.java", "**/Ice/*I.java"]
 }

@@ -6,6 +6,8 @@ package com.zeroc.Ice;
 
 import java.util.concurrent.Callable;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.zeroc.IceInternal.AsyncStatus;
 import com.zeroc.IceInternal.Buffer;
 import com.zeroc.IceInternal.Incoming;
@@ -599,10 +601,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     }
 
     @Override
-    synchronized public void setACM(java.util.OptionalInt timeout, java.util.Optional<ACMClose> close,
-            java.util.Optional<ACMHeartbeat> heartbeat)
+    synchronized public void setACM(@Nullable Integer timeout, @Nullable ACMClose close,
+            @Nullable ACMHeartbeat heartbeat)
     {
-        if(timeout != null && timeout.isPresent() && timeout.getAsInt() < 0)
+        if(timeout != null && timeout < 0)
         {
             throw new IllegalArgumentException("invalid negative ACM timeout value");
         }

@@ -4,6 +4,8 @@
 
 package com.zeroc.Ice;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * The user-level interface to a connection.
  **/
@@ -120,7 +122,7 @@ public interface Connection
      * @param close The close condition
      * @param heartbeat The hertbeat condition
      **/
-    void setACM(java.util.OptionalInt timeout, java.util.Optional<ACMClose> close, java.util.Optional<ACMHeartbeat> heartbeat);
+    void setACM(@Nullable Integer timeout, @Nullable ACMClose close, @Nullable ACMHeartbeat heartbeat);
 
     /**
      * Get the ACM parameters.

@@ -78,7 +78,7 @@ public final class RouterInfo
         }
 
         com.zeroc.Ice.Router.GetClientProxyResult r = _router.getClientProxy();
-        return setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true));
+        return setClientEndpoints(r.returnValue, (r.hasRoutingTable != null ? r.hasRoutingTable : true));
     }
 
     public void
@@ -111,7 +111,8 @@ public final class RouterInfo
                 }
                 else
                 {
-                    callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true)));
+                    callback.setEndpoints(setClientEndpoints(r.returnValue,
+                                                             (r.hasRoutingTable != null? r.hasRoutingTable : true)));
                 }
             });
     }

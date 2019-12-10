@@ -4,6 +4,8 @@
 
 package com.zeroc.IceInternal;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 class FactoryACMMonitor implements ACMMonitor
 {
     static class Change
@@ -152,23 +154,23 @@ class FactoryACMMonitor implements ACMMonitor
 
     @Override
     public synchronized ACMMonitor
-    acm(java.util.OptionalInt timeout, java.util.Optional<com.zeroc.Ice.ACMClose> close,
-        java.util.Optional<com.zeroc.Ice.ACMHeartbeat> heartbeat)
+    acm(@Nullable Integer timeout, com.zeroc.Ice.@Nullable ACMClose close,
+        com.zeroc.Ice.@Nullable ACMHeartbeat heartbeat)
     {
         assert(_instance != null);
 
         ACMConfig config = _config.clone();
-        if(timeout != null && timeout.isPresent())
+        if(timeout != null)
         {
-            config.timeout = timeout.getAsInt() * 1000; // To milliseconds
+            config.timeout = timeout * 1000; // To milliseconds
         }
-        if(close != null && close.isPresent())
+        if(close != null)
         {
-            config.close = close.get();
+            config.close = close;
         }
-        if(heartbeat != null && heartbeat.isPresent())
+        if(heartbeat != null)
         {
-            config.heartbeat = heartbeat.get();
+            config.heartbeat = heartbeat;
         }
         return new ConnectionACMMonitor(this, _instance.timer(), config);
     }
