@@ -8,9 +8,31 @@
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+        <Compile Update="generated\Admin.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\Admin.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Descriptor.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\Descriptor.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Exception.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\Exception.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\FileParser.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\FileParser.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Registry.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\Registry.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\Session.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\Session.ice</SliceCompileSource>
+        </Compile>
+        <Compile Update="generated\UserAccountMapper.cs">
+          <SliceCompileSource>..\..\..\slice\IceGrid\UserAccountMapper.ice</SliceCompileSource>
+        </Compile>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../Ice/ice.csproj" />
         <ProjectReference Include="../Glacier2/glacier2.csproj" />
     </ItemGroup>
+    <ItemGroup />
 </Project>

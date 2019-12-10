@@ -14,10 +14,10 @@ namespace Ice
         {
             public InitialI(Ice.ObjectAdapter adapter)
             {
-                _ia = Test.MA.IAPrxHelper.uncheckedCast(adapter.Add(new IAI()));
-                _ib1 = Test.MB.IB1PrxHelper.uncheckedCast(adapter.Add(new IB1I()));
-                _ib2 = Test.MB.IB2PrxHelper.uncheckedCast(adapter.Add(new IB2I()));
-                _ic = Test.MA.ICPrxHelper.uncheckedCast(adapter.Add(new ICI()));
+                _ia = adapter.Add(new IAI());
+                _ib1 = adapter.Add(new IB1I());
+                _ib2 = adapter.Add(new IB2I());
+                _ic = adapter.Add(new ICI());
             }
 
             public Test.MA.IAPrx iaop(Ice.Current current)

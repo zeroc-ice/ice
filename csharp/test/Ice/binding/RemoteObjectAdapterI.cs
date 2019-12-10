@@ -13,7 +13,7 @@ namespace Ice
             public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
             {
                 _adapter = adapter;
-                _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.Add(new TestI(), "test"));
+                _testIntf = _adapter.Add(new TestI(), "test");
                 _adapter.Activate();
             }
 

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Ice;
 
 namespace Glacier2
 {
@@ -112,7 +113,7 @@ namespace Glacier2
         /// <param name="servant">The servant to add.</param>
         /// <returns>The proxy for the servant. Throws SessionNotExistException
         /// if no session exists.</returns>
-        public Ice.ObjectPrx
+        public Ice.IObjectPrx
         addWithUUID(Ice.Disp servant)
         {
             lock (_mutex)
@@ -224,14 +225,14 @@ namespace Glacier2
             // Remote invocation should be done without acquiring a mutex lock.
             //
             Debug.Assert(router != null);
-            Ice.Connection conn = router.ice_getCachedConnection();
+            Ice.Connection conn = router.GetCachedConnection();
             string category = router.getCategoryForClient();
             int acmTimeout = 0;
             try
             {
                 acmTimeout = router.getACMTimeout();
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
 
@@ -280,7 +281,7 @@ namespace Glacier2
 
                 if (acmTimeout > 0)
                 {
-                    Ice.Connection connection = _router.ice_getCachedConnection();
+                    Ice.Connection connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
                     connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
                     connection.setCloseCallback(_ => destroy());
@@ -304,7 +305,7 @@ namespace Glacier2
         destroyInternal()
         {
             RouterPrx router;
-            Ice.Communicator communicator;
+            Communicator communicator;
             lock (_mutex)
             {
                 Debug.Assert(_destroy);
@@ -324,7 +325,7 @@ namespace Glacier2
             {
                 router.destroySession();
             }
-            catch (Ice.ConnectionLostException)
+            catch (ConnectionLostException)
             {
                 //
                 // Expected if another thread invoked on an object from the session concurrently.
@@ -336,7 +337,7 @@ namespace Glacier2
                 // This can also occur.
                 //
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 //
                 // Not expected.
@@ -353,12 +354,11 @@ namespace Glacier2
         private void
         destroyCommunicator()
         {
-            Ice.Communicator communicator;
+            Communicator communicator;
             lock (_mutex)
             {
                 communicator = _communicator;
             }
-
             communicator.destroy();
         }
 
@@ -374,10 +374,10 @@ namespace Glacier2
                 {
                     lock (_mutex)
                     {
-                        _communicator = Ice.Util.initialize(_initData);
+                        _communicator = Util.initialize(_initData);
                     }
                 }
-                catch (Ice.LocalException ex)
+                catch (LocalException ex)
                 {
                     lock (_mutex)
                     {
@@ -389,24 +389,23 @@ namespace Glacier2
 
                 if (_communicator.getDefaultRouter() == null)
                 {
-                    Ice.RouterFinderPrx finder =
-                        Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
+                    var finder = RouterFinderPrx.Parse(_finderStr, _communicator);
                     try
                     {
                         _communicator.setDefaultRouter(finder.getRouter());
                     }
-                    catch (Ice.CommunicatorDestroyedException ex)
+                    catch (CommunicatorDestroyedException ex)
                     {
                         dispatchCallback(() => _callback.connectFailed(this, ex), null);
                         return;
                     }
-                    catch (Exception)
+                    catch (System.Exception ex)
                     {
                         //
                         // In case of error getting router identity from RouterFinder use default identity.
                         //
                         _communicator.setDefaultRouter(
-                                Ice.RouterPrxHelper.uncheckedCast(finder.ice_identity(new Ice.Identity("router", "Glacier2"))));
+                                Ice.RouterPrx.UncheckedCast(finder.Clone(new Identity("router", "Glacier2"))));
                     }
                 }
 
@@ -414,11 +413,11 @@ namespace Glacier2
                 {
                     dispatchCallbackAndWait(() => _callback.createdCommunicator(this));
 
-                    RouterPrx routerPrx = RouterPrxHelper.uncheckedCast(_communicator.getDefaultRouter());
+                    RouterPrx routerPrx = RouterPrx.UncheckedCast(_communicator.getDefaultRouter());
                     SessionPrx session = factory(routerPrx);
                     connected(routerPrx, session);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _communicator.destroy();
                     dispatchCallback(() => _callback.connectFailed(this, ex), null);

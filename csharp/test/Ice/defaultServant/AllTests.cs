@@ -47,16 +47,16 @@ namespace Ice
                 for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
-                    prx = MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
-                    prx.ice_ping();
+                    prx = MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                    prx.IcePing();
                     test(prx.getName() == names[idx]);
                 }
 
                 identity.name = "ObjectNotExist";
-                prx = MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
+                prx = MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                 try
                 {
-                    prx.ice_ping();
+                    prx.IcePing();
                     test(false);
                 }
                 catch (ObjectNotExistException)
@@ -75,10 +75,10 @@ namespace Ice
                 }
 
                 identity.name = "FacetNotExist";
-                prx = MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
+                prx = MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                 try
                 {
-                    prx.ice_ping();
+                    prx.IcePing();
                     test(false);
                 }
                 catch (FacetNotExistException)
@@ -100,11 +100,11 @@ namespace Ice
                 for (int idx = 0; idx < 5; idx++)
                 {
                     identity.name = names[idx];
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
+                    prx = Test.MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
 
                     try
                     {
-                        prx.ice_ping();
+                        prx.IcePing();
                         test(false);
                     }
                     catch (Ice.ObjectNotExistException)
@@ -125,10 +125,10 @@ namespace Ice
 
                 oa.RemoveDefaultServant("foo");
                 identity.category = "foo";
-                prx = Test.MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
+                prx = Test.MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
                 try
                 {
-                    prx.ice_ping();
+                    prx.IcePing();
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -151,8 +151,8 @@ namespace Ice
                 for (int idx = 0; idx < 5; ++idx)
                 {
                     identity.name = names[idx];
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.CreateProxy(identity));
-                    prx.ice_ping();
+                    prx = Test.MyObjectPrx.UncheckedCast(oa.CreateProxy(identity));
+                    prx.IcePing();
                     test(prx.getName() == names[idx]);
                 }
 

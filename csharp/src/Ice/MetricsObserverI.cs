@@ -155,6 +155,31 @@ namespace IceMX
                 private readonly System.Reflection.MethodInfo _subMethod;
             }
 
+            private class MemberPropertyResolverI : Resolver
+            {
+                internal MemberPropertyResolverI(string name, System.Reflection.MethodInfo method,
+                                                 System.Reflection.PropertyInfo property)
+                    : base(name)
+                {
+                    Debug.Assert(method != null && property != null);
+                    _method = method;
+                    _property = property;
+                }
+
+                protected override object resolve(object obj)
+                {
+                    object o = _method.Invoke(obj, null);
+                    if (o != null)
+                    {
+                        return _property.GetValue(o, null);
+                    }
+                    throw new ArgumentOutOfRangeException(_name);
+                }
+
+                private readonly System.Reflection.MethodInfo _method;
+                private readonly System.Reflection.PropertyInfo _property;
+            }
+
             protected AttributeResolver()
             {
             }
@@ -200,6 +225,12 @@ namespace IceMX
             add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod)
             {
                 _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
+            }
+
+            public void
+            add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property)
+            {
+                _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
             }
 
             private Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();

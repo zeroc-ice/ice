@@ -8,8 +8,12 @@
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
+        <Compile Update="generated\IceDiscovery.cs">
+          <SliceCompileSource>..\..\..\slice\IceDiscovery\IceDiscovery.ice</SliceCompileSource>
+        </Compile>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../Ice/ice.csproj" />
     </ItemGroup>
+    <ItemGroup />
 </Project>

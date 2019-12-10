@@ -145,7 +145,7 @@ namespace Ice
         /// connection.
         ///
         /// </returns>
-        ObjectPrx createProxy(Identity id);
+        IObjectPrx createProxy(Identity id);
 
         /// <summary>
         /// Explicitly set an object adapter that dispatches requests that

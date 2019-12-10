@@ -88,31 +88,28 @@ namespace IceDiscovery
             // Setup locatory registry.
             //
             LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
-            LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(_locatorAdapter.Add(locatorRegistry));
+            LocatorRegistryPrx locatorRegistryPrx = _locatorAdapter.Add(locatorRegistry);
 
-            ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
-            // No colloc optimization or router for the multicast proxy!
-            lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
+            LookupPrx lookupPrx = LookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
+                clearRouter: true, collocationOptimized: false); // No colloc optimization or router for the multicast proxy!
 
             //
             // Add lookup and lookup reply Ice objects
             //
-            LookupI lookup = new LookupI(locatorRegistry, LookupPrxHelper.uncheckedCast(lookupPrx), properties);
+            LookupI lookup = new LookupI(locatorRegistry, lookupPrx, properties);
             _multicastAdapter.Add(lookup, "IceDiscovery/Lookup");
 
             LookupReplyTraits lookupT = default;
             LookupReplyI lookupReply = new LookupReplyI(lookup);
             _replyAdapter.AddDefaultServant(
                 (current, incoming) => lookupT.Dispatch(lookupReply, current, incoming), "");
-            Identity id = new Identity("dummy", "");
-            lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(_replyAdapter.CreateProxy(id).ice_datagram()));
+            lookup.setLookupReply(LookupReplyPrx.UncheckedCast(_replyAdapter.CreateProxy("dummy")).Clone(invocationMode: InvocationMode.Datagram));
 
             //
             // Setup locator on the communicator.
             //
-            ObjectPrx loc = _locatorAdapter.Add(new LocatorI(lookup, LocatorRegistryPrxHelper.uncheckedCast(locatorRegistryPrx)));
+            _locator = _locatorAdapter.Add(new LocatorI(lookup, locatorRegistryPrx));
             _defaultLocator = _communicator.getDefaultLocator();
-            _locator = LocatorPrxHelper.uncheckedCast(loc);
             _communicator.setDefaultLocator(_locator);
 
             _multicastAdapter.Activate();

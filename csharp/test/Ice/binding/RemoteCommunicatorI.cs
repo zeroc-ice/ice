@@ -11,14 +11,14 @@ namespace Ice
         public class RemoteCommunicatorI : Test.RemoteCommunicator
         {
             public Test.RemoteObjectAdapterPrx
-            createObjectAdapter(string name, string endpts, Ice.Current current)
+            createObjectAdapter(string name, string endpts, Current current)
             {
                 int retry = 5;
                 while (true)
                 {
                     try
                     {
-                        Ice.Communicator communicator = current.adapter.GetCommunicator();
+                        Communicator communicator = current.adapter.GetCommunicator();
                         string endpoints = endpts;
                         if (endpoints.IndexOf("-p") < 0)
                         {
@@ -26,11 +26,10 @@ namespace Ice
                         }
 
                         communicator.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-                        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
-                        return Test.RemoteObjectAdapterPrxHelper.uncheckedCast(
-                            current.adapter.Add(new RemoteObjectAdapterI(adapter)));
+                        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
+                        return current.adapter.Add(new RemoteObjectAdapterI(adapter));
                     }
-                    catch (Ice.SocketException)
+                    catch (SocketException)
                     {
                         if (--retry == 0)
                         {

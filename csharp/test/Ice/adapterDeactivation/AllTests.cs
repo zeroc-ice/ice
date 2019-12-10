@@ -17,13 +17,13 @@ namespace Ice
                 output.Write("testing stringToProxy... ");
                 output.Flush();
                 string @ref = "test:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
+                Ice.IObjectPrx @base = IObjectPrx.Parse(@ref, communicator);
                 test(@base != null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                var obj = Test.TestIntfPrx.CheckedCast(@base);
                 test(obj != null);
                 test(obj.Equals(@base));
                 output.WriteLine("ok");
@@ -63,9 +63,9 @@ namespace Ice
                     for (int i = 0; i < 10; ++i)
                     {
                         var initData = new InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         var comm = Util.initialize(initData);
-                        comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
+                        IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator).IcePingAsync();
                         comm.destroy();
                     }
                     output.WriteLine("ok");
@@ -79,14 +79,13 @@ namespace Ice
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
                     test(endpt.ToString().Equals("tcp -h localhost -p 12345 -t 30000"));
-                    ObjectPrx prx =
-                        communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
-                    adapter.SetPublishedEndpoints(prx.ice_getEndpoints());
+                    var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
+                    adapter.SetPublishedEndpoints(prx.Endpoints);
                     test(adapter.GetPublishedEndpoints().Length == 2);
                     var id = new Identity();
                     id.name = "dummy";
-                    test(IceUtilInternal.Arrays.Equals(adapter.CreateProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
-                    test(IceUtilInternal.Arrays.Equals(adapter.GetPublishedEndpoints(), prx.ice_getEndpoints()));
+                    test(IceUtilInternal.Arrays.Equals(adapter.CreateProxy(id).Endpoints, prx.Endpoints));
+                    test(IceUtilInternal.Arrays.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].Equals(endpt));
@@ -99,17 +98,17 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                if (obj.ice_getConnection() != null)
+                if (obj.GetConnection() != null)
                 {
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
                     var adapter = communicator.createObjectAdapter("");
-                    obj.ice_getConnection().setAdapter(adapter);
-                    obj.ice_getConnection().setAdapter(null);
+                    obj.GetConnection().setAdapter(adapter);
+                    obj.GetConnection().setAdapter(null);
                     adapter.Deactivate();
                     try
                     {
-                        obj.ice_getConnection().setAdapter(adapter);
+                        obj.GetConnection().setAdapter(adapter);
                         test(false);
                     }
                     catch (ObjectAdapterDeactivatedException)
@@ -123,8 +122,7 @@ namespace Ice
                 {
                     var routerId = new Identity();
                     routerId.name = "router";
-                    var router =
-                       RouterPrxHelper.uncheckedCast(@base.ice_identity(routerId).ice_connectionId("rc"));
+                    var router = RouterPrx.UncheckedCast(@base.Clone(routerId, connectionId: "rc"));
                     var adapter = communicator.createObjectAdapterWithRouter("", router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23456 -t 30000"));
@@ -133,7 +131,7 @@ namespace Ice
                     test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 23457 -t 30000"));
                     try
                     {
-                        adapter.SetPublishedEndpoints(router.ice_getEndpoints());
+                        adapter.SetPublishedEndpoints(router.Endpoints);
                         test(false);
                     }
                     catch (ArgumentException)
@@ -145,7 +143,7 @@ namespace Ice
                     try
                     {
                         routerId.name = "test";
-                        router = RouterPrxHelper.uncheckedCast(@base.ice_identity(routerId));
+                        router = RouterPrx.UncheckedCast(@base.Clone(routerId));
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);
                     }
@@ -156,8 +154,7 @@ namespace Ice
 
                     try
                     {
-                        router = RouterPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
-                                                                                              helper.getTestEndpoint(1)));
+                        router = RouterPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
                         communicator.createObjectAdapterWithRouter("", router);
                         test(false);
                     }
@@ -193,7 +190,7 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                    obj.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
                     test(false);
                 }
                 catch (LocalException)

@@ -66,9 +66,6 @@
     <ClCompile Include="..\ClientBlobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\FilterI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\FilterManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,7 +107,7 @@
     <ClInclude Include="..\ClientBlobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\FilterI.h">
+    <ClInclude Include="..\FilterT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\FilterManager.h">

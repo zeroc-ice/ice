@@ -103,15 +103,15 @@ internal sealed class ServerFactoryI : ServerFactory
         Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
-        Ice.ObjectPrx obj = adapter.Add(server);
-        _servers[obj.ice_getIdentity()] = server;
+        var prx = adapter.Add(server);
+        _servers[prx.Identity] = server;
         adapter.Activate();
-        return ServerPrxHelper.uncheckedCast(obj);
+        return prx;
     }
 
     public void destroyServer(ServerPrx srv, Ice.Current current)
     {
-        Ice.Identity key = srv.ice_getIdentity();
+        Ice.Identity key = srv.Identity;
         if (_servers.Contains(key))
         {
             ServerI server = _servers[key] as ServerI;

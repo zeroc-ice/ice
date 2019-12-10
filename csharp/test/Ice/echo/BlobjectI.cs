@@ -3,35 +3,14 @@
 //
 
 using System.Threading.Tasks;
+using Ice;
 
 public class BlobjectI : Ice.BlobjectAsync
 {
     public override Task<Ice.Object_Ice_invokeResult>
     ice_invokeAsync(byte[] inEncaps, Ice.Current current)
     {
-        bool twoway = current.requestId > 0;
-        Ice.ObjectPrx obj = current.con.createProxy(current.id);
-        if (!twoway)
-        {
-            if (current.facet.Length != 0)
-            {
-                obj = obj.ice_facet(current.facet);
-            }
-            return obj.ice_oneway().ice_invokeAsync(current.operation,
-                                                    current.mode,
-                                                    inEncaps,
-                                                    current.ctx);
-        }
-        else
-        {
-            if (current.facet.Length != 0)
-            {
-                obj = obj.ice_facet(current.facet);
-            }
-            return obj.ice_invokeAsync(current.operation,
-                                       current.mode,
-                                       inEncaps,
-                                       current.ctx);
-        }
+        var prx = current.con.createProxy(current.id).Clone(facet: current.facet, oneway: current.requestId == 0);
+        return prx.InvokeAsync(current.operation, current.mode, inEncaps, current.ctx);
     }
 }

@@ -76,13 +76,13 @@ public class AllTests : Test.AllTests
         {
             refString += ":" + helper.getTestEndpoint(ports[i]);
         }
-        Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
+        Ice.IObjectPrx basePrx = Ice.IObjectPrx.Parse(refString, communicator);
         test(basePrx != null);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(basePrx);
+        TestIntfPrx obj = TestIntfPrx.CheckedCast(basePrx);
         test(obj != null);
         test(obj.Equals(basePrx));
         output.WriteLine("ok");
@@ -223,7 +223,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         try
         {
-            obj.ice_ping();
+            obj.IcePing();
             test(false);
         }
         catch (Ice.LocalException)

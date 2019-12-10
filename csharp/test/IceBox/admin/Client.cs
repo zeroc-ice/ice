@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -14,7 +15,7 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.Properties properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Default.Host", "127.0.0.1");
         using (var communicator = initialize(properties))
         {
@@ -22,8 +23,7 @@ public class Client : Test.TestHelper
             //
             // Shutdown the IceBox server.
             //
-            Ice.ObjectPrx prx = communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996");
-            Ice.ProcessPrxHelper.uncheckedCast(prx).shutdown();
+            ProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).shutdown();
         }
     }
 

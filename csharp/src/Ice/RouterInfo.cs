@@ -6,6 +6,7 @@ namespace IceInternal
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Ice;
 
     public sealed class RouterInfo
     {
@@ -102,8 +103,8 @@ namespace IceInternal
                     }
                     catch (System.AggregateException ae)
                     {
-                        Debug.Assert(ae.InnerException is Ice.LocalException);
-                        callback.setException((Ice.LocalException)ae.InnerException);
+                        Debug.Assert(ae.InnerException is LocalException);
+                        callback.setException((LocalException)ae.InnerException);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
@@ -111,22 +112,22 @@ namespace IceInternal
 
         public EndpointI[] getServerEndpoints()
         {
-            Ice.ObjectPrx serverProxy = _router.getServerProxy();
+            Ice.IObjectPrx serverProxy = _router.getServerProxy();
             if (serverProxy == null)
             {
                 throw new Ice.NoEndpointException();
             }
 
-            serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-            return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
+            serverProxy = serverProxy.Clone(clearRouter: true); // The server proxy cannot be routed.
+            return serverProxy.IceReference.getEndpoints();
         }
 
-        public void addProxy(Ice.ObjectPrx proxy)
+        public void addProxy(Ice.IObjectPrx proxy)
         {
             Debug.Assert(proxy != null);
             lock (this)
             {
-                if (_identities.Contains(proxy.ice_getIdentity()))
+                if (_identities.Contains(proxy.Identity))
                 {
                     //
                     // Only add the proxy to the router if it's not already in our local map.
@@ -135,10 +136,10 @@ namespace IceInternal
                 }
             }
 
-            addAndEvictProxies(proxy, _router.addProxies(new Ice.ObjectPrx[] { proxy }));
+            addAndEvictProxies(proxy, _router.addProxies(new Ice.IObjectPrx[] { proxy }));
         }
 
-        public bool addProxy(Ice.ObjectPrx proxy, AddProxyCallback callback)
+        public bool addProxy(Ice.IObjectPrx proxy, AddProxyCallback callback)
         {
             Debug.Assert(proxy != null);
             lock (this)
@@ -147,7 +148,7 @@ namespace IceInternal
                 {
                     return true; // The router implementation doesn't maintain a routing table.
                 }
-                if (_identities.Contains(proxy.ice_getIdentity()))
+                if (_identities.Contains(proxy.Identity))
                 {
                     //
                     // Only add the proxy to the router if it's not already in our local map.
@@ -156,7 +157,7 @@ namespace IceInternal
                 }
             }
 
-            _router.addProxiesAsync(new Ice.ObjectPrx[] { proxy }).ContinueWith(
+            _router.addProxiesAsync(new Ice.IObjectPrx[] { proxy }).ContinueWith(
                 (t) =>
                 {
                     try
@@ -198,7 +199,7 @@ namespace IceInternal
             }
         }
 
-        private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy, bool hasRoutingTable)
+        private EndpointI[] setClientEndpoints(Ice.IObjectPrx clientProxy, bool hasRoutingTable)
         {
             lock (this)
             {
@@ -210,30 +211,30 @@ namespace IceInternal
                         //
                         // If getClientProxy() return nil, use router endpoints.
                         //
-                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).iceReference().getEndpoints();
+                        _clientEndpoints = _router.IceReference.getEndpoints();
                     }
                     else
                     {
-                        clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
+                        clientProxy = clientProxy.Clone(clearRouter: true); // The client proxy cannot be routed.
 
                         //
                         // In order to avoid creating a new connection to the
                         // router, we must use the same timeout as the already
                         // existing connection.
                         //
-                        if (_router.ice_getConnection() != null)
+                        if (_router.GetConnection() != null)
                         {
-                            clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
+                            clientProxy = clientProxy.Clone(connectionTimeout: _router.GetConnection().timeout());
                         }
 
-                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).iceReference().getEndpoints();
+                        _clientEndpoints = clientProxy.IceReference.getEndpoints();
                     }
                 }
                 return _clientEndpoints;
             }
         }
 
-        private void addAndEvictProxies(Ice.ObjectPrx proxy, Ice.ObjectPrx[] evictedProxies)
+        private void addAndEvictProxies(Ice.IObjectPrx proxy, Ice.IObjectPrx[] evictedProxies)
         {
             lock (this)
             {
@@ -242,7 +243,7 @@ namespace IceInternal
                 // concurrent addProxies call. If it's the case, don't
                 // add it to our local map.
                 //
-                int index = _evictedIdentities.IndexOf(proxy.ice_getIdentity());
+                int index = _evictedIdentities.IndexOf(proxy.Identity);
                 if (index >= 0)
                 {
                     _evictedIdentities.RemoveAt(index);
@@ -253,7 +254,7 @@ namespace IceInternal
                     // If we successfully added the proxy to the router,
                     // we add it to our local map.
                     //
-                    _identities.Add(proxy.ice_getIdentity());
+                    _identities.Add(proxy.Identity);
                 }
 
                 //
@@ -261,14 +262,14 @@ namespace IceInternal
                 //
                 for (int i = 0; i < evictedProxies.Length; ++i)
                 {
-                    if (!_identities.Remove(evictedProxies[i].ice_getIdentity()))
+                    if (!_identities.Remove(evictedProxies[i].Identity))
                     {
                         //
                         // It's possible for the proxy to not have been
                         // added yet in the local map if two threads
                         // concurrently call addProxies.
                         //
-                        _evictedIdentities.Add(evictedProxies[i].ice_getIdentity());
+                        _evictedIdentities.Add(evictedProxies[i].Identity);
                     }
                 }
             }
@@ -305,7 +306,7 @@ namespace IceInternal
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
         //
-        public RouterInfo get(Ice.RouterPrx rtr)
+        public RouterInfo get(RouterPrx rtr)
         {
             if (rtr == null)
             {
@@ -315,7 +316,7 @@ namespace IceInternal
             //
             // The router cannot be routed.
             //
-            Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
+            RouterPrx router = rtr.Clone(clearRouter: true);
 
             lock (this)
             {
@@ -334,7 +335,7 @@ namespace IceInternal
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
         //
-        public RouterInfo erase(Ice.RouterPrx rtr)
+        public RouterInfo erase(RouterPrx rtr)
         {
             RouterInfo info = null;
             if (rtr != null)
@@ -342,7 +343,7 @@ namespace IceInternal
                 //
                 // The router cannot be routed.
                 //
-                Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
+                RouterPrx router = rtr.Clone(clearRouter: true);
 
                 lock (this)
                 {

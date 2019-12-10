@@ -267,39 +267,31 @@ namespace Ice
                 return i;
             }
 
-            public Ice.ObjectPrx[] opAObjectPrxS(Ice.ObjectPrx[] i, out Ice.ObjectPrx[] o, Ice.Current current)
+            public IObjectPrx[] opAObjectPrxS(IObjectPrx[] i, out IObjectPrx[] o, Current current)
             {
                 o = i;
                 return i;
             }
 
-            public List<Ice.ObjectPrx> opLObjectPrxS(List<Ice.ObjectPrx> i,
-                                                                      out List<Ice.ObjectPrx> o,
-                                                                      Ice.Current current)
+            public List<IObjectPrx> opLObjectPrxS(List<IObjectPrx> i, out List<IObjectPrx> o, Current current)
             {
                 o = i;
                 return i;
             }
 
-            public LinkedList<Ice.ObjectPrx> opKObjectPrxS(LinkedList<Ice.ObjectPrx> i,
-                                                                            out LinkedList<Ice.ObjectPrx> o,
-                                                                            Ice.Current current)
+            public LinkedList<IObjectPrx> opKObjectPrxS(LinkedList<IObjectPrx> i, out LinkedList<IObjectPrx> o, Current current)
             {
                 o = i;
                 return i;
             }
 
-            public Queue<Ice.ObjectPrx> opQObjectPrxS(Queue<Ice.ObjectPrx> i,
-                                                                       out Queue<Ice.ObjectPrx> o,
-                                                                       Ice.Current current)
+            public Queue<IObjectPrx> opQObjectPrxS(Queue<IObjectPrx> i, out Queue<IObjectPrx> o, Current current)
             {
                 o = i;
                 return i;
             }
 
-            public Stack<Ice.ObjectPrx> opSObjectPrxS(Stack<Ice.ObjectPrx> i,
-                                                                       out Stack<Ice.ObjectPrx> o,
-                                                                       Ice.Current current)
+            public Stack<IObjectPrx> opSObjectPrxS(Stack<IObjectPrx> i, out Stack<IObjectPrx> o, Current current)
             {
                 o = i;
                 return i;

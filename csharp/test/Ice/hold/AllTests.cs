@@ -70,27 +70,13 @@ namespace Ice
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
-                output.Write("testing stringToProxy... ");
-                output.Flush();
-                String @ref = "hold:" + helper.getTestEndpoint(0);
-                Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
-                test(@base != null);
-                String refSerialized = "hold:" + helper.getTestEndpoint(1);
-                Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
-                test(baseSerialized != null);
-                output.WriteLine("ok");
 
-                output.Write("testing checked cast... ");
                 output.Flush();
-                var hold = Test.HoldPrxHelper.checkedCast(@base);
-                var holdOneway = Test.HoldPrxHelper.uncheckedCast(@base.ice_oneway());
-                test(hold != null);
-                test(hold.Equals(@base));
-                var holdSerialized = Test.HoldPrxHelper.checkedCast(baseSerialized);
-                var holdSerializedOneway = Test.HoldPrxHelper.uncheckedCast(baseSerialized.ice_oneway());
-                test(holdSerialized != null);
-                test(holdSerialized.Equals(baseSerialized));
-                output.WriteLine("ok");
+                var hold = Test.HoldPrx.Parse($"hold:{helper.getTestEndpoint(0)}", communicator);
+                var holdOneway = hold.Clone(oneway: true);
+
+                var holdSerialized = Test.HoldPrx.Parse($"hold:{helper.getTestEndpoint(1)}", communicator);
+                var holdSerializedOneway = holdSerialized.Clone(oneway: true);
 
                 output.Write("changing state between active and hold rapidly... ");
                 output.Flush();
@@ -206,13 +192,13 @@ namespace Ice
                     for (int i = 0; i < 10000; ++i)
                     {
                         // Create a new proxy for each request
-                        result = ((Test.HoldPrx)holdSerialized.ice_oneway()).setOnewayAsync(value + 1, value);
+                        result = holdSerialized.Clone(oneway: true).setOnewayAsync(value + 1, value);
                         ++value;
                         if ((i % 100) == 0)
                         {
                             result.Wait();
-                            holdSerialized.ice_ping(); // Ensure everything's dispatched.
-                            holdSerialized.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            holdSerialized.IcePing(); // Ensure everything's dispatched.
+                            holdSerialized.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                         }
                     }
                     result.Wait();
@@ -226,16 +212,16 @@ namespace Ice
                     hold.waitForHold();
                     for (int i = 0; i < 1000; ++i)
                     {
-                        holdOneway.ice_ping();
+                        holdOneway.IcePing();
                         if ((i % 20) == 0)
                         {
                             hold.putOnHold(0);
                         }
                     }
                     hold.putOnHold(-1);
-                    hold.ice_ping();
+                    hold.IcePing();
                     hold.putOnHold(-1);
-                    hold.ice_ping();
+                    hold.IcePing();
                 }
                 output.WriteLine("ok");
 

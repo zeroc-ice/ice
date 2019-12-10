@@ -66,19 +66,7 @@ namespace Ice
 
                     var output = helper.getWriter();
 
-                    output.Write("testing stringToProxy... ");
-                    output.Flush();
-                    String @ref = "initial:" + helper.getTestEndpoint(0);
-                    Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
-                    test(@base != null);
-                    output.WriteLine("ok");
-
-                    output.Write("testing checked cast... ");
-                    output.Flush();
-                    var initial = Test.InitialPrxHelper.checkedCast(@base);
-                    test(initial != null);
-                    test(initial.Equals(@base));
-                    output.WriteLine("ok");
+                    var initial = InitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
 
                     output.Write("getting B1... ");
                     output.Flush();
@@ -301,17 +289,13 @@ namespace Ice
 
                     output.Write("testing UnexpectedObjectException...");
                     output.Flush();
-                    @ref = "uoet:" + helper.getTestEndpoint(0);
-                    @base = communicator.stringToProxy(@ref);
-                    test(@base != null);
-                    var uoet = Test.UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
-                    test(uoet != null);
+                    var uoet = UnexpectedObjectExceptionTestPrx.Parse($"uoet:{helper.getTestEndpoint(0)}", communicator);
                     try
                     {
                         uoet.op();
                         test(false);
                     }
-                    catch (Ice.UnexpectedObjectException ex)
+                    catch (UnexpectedObjectException ex)
                     {
                         test(ex.type.Equals("::Test::AlsoEmpty"));
                         test(ex.expectedType.Equals("::Test::Empty"));
@@ -379,25 +363,21 @@ namespace Ice
                         test(f12.name.Equals("F12"));
 
                         F2Prx f22;
-                        F2Prx f21 = initial.opF2(
-                            F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
-                            out f22);
-                        test(f21.ice_getIdentity().name.Equals("F21"));
+                        F2Prx f21 = initial.opF2(F2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator), out f22);
+                        test(f21.Identity.name.Equals("F21"));
                         f21.op();
-                        test(f22.ice_getIdentity().name.Equals("F22"));
+                        test(f22.Identity.name.Equals("F22"));
 
                         if (initial.hasF3())
                         {
                             F3 f32;
-                            F3 f31 = initial.opF3(new F3(new F1("F11"),
-                                                         F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
-                                                  out f32);
+                            F3 f31 = initial.opF3(new F3(new F1("F11"), F2Prx.Parse("F21", communicator)), out f32);
 
                             test(f31.f1.name.Equals("F11"));
-                            test(f31.f2.ice_getIdentity().name.Equals("F21"));
+                            test(f31.f2.Identity.name.Equals("F21"));
 
                             test(f32.f1.name.Equals("F12"));
-                            test(f32.f2.ice_getIdentity().name.Equals("F22"));
+                            test(f32.f2.Identity.name.Equals("F22"));
                         }
                     }
                     output.WriteLine("ok");

@@ -69,7 +69,7 @@ public sealed class MetricsI : Metrics
         return null;
     }
 
-    public Ice.ObjectPrx
+    public Ice.IObjectPrx
     getAdmin(Ice.Current current)
     {
         return current.adapter.GetCommunicator().getAdmin();

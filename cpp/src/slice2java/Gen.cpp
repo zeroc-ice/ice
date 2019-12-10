@@ -3385,7 +3385,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     const bool optional = p->optional();
     const TypePtr type = p->type();
     const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    const bool classType = isValue(type);
 
     const string typeS = typeToString(type, TypeModeMember, getPackage(contained), metaData);
     // Optional data members are only allowed in classes and exceptions.

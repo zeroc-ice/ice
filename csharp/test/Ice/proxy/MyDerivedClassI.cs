@@ -15,7 +15,7 @@ namespace Ice
             {
             }
 
-            public Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c)
+            public Ice.IObjectPrx echo(Ice.IObjectPrx obj, Ice.Current c)
             {
                 return obj;
             }

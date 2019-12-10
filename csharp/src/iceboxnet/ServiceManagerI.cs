@@ -213,8 +213,7 @@ namespace IceBox
 
                     if (_traceServiceObserver >= 1)
                     {
-                        _logger.trace("IceBox.ServiceObserver",
-                                      "Added service observer " + _communicator.proxyToString(observer));
+                        _logger.trace("IceBox.ServiceObserver", $"Added service observer {observer}");
                     }
 
                     foreach (ServiceInfo info in _services)
@@ -835,8 +834,7 @@ namespace IceBox
                 if (!(ex is Ice.CommunicatorDestroyedException))
                 {
                     _logger.trace("IceBox.ServiceObserver",
-                                  "Removed service observer " + _communicator.proxyToString(observer)
-                                  + "\nafter catching " + ex.ToString());
+                                  $"Removed service observer {observer}\nafter catching {ex}");
                 }
             }
         }
@@ -918,7 +916,7 @@ namespace IceBox
             Ice.Properties communicatorProperties = _communicator.getProperties();
             if (communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
             {
-                properties = communicatorProperties.ice_clone_();
+                properties = communicatorProperties.Clone();
                 // Inherit all except Ice.Admin.xxx properties
                 foreach (string p in properties.getPropertiesForPrefix("Ice.Admin.").Keys)
                 {

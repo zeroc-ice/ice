@@ -18,19 +18,7 @@ namespace Ice
                 // communicator.getValueFactoryManager().add(factory.create, "");
 
                 var output = helper.getWriter();
-                output.Write("testing stringToProxy... ");
-                output.Flush();
-                string @ref = "initial:" + helper.getTestEndpoint(0);
-                var @base = communicator.stringToProxy(@ref);
-                test(@base != null);
-                output.WriteLine("ok");
-
-                output.Write("testing checked cast... ");
-                output.Flush();
-                Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(@base);
-                test(initial != null);
-                test(initial.Equals(@base));
-                output.WriteLine("ok");
+                var initial = Test.InitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
 
                 output.Write("testing optional data members... ");
                 output.Flush();
@@ -53,7 +41,7 @@ namespace Ice
                 mo1.g = 1.0;
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
-                mo1.j = new Optional<ObjectPrx>(communicator.stringToProxy("test"));
+                mo1.j = new Optional<IObjectPrx>(IObjectPrx.Parse("test", communicator));
                 mo1.k = mo1;
                 mo1.bs = new byte[] { 5 };
                 mo1.ss = new string[] { "test", "test2" };
@@ -73,7 +61,7 @@ namespace Ice
                 mo1.fss = new Test.FixedStruct[] { fs };
                 mo1.vss = new Test.VarStruct[] { vs };
                 mo1.oos = new Test.OneOptional[] { oo1 };
-                mo1.oops = new ObjectPrx[] { communicator.stringToProxy("test") };
+                mo1.oops = new IObjectPrx[] { IObjectPrx.Parse("test", communicator) };
 
                 mo1.ied = new Dictionary<int, Test.MyEnum>();
                 mo1.ied.Value.Add(4, Test.MyEnum.MyEnumMember);
@@ -83,8 +71,8 @@ namespace Ice
                 mo1.ivsd.Value.Add(5, vs);
                 mo1.iood = new Dictionary<int, Test.OneOptional>();
                 mo1.iood.Value.Add(5, new Test.OneOptional(15));
-                mo1.ioopd = new Dictionary<int, ObjectPrx>();
-                mo1.ioopd.Value.Add(5, communicator.stringToProxy("test"));
+                mo1.ioopd = new Dictionary<int, IObjectPrx>();
+                mo1.ioopd.Value.Add(5, IObjectPrx.Parse("test", communicator));
 
                 mo1.bos = new bool[] { false, true, false };
                 mo1.ser = new Test.SerializableClass(56);
@@ -98,7 +86,7 @@ namespace Ice
                 test(mo1.g.Value == 1.0);
                 test(mo1.h.Value.Equals("test"));
                 test(mo1.i.Value == Test.MyEnum.MyEnumMember);
-                test(mo1.j.Value.Equals(communicator.stringToProxy("test")));
+                test(mo1.j.Value.Equals(IObjectPrx.Parse("test", communicator)));
                 test(mo1.k.Value == mo1);
                 test(ArraysEqual(mo1.bs.Value, new byte[] { 5 }));
                 test(ArraysEqual(mo1.ss.Value, new string[] { "test", "test2" }));
@@ -112,13 +100,13 @@ namespace Ice
                 test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
                 test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(mo1.oos.Value[0] == oo1);
-                test(mo1.oops.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo1.oops.Value[0].Equals(IObjectPrx.Parse("test", communicator)));
 
                 test(mo1.ied.Value[4] == Test.MyEnum.MyEnumMember);
                 test(mo1.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
                 test(mo1.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
                 test(mo1.iood.Value[5].a.Value == 15);
-                test(mo1.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo1.ioopd.Value[5].Equals(IObjectPrx.Parse("test", communicator)));
 
                 test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
                 test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
@@ -199,13 +187,13 @@ namespace Ice
                 test(mo5.fss.Value[0].Equals(new Test.FixedStruct(78)));
                 test(mo5.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(mo5.oos.Value[0].a.Value == 15);
-                test(mo5.oops.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo5.oops.Value[0].Equals(IObjectPrx.Parse("test", communicator)));
 
                 test(mo5.ied.Value[4] == Test.MyEnum.MyEnumMember);
                 test(mo5.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
                 test(mo5.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
                 test(mo5.iood.Value[5].a.Value == 15);
-                test(mo5.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo5.ioopd.Value[5].Equals(IObjectPrx.Parse("test", communicator)));
 
                 test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
                 if (supportsCsharpSerializable)
@@ -313,13 +301,13 @@ namespace Ice
                 test(!mo9.fss.HasValue);
                 test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(!mo9.oos.HasValue);
-                test(mo9.oops.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo9.oops.Value[0].Equals(IObjectPrx.Parse("test", communicator)));
 
                 test(mo9.ied.Value[4] == Test.MyEnum.MyEnumMember);
                 test(!mo9.ifsd.HasValue);
                 test(mo9.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
                 test(!mo9.iood.HasValue);
-                test(mo9.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo9.ioopd.Value[5].Equals(IObjectPrx.Parse("test", communicator)));
 
                 test(!mo9.bos.HasValue);
                 if (supportsCsharpSerializable)
@@ -355,7 +343,7 @@ namespace Ice
                 os.endEncapsulation();
                 byte[] inEncaps = os.finished();
                 byte[] outEncaps;
-                test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
+                test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 InputStream @in = new InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
                 ReadValueCallbackI cb = new ReadValueCallbackI();
@@ -368,7 +356,7 @@ namespace Ice
                 os.writeValue(mo1);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
+                test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 @in = new InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
@@ -384,7 +372,7 @@ namespace Ice
                 //
                 var oo = new Optional<Test.OneOptional>(new Test.OneOptional(53));
                 initial.sendOptionalClass(true, oo);
-                Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Util.Encoding_1_0);
+                var initial2 = initial.Clone(encodingVersion: Util.Encoding_1_0);
                 initial2.sendOptionalClass(true, oo);
 
                 initial.returnOptionalClass(true, out oo);
@@ -422,7 +410,7 @@ namespace Ice
                 os.writeString("test");
                 os.endEncapsulation();
                 var inEncaps = os.finished();
-                test(initial.ice_invoke("opVoid", OperationMode.Normal, inEncaps, out outEncaps));
+                test(initial.Invoke("opVoid", OperationMode.Normal, inEncaps, out outEncaps));
 
                 output.WriteLine("ok");
 
@@ -458,7 +446,7 @@ namespace Ice
                 os.writeValue(mc);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
+                test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 @in = new InputStream(communicator, outEncaps);
                 @in.startEncapsulation();
                 @in.readValue(cb.invoke);
@@ -496,7 +484,7 @@ namespace Ice
                     os.writeValue(b);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
+                    test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                     @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     @in.readValue(cb.invoke);
@@ -568,7 +556,7 @@ namespace Ice
 
                         /*
                         factory.setEnabled(true);
-                        test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
+                        test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                         @in = new InputStream(communicator, outEncaps);
                         @in.startEncapsulation();
                         @in.readValue(cb.invoke);
@@ -583,7 +571,7 @@ namespace Ice
                         os.writeValue(d);
                         os.endEncapsulation();
                         inEncaps = os.finished();
-                        test(initial.ice_invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
+                        test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                         @in = new InputStream(communicator, outEncaps);
                         @in.startEncapsulation();
                         @in.readValue(cb.invoke);
@@ -607,7 +595,7 @@ namespace Ice
                         os.writeValue(new DValueWriter());
                         os.endEncapsulation();
                         inEncaps = os.finished();
-                        test(initial.ice_invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps,
+                        test(initial.Invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps,
                                                 out outEncaps));
 
                         var @in = new InputStream(communicator, outEncaps);
@@ -646,7 +634,7 @@ namespace Ice
                     os.writeByte(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opByte", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opByte", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F1));
@@ -687,7 +675,7 @@ namespace Ice
                     os.writeBool(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opBool", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opBool", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F1));
@@ -728,7 +716,7 @@ namespace Ice
                     os.writeShort(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opShort", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opShort", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F2));
@@ -769,7 +757,7 @@ namespace Ice
                     os.writeInt(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opInt", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opInt", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F4));
@@ -810,7 +798,7 @@ namespace Ice
                     os.writeLong(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opLong", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opLong", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(2, OptionalFormat.F8));
@@ -851,7 +839,7 @@ namespace Ice
                     os.writeFloat(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opFloat", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opFloat", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F4));
@@ -892,7 +880,7 @@ namespace Ice
                     os.writeDouble(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opDouble", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opDouble", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.F8));
@@ -935,7 +923,7 @@ namespace Ice
                     os.writeString(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -976,7 +964,7 @@ namespace Ice
                     os.writeEnum((int)p1.Value, 1);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.Size));
@@ -1018,7 +1006,7 @@ namespace Ice
                     p1.Value.ice_writeMembers(os);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1065,7 +1053,7 @@ namespace Ice
                     p1.Value.ice_writeMembers(os);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1118,7 +1106,7 @@ namespace Ice
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opVarStruct", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opVarStruct", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
@@ -1172,7 +1160,7 @@ namespace Ice
                     os.writeValue(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.Class));
@@ -1190,9 +1178,9 @@ namespace Ice
                 }
 
                 {
-                    Optional<ObjectPrx> p1 = new Optional<ObjectPrx>();
-                    Optional<ObjectPrx> p3;
-                    Optional<ObjectPrx> p2 = initial.opOneOptionalProxy(p1, out p3);
+                    Optional<IObjectPrx> p1 = new Optional<IObjectPrx>();
+                    Optional<IObjectPrx> p3;
+                    Optional<IObjectPrx> p2 = initial.opOneOptionalProxy(p1, out p3);
                     test(!p2.HasValue && !p3.HasValue);
                     p2 = initial.opOneOptionalProxy(p1, out p3);
                     test(!p2.HasValue && !p3.HasValue);
@@ -1208,7 +1196,7 @@ namespace Ice
                     // Not allowed by C# language spec because OptionalOnePrx is an interface.
                     //
                     //p1 = Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-                    p1 = new Optional<ObjectPrx>(communicator.stringToProxy("test"));
+                    p1 = new Optional<IObjectPrx>(IObjectPrx.Parse("test", communicator));
                     p2 = initial.opOneOptionalProxy(p1, out p3);
                     test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
@@ -1220,26 +1208,26 @@ namespace Ice
                     //p2 = initial.end_opOneOptionalProxy(out p3, r);
                     //test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
-                    p2 = initial.opOneOptionalProxy(new Optional<ObjectPrx>(), out p3);
+                    p2 = initial.opOneOptionalProxy(new Optional<IObjectPrx>(), out p3);
                     test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.FSize);
                     int pos = os.startSize();
-                    os.writeProxy(p1.Value);
+                    os.WriteProxy(p1.Value);
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opOneOptionalProxy", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opOneOptionalProxy", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    test(@in.readProxy().Equals(p1.Value));
+                    test(@in.ReadProxy(IObjectPrx.Factory).Equals(p1.Value));
                     test(@in.readOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    test(@in.readProxy().Equals(p1.Value));
+                    test(@in.ReadProxy(IObjectPrx.Factory).Equals(p1.Value));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1277,7 +1265,7 @@ namespace Ice
                     os.writeByteSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1321,7 +1309,7 @@ namespace Ice
                     os.writeBoolSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1367,7 +1355,7 @@ namespace Ice
                     os.writeShortSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1414,7 +1402,7 @@ namespace Ice
                     os.writeIntSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1461,7 +1449,7 @@ namespace Ice
                     os.writeLongSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1508,7 +1496,7 @@ namespace Ice
                     os.writeFloatSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1555,7 +1543,7 @@ namespace Ice
                     os.writeDoubleSeq(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1603,7 +1591,7 @@ namespace Ice
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opStringSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opStringSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
@@ -1653,7 +1641,7 @@ namespace Ice
                     Test.SmallStructSeqHelper.write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1705,7 +1693,7 @@ namespace Ice
                     Test.SmallStructListHelper.write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1757,7 +1745,7 @@ namespace Ice
                     Test.FixedStructSeqHelper.write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1809,7 +1797,7 @@ namespace Ice
                     Test.FixedStructListHelper.write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1862,7 +1850,7 @@ namespace Ice
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opVarStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opVarStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
@@ -1908,7 +1896,7 @@ namespace Ice
                     os.writeSerializable(p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opSerializable", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opSerializable", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -1956,7 +1944,7 @@ namespace Ice
                     Test.IntIntDictHelper.write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
@@ -2007,7 +1995,7 @@ namespace Ice
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opStringIntDict", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opStringIntDict", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));
@@ -2081,7 +2069,7 @@ namespace Ice
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.Invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.FSize));

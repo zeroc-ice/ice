@@ -33,7 +33,6 @@ namespace IceInternal
         public ProtocolPluginFacadeI(Ice.Communicator communicator)
         {
             _communicator = communicator;
-            _instance = Util.getInstance(communicator);
         }
 
         //
@@ -50,7 +49,7 @@ namespace IceInternal
         //
         public void addEndpointFactory(EndpointFactory factory)
         {
-            _instance.endpointFactoryManager().add(factory);
+            _communicator.endpointFactoryManager().add(factory);
         }
 
         //
@@ -58,7 +57,7 @@ namespace IceInternal
         //
         public EndpointFactory getEndpointFactory(short type)
         {
-            return _instance.endpointFactoryManager().get(type);
+            return _communicator.endpointFactoryManager().get(type);
         }
 
         //
@@ -69,7 +68,6 @@ namespace IceInternal
             return AssemblyUtil.findType(name);
         }
 
-        private Instance _instance;
         private Ice.Communicator _communicator;
     }
 }

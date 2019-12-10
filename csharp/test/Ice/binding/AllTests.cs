@@ -40,12 +40,13 @@ namespace Ice
                 while (p.MoveNext())
                 {
                     obj = p.Current.getTestIntf();
-                    foreach (Endpoint e in obj.ice_getEndpoints())
+                    foreach (Endpoint e in obj.Endpoints)
                     {
                         endpoints.Add(e);
                     }
                 }
-                return Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpoints(endpoints.ToArray()));
+                Debug.Assert(obj != null);
+                return obj.Clone(endpoints: endpoints.ToArray());
             }
 
             private static void deactivate(Test.RemoteCommunicatorPrx communicator, List<Test.RemoteObjectAdapterPrx> adapters)
@@ -68,8 +69,7 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                string @ref = "communicator:" + helper.getTestEndpoint(0);
-                Test.RemoteCommunicatorPrx com = Test.RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
+                var com = Test.RemoteCommunicatorPrx.Parse($"communicator:{helper.getTestEndpoint(0)}", communicator);
 
                 var rand = new Random(unchecked((int)DateTime.Now.Ticks));
                 var output = helper.getWriter();
@@ -81,20 +81,20 @@ namespace Ice
 
                     var test1 = adapter.getTestIntf();
                     var test2 = adapter.getTestIntf();
-                    test(test1.ice_getConnection() == test2.ice_getConnection());
+                    test(test1.GetConnection() == test2.GetConnection());
 
-                    test1.ice_ping();
-                    test2.ice_ping();
+                    test1.IcePing();
+                    test2.IcePing();
 
                     com.deactivateObjectAdapter(adapter);
 
-                    var test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
-                    test(test3.ice_getConnection() == test1.ice_getConnection());
-                    test(test3.ice_getConnection() == test2.ice_getConnection());
+                    var test3 = Test.TestIntfPrx.UncheckedCast(test1);
+                    test(test3.GetConnection() == test1.GetConnection());
+                    test(test3.GetConnection() == test2.GetConnection());
 
                     try
                     {
-                        test3.ice_ping();
+                        test3.IcePing();
                         test(false);
                     }
                     catch (ConnectFailedException)
@@ -131,12 +131,12 @@ namespace Ice
                         var test2 = createTestIntfPrx(adpts);
                         shuffle(ref adpts);
                         var test3 = createTestIntfPrx(adpts);
-                        test1.ice_ping();
-                        test(test1.ice_getConnection() == test2.ice_getConnection());
-                        test(test2.ice_getConnection() == test3.ice_getConnection());
+                        test1.IcePing();
+                        test(test1.GetConnection() == test2.GetConnection());
+                        test(test2.GetConnection() == test3.GetConnection());
 
                         names.Remove(test1.getAdapterName());
-                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -146,7 +146,7 @@ namespace Ice
                     {
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_ping();
+                            adpt.getTestIntf().IcePing();
                         }
 
                         var t = createTestIntfPrx(adapters);
@@ -158,7 +158,7 @@ namespace Ice
 
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            adpt.getTestIntf().GetConnection().close(ConnectionClose.GracefullyWithWait);
                         }
                     }
 
@@ -179,11 +179,11 @@ namespace Ice
                         shuffle(ref adpts);
                         var test3 = createTestIntfPrx(adpts);
 
-                        test(test1.ice_getConnection() == test2.ice_getConnection());
-                        test(test2.ice_getConnection() == test3.ice_getConnection());
+                        test(test1.GetConnection() == test2.GetConnection());
+                        test(test2.GetConnection() == test3.GetConnection());
 
                         names.Remove(test1.getAdapterName());
-                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -243,7 +243,7 @@ namespace Ice
                         {
                             try
                             {
-                                proxies[i].ice_ping();
+                                proxies[i].IcePing();
                             }
                             catch (LocalException)
                             {
@@ -253,11 +253,11 @@ namespace Ice
                         List<Connection> connections = new List<Connection>();
                         for (i = 0; i < proxies.Length; i++)
                         {
-                            if (proxies[i].ice_getCachedConnection() != null)
+                            if (proxies[i].GetCachedConnection() != null)
                             {
-                                if (!connections.Contains(proxies[i].ice_getCachedConnection()))
+                                if (!connections.Contains(proxies[i].GetCachedConnection()))
                                 {
-                                    connections.Add(proxies[i].ice_getCachedConnection());
+                                    connections.Add(proxies[i].GetCachedConnection());
                                 }
                             }
                         }
@@ -267,7 +267,7 @@ namespace Ice
                         {
                             try
                             {
-                                a.getTestIntf().ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                                a.getTestIntf().GetConnection().close(ConnectionClose.GracefullyWithWait);
                             }
                             catch (LocalException)
                             {
@@ -303,12 +303,12 @@ namespace Ice
                         var test2 = createTestIntfPrx(adpts);
                         shuffle(ref adpts);
                         var test3 = createTestIntfPrx(adpts);
-                        test1.ice_ping();
-                        test(test1.ice_getConnection() == test2.ice_getConnection());
-                        test(test2.ice_getConnection() == test3.ice_getConnection());
+                        test1.IcePing();
+                        test(test1.GetConnection() == test2.GetConnection());
+                        test(test2.GetConnection() == test3.GetConnection());
 
                         names.Remove(getAdapterNameWithAMI(test1));
-                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -318,7 +318,7 @@ namespace Ice
                     {
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_ping();
+                            adpt.getTestIntf().IcePing();
                         }
 
                         var t = createTestIntfPrx(adapters);
@@ -330,7 +330,7 @@ namespace Ice
 
                         foreach (var adpt in adapters)
                         {
-                            adpt.getTestIntf().ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            adpt.getTestIntf().GetConnection().close(ConnectionClose.GracefullyWithWait);
                         }
                     }
 
@@ -351,11 +351,11 @@ namespace Ice
                         shuffle(ref adpts);
                         var test3 = createTestIntfPrx(adpts);
 
-                        test(test1.ice_getConnection() == test2.ice_getConnection());
-                        test(test2.ice_getConnection() == test3.ice_getConnection());
+                        test(test1.GetConnection() == test2.GetConnection());
+                        test(test2.GetConnection() == test3.GetConnection());
 
                         names.Remove(getAdapterNameWithAMI(test1));
-                        test1.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        test1.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     //
@@ -379,7 +379,7 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter23", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Random);
+                    test(obj.EndpointSelection == EndpointSelectionType.Random);
 
                     var names = new List<string>();
                     names.Add("Adapter21");
@@ -388,11 +388,11 @@ namespace Ice
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
-                        obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Random));
-                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Random);
+                    obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Random);
+                    test(obj.EndpointSelection == EndpointSelectionType.Random);
 
                     names.Add("Adapter21");
                     names.Add("Adapter22");
@@ -400,7 +400,7 @@ namespace Ice
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
-                        obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     }
 
                     deactivate(com, adapters);
@@ -416,8 +416,8 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter33", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Ordered));
-                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Ordered);
+                    obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Ordered);
+                    test(obj.EndpointSelection == EndpointSelectionType.Ordered);
                     int nRetry = 3;
                     int i;
 
@@ -446,7 +446,7 @@ namespace Ice
                     {
                     }
 
-                    Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.Endpoints;
 
                     adapters.Clear();
 
@@ -457,11 +457,11 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++) ;
                     test(i == nRetry);
-                    obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++) ;
                     test(i == nRetry);
-                    obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                     adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
                     for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++) ;
                     test(i == nRetry);
@@ -475,21 +475,21 @@ namespace Ice
                 {
                     var adapter = com.createObjectAdapter("Adapter41", "default");
 
-                    var test1 = Test.TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
-                    var test2 = Test.TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
-                    test(!test1.ice_isConnectionCached());
-                    test(!test2.ice_isConnectionCached());
-                    test(test1.ice_getConnection() != null && test2.ice_getConnection() != null);
-                    test(test1.ice_getConnection() == test2.ice_getConnection());
+                    var test1 = adapter.getTestIntf().Clone(connectionCached: false);
+                    var test2 = adapter.getTestIntf().Clone(connectionCached: false);
+                    test(!test1.IsConnectionCached);
+                    test(!test2.IsConnectionCached);
+                    test(test1.GetConnection() != null && test2.GetConnection() != null);
+                    test(test1.GetConnection() == test2.GetConnection());
 
-                    test1.ice_ping();
+                    test1.IcePing();
 
                     com.deactivateObjectAdapter(adapter);
 
-                    var test3 = Test.TestIntfPrxHelper.uncheckedCast(test1);
+                    var test3 = Test.TestIntfPrx.UncheckedCast(test1);
                     try
                     {
-                        test(test3.ice_getConnection() == test1.ice_getConnection());
+                        test(test3.GetConnection() == test1.GetConnection());
                         test(false);
                     }
                     catch (ConnectFailedException)
@@ -509,8 +509,8 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter52", "default"));
                     adapters.Add(com.createObjectAdapter("Adapter53", "default"));
 
-                    var obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
-                    test(!obj.ice_isConnectionCached());
+                    var obj = createTestIntfPrx(adapters).Clone(connectionCached: false);
+                    test(!obj.IsConnectionCached);
 
                     List<string> names = new List<string>();
                     names.Add("Adapter51");
@@ -546,8 +546,8 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("AdapterAMI52", "default"));
                     adapters.Add(com.createObjectAdapter("AdapterAMI53", "default"));
 
-                    var obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
-                    test(!obj.ice_isConnectionCached());
+                    var obj = createTestIntfPrx(adapters).Clone(connectionCached: false);
+                    test(!obj.IsConnectionCached);
 
                     var names = new List<string>();
                     names.Add("AdapterAMI51");
@@ -584,10 +584,10 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("Adapter63", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Ordered));
-                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Ordered);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
-                    test(!obj.ice_isConnectionCached());
+                    obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Ordered);
+                    test(obj.EndpointSelection == EndpointSelectionType.Ordered);
+                    obj = obj.Clone(connectionCached: false);
+                    test(!obj.IsConnectionCached);
                     int nRetry = 3;
                     int i;
 
@@ -616,7 +616,7 @@ namespace Ice
                     {
                     }
 
-                    Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.Endpoints;
 
                     adapters.Clear();
 
@@ -647,10 +647,10 @@ namespace Ice
                     adapters.Add(com.createObjectAdapter("AdapterAMI63", "default"));
 
                     var obj = createTestIntfPrx(adapters);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(EndpointSelectionType.Ordered));
-                    test(obj.ice_getEndpointSelection() == EndpointSelectionType.Ordered);
-                    obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
-                    test(!obj.ice_isConnectionCached());
+                    obj = obj.Clone(endpointSelectionType: EndpointSelectionType.Ordered);
+                    test(obj.EndpointSelection == EndpointSelectionType.Ordered);
+                    obj = obj.Clone(connectionCached: false);
+                    test(!obj.IsConnectionCached);
                     int nRetry = 3;
                     int i;
 
@@ -679,7 +679,7 @@ namespace Ice
                     {
                     }
 
-                    Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.Endpoints;
 
                     adapters.Clear();
 
@@ -711,8 +711,8 @@ namespace Ice
                     var obj = createTestIntfPrx(adapters);
                     test(obj.getAdapterName().Equals("Adapter71"));
 
-                    var testUDP = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_datagram());
-                    test(obj.ice_getConnection() != testUDP.ice_getConnection());
+                    var testUDP = obj.Clone(invocationMode: InvocationMode.Datagram);
+                    test(obj.GetConnection() != testUDP.GetConnection());
                     try
                     {
                         testUDP.getAdapterName();
@@ -736,37 +736,37 @@ namespace Ice
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName().Equals("Adapter82"));
-                            obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                         }
 
-                        var testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-                        test(testSecure.ice_isSecure());
-                        testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(false));
-                        test(!testSecure.ice_isSecure());
-                        testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-                        test(testSecure.ice_isSecure());
-                        test(obj.ice_getConnection() != testSecure.ice_getConnection());
+                        var testSecure = obj.Clone(secure: true);
+                        test(testSecure.IsSecure);
+                        testSecure = obj.Clone(secure: false);
+                        test(!testSecure.IsSecure);
+                        testSecure = obj.Clone(secure: true);
+                        test(testSecure.IsSecure);
+                        test(obj.GetConnection() != testSecure.GetConnection());
 
                         com.deactivateObjectAdapter(adapters[1]);
 
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName().Equals("Adapter81"));
-                            obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                         }
 
-                        com.createObjectAdapter("Adapter83", (obj.ice_getEndpoints()[1]).ToString()); // Reactive tcp OA.
+                        com.createObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Reactive tcp OA.
 
                         for (i = 0; i < 5; i++)
                         {
                             test(obj.getAdapterName().Equals("Adapter83"));
-                            obj.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                            obj.GetConnection().close(ConnectionClose.GracefullyWithWait);
                         }
 
                         com.deactivateObjectAdapter(adapters[0]);
                         try
                         {
-                            testSecure.ice_ping();
+                            testSecure.IcePing();
                             test(false);
                         }
                         catch (ConnectFailedException)
@@ -815,11 +815,11 @@ namespace Ice
 
                     string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
 
-                    Properties anyipv4 = ipv4.ice_clone_();
+                    Properties anyipv4 = ipv4.Clone();
                     anyipv4.setProperty("Adapter.Endpoints", endpoint);
                     anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
-                    Properties anyipv6 = ipv6.ice_clone_();
+                    Properties anyipv6 = ipv6.Clone();
                     anyipv6.setProperty("Adapter.Endpoints", endpoint);
                     anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
@@ -829,10 +829,10 @@ namespace Ice
                     anyboth.setProperty("Adapter.Endpoints", endpoint);
                     anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
-                    Properties localipv4 = ipv4.ice_clone_();
+                    Properties localipv4 = ipv4.Clone();
                     localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
 
-                    Properties localipv6 = ipv6.ice_clone_();
+                    Properties localipv6 = ipv6.Clone();
                     localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
 
                     List<Properties> serverProps = new List<Properties>(clientProps);
@@ -869,10 +869,10 @@ namespace Ice
                             continue; // IP version not supported.
                         }
 
-                        ObjectPrx prx = oa.CreateProxy("dummy");
+                        var prx = oa.CreateProxy("dummy");
                         try
                         {
-                            prx.ice_collocationOptimized(false).ice_ping();
+                            prx.Clone(collocationOptimized: false).IcePing();
                         }
                         catch (LocalException)
                         {
@@ -886,10 +886,10 @@ namespace Ice
                             InitializationData clientInitData = new InitializationData();
                             clientInitData.properties = q;
                             Communicator clientCommunicator = Util.initialize(clientInitData);
-                            prx = clientCommunicator.stringToProxy(strPrx);
+                            prx = IObjectPrx.Parse(strPrx, clientCommunicator);
                             try
                             {
-                                prx.ice_ping();
+                                prx.IcePing();
                                 test(false);
                             }
                             catch (ObjectNotExistException)

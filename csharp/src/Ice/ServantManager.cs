@@ -14,7 +14,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
 
                 if (facet == null)
                 {
@@ -32,11 +32,11 @@ namespace IceInternal
                     if (m.ContainsKey(facet))
                     {
                         Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                        ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
+                        ex.id = Ice.Util.identityToString(ident, _communicator.toStringMode());
                         ex.kindOfObject = "servant";
                         if (facet.Length > 0)
                         {
-                            ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
+                            ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.toStringMode());
                         }
                         throw ex;
                     }
@@ -50,7 +50,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
                 if (_defaultServantMap.ContainsKey(category))
                 {
                     throw new Ice.AlreadyRegisteredException("default servant", category);
@@ -63,7 +63,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
 
                 if (facet == null)
                 {
@@ -75,11 +75,11 @@ namespace IceInternal
                 if (m == null || !m.ContainsKey(facet))
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
+                    ex.id = Ice.Util.identityToString(ident, _communicator.toStringMode());
                     ex.kindOfObject = "servant";
                     if (facet.Length > 0)
                     {
-                        ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
+                        ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.toStringMode());
                     }
                     throw ex;
                 }
@@ -98,7 +98,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
 
                 Ice.Disp? obj = null;
                 _defaultServantMap.TryGetValue(category, out obj);
@@ -116,14 +116,14 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null);
+                Debug.Assert(_communicator != null);
 
                 Dictionary<string, Ice.Disp>? m;
                 _servantMapMap.TryGetValue(ident, out m);
                 if (m == null)
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
+                    ex.id = Ice.Util.identityToString(ident, _communicator.toStringMode());
                     ex.kindOfObject = "servant";
                     throw ex;
                 }
@@ -174,7 +174,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
 
                 Ice.Disp? obj = null;
                 _defaultServantMap.TryGetValue(category, out obj);
@@ -186,7 +186,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
                 return new Dictionary<string, Ice.Disp>(_servantMapMap[ident]);
             }
         }
@@ -222,14 +222,14 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
 
                 Ice.ServantLocator l;
                 _locatorMap.TryGetValue(category, out l);
                 if (l != null)
                 {
                     Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
+                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.toStringMode());
                     ex.kindOfObject = "servant locator";
                     throw ex;
                 }
@@ -242,14 +242,14 @@ namespace IceInternal
         {
             lock (this)
             {
-                Debug.Assert(_instance != null); // Must not be called after destruction.
+                Debug.Assert(_communicator != null); // Must not be called after destruction.
 
                 Ice.ServantLocator l;
                 _locatorMap.TryGetValue(category, out l);
                 if (l == null)
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
+                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.toStringMode());
                     ex.kindOfObject = "servant locator";
                     throw ex;
                 }
@@ -280,9 +280,9 @@ namespace IceInternal
         //
         // Only for use by Ice.ObjectAdapterI.
         //
-        public ServantManager(Instance instance, string adapterName)
+        public ServantManager(Ice.Communicator communicator, string adapterName)
         {
-            _instance = instance;
+            _communicator = communicator;
             _adapterName = adapterName;
         }
 
@@ -298,12 +298,12 @@ namespace IceInternal
                 //
                 // If the ServantManager has already been destroyed, we're done.
                 //
-                if (_instance == null)
+                if (_communicator == null)
                 {
                     return;
                 }
 
-                logger = _instance.initializationData().logger;
+                logger = _communicator.initializationData().logger;
 
                 _servantMapMap.Clear();
 
@@ -312,7 +312,7 @@ namespace IceInternal
                 locatorMap = new Dictionary<string, Ice.ServantLocator>(_locatorMap);
                 _locatorMap.Clear();
 
-                _instance = null;
+                _communicator = null;
             }
 
             foreach (KeyValuePair<string, Ice.ServantLocator> p in locatorMap)
@@ -331,7 +331,7 @@ namespace IceInternal
             }
         }
 
-        private Instance _instance;
+        private Ice.Communicator _communicator;
         private readonly string _adapterName;
         private Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>> _servantMapMap
                 = new Dictionary<Ice.Identity, Dictionary<string, Ice.Disp>>();

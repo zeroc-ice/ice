@@ -45,14 +45,14 @@ namespace Ice
                     try
                     {
                         byte[] seq = new byte[32 * 1024];
-                        Test.TestIntfPrxHelper.uncheckedCast(current.con.createProxy(id)).sendByteSeq(seq, null);
+                        Test.TestIntfPrx.UncheckedCast(current.con.createProxy(id)).sendByteSeq(seq, null);
                     }
                     catch (Ice.DatagramLimitException)
                     {
                         // Expected.
                     }
 
-                    Test.PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id)).reply();
+                    Test.PingReplyPrx.UncheckedCast(current.con.createProxy(id)).reply();
                 }
                 catch (Ice.LocalException)
                 {

@@ -9,6 +9,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Text;
     using IceMX;
+    using Ice;
 
     public class ObserverWithDelegate<T, O> : Observer<T>
         where T : Metrics, new()
@@ -160,7 +161,7 @@ namespace IceInternal
                     add("state", cl.GetMethod("getState"));
                     AttrsUtil.addConnectionAttributes(this, cl);
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -293,7 +294,7 @@ namespace IceInternal
                     add("current", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
                     add("mode", cl.GetMethod("getMode"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -413,13 +414,13 @@ namespace IceInternal
                     add("operation", cl.GetMethod("getOperation"));
                     add("identity", cl.GetMethod("getIdentity"));
 
-                    Type cli = typeof(Ice.ObjectPrx);
-                    add("facet", cl.GetMethod("getProxy"), cli.GetMethod("ice_getFacet"));
+                    Type cli = typeof(Ice.IObjectPrx);
+                    add("facet", cl.GetMethod("getProxy"), cli.GetProperty("Facet"));
                     add("encoding", cl.GetMethod("getEncodingVersion"));
                     add("mode", cl.GetMethod("getMode"));
                     add("proxy", cl.GetMethod("getProxy"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -427,7 +428,7 @@ namespace IceInternal
         }
         private static AttributeResolver _attributes = new AttributeResolverI();
 
-        public InvocationHelper(Ice.ObjectPrx proxy, string op, Dictionary<string, string> ctx) : base(_attributes)
+        public InvocationHelper(Ice.IObjectPrx proxy, string op, Dictionary<string, string> ctx) : base(_attributes)
         {
             _proxy = proxy;
             _operation = op;
@@ -454,23 +455,26 @@ namespace IceInternal
                 throw new ArgumentOutOfRangeException("mode");
             }
 
-            if (_proxy.ice_isTwoway())
+            switch (_proxy.InvocationMode)
             {
-                return "twoway";
-            }
-            else if (_proxy.ice_isOneway())
-            {
-                return "oneway";
-            }
-            else if (_proxy.ice_isDatagram())
-            {
-                return "datagram";
-            }
-            else
-            {
-                // Note: it's not possible to invoke on a batch proxy, but it's
-                // possible to receive a batch request.
-                throw new ArgumentOutOfRangeException("mode");
+                case InvocationMode.Twoway:
+                    {
+                        return "twoway";
+                    }
+                case InvocationMode.Oneway:
+                    {
+                        return "oneway";
+                    }
+                case InvocationMode.Datagram:
+                    {
+                        return "datagram";
+                    }
+                default:
+                    {
+                        // Note: it's not possible to invoke on a batch proxy, but it's
+                        // possible to receive a batch request.
+                        throw new ArgumentOutOfRangeException("mode");
+                    }
             }
         }
 
@@ -483,12 +487,12 @@ namespace IceInternal
                     StringBuilder os = new StringBuilder();
                     try
                     {
-                        os.Append(_proxy.ice_endpoints(emptyEndpoints)).Append(" [").Append(_operation).Append(']');
+                        os.Append(_proxy.Clone(endpoints: emptyEndpoints)).Append(" [").Append(_operation).Append(']');
                     }
                     catch (Ice.Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.Append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
+                        os.Append(_proxy.Communicator.identityToString(_proxy.Identity));
                         os.Append(" [").Append(_operation).Append(']');
                     }
                     _id = os.ToString();
@@ -506,21 +510,21 @@ namespace IceInternal
             return "Communicator";
         }
 
-        public Ice.ObjectPrx getProxy()
+        public Ice.IObjectPrx getProxy()
         {
             return _proxy;
         }
 
         public string getEncodingVersion()
         {
-            return Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
+            return Ice.Util.encodingVersionToString(_proxy.EncodingVersion);
         }
 
         public string getIdentity()
         {
             if (_proxy != null)
             {
-                return _proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity());
+                return _proxy.Communicator.identityToString(_proxy.Identity);
             }
             else
             {
@@ -533,7 +537,7 @@ namespace IceInternal
             return _operation;
         }
 
-        private readonly Ice.ObjectPrx _proxy;
+        private readonly Ice.IObjectPrx _proxy;
         private readonly string _operation;
         private readonly Dictionary<string, string> _context;
         private string _id;
@@ -553,7 +557,7 @@ namespace IceInternal
                     add("parent", cl.GetField("_parent"));
                     add("id", cl.GetField("_id"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -604,7 +608,7 @@ namespace IceInternal
                     add("id", cl.GetMethod("getId"));
                     AttrsUtil.addEndpointAttributes(this, cl);
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -670,7 +674,7 @@ namespace IceInternal
                     add("requestId", cl.GetMethod("getRequestId"));
                     AttrsUtil.addConnectionAttributes(this, cl);
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -762,7 +766,7 @@ namespace IceInternal
                     add("id", cl.GetMethod("getId"));
                     add("requestId", cl.GetMethod("getRequestId"));
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -1045,7 +1049,7 @@ namespace IceInternal
                 _invocations.registerSubMap<RemoteMetrics>("Remote", cl.GetField("remotes"));
                 _invocations.registerSubMap<CollocatedMetrics>("Collocated", cl.GetField("collocated"));
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 Debug.Assert(false);
             }
@@ -1064,7 +1068,7 @@ namespace IceInternal
                     }
                     return _connects.getObserver(new EndpointHelper(endpt, connector), del);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1085,7 +1089,7 @@ namespace IceInternal
                     }
                     return _endpointLookups.getObserver(new EndpointHelper(endpt), del);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1110,7 +1114,7 @@ namespace IceInternal
                     }
                     return _connections.getObserver(new ConnectionHelper(c, e, s), obsv, del);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1134,7 +1138,7 @@ namespace IceInternal
                     }
                     return _threads.getObserver(new ThreadHelper(parent, id, s), obsv, del);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1142,7 +1146,7 @@ namespace IceInternal
             return null;
         }
 
-        public Ice.Instrumentation.InvocationObserver getInvocationObserver(Ice.ObjectPrx prx, string operation,
+        public Ice.Instrumentation.InvocationObserver getInvocationObserver(Ice.IObjectPrx prx, string operation,
                                                                             Dictionary<string, string> ctx)
         {
             if (_invocations.isEnabled())
@@ -1156,7 +1160,7 @@ namespace IceInternal
                     }
                     return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), del);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }
@@ -1177,7 +1181,7 @@ namespace IceInternal
                     }
                     return _dispatch.getObserver(new DispatchHelper(c, size), del);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
                 }

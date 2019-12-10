@@ -6,6 +6,7 @@ using Test;
 using System;
 using System.Reflection;
 using System.Threading;
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -34,7 +35,7 @@ public class Client : Test.TestHelper
         }
 
         public void
-        connectFailed(Glacier2.SessionHelper session, Exception exception)
+        connectFailed(Glacier2.SessionHelper session, System.Exception exception)
         {
             try
             {
@@ -43,11 +44,15 @@ public class Client : Test.TestHelper
             catch (Glacier2.PermissionDeniedException)
             {
                 Console.Out.WriteLine("ok");
-                _app.wakeUp();
+
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
+            }
+            finally
+            {
+                _app.wakeUp();
             }
         }
 
@@ -83,7 +88,7 @@ public class Client : Test.TestHelper
         }
 
         public void
-        connectFailed(Glacier2.SessionHelper session, Exception ex)
+        connectFailed(Glacier2.SessionHelper session, System.Exception ex)
         {
             Console.Out.WriteLine(ex.ToString());
             test(false);
@@ -119,20 +124,23 @@ public class Client : Test.TestHelper
         }
 
         public void
-        connectFailed(Glacier2.SessionHelper session, Exception exception)
+        connectFailed(Glacier2.SessionHelper session, System.Exception exception)
         {
             try
             {
                 throw exception;
             }
-            catch (Ice.ConnectionRefusedException)
+            catch (ConnectionRefusedException)
             {
                 Console.Out.WriteLine("ok");
-                _app.wakeUp();
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
+            }
+            finally
+            {
+                _app.wakeUp();
             }
         }
 
@@ -166,20 +174,23 @@ public class Client : Test.TestHelper
         }
 
         public void
-        connectFailed(Glacier2.SessionHelper session, Exception exception)
+        connectFailed(Glacier2.SessionHelper session, System.Exception exception)
         {
             try
             {
                 throw exception;
             }
-            catch (Ice.CommunicatorDestroyedException)
+            catch (CommunicatorDestroyedException)
             {
                 Console.Out.WriteLine("ok");
-                _app.wakeUp();
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
+            }
+            finally
+            {
+                _app.wakeUp();
             }
         }
 
@@ -199,7 +210,7 @@ public class Client : Test.TestHelper
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Default.Router",
                                         "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
-        initData.dispatcher = delegate (Action action, Ice.Connection connection)
+        initData.dispatcher = delegate (Action action, Connection connection)
             {
                 action();
             };
@@ -226,7 +237,10 @@ public class Client : Test.TestHelper
                 {
                     try
                     {
-                        Monitor.Wait(this, 30000);
+                        if (!Monitor.Wait(this, 30000))
+                        {
+                            test(false);
+                        }
                         break;
                     }
                     catch (ThreadInterruptedException)
@@ -254,7 +268,10 @@ public class Client : Test.TestHelper
                 {
                     try
                     {
-                        Monitor.Wait(this, 30000);
+                        if (!Monitor.Wait(this, 30000))
+                        {
+                            test(false);
+                        }
                         break;
                     }
                     catch (ThreadInterruptedException)
@@ -277,7 +294,10 @@ public class Client : Test.TestHelper
                 {
                     try
                     {
-                        Monitor.Wait(this, 30000);
+                        if (!Monitor.Wait(this, 30000))
+                        {
+                            test(false);
+                        }
                         break;
                     }
                     catch (ThreadInterruptedException)
@@ -306,18 +326,17 @@ public class Client : Test.TestHelper
 
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                Ice.ObjectPrx @base = session.communicator().stringToProxy("callback:" + getTestEndpoint(0));
+                var @base = IObjectPrx.Parse($"callback:{getTestEndpoint(0)}", session.communicator());
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("pinging server after session creation... ");
                 Console.Out.Flush();
-                @base.ice_ping();
+                @base.IcePing();
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing checked cast for server object... ");
                 Console.Out.Flush();
-                CallbackPrx twoway = CallbackPrxHelper.checkedCast(@base);
-                test(twoway != null);
+                CallbackPrx twoway = CallbackPrx.CheckedCast(@base);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing server shutdown... ");
@@ -333,7 +352,10 @@ public class Client : Test.TestHelper
                 {
                     try
                     {
-                        Monitor.Wait(this);
+                        if (!Monitor.Wait(this, 30000))
+                        {
+                            test(false);
+                        }
                         break;
                     }
                     catch (ThreadInterruptedException)
@@ -367,7 +389,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     test(session.communicator() != null);
-                    session.communicator().stringToProxy("dummy");
+                    IObjectPrx.Parse("dummy", session.communicator());
                     test(false);
                 }
                 catch (Ice.CommunicatorDestroyedException)
@@ -380,17 +402,17 @@ public class Client : Test.TestHelper
                 communicator.setDefaultRouter(null);
                 Console.Out.WriteLine("ok");
 
-                Ice.ObjectPrx processBase;
+                IObjectPrx processBase;
                 {
                     Console.Out.Write("testing stringToProxy for process object... ");
-                    processBase = communicator.stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+                    processBase = IObjectPrx.Parse($"Glacier2/admin -f Process:{getTestEndpoint(51)}", communicator);
                     Console.Out.WriteLine("ok");
                 }
 
-                Ice.ProcessPrx process;
+                ProcessPrx process;
                 {
                     Console.Out.Write("testing checked cast for admin object... ");
-                    process = Ice.ProcessPrxHelper.checkedCast(processBase);
+                    process = Ice.ProcessPrx.CheckedCast(processBase);
                     test(process != null);
                     Console.Out.WriteLine("ok");
                 }
@@ -399,10 +421,10 @@ public class Client : Test.TestHelper
                 process.shutdown();
                 try
                 {
-                    process.ice_ping();
+                    process.IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -422,7 +444,10 @@ public class Client : Test.TestHelper
                 {
                     try
                     {
-                        Monitor.Wait(this);
+                        if (!Monitor.Wait(this, 30000))
+                        {
+                            test(false);
+                        }
                         break;
                     }
                     catch (ThreadInterruptedException)
@@ -440,10 +465,10 @@ public class Client : Test.TestHelper
                 try
                 {
                     test(session.communicator() != null);
-                    session.communicator().stringToProxy("dummy");
+                    IObjectPrx.Parse("dummy", session.communicator());
                     test(false);
                 }
-                catch (Ice.CommunicatorDestroyedException)
+                catch (CommunicatorDestroyedException)
                 {
                 }
                 Console.Out.WriteLine("ok");

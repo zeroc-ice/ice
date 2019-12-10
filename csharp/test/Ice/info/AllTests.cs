@@ -41,12 +41,12 @@ namespace Ice
                 output.Write("testing proxy endpoint information... ");
                 output.Flush();
                 {
-                    Ice.ObjectPrx p1 = communicator.stringToProxy(
+                    var p1 = IObjectPrx.Parse(
                                     "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
                                     "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
-                                    "opaque -e 1.8 -t 100 -v ABCD");
+                                    "opaque -e 1.8 -t 100 -v ABCD", communicator);
 
-                    Ice.Endpoint[] endps = p1.ice_getEndpoints();
+                    Ice.Endpoint[] endps = p1.Endpoints;
 
                     Ice.EndpointInfo info = endps[0].getInfo();
                     Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(info);
@@ -147,17 +147,17 @@ namespace Ice
 
                 int endpointPort = helper.getTestPort(0);
 
-                Ice.ObjectPrx @base = communicator.stringToProxy("test:" +
-                                                                 helper.getTestEndpoint(0) + ":" +
-                                                                 helper.getTestEndpoint(0, "udp"));
-                var testIntf = Test.TestIntfPrxHelper.checkedCast(@base);
+                var @base = IObjectPrx.Parse("test:" +
+                                             helper.getTestEndpoint(0) + ":" +
+                                             helper.getTestEndpoint(0, "udp"), communicator);
+                var testIntf = Test.TestIntfPrx.CheckedCast(@base);
 
                 string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
 
                 output.Write("test connection endpoint information... ");
                 output.Flush();
                 {
-                    Ice.EndpointInfo info = @base.ice_getConnection().getEndpoint().getInfo();
+                    Ice.EndpointInfo info = @base.GetConnection().getEndpoint().getInfo();
                     Ice.TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
                     test(tcpinfo.port == endpointPort);
                     test(!tcpinfo.compress);
@@ -166,10 +166,10 @@ namespace Ice
                     Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
                     test(ctx["host"].Equals(tcpinfo.host));
                     test(ctx["compress"].Equals("false"));
-                    int port = System.Int32.Parse(ctx["port"]);
+                    int port = int.Parse(ctx["port"]);
                     test(port > 0);
 
-                    info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
+                    info = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection().getEndpoint().getInfo();
                     Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)info;
                     test(udp.port == endpointPort);
                     test(udp.host.Equals(defaultHost));
@@ -179,7 +179,7 @@ namespace Ice
                 output.Write("testing connection information... ");
                 output.Flush();
                 {
-                    Ice.Connection connection = @base.ice_getConnection();
+                    Ice.Connection connection = @base.GetConnection();
                     connection.setBufferSize(1024, 2048);
 
                     Ice.ConnectionInfo info = connection.getInfo();
@@ -204,7 +204,7 @@ namespace Ice
                     test(ctx["remotePort"].Equals(ipInfo.localPort.ToString()));
                     test(ctx["localPort"].Equals(ipInfo.remotePort.ToString()));
 
-                    if (@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
+                    if (@base.GetConnection().type().Equals("ws") || @base.GetConnection().type().Equals("wss"))
                     {
                         Dictionary<string, string> headers = ((Ice.WSConnectionInfo)info).headers;
                         test(headers["Upgrade"].Equals("websocket"));
@@ -219,7 +219,7 @@ namespace Ice
                         test(ctx["ws.Sec-WebSocket-Key"] != null);
                     }
 
-                    connection = @base.ice_datagram().ice_getConnection();
+                    connection = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection();
                     connection.setBufferSize(2048, 1024);
 
                     Ice.UDPConnectionInfo udpInfo = (Ice.UDPConnectionInfo)connection.getInfo();

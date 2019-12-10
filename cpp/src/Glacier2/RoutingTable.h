@@ -17,41 +17,37 @@
 namespace Glacier2
 {
 
-class RoutingTable;
-typedef IceUtil::Handle<RoutingTable> RoutingTablePtr;
-
-class RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
+class RoutingTable final
 {
 public:
 
-    RoutingTable(const Ice::CommunicatorPtr&, const ProxyVerifierPtr&);
+    RoutingTable(std::shared_ptr<Ice::Communicator>, std::shared_ptr<ProxyVerifier>);
 
     void destroy();
 
-    Glacier2::Instrumentation::SessionObserverPtr
-    updateObserver(const Glacier2::Instrumentation::RouterObserverPtr&, const std::string&, const Ice::ConnectionPtr&);
+    std::shared_ptr<Glacier2::Instrumentation::SessionObserver>
+    updateObserver(const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&,
+                   const std::string&, const std::shared_ptr<Ice::Connection>&);
 
     // Returns evicted proxies.
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);
-    Ice::ObjectPrx get(const Ice::Identity&); // Returns null if no proxy can be found.
+    std::shared_ptr<Ice::ObjectPrx> get(const Ice::Identity&); // Returns null if no proxy can be found.
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
+    const std::shared_ptr<Ice::Communicator> _communicator;
     const int _traceLevel;
     const int _maxSize;
-    const ProxyVerifierPtr _verifier;
+    const std::shared_ptr<ProxyVerifier> _verifier;
 
     struct EvictorEntry;
-    typedef IceUtil::Handle<EvictorEntry> EvictorEntryPtr;
-
-    typedef std::map<Ice::Identity, EvictorEntryPtr> EvictorMap;
-    typedef std::list<EvictorMap::iterator> EvictorQueue;
+    using EvictorMap = std::map<Ice::Identity, std::shared_ptr<EvictorEntry>>;
+    using EvictorQueue = std::list<EvictorMap::iterator>;
 
     friend struct EvictorEntry;
-    struct EvictorEntry : public IceUtil::Shared
+    struct EvictorEntry
     {
-        Ice::ObjectPrx proxy;
+        std::shared_ptr<Ice::ObjectPrx> proxy;
         EvictorQueue::iterator pos;
     };
 
@@ -59,6 +55,8 @@ private:
     EvictorQueue _queue;
 
     IceInternal::ObserverHelperT<Glacier2::Instrumentation::SessionObserver> _observer;
+
+    std::mutex _mutex;
 };
 
 }

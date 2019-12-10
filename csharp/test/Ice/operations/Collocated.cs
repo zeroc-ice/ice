@@ -24,10 +24,10 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.AdapterId", "test");
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    ObjectPrx prx = adapter.Add(new MyDerivedClassI(), "test");
+                    var prx = adapter.Add(new MyDerivedClassI(), "test");
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-                    if (prx.ice_getConnection() != null)
+                    if (prx.GetConnection() != null)
                     {
                         throw new System.Exception();
                     }

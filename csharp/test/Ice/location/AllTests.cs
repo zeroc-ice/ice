@@ -16,57 +16,52 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                var manager = ServerManagerPrxHelper.checkedCast(
-                                    communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
-                test(manager != null);
-                var locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
-                test(locator != null);
+                var manager = ServerManagerPrx.Parse($"ServerManager :{helper.getTestEndpoint(0)}", communicator);
+                var locator = TestLocatorPrx.UncheckedCast(communicator.getDefaultLocator());
                 Console.WriteLine("registry checkedcast");
-                var registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
+                var registry = TestLocatorRegistryPrx.CheckedCast(locator.getRegistry());
                 test(registry != null);
 
                 var output = helper.getWriter();
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
-                ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
-                ObjectPrx base3 = communicator.stringToProxy("test");
-                ObjectPrx base4 = communicator.stringToProxy("ServerManager");
-                ObjectPrx base5 = communicator.stringToProxy("test2");
-                ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
+                var @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                var base2 = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                var base3 = IObjectPrx.Parse("test", communicator);
+                var base4 = IObjectPrx.Parse("ServerManager", communicator);
+                var base5 = IObjectPrx.Parse("test2", communicator);
+                var base6 = IObjectPrx.Parse("test @ ReplicatedAdapter", communicator);
                 output.WriteLine("ok");
 
                 output.Write("testing ice_locator and ice_getLocator... ");
-                test(Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
-                LocatorPrx anotherLocator =
-                    LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
-                @base = @base.ice_locator(anotherLocator);
-                test(Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
+                test(Util.proxyIdentityCompare(@base.Locator, communicator.getDefaultLocator()) == 0);
+                var anotherLocator = LocatorPrx.Parse("anotherLocator", communicator);
+                @base = @base.Clone(locator: anotherLocator);
+                test(Util.proxyIdentityCompare(@base.Locator, anotherLocator) == 0);
                 communicator.setDefaultLocator(null);
-                @base = communicator.stringToProxy("test @ TestAdapter");
-                test(@base.ice_getLocator() == null);
-                @base = @base.ice_locator(anotherLocator);
-                test(Util.proxyIdentityCompare(@base.ice_getLocator(), anotherLocator) == 0);
+                @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                test(@base.Locator == null);
+                @base = @base.Clone(locator: anotherLocator);
+                test(Util.proxyIdentityCompare(@base.Locator, anotherLocator) == 0);
                 communicator.setDefaultLocator(locator);
-                @base = communicator.stringToProxy("test @ TestAdapter");
-                test(Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+                @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                test(Util.proxyIdentityCompare(@base.Locator, communicator.getDefaultLocator()) == 0);
 
                 //
                 // We also test ice_router/ice_getRouter(perhaps we should add a
                 // test/Ice/router test?)
                 //
-                test(@base.ice_getRouter() == null);
-                RouterPrx anotherRouter =
-                    RouterPrxHelper.uncheckedCast(communicator.stringToProxy("anotherRouter"));
-                @base = @base.ice_router(anotherRouter);
-                test(Util.proxyIdentityCompare(@base.ice_getRouter(), anotherRouter) == 0);
-                RouterPrx router = RouterPrxHelper.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+                test(@base.Router == null);
+                var anotherRouter = RouterPrx.Parse("anotherRouter", communicator);
+                @base = @base.Clone(router: anotherRouter);
+                test(Util.proxyIdentityCompare(@base.Router, anotherRouter) == 0);
+                var router = RouterPrx.Parse("dummyrouter", communicator);
                 communicator.setDefaultRouter(router);
-                @base = communicator.stringToProxy("test @ TestAdapter");
-                test(Util.proxyIdentityCompare(@base.ice_getRouter(), communicator.getDefaultRouter()) == 0);
+                @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                test(Util.proxyIdentityCompare(@base.Router, communicator.getDefaultRouter()) == 0);
                 communicator.setDefaultRouter(null);
-                @base = communicator.stringToProxy("test @ TestAdapter");
-                test(@base.ice_getRouter() == null);
+                @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                test(@base.Router == null);
                 output.WriteLine("ok");
 
                 output.Write("starting server... ");
@@ -76,17 +71,17 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                var obj = Test.TestIntfPrx.CheckedCast(@base);
                 test(obj != null);
-                var obj2 = Test.TestIntfPrxHelper.checkedCast(base2);
+                var obj2 = Test.TestIntfPrx.CheckedCast(base2);
                 test(obj2 != null);
-                var obj3 = Test.TestIntfPrxHelper.checkedCast(base3);
+                var obj3 = Test.TestIntfPrx.CheckedCast(base3);
                 test(obj3 != null);
-                var obj4 = Test.ServerManagerPrxHelper.checkedCast(base4);
+                var obj4 = Test.ServerManagerPrx.CheckedCast(base4);
                 test(obj4 != null);
-                var obj5 = Test.TestIntfPrxHelper.checkedCast(base5);
+                var obj5 = Test.TestIntfPrx.CheckedCast(base5);
                 test(obj5 != null);
-                var obj6 = Test.TestIntfPrxHelper.checkedCast(base6);
+                var obj6 = Test.TestIntfPrx.CheckedCast(base6);
                 test(obj6 != null);
                 output.WriteLine("ok");
 
@@ -96,7 +91,7 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj2.ice_ping();
+                    obj2.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -110,7 +105,7 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj6.ice_ping();
+                    obj6.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -124,7 +119,7 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj3.ice_ping();
+                    obj3.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -132,25 +127,7 @@ namespace Ice
                 }
                 try
                 {
-                    obj2.ice_ping();
-                }
-                catch (LocalException)
-                {
-                    test(false);
-                }
-                obj.shutdown();
-                manager.startServer();
-                try
-                {
-                    obj2.ice_ping();
-                }
-                catch (LocalException)
-                {
-                    test(false);
-                }
-                try
-                {
-                    obj3.ice_ping();
+                    obj2.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -160,7 +137,15 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj2.ice_ping();
+                    obj2.IcePing();
+                }
+                catch (LocalException)
+                {
+                    test(false);
+                }
+                try
+                {
+                    obj3.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -170,7 +155,7 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj3.ice_ping();
+                    obj2.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -180,8 +165,18 @@ namespace Ice
                 manager.startServer();
                 try
                 {
-                    obj5 = Test.TestIntfPrxHelper.checkedCast(base5);
-                    obj5.ice_ping();
+                    obj3.IcePing();
+                }
+                catch (LocalException)
+                {
+                    test(false);
+                }
+                obj.shutdown();
+                manager.startServer();
+                try
+                {
+                    obj5 = Test.TestIntfPrx.CheckedCast(base5);
+                    obj5.IcePing();
                 }
                 catch (LocalException)
                 {
@@ -193,8 +188,8 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    @base = communicator.stringToProxy("unknown/unknown");
-                    @base.ice_ping();
+                    @base = IObjectPrx.Parse("unknown/unknown", communicator);
+                    @base.IcePing();
                     test(false);
                 }
                 catch (NotRegisteredException ex)
@@ -208,8 +203,8 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    @base = communicator.stringToProxy("test @ TestAdapterUnknown");
-                    @base.ice_ping();
+                    @base = IObjectPrx.Parse("test @ TestAdapterUnknown", communicator);
+                    @base.IcePing();
                     test(false);
                 }
                 catch (NotRegisteredException ex)
@@ -222,57 +217,57 @@ namespace Ice
                 output.Write("testing locator cache timeout... ");
                 output.Flush();
 
-                ObjectPrx basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
+                var basencc = IObjectPrx.Parse("test@TestAdapter", communicator).Clone(connectionCached: false);
                 int count = locator.getRequestCount();
-                basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+                basencc.Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
                 test(++count == locator.getRequestCount());
-                basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+                basencc.Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
                 test(++count == locator.getRequestCount());
-                basencc.ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout.
+                basencc.Clone(locatorCacheTimeout: 2).IcePing(); // 2s timeout.
                 test(count == locator.getRequestCount());
                 System.Threading.Thread.Sleep(1300); // 1300ms
-                basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                basencc.Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
                 test(++count == locator.getRequestCount());
 
-                communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+                IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
                 count += 2;
                 test(count == locator.getRequestCount());
-                communicator.stringToProxy("test").ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout
+                IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 2).IcePing(); // 2s timeout
                 test(count == locator.getRequestCount());
                 System.Threading.Thread.Sleep(1300); // 1300ms
-                communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+                IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout
                 count += 2;
                 test(count == locator.getRequestCount());
 
-                communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
+                IObjectPrx.Parse("test@TestAdapter", communicator).Clone(locatorCacheTimeout: -1).IcePing();
                 test(count == locator.getRequestCount());
-                communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
+                IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: -1).IcePing();
                 test(count == locator.getRequestCount());
-                communicator.stringToProxy("test@TestAdapter").ice_ping();
+                IObjectPrx.Parse("test@TestAdapter", communicator).IcePing();
                 test(count == locator.getRequestCount());
-                communicator.stringToProxy("test").ice_ping();
+                IObjectPrx.Parse("test", communicator).IcePing();
                 test(count == locator.getRequestCount());
 
-                test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == 99);
+                test(IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 99).LocatorCacheTimeout == 99);
 
                 output.WriteLine("ok");
 
                 output.Write("testing proxy from server... ");
                 output.Flush();
-                obj = Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("test@TestAdapter"));
+                obj = TestIntfPrx.Parse("test@TestAdapter", communicator);
                 var hello = obj.getHello();
-                test(hello.ice_getAdapterId().Equals("TestAdapter"));
+                test(hello.AdapterId.Equals("TestAdapter"));
                 hello.sayHello();
                 hello = obj.getReplicatedHello();
-                test(hello.ice_getAdapterId().Equals("ReplicatedAdapter"));
+                test(hello.AdapterId.Equals("ReplicatedAdapter"));
                 hello.sayHello();
                 output.WriteLine("ok");
 
                 output.Write("testing locator request queuing... ");
                 output.Flush();
-                hello = (Test.HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
+                hello = obj.getReplicatedHello().Clone(locatorCacheTimeout: 0, connectionCached: false);
                 count = locator.getRequestCount();
-                hello.ice_ping();
+                hello.IcePing();
                 test(++count == locator.getRequestCount());
                 List<Task> results = new List<Task>();
                 for (int i = 0; i < 1000; i++)
@@ -287,7 +282,7 @@ namespace Ice
                     output.Write("queuing = " + (locator.getRequestCount() - count));
                 }
                 count = locator.getRequestCount();
-                hello = (Test.HelloPrx)hello.ice_adapterId("unknown");
+                hello = hello.Clone(adapterId: "unknown");
                 for (int i = 0; i < 1000; i++)
                 {
                     results.Add(hello.sayHelloAsync().ContinueWith((Task t) =>
@@ -316,7 +311,7 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter3").ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                     test(false);
                 }
                 catch (NotRegisteredException ex)
@@ -327,10 +322,10 @@ namespace Ice
                 registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter3").ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                     registry.setAdapterDirectProxy("TestAdapter3",
-                                                   communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
-                    communicator.stringToProxy("test@TestAdapter3").ice_ping();
+                                                   IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
+                    IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                 }
                 catch (LocalException)
                 {
@@ -339,7 +334,7 @@ namespace Ice
 
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter3", communicator).Clone(locatorCacheTimeout: 0).IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -347,7 +342,7 @@ namespace Ice
                 }
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter3").ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -356,7 +351,7 @@ namespace Ice
                 registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter3").ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter3", communicator).IcePing();
                 }
                 catch (LocalException)
                 {
@@ -366,10 +361,10 @@ namespace Ice
 
                 output.Write("testing well-known object locator cache... ");
                 output.Flush();
-                registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
+                registry.addObject(IObjectPrx.Parse("test3@TestUnknown", communicator));
                 try
                 {
-                    communicator.stringToProxy("test3").ice_ping();
+                    IObjectPrx.Parse("test3", communicator).IcePing();
                     test(false);
                 }
                 catch (NotRegisteredException ex)
@@ -377,12 +372,12 @@ namespace Ice
                     test(ex.kindOfObject == "object adapter");
                     test(ex.id.Equals("TestUnknown"));
                 }
-                registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
+                registry.addObject(IObjectPrx.Parse("test3@TestAdapter4", communicator)); // Update
                 registry.setAdapterDirectProxy("TestAdapter4",
-                                               communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+                                               IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
                 try
                 {
-                    communicator.stringToProxy("test3").ice_ping();
+                    IObjectPrx.Parse("test3", communicator).IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -391,7 +386,7 @@ namespace Ice
                 registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
                 try
                 {
-                    communicator.stringToProxy("test3").ice_ping();
+                    IObjectPrx.Parse("test3", communicator).IcePing();
                 }
                 catch (LocalException)
                 {
@@ -399,10 +394,10 @@ namespace Ice
                 }
 
                 registry.setAdapterDirectProxy("TestAdapter4",
-                                               communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
+                                               IObjectPrx.Parse($"dummy:{helper.getTestEndpoint(99)}", communicator));
                 try
                 {
-                    communicator.stringToProxy("test3").ice_ping();
+                    IObjectPrx.Parse("test3", communicator).IcePing();
                 }
                 catch (LocalException)
                 {
@@ -411,7 +406,7 @@ namespace Ice
 
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter4", communicator).Clone(locatorCacheTimeout: 0).IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -419,7 +414,7 @@ namespace Ice
                 }
                 try
                 {
-                    communicator.stringToProxy("test@TestAdapter4").ice_ping();
+                    IObjectPrx.Parse("test@TestAdapter4", communicator).IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -427,26 +422,26 @@ namespace Ice
                 }
                 try
                 {
-                    communicator.stringToProxy("test3").ice_ping();
+                    IObjectPrx.Parse("test3", communicator).IcePing();
                     test(false);
                 }
                 catch (LocalException)
                 {
                 }
-                registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+                registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
                 try
                 {
-                    communicator.stringToProxy("test3").ice_ping();
+                    IObjectPrx.Parse("test3", communicator).IcePing();
                 }
                 catch (LocalException)
                 {
                     test(false);
                 }
 
-                registry.addObject(communicator.stringToProxy("test4"));
+                registry.addObject(IObjectPrx.Parse("test4", communicator));
                 try
                 {
-                    communicator.stringToProxy("test4").ice_ping();
+                    IObjectPrx.Parse("test4", communicator).IcePing();
                     test(false);
                 }
                 catch (NoEndpointException)
@@ -458,36 +453,36 @@ namespace Ice
                 output.Flush();
                 {
                     InitializationData initData = new InitializationData();
-                    initData.properties = communicator.getProperties().ice_clone_();
+                    initData.properties = communicator.getProperties().Clone();
                     initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
                     Communicator ic = helper.initialize(initData);
 
                     registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
-                    registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+                    registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
 
                     count = locator.getRequestCount();
-                    ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
-                    ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+                    IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
+                    IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
                     count += 3;
                     test(count == locator.getRequestCount());
                     registry.setAdapterDirectProxy("TestAdapter5", null);
-                    registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(99)));
-                    ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
-                    ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+                    registry.addObject(IObjectPrx.Parse($"test3:{helper.getTestEndpoint(99)}", communicator));
+                    IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 10).IcePing(); // 10s timeout.
+                    IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 10).IcePing(); // 10s timeout.
                     test(count == locator.getRequestCount());
                     System.Threading.Thread.Sleep(1200);
 
                     // The following request should trigger the background
                     // updates but still use the cached endpoints and
                     // therefore succeed.
-                    ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                    IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
+                    IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
 
                     try
                     {
                         while (true)
                         {
-                            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                            IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
                             System.Threading.Thread.Sleep(10);
                         }
                     }
@@ -499,7 +494,7 @@ namespace Ice
                     {
                         while (true)
                         {
-                            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                            IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
                             System.Threading.Thread.Sleep(10);
                         }
                     }
@@ -521,9 +516,9 @@ namespace Ice
 
                 output.Write("testing object migration... ");
                 output.Flush();
-                hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+                hello = HelloPrx.Parse("hello", communicator);
                 obj.migrateHello();
-                hello.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
+                hello.GetConnection().close(ConnectionClose.GracefullyWithWait);
                 hello.sayHello();
                 obj.migrateHello();
                 hello.sayHello();
@@ -533,13 +528,13 @@ namespace Ice
 
                 output.Write("testing locator encoding resolution... ");
                 output.Flush();
-                hello = Test.HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+                hello = HelloPrx.Parse("hello", communicator);
                 count = locator.getRequestCount();
-                communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Util.Encoding_1_1).ice_ping();
+                IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encodingVersion: Util.Encoding_1_1).IcePing();
                 test(count == locator.getRequestCount());
-                communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Util.Encoding_1_0).ice_ping();
+                IObjectPrx.Parse("test@TestAdapter10", communicator).Clone(encodingVersion: Util.Encoding_1_0).IcePing();
                 test(++count == locator.getRequestCount());
-                communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
+                IObjectPrx.Parse("test -e 1.0@TestAdapter10-2", communicator).IcePing();
                 test(++count == locator.getRequestCount());
                 output.WriteLine("ok");
 
@@ -552,7 +547,7 @@ namespace Ice
                 output.Flush();
                 try
                 {
-                    obj2.ice_ping();
+                    obj2.IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -560,7 +555,7 @@ namespace Ice
                 }
                 try
                 {
-                    obj3.ice_ping();
+                    obj3.IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -568,7 +563,7 @@ namespace Ice
                 }
                 try
                 {
-                    obj5.ice_ping();
+                    obj5.IcePing();
                     test(false);
                 }
                 catch (LocalException)
@@ -588,17 +583,16 @@ namespace Ice
                 adapter.Activate();
 
                 // Ensure that calls on the well-known proxy is collocated.
-                var helloPrx = Test.HelloPrxHelper.checkedCast(
-                    communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
-                test(helloPrx.ice_getConnection() == null);
+                var helloPrx = HelloPrx.Parse("\"" + communicator.identityToString(id) + "\"", communicator);
+                test(helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.CreateIndirectProxy(id));
-                test(helloPrx.ice_getConnection() == null);
+                helloPrx = HelloPrx.CheckedCast(adapter.CreateIndirectProxy(id));
+                test(helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the direct proxy is collocated
-                helloPrx = Test.HelloPrxHelper.checkedCast(adapter.CreateDirectProxy(id));
-                test(helloPrx.ice_getConnection() == null);
+                helloPrx = HelloPrx.CheckedCast(adapter.CreateDirectProxy(id));
+                test(helloPrx.GetConnection() == null);
 
                 output.WriteLine("ok");
 

@@ -40,10 +40,10 @@ namespace Ice
 
                 public void Run()
                 {
-                    Dictionary<string, string> ctx = _proxy.ice_getCommunicator().getImplicitContext().getContext();
+                    Dictionary<string, string> ctx = _proxy.Communicator.getImplicitContext().getContext();
                     test(ctx.Count == 0);
                     ctx["one"] = "ONE";
-                    _proxy.ice_getCommunicator().getImplicitContext().setContext(ctx);
+                    _proxy.Communicator.getImplicitContext().setContext(ctx);
                     test(Ice.CollectionComparer.Equals(_proxy.opContext(), ctx));
                 }
 
@@ -133,16 +133,13 @@ namespace Ice
                      Test.su0.value.Equals(literals[29]) &&
                      Test.su0.value.Equals(literals[30]));
 
-                p.ice_ping();
+                p.IcePing();
 
-                test(Test.MyClassPrxHelper.ice_staticId().Equals("::Test::MyClass"));
-                test(Ice.ObjectPrxHelper.ice_staticId().Equals("::Ice::Object"));
-
-                test(p.ice_isA(Test.MyClass.ice_staticId()));
-                test(p.ice_id().Equals(Test.MyDerivedClass.ice_staticId()));
+                test(p.IceIsA("::Test::MyClass"));
+                test(p.IceId().Equals("::Test::MyDerivedClass"));
 
                 {
-                    string[] ids = p.ice_ids();
+                    string[] ids = p.IceIds();
                     test(ids.Length == 3);
                     test(ids[0].Equals("::Ice::Object"));
                     test(ids[1].Equals("::Test::MyClass"));
@@ -244,9 +241,9 @@ namespace Ice
                     test(Ice.Util.proxyIdentityAndFacetCompare(c1, p) == 0);
                     test(Ice.Util.proxyIdentityAndFacetCompare(c2, p) != 0);
                     test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
-                    test(c1.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
-                    test(c2.ice_getIdentity().Equals(Ice.Util.stringToIdentity("noSuchIdentity")));
-                    test(r.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
+                    test(c1.Identity.Equals(Ice.Util.stringToIdentity("test")));
+                    test(c2.Identity.Equals(Ice.Util.stringToIdentity("noSuchIdentity")));
+                    test(r.Identity.Equals(Ice.Util.stringToIdentity("test")));
                     r.opVoid();
                     c1.opVoid();
                     try
@@ -1409,18 +1406,18 @@ namespace Ice
                     ctx["two"] = "TWO";
                     ctx["three"] = "THREE";
                     {
-                        test(p.ice_getContext().Count == 0);
+                        test(p.Context.Count == 0);
                         Dictionary<string, string> r = p.opContext();
                         test(!r.Equals(ctx));
                     }
                     {
                         Dictionary<string, string> r = p.opContext(ctx);
-                        test(p.ice_getContext().Count == 0);
+                        test(p.Context.Count == 0);
                         test(Ice.CollectionComparer.Equals(r, ctx));
                     }
                     {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                        var p2 = p.Clone(context: ctx);
+                        test(Ice.CollectionComparer.Equals(p2.Context, ctx));
                         Dictionary<string, string> r = p2.opContext();
                         test(Ice.CollectionComparer.Equals(r, ctx));
                         r = p2.opContext(ctx);
@@ -1428,7 +1425,7 @@ namespace Ice
                     }
                 }
 
-                if (p.ice_getConnection() != null)
+                if (p.GetConnection() != null)
                 {
                     //
                     // Test implicit context propagation
@@ -1438,7 +1435,7 @@ namespace Ice
                     for (int i = 0; i < 2; i++)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
+                        initData.properties = communicator.getProperties().Clone();
                         initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                         Ice.Communicator ic = helper.initialize(initData);
@@ -1448,8 +1445,7 @@ namespace Ice
                         ctx["two"] = "TWO";
                         ctx["three"] = "THREE";
 
-                        var p3 = Test.MyClassPrxHelper.uncheckedCast(
-                            ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
+                        var p3 = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
                         ic.getImplicitContext().setContext(ctx);
                         test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -1481,7 +1477,7 @@ namespace Ice
                         }
                         test(combined["one"].Equals("UN"));
 
-                        p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+                        p3 = p3.Clone(context: prxContext);
 
                         ic.getImplicitContext().setContext(null);
                         test(Ice.CollectionComparer.Equals(p3.opContext(), prxContext));
@@ -1493,8 +1489,7 @@ namespace Ice
 
                         if (impls[i].Equals("PerThread"))
                         {
-                            var thread = new PerThreadContextInvokeThread(
-                                Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
+                            var thread = new PerThreadContextInvokeThread(p3.Clone(context: new Dictionary<string, string>()));
                             thread.Start();
                             thread.Join();
                         }
@@ -1523,7 +1518,7 @@ namespace Ice
                     test(p.opStringS2(null).Length == 0);
                     test(p.opByteBoolD2(null).Count == 0);
 
-                    var d = Test.MyDerivedClassPrxHelper.uncheckedCast(p);
+                    var d = Test.MyDerivedClassPrx.UncheckedCast(p);
                     var s = new Test.MyStruct1();
                     s.tesT = "MyStruct1.s";
                     s.myClass = null;

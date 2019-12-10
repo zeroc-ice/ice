@@ -126,14 +126,14 @@ namespace Ice
 
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                String @ref = "thrower:" + helper.getTestEndpoint(0);
-                ObjectPrx @base = communicator.stringToProxy(@ref);
+                string @ref = "thrower:" + helper.getTestEndpoint(0);
+                var @base = IObjectPrx.Parse(@ref, communicator);
                 test(@base != null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                var thrower = Test.ThrowerPrxHelper.checkedCast(@base);
+                var thrower = Test.ThrowerPrx.CheckedCast(@base);
 
                 test(thrower != null);
                 test(thrower.Equals(@base));
@@ -351,7 +351,7 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
-                if (thrower.ice_getConnection() != null)
+                if (thrower.GetConnection() != null)
                 {
                     output.Write("testing memory limit marshal exception...");
                     output.Flush();
@@ -387,8 +387,7 @@ namespace Ice
 
                     try
                     {
-                        var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(
-                            communicator.stringToProxy("thrower:" + helper.getTestEndpoint(1)));
+                        var thrower2 = ThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(1), communicator);
                         try
                         {
                             thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
@@ -396,8 +395,7 @@ namespace Ice
                         catch (MemoryLimitException)
                         {
                         }
-                        var thrower3 = Test.ThrowerPrxHelper.uncheckedCast(
-                            communicator.stringToProxy("thrower:" + helper.getTestEndpoint(2)));
+                        var thrower3 = Test.ThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(2), communicator);
                         try
                         {
                             thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
@@ -422,8 +420,8 @@ namespace Ice
                     Identity id = Util.stringToIdentity("does not exist");
                     try
                     {
-                        var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-                        thrower2.ice_ping();
+                        var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(id));
+                        thrower2.IcePing();
                         test(false);
                     }
                     catch (ObjectNotExistException ex)
@@ -443,10 +441,10 @@ namespace Ice
 
                 try
                 {
-                    var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+                    var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
                     try
                     {
-                        thrower2.ice_ping();
+                        thrower2.IcePing();
                         test(false);
                     }
                     catch (FacetNotExistException ex)
@@ -466,7 +464,7 @@ namespace Ice
 
                 try
                 {
-                    var thrower2 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+                    var thrower2 = Test.WrongOperationPrx.UncheckedCast(thrower);
                     thrower2.noSuchOperation();
                     test(false);
                 }
@@ -837,7 +835,7 @@ namespace Ice
 
                 {
                     Identity id = Util.stringToIdentity("does not exist");
-                    var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+                    var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(id));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -866,7 +864,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+                    var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -897,7 +895,7 @@ namespace Ice
                 {
                     try
                     {
-                        var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+                        var thrower4 = Test.WrongOperationPrx.UncheckedCast(thrower);
                         thrower4.noSuchOperationAsync().Wait();
                         test(false);
                     }
@@ -1081,7 +1079,7 @@ namespace Ice
 
                 {
                     Identity id = Util.stringToIdentity("does not exist");
-                    var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+                    var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(id));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -1110,7 +1108,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    var thrower2 = Test.ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+                    var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
                     try
                     {
                         thrower2.throwAasAAsync(1).Wait();
@@ -1139,7 +1137,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+                    var thrower4 = Test.WrongOperationPrx.UncheckedCast(thrower);
                     try
                     {
                         thrower4.noSuchOperationAsync().Wait();
