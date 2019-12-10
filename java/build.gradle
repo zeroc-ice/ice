@@ -2,17 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "org.checkerframework:checkerframework-gradle-plugin:${checkerFrameworkPluginVersion}"
-    }
-}
-
 subprojects {
     project.ext.topSrcDir = "$rootProject.projectDir/.."
 
@@ -22,7 +11,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
-    apply plugin: 'org.checkerframework'
 
     repositories {
         if(slice.jarDir) {
@@ -62,19 +50,6 @@ subprojects {
     idea.module {
         excludeDirs -= file(buildDir)
         buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
-    }
-
-    checkerFramework {
-        //checkers = ["org.checkerframework.checker.nullness.NullnessChecker"]
-
-        // Workaround for https://github.com/typetools/checker-framework/issues/2878
-        // Only necessary because we target java 8.
-        //extraJavacArgs = ["-Aignorejdkastub"]
-    }
-
-    dependencies {
-        checkerFramework "org.checkerframework:checker:${checkerFrameworkVersion}"
-        implementation "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
     }
 }
 
