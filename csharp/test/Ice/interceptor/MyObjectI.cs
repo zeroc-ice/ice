@@ -43,9 +43,9 @@ namespace Ice
             addWithRetry(int x, int y, Ice.Current current)
             {
                 test(current != null);
-                test(current.ctx != null);
+                test(current.Context != null);
 
-                if (current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
+                if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
                 {
                     return x + y;
                 }
@@ -83,7 +83,7 @@ namespace Ice
             public async Task<int>
             amdAddWithRetryAsync(int x, int y, Ice.Current current)
             {
-                if (current.ctx.ContainsKey("retry") && current.ctx["retry"].Equals("no"))
+                if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
                 {
                     await Task.Delay(10);
                     return x + y;

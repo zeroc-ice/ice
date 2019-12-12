@@ -288,10 +288,10 @@ namespace IceInternal
                     AttrsUtil.addConnectionAttributes(this, cl);
 
                     Type clc = typeof(Ice.Current);
-                    add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
+                    add("operation", cl.GetMethod("getCurrent"), clc.GetProperty("Operation"));
                     add("identity", cl.GetMethod("getIdentity"));
-                    add("facet", cl.GetMethod("getCurrent"), clc.GetField("facet"));
-                    add("current", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
+                    add("facet", cl.GetMethod("getCurrent"), clc.GetProperty("Facet"));
+                    add("current", cl.GetMethod("getCurrent"), clc.GetProperty("RequestId"));
                     add("mode", cl.GetMethod("getMode"));
                 }
                 catch (System.Exception)
@@ -313,7 +313,7 @@ namespace IceInternal
             if (attribute.IndexOf("context.", 0) == 0)
             {
                 string v;
-                if (_current.ctx.TryGetValue(attribute.Substring(8), out v))
+                if (_current.Context.TryGetValue(attribute.Substring(8), out v))
                 {
                     return v;
                 }
@@ -328,7 +328,7 @@ namespace IceInternal
 
         public string getMode()
         {
-            return _current.requestId == 0 ? "oneway" : "twoway";
+            return _current.RequestId == 0 ? "oneway" : "twoway";
         }
 
         public string getId()
@@ -336,11 +336,11 @@ namespace IceInternal
             if (_id == null)
             {
                 StringBuilder os = new StringBuilder();
-                if (_current.id.category != null && _current.id.category.Length > 0)
+                if (_current.Id.category != null && _current.Id.category.Length > 0)
                 {
-                    os.Append(_current.id.category).Append('/');
+                    os.Append(_current.Id.category).Append('/');
                 }
-                os.Append(_current.id.name).Append(" [").Append(_current.operation).Append(']');
+                os.Append(_current.Id.name).Append(" [").Append(_current.Operation).Append(']');
                 _id = os.ToString();
             }
             return _id;
@@ -348,37 +348,37 @@ namespace IceInternal
 
         public string getParent()
         {
-            return _current.adapter.GetName();
+            return _current.Adapter.GetName();
         }
 
         public Ice.ConnectionInfo getConnectionInfo()
         {
-            if (_current.con != null)
+            if (_current.Connection != null)
             {
-                return _current.con.getInfo();
+                return _current.Connection.getInfo();
             }
             return null;
         }
 
         public Ice.Endpoint getEndpoint()
         {
-            if (_current.con != null)
+            if (_current.Connection != null)
             {
-                return _current.con.getEndpoint();
+                return _current.Connection.getEndpoint();
             }
             return null;
         }
 
         public Ice.Connection getConnection()
         {
-            return _current.con;
+            return _current.Connection;
         }
 
         public Ice.EndpointInfo getEndpointInfo()
         {
-            if (_current.con != null && _endpointInfo == null)
+            if (_current.Connection != null && _endpointInfo == null)
             {
-                _endpointInfo = _current.con.getEndpoint().getInfo();
+                _endpointInfo = _current.Connection.getEndpoint().getInfo();
             }
             return _endpointInfo;
         }
@@ -390,7 +390,7 @@ namespace IceInternal
 
         public string getIdentity()
         {
-            return _current.adapter.GetCommunicator().identityToString(_current.id);
+            return _current.Id.ToString(_current.Adapter!.Communicator);
         }
 
         private readonly Ice.Current _current;
@@ -492,7 +492,7 @@ namespace IceInternal
                     catch (Ice.Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.Append(_proxy.Communicator.identityToString(_proxy.Identity));
+                        os.Append(_proxy.Identity.ToString(_proxy.Communicator));
                         os.Append(" [").Append(_operation).Append(']');
                     }
                     _id = os.ToString();
@@ -524,7 +524,7 @@ namespace IceInternal
         {
             if (_proxy != null)
             {
-                return _proxy.Communicator.identityToString(_proxy.Identity);
+                return _proxy.Identity.ToString(_proxy.Communicator);
             }
             else
             {
@@ -1124,14 +1124,14 @@ namespace IceInternal
 
         public Ice.Instrumentation.ThreadObserver getThreadObserver(string parent, string id,
                                                                     Ice.Instrumentation.ThreadState s,
-                                                                    Ice.Instrumentation.ThreadObserver obsv)
+                                                                    Ice.Instrumentation.ThreadObserver? obsv)
         {
             if (_threads.isEnabled())
             {
                 try
                 {
                     Ice.Instrumentation.ThreadObserver del = null;
-                    ThreadObserverI o = obsv is ThreadObserverI ? (ThreadObserverI)obsv : null;
+                    ThreadObserverI? o = obsv is ThreadObserverI ? (ThreadObserverI)obsv : null;
                     if (_delegate != null)
                     {
                         del = _delegate.getThreadObserver(parent, id, s, o != null ? o.getDelegate() : obsv);

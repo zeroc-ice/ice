@@ -2,24 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+
 namespace IceSSL
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Security;
-    using System.Security.Authentication;
-    using System.Security.Cryptography;
-    using System.Security.Cryptography.X509Certificates;
-
     internal class SSLEngine
     {
         internal SSLEngine(IceInternal.ProtocolPluginFacade facade)
         {
             _communicator = facade.getCommunicator();
-            _logger = _communicator.getLogger();
+            _logger = _communicator.Logger;
             _facade = facade;
-            _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+            _securityTraceLevel = _communicator.Properties.getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
             _securityTraceCategory = "Security";
             _initialized = false;
             _trustManager = new TrustManager(_communicator);
@@ -33,7 +33,7 @@ namespace IceSSL
             }
 
             const string prefix = "IceSSL.";
-            Ice.Properties properties = communicator().getProperties();
+            Ice.Properties properties = communicator().Properties;
 
             //
             // Check for a default directory. We look in this directory for
@@ -63,7 +63,7 @@ namespace IceSSL
             // Protocols selects which protocols to enable, by default we only enable TLS1.0
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
-            var protocols = properties.getPropertyAsList(prefix + "Protocols");
+            string[] protocols = properties.getPropertyAsList(prefix + "Protocols");
             if (protocols.Length > 0)
             {
                 _protocols = parseProtocols(protocols);
@@ -120,7 +120,7 @@ namespace IceSSL
 
                 try
                 {
-                    _verifier = (CertificateVerifier)IceInternal.AssemblyUtil.createInstance(cls);
+                    _verifier = (CertificateVerifier?)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -160,7 +160,7 @@ namespace IceSSL
 
                 try
                 {
-                    _passwordCallback = (PasswordCallback)IceInternal.AssemblyUtil.createInstance(cls);
+                    _passwordCallback = (PasswordCallback?)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -204,7 +204,7 @@ namespace IceSSL
                         throw e;
                     }
 
-                    SecureString password = null;
+                    SecureString? password = null;
                     if (passwordStr.Length > 0)
                     {
                         password = createSecureString(passwordStr);
@@ -268,7 +268,7 @@ namespace IceSSL
                             string storeSpec = name.Substring(findPrefix.Length);
                             StoreLocation storeLoc = 0;
                             StoreName storeName = 0;
-                            string sname = null;
+                            string? sname = null;
                             parseStore(name, storeSpec, ref storeLoc, ref storeName, ref sname);
                             if (sname == null)
                             {
@@ -294,10 +294,12 @@ namespace IceSSL
                 {
                     certAuthFile = properties.getProperty(prefix + "CertAuthFile");
                 }
+
                 if (certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
                 {
                     _caCerts = new X509Certificate2Collection();
                 }
+
                 if (certAuthFile.Length > 0)
                 {
                     if (!checkPath(ref certAuthFile))
@@ -309,7 +311,7 @@ namespace IceSSL
 
                     try
                     {
-                        using (System.IO.FileStream fs = System.IO.File.OpenRead(certAuthFile))
+                        using (FileStream fs = File.OpenRead(certAuthFile))
                         {
                             byte[] data = new byte[fs.Length];
                             fs.Read(data, 0, data.Length);
@@ -348,14 +350,14 @@ namespace IceSSL
                                     }
 
                                     byte[] cert = new byte[size];
-                                    System.Buffer.BlockCopy(data, startpos, cert, 0, size);
-                                    _caCerts.Import(cert);
+                                    Buffer.BlockCopy(data, startpos, cert, 0, size);
+                                    _caCerts!.Import(cert);
                                     first = false;
                                 }
                             }
                             else
                             {
-                                _caCerts.Import(data);
+                                _caCerts!.Import(data);
                             }
                         }
                     }
@@ -375,7 +377,7 @@ namespace IceSSL
             return _useMachineContext;
         }
 
-        internal X509Certificate2Collection caCerts()
+        internal X509Certificate2Collection? caCerts()
         {
             return _caCerts;
         }
@@ -409,7 +411,7 @@ namespace IceSSL
             _verifier = verifier;
         }
 
-        internal CertificateVerifier getCertificateVerifier()
+        internal CertificateVerifier? getCertificateVerifier()
         {
             return _verifier;
         }
@@ -424,7 +426,7 @@ namespace IceSSL
             _passwordCallback = callback;
         }
 
-        internal PasswordCallback getPasswordCallback()
+        internal PasswordCallback? getPasswordCallback()
         {
             return _passwordCallback;
         }
@@ -449,7 +451,7 @@ namespace IceSSL
             return _initialized;
         }
 
-        internal X509Certificate2Collection certs()
+        internal X509Certificate2Collection? certs()
         {
             return _certs;
         }
@@ -484,7 +486,7 @@ namespace IceSSL
             _logger.trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(string address, ConnectionInfo info, string desc)
+        internal void verifyPeer(string? address, ConnectionInfo info, string desc)
         {
             if (_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
@@ -533,7 +535,7 @@ namespace IceSSL
         // Parse a string of the form "location.name" into two parts.
         //
         private static void parseStore(string prop, string store, ref StoreLocation loc, ref StoreName name,
-                                       ref string sname)
+                                       ref string? sname)
         {
             int pos = store.IndexOf('.');
             if (pos == -1)
@@ -635,14 +637,14 @@ namespace IceSSL
 
         private SslProtocols parseProtocols(string[] arr)
         {
-            SslProtocols result = SslProtocols.Default;
+            SslProtocols result = SslProtocols.None;
 
             if (arr.Length > 0)
             {
                 result = 0;
                 for (int i = 0; i < arr.Length; ++i)
                 {
-                    string protocol = null;
+                    string protocol;
                     string s = arr[i].ToUpperInvariant();
                     switch (s)
                     {
@@ -681,7 +683,9 @@ namespace IceSSL
                             }
                         default:
                             {
-                                break;
+                                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                                e.reason = "IceSSL: unrecognized protocol `" + s + "'";
+                                throw e;
                             }
                     }
 
@@ -707,7 +711,7 @@ namespace IceSSL
             //
             // Open the X509 certificate store.
             //
-            X509Store store = null;
+            X509Store store;
             try
             {
                 try
@@ -938,22 +942,22 @@ namespace IceSSL
             return (next + len <= data.Length);
         }
 
-        private Ice.Communicator _communicator;
-        private Ice.Logger _logger;
-        private IceInternal.ProtocolPluginFacade _facade;
-        private int _securityTraceLevel;
-        private string _securityTraceCategory;
+        private readonly Ice.Communicator _communicator;
+        private readonly Ice.Logger _logger;
+        private readonly IceInternal.ProtocolPluginFacade _facade;
+        private readonly int _securityTraceLevel;
+        private readonly string _securityTraceCategory;
         private bool _initialized;
-        private string _defaultDir;
+        private string _defaultDir = string.Empty;
         private SslProtocols _protocols;
         private bool _checkCertName;
         private int _verifyDepthMax;
         private int _checkCRL;
-        private X509Certificate2Collection _certs;
+        private X509Certificate2Collection? _certs;
         private bool _useMachineContext;
-        private X509Certificate2Collection _caCerts;
-        private CertificateVerifier _verifier;
-        private PasswordCallback _passwordCallback;
-        private TrustManager _trustManager;
+        private X509Certificate2Collection? _caCerts;
+        private CertificateVerifier? _verifier;
+        private PasswordCallback? _passwordCallback;
+        private readonly TrustManager _trustManager;
     }
 }

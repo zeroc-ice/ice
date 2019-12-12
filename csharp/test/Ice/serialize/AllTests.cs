@@ -82,31 +82,31 @@ namespace Ice
                 ex.ivd = new Dictionary<int, Test.ValStruct>();
                 ex.ipd = null;
                 ex.issd = new SortedDictionary<int, string>();
-                ex.optName = new Ice.Optional<string>();
-                ex.optInt = new Ice.Optional<int>();
-                ex.optValStruct = new Ice.Optional<Test.ValStruct>();
-                ex.optRefStruct = new Ice.Optional<Test.RefStruct>();
-                ex.optEnum = new Ice.Optional<Test.MyEnum>();
-                ex.optClass = new Ice.Optional<Test.MyClass>();
-                ex.optProxy = new Ice.Optional<Test.MyInterfacePrx>();
+                ex.optName = null;
+                ex.optInt = null;
+                ex.optValStruct = null;
+                ex.optRefStruct = null;
+                ex.optEnum = null;
+                ex.optClass = null;
+                ex.optProxy = null;
                 ex2 = inOut(ex, communicator);
 
-                test(ex2.name.Equals(""));
-                test(ex2.vss.Length == 0);
-                test(ex2.vsll.Count == 0);
-                test(ex2.vssk.Count == 0);
-                test(ex2.vsq.Count == 0);
-                test(ex2.isd.Count == 0);
-                test(ex2.ivd.Count == 0);
+                test(ex2.name == "");
+                test(ex2.vss!.Length == 0);
+                test(ex2.vsll!.Count == 0);
+                test(ex2.vssk!.Count == 0);
+                test(ex2.vsq!.Count == 0);
+                test(ex2.isd!.Count == 0);
+                test(ex2.ivd!.Count == 0);
                 test(ex2.ipd == null);
-                test(ex2.issd.Count == 0);
-                test(!ex2.optName.HasValue);
-                test(!ex2.optInt.HasValue);
-                test(!ex2.optValStruct.HasValue);
-                test(!ex2.optRefStruct.HasValue);
-                test(!ex2.optEnum.HasValue);
-                test(!ex2.optClass.HasValue);
-                test(!ex2.optProxy.HasValue);
+                test(ex2.issd!.Count == 0);
+                test(ex2.optName == null);
+                test(ex2.optInt == null);
+                test(ex2.optValStruct == null);
+                test(ex2.optRefStruct == null);
+                test(ex2.optEnum == null);
+                test(ex2.optClass == null);
+                test(ex2.optProxy == null);
 
                 ex.name = "MyException";
                 ex.b = 1;
@@ -132,13 +132,13 @@ namespace Ice
                 ex.ipd = new Dictionary<int, Test.MyInterfacePrx>() { { 1, proxy }, { 2, null }, { 3, proxy } };
                 ex.issd = new SortedDictionary<int, string>();
                 ex.issd[3] = "three";
-                ex.optName = new Ice.Optional<string>("MyException");
-                ex.optInt = new Ice.Optional<int>(99);
-                ex.optValStruct = new Ice.Optional<Test.ValStruct>(ex.vs);
-                ex.optRefStruct = new Ice.Optional<Test.RefStruct>(ex.rs);
-                ex.optEnum = new Ice.Optional<Test.MyEnum>(Test.MyEnum.enum3);
-                ex.optClass = new Ice.Optional<Test.MyClass>(null);
-                ex.optProxy = new Ice.Optional<Test.MyInterfacePrx>(proxy);
+                ex.optName = "MyException";
+                ex.optInt = 99;
+                ex.optValStruct = ex.vs;
+                ex.optRefStruct = ex.rs;
+                ex.optEnum = Test.MyEnum.enum3;
+                ex.optClass = null;
+                ex.optProxy = proxy;
                 ex2 = inOut(ex, communicator);
 
                 test(ex2.name.Equals(ex.name));
@@ -156,13 +156,13 @@ namespace Ice
                 test(ex2.ivd.Count == 1 && ex2.ivd[1].Equals(ex.vs));
                 test(ex2.ipd.Count == 3 && ex2.ipd[2] == null);
                 test(ex2.issd.Count == 1 && ex2.issd[3] == "three");
-                test(ex2.optName.HasValue && ex2.optName.Value == "MyException");
+                test(ex2.optName == "MyException");
                 test(ex2.optInt.HasValue && ex2.optInt.Value == 99);
                 test(ex2.optValStruct.HasValue && ex2.optValStruct.Value.Equals(ex.vs));
-                test(ex2.optRefStruct.HasValue && ex2.optRefStruct.Value.Equals(ex.rs));
+                test(ex2.optRefStruct != null && ex2.optRefStruct.Equals(ex.rs));
                 test(ex2.optEnum.HasValue && ex2.optEnum.Value == Test.MyEnum.enum3);
-                test(ex2.optClass.HasValue && ex2.optClass.Value == null);
-                test(ex2.optProxy.HasValue && ex2.optProxy.Value.Equals(proxy));
+                test(ex2.optClass == null);
+                test(ex2.optProxy.Equals(proxy));
 
                 Test.RefStruct rs, rs2;
                 rs = new Test.RefStruct();
@@ -203,10 +203,9 @@ namespace Ice
                 return 0;
             }
 
-            private static T inOut<T>(T o, Ice.Communicator communicator)
+            private static T inOut<T>(T o, Communicator communicator)
             {
-                BinaryFormatter bin = new BinaryFormatter(null,
-                    new StreamingContext(StreamingContextStates.All, communicator));
+                var bin = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, communicator));
                 using (MemoryStream mem = new MemoryStream())
                 {
                     bin.Serialize(mem, o);

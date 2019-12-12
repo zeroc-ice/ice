@@ -41,7 +41,7 @@ namespace IceSSL
                 return _endpoint.secure();
             }
 
-            private EndpointI _endpoint;
+            private readonly EndpointI _endpoint;
         }
 
         public override Ice.EndpointInfo getInfo()
@@ -124,7 +124,7 @@ namespace IceSSL
             return _delegate.secure();
         }
 
-        public override IceInternal.Transceiver transceiver()
+        public override IceInternal.Transceiver? transceiver()
         {
             return null;
         }
@@ -153,16 +153,16 @@ namespace IceSSL
                 _callback.exception(ex);
             }
 
-            private Instance _instance;
-            private string _host;
-            private IceInternal.EndpointI_connectors _callback;
+            private readonly Instance _instance;
+            private readonly string _host;
+            private readonly IceInternal.EndpointI_connectors _callback;
         }
 
         public override void connectors_async(Ice.EndpointSelectionType selType,
                                               IceInternal.EndpointI_connectors callback)
         {
             string host = "";
-            for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
+            for (Ice.EndpointInfo? p = _delegate.getInfo(); p != null; p = p.underlying)
             {
                 if (p is Ice.IPEndpointInfo)
                 {
@@ -200,7 +200,7 @@ namespace IceSSL
             return l;
         }
 
-        public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+        public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI? publish)
         {
             List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
             foreach (IceInternal.EndpointI e in _delegate.expandHost(out publish))
@@ -253,13 +253,13 @@ namespace IceSSL
             return _delegate.GetHashCode();
         }
 
-        protected override bool checkOption(string option, string argument, string endpoint)
+        protected override bool checkOption(string option, string? argument, string endpoint)
         {
             return false;
         }
 
-        private Instance _instance;
-        private IceInternal.EndpointI _delegate;
+        private readonly Instance _instance;
+        private readonly IceInternal.EndpointI _delegate;
     }
 
     internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
@@ -287,6 +287,6 @@ namespace IceSSL
             return new EndpointI(_instance, underlying);
         }
 
-        private Instance _instance;
+        private readonly Instance _instance;
     }
 }

@@ -21,7 +21,7 @@ namespace Ice
 
                 public Task shutdownAsync(Ice.Current current)
                 {
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                     return null;
                 }
 
@@ -32,7 +32,7 @@ namespace Ice
 
                 public override bool IceIsA(string s, Ice.Current current)
                 {
-                    _ctx = current.ctx;
+                    _ctx = current.Context;
                     return base.IceIsA(s, current);
                 }
 

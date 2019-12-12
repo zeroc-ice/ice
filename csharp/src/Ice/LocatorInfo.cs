@@ -261,14 +261,14 @@ namespace IceInternal
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
             {
                 return true;
             }
 
-            LocatorInfo rhs = obj as LocatorInfo;
+            LocatorInfo? rhs = obj as LocatorInfo;
             return rhs == null ? false : _locator.Equals(rhs._locator);
         }
 
@@ -446,7 +446,7 @@ namespace IceInternal
                 }
             }
 
-            r.getCommunicator().initializationData().logger.trace(r.getCommunicator().traceLevels().locationCat, s.ToString());
+            r.getCommunicator().Logger.trace(r.getCommunicator().traceLevels().locationCat, s.ToString());
         }
 
         private void trace(string msg, Reference r, Reference resolved)
@@ -462,7 +462,7 @@ namespace IceInternal
             s.Append("adapter = ");
             s.Append(resolved.getAdapterId());
 
-            r.getCommunicator().initializationData().logger.trace(r.getCommunicator().traceLevels().locationCat, s.ToString());
+            r.getCommunicator().Logger.trace(r.getCommunicator().traceLevels().locationCat, s.ToString());
         }
 
         private void getEndpointsException(Reference reference, System.Exception exc)
@@ -479,7 +479,7 @@ namespace IceInternal
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("adapter not found\n");
                     s.Append("adapter = " + reference.getAdapterId());
-                    communicator.initializationData().logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                    communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
                 }
 
                 Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
@@ -494,13 +494,13 @@ namespace IceInternal
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("object not found\n");
-                    s.Append("object = " + Ice.Util.identityToString(reference.getIdentity(), communicator.toStringMode()));
-                    communicator.initializationData().logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                    s.Append("object = " + reference.getIdentity().ToString(communicator.ToStringMode));
+                    communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
                 }
 
                 Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
                 e.kindOfObject = "object";
-                e.id = Ice.Util.identityToString(reference.getIdentity(), communicator.toStringMode());
+                e.id = reference.getIdentity().ToString(communicator.ToStringMode);
                 throw e;
             }
             catch (Ice.NotRegisteredException)
@@ -523,7 +523,7 @@ namespace IceInternal
                         s.Append("well-known proxy = " + reference.ToString() + "\n");
                     }
                     s.Append("reason = " + ex);
-                    communicator.initializationData().logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                    communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
                 }
                 throw;
             }
@@ -577,7 +577,7 @@ namespace IceInternal
                     s.Append("well-known object\n");
                     s.Append("well-known proxy = " + reference.ToString());
                 }
-                communicator.initializationData().logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
             }
         }
 
@@ -590,7 +590,7 @@ namespace IceInternal
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("searching for adapter by id\nadapter = ");
                 s.Append(reference.getAdapterId());
-                communicator.initializationData().logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
             }
 
             lock (this)
@@ -616,7 +616,7 @@ namespace IceInternal
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("searching for well-known object\nwell-known proxy = ");
                 s.Append(reference.ToString());
-                communicator.initializationData().logger.trace(communicator.traceLevels().locationCat, s.ToString());
+                communicator.Logger.trace(communicator.traceLevels().locationCat, s.ToString());
             }
 
             lock (this)
@@ -686,13 +686,13 @@ namespace IceInternal
             }
         }
 
-        private readonly Ice.LocatorPrx _locator;
-        private Ice.LocatorRegistryPrx _locatorRegistry;
+        private readonly LocatorPrx _locator;
+        private LocatorRegistryPrx? _locatorRegistry;
         private readonly LocatorTable _table;
         private readonly bool _background;
 
         private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
-        private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
+        private Dictionary<Identity, Request> _objectRequests = new Dictionary<Identity, Request>();
     }
 
     public sealed class LocatorManager

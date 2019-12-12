@@ -36,7 +36,7 @@ public class Client : Test.TestHelper
 
         public void @default(Ice.Current current)
         {
-            test(current.operation == "default");
+            test(current.Operation == "default");
         }
     }
 
@@ -108,7 +108,7 @@ public class Client : Test.TestHelper
     {
         using (var communicator = initialize(ref args))
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
+            communicator.Properties.setProperty("TestAdapter.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new decimalI(), "test");
             adapter.Add(new Test1I(), "test1");

@@ -18,10 +18,10 @@ namespace Ice
             {
                 if (builtInFacets && !filtered)
                 {
-                    test(com.findAdminFacet("Properties").servant != null);
-                    test(com.findAdminFacet("Process").servant != null);
-                    test(com.findAdminFacet("Logger").servant != null);
-                    test(com.findAdminFacet("Metrics").servant != null);
+                    test(com.FindAdminFacet("Properties").servant != null);
+                    test(com.FindAdminFacet("Process").servant != null);
+                    test(com.FindAdminFacet("Logger").servant != null);
+                    test(com.FindAdminFacet("Metrics").servant != null);
                 }
 
                 var f1 = new TestFacetI();
@@ -30,15 +30,15 @@ namespace Ice
 
                 if (!filtered)
                 {
-                    com.addAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
-                    com.addAdminFacet<TestFacet, TestFacetTraits>(f2, "Facet2");
-                    com.addAdminFacet<TestFacet, TestFacetTraits>(f3, "Facet3");
+                    com.AddAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
+                    com.AddAdminFacet<TestFacet, TestFacetTraits>(f2, "Facet2");
+                    com.AddAdminFacet<TestFacet, TestFacetTraits>(f3, "Facet3");
                 }
                 else
                 {
                     try
                     {
-                        com.addAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
+                        com.AddAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
                         test(false);
                     }
                     catch (ArgumentException)
@@ -47,7 +47,7 @@ namespace Ice
 
                     try
                     {
-                        com.addAdminFacet<TestFacet, TestFacetTraits>(f2, "Facet2");
+                        com.AddAdminFacet<TestFacet, TestFacetTraits>(f2, "Facet2");
                         test(false);
                     }
                     catch (ArgumentException)
@@ -56,7 +56,7 @@ namespace Ice
 
                     try
                     {
-                        com.addAdminFacet<TestFacet, TestFacetTraits>(f3, "Facet3");
+                        com.AddAdminFacet<TestFacet, TestFacetTraits>(f3, "Facet3");
                         test(false);
                     }
                     catch (ArgumentException)
@@ -66,19 +66,19 @@ namespace Ice
 
                 if (!filtered)
                 {
-                    test(com.findAdminFacet("Facet1").servant == f1);
-                    test(com.findAdminFacet("Facet2").servant == f2);
-                    test(com.findAdminFacet("Facet3").servant == f3);
+                    test(com.FindAdminFacet("Facet1").servant == f1);
+                    test(com.FindAdminFacet("Facet2").servant == f2);
+                    test(com.FindAdminFacet("Facet3").servant == f3);
                 }
                 else
                 {
-                    test(com.findAdminFacet("Facet1").servant == null);
-                    test(com.findAdminFacet("Facet2").servant == null);
-                    test(com.findAdminFacet("Facet3").servant == null);
+                    test(com.FindAdminFacet("Facet1").servant == null);
+                    test(com.FindAdminFacet("Facet2").servant == null);
+                    test(com.FindAdminFacet("Facet3").servant == null);
                 }
-                test(com.findAdminFacet("Bogus").servant == null);
+                test(com.FindAdminFacet("Bogus").servant == null);
 
-                Dictionary<string, (object servant, Disp disp)> facetMap = com.findAllAdminFacets();
+                Dictionary<string, (object servant, Disp disp)> facetMap = com.FindAllAdminFacets();
                 if (builtInFacets)
                 {
                     test(facetMap.Count == 7);
@@ -101,7 +101,7 @@ namespace Ice
 
                     try
                     {
-                        com.addAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
+                        com.AddAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
                         test(false);
                     }
                     catch (AlreadyRegisteredException)
@@ -112,7 +112,7 @@ namespace Ice
 
                 try
                 {
-                    com.removeAdminFacet("Bogus");
+                    com.RemoveAdminFacet("Bogus");
                     test(false);
                 }
                 catch (NotRegisteredException)
@@ -122,12 +122,12 @@ namespace Ice
 
                 if (!filtered)
                 {
-                    com.removeAdminFacet("Facet1");
-                    com.removeAdminFacet("Facet2");
-                    com.removeAdminFacet("Facet3");
+                    com.RemoveAdminFacet("Facet1");
+                    com.RemoveAdminFacet("Facet2");
+                    com.RemoveAdminFacet("Facet3");
                     try
                     {
-                        com.removeAdminFacet("Facet1");
+                        com.RemoveAdminFacet("Facet1");
                         test(false);
                     }
                     catch (NotRegisteredException)
@@ -145,7 +145,7 @@ namespace Ice
                 output.Flush();
                 {
                     //
-                    // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
+                    // Test: Exercise AddAdminFacet, FindAdminFacet, RemoveAdminFacet with a typical configuration.
                     //
                     InitializationData init = new InitializationData();
                     init.properties = Util.createProperties();
@@ -185,7 +185,7 @@ namespace Ice
                     init.properties.setProperty("Ice.Admin.Enabled", "1");
                     Ice.Communicator com = Ice.Util.initialize(init);
                     test(com.getAdmin() == null);
-                    Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
+                    Ice.Identity id = Identity.Parse("test-admin");
                     try
                     {
                         com.CreateAdmin(null, id);

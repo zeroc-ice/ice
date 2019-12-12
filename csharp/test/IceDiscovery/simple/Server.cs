@@ -25,9 +25,9 @@ public class Server : Test.TestHelper
             {
             }
 
-            communicator.getProperties().setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
-            communicator.getProperties().setProperty("ControlAdapter.AdapterId", $"control{num}");
-            communicator.getProperties().setProperty("ControlAdapter.ThreadPool.Size", "1");
+            communicator.Properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
+            communicator.Properties.setProperty("ControlAdapter.AdapterId", $"control{num}");
+            communicator.Properties.setProperty("ControlAdapter.ThreadPool.Size", "1");
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
             adapter.Add(new ControllerI(), $"controller{num}");

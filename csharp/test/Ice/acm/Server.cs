@@ -18,13 +18,13 @@ namespace Ice
                 properties.setProperty("Ice.ACM.Timeout", "1");
                 using (var communicator = initialize(properties))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    communicator.getProperties().setProperty("TestAdapter.ACM.Timeout", "0");
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter.ACM.Timeout", "0");
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new RemoteCommunicatorI(), "communicator");
                     adapter.Activate();
                     serverReady();
-                    communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
+                    communicator.Properties.setProperty("Ice.PrintAdapterReady", "0");
                     communicator.waitForShutdown();
                 }
             }

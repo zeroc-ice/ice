@@ -35,7 +35,7 @@ namespace IceSSL
             return _engine.initialized();
         }
 
-        internal X509Certificate2Collection certs()
+        internal X509Certificate2Collection? certs()
         {
             return _engine.certs();
         }
@@ -55,7 +55,7 @@ namespace IceSSL
             _engine.traceStream(stream, connInfo);
         }
 
-        internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
+        internal void verifyPeer(string? address, IceSSL.ConnectionInfo info, string desc)
         {
             _engine.verifyPeer(address, info, desc);
         }

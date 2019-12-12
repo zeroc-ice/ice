@@ -25,6 +25,16 @@ namespace Ice
     /// </summary>
     public class SliceInfo
     {
+        public SliceInfo(string typeId, int compactId, byte[] bytes, Value[] instances, bool hasOptionalMembers, bool isLastSlice)
+        {
+            this.typeId = typeId;
+            this.compactId = compactId;
+            this.bytes = bytes;
+            this.instances = instances;
+            this.hasOptionalMembers = hasOptionalMembers;
+            this.isLastSlice = isLastSlice;
+        }
+
         /// <summary>
         /// The Slice type ID for this slice.
         /// </summary>

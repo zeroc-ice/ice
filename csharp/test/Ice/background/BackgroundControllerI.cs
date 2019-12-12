@@ -28,7 +28,7 @@ internal class BackgroundControllerI : BackgroundController
     {
         lock (this)
         {
-            while (_pausedCalls.Contains(current.operation))
+            while (_pausedCalls.Contains(current.Operation))
             {
                 System.Threading.Monitor.Wait(this);
                 break;

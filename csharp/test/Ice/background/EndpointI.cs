@@ -15,7 +15,7 @@ internal class EndpointI : IceInternal.EndpointI
         _configuration = Configuration.getInstance();
     }
 
-    public override string ice_toString_()
+    public override string ToString()
     {
         return "test-" + _endpoint.ToString();
     }
@@ -27,7 +27,7 @@ internal class EndpointI : IceInternal.EndpointI
 
     public override void streamWriteImpl(Ice.OutputStream s)
     {
-        s.writeShort(_endpoint.type());
+        s.WriteShort(_endpoint.type());
         _endpoint.streamWrite(s);
     }
 

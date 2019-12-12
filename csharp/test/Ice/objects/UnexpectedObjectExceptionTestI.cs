@@ -8,16 +8,16 @@ namespace Ice
     {
         public sealed class UnexpectedObjectExceptionTestI : Blobject
         {
-            public override bool ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
+            public override bool ice_invoke(byte[] inParams, out byte[] outParams, Current current)
             {
-                var communicator = current.adapter.GetCommunicator();
-                var @out = new Ice.OutputStream(communicator);
-                @out.startEncapsulation(current.encoding, FormatType.DefaultFormat);
+                var communicator = current.Adapter.Communicator;
+                var ostr = new Ice.OutputStream(communicator);
+                ostr.StartEncapsulation(current.Encoding, FormatType.DefaultFormat);
                 var ae = new Test.AlsoEmpty();
-                @out.writeValue(ae);
-                @out.writePendingValues();
-                @out.endEncapsulation();
-                outParams = @out.finished();
+                ostr.WriteValue(ae);
+                ostr.WritePendingValues();
+                ostr.EndEncapsulation();
+                outParams = ostr.Finished();
                 return true;
             }
         }

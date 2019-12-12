@@ -71,26 +71,26 @@ namespace Ice
                 Ice.OutputStream ostr;
                 byte[] bytes;
 
-                bool encoding_1_0 = communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0");
+                bool encoding_1_0 = communicator.Properties.getProperty("Ice.Default.EncodingVersion").Equals("1.0");
 
-                ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.ByteEnum.benum11, (int)Test.ByteEnum.benum11);
-                bytes = ostr.finished();
+                ostr = new OutputStream(communicator);
+                ostr.WriteEnum((int)Test.ByteEnum.benum11, (int)Test.ByteEnum.benum11);
+                bytes = ostr.Finished();
                 test(bytes.Length == 1); // ByteEnum should require one byte
 
-                ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.ShortEnum.senum11, (int)Test.ShortEnum.senum11);
-                bytes = ostr.finished();
+                ostr = new OutputStream(communicator);
+                ostr.WriteEnum((int)Test.ShortEnum.senum11, (int)Test.ShortEnum.senum11);
+                bytes = ostr.Finished();
                 test(bytes.Length == (encoding_1_0 ? 2 : 5));
 
-                ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.IntEnum.ienum11, (int)Test.IntEnum.ienum12);
-                bytes = ostr.finished();
+                ostr = new OutputStream(communicator);
+                ostr.WriteEnum((int)Test.IntEnum.ienum11, (int)Test.IntEnum.ienum12);
+                bytes = ostr.Finished();
                 test(bytes.Length == (encoding_1_0 ? 4 : 5));
 
-                ostr = new Ice.OutputStream(communicator);
-                ostr.writeEnum((int)Test.SimpleEnum.blue, (int)Test.SimpleEnum.blue);
-                bytes = ostr.finished();
+                ostr = new OutputStream(communicator);
+                ostr.WriteEnum((int)Test.SimpleEnum.blue, (int)Test.SimpleEnum.blue);
+                bytes = ostr.Finished();
                 test(bytes.Length == 1); // SimpleEnum should require one byte
 
                 output.WriteLine("ok");

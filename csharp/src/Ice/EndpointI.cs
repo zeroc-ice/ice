@@ -2,27 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace IceInternal
 {
-
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
     public interface EndpointI_connectors
     {
         void connectors(List<Connector> connectors);
         void exception(Ice.LocalException ex);
     }
 
-    public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
+    public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>, IEquatable<EndpointI>
     {
         public override string ToString()
-        {
-            return ice_toString_();
-        }
-
-        public virtual string ice_toString_()
         {
             //
             // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -38,27 +32,23 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if (!(obj is EndpointI))
-            {
-                return false;
-            }
-            return CompareTo((EndpointI)obj) == 0;
+            return obj != null && obj is EndpointI other && Equals(other);
         }
 
-        public override int GetHashCode() // Avoids a compiler warning.
+        public bool Equals(EndpointI other)
         {
-            Debug.Assert(false);
-            return 0;
+            return CompareTo(other) == 0;
         }
 
+        public abstract override int GetHashCode(); // Avoids a compiler warning.
         //
         // Marshal the endpoint.
         //
         public virtual void streamWrite(Ice.OutputStream s)
         {
-            s.startEncapsulation();
+            s.StartEncapsulation();
             streamWriteImpl(s);
-            s.endEncapsulation();
+            s.EndEncapsulation();
         }
         public abstract void streamWriteImpl(Ice.OutputStream s);
 
@@ -122,7 +112,7 @@ namespace IceInternal
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public abstract Transceiver transceiver();
+        public abstract Transceiver? transceiver();
 
         //
         // Return a connector for this endpoint, or empty list if no connector
@@ -134,7 +124,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public abstract Acceptor acceptor(string adapterName);
+        public abstract Acceptor? acceptor(string adapterName);
 
         //
         // Expand endpoint out in to separate endpoints for each local
@@ -152,7 +142,7 @@ namespace IceInternal
         // it returns this endpoint if it uses a fixed port, null
         // otherwise).
         //
-        public abstract List<EndpointI> expandHost(out EndpointI publishedEndpoint);
+        public abstract List<EndpointI> expandHost(out EndpointI? publishedEndpoint);
 
         //
         // Check whether the endpoint is equivalent to another one.
@@ -190,7 +180,7 @@ namespace IceInternal
                     continue;
                 }
 
-                string argument = null;
+                string? argument = null;
                 if (n + 1 < args.Count && args[n + 1][0] != '-')
                 {
                     argument = args[++n];
@@ -210,7 +200,7 @@ namespace IceInternal
             args.AddRange(unknown);
         }
 
-        protected virtual bool checkOption(string option, string argument, string endpoint)
+        protected virtual bool checkOption(string option, string? argument, string endpoint)
         {
             // Must be overridden to check for options.
             return false;

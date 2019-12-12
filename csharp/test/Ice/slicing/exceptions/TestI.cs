@@ -16,7 +16,7 @@ public sealed class TestI : TestIntf
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 
     public void baseAsBase(Ice.Current current)
@@ -157,14 +157,14 @@ public sealed class TestI : TestIntf
 
     public void relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
+        RelayPrx p = RelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.knownPreservedAsBase();
         test(false);
     }
 
     public void relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
+        RelayPrx p = RelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.knownPreservedAsKnownPreserved();
         test(false);
     }
@@ -193,14 +193,14 @@ public sealed class TestI : TestIntf
 
     public void relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
+        RelayPrx p = RelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.unknownPreservedAsBase();
         test(false);
     }
 
     public void relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
     {
-        RelayPrx p = RelayPrx.UncheckedCast(current.con.createProxy(r.Identity));
+        RelayPrx p = RelayPrx.UncheckedCast(current.Connection.createProxy(r.Identity));
         p.unknownPreservedAsKnownPreserved();
         test(false);
     }

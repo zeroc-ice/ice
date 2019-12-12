@@ -35,14 +35,14 @@ namespace Ice
                     {
                     }
 
-                    communicator.getProperties().setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
+                    communicator.Properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
                     adapter.Add(new TestIntfI(), "control");
                     adapter.Activate();
                     serverReady();
                     if (num == 0)
                     {
-                        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
+                        communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
                         adapter2.Add(new TestIntfI(), "test");
                         adapter2.Activate();
@@ -70,7 +70,7 @@ namespace Ice
                     }
                     endpoint.Append(" -p ");
                     endpoint.Append(getTestPort(properties, 10));
-                    communicator.getProperties().setProperty("McastTestAdapter.Endpoints", endpoint.ToString());
+                    communicator.Properties.setProperty("McastTestAdapter.Endpoints", endpoint.ToString());
                     Ice.ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
                     mcastAdapter.Add(new TestIntfI(), "test");
                     mcastAdapter.Activate();

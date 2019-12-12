@@ -88,15 +88,15 @@ namespace Ice
                 output.Write("test object adapter endpoint information... ");
                 output.Flush();
                 {
-                    string host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
+                    string host = communicator.Properties.getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
                         "\" -t 15000:udp -h \"" + host + "\"");
                     adapter = communicator.createObjectAdapter("TestAdapter");
 
                     Ice.Endpoint[] endpoints = adapter.GetEndpoints();
                     test(endpoints.Length == 2);
                     Ice.Endpoint[] publishedEndpoints = adapter.GetPublishedEndpoints();
-                    test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
+                    test(Collections.Equals(endpoints, publishedEndpoints));
 
                     Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
                     test(tcpEndpoint.type() == Ice.TCPEndpointType.value ||
@@ -117,13 +117,13 @@ namespace Ice
                     test(endpoints.Length == 1);
                     adapter.SetPublishedEndpoints(endpoints);
                     publishedEndpoints = adapter.GetPublishedEndpoints();
-                    test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
+                    test(Collections.Equals(endpoints, publishedEndpoints));
 
                     adapter.Destroy();
 
                     int port = helper.getTestPort(1);
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p " + port);
-                    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", "default -h * -p " + port);
+                    communicator.Properties.setProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
                     adapter = communicator.createObjectAdapter("TestAdapter");
 
                     endpoints = adapter.GetEndpoints();
@@ -152,7 +152,7 @@ namespace Ice
                                              helper.getTestEndpoint(0, "udp"), communicator);
                 var testIntf = Test.TestIntfPrx.CheckedCast(@base);
 
-                string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+                string defaultHost = communicator.Properties.getProperty("Ice.Default.Host");
 
                 output.Write("test connection endpoint information... ");
                 output.Flush();

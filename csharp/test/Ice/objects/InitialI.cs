@@ -122,7 +122,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                _adapter.GetCommunicator().shutdown();
+                _adapter.Communicator.shutdown();
             }
 
             public Test.Inner.A
@@ -174,14 +174,14 @@ namespace Ice
             public Test.F2Prx
             opF2(Test.F2Prx f21, out Test.F2Prx f22, Ice.Current current)
             {
-                f22 = Test.F2Prx.Parse("F22", current.adapter.GetCommunicator());
+                f22 = Test.F2Prx.Parse("F22", current.Adapter.Communicator);
                 return f21;
             }
 
             public Test.F3
             opF3(Test.F3 f31, out Test.F3 f32, Ice.Current current)
             {
-                f32 = new Test.F3(new Test.F1("F12"), Test.F2Prx.Parse("F22", current.adapter.GetCommunicator()));
+                f32 = new Test.F3(new Test.F1("F12"), Test.F2Prx.Parse("F22", current.Adapter.Communicator));
                 return f31;
             }
 

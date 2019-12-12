@@ -18,7 +18,7 @@ namespace Ice
 
         public class RouterI : Router
         {
-            public Ice.IObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
+            public Ice.IObjectPrx getClientProxy(out bool? hasRoutingTable,
                 Ice.Current current)
             {
                 hasRoutingTable = false;
@@ -30,7 +30,7 @@ namespace Ice
                 StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
                 s.Append(_nextPort++);
                 s.Append(" -t 30000");
-                return IObjectPrx.Parse(s.ToString(), current.adapter.GetCommunicator());
+                return IObjectPrx.Parse(s.ToString(), current.Adapter.Communicator);
             }
 
             public Ice.IObjectPrx[] addProxies(Ice.IObjectPrx[] proxies, Ice.Current current)
@@ -71,15 +71,15 @@ namespace Ice
                     test(!_deactivated);
                 }
 
-                if (current.id.name.Equals("router"))
+                if (current.Id.name.Equals("router"))
                 {
                     cookie = null;
                     RouterTraits routerT = default;
                     return (incoming, current) => routerT.Dispatch(_router, incoming, current);
                 }
 
-                test(current.id.category.Length == 0);
-                test(current.id.name.Equals("test"));
+                test(current.Id.category.Length == 0);
+                test(current.Id.name.Equals("test"));
 
                 cookie = new Cookie();
 
@@ -95,7 +95,7 @@ namespace Ice
                     test(!_deactivated);
                 }
 
-                if (current.id.name.Equals("router"))
+                if (current.Id.name.Equals("router"))
                 {
                     return;
                 }

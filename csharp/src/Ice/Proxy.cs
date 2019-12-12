@@ -28,7 +28,7 @@ namespace Ice
     /// <summary>
     /// Base interface of all object proxies.
     /// </summary>
-    public interface IObjectPrx
+    public interface IObjectPrx : IEquatable<IObjectPrx>
     {
         public Reference IceReference { get; }
         public RequestHandler? RequestHandler { get; set; }
@@ -104,9 +104,9 @@ namespace Ice
                                                      FormatType.DefaultFormat,
                                                      context,
                                                      synchronous,
-                                                     (OutputStream os) => { os.writeString(id); },
+                                                     (OutputStream os) => { os.WriteString(id); },
                                                      null,
-                                                     (InputStream iss) => { return iss.readBool(); });
+                                                     (InputStream iss) => { return iss.ReadBool(); });
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Ice
                                                          FormatType.DefaultFormat,
                                                          context,
                                                          synchronous,
-                                                         read: (InputStream iss) => { return iss.readStringSeq(); });
+                                                         read: (InputStream iss) => { return iss.ReadStringSeq(); });
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace Ice
                                                        FormatType.DefaultFormat,
                                                        context,
                                                        synchronous,
-                                                       read: (InputStream iss) => { return iss.readString(); });
+                                                       read: (InputStream iss) => { return iss.ReadString(); });
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace Ice
         {
             get
             {
-                return (Identity)IceReference.getIdentity().Clone();
+                return IceReference.getIdentity();
             }
         }
 
@@ -425,7 +425,7 @@ namespace Ice
         {
             get
             {
-                RouterInfo ri = IceReference.getRouterInfo();
+                RouterInfo? ri = IceReference.getRouterInfo();
                 return ri != null ? ri.getRouter() : null;
             }
         }
@@ -438,7 +438,7 @@ namespace Ice
         {
             get
             {
-                var li = IceReference.getLocatorInfo();
+                LocatorInfo? li = IceReference.getLocatorInfo();
                 return li != null ? li.getLocator() : null;
             }
         }
@@ -554,6 +554,21 @@ namespace Ice
             }
         }
 
+        public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (lhs == null || rhs == null)
+            {
+                return false;
+            }
+
+            return lhs.IceReference.Equals(rhs.IceReference);
+        }
+
         public static ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
         public static IObjectPrx Parse(string s, Communicator communicator)
@@ -577,7 +592,7 @@ namespace Ice
 
         public static IObjectPrx ParseProperty(string prefix, Communicator communicator)
         {
-            string proxy = communicator.getProperties().getProperty(prefix);
+            string proxy = communicator.Properties.getProperty(prefix);
             return new ObjectPrx(communicator.CreateReference(proxy, prefix));
         }
 
@@ -585,7 +600,7 @@ namespace Ice
         {
             try
             {
-                string proxy = communicator.getProperties().getProperty(prefix);
+                string proxy = communicator.Properties.getProperty(prefix);
                 prx = new ObjectPrx(communicator.CreateReference(proxy, prefix));
             }
             catch (LocalException)
@@ -704,7 +719,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceUpdateRequestHandler(RequestHandler previous, RequestHandler handler)
+        public void IceUpdateRequestHandler(RequestHandler previous, RequestHandler? handler)
         {
             if (IceReference.getCacheConnection() && previous != null)
             {
@@ -729,10 +744,10 @@ namespace Ice
         getOutgoingAsync<T>(OutgoingAsyncCompletionCallback completed)
         {
             bool haveEntry = false;
-            InputStream iss = null;
-            OutputStream os = null;
+            InputStream? iss = null;
+            OutputStream? os = null;
 
-            if (IceReference.getCommunicator().cacheMessageBuffers() > 0)
+            if (IceReference.getCommunicator().CacheMessageBuffers > 0)
             {
                 lock (this)
                 {
@@ -746,6 +761,7 @@ namespace Ice
                     }
                 }
             }
+
             if (!haveEntry)
             {
                 return new OutgoingAsyncT<T>(this, completed);
@@ -760,10 +776,10 @@ namespace Ice
         getInvokeOutgoingAsync(OutgoingAsyncCompletionCallback completed)
         {
             bool haveEntry = false;
-            InputStream iss = null;
-            OutputStream os = null;
+            InputStream? iss = null;
+            OutputStream? os = null;
 
-            if (IceReference.getCommunicator().cacheMessageBuffers() > 0)
+            if (IceReference.getCommunicator().CacheMessageBuffers > 0)
             {
                 lock (this)
                 {
@@ -777,6 +793,7 @@ namespace Ice
                     }
                 }
             }
+
             if (!haveEntry)
             {
                 return new InvokeOutgoingAsyncT(this, completed);
@@ -821,7 +838,7 @@ namespace Ice
     /// </summary>
     public struct Object_Ice_invokeResult
     {
-        public Object_Ice_invokeResult(bool returnValue, byte[] outEncaps)
+        public Object_Ice_invokeResult(bool returnValue, byte[]? outEncaps)
         {
             this.returnValue = returnValue;
             this.outEncaps = outEncaps;
@@ -840,15 +857,15 @@ namespace Ice
         /// The return value follows any out-parameters. If returnValue is
         /// false it contains the encoded user exception.
         /// </summary>
-        public byte[] outEncaps;
+        public byte[]? outEncaps;
     };
 
     internal class InvokeOutgoingAsyncT : OutgoingAsync
     {
         public InvokeOutgoingAsyncT(IObjectPrx prx,
                                     OutgoingAsyncCompletionCallback completionCallback,
-                                    OutputStream os = null,
-                                    InputStream iss = null) : base(prx, completionCallback, os, iss)
+                                    OutputStream? os = null,
+                                    InputStream? iss = null) : base(prx, completionCallback, os, iss)
         {
         }
 
@@ -860,11 +877,11 @@ namespace Ice
                 prepare(operation, mode, context);
                 if (inParams == null || inParams.Length == 0)
                 {
-                    os_.writeEmptyEncapsulation(encoding_);
+                    os_.WriteEmptyEncapsulation(encoding_);
                 }
                 else
                 {
-                    os_.writeEncapsulation(inParams);
+                    os_.WriteEncapsulation(inParams);
                 }
                 invoke(operation, synchronous);
             }
@@ -883,7 +900,7 @@ namespace Ice
                 EncodingVersion encoding;
                 if (proxy_.IceReference.getMode() == Ice.InvocationMode.Twoway)
                 {
-                    ret.outEncaps = is_.readEncapsulation(out encoding);
+                    ret.outEncaps = is_.ReadEncapsulation(out encoding);
                 }
                 else
                 {
@@ -952,7 +969,7 @@ namespace Ice
 
         protected ObjectPrx(SerializationInfo info, StreamingContext context)
         {
-            Communicator communicator = context.Context as Communicator;
+            Communicator? communicator = context.Context as Communicator;
             if (communicator == null)
             {
                 throw new ArgumentException("Cannot deserialize proxy: Ice.Communicator not found in StreamingContext");
@@ -988,48 +1005,32 @@ namespace Ice
         /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
         /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
         /// </summary>
-        /// <param name="r">The object to compare this proxy with.</param>
+        /// <param name="other">The object to compare this proxy with.</param>
         /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
-        public override bool Equals(object r)
+        public override bool Equals(object? other)
         {
-            var rhs = r as IObjectPrx;
-            return ReferenceEquals(rhs, null) ? false : IceReference.Equals(rhs.IceReference);
+            return Equals(other as IObjectPrx);
         }
 
         /// <summary>
-        /// Returns whether two proxies are equal. Two proxies are equal if they are equal in all
+        /// Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all
         /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
         /// </summary>
-        /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-        /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-        /// <returns>True if the proxies are equal; false, otherwise.</returns>
-        public static bool Equals(ObjectPrx lhs, ObjectPrx rhs)
+        /// <param name="other">The object to compare this proxy with.</param>
+        /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
+        public bool Equals(IObjectPrx? other)
         {
-            return ReferenceEquals(lhs, null) ? ReferenceEquals(rhs, null) : lhs.Equals(rhs);
-        }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
 
-        /// <summary>
-        /// Returns whether two proxies are equal. Two proxies are equal if they are equal in all
-        /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-        /// </summary>
-        /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-        /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-        /// <returns>True if the proxies are equal; false, otherwise.</returns>
-        public static bool operator ==(ObjectPrx lhs, ObjectPrx rhs)
-        {
-            return Equals(lhs, rhs);
-        }
+            if (other == null)
+            {
+                return false;
+            }
 
-        /// <summary>
-        /// Returns whether two proxies are not equal. Two proxies are equal if they are equal in all
-        /// respects, that is, if their object identity, endpoints timeout settings, and so on are all equal.
-        /// </summary>
-        /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
-        /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
-        /// <returns>True if the proxies are not equal; false, otherwise.</returns>
-        public static bool operator !=(ObjectPrx lhs, ObjectPrx rhs)
-        {
-            return !Equals(lhs, rhs);
+            return IceReference.Equals(other.IceReference);
         }
     }
 
@@ -1277,6 +1278,7 @@ namespace Ice
         /// <summary>
         /// Invokes an operation dynamically.
         /// </summary>
+        /// <param name="prx">The proxy to invoke the operation.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
@@ -1292,7 +1294,7 @@ namespace Ice
                                   string operation,
                                   OperationMode mode,
                                   byte[] inEncaps,
-                                  out byte[] outEncaps,
+                                  out byte[]? outEncaps,
                                   Dictionary<string, string>? context = null)
         {
             try
@@ -1310,6 +1312,7 @@ namespace Ice
         /// <summary>
         /// Invokes an operation dynamically.
         /// </summary>
+        /// <param name="prx">The proxy to invoke the operation.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inEncaps">The encoded in-parameters for the operation.</param>

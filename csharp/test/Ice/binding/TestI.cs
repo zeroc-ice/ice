@@ -10,7 +10,7 @@ namespace Ice
         {
             public string getAdapterName(Ice.Current current)
             {
-                return current.adapter.GetName();
+                return current.Adapter.GetName();
             }
         }
     }

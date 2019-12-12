@@ -2,16 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Globalization;
+using System.Runtime.InteropServices;
+
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.NetworkInformation;
-    using System.Net.Sockets;
-    using System.Globalization;
-    using System.Runtime.InteropServices;
-
     public sealed class Network
     {
         // ProtocolSupport
@@ -91,7 +92,7 @@ namespace IceInternal
             //
             if (ex.InnerException != null && ex.InnerException is SocketException)
             {
-                return connectionLost(ex.InnerException as SocketException);
+                return connectionLost((SocketException)ex.InnerException);
             }
 
             //
@@ -407,7 +408,7 @@ namespace IceInternal
 
         public static int getRecvBufferSize(Socket socket)
         {
-            int sz = 0;
+            int sz;
             try
             {
                 sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
@@ -441,7 +442,7 @@ namespace IceInternal
                 {
                     socket.SetSocketOption(SocketOptionLevel.IP,
                                            SocketOptionName.MulticastInterface,
-                                           getInterfaceAddress(iface, family).GetAddressBytes());
+                                           getInterfaceAddress(iface, family)!.GetAddressBytes());
                 }
                 else
                 {
@@ -466,7 +467,7 @@ namespace IceInternal
                     if (group.AddressFamily == AddressFamily.InterNetwork)
                     {
                         MulticastOption option;
-                        IPAddress addr = getInterfaceAddress(intf, group.AddressFamily);
+                        IPAddress? addr = getInterfaceAddress(intf, group.AddressFamily);
                         if (addr == null)
                         {
                             option = new MulticastOption(group);
@@ -562,9 +563,9 @@ namespace IceInternal
             }
         }
 
-        public static bool doConnect(Socket fd, EndPoint addr, EndPoint sourceAddr)
+        public static bool doConnect(Socket fd, EndPoint addr, EndPoint? sourceAddr)
         {
-            EndPoint bindAddr = sourceAddr;
+            EndPoint? bindAddr = sourceAddr;
             if (bindAddr == null)
             {
                 //
@@ -712,8 +713,8 @@ namespace IceInternal
                 // a server which was just deactivated if the client socket re-uses the same ephemeral
                 // port as the server).
                 //
-                EndPoint remoteAddr = getRemoteAddress(fd);
-                if (remoteAddr.Equals(getLocalAddress(fd)))
+                EndPoint? remoteAddr = getRemoteAddress(fd);
+                if (remoteAddr!.Equals(getLocalAddress(fd)))
                 {
                     throw new Ice.ConnectionRefusedException();
                 }
@@ -751,17 +752,19 @@ namespace IceInternal
                 {
                     addresses.Add(new IPEndPoint(a, port));
                 }
+
                 if (protocol == EnableBoth)
                 {
                     if (preferIPv6)
                     {
-                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                        addresses = addresses.OrderByDescending(addr => addr.AddressFamily).ToList();
                     }
                     else
                     {
-                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
+                        addresses = addresses.OrderBy(addr => addr.AddressFamily).ToList();
                     }
                 }
+
                 return addresses;
             }
 
@@ -784,9 +787,10 @@ namespace IceInternal
                     }
                     else
                     {
-                        Ice.DNSException e = new Ice.DNSException();
-                        e.host = host;
-                        throw e;
+                        throw new Ice.DNSException
+                        {
+                            host = host
+                        };
                     }
                 }
                 catch (FormatException)
@@ -808,18 +812,19 @@ namespace IceInternal
 
                 if (selType == Ice.EndpointSelectionType.Random)
                 {
-                    IceUtilInternal.Collections.Shuffle(ref addresses);
+                    Random rnd = new Random();
+                    addresses = addresses.OrderBy(x => (endpoint: rnd.Next(), i: x)).ToList();
                 }
 
                 if (protocol == EnableBoth)
                 {
                     if (preferIPv6)
                     {
-                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                        addresses.OrderByDescending(addr => addr.AddressFamily).ToList();
                     }
                     else
                     {
-                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
+                        addresses.OrderBy(addr => addr.AddressFamily).ToList();
                     }
                 }
             }
@@ -829,15 +834,11 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
+                throw new Ice.DNSException(0, host, ex);
             }
             catch (Exception ex)
             {
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
+                throw new Ice.DNSException(0, host, ex);
             }
 
             //
@@ -845,9 +846,7 @@ namespace IceInternal
             //
             if (addresses.Count == 0)
             {
-                Ice.DNSException e = new Ice.DNSException();
-                e.host = host;
-                throw e;
+                throw new Ice.DNSException(0, host);
             }
             return addresses;
         }
@@ -890,15 +889,11 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = "0.0.0.0";
-                throw e;
+                throw new Ice.DNSException(0, "0.0.0.0", ex);
             }
             catch (Exception ex)
             {
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = "0.0.0.0";
-                throw e;
+                throw new Ice.DNSException(0, "0.0.0.0", ex);
             }
 
             return addresses.ToArray();
@@ -989,8 +984,7 @@ namespace IceInternal
         public static List<string> getHostsForEndpointExpand(string host, int protocol, bool includeLoopback)
         {
             List<string> hosts = new List<string>();
-            bool ipv4Wildcard = false;
-            if (isWildcard(host, out ipv4Wildcard))
+            if (isWildcard(host, out bool ipv4Wildcard))
             {
                 foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback, false))
                 {
@@ -1014,8 +1008,7 @@ namespace IceInternal
         public static List<string> getInterfacesForMulticast(string intf, int protocol)
         {
             List<string> interfaces = new List<string>();
-            bool ipv4Wildcard = false;
-            if (isWildcard(intf, out ipv4Wildcard))
+            if (isWildcard(intf, out bool ipv4Wildcard))
             {
                 foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true, true))
                 {
@@ -1029,7 +1022,7 @@ namespace IceInternal
             return interfaces;
         }
 
-        public static string fdToString(Socket socket, NetworkProxy proxy, EndPoint target)
+        public static string fdToString(Socket socket, NetworkProxy? proxy, EndPoint? target)
         {
             try
             {
@@ -1038,7 +1031,7 @@ namespace IceInternal
                     return "<closed>";
                 }
 
-                EndPoint remote = getRemoteAddress(socket);
+                EndPoint? remote = getRemoteAddress(socket);
 
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("local address = " + localAddrToString(getLocalAddress(socket)));
@@ -1067,7 +1060,7 @@ namespace IceInternal
             }
         }
 
-        public static string fdToString(Socket socket)
+        public static string fdToString(Socket? socket)
         {
             try
             {
@@ -1108,7 +1101,7 @@ namespace IceInternal
         }
 
         public static string
-        remoteAddrToString(EndPoint endpoint)
+        remoteAddrToString(EndPoint? endpoint)
         {
             if (endpoint == null)
             {
@@ -1130,7 +1123,7 @@ namespace IceInternal
             }
         }
 
-        public static EndPoint
+        public static EndPoint?
         getRemoteAddress(Socket socket)
         {
             try
@@ -1143,7 +1136,7 @@ namespace IceInternal
             return null;
         }
 
-        private static IPAddress
+        private static IPAddress?
         getInterfaceAddress(string iface, AddressFamily family)
         {
             if (iface.Length == 0)
@@ -1310,10 +1303,10 @@ namespace IceInternal
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        public static EndPoint
+        public static EndPoint?
         getNumericAddress(string sourceAddress)
         {
-            EndPoint addr = null;
+            EndPoint? addr = null;
             if (!string.IsNullOrEmpty(sourceAddress))
             {
                 List<EndPoint> addrs = getAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
@@ -1391,13 +1384,9 @@ namespace IceInternal
         public static string
         endpointAddressToString(EndPoint endpoint)
         {
-            if (endpoint != null)
+            if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
             {
-                if (endpoint is IPEndPoint)
-                {
-                    IPEndPoint ipEndpoint = (IPEndPoint)endpoint;
-                    return ipEndpoint.Address.ToString();
-                }
+                return ipEndpoint.Address.ToString();
             }
             return "";
         }
@@ -1405,46 +1394,11 @@ namespace IceInternal
         public static int
         endpointPort(EndPoint endpoint)
         {
-            if (endpoint != null)
+            if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
             {
-                if (endpoint is IPEndPoint)
-                {
-                    IPEndPoint ipEndpoint = (IPEndPoint)endpoint;
-                    return ipEndpoint.Port;
-                }
+                return ipEndpoint.Port;
             }
             return -1;
         }
-
-        private class EndPointComparator : IComparer<EndPoint>
-        {
-            public EndPointComparator(bool ipv6)
-            {
-                _ipv6 = ipv6;
-            }
-
-            public int Compare(EndPoint lhs, EndPoint rhs)
-            {
-                if (lhs.AddressFamily == AddressFamily.InterNetwork &&
-                   rhs.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    return _ipv6 ? 1 : -1;
-                }
-                else if (lhs.AddressFamily == AddressFamily.InterNetworkV6 &&
-                        rhs.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return _ipv6 ? -1 : 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-            private bool _ipv6;
-        }
-
-        private static readonly EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
-        private static readonly EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);
     }
 }

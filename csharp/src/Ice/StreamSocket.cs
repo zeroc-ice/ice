@@ -20,7 +20,24 @@ namespace IceInternal
             _fd = Network.createSocket(false, (_proxy != null ? _proxy.getAddress() : _addr).AddressFamily);
             _state = StateNeedConnect;
 
-            init();
+            Network.setBlock(_fd, false);
+            Network.setTcpBufSize(_fd, _instance);
+
+            _readEventArgs = new SocketAsyncEventArgs();
+            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+
+            _writeEventArgs = new SocketAsyncEventArgs();
+            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+
+            //
+            // For timeouts to work properly, we need to receive/send
+            // the data in several chunks. Otherwise, we would only be
+            // notified when all the data is received/written. The
+            // connection timeout could easily be triggered when
+            // receiging/sending large messages.
+            //
+            _maxSendPacketSize = Math.Max(512, Network.getSendBufferSize(_fd));
+            _maxRecvPacketSize = Math.Max(512, Network.getRecvBufferSize(_fd));
         }
 
         public StreamSocket(ProtocolInstance instance, Socket fd)
@@ -28,6 +45,7 @@ namespace IceInternal
             _instance = instance;
             _fd = fd;
             _state = StateConnected;
+
             try
             {
                 _desc = Network.fdToString(_fd);
@@ -37,11 +55,30 @@ namespace IceInternal
                 Network.closeSocketNoThrow(_fd);
                 throw;
             }
-            init();
+
+            Network.setBlock(_fd, false);
+            Network.setTcpBufSize(_fd, _instance);
+
+            _readEventArgs = new SocketAsyncEventArgs();
+            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+
+            _writeEventArgs = new SocketAsyncEventArgs();
+            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+
+            //
+            // For timeouts to work properly, we need to receive/send
+            // the data in several chunks. Otherwise, we would only be
+            // notified when all the data is received/written. The
+            // connection timeout could easily be triggered when
+            // receiging/sending large messages.
+            //
+            _maxSendPacketSize = Math.Max(512, Network.getSendBufferSize(_fd));
+            _maxRecvPacketSize = Math.Max(512, Network.getRecvBufferSize(_fd));
         }
 
         public void setBlock(bool block)
         {
+            Debug.Assert(_fd != null);
             Network.setBlock(_fd, block);
         }
 
@@ -54,6 +91,7 @@ namespace IceInternal
             }
             else if (_state <= StateConnectPending)
             {
+                Debug.Assert(_writeEventArgs != null);
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
                     SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
@@ -66,22 +104,27 @@ namespace IceInternal
                         throw new Ice.ConnectFailedException(ex);
                     }
                 }
+                Debug.Assert(_fd != null);
                 _desc = Network.fdToString(_fd, _proxy, _addr);
                 _state = _proxy != null ? StateProxyWrite : StateConnected;
             }
 
             if (_state == StateProxyWrite)
             {
+                Debug.Assert(_proxy != null);
+                Debug.Assert(_addr != null);
                 _proxy.beginWrite(_addr, writeBuffer);
                 return SocketOperation.Write;
             }
             else if (_state == StateProxyRead)
             {
+                Debug.Assert(_proxy != null);
                 _proxy.beginRead(readBuffer);
                 return SocketOperation.Read;
             }
             else if (_state == StateProxyConnected)
             {
+                Debug.Assert(_proxy != null);
                 _proxy.finish(readBuffer, writeBuffer);
 
                 readBuffer.clear();
@@ -99,7 +142,7 @@ namespace IceInternal
             return _state == StateConnected && _fd != null;
         }
 
-        public Socket fd()
+        public Socket? fd()
         {
             return _fd;
         }
@@ -116,6 +159,7 @@ namespace IceInternal
 
         public void setBufferSize(int rcvSize, int sndSize)
         {
+            Debug.Assert(_fd != null);
             Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
         }
 
@@ -123,6 +167,7 @@ namespace IceInternal
         {
             if (_state == StateProxyRead)
             {
+                Debug.Assert(_proxy != null);
                 while (true)
                 {
                     int ret = read(buf.b);
@@ -146,6 +191,7 @@ namespace IceInternal
         {
             if (_state == StateProxyWrite)
             {
+                Debug.Assert(_proxy != null);
                 while (true)
                 {
                     int ret = write(buf.b);
@@ -213,6 +259,7 @@ namespace IceInternal
 
                 if (_state == StateProxyRead)
                 {
+                    Debug.Assert(_proxy != null);
                     _state = toState(_proxy.endRead(buf));
                 }
             }
@@ -239,7 +286,16 @@ namespace IceInternal
                 _writeCallback = callback;
                 try
                 {
-                    EndPoint addr = _proxy != null ? _proxy.getAddress() : _addr;
+                    EndPoint addr;
+                    if (_proxy != null)
+                    {
+                        addr = _proxy.getAddress();
+                    }
+                    else
+                    {
+                        Debug.Assert(_addr != null);
+                        addr = _addr;
+                    }
                     _writeEventArgs.RemoteEndPoint = addr;
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
@@ -310,6 +366,7 @@ namespace IceInternal
 
                 if (_state == StateProxyWrite)
                 {
+                    Debug.Assert(_proxy != null);
                     _state = toState(_proxy.endWrite(buf));
                 }
             }
@@ -460,37 +517,17 @@ namespace IceInternal
             switch (e.LastOperation)
             {
                 case SocketAsyncOperation.Receive:
+                    Debug.Assert(_readCallback != null);
                     _readCallback(e.UserToken);
                     break;
                 case SocketAsyncOperation.Send:
                 case SocketAsyncOperation.Connect:
+                    Debug.Assert(_writeCallback != null);
                     _writeCallback(e.UserToken);
                     break;
                 default:
                     throw new ArgumentException("The last operation completed on the socket was not a receive or send");
             }
-        }
-
-        private void init()
-        {
-            Network.setBlock(_fd, false);
-            Network.setTcpBufSize(_fd, _instance);
-
-            _readEventArgs = new SocketAsyncEventArgs();
-            _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-
-            _writeEventArgs = new SocketAsyncEventArgs();
-            _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-
-            //
-            // For timeouts to work properly, we need to receive/send
-            // the data in several chunks. Otherwise, we would only be
-            // notified when all the data is received/written. The
-            // connection timeout could easily be triggered when
-            // receiging/sending large messages.
-            //
-            _maxSendPacketSize = Math.Max(512, Network.getSendBufferSize(_fd));
-            _maxRecvPacketSize = Math.Max(512, Network.getRecvBufferSize(_fd));
         }
 
         private int toState(int operation)
@@ -507,21 +544,21 @@ namespace IceInternal
         }
 
         private readonly ProtocolInstance _instance;
-        private readonly NetworkProxy _proxy;
-        private readonly EndPoint _addr;
-        private readonly EndPoint _sourceAddr;
+        private readonly NetworkProxy? _proxy;
+        private readonly EndPoint? _addr;
+        private readonly EndPoint? _sourceAddr;
 
-        private Socket _fd;
+        private Socket? _fd;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
         private int _state;
-        private string _desc;
+        private string _desc = "";
 
-        private SocketAsyncEventArgs _writeEventArgs;
-        private SocketAsyncEventArgs _readEventArgs;
+        private SocketAsyncEventArgs? _writeEventArgs;
+        private SocketAsyncEventArgs? _readEventArgs;
 
-        private AsyncCallback _writeCallback;
-        private AsyncCallback _readCallback;
+        private AsyncCallback? _writeCallback;
+        private AsyncCallback? _readCallback;
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;

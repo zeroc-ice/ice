@@ -78,7 +78,7 @@ public class AllTests : Test.AllTests
     static string
     getPort(PropertiesAdminPrx p)
     {
-        return TestHelper.getTestPort(p.Communicator.getProperties(), 0).ToString();
+        return TestHelper.getTestPort(p.Communicator.Properties, 0).ToString();
     }
 
     static private Dictionary<string, string>
@@ -399,7 +399,7 @@ public class AllTests : Test.AllTests
         string hostAndPort = host + ":" + port;
         string protocol = helper.getTestProtocol();
         string endpoint = protocol + " -h " + host + " -p " + port;
-        string timeout = communicator.getProperties().getPropertyWithDefault("Ice.Default.Timeout", "60000");
+        string timeout = communicator.Properties.getPropertyWithDefault("Ice.Default.Timeout", "60000");
 
         MetricsPrx metrics = MetricsPrx.Parse($"metrics:{endpoint}", communicator);
         bool collocated = metrics.GetConnection() == null;
@@ -417,7 +417,7 @@ public class AllTests : Test.AllTests
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((Ice.NativePropertiesAdmin)communicator.findAdminFacet("Properties").servant).addUpdateCallback(update.updated);
+        ((Ice.NativePropertiesAdmin)communicator.FindAdminFacet("Properties").servant).addUpdateCallback(update.updated);
 
         output.WriteLine("ok");
 

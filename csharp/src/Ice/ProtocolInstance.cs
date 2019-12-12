@@ -14,7 +14,7 @@ namespace IceInternal
             traceLevel_ = communicator_.traceLevels().network;
             traceCategory_ = communicator_.traceLevels().networkCat;
             logger_ = communicator_.initializationData().logger;
-            properties_ = communicator_.initializationData().properties;
+            properties_ = communicator_.Properties;
             type_ = type;
             protocol_ = protocol;
             secure_ = secure;
@@ -62,12 +62,12 @@ namespace IceInternal
 
         public bool preferIPv6()
         {
-            return communicator_.preferIPv6();
+            return communicator_.PreferIPv6;
         }
 
         public int protocolSupport()
         {
-            return communicator_.protocolSupport();
+            return communicator_.ProtocolSupport;
         }
 
         public string defaultHost()
@@ -90,9 +90,9 @@ namespace IceInternal
             return communicator_.defaultsAndOverrides().defaultTimeout;
         }
 
-        public NetworkProxy networkProxy()
+        public NetworkProxy? networkProxy()
         {
-            return communicator_.networkProxy();
+            return communicator_.NetworkProxy;
         }
 
         public int messageSizeMax()

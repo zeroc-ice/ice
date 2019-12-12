@@ -19,7 +19,7 @@ internal sealed class ServerI : Test.Server
     {
         try
         {
-            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.getInfo();
             test(info.certs == null);
         }
         catch (Ice.LocalException)
@@ -33,7 +33,7 @@ internal sealed class ServerI : Test.Server
     {
         try
         {
-            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.getInfo();
             test(info.verified);
             test(info.certs.Length == 2 &&
                  info.certs[0].Subject.Equals(subjectDN) &&
@@ -50,7 +50,7 @@ internal sealed class ServerI : Test.Server
     {
         try
         {
-            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.Connection.getInfo();
             test(info.cipher.Equals(cipher));
         }
         catch (Ice.LocalException)
@@ -123,7 +123,7 @@ internal sealed class ServerFactoryI : ServerFactory
     public void shutdown(Ice.Current current)
     {
         test(_servers.Count == 0);
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 
     private string _defaultDir;

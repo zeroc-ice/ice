@@ -15,7 +15,7 @@ namespace Ice
             {
                 using (var communicator = initialize(ref args))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints",
+                    communicator.Properties.setProperty("TestAdapter.Endpoints",
                                                              getTestEndpoint(0) + ":" + getTestEndpoint(0, "udp"));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new TestI(), "test");

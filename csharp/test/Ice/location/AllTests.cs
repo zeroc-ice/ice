@@ -453,7 +453,7 @@ namespace Ice
                 output.Flush();
                 {
                     InitializationData initData = new InitializationData();
-                    initData.properties = communicator.getProperties().Clone();
+                    initData.properties = communicator.Properties.Clone();
                     initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
                     Communicator ic = helper.initialize(initData);
 
@@ -574,25 +574,24 @@ namespace Ice
                 output.Write("testing indirect proxies to collocated objects... ");
                 output.Flush();
 
-                communicator.getProperties().setProperty("Hello.AdapterId", Guid.NewGuid().ToString());
+                communicator.Properties.setProperty("Hello.AdapterId", Guid.NewGuid().ToString());
                 ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
 
-                Identity id = new Identity();
-                id.name = Guid.NewGuid().ToString();
+                var id = new Identity(Guid.NewGuid().ToString(), "");
                 adapter.Add(new HelloI(), id);
                 adapter.Activate();
 
                 // Ensure that calls on the well-known proxy is collocated.
-                var helloPrx = HelloPrx.Parse("\"" + communicator.identityToString(id) + "\"", communicator);
+                HelloPrx? helloPrx = HelloPrx.Parse("\"" + id.ToString(communicator) + "\"", communicator);
                 test(helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the indirect proxy (with adapter ID) is collocated
                 helloPrx = HelloPrx.CheckedCast(adapter.CreateIndirectProxy(id));
-                test(helloPrx.GetConnection() == null);
+                test(helloPrx != null && helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the direct proxy is collocated
                 helloPrx = HelloPrx.CheckedCast(adapter.CreateDirectProxy(id));
-                test(helloPrx.GetConnection() == null);
+                test(helloPrx != null && helloPrx.GetConnection() == null);
 
                 output.WriteLine("ok");
 

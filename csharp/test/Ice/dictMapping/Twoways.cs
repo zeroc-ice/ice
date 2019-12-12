@@ -29,8 +29,8 @@ namespace Ice
                     Dictionary<int, int> r;
                     r = p.opNV(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Ice.Collections.Equals(i, o));
+                    test(Ice.Collections.Equals(i, r));
                 }
 
                 {
@@ -42,8 +42,8 @@ namespace Ice
                     Dictionary<string, string> r;
                     r = p.opNR(i, out o);
 
-                    test(Ice.CollectionComparer.Equals(i, o));
-                    test(Ice.CollectionComparer.Equals(i, r));
+                    test(Ice.Collections.Equals(i, o));
+                    test(Ice.Collections.Equals(i, r));
                 }
 
                 {
@@ -60,8 +60,8 @@ namespace Ice
 
                     foreach (string key in i.Keys)
                     {
-                        test(Ice.CollectionComparer.Equals(i[key], o[key]));
-                        test(Ice.CollectionComparer.Equals(i[key], r[key]));
+                        test(Ice.Collections.Equals(i[key], o[key]));
+                        test(Ice.Collections.Equals(i[key], r[key]));
                     }
                 }
 
@@ -79,8 +79,8 @@ namespace Ice
 
                     foreach (string key in i.Keys)
                     {
-                        test(Ice.CollectionComparer.Equals(i[key], o[key]));
-                        test(Ice.CollectionComparer.Equals(i[key], r[key]));
+                        test(Ice.Collections.Equals(i[key], o[key]));
+                        test(Ice.Collections.Equals(i[key], r[key]));
                     }
                 }
 
@@ -96,8 +96,8 @@ namespace Ice
 
                     foreach (string key in i.Keys)
                     {
-                        test(Ice.CollectionComparer.Equals(i[key], o[key]));
-                        test(Ice.CollectionComparer.Equals(i[key], r[key]));
+                        test(Ice.Collections.Equals(i[key], o[key]));
+                        test(Ice.Collections.Equals(i[key], r[key]));
                     }
                 }
 
@@ -115,8 +115,8 @@ namespace Ice
 
                     foreach (string key in i.Keys)
                     {
-                        test(Ice.CollectionComparer.Equals(i[key], o[key]));
-                        test(Ice.CollectionComparer.Equals(i[key], r[key]));
+                        test(Ice.Collections.Equals(i[key], o[key]));
+                        test(Ice.Collections.Equals(i[key], r[key]));
                     }
                 }
 
@@ -132,8 +132,8 @@ namespace Ice
 
                     foreach (string key in i.Keys)
                     {
-                        test(Ice.CollectionComparer.Equals(i[key], o[key]));
-                        test(Ice.CollectionComparer.Equals(i[key], r[key]));
+                        test(Ice.Collections.Equals(i[key], o[key]));
+                        test(Ice.Collections.Equals(i[key], r[key]));
                     }
                 }
 
@@ -151,8 +151,8 @@ namespace Ice
 
                     foreach (string key in i.Keys)
                     {
-                        test(Ice.CollectionComparer.Equals(i[key], o[key]));
-                        test(Ice.CollectionComparer.Equals(i[key], r[key]));
+                        test(Ice.Collections.Equals(i[key], o[key]));
+                        test(Ice.Collections.Equals(i[key], r[key]));
                     }
                 }
             }

@@ -24,7 +24,7 @@ namespace Ice
                 ++_requestCount;
                 if (adapter.Equals("TestAdapter10") || adapter.Equals("TestAdapter10-2"))
                 {
-                    Debug.Assert(current.encoding.Equals(Ice.Util.Encoding_1_0));
+                    Debug.Assert(current.Encoding.Equals(Util.Encoding_1_0));
                     return Task.FromResult(_registry.getAdapter("TestAdapter"));
                 }
                 else

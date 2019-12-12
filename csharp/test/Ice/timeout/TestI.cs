@@ -68,7 +68,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             private ObjectAdapter _adapter;

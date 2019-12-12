@@ -19,7 +19,7 @@ public sealed class TestI : TestIntf
 
     public Task shutdownAsync(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
         return null;
     }
 
@@ -67,13 +67,14 @@ public sealed class TestI : TestIntf
 
     public Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(obj is SUnknown));
         }
         else
         {
-            SUnknown su = obj as SUnknown;
+            test(obj is SUnknown);
+            SUnknown su = (SUnknown)obj;
             test(su.su.Equals("SUnknown.su"));
         }
         return null;
@@ -305,7 +306,7 @@ public sealed class TestI : TestIntf
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if (!current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (!current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             //
             // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
@@ -319,7 +320,7 @@ public sealed class TestI : TestIntf
     public Task
     checkPBSUnknownAsync(Preserved p, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
@@ -354,7 +355,7 @@ public sealed class TestI : TestIntf
     public Task
     checkPBSUnknownWithGraphAsync(Preserved p, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
@@ -362,7 +363,8 @@ public sealed class TestI : TestIntf
         }
         else
         {
-            var pu = p as PSUnknown;
+            test(p is PSUnknown);
+            var pu = (PSUnknown)p;
             test(pu.pi == 5);
             test(pu.ps.Equals("preserved"));
             test(pu.psu.Equals("unknown"));
@@ -386,7 +388,7 @@ public sealed class TestI : TestIntf
     public Task
     checkPBSUnknown2WithGraphAsync(Preserved p, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown2));
             test(p.pi == 5);
@@ -394,7 +396,8 @@ public sealed class TestI : TestIntf
         }
         else
         {
-            var pu = p as PSUnknown2;
+
+            var pu = (PSUnknown2)p;
             test(pu.pi == 5);
             test(pu.ps.Equals("preserved"));
             test(pu.pb == pu);

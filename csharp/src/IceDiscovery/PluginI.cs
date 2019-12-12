@@ -2,32 +2,32 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+using System;
+using System.Text;
+
 namespace IceDiscovery
 {
-    using Ice;
-    using System;
-    using System.Text;
-
     public sealed class PluginFactory : Ice.PluginFactory
     {
-        public Ice.Plugin
-        create(Ice.Communicator communicator, string name, string[] args)
+        public Plugin
+        create(Communicator communicator, string name, string[] args)
         {
             return new PluginI(communicator);
         }
     }
 
-    public sealed class PluginI : Ice.Plugin
+    public sealed class PluginI : Plugin
     {
         public
-        PluginI(Ice.Communicator communicator)
+        PluginI(Communicator communicator)
         {
             _communicator = communicator;
         }
 
         public void initialize()
         {
-            Ice.Properties properties = _communicator.getProperties();
+            Properties properties = _communicator.Properties;
 
             bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
             bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
@@ -131,19 +131,21 @@ namespace IceDiscovery
             {
                 _locatorAdapter.Destroy();
             }
-            if (_communicator.getDefaultLocator().Equals(_locator))
+
+            LocatorPrx? defaultLocator = _communicator.getDefaultLocator();
+            if (defaultLocator != null && defaultLocator.Equals(_locator))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
                 _communicator.setDefaultLocator(_defaultLocator);
             }
         }
 
-        private Ice.Communicator _communicator;
-        private Ice.ObjectAdapter _multicastAdapter;
-        private Ice.ObjectAdapter _replyAdapter;
-        private Ice.ObjectAdapter _locatorAdapter;
-        private Ice.LocatorPrx _locator;
-        private Ice.LocatorPrx _defaultLocator;
+        private Communicator _communicator;
+        private ObjectAdapter? _multicastAdapter;
+        private ObjectAdapter? _replyAdapter;
+        private ObjectAdapter? _locatorAdapter;
+        private LocatorPrx? _locator;
+        private LocatorPrx? _defaultLocator;
     }
 
     public class Util

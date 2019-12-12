@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Test;
 
@@ -36,7 +37,8 @@ public sealed class MetricsI : Metrics
 
     public Task failAsync(Ice.Current current)
     {
-        current.con.close(Ice.ConnectionClose.Forcefully);
+        Debug.Assert(current != null);
+        current.Connection.close(Ice.ConnectionClose.Forcefully);
         return null;
     }
 
@@ -72,12 +74,13 @@ public sealed class MetricsI : Metrics
     public Ice.IObjectPrx
     getAdmin(Ice.Current current)
     {
-        return current.adapter.GetCommunicator().getAdmin();
+        Debug.Assert(current != null);
+        return current.Adapter.Communicator.getAdmin();
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 }

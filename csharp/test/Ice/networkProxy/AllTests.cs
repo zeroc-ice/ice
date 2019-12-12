@@ -25,10 +25,10 @@ public class AllTests : Test.AllTests
         var obj = IObjectPrx.Parse(sref, communicator);
         test(obj != null);
 
-        int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
+        int proxyPort = communicator.Properties.getPropertyAsInt("Ice.HTTPProxyPort");
         if (proxyPort == 0)
         {
-            proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
+            proxyPort = communicator.Properties.getPropertyAsInt("Ice.SOCKSProxyPort");
         }
 
         Test.TestIntfPrx testPrx = Test.TestIntfPrx.CheckedCast(obj);

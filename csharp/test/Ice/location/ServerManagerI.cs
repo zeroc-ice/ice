@@ -36,7 +36,7 @@ namespace Ice
                 // the adapter id instead of the endpoints.
                 //
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = _helper.communicator().getProperties().Clone();
+                initData.properties = _helper.communicator().Properties.Clone();
                 initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
                 initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
                 initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
@@ -51,14 +51,14 @@ namespace Ice
                 int nRetry = 10;
                 while (--nRetry > 0)
                 {
-                    Ice.ObjectAdapter adapter = null;
-                    Ice.ObjectAdapter adapter2 = null;
+                    ObjectAdapter? adapter = null;
+                    ObjectAdapter? adapter2 = null;
                     try
                     {
-                        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                                       _helper.getTestEndpoint(_nextPort++));
-                        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
-                                                                       _helper.getTestEndpoint(_nextPort++));
+                        serverCommunicator.Properties.setProperty("TestAdapter.Endpoints",
+                                                                  _helper.getTestEndpoint(_nextPort++));
+                        serverCommunicator.Properties.setProperty("TestAdapter2.Endpoints",
+                                                                  _helper.getTestEndpoint(_nextPort++));
 
                         adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
@@ -104,7 +104,7 @@ namespace Ice
                     c.destroy();
                 }
                 _communicators.Clear();
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             private ServerLocatorRegistry _registry;

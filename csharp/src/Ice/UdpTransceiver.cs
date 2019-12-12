@@ -13,13 +13,14 @@ namespace IceInternal
 
     internal sealed class UdpTransceiver : Transceiver
     {
-        public Socket fd()
+        public Socket? fd()
         {
             return _fd;
         }
 
         public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
+            Debug.Assert(_fd != null);
             if (_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
@@ -50,7 +51,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public int closing(bool initiator, Ice.LocalException ex)
+        public int closing(bool initiator, Ice.LocalException? ex)
         {
             //
             // Nothing to do.
@@ -75,6 +76,7 @@ namespace IceInternal
 
         public EndpointI bind()
         {
+            Debug.Assert(_fd != null);
             if (Network.isMulticast((IPEndPoint)_addr))
             {
                 Network.setReuseAddress(_fd, true);
@@ -103,6 +105,7 @@ namespace IceInternal
                 {
                     _mcastAddr.Port = ((IPEndPoint)_addr).Port;
                 }
+                Debug.Assert(_mcastInterface != null);
                 Network.setMcastGroup(_fd, _mcastAddr.Address, _mcastInterface);
             }
             else
@@ -110,6 +113,7 @@ namespace IceInternal
                 _addr = Network.doBind(_fd, _addr);
             }
             _bound = true;
+            Debug.Assert(_endpoint != null);
             _endpoint = _endpoint.endpoint(this);
             return _endpoint;
         }
@@ -117,6 +121,7 @@ namespace IceInternal
         public void destroy()
         {
             _readEventArgs.Dispose();
+            Debug.Assert(_writeEventArgs != null);
             _writeEventArgs.Dispose();
         }
 
@@ -133,7 +138,7 @@ namespace IceInternal
             // The caller is supposed to check the send size before by calling checkSendSize
             Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
-            int ret = 0;
+            int ret;
             while (true)
             {
                 try
@@ -199,12 +204,12 @@ namespace IceInternal
             buf.resize(packetSize, true);
             buf.b.position(0);
 
-            int ret = 0;
+            int ret;
             while (true)
             {
                 try
                 {
-                    EndPoint peerAddr = _peerAddr;
+                    EndPoint? peerAddr = _peerAddr;
                     if (peerAddr == null)
                     {
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
@@ -279,6 +284,7 @@ namespace IceInternal
                 //
                 // If we must connect, then we connect to the first peer that sends us a packet.
                 //
+                Debug.Assert(_peerAddr != null);
                 bool connected = Network.doConnect(_fd, _peerAddr, null);
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
@@ -298,6 +304,7 @@ namespace IceInternal
 
         public bool startRead(Buffer buf, AsyncCallback callback, object state)
         {
+            Debug.Assert(_fd != null);
             Debug.Assert(buf.b.position() == 0);
 
             int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
@@ -426,6 +433,9 @@ namespace IceInternal
 
         public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
+            Debug.Assert(_fd != null);
+            Debug.Assert(_writeEventArgs != null);
+
             if (!_incoming && _state < StateConnected)
             {
                 Debug.Assert(_addr != null);
@@ -437,8 +447,6 @@ namespace IceInternal
                 _writeEventArgs.UserToken = state;
                 return !_fd.ConnectAsync(_writeEventArgs);
             }
-
-            Debug.Assert(_fd != null);
 
             // The caller is supposed to check the send size before by calling checkSendSize
             Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
@@ -486,6 +494,7 @@ namespace IceInternal
 
         public void finishWrite(Buffer buf)
         {
+            Debug.Assert(_writeEventArgs != null);
             if (_fd == null)
             {
                 buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
@@ -564,7 +573,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
+                    EndPoint? remoteEndpoint = Network.getRemoteAddress(_fd);
                     if (remoteEndpoint != null)
                     {
                         info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
@@ -644,9 +653,11 @@ namespace IceInternal
             }
             else
             {
+                Debug.Assert(_mcastInterface != null);
                 intfs = Network.getInterfacesForMulticast(_mcastInterface,
                                                           Network.getProtocolSupport(_mcastAddr.Address));
             }
+
             if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
@@ -851,10 +862,12 @@ namespace IceInternal
             {
                 case SocketAsyncOperation.Receive:
                 case SocketAsyncOperation.ReceiveFrom:
+                    Debug.Assert(_readCallback != null);
                     _readCallback(e.UserToken);
                     break;
                 case SocketAsyncOperation.Send:
                 case SocketAsyncOperation.Connect:
+                    Debug.Assert(_writeCallback != null);
                     _writeCallback(e.UserToken);
                     break;
                 default:
@@ -862,27 +875,27 @@ namespace IceInternal
             }
         }
 
-        private UdpEndpointI _endpoint;
-        private ProtocolInstance _instance;
+        private UdpEndpointI? _endpoint;
+        private readonly ProtocolInstance _instance;
         private int _state;
-        private bool _incoming;
+        private readonly bool _incoming;
         private int _rcvSize;
         private int _sndSize;
-        private Socket _fd;
+        private Socket? _fd;
         private EndPoint _addr;
-        private EndPoint _sourceAddr;
-        private IPEndPoint _mcastAddr = null;
-        private EndPoint _peerAddr = null;
-        private string _mcastInterface = null;
+        private readonly EndPoint? _sourceAddr;
+        private IPEndPoint? _mcastAddr = null;
+        private EndPoint? _peerAddr = null;
+        private readonly string? _mcastInterface = null;
 
-        private int _port = 0;
+        private readonly int _port = 0;
         private bool _bound = false;
 
-        private SocketAsyncEventArgs _writeEventArgs;
-        private SocketAsyncEventArgs _readEventArgs;
+        private SocketAsyncEventArgs? _writeEventArgs;
+        private readonly SocketAsyncEventArgs _readEventArgs;
 
-        private AsyncCallback _writeCallback;
-        private AsyncCallback _readCallback;
+        private AsyncCallback? _writeCallback;
+        private AsyncCallback? _readCallback;
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;

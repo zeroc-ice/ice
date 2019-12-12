@@ -35,8 +35,8 @@ namespace IceInternal
         public IPEndpointI(ProtocolInstance instance, Ice.InputStream s)
         {
             instance_ = instance;
-            host_ = s.readString();
-            port_ = s.readInt();
+            host_ = s.ReadString();
+            port_ = s.ReadInt();
             sourceAddr_ = null;
             connectionId_ = "";
             _hashInitialized = false;
@@ -129,7 +129,7 @@ namespace IceInternal
             return endps;
         }
 
-        public override List<EndpointI> expandHost(out EndpointI publish)
+        public override List<EndpointI> expandHost(out EndpointI? publish)
         {
             //
             // If this endpoint has an empty host (wildcard address), don't expand, just return
@@ -184,7 +184,7 @@ namespace IceInternal
                 Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
         }
 
-        public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
+        public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy? proxy)
         {
             List<Connector> connectors = new List<Connector>();
             foreach (EndPoint p in addresses)
@@ -293,8 +293,8 @@ namespace IceInternal
 
         public override void streamWriteImpl(Ice.OutputStream s)
         {
-            s.writeString(host_);
-            s.writeInt(port_);
+            s.WriteString(host_);
+            s.WriteInt(port_);
         }
 
         public virtual void hashInit(ref int h)
@@ -411,13 +411,13 @@ namespace IceInternal
             return true;
         }
 
-        protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
-        protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
+        protected abstract Connector createConnector(EndPoint addr, NetworkProxy? proxy);
+        protected abstract IPEndpointI createEndpoint(string? host, int port, string connectionId);
 
         protected ProtocolInstance instance_;
-        protected string host_;
+        protected string? host_;
         protected int port_;
-        protected EndPoint sourceAddr_;
+        protected EndPoint? sourceAddr_;
         protected string connectionId_;
         private bool _hashInitialized;
         private int _hashValue;

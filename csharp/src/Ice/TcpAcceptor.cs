@@ -2,14 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Text;
-
     internal class TcpAcceptor : Acceptor
     {
         public virtual void close()
@@ -30,6 +31,7 @@ namespace IceInternal
         {
             try
             {
+                Debug.Assert(_fd != null);
                 _addr = Network.doBind(_fd, _addr);
                 Network.doListen(_fd, _backlog);
             }
@@ -46,6 +48,7 @@ namespace IceInternal
         {
             try
             {
+                Debug.Assert(_fd != null);
                 _result = _fd.BeginAccept(delegate (IAsyncResult result)
                                           {
                                               if (!result.CompletedSynchronously)
@@ -81,6 +84,7 @@ namespace IceInternal
         {
             if (_acceptFd == null)
             {
+                Debug.Assert(_acceptError != null);
                 throw _acceptError;
             }
 
@@ -143,11 +147,11 @@ namespace IceInternal
 
         private TcpEndpointI _endpoint;
         private ProtocolInstance _instance;
-        private Socket _fd;
-        private Socket _acceptFd;
-        private Exception _acceptError;
+        private Socket? _fd;
+        private Socket? _acceptFd;
+        private Exception? _acceptError;
         private int _backlog;
         private IPEndPoint _addr;
-        private IAsyncResult _result;
+        private IAsyncResult? _result;
     }
 }

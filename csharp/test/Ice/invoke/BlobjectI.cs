@@ -8,128 +8,128 @@ namespace Ice
 {
     namespace invoke
     {
-        public class BlobjectI : Ice.Blobject
+        public class BlobjectI : Blobject
         {
             public override bool
-            ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
+            ice_invoke(byte[] inParams, out byte[]? outParams, Current current)
             {
-                Ice.Communicator communicator = current.adapter.GetCommunicator();
-                Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
-                inS.startEncapsulation();
-                Ice.OutputStream outS = new Ice.OutputStream(communicator);
-                outS.startEncapsulation();
-                if (current.operation.Equals("opOneway"))
+                Communicator communicator = current.Adapter.Communicator;
+                InputStream inS = new InputStream(communicator, inParams);
+                inS.StartEncapsulation();
+                OutputStream outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
+                if (current.Operation.Equals("opOneway"))
                 {
                     outParams = new byte[0];
                     return true;
                 }
-                else if (current.operation.Equals("opString"))
+                else if (current.Operation.Equals("opString"))
                 {
-                    string s = inS.readString();
-                    outS.writeString(s);
-                    outS.writeString(s);
-                    outS.endEncapsulation();
-                    outParams = outS.finished();
+                    string s = inS.ReadString();
+                    outS.WriteString(s);
+                    outS.WriteString(s);
+                    outS.EndEncapsulation();
+                    outParams = outS.Finished();
                     return true;
                 }
-                else if (current.operation.Equals("opException"))
+                else if (current.Operation.Equals("opException"))
                 {
-                    if (current.ctx.ContainsKey("raise"))
+                    if (current.Context.ContainsKey("raise"))
                     {
                         throw new Test.MyException();
                     }
                     var ex = new Test.MyException();
-                    outS.writeException(ex);
-                    outS.endEncapsulation();
-                    outParams = outS.finished();
+                    outS.WriteException(ex);
+                    outS.EndEncapsulation();
+                    outParams = outS.Finished();
                     return false;
                 }
-                else if (current.operation.Equals("shutdown"))
+                else if (current.Operation.Equals("shutdown"))
                 {
                     communicator.shutdown();
                     outParams = null;
                     return true;
                 }
-                else if (current.operation.Equals("ice_isA"))
+                else if (current.Operation.Equals("ice_isA"))
                 {
-                    string s = inS.readString();
+                    string s = inS.ReadString();
                     if (s.Equals("::Test::MyClass"))
                     {
-                        outS.writeBool(true);
+                        outS.WriteBool(true);
                     }
                     else
                     {
-                        outS.writeBool(false);
+                        outS.WriteBool(false);
                     }
-                    outS.endEncapsulation();
-                    outParams = outS.finished();
+                    outS.EndEncapsulation();
+                    outParams = outS.Finished();
                     return true;
                 }
                 else
                 {
-                    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
-                    ex.id = current.id;
-                    ex.facet = current.facet;
-                    ex.operation = current.operation;
+                    OperationNotExistException ex = new OperationNotExistException();
+                    ex.id = current.Id;
+                    ex.facet = current.Facet;
+                    ex.operation = current.Operation;
                     throw ex;
                 }
             }
         }
 
-        public class BlobjectAsyncI : Ice.BlobjectAsync
+        public class BlobjectAsyncI : BlobjectAsync
         {
-            public override Task<Ice.Object_Ice_invokeResult>
-            ice_invokeAsync(byte[] inParams, Ice.Current current)
+            public override Task<Object_Ice_invokeResult>
+            ice_invokeAsync(byte[] inParams, Current current)
             {
-                Ice.Communicator communicator = current.adapter.GetCommunicator();
-                Ice.InputStream inS = new Ice.InputStream(communicator, inParams);
-                inS.startEncapsulation();
-                Ice.OutputStream outS = new Ice.OutputStream(communicator);
-                outS.startEncapsulation();
-                if (current.operation.Equals("opOneway"))
+                Communicator communicator = current.Adapter.Communicator;
+                InputStream inS = new InputStream(communicator, inParams);
+                inS.StartEncapsulation();
+                OutputStream outS = new OutputStream(communicator);
+                outS.StartEncapsulation();
+                if (current.Operation.Equals("opOneway"))
                 {
-                    return Task.FromResult(new Ice.Object_Ice_invokeResult(true, new byte[0]));
+                    return Task.FromResult(new Object_Ice_invokeResult(true, new byte[0]));
                 }
-                else if (current.operation.Equals("opString"))
+                else if (current.Operation.Equals("opString"))
                 {
-                    string s = inS.readString();
-                    outS.writeString(s);
-                    outS.writeString(s);
-                    outS.endEncapsulation();
-                    return Task.FromResult(new Ice.Object_Ice_invokeResult(true, outS.finished()));
+                    string s = inS.ReadString();
+                    outS.WriteString(s);
+                    outS.WriteString(s);
+                    outS.EndEncapsulation();
+                    return Task.FromResult(new Object_Ice_invokeResult(true, outS.Finished()));
                 }
-                else if (current.operation.Equals("opException"))
+                else if (current.Operation.Equals("opException"))
                 {
                     Test.MyException ex = new Test.MyException();
-                    outS.writeException(ex);
-                    outS.endEncapsulation();
-                    return Task.FromResult(new Ice.Object_Ice_invokeResult(false, outS.finished()));
+                    outS.WriteException(ex);
+                    outS.EndEncapsulation();
+                    return Task.FromResult(new Object_Ice_invokeResult(false, outS.Finished()));
                 }
-                else if (current.operation.Equals("shutdown"))
+                else if (current.Operation.Equals("shutdown"))
                 {
                     communicator.shutdown();
-                    return Task.FromResult(new Ice.Object_Ice_invokeResult(true, null));
+                    return Task.FromResult(new Object_Ice_invokeResult(true, null));
                 }
-                else if (current.operation.Equals("ice_isA"))
+                else if (current.Operation.Equals("ice_isA"))
                 {
-                    string s = inS.readString();
+                    string s = inS.ReadString();
                     if (s.Equals("::Test::MyClass"))
                     {
-                        outS.writeBool(true);
+                        outS.WriteBool(true);
                     }
                     else
                     {
-                        outS.writeBool(false);
+                        outS.WriteBool(false);
                     }
-                    outS.endEncapsulation();
-                    return Task.FromResult(new Ice.Object_Ice_invokeResult(true, outS.finished()));
+                    outS.EndEncapsulation();
+                    return Task.FromResult(new Object_Ice_invokeResult(true, outS.Finished()));
                 }
                 else
                 {
-                    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
-                    ex.id = current.id;
-                    ex.facet = current.facet;
-                    ex.operation = current.operation;
+                    OperationNotExistException ex = new OperationNotExistException();
+                    ex.id = current.Id;
+                    ex.facet = current.Facet;
+                    ex.operation = current.Operation;
                     throw ex;
                 }
             }

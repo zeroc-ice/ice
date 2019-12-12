@@ -35,7 +35,7 @@ namespace Ice
         /// un-marshaling of the value, null is returned otherwise.
         /// </summary>
         /// <returns>The sliced data or null.</returns>
-        public virtual SlicedData ice_getSlicedData()
+        public virtual SlicedData? ice_getSlicedData()
         {
             return null;
         }
@@ -43,17 +43,17 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceWrite(OutputStream ostr)
         {
-            ostr.startValue(null);
+            ostr.StartValue(null);
             iceWriteImpl(ostr);
-            ostr.endValue();
+            ostr.EndValue();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceRead(InputStream istr)
         {
-            istr.startValue();
+            istr.StartValue();
             iceReadImpl(istr);
-            istr.endValue(false);
+            istr.EndValue(false);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -92,15 +92,15 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void iceWriteImpl(OutputStream ostr)
         {
-            ostr.startSlice(ice_id(), -1, true);
-            ostr.endSlice();
+            ostr.StartSlice(ice_id(), -1, true);
+            ostr.EndSlice();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void iceReadImpl(InputStream istr)
         {
-            istr.startSlice();
-            istr.endSlice();
+            istr.StartSlice();
+            istr.EndSlice();
         }
 
         private string _id;

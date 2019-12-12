@@ -15,7 +15,7 @@ namespace Ice
             {
                 using (var communicator = initialize(ref args))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     var d = new DI();
                     adapter.Add(d, "d");

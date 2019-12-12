@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 
@@ -50,41 +51,41 @@ namespace Ice
         /// <summary>
         /// The properties for the communicator.
         /// </summary>
-        public Properties properties;
+        public Properties? properties;
 
         /// <summary>
         /// The logger for the communicator.
         /// </summary>
-        public Logger logger;
+        public Logger? logger;
 
         /// <summary>
         /// The communicator observer used by the Ice run-time.
         /// </summary>
-        public Instrumentation.CommunicatorObserver observer;
+        public Instrumentation.CommunicatorObserver? observer;
 
         /// <summary>
         /// The thread start hook for the communicator. The Ice run time
         /// calls this hook for each new thread it creates. The call is
         /// made by the newly-started thread.
         /// </summary>
-        public System.Action threadStart;
+        public Action? threadStart;
 
         /// <summary>
         /// The thread stop hook for the communicator. The Ice run time
         /// calls stop before it destroys a thread. The call is made by
         /// thread that is about to be destroyed.
         /// </summary>
-        public System.Action threadStop;
+        public Action? threadStop;
 
         /// <summary>
         /// The dispatcher for the communicator.
         /// </summary>
-        public System.Action<System.Action, Connection> dispatcher;
+        public Action<Action, Connection?>? dispatcher;
 
         /// <summary>
         /// The compact type ID resolver.
         /// </summary>
-        public System.Func<int, string> compactIdResolver;
+        public Func<int, string>? compactIdResolver;
 
         /// <summary>
         /// The list of TypeId namespaces. Default is Ice.TypeId.
@@ -135,7 +136,7 @@ namespace Ice
         /// files and args override these defaults.</param>
         /// <returns>A property set initialized with the property settings
         /// that were removed from args.</returns>
-        public static Properties createProperties(ref string[] args, Properties defaults)
+        public static Properties createProperties(ref string[] args, Properties? defaults)
         {
             return new Properties(ref args, defaults);
         }
@@ -149,7 +150,7 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args)
         {
-            return initialize(ref args, (InitializationData)null);
+            return initialize(ref args, (InitializationData?)null);
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace Ice
         /// <param name="initData">Additional intialization data. Property settings in args
         /// override property settings in initData.</param>
         /// <returns>The initialized communicator.</returns>
-        public static Communicator initialize(ref string[] args, InitializationData initData)
+        public static Communicator initialize(ref string[] args, InitializationData? initData)
         {
             if (initData == null)
             {
@@ -174,9 +175,7 @@ namespace Ice
 
             initData.properties = createProperties(ref args, initData.properties);
 
-            Communicator result = new Communicator(initData);
-            result.finishSetup(ref args);
-            return result;
+            return new Communicator(initData, ref args);
         }
 
         /// <summary>
@@ -190,7 +189,7 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args, string configFile)
         {
-            InitializationData initData = null;
+            InitializationData? initData = null;
             if (configFile != null)
             {
                 initData = new InitializationData();
@@ -205,7 +204,7 @@ namespace Ice
         /// </summary>
         /// <param name="initData">Additional intialization data.</param>
         /// <returns>The initialized communicator.</returns>
-        public static Communicator initialize(InitializationData initData)
+        public static Communicator initialize(InitializationData? initData)
         {
             if (initData == null)
             {
@@ -215,11 +214,7 @@ namespace Ice
             {
                 initData = (InitializationData)initData.Clone();
             }
-
-            Communicator result = new Communicator(initData);
-            string[] args = Array.Empty<string>();
-            result.finishSetup(ref args);
-            return result;
+            return new Communicator(initData);
         }
 
         /// <summary>
@@ -230,11 +225,11 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(string configFile)
         {
-            InitializationData initData = null;
+            InitializationData? initData = null;
             if (configFile != null)
             {
                 initData = new InitializationData();
-                initData.properties = Util.createProperties();
+                initData.properties = createProperties();
                 initData.properties.load(configFile);
             }
             return initialize(initData);
@@ -245,118 +240,7 @@ namespace Ice
         /// </summary>
         public static Communicator initialize()
         {
-            return initialize((InitializationData)null);
-        }
-
-        /// <summary>
-        /// Converts a string to an object identity.
-        /// </summary>
-        /// <param name="s">The string to convert.</param>
-        /// <returns>The converted object identity.</returns>
-        public static Identity stringToIdentity(string s)
-        {
-            Identity ident = new Identity();
-
-            //
-            // Find unescaped separator; note that the string may contain an escaped
-            // backslash before the separator.
-            //
-            int slash = -1, pos = 0;
-            while ((pos = s.IndexOf((char)'/', pos)) != -1)
-            {
-                int escapes = 0;
-                while (pos - escapes > 0 && s[pos - escapes - 1] == '\\')
-                {
-                    escapes++;
-                }
-
-                //
-                // We ignore escaped escapes
-                //
-                if (escapes % 2 == 0)
-                {
-                    if (slash == -1)
-                    {
-                        slash = pos;
-                    }
-                    else
-                    {
-                        //
-                        // Extra unescaped slash found.
-                        //
-                        IdentityParseException ex = new IdentityParseException();
-                        ex.str = "unescaped backslash in identity `" + s + "'";
-                        throw ex;
-                    }
-                }
-                pos++;
-            }
-
-            if (slash == -1)
-            {
-                ident.category = "";
-                try
-                {
-                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
-                }
-                catch (ArgumentException e)
-                {
-                    IdentityParseException ex = new IdentityParseException();
-                    ex.str = "invalid identity name `" + s + "': " + e.Message;
-                    throw ex;
-                }
-            }
-            else
-            {
-                try
-                {
-                    ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
-                }
-                catch (ArgumentException e)
-                {
-                    IdentityParseException ex = new IdentityParseException();
-                    ex.str = "invalid category in identity `" + s + "': " + e.Message;
-                    throw ex;
-                }
-                if (slash + 1 < s.Length)
-                {
-                    try
-                    {
-                        ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
-                    }
-                    catch (ArgumentException e)
-                    {
-                        IdentityParseException ex = new IdentityParseException();
-                        ex.str = "invalid name in identity `" + s + "': " + e.Message;
-                        throw ex;
-                    }
-                }
-                else
-                {
-                    ident.name = "";
-                }
-            }
-
-            return ident;
-        }
-
-        /// <summary>
-        /// Converts an object identity to a string.
-        /// </summary>
-        /// <param name="ident">The object identity to convert.</param>
-        /// <param name="toStringMode">Specifies if and how non-printable ASCII characters are escaped in the result.</param>
-        /// <returns>The string representation of the object identity.</returns>
-        public static string identityToString(Identity ident, ToStringMode toStringMode = ToStringMode.Unicode)
-        {
-            if (ident.category == null || ident.category.Length == 0)
-            {
-                return IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
-            }
-            else
-            {
-                return IceUtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
-                    IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
-            }
+            return initialize((InitializationData?)null);
         }
 
         /// <summary>
@@ -367,32 +251,32 @@ namespace Ice
         /// <returns>-1 if the identity in lhs compares
         /// less than the identity in rhs; 0 if the identities
         /// compare equal; 1, otherwise.</returns>
-        public static int proxyIdentityCompare(IObjectPrx lhs, IObjectPrx rhs)
+        public static int proxyIdentityCompare(IObjectPrx? lhs, IObjectPrx? rhs)
         {
-            if (lhs == null && rhs == null)
+            if (ReferenceEquals(lhs, rhs))
             {
                 return 0;
             }
-            else if (lhs == null && rhs != null)
+
+            if (lhs == null)
             {
                 return -1;
             }
-            else if (lhs != null && rhs == null)
+
+            if (rhs == null)
             {
                 return 1;
             }
-            else
+
+            Identity lhsIdentity = lhs.Identity;
+            Identity rhsIdentity = rhs.Identity;
+            int n;
+            n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
+            if (n != 0)
             {
-                Identity lhsIdentity = lhs.Identity;
-                Identity rhsIdentity = rhs.Identity;
-                int n;
-                n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
-                if (n != 0)
-                {
-                    return n;
-                }
-                return string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
+                return n;
             }
+            return string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
         }
 
         /// <summary>
@@ -403,55 +287,37 @@ namespace Ice
         /// <returns>-1 if the identity and facet in lhs compare
         /// less than the identity and facet in rhs; 0 if the identities
         /// and facets compare equal; 1, otherwise.</returns>
-        public static int proxyIdentityAndFacetCompare(IObjectPrx lhs, IObjectPrx rhs)
+        public static int proxyIdentityAndFacetCompare(IObjectPrx? lhs, IObjectPrx? rhs)
         {
-            if (lhs == null && rhs == null)
+            if (ReferenceEquals(lhs, rhs))
             {
                 return 0;
             }
-            else if (lhs == null && rhs != null)
+
+            if (lhs == null && rhs != null)
             {
                 return -1;
             }
-            else if (lhs != null && rhs == null)
+
+            if (lhs != null && rhs == null)
             {
                 return 1;
             }
-            else
-            {
-                Identity lhsIdentity = lhs.Identity;
-                Identity rhsIdentity = rhs.Identity;
-                int n;
-                n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
-                if (n != 0)
-                {
-                    return n;
-                }
-                n = string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
-                if (n != 0)
-                {
-                    return n;
-                }
 
-                string lhsFacet = lhs.Facet;
-                string rhsFacet = rhs.Facet;
-                if (lhsFacet == null && rhsFacet == null)
-                {
-                    return 0;
-                }
-                else if (lhsFacet == null)
-                {
-                    return -1;
-                }
-                else if (rhsFacet == null)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return string.CompareOrdinal(lhsFacet, rhsFacet);
-                }
+            Identity lhsIdentity = lhs!.Identity;
+            Identity rhsIdentity = rhs!.Identity;
+            int n;
+            n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
+            if (n != 0)
+            {
+                return n;
             }
+            n = string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
+            if (n != 0)
+            {
+                return n;
+            }
+            return string.CompareOrdinal(lhs.Facet, rhs.Facet);
         }
 
         /// <summary>
@@ -511,8 +377,7 @@ namespace Ice
         /// <returns>The converted protocol version.</returns>
         public static ProtocolVersion stringToProtocolVersion(string version)
         {
-            byte major, minor;
-            stringToMajorMinor(version, out major, out minor);
+            stringToMajorMinor(version, out byte major, out byte minor);
             return new ProtocolVersion(major, minor);
         }
 
@@ -523,8 +388,7 @@ namespace Ice
         /// <returns>The converted encoding version.</returns>
         public static EncodingVersion stringToEncodingVersion(string version)
         {
-            byte major, minor;
-            stringToMajorMinor(version, out major, out minor);
+            stringToMajorMinor(version, out byte major, out byte minor);
             return new EncodingVersion(major, minor);
         }
 
@@ -604,10 +468,8 @@ namespace Ice
         public static readonly EncodingVersion Encoding_1_0 = new EncodingVersion(1, 0);
         public static readonly EncodingVersion Encoding_1_1 = new EncodingVersion(1, 1);
 
-        public static readonly NoneType None = new NoneType();
-
-        private static object _processLoggerMutex = new object();
-        private static Logger _processLogger = null;
+        private static readonly object _processLoggerMutex = new object();
+        private static Logger? _processLogger = null;
     }
 }
 
@@ -650,7 +512,7 @@ namespace IceInternal
             hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
         }
 
-        public static void hashAdd(ref int hashCode, object value)
+        public static void hashAdd(ref int hashCode, object? value)
         {
             if (value != null)
             {
@@ -658,35 +520,27 @@ namespace IceInternal
             }
         }
 
-        public static void hashAdd(ref int hashCode, object[] arr)
+        public static void hashAdd<T>(ref int hashCode, T[]? arr)
         {
             if (arr != null)
             {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.Collections.GetHashCode(arr));
             }
         }
 
-        public static void hashAdd(ref int hashCode, Array arr)
-        {
-            if (arr != null)
-            {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
-            }
-        }
-
-        public static void hashAdd(ref int hashCode, IEnumerable s)
+        public static void hashAdd(ref int hashCode, IEnumerable? s)
         {
             if (s != null)
             {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.SequenceGetHashCode(s));
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.Collections.GetHashCode(s));
             }
         }
 
-        public static void hashAdd(ref int hashCode, IDictionary d)
+        public static void hashAdd<Key, Value>(ref int hashCode, Dictionary<Key, Value>? d)
         {
             if (d != null)
             {
-                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.DictionaryGetHashCode(d));
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ Ice.Collections.GetHashCode(d));
             }
         }
     }

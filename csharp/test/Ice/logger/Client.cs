@@ -25,7 +25,7 @@ public class Client : Test.TestHelper
         initData.properties.setProperty("Ice.LogFile", "log.txt");
         using (var communicator = initialize(initData))
         {
-            communicator.getLogger().trace("info", "my logger");
+            communicator.Logger.trace("info", "my logger");
         }
         test(File.Exists("log.txt"));
         test(File.ReadAllText("log.txt").Contains("my logger"));

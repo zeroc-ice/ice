@@ -39,14 +39,14 @@ namespace IceInternal
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
             {
                 return true;
             }
 
-            RouterInfo rhs = obj as RouterInfo;
+            RouterInfo? rhs = obj as RouterInfo;
             return rhs == null ? false : _router.Equals(rhs._router);
         }
 
@@ -73,14 +73,14 @@ namespace IceInternal
                 }
             }
 
-            Ice.Optional<bool> hasRoutingTable;
+            bool? hasRoutingTable;
             var proxy = _router.getClientProxy(out hasRoutingTable);
             return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 
         public void getClientEndpoints(GetClientEndpointsCallback callback)
         {
-            EndpointI[] clientEndpoints = null;
+            EndpointI[]? clientEndpoints = null;
             lock (this)
             {
                 clientEndpoints = _clientEndpoints;
@@ -175,7 +175,7 @@ namespace IceInternal
             return false;
         }
 
-        public void setAdapter(Ice.ObjectAdapter adapter)
+        public void setAdapter(Ice.ObjectAdapter? adapter)
         {
             lock (this)
             {
@@ -183,7 +183,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.ObjectAdapter getAdapter()
+        public Ice.ObjectAdapter? getAdapter()
         {
             lock (this)
             {
@@ -275,11 +275,11 @@ namespace IceInternal
             }
         }
 
-        private readonly Ice.RouterPrx _router;
-        private EndpointI[] _clientEndpoints;
-        private Ice.ObjectAdapter _adapter;
-        private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
-        private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
+        private readonly RouterPrx _router;
+        private EndpointI[]? _clientEndpoints;
+        private ObjectAdapter? _adapter;
+        private HashSet<Identity> _identities = new HashSet<Identity>();
+        private List<Identity> _evictedIdentities = new List<Identity>();
         private bool _hasRoutingTable;
     }
 
@@ -287,7 +287,7 @@ namespace IceInternal
     {
         internal RouterManager()
         {
-            _table = new Dictionary<Ice.RouterPrx, RouterInfo>();
+            _table = new Dictionary<RouterPrx, RouterInfo>();
         }
 
         internal void destroy()
@@ -308,11 +308,6 @@ namespace IceInternal
         //
         public RouterInfo get(RouterPrx rtr)
         {
-            if (rtr == null)
-            {
-                return null;
-            }
-
             //
             // The router cannot be routed.
             //
@@ -320,13 +315,12 @@ namespace IceInternal
 
             lock (this)
             {
-                RouterInfo info = null;
+                RouterInfo info;
                 if (!_table.TryGetValue(router, out info))
                 {
                     info = new RouterInfo(router);
                     _table.Add(router, info);
                 }
-
                 return info;
             }
         }
@@ -335,9 +329,9 @@ namespace IceInternal
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
         //
-        public RouterInfo erase(RouterPrx rtr)
+        public RouterInfo? erase(RouterPrx? rtr)
         {
-            RouterInfo info = null;
+            RouterInfo? info = null;
             if (rtr != null)
             {
                 //
@@ -356,7 +350,7 @@ namespace IceInternal
             return info;
         }
 
-        private Dictionary<Ice.RouterPrx, RouterInfo> _table;
+        private Dictionary<RouterPrx, RouterInfo> _table;
     }
 
 }

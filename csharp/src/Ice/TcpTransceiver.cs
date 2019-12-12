@@ -20,7 +20,7 @@ namespace IceInternal
             return _stream.connect(readBuffer, writeBuffer, ref hasMoreData);
         }
 
-        public int closing(bool initiator, Ice.LocalException ex)
+        public int closing(bool initiator, Ice.LocalException? ex)
         {
             // If we are initiating the connection closure, wait for the peer
             // to close the TCP/IP connection. Otherwise, close immediately.

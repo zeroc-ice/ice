@@ -24,7 +24,6 @@ protected:
     void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
-    virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatch(const ClassDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
 
@@ -152,8 +151,7 @@ private:
 
     private:
 
-        void writeMemberHashCode(const DataMemberList&, unsigned int);
-        void writeMemberEquals(const DataMemberList&, unsigned int);
+        void writeMemberHashCode(const DataMemberList&);
     };
 
     class ResultVisitor : public CsVisitor

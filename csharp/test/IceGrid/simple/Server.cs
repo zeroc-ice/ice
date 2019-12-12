@@ -15,9 +15,9 @@ public class Server : TestHelper
     {
         using (var communicator = initialize(ref args))
         {
-            communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
+            communicator.Properties.parseCommandLineOptions("TestAdapter", args);
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), communicator.getProperties().getPropertyWithDefault("Identity", "test"));
+            adapter.Add(new TestI(), communicator.Properties.getPropertyWithDefault("Identity", "test"));
             try
             {
                 adapter.Activate();

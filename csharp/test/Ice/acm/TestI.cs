@@ -13,8 +13,8 @@ namespace Ice
             public RemoteObjectAdapterPrx
             createObjectAdapter(int timeout, int close, int heartbeat, Ice.Current current)
             {
-                Communicator com = current.adapter.GetCommunicator();
-                Properties properties = com.getProperties();
+                Communicator com = current.Adapter.Communicator;
+                Properties properties = com.Properties;
                 string protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
                 string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
@@ -33,13 +33,13 @@ namespace Ice
                 }
                 properties.setProperty(name + ".ThreadPool.Size", "2");
                 ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
-                return current.adapter.Add(new RemoteObjectAdapterI(adapter));
+                return current.Adapter.Add(new RemoteObjectAdapterI(adapter));
             }
 
             public void
             shutdown(Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
         }
 
@@ -96,7 +96,7 @@ namespace Ice
             {
                 lock (this)
                 {
-                    current.adapter.Hold();
+                    current.Adapter.Hold();
                     System.Threading.Monitor.Wait(this, delay * 1000);
                 }
             }
@@ -137,7 +137,7 @@ namespace Ice
             public void startHeartbeatCount(Current current)
             {
                 _callback = new HeartbeatCallbackI();
-                current.con.setHeartbeatCallback(_callback.heartbeat);
+                current.Connection.setHeartbeatCallback(_callback.heartbeat);
             }
 
             public void waitForHeartbeatCount(int count, Current current)

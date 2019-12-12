@@ -17,7 +17,7 @@ namespace IceInternal
             _thread = new HelperThread(this);
             updateObserver();
             _thread.Start(Util.stringToThreadPriority(
-                                        communicator.initializationData().properties.getProperty("Ice.ThreadPriority")));
+                                        communicator.Properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void
@@ -25,7 +25,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.initializationData().observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -114,12 +114,12 @@ namespace IceInternal
                     catch (Ice.LocalException ex)
                     {
                         string s = "exception in asynchronous IO thread:\n" + ex;
-                        _communicator.initializationData().logger.error(s);
+                        _communicator.Logger.error(s);
                     }
                     catch (System.Exception ex)
                     {
                         string s = "unknown exception in asynchronous IO thread:\n" + ex;
-                        _communicator.initializationData().logger.error(s);
+                        _communicator.Logger.error(s);
                     }
                 }
                 queue.Clear();
@@ -131,17 +131,17 @@ namespace IceInternal
             }
         }
 
-        private Ice.Communicator _communicator;
+        private readonly Ice.Communicator _communicator;
         private bool _destroyed;
         private LinkedList<ThreadPoolWorkItem> _queue = new LinkedList<ThreadPoolWorkItem>();
-        private Ice.Instrumentation.ThreadObserver _observer;
+        private Ice.Instrumentation.ThreadObserver? _observer;
 
         private sealed class HelperThread
         {
             internal HelperThread(AsyncIOThread asyncIOThread)
             {
                 _asyncIOThread = asyncIOThread;
-                _name = _asyncIOThread._communicator.initializationData().properties.getProperty("Ice.ProgramName");
+                _name = _asyncIOThread._communicator.Properties.getProperty("Ice.ProgramName");
                 if (_name.Length > 0)
                 {
                     _name += "-";
@@ -151,7 +151,7 @@ namespace IceInternal
 
             public void Join()
             {
-                _thread.Join();
+                _thread!.Join();
             }
 
             public string getName()
@@ -161,9 +161,11 @@ namespace IceInternal
 
             public void Start(ThreadPriority priority)
             {
-                _thread = new Thread(new ThreadStart(Run));
-                _thread.IsBackground = true;
-                _thread.Name = _name;
+                _thread = new Thread(new ThreadStart(Run))
+                {
+                    IsBackground = true,
+                    Name = _name
+                };
                 _thread.Start();
             }
 
@@ -172,11 +174,11 @@ namespace IceInternal
                 _asyncIOThread.run();
             }
 
-            private AsyncIOThread _asyncIOThread;
-            private string _name;
-            private Thread _thread;
+            private readonly AsyncIOThread _asyncIOThread;
+            private readonly string _name;
+            private Thread? _thread;
         }
 
-        private HelperThread _thread;
+        private readonly HelperThread _thread;
     }
 }

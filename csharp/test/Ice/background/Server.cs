@@ -19,14 +19,14 @@ public class Server : TestHelper
         findAdapterByIdAsync(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            return Task.FromResult(current.adapter.CreateDirectProxy("dummy"));
+            return Task.FromResult(current.Adapter.CreateDirectProxy("dummy"));
         }
 
         public Task<IObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            return Task.FromResult(current.adapter.CreateDirectProxy(id));
+            return Task.FromResult(current.Adapter.CreateDirectProxy(id));
         }
 
         public Ice.LocatorRegistryPrx getRegistry(Ice.Current current)
@@ -44,9 +44,9 @@ public class Server : TestHelper
 
     internal class RouterI : Ice.Router
     {
-        public Ice.IObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable, Ice.Current current)
+        public Ice.IObjectPrx getClientProxy(out bool? hasRoutingTable, Ice.Current current)
         {
-            hasRoutingTable = new Ice.Optional<bool>(true);
+            hasRoutingTable = true;
             _controller.checkCallPause(current);
             return null;
         }
@@ -101,15 +101,15 @@ public class Server : TestHelper
             // overridden by configuration. If it isn't then we assume
             // defaults.
             //
-            if (communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
+            if (communicator.Properties.getProperty("TestAdapter.Endpoints").Length == 0)
             {
-                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             }
 
-            if (communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
+            if (communicator.Properties.getProperty("ControllerAdapter.Endpoints").Length == 0)
             {
-                communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
-                communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+                communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
             }
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

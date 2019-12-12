@@ -22,7 +22,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             public Dictionary<string, string> getContext(Ice.Current current)
@@ -32,7 +32,7 @@ namespace Ice
 
             public override bool IceIsA(string s, Ice.Current current)
             {
-                _ctx = current.ctx;
+                _ctx = current.Context;
                 Test.MyDerivedClassTraits myDerivedClassT = default;
                 return myDerivedClassT.Ids.Contains(s);
             }

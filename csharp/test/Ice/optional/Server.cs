@@ -18,7 +18,7 @@ namespace Ice
                 initData.properties = createTestProperties(ref args);
                 using (var communicator = initialize(initData))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new InitialI(), "initial");
                     adapter.Activate();

@@ -11,7 +11,7 @@ namespace Ice
             public override void
             IcePing(Ice.Current current)
             {
-                string name = current.id.name;
+                string name = current.Id.name;
 
                 if (name == "ObjectNotExist")
                 {
@@ -26,7 +26,7 @@ namespace Ice
             public string
             getName(Ice.Current current)
             {
-                string name = current.id.name;
+                string name = current.Id.name;
 
                 if (name == "ObjectNotExist")
                 {

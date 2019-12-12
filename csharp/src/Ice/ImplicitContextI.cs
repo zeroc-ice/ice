@@ -12,7 +12,7 @@ namespace Ice
     //
     public abstract class ImplicitContextI : ImplicitContext
     {
-        public static ImplicitContextI create(string kind)
+        public static ImplicitContextI? create(string kind)
         {
             if (kind.Equals("None") || kind.Length == 0)
             {
@@ -154,17 +154,17 @@ namespace Ice
             {
                 lock (this)
                 {
-                    ContextHelper.write(os, _context);
+                    ContextHelper.Write(os, _context);
                 }
             }
             else
             {
-                Dictionary<string, string> ctx = null;
+                Dictionary<string, string> ctx;
                 lock (this)
                 {
                     ctx = _context.Count == 0 ? prxContext : combine(prxContext);
                 }
-                ContextHelper.write(os, ctx);
+                ContextHelper.Write(os, ctx);
             }
         }
 
@@ -344,11 +344,11 @@ namespace Ice
 
             if (threadContext == null || threadContext.Count == 0)
             {
-                ContextHelper.write(os, prxContext);
+                ContextHelper.Write(os, prxContext);
             }
             else if (prxContext.Count == 0)
             {
-                ContextHelper.write(os, threadContext);
+                ContextHelper.Write(os, threadContext);
             }
             else
             {
@@ -364,13 +364,13 @@ namespace Ice
                         // Ignore.
                     }
                 }
-                ContextHelper.write(os, combined);
+                ContextHelper.Write(os, combined);
             }
         }
 
         internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
         {
-            Dictionary<string, string> threadContext = null;
+            Dictionary<string, string> threadContext;
             lock (this)
             {
                 if (!_map.TryGetValue(Thread.CurrentThread, out threadContext))
@@ -390,7 +390,7 @@ namespace Ice
         //
         //  map Thread -> Context
         //
-        private Dictionary<Thread, Dictionary<string, string>> _map =
+        private readonly Dictionary<Thread, Dictionary<string, string>> _map =
             new Dictionary<Thread, Dictionary<string, string>>();
     }
 }

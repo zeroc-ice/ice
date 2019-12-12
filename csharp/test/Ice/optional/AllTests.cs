@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Ice
@@ -26,10 +27,10 @@ namespace Ice
                 Test.OneOptional oo1 = new Test.OneOptional();
                 test(!oo1.a.HasValue);
                 oo1.a = 15;
-                test(oo1.a.HasValue && oo1.a.Value == 15);
+                test(oo1.a.HasValue && oo1.a == 15);
 
                 Test.OneOptional oo2 = new Test.OneOptional(16);
-                test(oo2.a.HasValue && oo2.a.Value == 16);
+                test(oo2.a.HasValue && oo2.a == 16);
 
                 Test.MultiOptional mo1 = new Test.MultiOptional();
                 mo1.a = 15;
@@ -41,14 +42,14 @@ namespace Ice
                 mo1.g = 1.0;
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
-                mo1.j = new Optional<IObjectPrx>(IObjectPrx.Parse("test", communicator));
+                mo1.j = IObjectPrx.Parse("test", communicator);
                 mo1.k = mo1;
                 mo1.bs = new byte[] { 5 };
                 mo1.ss = new string[] { "test", "test2" };
                 mo1.iid = new Dictionary<int, int>();
-                mo1.iid.Value.Add(4, 3);
+                mo1.iid.Add(4, 3);
                 mo1.sid = new Dictionary<string, int>();
-                mo1.sid.Value.Add("test", 10);
+                mo1.sid.Add("test", 10);
                 Test.FixedStruct fs = new Test.FixedStruct();
                 fs.m = 78;
                 mo1.fs = fs;
@@ -64,52 +65,52 @@ namespace Ice
                 mo1.oops = new IObjectPrx[] { IObjectPrx.Parse("test", communicator) };
 
                 mo1.ied = new Dictionary<int, Test.MyEnum>();
-                mo1.ied.Value.Add(4, Test.MyEnum.MyEnumMember);
+                mo1.ied.Add(4, Test.MyEnum.MyEnumMember);
                 mo1.ifsd = new Dictionary<int, Test.FixedStruct>();
-                mo1.ifsd.Value.Add(4, fs);
+                mo1.ifsd.Add(4, fs);
                 mo1.ivsd = new Dictionary<int, Test.VarStruct>();
-                mo1.ivsd.Value.Add(5, vs);
+                mo1.ivsd.Add(5, vs);
                 mo1.iood = new Dictionary<int, Test.OneOptional>();
-                mo1.iood.Value.Add(5, new Test.OneOptional(15));
+                mo1.iood.Add(5, new Test.OneOptional(15));
                 mo1.ioopd = new Dictionary<int, IObjectPrx>();
-                mo1.ioopd.Value.Add(5, IObjectPrx.Parse("test", communicator));
+                mo1.ioopd.Add(5, IObjectPrx.Parse("test", communicator));
 
                 mo1.bos = new bool[] { false, true, false };
                 mo1.ser = new Test.SerializableClass(56);
 
-                test(mo1.a.Value == 15);
-                test(mo1.b.Value);
-                test(mo1.c.Value == 19);
-                test(mo1.d.Value == 78);
-                test(mo1.e.Value == 99);
-                test(mo1.f.Value == (float)5.5);
-                test(mo1.g.Value == 1.0);
-                test(mo1.h.Value.Equals("test"));
-                test(mo1.i.Value == Test.MyEnum.MyEnumMember);
-                test(mo1.j.Value.Equals(IObjectPrx.Parse("test", communicator)));
-                test(mo1.k.Value == mo1);
-                test(ArraysEqual(mo1.bs.Value, new byte[] { 5 }));
-                test(ArraysEqual(mo1.ss.Value, new string[] { "test", "test2" }));
-                test(mo1.iid.Value[4] == 3);
-                test(mo1.sid.Value["test"] == 10);
-                test(mo1.fs.Value.Equals(new Test.FixedStruct(78)));
-                test(mo1.vs.Value.Equals(new Test.VarStruct("hello")));
+                test(mo1.a == 15);
+                test(mo1.b == true);
+                test(mo1.c == 19);
+                test(mo1.d == 78);
+                test(mo1.e == 99);
+                test(mo1.f == (float)5.5);
+                test(mo1.g == 1.0);
+                test(mo1.h.Equals("test"));
+                test(mo1.i == Test.MyEnum.MyEnumMember);
+                test(mo1.j.Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo1.k == mo1);
+                test(Collections.Equals(mo1.bs, new byte[] { 5 }));
+                test(Collections.Equals(mo1.ss, new string[] { "test", "test2" }));
+                test(mo1.iid[4] == 3);
+                test(mo1.sid["test"] == 10);
+                test(mo1.fs.Equals(new Test.FixedStruct(78)));
+                test(mo1.vs.Equals(new Test.VarStruct("hello")));
 
-                test(mo1.shs.Value[0] == 1);
-                test(mo1.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
-                test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
-                test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
-                test(mo1.oos.Value[0] == oo1);
-                test(mo1.oops.Value[0].Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo1.shs[0] == 1);
+                test(mo1.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
+                test(mo1.fss[0].Equals(new Test.FixedStruct(78)));
+                test(mo1.vss[0].Equals(new Test.VarStruct("hello")));
+                test(mo1.oos[0] == oo1);
+                test(mo1.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
-                test(mo1.ied.Value[4] == Test.MyEnum.MyEnumMember);
-                test(mo1.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
-                test(mo1.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
-                test(mo1.iood.Value[5].a.Value == 15);
-                test(mo1.ioopd.Value[5].Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo1.ied[4] == Test.MyEnum.MyEnumMember);
+                test(mo1.ifsd[4].Equals(new Test.FixedStruct(78)));
+                test(mo1.ivsd[5].Equals(new Test.VarStruct("hello")));
+                test(mo1.iood[5].a == 15);
+                test(mo1.ioopd[5].Equals(IObjectPrx.Parse("test", communicator)));
 
-                test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
-                test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
+                test(Collections.Equals(mo1.bos, new bool[] { false, true, false }));
+                test(mo1.ser.Equals(new Test.SerializableClass(56)));
 
                 output.WriteLine("ok");
 
@@ -120,85 +121,85 @@ namespace Ice
                 test(!oo4.a.HasValue);
 
                 Test.OneOptional oo5 = (Test.OneOptional)initial.pingPong(oo1);
-                test(oo1.a.Value == oo5.a.Value);
+                test(oo1.a == oo5.a);
 
                 Test.MultiOptional mo4 = (Test.MultiOptional)initial.pingPong(new Test.MultiOptional());
-                test(!mo4.a.HasValue);
-                test(!mo4.b.HasValue);
-                test(!mo4.c.HasValue);
-                test(!mo4.d.HasValue);
-                test(!mo4.e.HasValue);
-                test(!mo4.f.HasValue);
-                test(!mo4.g.HasValue);
-                test(!mo4.h.HasValue);
-                test(!mo4.i.HasValue);
-                test(!mo4.j.HasValue);
-                test(!mo4.k.HasValue);
-                test(!mo4.bs.HasValue);
-                test(!mo4.ss.HasValue);
-                test(!mo4.iid.HasValue);
-                test(!mo4.sid.HasValue);
-                test(!mo4.fs.HasValue);
-                test(!mo4.vs.HasValue);
+                test(mo4.a == null);
+                test(mo4.b == null);
+                test(mo4.c == null);
+                test(mo4.d == null);
+                test(mo4.e == null);
+                test(mo4.f == null);
+                test(mo4.g == null);
+                test(mo4.h == null);
+                test(mo4.i == null);
+                test(mo4.j == null);
+                test(mo4.k == null);
+                test(mo4.bs == null);
+                test(mo4.ss == null);
+                test(mo4.iid == null);
+                test(mo4.sid == null);
+                test(mo4.fs == null);
+                test(mo4.vs == null);
 
-                test(!mo4.shs.HasValue);
-                test(!mo4.es.HasValue);
-                test(!mo4.fss.HasValue);
-                test(!mo4.vss.HasValue);
-                test(!mo4.oos.HasValue);
-                test(!mo4.oops.HasValue);
+                test(mo4.shs == null);
+                test(mo4.es == null);
+                test(mo4.fss == null);
+                test(mo4.vss == null);
+                test(mo4.oos == null);
+                test(mo4.oops == null);
 
-                test(!mo4.ied.HasValue);
-                test(!mo4.ifsd.HasValue);
-                test(!mo4.ivsd.HasValue);
-                test(!mo4.iood.HasValue);
-                test(!mo4.ioopd.HasValue);
+                test(mo4.ied == null);
+                test(mo4.ifsd == null);
+                test(mo4.ivsd == null);
+                test(mo4.iood == null);
+                test(mo4.ioopd == null);
 
-                test(!mo4.bos.HasValue);
+                test(mo4.bos == null);
 
-                test(!mo4.ser.HasValue);
+                test(mo4.ser == null);
 
                 bool supportsCsharpSerializable = initial.supportsCsharpSerializable();
                 if (!supportsCsharpSerializable)
                 {
-                    mo1.ser = Util.None;
+                    mo1.ser = null;
                 }
 
                 Test.MultiOptional mo5 = (Test.MultiOptional)initial.pingPong(mo1);
-                test(mo5.a.Value == mo1.a.Value);
-                test(mo5.b.Value == mo1.b.Value);
-                test(mo5.c.Value == mo1.c.Value);
-                test(mo5.d.Value == mo1.d.Value);
-                test(mo5.e.Value == mo1.e.Value);
-                test(mo5.f.Value == mo1.f.Value);
-                test(mo5.g.Value == mo1.g.Value);
-                test(mo5.h.Value.Equals(mo1.h.Value));
-                test(mo5.i.Value == mo1.i.Value);
-                test(mo5.j.Value.Equals(mo1.j.Value));
-                test(mo5.k.Value == mo5);
-                test(ArraysEqual(mo5.bs.Value, mo1.bs.Value));
-                test(ArraysEqual(mo5.ss.Value, mo1.ss.Value));
-                test(mo5.iid.Value[4] == 3);
-                test(mo5.sid.Value["test"] == 10);
-                test(mo5.fs.Value.Equals(mo1.fs.Value));
-                test(mo5.vs.Value.Equals(mo1.vs.Value));
-                test(ArraysEqual(mo5.shs.Value, mo1.shs.Value));
-                test(mo5.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
-                test(mo5.fss.Value[0].Equals(new Test.FixedStruct(78)));
-                test(mo5.vss.Value[0].Equals(new Test.VarStruct("hello")));
-                test(mo5.oos.Value[0].a.Value == 15);
-                test(mo5.oops.Value[0].Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo5.a == mo1.a);
+                test(mo5.b == mo1.b);
+                test(mo5.c == mo1.c);
+                test(mo5.d == mo1.d);
+                test(mo5.e == mo1.e);
+                test(mo5.f == mo1.f);
+                test(mo5.g == mo1.g);
+                test(mo5.h.Equals(mo1.h));
+                test(mo5.i == mo1.i);
+                test(mo5.j.Equals(mo1.j));
+                test(mo5.k == mo5);
+                test(Collections.Equals(mo5.bs, mo1.bs));
+                test(Collections.Equals(mo5.ss, mo1.ss));
+                test(mo5.iid[4] == 3);
+                test(mo5.sid["test"] == 10);
+                test(mo5.fs.Equals(mo1.fs));
+                test(mo5.vs.Equals(mo1.vs));
+                test(Collections.Equals(mo5.shs, mo1.shs));
+                test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
+                test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
+                test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
+                test(mo5.oos[0].a == 15);
+                test(mo5.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
-                test(mo5.ied.Value[4] == Test.MyEnum.MyEnumMember);
-                test(mo5.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
-                test(mo5.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
-                test(mo5.iood.Value[5].a.Value == 15);
-                test(mo5.ioopd.Value[5].Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo5.ied[4] == Test.MyEnum.MyEnumMember);
+                test(mo5.ifsd[4].Equals(new Test.FixedStruct(78)));
+                test(mo5.ivsd[5].Equals(new Test.VarStruct("hello")));
+                test(mo5.iood[5].a == 15);
+                test(mo5.ioopd[5].Equals(IObjectPrx.Parse("test", communicator)));
 
-                test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
+                test(Collections.Equals(mo5.bos, new bool[] { false, true, false }));
                 if (supportsCsharpSerializable)
                 {
-                    test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
+                    test(mo5.ser.Equals(new Test.SerializableClass(56)));
                 }
 
                 // Clear the first half of the optional members
@@ -219,39 +220,39 @@ namespace Ice
                 mo6.bos = mo5.bos;
 
                 Test.MultiOptional mo7 = (Test.MultiOptional)initial.pingPong(mo6);
-                test(!mo7.a.HasValue);
+                test(mo7.a == null);
                 test(mo7.b.Equals(mo1.b));
-                test(!mo7.c.HasValue);
+                test(mo7.c == null);
                 test(mo7.d.Equals(mo1.d));
-                test(!mo7.e.HasValue);
+                test(mo7.e == null);
                 test(mo7.f.Equals(mo1.f));
-                test(!mo7.g.HasValue);
+                test(mo7.g == null);
                 test(mo7.h.Equals(mo1.h));
-                test(!mo7.i.HasValue);
+                test(mo7.i == null);
                 test(mo7.j.Equals(mo1.j));
-                test(!mo7.k.HasValue);
-                test(ArraysEqual(mo7.bs.Value, mo1.bs.Value));
-                test(!mo7.ss.HasValue);
-                test(mo7.iid.Value[4] == 3);
-                test(!mo7.sid.HasValue);
+                test(mo7.k == null);
+                test(Collections.Equals(mo7.bs, mo1.bs));
+                test(mo7.ss == null);
+                test(mo7.iid[4] == 3);
+                test(mo7.sid == null);
                 test(mo7.fs.Equals(mo1.fs));
-                test(!mo7.vs.HasValue);
+                test(mo7.vs == null);
 
-                test(ArraysEqual(mo7.shs.Value, mo1.shs.Value));
-                test(!mo7.es.HasValue);
-                test(mo7.fss.Value[0].Equals(new Test.FixedStruct(78)));
-                test(!mo7.vss.HasValue);
-                test(mo7.oos.Value[0].a.Value == 15);
-                test(!mo7.oops.HasValue);
+                test(Collections.Equals(mo7.shs, mo1.shs));
+                test(mo7.es == null);
+                test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
+                test(mo7.vss == null);
+                test(mo7.oos[0].a == 15);
+                test(mo7.oops == null);
 
-                test(!mo7.ied.HasValue);
-                test(mo7.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
-                test(!mo7.ivsd.HasValue);
-                test(mo7.iood.Value[5].a.Value == 15);
-                test(!mo7.ioopd.HasValue);
+                test(mo7.ied == null);
+                test(mo7.ifsd[4].Equals(new Test.FixedStruct(78)));
+                test(mo7.ivsd == null);
+                test(mo7.iood[5].a == 15);
+                test(mo7.ioopd == null);
 
-                test(ArraysEqual(mo7.bos.Value, new bool[] { false, true, false }));
-                test(!mo7.ser.HasValue);
+                test(Collections.Equals(mo7.bos, new bool[] { false, true, false }));
+                test(mo7.ser == null);
 
                 // Clear the second half of the optional members
                 Test.MultiOptional mo8 = new Test.MultiOptional();
@@ -285,48 +286,48 @@ namespace Ice
                 test(mo9.e.Equals(mo1.e));
                 test(!mo9.f.HasValue);
                 test(mo9.g.Equals(mo1.g));
-                test(!mo9.h.HasValue);
+                test(mo9.h == null);
                 test(mo9.i.Equals(mo1.i));
-                test(!mo9.j.HasValue);
-                test(mo9.k.Value == mo9);
-                test(!mo9.bs.HasValue);
-                test(ArraysEqual(mo9.ss.Value, mo1.ss.Value));
-                test(!mo9.iid.HasValue);
-                test(mo9.sid.Value["test"] == 10);
-                test(!mo9.fs.HasValue);
+                test(mo9.j == null);
+                test(mo9.k == mo9);
+                test(mo9.bs == null);
+                test(Collections.Equals(mo9.ss, mo1.ss));
+                test(mo9.iid == null);
+                test(mo9.sid["test"] == 10);
+                test(mo9.fs == null);
                 test(mo9.vs.Equals(mo1.vs));
 
-                test(!mo9.shs.HasValue);
-                test(mo9.es.Value[0] == Test.MyEnum.MyEnumMember && mo9.es.Value[1] == Test.MyEnum.MyEnumMember);
-                test(!mo9.fss.HasValue);
-                test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
-                test(!mo9.oos.HasValue);
-                test(mo9.oops.Value[0].Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo9.shs == null);
+                test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo9.es[1] == Test.MyEnum.MyEnumMember);
+                test(mo9.fss == null);
+                test(mo9.vss[0].Equals(new Test.VarStruct("hello")));
+                test(mo9.oos == null);
+                test(mo9.oops[0].Equals(IObjectPrx.Parse("test", communicator)));
 
-                test(mo9.ied.Value[4] == Test.MyEnum.MyEnumMember);
-                test(!mo9.ifsd.HasValue);
-                test(mo9.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
-                test(!mo9.iood.HasValue);
-                test(mo9.ioopd.Value[5].Equals(IObjectPrx.Parse("test", communicator)));
+                test(mo9.ied[4] == Test.MyEnum.MyEnumMember);
+                test(mo9.ifsd == null);
+                test(mo9.ivsd[5].Equals(new Test.VarStruct("hello")));
+                test(mo9.iood == null);
+                test(mo9.ioopd[5].Equals(IObjectPrx.Parse("test", communicator)));
 
-                test(!mo9.bos.HasValue);
+                test(mo9.bos == null);
                 if (supportsCsharpSerializable)
                 {
-                    test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
+                    test(mo9.ser.Equals(new Test.SerializableClass(56)));
                 }
 
                 {
                     Test.OptionalWithCustom owc1 = new Test.OptionalWithCustom();
                     owc1.l = new List<Test.SmallStruct>();
-                    owc1.l.Value.Add(new Test.SmallStruct(5));
-                    owc1.l.Value.Add(new Test.SmallStruct(6));
-                    owc1.l.Value.Add(new Test.SmallStruct(7));
+                    owc1.l.Add(new Test.SmallStruct(5));
+                    owc1.l.Add(new Test.SmallStruct(6));
+                    owc1.l.Add(new Test.SmallStruct(7));
                     owc1.s = new Test.ClassVarStruct(5);
                     Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
-                    test(owc2.l.HasValue);
-                    test(ListsEqual(owc1.l.Value, owc2.l.Value));
-                    test(owc2.s.HasValue);
-                    test(owc2.s.Value.a == 5);
+                    test(owc2.l != null);
+                    test(Collections.Equals(owc1.l, owc2.l));
+                    test(owc2.s != null);
+                    test(owc2.s.a == 5);
                 }
 
                 /* TODO: rewrite test without factories
@@ -338,29 +339,29 @@ namespace Ice
                 //
                 factory.setEnabled(true);
                 OutputStream os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeValue(oo1);
-                os.endEncapsulation();
-                byte[] inEncaps = os.finished();
+                os.StartEncapsulation();
+                os.WriteValue(oo1);
+                os.EndEncapsulation();
+                byte[] inEncaps = os.Finished();
                 byte[] outEncaps;
                 test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 InputStream @in = new InputStream(communicator, outEncaps);
-                @in.startEncapsulation();
+                @in.StartEncapsulation();
                 ReadValueCallbackI cb = new ReadValueCallbackI();
-                @in.readValue(cb.invoke);
-                @in.endEncapsulation();
+                @in.ReadValue(cb.invoke);
+                @in.EndEncapsulation();
                 test(cb.obj != null && cb.obj is TestValueReader);
 
                 os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeValue(mo1);
-                os.endEncapsulation();
-                inEncaps = os.finished();
+                os.StartEncapsulation();
+                os.WriteValue(mo1);
+                os.EndEncapsulation();
+                inEncaps = os.Finished();
                 test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 @in = new InputStream(communicator, outEncaps);
-                @in.startEncapsulation();
-                @in.readValue(cb.invoke);
-                @in.endEncapsulation();
+                @in.StartEncapsulation();
+                @in.ReadValue(cb.invoke);
+                @in.EndEncapsulation();
                 test(cb.obj != null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
                 */
@@ -370,15 +371,15 @@ namespace Ice
                 //
                 // Use the 1.0 encoding with operations whose only class parameters are optional.
                 //
-                var oo = new Optional<Test.OneOptional>(new Test.OneOptional(53));
+                Test.OneOptional? oo = new Test.OneOptional(53);
                 initial.sendOptionalClass(true, oo);
                 var initial2 = initial.Clone(encodingVersion: Util.Encoding_1_0);
                 initial2.sendOptionalClass(true, oo);
 
                 initial.returnOptionalClass(true, out oo);
-                test(oo.HasValue);
+                test(oo != null);
                 initial2.returnOptionalClass(true, out oo);
-                test(!oo.HasValue);
+                test(oo == null);
 
                 Test.Recursive[] recursive1 = new Test.Recursive[1];
                 recursive1[0] = new Test.Recursive();
@@ -390,26 +391,26 @@ namespace Ice
                 initial.pingPong(outer);
 
                 Test.G g = new Test.G();
-                g.gg1Opt = new Optional<Test.G1>(new Test.G1("gg1Opt"));
+                g.gg1Opt = new Test.G1("gg1Opt");
                 g.gg2 = new Test.G2(10);
-                g.gg2Opt = new Optional<Test.G2>(new Test.G2(20));
+                g.gg2Opt = new Test.G2(20);
                 g.gg1 = new Test.G1("gg1");
                 g = initial.opG(g);
-                test("gg1Opt".Equals(g.gg1Opt.Value.a));
+                test("gg1Opt".Equals(g.gg1Opt.a));
                 test(10 == g.gg2.a);
-                test(20 == g.gg2Opt.Value.a);
+                test(20 == g.gg2Opt.a);
                 test("gg1".Equals(g.gg1.a));
 
                 initial.opVoid();
 
                 var os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeOptional(1, OptionalFormat.F4);
-                os.writeInt(15);
-                os.writeOptional(1, OptionalFormat.VSize);
-                os.writeString("test");
-                os.endEncapsulation();
-                var inEncaps = os.finished();
+                os.StartEncapsulation();
+                os.WriteOptional(1, OptionalFormat.F4);
+                os.WriteInt(15);
+                os.WriteOptional(1, OptionalFormat.VSize);
+                os.WriteString("test");
+                os.EndEncapsulation();
+                var inEncaps = os.Finished();
                 test(initial.Invoke("opVoid", OperationMode.Normal, inEncaps, out outEncaps));
 
                 output.WriteLine("ok");
@@ -424,33 +425,33 @@ namespace Ice
                 mc.fss = new Test.FixedStruct[300];
                 for (int i = 0; i < 300; ++i)
                 {
-                    mc.fss.Value[i] = new Test.FixedStruct();
+                    mc.fss[i] = new Test.FixedStruct();
                 }
 
                 mc.ifsd = new Dictionary<int, Test.FixedStruct>();
                 for (int i = 0; i < 300; ++i)
                 {
-                    mc.ifsd.Value.Add(i, new Test.FixedStruct());
+                    mc.ifsd.Add(i, new Test.FixedStruct());
                 }
 
                 mc = (Test.MultiOptional)initial.pingPong(mc);
-                test(mc.bs.Value.Length == 1000);
-                test(mc.shs.Value.Length == 300);
-                test(mc.fss.Value.Length == 300);
-                test(mc.ifsd.Value.Count == 300);
+                test(mc.bs.Length == 1000);
+                test(mc.shs.Length == 300);
+                test(mc.fss.Length == 300);
+                test(mc.ifsd.Count == 300);
 
                 /*
                 factory.setEnabled(true);
                 os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeValue(mc);
-                os.endEncapsulation();
-                inEncaps = os.finished();
+                os.StartEncapsulation();
+                os.WriteValue(mc);
+                os.EndEncapsulation();
+                inEncaps = os.Finished();
                 test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                 @in = new InputStream(communicator, outEncaps);
-                @in.startEncapsulation();
-                @in.readValue(cb.invoke);
-                @in.endEncapsulation();
+                @in.StartEncapsulation();
+                @in.ReadValue(cb.invoke);
+                @in.EndEncapsulation();
                 test(cb.obj != null && cb.obj is TestValueReader);
                 factory.setEnabled(false);
                 */
@@ -472,23 +473,23 @@ namespace Ice
                     b.md = 13;
 
                     b2 = (Test.B)initial.pingPong(b);
-                    test(b2.ma.Value == 10);
-                    test(b2.mb.Value == 11);
-                    test(b2.mc.Value == 12);
-                    test(b2.md.Value == 13);
+                    test(b2.ma == 10);
+                    test(b2.mb == 11);
+                    test(b2.mc == 12);
+                    test(b2.md == 13);
 
                     /*
                     factory.setEnabled(true);
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeValue(b);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteValue(b);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.readValue(cb.invoke);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.ReadValue(cb.invoke);
+                    @in.EndEncapsulation();
                     test(cb.obj != null);
                     factory.setEnabled(false);
                     */
@@ -502,23 +503,23 @@ namespace Ice
                     Test.F f = new Test.F();
 
                     f.af = new Test.A();
-                    f.ae = (Test.A)f.af;
+                    f.ae = f.af;
 
                     Test.F rf = (Test.F)initial.pingPong(f);
-                    test(rf.ae == rf.af.Value);
+                    test(rf.ae == rf.af);
 
                     /*
                     factory.setEnabled(true);
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeValue(f);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteValue(f);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     @in = new InputStream(communicator, inEncaps);
-                    @in.startEncapsulation();
+                    @in.StartEncapsulation();
                     ReadValueCallbackI rocb = new ReadValueCallbackI();
-                    @in.readValue(rocb.invoke);
-                    @in.endEncapsulation();
+                    @in.ReadValue(rocb.invoke);
+                    @in.EndEncapsulation();
                     factory.setEnabled(false);
                     rf = ((FValueReader)rocb.obj).getF();
                     test(rf.ae != null && !rf.af.HasValue);
@@ -530,17 +531,17 @@ namespace Ice
                 output.Flush();
                 {
                     Test.WD wd = (Test.WD)initial.pingPong(new Test.WD());
-                    test(wd.a.Value == 5);
-                    test(wd.s.Value.Equals("test"));
-                    wd.a = Util.None;
-                    wd.s = Util.None;
+                    test(wd.a == 5);
+                    test(wd.s.Equals("test"));
+                    wd.a = null;
+                    wd.s = null;
                     wd = (Test.WD)initial.pingPong(wd);
-                    test(!wd.a.HasValue);
-                    test(!wd.s.HasValue);
+                    test(wd.a == null);
+                    test(wd.s == null);
                 }
                 output.WriteLine("ok");
 
-                if (communicator.getProperties().getPropertyAsInt("Default.SlicedFormat") > 0)
+                if (communicator.Properties.getPropertyAsInt("Default.SlicedFormat") > 0)
                 {
                     output.Write("testing marshaling with unknown class slices... ");
                     output.Flush();
@@ -549,33 +550,33 @@ namespace Ice
                         c.ss = "test";
                         c.ms = "testms";
                         os = new OutputStream(communicator);
-                        os.startEncapsulation();
-                        os.writeValue(c);
-                        os.endEncapsulation();
-                        inEncaps = os.finished();
+                        os.StartEncapsulation();
+                        os.WriteValue(c);
+                        os.EndEncapsulation();
+                        inEncaps = os.Finished();
 
                         /*
                         factory.setEnabled(true);
                         test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                         @in = new InputStream(communicator, outEncaps);
-                        @in.startEncapsulation();
-                        @in.readValue(cb.invoke);
-                        @in.endEncapsulation();
+                        @in.StartEncapsulation();
+                        @in.ReadValue(cb.invoke);
+                        @in.EndEncapsulation();
                         test(cb.obj is CValueReader);
                         factory.setEnabled(false);
 
                         factory.setEnabled(true);
                         os = new OutputStream(communicator);
-                        os.startEncapsulation();
+                        os.StartEncapsulation();
                         Value d = new DValueWriter();
-                        os.writeValue(d);
-                        os.endEncapsulation();
-                        inEncaps = os.finished();
+                        os.WriteValue(d);
+                        os.EndEncapsulation();
+                        inEncaps = os.Finished();
                         test(initial.Invoke("pingPong", OperationMode.Normal, inEncaps, out outEncaps));
                         @in = new InputStream(communicator, outEncaps);
-                        @in.startEncapsulation();
-                        @in.readValue(cb.invoke);
-                        @in.endEncapsulation();
+                        @in.StartEncapsulation();
+                        @in.ReadValue(cb.invoke);
+                        @in.EndEncapsulation();
                         test(cb.obj != null && cb.obj is DValueReader);
                         ((DValueReader)cb.obj).check();
                         factory.setEnabled(false);
@@ -589,18 +590,18 @@ namespace Ice
                         Test.A a = new Test.A();
 
                         os = new OutputStream(communicator);
-                        os.startEncapsulation();
-                        os.writeValue(a);
-                        os.writeOptional(1, OptionalFormat.Class);
-                        os.writeValue(new DValueWriter());
-                        os.endEncapsulation();
-                        inEncaps = os.finished();
+                        os.StartEncapsulation();
+                        os.WriteValue(a);
+                        os.WriteOptional(1, OptionalFormat.Class);
+                        os.WriteValue(new DValueWriter());
+                        os.EndEncapsulation();
+                        inEncaps = os.Finished();
                         test(initial.Invoke("opClassAndUnknownOptional", OperationMode.Normal, inEncaps,
                                                 out outEncaps));
 
                         var @in = new InputStream(communicator, outEncaps);
-                        @in.startEncapsulation();
-                        @in.endEncapsulation();
+                        @in.StartEncapsulation();
+                        @in.EndEncapsulation();
                     }
                     output.WriteLine("ok");
                 }
@@ -608,1483 +609,1380 @@ namespace Ice
                 output.Write("testing optional parameters... ");
                 output.Flush();
                 {
-                    Optional<byte> p1 = new Optional<byte>();
-                    Optional<byte> p3;
-                    Optional<byte> p2 = initial.opByte(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opByte(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    byte? p1 = null;
+                    byte? p3;
+                    byte? p2 = initial.opByte(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opByte(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = 56;
                     p2 = initial.opByte(p1, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
+                    test(p2 == 56 && p3 == 56);
                     var r = initial.opByteAsync(p1).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
-                    p2 = initial.opByte(p1.Value, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
-                    r = initial.opByteAsync(p1.Value).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
+                    test(r.returnValue == 56 && r.p3 == 56);
+                    p2 = initial.opByte(p1, out p3);
+                    test(p2 == 56 && p3 == 56);
+                    r = initial.opByteAsync(p1).Result;
+                    test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opByte(new Optional<byte>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opByte(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.F1);
-                    os.writeByte(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteByte(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opByte", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.F1));
-                    test(@in.readByte() == 56);
-                    test(@in.readOptional(3, OptionalFormat.F1));
-                    test(@in.readByte() == 56);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadByte(1) == 56);
+                    test(@in.ReadByte(3) == 56);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<bool> p1 = new Optional<bool>();
-                    Optional<bool> p3;
-                    Optional<bool> p2 = initial.opBool(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opBool(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    bool? p1 = null;
+                    bool? p3;
+                    bool? p2 = initial.opBool(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opBool(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = true;
                     p2 = initial.opBool(p1, out p3);
-                    test(p2.Value == true && p3.Value == true);
+                    test(p2 == true && p3 == true);
                     var r = initial.opBoolAsync(p1).Result;
-                    test(r.returnValue.Value == true && r.p3.Value == true);
+                    test(r.returnValue == true && r.p3 == true);
                     p2 = initial.opBool(true, out p3);
-                    test(p2.Value == true && p3.Value == true);
+                    test(p2 == true && p3 == true);
                     r = initial.opBoolAsync(true).Result;
-                    test(r.returnValue.Value == true && r.p3.Value == true);
+                    test(r.returnValue == true && r.p3 == true);
 
-                    p2 = initial.opBool(new Optional<bool>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opBool(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.F1);
-                    os.writeBool(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteBool(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opBool", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.F1));
-                    test(@in.readBool() == true);
-                    test(@in.readOptional(3, OptionalFormat.F1));
-                    test(@in.readBool() == true);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadBool(1) == true);
+                    test(@in.ReadBool(3) == true);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<short> p1 = new Optional<short>();
-                    Optional<short> p3;
-                    Optional<short> p2 = initial.opShort(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opShort(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    short? p1 = null;
+                    short? p3;
+                    short? p2 = initial.opShort(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opShort(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = 56;
                     p2 = initial.opShort(p1, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
+                    test(p2 == 56 && p3 == 56);
                     var r = initial.opShortAsync(p1).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
-                    p2 = initial.opShort(p1.Value, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
-                    r = initial.opShortAsync(p1.Value).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
+                    test(r.returnValue == 56 && r.p3 == 56);
+                    p2 = initial.opShort(p1, out p3);
+                    test(p2 == 56 && p3 == 56);
+                    r = initial.opShortAsync(p1).Result;
+                    test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opShort(new Optional<short>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opShort(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.F2);
-                    os.writeShort(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteShort(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opShort", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.F2));
-                    test(@in.readShort() == 56);
-                    test(@in.readOptional(3, OptionalFormat.F2));
-                    test(@in.readShort() == 56);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadShort(1) == 56);
+                    test(@in.ReadShort(3) == 56);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<int> p1 = new Optional<int>();
-                    Optional<int> p3;
-                    Optional<int> p2 = initial.opInt(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opInt(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    int? p1 = null;
+                    int? p3;
+                    int? p2 = initial.opInt(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opInt(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = 56;
                     p2 = initial.opInt(p1, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
+                    test(p2 == 56 && p3 == 56);
                     var r = initial.opIntAsync(p1).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
-                    p2 = initial.opInt(p1.Value, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
-                    r = initial.opIntAsync(p1.Value).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
+                    test(r.returnValue == 56 && r.p3 == 56);
+                    p2 = initial.opInt(p1, out p3);
+                    test(p2 == 56 && p3 == 56);
+                    r = initial.opIntAsync(p1).Result;
+                    test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opInt(new Optional<int>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opInt(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.F4);
-                    os.writeInt(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteInt(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opInt", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.F4));
-                    test(@in.readInt() == 56);
-                    test(@in.readOptional(3, OptionalFormat.F4));
-                    test(@in.readInt() == 56);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadInt(1) == 56);
+                    test(@in.ReadInt(3) == 56);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<long> p1 = new Optional<long>();
-                    Optional<long> p3;
-                    Optional<long> p2 = initial.opLong(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opLong(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    long? p1 = null;
+                    long? p3;
+                    long? p2 = initial.opLong(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opLong(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = 56;
                     p2 = initial.opLong(p1, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
+                    test(p2 == 56 && p3 == 56);
                     var r = initial.opLongAsync(p1).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
-                    p2 = initial.opLong(p1.Value, out p3);
-                    test(p2.Value == 56 && p3.Value == 56);
-                    r = initial.opLongAsync(p1.Value).Result;
-                    test(r.returnValue.Value == 56 && r.p3.Value == 56);
+                    test(r.returnValue == 56 && r.p3 == 56);
+                    p2 = initial.opLong(p1, out p3);
+                    test(p2 == 56 && p3 == 56);
+                    r = initial.opLongAsync(p1).Result;
+                    test(r.returnValue == 56 && r.p3 == 56);
 
-                    p2 = initial.opLong(new Optional<long>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opLong(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(1, OptionalFormat.F8);
-                    os.writeLong(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteLong(1, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opLong", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(2, OptionalFormat.F8));
-                    test(@in.readLong() == 56);
-                    test(@in.readOptional(3, OptionalFormat.F8));
-                    test(@in.readLong() == 56);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadLong(2) == 56);
+                    test(@in.ReadLong(3) == 56);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<float> p1 = new Optional<float>();
-                    Optional<float> p3;
-                    Optional<float> p2 = initial.opFloat(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFloat(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    float? p1 = null;
+                    float? p3;
+                    float? p2 = initial.opFloat(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opFloat(null, out p3);
+                    test(p2 == null && p3 == null);
 
-                    p1 = (float)1.0;
+                    p1 = 1.0f;
                     p2 = initial.opFloat(p1, out p3);
-                    test(p2.Value == 1.0 && p3.Value == 1.0);
+                    test(p2 == 1.0f && p3 == 1.0f);
                     var r = initial.opFloatAsync(p1).Result;
-                    test(r.returnValue.Value == 1.0 && r.p3.Value == 1.0);
-                    p2 = initial.opFloat(p1.Value, out p3);
-                    test(p2.Value == 1.0 && p3.Value == 1.0);
-                    r = initial.opFloatAsync(p1.Value).Result;
-                    test(r.returnValue.Value == 1.0 && r.p3.Value == 1.0);
+                    test(r.returnValue == 1.0f && r.p3 == 1.0f);
+                    p2 = initial.opFloat(p1, out p3);
+                    test(p2 == 1.0f && p3 == 1.0f);
+                    r = initial.opFloatAsync(p1).Result;
+                    test(r.returnValue == 1.0f && r.p3 == 1.0f);
 
-                    p2 = initial.opFloat(new Optional<float>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFloat(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.F4);
-                    os.writeFloat(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteFloat(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opFloat", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.F4));
-                    test(@in.readFloat() == 1.0);
-                    test(@in.readOptional(3, OptionalFormat.F4));
-                    test(@in.readFloat() == 1.0);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadFloat(1) == 1.0f);
+                    test(@in.ReadFloat(3) == 1.0f);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<double> p1 = new Optional<double>();
-                    Optional<double> p3;
-                    Optional<double> p2 = initial.opDouble(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opDouble(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    double? p1 = null;
+                    double? p3;
+                    double? p2 = initial.opDouble(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opDouble(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = 1.0;
                     p2 = initial.opDouble(p1, out p3);
-                    test(p2.Value == 1.0 && p3.Value == 1.0);
+                    test(p2 == 1.0 && p3 == 1.0);
                     var r = initial.opDoubleAsync(p1).Result;
-                    test(r.returnValue.Value == 1.0 && r.p3.Value == 1.0);
-                    p2 = initial.opDouble(p1.Value, out p3);
-                    test(p2.Value == 1.0 && p3.Value == 1.0);
-                    r = initial.opDoubleAsync(p1.Value).Result;
-                    test(r.returnValue.Value == 1.0 && r.p3.Value == 1.0);
+                    test(r.returnValue == 1.0 && r.p3 == 1.0);
+                    p2 = initial.opDouble(p1, out p3);
+                    test(p2 == 1.0 && p3 == 1.0);
+                    r = initial.opDoubleAsync(p1).Result;
+                    test(r.returnValue == 1.0 && r.p3 == 1.0);
 
-                    p2 = initial.opDouble(new Optional<double>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opDouble(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.F8);
-                    os.writeDouble(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteDouble(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opDouble", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.F8));
-                    test(@in.readDouble() == 1.0);
-                    test(@in.readOptional(3, OptionalFormat.F8));
-                    test(@in.readDouble() == 1.0);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadDouble(1) == 1.0);
+                    test(@in.ReadDouble(3) == 1.0);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<string> p1 = new Optional<string>();
-                    Optional<string> p3;
-                    Optional<string> p2 = initial.opString(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opString(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opString(null, out p3); // Implicitly converts to Optional<string>(null)
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    string? p1 = null;
+                    string? p3;
+                    string? p2 = initial.opString(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opString(null, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opString(null, out p3); // Implicitly converts to string>(null)
+                    test(p2 == null && p3 == null);
 
                     p1 = "test";
                     p2 = initial.opString(p1, out p3);
-                    test(p2.Value.Equals("test") && p3.Value.Equals("test"));
+                    test(p2 == "test" && p3 == "test");
                     var r = initial.opStringAsync(p1).Result;
-                    test(r.returnValue.Value.Equals("test") && r.p3.Value.Equals("test"));
-                    p2 = initial.opString(p1.Value, out p3);
-                    test(p2.Value.Equals("test") && p3.Value.Equals("test"));
-                    r = initial.opStringAsync(p1.Value).Result;
-                    test(r.returnValue.Value.Equals("test") && r.p3.Value.Equals("test"));
+                    test(r.returnValue == "test" && r.p3 == "test");
+                    p2 = initial.opString(p1, out p3);
+                    test(p2 == "test" && p3 == "test");
+                    r = initial.opStringAsync(p1).Result;
+                    test(r.returnValue == "test" && r.p3 == "test");
 
-                    p2 = initial.opString(new Optional<string>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opString(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeString(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteString(2, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
-                    test(@in.readString().Equals("test"));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
-                    test(@in.readString().Equals("test"));
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadString(1) == "test");
+                    test(@in.ReadString(3) == "test");
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.MyEnum> p1 = new Optional<Test.MyEnum>();
-                    Optional<Test.MyEnum> p3;
-                    Optional<Test.MyEnum> p2 = initial.opMyEnum(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opMyEnum(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.MyEnum? p1 = null;
+                    Test.MyEnum? p3;
+                    Test.MyEnum? p2 = initial.opMyEnum(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opMyEnum(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = Test.MyEnum.MyEnumMember;
                     p2 = initial.opMyEnum(p1, out p3);
-                    test(p2.Value == Test.MyEnum.MyEnumMember && p3.Value == Test.MyEnum.MyEnumMember);
+                    test(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
                     var r = initial.opMyEnumAsync(p1).Result;
-                    test(r.returnValue.Value == Test.MyEnum.MyEnumMember && r.p3.Value == Test.MyEnum.MyEnumMember);
-                    p2 = initial.opMyEnum(p1.Value, out p3);
-                    test(p2.Value == Test.MyEnum.MyEnumMember && p3.Value == Test.MyEnum.MyEnumMember);
-                    r = initial.opMyEnumAsync(p1.Value).Result;
-                    test(r.returnValue.Value == Test.MyEnum.MyEnumMember && r.p3.Value == Test.MyEnum.MyEnumMember);
+                    test(r.returnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
+                    p2 = initial.opMyEnum(p1, out p3);
+                    test(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
+                    r = initial.opMyEnumAsync(p1).Result;
+                    test(r.returnValue == Test.MyEnum.MyEnumMember && r.p3 == Test.MyEnum.MyEnumMember);
 
-                    p2 = initial.opMyEnum(new Optional<Test.MyEnum>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opMyEnum(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.Size);
-                    os.writeEnum((int)p1.Value, 1);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteEnum(2, (int?)p1, 0);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opMyEnum", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.Size));
-                    test((Test.MyEnum)@in.readEnum(1) == Test.MyEnum.MyEnumMember);
-                    test(@in.readOptional(3, OptionalFormat.Size));
-                    test((Test.MyEnum)@in.readEnum(1) == Test.MyEnum.MyEnumMember);
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.Size));
+                    test((Test.MyEnum)@in.ReadEnum(1) == Test.MyEnum.MyEnumMember);
+                    test(@in.ReadOptional(3, OptionalFormat.Size));
+                    test((Test.MyEnum)@in.ReadEnum(1) == Test.MyEnum.MyEnumMember);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.SmallStruct> p1 = new Optional<Test.SmallStruct>();
-                    Optional<Test.SmallStruct> p3;
-                    Optional<Test.SmallStruct> p2 = initial.opSmallStruct(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opSmallStruct(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.SmallStruct? p1 = null;
+                    Test.SmallStruct? p3;
+                    Test.SmallStruct? p2 = initial.opSmallStruct(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opSmallStruct(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Test.SmallStruct(56);
                     p2 = initial.opSmallStruct(p1, out p3);
-                    test(p2.Value.m == 56 && p3.Value.m == 56);
+                    test(p2!.Value.m == 56 && p3!.Value.m == 56);
                     var r = initial.opSmallStructAsync(p1).Result;
-                    test(p2.Value.m == 56 && p3.Value.m == 56);
-                    p2 = initial.opSmallStruct(p1.Value, out p3);
-                    test(p2.Value.m == 56 && p3.Value.m == 56);
-                    r = initial.opSmallStructAsync(p1.Value).Result;
-                    test(r.returnValue.Value.m == 56 && r.p3.Value.m == 56);
+                    test(p2!.Value.m == 56 && p3!.Value.m == 56);
+                    p2 = initial.opSmallStruct(p1, out p3);
+                    test(p2!.Value.m == 56 && p3!.Value.m == 56);
+                    r = initial.opSmallStructAsync(p1).Result;
+                    test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
 
-                    p2 = initial.opSmallStruct(new Optional<Test.SmallStruct>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSmallStruct(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(1);
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(1);
                     p1.Value.ice_writeMembers(os);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opSmallStruct", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
                     Test.SmallStruct f = new Test.SmallStruct();
                     f.ice_readMembers(@in);
                     test(f.m == 56);
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
                     f.ice_readMembers(@in);
                     test(f.m == 56);
-                    @in.endEncapsulation();
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.FixedStruct> p1 = new Optional<Test.FixedStruct>();
-                    Optional<Test.FixedStruct> p3;
-                    Optional<Test.FixedStruct> p2 = initial.opFixedStruct(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFixedStruct(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.FixedStruct? p1 = null;
+                    Test.FixedStruct? p3;
+                    Test.FixedStruct? p2 = initial.opFixedStruct(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opFixedStruct(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Test.FixedStruct(56);
                     p2 = initial.opFixedStruct(p1, out p3);
-                    test(p2.Value.m == 56 && p3.Value.m == 56);
+                    test(p2!.Value.m == 56 && p3!.Value.m == 56);
                     var r = initial.opFixedStructAsync(p1).Result;
-                    test(r.returnValue.Value.m == 56 && r.p3.Value.m == 56);
-                    p2 = initial.opFixedStruct(p1.Value, out p3);
-                    test(p2.Value.m == 56 && p3.Value.m == 56);
-                    r = initial.opFixedStructAsync(p1.Value).Result;
-                    test(r.returnValue.Value.m == 56 && r.p3.Value.m == 56);
+                    test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
+                    p2 = initial.opFixedStruct(p1, out p3);
+                    test(p2!.Value.m == 56 && p3!.Value.m == 56);
+                    r = initial.opFixedStructAsync(p1).Result;
+                    test(r.returnValue!.Value.m == 56 && r.p3!.Value.m == 56);
 
-                    p2 = initial.opFixedStruct(new Optional<Test.FixedStruct>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFixedStruct(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(4);
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(4);
                     p1.Value.ice_writeMembers(os);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opFixedStruct", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
                     Test.FixedStruct f = new Test.FixedStruct();
                     f.ice_readMembers(@in);
                     test(f.m == 56);
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
                     f.ice_readMembers(@in);
                     test(f.m == 56);
-                    @in.endEncapsulation();
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.VarStruct> p1 = new Optional<Test.VarStruct>();
-                    Optional<Test.VarStruct> p3;
-                    Optional<Test.VarStruct> p2 = initial.opVarStruct(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opVarStruct(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.VarStruct? p1 = null;
+                    Test.VarStruct? p3;
+                    Test.VarStruct? p2 = initial.opVarStruct(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opVarStruct(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Test.VarStruct("test");
                     p2 = initial.opVarStruct(p1, out p3);
-                    test(p2.Value.m.Equals("test") && p3.Value.m.Equals("test"));
+                    test(p2!.Value.m.Equals("test") && p3!.Value.m.Equals("test"));
 
                     // Test null struct
                     p2 = initial.opVarStruct(null, out p3);
-                    test(p2.Value.m.Equals("") && p3.Value.m.Equals(""));
+                    test(p2 == null && p3 == null);
 
                     var r = initial.opVarStructAsync(p1).Result;
-                    test(r.returnValue.Value.m.Equals("test") && r.p3.Value.m.Equals("test"));
-                    p2 = initial.opVarStruct(p1.Value, out p3);
-                    test(p2.Value.m.Equals("test") && p3.Value.m.Equals("test"));
-                    r = initial.opVarStructAsync(p1.Value).Result;
-                    test(r.returnValue.Value.m.Equals("test") && r.p3.Value.m.Equals("test"));
+                    test(r.returnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
+                    p2 = initial.opVarStruct(p1, out p3);
+                    test(p2!.Value.m.Equals("test") && p3!.Value.m.Equals("test"));
+                    r = initial.opVarStructAsync(p1).Result;
+                    test(r.returnValue!.Value.m.Equals("test") && r.p3!.Value.m.Equals("test"));
 
-                    p2 = initial.opVarStruct(new Optional<Test.VarStruct>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opVarStruct(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.FSize);
+                    int pos = os.StartSize();
                     p1.Value.ice_writeMembers(os);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.EndSize(pos);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opVarStruct", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
                     Test.VarStruct v = new Test.VarStruct();
                     v.ice_readMembers(@in);
                     test(v.m.Equals("test"));
-                    test(@in.readOptional(3, OptionalFormat.FSize));
+                    test(@in.ReadOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
                     v.ice_readMembers(@in);
                     test(v.m.Equals("test"));
-                    @in.endEncapsulation();
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.OneOptional> p1 = new Optional<Test.OneOptional>();
-                    Optional<Test.OneOptional> p3;
-                    Optional<Test.OneOptional> p2 = initial.opOneOptional(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opOneOptional(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    if (initial.supportsNullOptional())
-                    {
-                        p2 = initial.opOneOptional(null, out p3); // Implicitly converts to Optional<OneOptional>(null)
-                        test(p2.HasValue && p2.Value == null && p3.HasValue && p3.Value == null);
-
-                        p2 = initial.opOneOptional(new Optional<Test.OneOptional>((Test.OneOptional)null), out p3);
-                        test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
-                    }
+                    Test.OneOptional? p1 = null;
+                    Test.OneOptional? p3;
+                    Test.OneOptional? p2 = initial.opOneOptional(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opOneOptional(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Test.OneOptional(58);
                     p2 = initial.opOneOptional(p1, out p3);
-                    test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
+                    test(p2!.a == 58 && p3!.a == 58);
                     var r = initial.opOneOptionalAsync(p1).Result;
-                    test(r.returnValue.Value.a.Value == 58 && r.p3.Value.a.Value == 58);
-                    p2 = initial.opOneOptional(p1.Value, out p3);
-                    test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
-                    r = initial.opOneOptionalAsync(p1.Value).Result;
-                    test(r.returnValue.Value.a.Value == 58 && r.p3.Value.a.Value == 58);
+                    test(r.returnValue!.a == 58 && r.p3!.a == 58);
+                    p2 = initial.opOneOptional(p1, out p3);
+                    test(p2!.a == 58 && p3!.a == 58);
+                    r = initial.opOneOptionalAsync(p1).Result;
+                    test(r.returnValue!.a == 58 && r.p3!.a == 58);
 
-                    p2 = initial.opOneOptional(new Optional<Test.OneOptional>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opOneOptional(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.Class);
-                    os.writeValue(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.Class);
+                    os.WriteValue(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opOneOptional", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.Class));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.Class));
                     ReadValueCallbackI p2cb = new ReadValueCallbackI();
-                    @in.readValue(p2cb.invoke);
-                    test(@in.readOptional(3, OptionalFormat.Class));
+                    @in.ReadValue(p2cb.invoke);
+                    test(@in.ReadOptional(3, OptionalFormat.Class));
                     ReadValueCallbackI p3cb = new ReadValueCallbackI();
-                    @in.readValue(p3cb.invoke);
-                    @in.endEncapsulation();
-                    test(((Test.OneOptional)p2cb.obj).a.Value == 58 && ((Test.OneOptional)p3cb.obj).a.Value == 58);
+                    @in.ReadValue(p3cb.invoke);
+                    @in.EndEncapsulation();
+                    test(((Test.OneOptional)p2cb.obj).a == 58 && ((Test.OneOptional)p3cb.obj).a == 58);
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<IObjectPrx> p1 = new Optional<IObjectPrx>();
-                    Optional<IObjectPrx> p3;
-                    Optional<IObjectPrx> p2 = initial.opOneOptionalProxy(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    IObjectPrx? p1 = null;
+                    IObjectPrx? p3;
+                    IObjectPrx? p2 = initial.opOneOptionalProxy(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opOneOptionalProxy(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opOneOptionalProxy(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    if (initial.supportsNullOptional())
-                    {
-                        p2 = initial.opOneOptionalProxy(null, out p3);
-                        test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
-                    }
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opOneOptionalProxy(null, out p3);
+                    test(p2 == null && p3 == null);
 
-                    //
-                    // Not allowed by C# language spec because OptionalOnePrx is an interface.
-                    //
-                    //p1 = Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-                    p1 = new Optional<IObjectPrx>(IObjectPrx.Parse("test", communicator));
+                    p1 = IObjectPrx.Parse("test", communicator);
                     p2 = initial.opOneOptionalProxy(p1, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                    test(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
 
-                    var r = initial.opOneOptionalProxyAsync(p1).Result;
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    //p2 = initial.opOneOptionalProxy(p1.Value, out p3);
-                    //test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    //r = initial.begin_opOneOptionalProxy(p1.Value);
-                    //p2 = initial.end_opOneOptionalProxy(out p3, r);
-                    //test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                    (p2, p3) = initial.opOneOptionalProxyAsync(p1).Result;
+                    test(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
 
-                    p2 = initial.opOneOptionalProxy(new Optional<IObjectPrx>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opOneOptionalProxy(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
-                    os.WriteProxy(p1.Value);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.FSize);
+                    int pos = os.StartSize();
+                    os.WriteProxy(p1);
+                    os.EndSize(pos);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opOneOptionalProxy", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
-                    @in.skip(4);
-                    test(@in.ReadProxy(IObjectPrx.Factory).Equals(p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.FSize));
-                    @in.skip(4);
-                    test(@in.ReadProxy(IObjectPrx.Factory).Equals(p1.Value));
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(IObjectPrx.Equals(@in.ReadProxy(1, IObjectPrx.Factory), p1));
+                    test(IObjectPrx.Equals(@in.ReadProxy(3, IObjectPrx.Factory), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<byte[]> p1 = new Optional<byte[]>();
-                    Optional<byte[]> p3;
-                    Optional<byte[]> p2 = initial.opByteSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opByteSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    byte[]? p1 = null;
+                    byte[]? p3;
+                    byte[]? p2 = initial.opByteSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opByteSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new byte[100];
-                    Populate(p1.Value, (byte)56);
+                    p1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToArray();
                     p2 = initial.opByteSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opByteSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opByteSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opByteSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opByteSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opByteSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opByteSeq(new Optional<byte[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opByteSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeByteSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteByteSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opByteSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readByteSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readByteSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadByteSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadByteSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<bool[]> p1 = new Optional<bool[]>();
-                    Optional<bool[]> p3;
-                    Optional<bool[]> p2 = initial.opBoolSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opBoolSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    bool[]? p1 = null;
+                    bool[]? p3;
+                    bool[]? p2 = initial.opBoolSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opBoolSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new bool[100];
-                    Populate(p1.Value, true);
+                    p1 = Enumerable.Range(0, 100).Select(_ => true).ToArray();
                     p2 = initial.opBoolSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opBoolSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opBoolSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opBoolSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opBoolSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opBoolSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opBoolSeq(new Optional<bool[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opBoolSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeBoolSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteBoolSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opBoolSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readBoolSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
-                    test(ArraysEqual(@in.readBoolSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadBoolSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadBoolSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<short[]> p1 = new Optional<short[]>();
-                    Optional<short[]> p3;
-                    Optional<short[]> p2 = initial.opShortSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opShortSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    short[]? p1 = null;
+                    short[]? p3;
+                    short[]? p2 = initial.opShortSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opShortSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new short[100];
-                    Populate(p1.Value, (short)56);
+                    p1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToArray();
                     p2 = initial.opShortSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opShortSeqAsync(p1).Result;
 
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opShortSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opShortSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opShortSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opShortSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opShortSeq(new Optional<short[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opShortSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 2 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeShortSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
+                    os.WriteShortSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readShortSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadShortSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readShortSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    test(Collections.Equals(@in.ReadShortSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<int[]> p1 = new Optional<int[]>();
-                    Optional<int[]> p3;
-                    Optional<int[]> p2 = initial.opIntSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opIntSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    int[]? p1 = null;
+                    int[]? p3;
+                    int[]? p2 = initial.opIntSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opIntSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new int[100];
-                    Populate(p1.Value, 56);
+                    p1 = Enumerable.Range(0, 100).Select(_ => 56).ToArray();
                     p2 = initial.opIntSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opIntSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opIntSeq(p1.Value, out p3);
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    r = initial.opIntSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opIntSeq(p1, out p3);
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    r = initial.opIntSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opIntSeq(new Optional<int[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opIntSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeIntSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                    os.WriteIntSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opIntSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readIntSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadIntSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readIntSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    test(Collections.Equals(@in.ReadIntSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<long[]> p1 = new Optional<long[]>();
-                    Optional<long[]> p3;
-                    Optional<long[]> p2 = initial.opLongSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opLongSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    long[]? p1 = null;
+                    long[]? p3;
+                    long[]? p2 = initial.opLongSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opLongSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new long[100];
-                    Populate(p1.Value, 56);
+                    p1 = Enumerable.Range(0, 100).Select(_ => 56L).ToArray();
                     p2 = initial.opLongSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opLongSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opLongSeq(p1.Value, out p3);
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    r = initial.opLongSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opLongSeq(p1, out p3);
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    r = initial.opLongSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opLongSeq(new Optional<long[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opLongSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 8 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeLongSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                    os.WriteLongSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opLongSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readLongSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadLongSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readLongSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    test(Collections.Equals(@in.ReadLongSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<float[]> p1 = new Optional<float[]>();
-                    Optional<float[]> p3;
-                    Optional<float[]> p2 = initial.opFloatSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFloatSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    float[]? p1 = null;
+                    float[]? p3;
+                    float[]? p2 = initial.opFloatSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opFloatSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new float[100];
-                    Populate(p1.Value, (float)1.0);
+                    p1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToArray();
                     p2 = initial.opFloatSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opFloatSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opFloatSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opFloatSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opFloatSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opFloatSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opFloatSeq(new Optional<float[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFloatSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeFloatSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                    os.WriteFloatSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opFloatSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readFloatSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadFloatSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readFloatSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    test(Collections.Equals(@in.ReadFloatSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<double[]> p1 = new Optional<double[]>();
-                    Optional<double[]> p3;
-                    Optional<double[]> p2 = initial.opDoubleSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opDoubleSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    double[]? p1 = null;
+                    double[]? p3;
+                    double[]? p2 = initial.opDoubleSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opDoubleSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new double[100];
-                    Populate(p1.Value, 1.0);
+                    p1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToArray();
                     p2 = initial.opDoubleSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opDoubleSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opDoubleSeq(p1.Value, out p3);
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    r = initial.opDoubleSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opDoubleSeq(p1, out p3);
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    r = initial.opDoubleSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opDoubleSeq(new Optional<double[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opDoubleSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 8 + (p1.Value.Length > 254 ? 5 : 1));
-                    os.writeDoubleSeq(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
+                    os.WriteDoubleSeq(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opDoubleSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readDoubleSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    test(Collections.Equals(@in.ReadDoubleSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readDoubleSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    test(Collections.Equals(@in.ReadDoubleSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<string[]> p1 = new Optional<string[]>();
-                    Optional<string[]> p3;
-                    Optional<string[]> p2 = initial.opStringSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opStringSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    string[]? p1 = null;
+                    string[]? p3;
+                    string[]? p2 = initial.opStringSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opStringSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new string[10];
-                    Populate(p1.Value, "test1");
+                    p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
                     p2 = initial.opStringSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opStringSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opStringSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opStringSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opStringSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opStringSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opStringSeq(new Optional<String[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opStringSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
-                    os.writeStringSeq(p1.Value);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.FSize);
+                    int pos = os.StartSize();
+                    os.WriteStringSeq(p1);
+                    os.EndSize(pos);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opStringSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    test(ArraysEqual(@in.readStringSeq(), p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.FSize));
+                    test(Collections.Equals(@in.ReadStringSeq(), p1));
+                    test(@in.ReadOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    test(ArraysEqual(@in.readStringSeq(), p1.Value));
-                    @in.endEncapsulation();
+                    test(Collections.Equals(@in.ReadStringSeq(), p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.SmallStruct[]> p1 = new Optional<Test.SmallStruct[]>();
-                    Optional<Test.SmallStruct[]> p3;
-                    Optional<Test.SmallStruct[]> p2 = initial.opSmallStructSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opSmallStructSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.SmallStruct[]? p1 = null;
+                    Test.SmallStruct[]? p3;
+                    Test.SmallStruct[]? p2 = initial.opSmallStructSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opSmallStructSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new Test.SmallStruct[10];
-                    for (int i = 0; i < p1.Value.Length; ++i)
-                    {
-                        p1.Value[i] = new Test.SmallStruct();
-                    }
+                    p1 = Enumerable.Range(0, 10).Select(_ => new Test.SmallStruct()).ToArray();
                     p2 = initial.opSmallStructSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opSmallStructSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opSmallStructSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opSmallStructSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opSmallStructSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opSmallStructSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opSmallStructSeq(new Optional<Test.SmallStruct[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSmallStructSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length + (p1.Value.Length > 254 ? 5 : 1));
-                    Test.SmallStructSeqHelper.write(os, p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
+                    Test.SmallStructSeqHelper.Write(os, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opSmallStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    Test.SmallStruct[] arr = Test.SmallStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    Test.SmallStruct[] arr = Test.SmallStructSeqHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    arr = Test.SmallStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
-                    @in.endEncapsulation();
+                    arr = Test.SmallStructSeqHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<List<Test.SmallStruct>> p1 = new Optional<List<Test.SmallStruct>>();
-                    Optional<List<Test.SmallStruct>> p3;
-                    Optional<List<Test.SmallStruct>> p2 = initial.opSmallStructList(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opSmallStructList(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    List<Test.SmallStruct>? p1 = null;
+                    List<Test.SmallStruct>? p3;
+                    List<Test.SmallStruct>? p2 = initial.opSmallStructList(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opSmallStructList(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    test(p2 == null && p3 == null);
 
                     p1 = new List<Test.SmallStruct>();
                     for (int i = 0; i < 10; ++i)
                     {
-                        p1.Value.Add(new Test.SmallStruct());
+                        p1.Add(new Test.SmallStruct());
                     }
                     p2 = initial.opSmallStructList(p1, out p3);
-                    test(ListsEqual(p2.Value, p1.Value));
+                    test(Collections.Equals(p2, p1));
                     var r = initial.opSmallStructListAsync(p1).Result;
-                    test(ListsEqual(p2.Value, p1.Value));
-                    p2 = initial.opSmallStructList(p1.Value, out p3);
-                    test(ListsEqual(p2.Value, p1.Value));
-                    r = initial.opSmallStructListAsync(p1.Value).Result;
-                    test(ListsEqual(r.returnValue.Value, p1.Value));
+                    test(Collections.Equals(p2, p1));
+                    p2 = initial.opSmallStructList(p1, out p3);
+                    test(Collections.Equals(p2, p1));
+                    r = initial.opSmallStructListAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1));
 
-                    p2 = initial.opSmallStructList(new Optional<List<Test.SmallStruct>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSmallStructList(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Count + (p1.Value.Count > 254 ? 5 : 1));
-                    Test.SmallStructListHelper.write(os, p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
+                    Test.SmallStructListHelper.Write(os, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opSmallStructList", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    List<Test.SmallStruct> arr = Test.SmallStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    List<Test.SmallStruct> arr = Test.SmallStructListHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    arr = Test.SmallStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
-                    @in.endEncapsulation();
+                    arr = Test.SmallStructListHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.FixedStruct[]> p1 = new Optional<Test.FixedStruct[]>();
-                    Optional<Test.FixedStruct[]> p3;
-                    Optional<Test.FixedStruct[]> p2 = initial.opFixedStructSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFixedStructSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.FixedStruct[]? p1 = null;
+                    Test.FixedStruct[]? p3;
+                    Test.FixedStruct[]? p2 = initial.opFixedStructSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opFixedStructSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new Test.FixedStruct[10];
-                    for (int i = 0; i < p1.Value.Length; ++i)
-                    {
-                        p1.Value[i] = new Test.FixedStruct();
-                    }
+                    p1 = Enumerable.Range(0, 10).Select(_ => new Test.FixedStruct()).ToArray();
                     p2 = initial.opFixedStructSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opFixedStructSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opFixedStructSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opFixedStructSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opFixedStructSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opFixedStructSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opFixedStructSeq(new Optional<Test.FixedStruct[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFixedStructSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length * 4 + (p1.Value.Length > 254 ? 5 : 1));
-                    Test.FixedStructSeqHelper.write(os, p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Length * 4 + (p1.Length > 254 ? 5 : 1));
+                    Test.FixedStructSeqHelper.Write(os, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opFixedStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    Test.FixedStruct[] arr = Test.FixedStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    Test.FixedStruct[] arr = Test.FixedStructSeqHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    arr = Test.FixedStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
-                    @in.endEncapsulation();
+                    arr = Test.FixedStructSeqHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<LinkedList<Test.FixedStruct>> p1 = new Optional<LinkedList<Test.FixedStruct>>();
-                    Optional<LinkedList<Test.FixedStruct>> p3;
-                    Optional<LinkedList<Test.FixedStruct>> p2 = initial.opFixedStructList(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opFixedStructList(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    LinkedList<Test.FixedStruct>? p1 = null;
+                    LinkedList<Test.FixedStruct>? p3;
+                    LinkedList<Test.FixedStruct>? p2 = initial.opFixedStructList(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opFixedStructList(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    test(p2 == null && p3 == null);
 
                     p1 = new LinkedList<Test.FixedStruct>();
                     for (int i = 0; i < 10; ++i)
                     {
-                        p1.Value.AddLast(new Test.FixedStruct());
+                        p1.AddLast(new Test.FixedStruct());
                     }
                     p2 = initial.opFixedStructList(p1, out p3);
-                    test(ListsEqual(p2.Value, p1.Value) && ListsEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opFixedStructListAsync(p1).Result;
-                    test(ListsEqual(r.returnValue.Value, p1.Value) && ListsEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opFixedStructList(p1.Value, out p3);
-                    test(ListsEqual(p2.Value, p1.Value) && ListsEqual(p3.Value, p1.Value));
-                    r = initial.opFixedStructListAsync(p1.Value).Result;
-                    test(ListsEqual(r.returnValue.Value, p1.Value) && ListsEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opFixedStructList(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opFixedStructListAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opFixedStructList(new Optional<LinkedList<Test.FixedStruct>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opFixedStructList(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Count * 4 + (p1.Value.Count > 254 ? 5 : 1));
-                    Test.FixedStructListHelper.write(os, p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Count * 4 + (p1.Count > 254 ? 5 : 1));
+                    Test.FixedStructListHelper.Write(os, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opFixedStructList", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    LinkedList<Test.FixedStruct> arr = Test.FixedStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    LinkedList<Test.FixedStruct> arr = Test.FixedStructListHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    arr = Test.FixedStructListHelper.read(@in);
-                    test(ListsEqual(arr, p1.Value));
-                    @in.endEncapsulation();
+                    arr = Test.FixedStructListHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Test.VarStruct[]> p1 = new Optional<Test.VarStruct[]>();
-                    Optional<Test.VarStruct[]> p3;
-                    Optional<Test.VarStruct[]> p2 = initial.opVarStructSeq(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opVarStructSeq(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.VarStruct[]? p1 = null;
+                    Test.VarStruct[]? p3;
+                    Test.VarStruct[]? p2 = initial.opVarStructSeq(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opVarStructSeq(null, out p3);
-                    test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
+                    test(p2 == null && p3 == null);
 
-                    p1 = new Test.VarStruct[10];
-                    for (int i = 0; i < p1.Value.Length; ++i)
-                    {
-                        p1.Value[i] = new Test.VarStruct("");
-                    }
+                    p1 = Enumerable.Range(0, 10).Select(_ => new Test.VarStruct("")).ToArray();
                     p2 = initial.opVarStructSeq(p1, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opVarStructSeqAsync(p1).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opVarStructSeq(p1.Value, out p3);
-                    test(ArraysEqual(p2.Value, p1.Value) && ArraysEqual(p3.Value, p1.Value));
-                    r = initial.opVarStructSeqAsync(p1.Value).Result;
-                    test(ArraysEqual(r.returnValue.Value, p1.Value) && ArraysEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opVarStructSeq(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opVarStructSeqAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opVarStructSeq(new Optional<Test.VarStruct[]>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opVarStructSeq(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
-                    Test.VarStructSeqHelper.write(os, p1.Value);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.FSize);
+                    int pos = os.StartSize();
+                    Test.VarStructSeqHelper.Write(os, p1);
+                    os.EndSize(pos);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opVarStructSeq", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    Test.VarStruct[] arr = Test.VarStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.FSize));
+                    Test.VarStruct[] arr = Test.VarStructSeqHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    arr = Test.VarStructSeqHelper.read(@in);
-                    test(ArraysEqual(arr, p1.Value));
-                    @in.endEncapsulation();
+                    arr = Test.VarStructSeqHelper.Read(@in);
+                    test(Collections.Equals(arr, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 if (supportsCsharpSerializable)
                 {
-                    Optional<Test.SerializableClass> p1 = new Optional<Test.SerializableClass>();
-                    Optional<Test.SerializableClass> p3;
-                    Optional<Test.SerializableClass> p2 = initial.opSerializable(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opSerializable(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Test.SerializableClass? p1 = null;
+                    Test.SerializableClass? p3;
+                    Test.SerializableClass? p2 = initial.opSerializable(p1, out p3);
+                    test(p2 == null && p3 == null);
+                    p2 = initial.opSerializable(null, out p3);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Test.SerializableClass(58);
                     p2 = initial.opSerializable(p1, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                    test(p2.Equals(p1) && p3.Equals(p1));
                     var r = initial.opSerializableAsync(p1).Result;
-                    test(r.returnValue.Value.Equals(p1.Value) && r.p3.Value.Equals(p1.Value));
-                    p2 = initial.opSerializable(p1.Value, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    r = initial.opSerializableAsync(p1.Value).Result;
-                    test(r.returnValue.Value.Equals(p1.Value) && r.p3.Value.Equals(p1.Value));
+                    test(r.returnValue.Equals(p1) && r.p3.Equals(p1));
+                    p2 = initial.opSerializable(p1, out p3);
+                    test(p2.Equals(p1) && p3.Equals(p1));
+                    r = initial.opSerializableAsync(p1).Result;
+                    test(r.returnValue.Equals(p1) && r.p3.Equals(p1));
 
-                    p2 = initial.opSerializable(new Optional<Test.SerializableClass>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opSerializable(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSerializable(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSerializable(p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opSerializable", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
-                    Test.SerializableClass sc = Test.SerializableHelper.read(@in);
-                    test(sc.Equals(p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
-                    sc = Test.SerializableHelper.read(@in);
-                    test(sc.Equals(p1.Value));
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
+                    Test.SerializableClass sc = Test.SerializableHelper.Read(@in);
+                    test(sc.Equals(p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
+                    sc = Test.SerializableHelper.Read(@in);
+                    test(sc.Equals(p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Dictionary<int, int>> p1 = new Optional<Dictionary<int, int>>();
-                    Optional<Dictionary<int, int>> p3;
-                    Optional<Dictionary<int, int>> p2 = initial.opIntIntDict(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opIntIntDict(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Dictionary<int, int>? p1 = null;
+                    Dictionary<int, int>? p3;
+                    Dictionary<int, int>? p2 = initial.opIntIntDict(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opIntIntDict(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Dictionary<int, int>();
-                    p1.Value.Add(1, 2);
-                    p1.Value.Add(2, 3);
+                    p1.Add(1, 2);
+                    p1.Add(2, 3);
                     p2 = initial.opIntIntDict(p1, out p3);
-                    test(MapsEqual(p2.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opIntIntDictAsync(p1).Result;
-                    test(MapsEqual(r.returnValue.Value, p1.Value) && MapsEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opIntIntDict(p1.Value, out p3);
-                    test(MapsEqual(p2.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
-                    r = initial.opIntIntDictAsync(p1.Value).Result;
-                    test(MapsEqual(r.returnValue.Value, p1.Value) && MapsEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opIntIntDict(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opIntIntDictAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opIntIntDict(new Optional<Dictionary<int, int>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opIntIntDict(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Count * 8 + (p1.Value.Count > 254 ? 5 : 1));
-                    Test.IntIntDictHelper.write(os, p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.VSize);
+                    os.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
+                    Test.IntIntDictHelper.Write(os, p1);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opIntIntDict", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.VSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    Dictionary<int, int> m = Test.IntIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.VSize));
+                    Dictionary<int, int> m = Test.IntIntDictHelper.Read(@in);
+                    test(Collections.Equals(m, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    m = Test.IntIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
-                    @in.endEncapsulation();
+                    m = Test.IntIntDictHelper.Read(@in);
+                    test(Collections.Equals(m, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
 
                 {
-                    Optional<Dictionary<string, int>> p1 = new Optional<Dictionary<string, int>>();
-                    Optional<Dictionary<string, int>> p3;
-                    Optional<Dictionary<string, int>> p2 = initial.opStringIntDict(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opStringIntDict(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Dictionary<string, int>? p1 = null;
+                    Dictionary<string, int>? p3;
+                    Dictionary<string, int>? p2 = initial.opStringIntDict(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opStringIntDict(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Dictionary<string, int>();
-                    p1.Value.Add("1", 1);
-                    p1.Value.Add("2", 2);
+                    p1.Add("1", 1);
+                    p1.Add("2", 2);
                     p2 = initial.opStringIntDict(p1, out p3);
-                    test(MapsEqual(p2.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                     var r = initial.opStringIntDictAsync(p1).Result;
-                    test(MapsEqual(r.returnValue.Value, p1.Value) && MapsEqual(r.p3.Value, p1.Value));
-                    p2 = initial.opStringIntDict(p1.Value, out p3);
-                    test(MapsEqual(p2.Value, p1.Value) && MapsEqual(p3.Value, p1.Value));
-                    r = initial.opStringIntDictAsync(p1.Value).Result;
-                    test(MapsEqual(r.returnValue.Value, p1.Value) && MapsEqual(r.p3.Value, p1.Value));
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
+                    p2 = initial.opStringIntDict(p1, out p3);
+                    test(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    r = initial.opStringIntDictAsync(p1).Result;
+                    test(Collections.Equals(r.returnValue, p1) && Collections.Equals(r.p3, p1));
 
-                    p2 = initial.opStringIntDict(new Optional<Dictionary<string, int>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opStringIntDict(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
-                    Test.StringIntDictHelper.write(os, p1.Value);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.FSize);
+                    int pos = os.StartSize();
+                    Test.StringIntDictHelper.Write(os, p1);
+                    os.EndSize(pos);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opStringIntDict", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    Dictionary<string, int> m = Test.StringIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
-                    test(@in.readOptional(3, OptionalFormat.FSize));
+                    Dictionary<string, int> m = Test.StringIntDictHelper.Read(@in);
+                    test(Collections.Equals(m, p1));
+                    test(@in.ReadOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    m = Test.StringIntDictHelper.read(@in);
-                    test(MapsEqual(m, p1.Value));
-                    @in.endEncapsulation();
+                    m = Test.StringIntDictHelper.Read(@in);
+                    test(Collections.Equals(m, p1));
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
 
                     Test.F f = new Test.F();
                     f.af = new Test.A();
-                    f.af.Value.requiredA = 56;
-                    f.ae = f.af.Value;
+                    f.af.requiredA = 56;
+                    f.ae = f.af;
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(1, OptionalFormat.Class);
-                    os.writeValue(f);
-                    os.writeOptional(2, OptionalFormat.Class);
-                    os.writeValue(f.ae);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(1, OptionalFormat.Class);
+                    os.WriteValue(f);
+                    os.WriteOptional(2, OptionalFormat.Class);
+                    os.WriteValue(f.ae);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
 
                     @in = new InputStream(communicator, inEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(2, OptionalFormat.Class));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(2, OptionalFormat.Class));
                     ReadValueCallbackI rocb = new ReadValueCallbackI();
-                    @in.readValue(rocb.invoke);
-                    @in.endEncapsulation();
+                    @in.ReadValue(rocb.invoke);
+                    @in.EndEncapsulation();
                     Test.A a = (Test.A)rocb.obj;
                     test(a != null && a.requiredA == 56);
                 }
 
                 {
-                    Optional<Dictionary<int, Test.OneOptional>> p1 = new Optional<Dictionary<int, Test.OneOptional>>();
-                    Optional<Dictionary<int, Test.OneOptional>> p3;
-                    Optional<Dictionary<int, Test.OneOptional>> p2 = initial.opIntOneOptionalDict(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opIntOneOptionalDict(Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
+                    Dictionary<int, Test.OneOptional>? p1 = null;
+                    Dictionary<int, Test.OneOptional>? p3;
+                    Dictionary<int, Test.OneOptional>? p2 = initial.opIntOneOptionalDict(p1, out p3);
+                    test(p2 == null && p3 == null);
                     p2 = initial.opIntOneOptionalDict(null, out p3);
-                    test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
+                    test(p2 == null && p3 == null);
 
                     p1 = new Dictionary<int, Test.OneOptional>();
-                    p1.Value.Add(1, new Test.OneOptional(58));
-                    p1.Value.Add(2, new Test.OneOptional(59));
+                    p1.Add(1, new Test.OneOptional(58));
+                    p1.Add(2, new Test.OneOptional(59));
                     p2 = initial.opIntOneOptionalDict(p1, out p3);
-                    test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
+                    test(p2[1].a == 58 && p3[1].a == 58);
                     var r = initial.opIntOneOptionalDictAsync(p1).Result;
-                    test(r.returnValue.Value[1].a.Value == 58 && r.p3.Value[1].a.Value == 58);
-                    p2 = initial.opIntOneOptionalDict(p1.Value, out p3);
-                    test(p2.Value[1].a.Value == 58 && p3.Value[1].a.Value == 58);
-                    r = initial.opIntOneOptionalDictAsync(p1.Value).Result;
-                    test(r.returnValue.Value[1].a.Value == 58 && r.p3.Value[1].a.Value == 58);
+                    test(r.returnValue[1].a == 58 && r.p3[1].a == 58);
+                    p2 = initial.opIntOneOptionalDict(p1, out p3);
+                    test(p2[1].a == 58 && p3[1].a == 58);
+                    r = initial.opIntOneOptionalDictAsync(p1).Result;
+                    test(r.returnValue[1].a == 58 && r.p3[1].a == 58);
 
-                    p2 = initial.opIntOneOptionalDict(new Optional<Dictionary<int, Test.OneOptional>>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opIntOneOptionalDict(null, out p3);
+                    test(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
                     os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.FSize);
-                    int pos = os.startSize();
-                    Test.IntOneOptionalDictHelper.write(os, p1.Value);
-                    os.endSize(pos);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.WriteOptional(2, OptionalFormat.FSize);
+                    int pos = os.StartSize();
+                    Test.IntOneOptionalDictHelper.Write(os, p1);
+                    os.EndSize(pos);
+                    os.EndEncapsulation();
+                    inEncaps = os.Finished();
                     initial.Invoke("opIntOneOptionalDict", OperationMode.Normal, inEncaps, out outEncaps);
                     var @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, OptionalFormat.FSize));
+                    @in.StartEncapsulation();
+                    test(@in.ReadOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.read(@in);
-                    test(m[1].a.Value == 58);
-                    test(@in.readOptional(3, OptionalFormat.FSize));
+                    Dictionary<int, Test.OneOptional> m = Test.IntOneOptionalDictHelper.Read(@in);
+                    test(m[1].a == 58);
+                    test(@in.ReadOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
-                    m = Test.IntOneOptionalDictHelper.read(@in);
-                    test(m[1].a.Value == 58);
-                    @in.endEncapsulation();
+                    m = Test.IntOneOptionalDictHelper.Read(@in);
+                    test(m[1].a == 58);
+                    @in.EndEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
+                    @in.StartEncapsulation();
+                    @in.EndEncapsulation();
                 }
                 output.WriteLine("ok");
 
@@ -2093,30 +1991,30 @@ namespace Ice
                 {
                     try
                     {
-                        Optional<int> a = new Optional<int>();
-                        Optional<string> b = new Optional<string>();
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>();
+                        int? a = null;
+                        string? b = null;
+                        Test.OneOptional? o = null;
                         initial.opOptionalException(a, b, o);
                     }
                     catch (Test.OptionalException ex)
                     {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
+                        test(ex.a == null);
+                        test(ex.b == null);
+                        test(ex.o == null);
                     }
 
                     try
                     {
-                        Optional<int> a = new Optional<int>(30);
-                        Optional<string> b = new Optional<string>("test");
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>(new Test.OneOptional(53));
+                        int? a = 30;
+                        string? b = "test";
+                        Test.OneOptional? o = new Test.OneOptional(53);
                         initial.opOptionalException(a, b, o);
                     }
                     catch (Test.OptionalException ex)
                     {
-                        test(ex.a.Value == 30);
-                        test(ex.b.Value.Equals("test"));
-                        test(ex.o.Value.a.Value == 53);
+                        test(ex.a == 30);
+                        test(ex.b == "test");
+                        test(ex.o!.a == 53);
                     }
 
                     try
@@ -2124,80 +2022,80 @@ namespace Ice
                         //
                         // Use the 1.0 encoding with an exception whose only class members are optional.
                         //
-                        Optional<int> a = new Optional<int>(30);
-                        Optional<string> b = new Optional<string>("test");
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>(new Test.OneOptional(53));
+                        int? a = 30;
+                        string? b = "test";
+                        Test.OneOptional? o = new Test.OneOptional(53);
                         initial2.opOptionalException(a, b, o);
                     }
                     catch (Test.OptionalException ex)
                     {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
+                        test(ex.a == null);
+                        test(ex.b == null);
+                        test(ex.o == null);
                     }
 
                     try
                     {
-                        Optional<int> a = new Optional<int>();
-                        Optional<string> b = new Optional<string>();
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>();
+                        int? a = null;
+                        string? b = null;
+                        Test.OneOptional? o = null;
                         initial.opDerivedException(a, b, o);
                     }
                     catch (Test.DerivedException ex)
                     {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
-                        test(!ex.ss.HasValue);
-                        test(!ex.o2.HasValue);
-                    }
-
-                    try
-                    {
-                        Optional<int> a = new Optional<int>(30);
-                        Optional<string> b = new Optional<string>("test2");
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>(new Test.OneOptional(53));
-                        initial.opDerivedException(a, b, o);
-                    }
-                    catch (Test.DerivedException ex)
-                    {
-                        test(ex.a.Value == 30);
-                        test(ex.b.Value.Equals("test2"));
-                        test(ex.o.Value.a.Value == 53);
-                        test(ex.ss.Value.Equals("test2"));
-                        test(ex.o2.Value.a.Value == 53);
-                    }
-
-                    try
-                    {
-                        Optional<int> a = new Optional<int>();
-                        Optional<string> b = new Optional<string>();
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>();
-                        initial.opRequiredException(a, b, o);
-                    }
-                    catch (Test.RequiredException ex)
-                    {
-                        test(!ex.a.HasValue);
-                        test(!ex.b.HasValue);
-                        test(!ex.o.HasValue);
-                        test(ex.ss.Equals("test"));
+                        test(ex.a == null);
+                        test(ex.b == null);
+                        test(ex.o == null);
+                        test(ex.ss == null);
                         test(ex.o2 == null);
                     }
 
                     try
                     {
-                        Optional<int> a = new Optional<int>(30);
-                        Optional<string> b = new Optional<string>("test2");
-                        Optional<Test.OneOptional> o = new Optional<Test.OneOptional>(new Test.OneOptional(53));
+                        int? a = 30;
+                        string? b = "test2";
+                        Test.OneOptional? o = new Test.OneOptional(53);
+                        initial.opDerivedException(a, b, o);
+                    }
+                    catch (Test.DerivedException ex)
+                    {
+                        test(ex.a == 30);
+                        test(ex.b == "test2");
+                        test(ex.o!.a == 53);
+                        test(ex.ss == "test2");
+                        test(ex.o2!.a == 53);
+                    }
+
+                    try
+                    {
+                        int? a = null;
+                        string? b = null;
+                        Test.OneOptional? o = null;
                         initial.opRequiredException(a, b, o);
                     }
                     catch (Test.RequiredException ex)
                     {
-                        test(ex.a.Value == 30);
-                        test(ex.b.Value.Equals("test2"));
-                        test(ex.o.Value.a.Value == 53);
-                        test(ex.ss.Equals("test2"));
-                        test(ex.o2.a.Value == 53);
+                        test(ex.a == null);
+                        test(ex.b == null);
+                        test(ex.o == null);
+                        test(ex.ss == "test");
+                        test(ex.o2 == null);
+                    }
+
+                    try
+                    {
+                        int? a = 30;
+                        string? b = "test2";
+                        Test.OneOptional? o = new Test.OneOptional(53);
+                        initial.opRequiredException(a, b, o);
+                    }
+                    catch (Test.RequiredException ex)
+                    {
+                        test(ex.a == 30);
+                        test(ex.b == "test2");
+                        test(ex.o!.a == 53);
+                        test(ex.ss == "test2");
+                        test(ex.o2!.a == 53);
                     }
                 }
                 output.WriteLine("ok");
@@ -2205,49 +2103,49 @@ namespace Ice
                 output.Write("testing optionals with marshaled results... ");
                 output.Flush();
                 {
-                    test(initial.opMStruct1().HasValue);
-                    test(initial.opMDict1().HasValue);
-                    test(initial.opMSeq1().HasValue);
-                    test(initial.opMG1().HasValue);
+                    test(initial.opMStruct1() != null);
+                    test(initial.opMDict1() != null);
+                    test(initial.opMSeq1() != null);
+                    test(initial.opMG1() != null);
 
                     {
-                        Optional<Test.SmallStruct> p1, p2, p3;
-                        p3 = initial.opMStruct2(Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        Test.SmallStruct? p1, p2, p3;
+                        p3 = initial.opMStruct2(null, out p2);
+                        test(p2 == null && p3 == null);
 
                         p1 = new Test.SmallStruct();
                         p3 = initial.opMStruct2(p1, out p2);
-                        test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                        test(p2.Equals(p1) && p3.Equals(p1));
                     }
                     {
-                        Optional<string[]> p1, p2, p3;
-                        p3 = initial.opMSeq2(Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        string[]? p1, p2, p3;
+                        p3 = initial.opMSeq2(null, out p2);
+                        test(p2 == null && p3 == null);
 
                         p1 = new string[1] { "hello" };
                         p3 = initial.opMSeq2(p1, out p2);
-                        test(CollectionComparer.Equals(p2.Value, p1.Value) &&
-                             CollectionComparer.Equals(p3.Value, p1.Value));
+                        test(Collections.Equals(p2, p1) &&
+                             Collections.Equals(p3, p1));
                     }
                     {
-                        Optional<Dictionary<string, int>> p1, p2, p3;
-                        p3 = initial.opMDict2(Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        Dictionary<string, int>? p1, p2, p3;
+                        p3 = initial.opMDict2(null, out p2);
+                        test(p2 == null && p3 == null);
 
                         p1 = new Dictionary<string, int>();
-                        p1.Value["test"] = 54;
+                        p1["test"] = 54;
                         p3 = initial.opMDict2(p1, out p2);
-                        test(CollectionComparer.Equals(p2.Value, p1.Value) &&
-                             CollectionComparer.Equals(p3.Value, p1.Value));
+                        test(Collections.Equals(p2, p1) &&
+                             Collections.Equals(p3, p1));
                     }
                     {
-                        Optional<Test.G> p1, p2, p3;
-                        p3 = initial.opMG2(Util.None, out p2);
-                        test(!p2.HasValue && !p3.HasValue);
+                        Test.G? p1, p2, p3;
+                        p3 = initial.opMG2(null, out p2);
+                        test(p2 == null && p3 == null);
 
                         p1 = new Test.G();
                         p3 = initial.opMG2(p1, out p2);
-                        test(p2.HasValue && p3.HasValue && p3.Value == p2.Value);
+                        test(p2 != null && p3 != null && p3 == p2);
                     }
                 }
                 output.WriteLine("ok");
@@ -2255,183 +2153,35 @@ namespace Ice
                 return initial;
             }
 
-            internal static bool ArraysEqual<T>(T[] a1, T[] a2)
-            {
-                if (ReferenceEquals(a1, a2))
-                {
-                    return true;
-                }
-
-                if (a1 == null || a2 == null)
-                {
-                    return false;
-                }
-
-                if (a1.Length != a2.Length)
-                {
-                    return false;
-                }
-
-                EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-                for (int i = 0; i < a1.Length; ++i)
-                {
-                    if (!comparer.Equals(a1[i], a2[i]))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            internal static bool ListsEqual<T>(ICollection<T> a1, ICollection<T> a2)
-            {
-                if (ReferenceEquals(a1, a2))
-                {
-                    return true;
-                }
-
-                if (a1 == null || a2 == null)
-                {
-                    return false;
-                }
-
-                if (a1.Count != a2.Count)
-                {
-                    return false;
-                }
-
-                EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-                IEnumerator<T> a1i = a1.GetEnumerator();
-                IEnumerator<T> a2i = a2.GetEnumerator();
-                while (a1i.MoveNext() && a2i.MoveNext())
-                {
-                    if (!comparer.Equals(a1i.Current, a2i.Current))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            internal static bool MapsEqual<K, V>(Dictionary<K, V> d1, Dictionary<K, V> d2)
-            {
-                if (ReferenceEquals(d1, d2))
-                {
-                    return true;
-                }
-
-                if (d1 == null || d2 == null)
-                {
-                    return false;
-                }
-
-                if (d1.Count != d2.Count)
-                {
-                    return false;
-                }
-
-                EqualityComparer<V> valueComparer = EqualityComparer<V>.Default;
-                foreach (K key in d1.Keys)
-                {
-                    if (!d2.ContainsKey(key) || !valueComparer.Equals(d1[key], d2[key]))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            internal static void Populate<T>(T[] arr, T value)
-            {
-                for (int i = 0; i < arr.Length; ++i)
-                {
-                    arr[i] = value;
-                }
-            }
-
-            /*
-                TODO: update test to not rely on ValueReader / ValueWriter
-
-            private class TestValueReader : ValueReader
-            {
-                public override void read(InputStream @in)
-                {
-                    @in.startValue();
-                    @in.startSlice();
-                    @in.endSlice();
-                    @in.endValue(false);
-                }
-            }
-
-            private class BValueReader : ValueReader
-            {
-                public override void read(InputStream @in)
-                {
-                    @in.startValue();
-                    // ::Test::B
-                    @in.startSlice();
-                    @in.readInt();
-                    @in.endSlice();
-                    // ::Test::A
-                    @in.startSlice();
-                    @in.readInt();
-                    @in.endSlice();
-                    @in.endValue(false);
-                }
-            }
-
-            private class CValueReader : ValueReader
-            {
-                public override void read(InputStream @in)
-                {
-                    @in.startValue();
-                    // ::Test::C
-                    @in.startSlice();
-                    @in.skipSlice();
-                    // ::Test::B
-                    @in.startSlice();
-                    @in.readInt();
-                    @in.endSlice();
-                    // ::Test::A
-                    @in.startSlice();
-                    @in.readInt();
-                    @in.endSlice();
-                    @in.endValue(false);
-                }
-            }
-            */
             private class DValueWriter : ValueWriter
             {
                 public override void write(OutputStream @out)
                 {
-                    @out.startValue(null);
+                    @out.StartValue(null);
                     // ::Test::D
-                    @out.startSlice("::Test::D", -1, false);
+                    @out.StartSlice("::Test::D", -1, false);
                     string s = "test";
-                    @out.writeString(s);
-                    @out.writeOptional(1, OptionalFormat.FSize);
+                    @out.WriteString(s);
+                    @out.WriteOptional(1, OptionalFormat.FSize);
                     string[] o = { "test1", "test2", "test3", "test4" };
-                    int pos = @out.startSize();
-                    @out.writeStringSeq(o);
-                    @out.endSize(pos);
+                    int pos = @out.StartSize();
+                    @out.WriteStringSeq(o);
+                    @out.EndSize(pos);
                     Test.A a = new Test.A();
                     a.mc = 18;
-                    @out.writeOptional(1000, OptionalFormat.Class);
-                    @out.writeValue(a);
-                    @out.endSlice();
+                    @out.WriteOptional(1000, OptionalFormat.Class);
+                    @out.WriteValue(a);
+                    @out.EndSlice();
                     // ::Test::B
-                    @out.startSlice(Test.B.ice_staticId(), -1, false);
+                    @out.StartSlice(Test.B.ice_staticId(), -1, false);
                     int v = 14;
-                    @out.writeInt(v);
-                    @out.endSlice();
+                    @out.WriteInt(v);
+                    @out.EndSlice();
                     // ::Test::A
-                    @out.startSlice(Test.A.ice_staticId(), -1, true);
-                    @out.writeInt(v);
-                    @out.endSlice();
-                    @out.endValue();
+                    @out.StartSlice(Test.A.ice_staticId(), -1, true);
+                    @out.WriteInt(v);
+                    @out.EndSlice();
+                    @out.EndValue();
                 }
             }
 
@@ -2443,30 +2193,30 @@ namespace Ice
                     @in.startValue();
                     // ::Test::D
                     @in.startSlice();
-                    string s = @in.readString();
+                    string s = @in.ReadString();
                     test(s.Equals("test"));
-                    test(@in.readOptional(1, OptionalFormat.FSize));
+                    test(@in.ReadOptional(1, OptionalFormat.FSize));
                     @in.skip(4);
-                    string[] o = @in.readStringSeq();
+                    string[] o = @in.ReadStringSeq();
                     test(o.Length == 4 &&
                          o[0].Equals("test1") && o[1].Equals("test2") && o[2].Equals("test3") && o[3].Equals("test4"));
-                    test(@in.readOptional(1000, OptionalFormat.Class));
-                    @in.readValue(a.invoke);
+                    test(@in.ReadOptional(1000, OptionalFormat.Class));
+                    @in.ReadValue(a.invoke);
                     @in.endSlice();
                     // ::Test::B
                     @in.startSlice();
-                    @in.readInt();
+                    @in.ReadInt();
                     @in.endSlice();
                     // ::Test::A
                     @in.startSlice();
-                    @in.readInt();
+                    @in.ReadInt();
                     @in.endSlice();
                     @in.endValue(false);
                 }
 
                 internal void check()
                 {
-                    test(((Test.A)a.obj).mc.Value == 18);
+                    test(((Test.A)a.obj).mc == 18);
                 }
 
                 private ReadValueCallbackI a = new ReadValueCallbackI();
@@ -2480,11 +2230,11 @@ namespace Ice
                     @in.startValue();
                     @in.startSlice();
                     // Don't read af on purpose
-                    //in.read(1, _f.af);
+                    //in.Read(1, _f.af);
                     @in.endSlice();
                     @in.startSlice();
                     ReadValueCallbackI rocb = new ReadValueCallbackI();
-                    @in.readValue(rocb.invoke);
+                    @in.ReadValue(rocb.invoke);
                     @in.endSlice();
                     @in.endValue(false);
                     _f.ae = (Test.A)rocb.obj;

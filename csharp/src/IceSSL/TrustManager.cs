@@ -2,25 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
 namespace IceSSL
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Text;
-
     internal sealed class TrustManager
     {
         internal TrustManager(Ice.Communicator communicator)
         {
             Debug.Assert(communicator != null);
             _communicator = communicator;
-            Ice.Properties properties = communicator.getProperties();
+            Ice.Properties properties = communicator.Properties;
             _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
-            string key = null;
+            string key = "IceSSL.TrustOnly";
             try
             {
-                key = "IceSSL.TrustOnly";
                 parse(properties.getProperty(key), _rejectAll, _acceptAll);
                 key = "IceSSL.TrustOnly.Client";
                 parse(properties.getProperty(key), _rejectClient, _acceptClient);
@@ -67,10 +66,9 @@ namespace IceSSL
                 {
                     reject.Add(_rejectAllServer);
                 }
-                if (info.adapterName.Length > 0)
+                if (info.adapterName!.Length > 0)
                 {
-                    List<List<RFC2253.RDNPair>> p = null;
-                    if (_rejectServer.TryGetValue(info.adapterName, out p))
+                    if (_rejectServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
                     {
                         reject.Add(p);
                     }
@@ -94,10 +92,9 @@ namespace IceSSL
                 {
                     accept.Add(_acceptAllServer);
                 }
-                if (info.adapterName.Length > 0)
+                if (info.adapterName!.Length > 0)
                 {
-                    List<List<RFC2253.RDNPair>> p = null;
-                    if (_acceptServer.TryGetValue(info.adapterName, out p))
+                    if (_acceptServer.TryGetValue(info.adapterName, out List<List<RFC2253.RDNPair>> p))
                     {
                         accept.Add(p);
                     }
@@ -136,12 +133,12 @@ namespace IceSSL
                     {
                         if (info.incoming)
                         {
-                            _communicator.getLogger().trace("Security", "trust manager evaluating client:\n" +
+                            _communicator.Logger.trace("Security", "trust manager evaluating client:\n" +
                                 "subject = " + subjectName + "\n" + "adapter = " + info.adapterName + "\n" + desc);
                         }
                         else
                         {
-                            _communicator.getLogger().trace("Security", "trust manager evaluating server:\n" +
+                            _communicator.Logger.trace("Security", "trust manager evaluating server:\n" +
                                 "subject = " + subjectName + "\n" + desc);
                         }
                     }
@@ -169,7 +166,7 @@ namespace IceSSL
                         {
                             StringBuilder s = new StringBuilder("trust manager rejecting PDNs:\n");
                             stringify(matchSet, s);
-                            _communicator.getLogger().trace("Security", s.ToString());
+                            _communicator.Logger.trace("Security", s.ToString());
                         }
                         if (match(matchSet, dn))
                         {
@@ -186,7 +183,7 @@ namespace IceSSL
                         {
                             StringBuilder s = new StringBuilder("trust manager accepting PDNs:\n");
                             stringify(matchSet, s);
-                            _communicator.getLogger().trace("Security", s.ToString());
+                            _communicator.Logger.trace("Security", s.ToString());
                         }
                         if (match(matchSet, dn))
                         {
@@ -196,7 +193,7 @@ namespace IceSSL
                 }
                 catch (RFC2253.ParseException e)
                 {
-                    _communicator.getLogger().warning(
+                    _communicator.Logger.warning(
                         "IceSSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + e.reason);
                 }
 
@@ -310,19 +307,19 @@ namespace IceSSL
             }
         }
 
-        private Ice.Communicator _communicator;
-        private int _traceLevel;
+        private readonly Ice.Communicator _communicator;
+        private readonly int _traceLevel;
 
-        private List<List<RFC2253.RDNPair>> _rejectAll = new List<List<RFC2253.RDNPair>>();
-        private List<List<RFC2253.RDNPair>> _rejectClient = new List<List<RFC2253.RDNPair>>();
-        private List<List<RFC2253.RDNPair>> _rejectAllServer = new List<List<RFC2253.RDNPair>>();
-        private Dictionary<string, List<List<RFC2253.RDNPair>>> _rejectServer =
+        private readonly List<List<RFC2253.RDNPair>> _rejectAll = new List<List<RFC2253.RDNPair>>();
+        private readonly List<List<RFC2253.RDNPair>> _rejectClient = new List<List<RFC2253.RDNPair>>();
+        private readonly List<List<RFC2253.RDNPair>> _rejectAllServer = new List<List<RFC2253.RDNPair>>();
+        private readonly Dictionary<string, List<List<RFC2253.RDNPair>>> _rejectServer =
             new Dictionary<string, List<List<RFC2253.RDNPair>>>();
 
-        private List<List<RFC2253.RDNPair>> _acceptAll = new List<List<RFC2253.RDNPair>>();
-        private List<List<RFC2253.RDNPair>> _acceptClient = new List<List<RFC2253.RDNPair>>();
-        private List<List<RFC2253.RDNPair>> _acceptAllServer = new List<List<RFC2253.RDNPair>>();
-        private Dictionary<string, List<List<RFC2253.RDNPair>>> _acceptServer =
+        private readonly List<List<RFC2253.RDNPair>> _acceptAll = new List<List<RFC2253.RDNPair>>();
+        private readonly List<List<RFC2253.RDNPair>> _acceptClient = new List<List<RFC2253.RDNPair>>();
+        private readonly List<List<RFC2253.RDNPair>> _acceptAllServer = new List<List<RFC2253.RDNPair>>();
+        private readonly Dictionary<string, List<List<RFC2253.RDNPair>>> _acceptServer =
             new Dictionary<string, List<List<RFC2253.RDNPair>>>();
     }
 }

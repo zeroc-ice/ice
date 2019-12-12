@@ -61,8 +61,9 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("getting the session timeout... ");
                 Console.Out.Flush();
-                long timeout = router.getSessionTimeout();
-                test(timeout == 30);
+                long sessionTimeout = router.getSessionTimeout();
+                long acmTimeout = router.getACMTimeout();
+                test(sessionTimeout == 30 && acmTimeout == 30);
                 Console.Out.WriteLine("ok");
             }
 
@@ -195,7 +196,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("creating and activating callback receiver adapter... ");
                 Console.Out.Flush();
-                communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
+                communicator.Properties.setProperty("Ice.PrintAdapterReady", "0");
                 adapter = communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
                 adapter.Activate();
                 Console.Out.WriteLine("ok");
@@ -294,7 +295,7 @@ public class Client : Test.TestHelper
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 CallbackPrx otherCategoryTwoway =
-                    CallbackPrx.UncheckedCast(twoway.Clone(Ice.Util.stringToIdentity("c2/callback")));
+                    CallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -308,7 +309,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.UncheckedCast(twoway.Clone(Ice.Util.stringToIdentity("c3/callback")));
+                        CallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c3/callback")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
@@ -324,7 +325,7 @@ public class Client : Test.TestHelper
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 CallbackPrx otherCategoryTwoway =
-                    CallbackPrx.UncheckedCast(twoway.Clone(Ice.Util.stringToIdentity("_userid/callback")));
+                    CallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");

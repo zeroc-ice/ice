@@ -35,9 +35,9 @@ namespace Ice
 
                 using (var communicator = initialize(properties))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                    communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");

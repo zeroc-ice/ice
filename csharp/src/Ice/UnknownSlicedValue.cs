@@ -23,7 +23,7 @@ namespace Ice
         /// un-marshaling of the value, null is returned otherwise.
         /// </summary>
         /// <returns>The sliced data or null.</returns>
-        public override SlicedData ice_getSlicedData()
+        public override SlicedData? ice_getSlicedData()
         {
             return _slicedData;
         }
@@ -39,17 +39,17 @@ namespace Ice
 
         public override void iceWrite(OutputStream ostr)
         {
-            ostr.startValue(_slicedData);
-            ostr.endValue();
+            ostr.StartValue(_slicedData);
+            ostr.EndValue();
         }
 
         public override void iceRead(InputStream istr)
         {
-            istr.startValue();
-            _slicedData = istr.endValue(true);
+            istr.StartValue();
+            _slicedData = istr.EndValue(true);
         }
 
         private string _unknownTypeId;
-        private SlicedData _slicedData;
+        private SlicedData? _slicedData;
     }
 }

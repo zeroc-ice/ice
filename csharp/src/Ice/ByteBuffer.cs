@@ -192,7 +192,7 @@ namespace IceInternal
 
         public ByteBuffer get(byte[] b)
         {
-            return get(b, 0, System.Buffer.ByteLength(b));
+            return get(b, 0, b.Length);
         }
 
         public ByteBuffer get(byte[] b, int offset, int length)
@@ -201,7 +201,7 @@ namespace IceInternal
             {
                 throwOutOfRange("offset", offset, "offset must be non-negative");
             }
-            if (offset + length > System.Buffer.ByteLength(b))
+            if (offset + length > b.Length)
             {
                 throwOutOfRange("length", length, "insufficient room beyond given offset in destination array");
             }
@@ -226,7 +226,7 @@ namespace IceInternal
 
         public ByteBuffer put(byte[] b)
         {
-            return put(b, 0, System.Buffer.ByteLength(b));
+            return put(b, 0, b.Length);
         }
 
         public ByteBuffer put(byte[] b, int offset, int length)
@@ -235,7 +235,7 @@ namespace IceInternal
             {
                 throwOutOfRange("offset", offset, "offset must be non-negative");
             }
-            if (offset + length > System.Buffer.ByteLength(b))
+            if (offset + length > b.Length)
             {
                 throwOutOfRange("length", length, "insufficient data beyond given offset in source array");
             }

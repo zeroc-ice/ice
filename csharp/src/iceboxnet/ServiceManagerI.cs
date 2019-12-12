@@ -18,9 +18,9 @@ namespace IceBox
         public ServiceManagerI(Ice.Communicator communicator, string[] args)
         {
             _communicator = communicator;
-            _logger = _communicator.getLogger();
+            _logger = _communicator.Logger;
 
-            Ice.Properties props = _communicator.getProperties();
+            Ice.Properties props = _communicator.Properties;
 
             if (props.getProperty("Ice.Admin.Enabled").Length == 0)
             {
@@ -45,7 +45,7 @@ namespace IceBox
             }
 
             _argv = args;
-            _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
+            _traceServiceObserver = _communicator.Properties.getPropertyAsInt("IceBox.Trace.ServiceObserver");
         }
 
         public void startService(string name, Ice.Current current)
@@ -242,7 +242,7 @@ namespace IceBox
         {
             try
             {
-                Ice.Properties properties = _communicator.getProperties();
+                Ice.Properties properties = _communicator.Properties;
 
                 //
                 // Create an object adapter. Services probably should NOT share
@@ -362,11 +362,11 @@ namespace IceBox
                         // Add all facets created on shared communicator to the IceBox communicator
                         // but renamed <prefix>.<facet-name>, except for the Process facet which is
                         // never added.
-                        foreach (var p in _sharedCommunicator.findAllAdminFacets())
+                        foreach (var p in _sharedCommunicator.FindAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.addAdminFacet(p.Value.servant, p.Value.disp, facetNamePrefix + p.Key);
+                                _communicator.AddAdminFacet(p.Value.servant, p.Value.disp, facetNamePrefix + p.Key);
                             }
                         }
                     }
@@ -380,7 +380,7 @@ namespace IceBox
                 //
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 //
-                _communicator.addAdminFacet<ServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
+                _communicator.AddAdminFacet<ServiceManager, ServiceManagerTraits>(this, "IceBox.ServiceManager");
                 _communicator.getAdmin();
                 if (adapter != null)
                 {
@@ -462,7 +462,7 @@ namespace IceBox
                     throw e;
                 }
 
-                System.Reflection.Assembly serviceAssembly = null;
+                System.Reflection.Assembly? serviceAssembly = null;
                 string assemblyName = entryPoint.Substring(0, sepPos);
                 string className = entryPoint.Substring(sepPos + 1);
 
@@ -502,7 +502,7 @@ namespace IceBox
                 //
                 // Instantiate the class.
                 //
-                Type c = null;
+                Type? c = null;
                 try
                 {
                     c = serviceAssembly.GetType(className, true);
@@ -527,7 +527,7 @@ namespace IceBox
                 // commnunicator property set.
                 //
                 Ice.Communicator communicator;
-                if (_communicator.getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+                if (_communicator.Properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
                 {
                     Debug.Assert(_sharedCommunicator != null);
                     communicator = _sharedCommunicator;
@@ -584,11 +584,11 @@ namespace IceBox
                         // Add all facets created on the service communicator to the IceBox communicator
                         // but renamed IceBox.Service.<service>.<facet-name>, except for the Process facet
                         // which is never added
-                        foreach (var p in communicator.findAllAdminFacets())
+                        foreach (var p in communicator.FindAllAdminFacets())
                         {
                             if (!p.Key.Equals("Process"))
                             {
-                                _communicator.addAdminFacet(p.Value.servant, p.Value.disp, serviceFacetNamePrefix + p.Key);
+                                _communicator.AddAdminFacet(p.Value.servant, p.Value.disp, serviceFacetNamePrefix + p.Key);
                             }
                         }
                     }
@@ -607,7 +607,7 @@ namespace IceBox
                         //
                         Type[] parameterTypes = new Type[1];
                         parameterTypes[0] = typeof(Ice.Communicator);
-                        System.Reflection.ConstructorInfo ci = c.GetConstructor(parameterTypes);
+                        System.Reflection.ConstructorInfo? ci = c.GetConstructor(parameterTypes);
                         if (ci != null)
                         {
                             try
@@ -630,13 +630,14 @@ namespace IceBox
                             //
                             try
                             {
-                                info.service = (Service)IceInternal.AssemblyUtil.createInstance(c);
-                                if (info.service == null)
+                                Service? s = (Service?)IceInternal.AssemblyUtil.createInstance(c);
+                                if (s == null)
                                 {
                                     FailureException e = new FailureException();
                                     e.reason = err + "no default constructor for '" + className + "'";
                                     throw e;
                                 }
+                                info.service = s;
                             }
                             catch (UnauthorizedAccessException ex)
                             {
@@ -913,7 +914,7 @@ namespace IceBox
         private Ice.Properties createServiceProperties(string service)
         {
             Ice.Properties properties;
-            Ice.Properties communicatorProperties = _communicator.getProperties();
+            Ice.Properties communicatorProperties = _communicator.Properties;
             if (communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
             {
                 properties = communicatorProperties.Clone();
@@ -972,6 +973,7 @@ namespace IceBox
             if (_adminEnabled && properties.getProperty("Ice.Admin.Enabled").Length == 0)
             {
                 List<string> facetNames = new List<string>();
+                Debug.Assert(_adminFacetFilter != null);
                 foreach (string p in _adminFacetFilter)
                 {
                     if (p.StartsWith(prefix))
@@ -999,11 +1001,11 @@ namespace IceBox
         {
             try
             {
-                foreach (string p in _communicator.findAllAdminFacets().Keys)
+                foreach (string p in _communicator.FindAllAdminFacets().Keys)
                 {
                     if (p.StartsWith(prefix))
                     {
-                        _communicator.removeAdminFacet(p);
+                        _communicator.RemoveAdminFacet(p);
                     }
                 }
             }
@@ -1019,8 +1021,8 @@ namespace IceBox
 
         private Ice.Communicator _communicator;
         private bool _adminEnabled = false;
-        private HashSet<string> _adminFacetFilter = null;
-        private Ice.Communicator _sharedCommunicator = null;
+        private HashSet<string>? _adminFacetFilter = null;
+        private Ice.Communicator? _sharedCommunicator = null;
         private Ice.Logger _logger;
         private string[] _argv; // Filtered server argument vector
         private List<ServiceInfo> _services = new List<ServiceInfo>();

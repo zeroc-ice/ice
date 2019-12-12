@@ -56,8 +56,8 @@ namespace Ice
                 {
                     try
                     {
-                        current.adapter.WaitForHold();
-                        current.adapter.Activate();
+                        current.Adapter.WaitForHold();
+                        current.Adapter.Activate();
                     }
                     catch (Ice.ObjectAdapterDeactivatedException)
                     {
@@ -97,7 +97,7 @@ namespace Ice
             shutdown(Ice.Current current)
             {
                 _adapter.Hold();
-                _adapter.GetCommunicator().shutdown();
+                _adapter.Communicator.shutdown();
             }
 
             private Ice.ObjectAdapter _adapter;

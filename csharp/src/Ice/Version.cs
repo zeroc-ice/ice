@@ -110,15 +110,15 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.3")]
         public void ice_writeMembers(OutputStream ostr)
         {
-            ostr.writeByte(this.major);
-            ostr.writeByte(this.minor);
+            ostr.WriteByte(this.major);
+            ostr.WriteByte(this.minor);
         }
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.3")]
         public void ice_readMembers(InputStream istr)
         {
-            this.major = istr.readByte();
-            this.minor = istr.readByte();
+            this.major = istr.ReadByte();
+            this.minor = istr.ReadByte();
         }
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.3")]
@@ -229,15 +229,15 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.3")]
         public void ice_writeMembers(OutputStream ostr)
         {
-            ostr.writeByte(this.major);
-            ostr.writeByte(this.minor);
+            ostr.WriteByte(this.major);
+            ostr.WriteByte(this.minor);
         }
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.3")]
         public void ice_readMembers(InputStream istr)
         {
-            this.major = istr.readByte();
-            this.minor = istr.readByte();
+            this.major = istr.ReadByte();
+            this.minor = istr.ReadByte();
         }
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.3")]

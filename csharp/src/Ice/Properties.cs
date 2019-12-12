@@ -73,11 +73,11 @@ namespace Ice
         /// <returns>The property value or the default value.
         ///
         /// </returns>
-        public string getPropertyWithDefault(string key, string val)
+        public string getPropertyWithDefault(string key, string value)
         {
             lock (this)
             {
-                string result = val;
+                string result = value;
                 PropertyValue pv;
                 if (_properties.TryGetValue(key, out pv))
                 {
@@ -122,14 +122,14 @@ namespace Ice
         /// default value.
         ///
         /// </returns>
-        public int getPropertyAsIntWithDefault(string key, int val)
+        public int getPropertyAsIntWithDefault(string key, int value)
         {
             lock (this)
             {
                 PropertyValue pv;
                 if (!_properties.TryGetValue(key, out pv))
                 {
-                    return val;
+                    return value;
                 }
                 pv.used = true;
                 try
@@ -139,8 +139,8 @@ namespace Ice
                 catch (FormatException)
                 {
                     Util.getProcessLogger().warning("numeric property " + key +
-                                                    " set to non-numeric value, defaulting to " + val);
-                    return val;
+                                                    " set to non-numeric value, defaulting to " + value);
+                    return value;
                 }
             }
         }
@@ -190,11 +190,11 @@ namespace Ice
         /// default value.
         ///
         /// </returns>
-        public string[] getPropertyAsListWithDefault(string key, string[] val)
+        public string[] getPropertyAsListWithDefault(string key, string[]? value = null)
         {
-            if (val == null)
+            if (value == null)
             {
-                val = Array.Empty<string>();
+                value = Array.Empty<string>();
             }
 
             lock (this)
@@ -202,17 +202,17 @@ namespace Ice
                 PropertyValue pv;
                 if (!_properties.TryGetValue(key, out pv))
                 {
-                    return val;
+                    return value;
                 }
 
                 pv.used = true;
 
-                string[] result = IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
+                string[]? result = IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
                 if (result == null)
                 {
                     Util.getProcessLogger().warning("mismatched quotes in property " + key
                                                     + "'s value, returning default value");
-                    return val;
+                    return value;
                 }
                 else
                 {
@@ -262,7 +262,7 @@ namespace Ice
         /// <param name="value">The property value.
         ///
         /// </param>
-        public void setProperty(string key, string val)
+        public void setProperty(string key, string value)
         {
             //
             // Trim whitespace
@@ -308,9 +308,10 @@ namespace Ice
                             if (prop.deprecated())
                             {
                                 logger.warning("deprecated property: " + key);
-                                if (prop.deprecatedBy() != null)
+                                string? deprecatedBy = prop.deprecatedBy();
+                                if (deprecatedBy != null)
                                 {
-                                    key = prop.deprecatedBy();
+                                    key = deprecatedBy;
                                 }
                             }
                             break;
@@ -346,16 +347,16 @@ namespace Ice
                 //
                 // Set or clear the property.
                 //
-                if (val != null && val.Length > 0)
+                if (value != null && value.Length > 0)
                 {
                     PropertyValue pv;
                     if (_properties.TryGetValue(key, out pv))
                     {
-                        pv.val = val;
+                        pv.val = value;
                     }
                     else
                     {
-                        pv = new PropertyValue(val, false);
+                        pv = new PropertyValue(value, false);
                     }
                     _properties[key] = pv;
                 }
@@ -406,19 +407,19 @@ namespace Ice
         /// </param>
         /// <returns>The command-line options that do not start with the specified
         /// prefix, in their original order.</returns>
-        public string[] parseCommandLineOptions(string pfx, string[] options)
+        public string[] parseCommandLineOptions(string prefix, string[] options)
         {
-            if (pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
+            if (prefix.Length > 0 && prefix[prefix.Length - 1] != '.')
             {
-                pfx += '.';
+                prefix += '.';
             }
-            pfx = "--" + pfx;
+            prefix = "--" + prefix;
 
             List<string> result = new List<string>();
             for (int i = 0; i < options.Length; i++)
             {
                 string opt = options[i];
-                if (opt.StartsWith(pfx, StringComparison.Ordinal))
+                if (opt.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     if (opt.IndexOf('=') == -1)
                     {
@@ -432,12 +433,8 @@ namespace Ice
                     result.Add(opt);
                 }
             }
-            string[] arr = new string[result.Count];
-            if (arr.Length != 0)
-            {
-                result.CopyTo(arr);
-            }
-            return arr;
+
+            return result.ToArray();
         }
 
         /// <summary>
@@ -524,7 +521,7 @@ namespace Ice
             _properties = new Dictionary<string, PropertyValue>();
         }
 
-        internal Properties(ref string[] args, Properties defaults) : this()
+        internal Properties(ref string[] args, Properties? defaults) : this()
         {
             if (defaults != null)
             {

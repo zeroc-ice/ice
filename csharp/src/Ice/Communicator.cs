@@ -55,7 +55,7 @@ namespace Ice
                 _communicator.updateThreadObservers();
             }
 
-            private Communicator _communicator;
+            private readonly Communicator _communicator;
         }
 
         internal InitializationData initializationData()
@@ -67,11 +67,6 @@ namespace Ice
             // No mutex lock, immutable.
             //
             return _initData;
-        }
-
-        internal bool destroyed()
-        {
-            return _state == StateDestroyed;
         }
 
         internal TraceLevels traceLevels()
@@ -220,9 +215,9 @@ namespace Ice
                 _endpointFactoryManager.destroy();
             }
 
-            if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+            if (Properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
             {
-                List<string> unusedProperties = _initData.properties.getUnusedProperties();
+                List<string> unusedProperties = Properties.getUnusedProperties();
                 if (unusedProperties.Count != 0)
                 {
                     StringBuilder message = new StringBuilder("The following properties were set but never read:");
@@ -231,7 +226,7 @@ namespace Ice
                         message.Append("\n    ");
                         message.Append(s);
                     }
-                    _initData.logger.warning(message.ToString());
+                    Logger.warning(message.ToString());
                 }
             }
 
@@ -369,20 +364,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Convert an identity into a string.
-        /// </summary>
-        /// <param name="ident">The identity to convert into a string.
-        ///
-        /// </param>
-        /// <returns>The "stringified" identity.
-        ///
-        /// </returns>
-        public string identityToString(Identity ident)
-        {
-            return Util.identityToString(ident, toStringMode());
-        }
-
-        /// <summary>
         /// Create a new object adapter.
         /// The endpoints for the object
         /// adapter are taken from the property name.Endpoints.
@@ -434,7 +415,7 @@ namespace Ice
                 name = Guid.NewGuid().ToString();
             }
 
-            getProperties().setProperty(name + ".Endpoints", endpoints);
+            Properties.setProperty(name + ".Endpoints", endpoints);
             return objectAdapterFactory().createObjectAdapter(name, null);
         }
 
@@ -469,7 +450,7 @@ namespace Ice
             Dictionary<string, string> properties = proxyToProperty(router, name + ".Router");
             foreach (KeyValuePair<string, string> entry in properties)
             {
-                getProperties().setProperty(entry.Key, entry.Value);
+                Properties.setProperty(entry.Key, entry.Value);
             }
 
             return objectAdapterFactory().createObjectAdapter(name, router);
@@ -481,9 +462,13 @@ namespace Ice
         /// <returns>This communicator's properties.
         ///
         /// </returns>
-        public Properties getProperties()
+        public Properties Properties
         {
-            return _initData.properties;
+            get
+            {
+                Debug.Assert(_initData.properties != null);
+                return _initData.properties;
+            }
         }
 
         /// <summary>
@@ -492,16 +477,20 @@ namespace Ice
         /// <returns>This communicator's logger.
         ///
         /// </returns>
-        public Logger getLogger()
+        public Logger Logger
         {
-            return _initData.logger;
+            get
+            {
+                Debug.Assert(_initData.logger != null);
+                return _initData.logger;
+            }
         }
 
         /// <summary>
         /// Get the observer resolver object for this communicator.
         /// </summary>
         /// <returns>This communicator's observer resolver object.</returns>
-        public Instrumentation.CommunicatorObserver getObserver()
+        public Instrumentation.CommunicatorObserver? getObserver()
         {
             return _initData.observer;
         }
@@ -512,7 +501,7 @@ namespace Ice
         /// <returns>The default router for this communicator.
         ///
         /// </returns>
-        public RouterPrx getDefaultRouter()
+        public RouterPrx? getDefaultRouter()
         {
             lock (this)
             {
@@ -558,7 +547,7 @@ namespace Ice
         /// <returns>The default locator for this communicator.
         ///
         /// </returns>
-        public LocatorPrx getDefaultLocator()
+        public LocatorPrx? getDefaultLocator()
         {
             lock (this)
             {
@@ -586,7 +575,7 @@ namespace Ice
         /// <param name="locator">The default locator to use for this communicator.
         ///
         /// </param>
-        public void setDefaultLocator(LocatorPrx locator)
+        public void setDefaultLocator(LocatorPrx? locator)
         {
             lock (this)
             {
@@ -629,41 +618,52 @@ namespace Ice
             }
         }
 
-        public int messageSizeMax()
+        internal int messageSizeMax()
         {
             // No mutex lock, immutable.
             return _messageSizeMax;
         }
 
-        public int classGraphDepthMax()
+        internal int classGraphDepthMax()
         {
             // No mutex lock, immutable.
             return _classGraphDepthMax;
         }
 
-        public Ice.ToStringMode
-        toStringMode()
+        public ToStringMode ToStringMode
         {
-            // No mutex lock, immutable
-            return _toStringMode;
+            get
+            {
+                // No mutex lock, immutable
+                return _toStringMode;
+            }
         }
 
-        public int cacheMessageBuffers()
+        internal int CacheMessageBuffers
         {
-            // No mutex lock, immutable.
-            return _cacheMessageBuffers;
+            get
+            {
+                // No mutex lock, immutable.
+                return _cacheMessageBuffers;
+            }
         }
 
-        public ACMConfig clientACM()
+        internal ACMConfig ClientACM
         {
-            // No mutex lock, immutable.
-            return _clientACM;
+            get
+            {
+                // No mutex lock, immutable.
+                return _clientACM;
+            }
         }
 
-        public ACMConfig serverACM()
+        internal ACMConfig ServerACM
         {
-            // No mutex lock, immutable.
-            return _serverACM;
+            get
+            {
+                // No mutex lock, immutable.
+                return _serverACM;
+            }
         }
 
         /// <summary>
@@ -684,64 +684,59 @@ namespace Ice
         /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
         ///
         /// </returns>
-        public IObjectPrx CreateAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
+        public IObjectPrx CreateAdmin(ObjectAdapter? adminAdapter, Identity adminIdentity)
         {
-            bool createAdapter = (adminAdapter == null);
-
             lock (this)
             {
                 if (_state == StateDestroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                if (adminIdentity == null || string.IsNullOrEmpty(adminIdentity.name))
-                {
-                    throw new Ice.IllegalIdentityException(adminIdentity);
+                    throw new CommunicatorDestroyedException();
                 }
 
                 if (_adminAdapter != null)
                 {
-                    throw new Ice.InitializationException("Admin already created");
+                    throw new InitializationException("Admin already created");
                 }
 
                 if (!_adminEnabled)
                 {
-                    throw new Ice.InitializationException("Admin is disabled");
+                    throw new InitializationException("Admin is disabled");
                 }
 
-                if (createAdapter)
+                _adminIdentity = adminIdentity;
+                if (adminAdapter == null)
                 {
-                    if (_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
+                    if (Properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                        adminAdapter = _objectAdapterFactory!.createObjectAdapter("Ice.Admin", null);
                     }
                     else
                     {
-                        throw new Ice.InitializationException("Ice.Admin.Endpoints is not set");
+                        throw new InitializationException("Ice.Admin.Endpoints is not set");
                     }
                 }
-                Debug.Assert(adminAdapter != null);
-
-                _adminIdentity = adminIdentity;
-                _adminAdapter = adminAdapter;
+                else
+                {
+                    _adminAdapter = adminAdapter;
+                }
+                Debug.Assert(_adminAdapter != null);
                 AddAllAdminFacets();
             }
 
-            if (createAdapter)
+            if (adminAdapter == null)
             {
                 try
                 {
-                    adminAdapter.Activate();
+                    _adminAdapter.Activate();
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                     //
                     // We cleanup _adminAdapter, however this error is not recoverable
                     // (can't call again getAdmin() after fixing the problem)
                     // since all the facets (servants) in the adapter are lost
                     //
-                    adminAdapter.Destroy();
+                    _adminAdapter.Destroy();
                     lock (this)
                     {
                         _adminAdapter = null;
@@ -749,8 +744,8 @@ namespace Ice
                     throw;
                 }
             }
-            setServerProcessProxy(adminAdapter, adminIdentity);
-            return adminAdapter.CreateProxy(adminIdentity);
+            setServerProcessProxy(_adminAdapter, adminIdentity);
+            return _adminAdapter.CreateProxy(adminIdentity);
         }
 
         /// <summary>
@@ -768,36 +763,37 @@ namespace Ice
         /// Admin object is configured.
         ///
         /// </returns>
-        public IObjectPrx getAdmin()
+        public IObjectPrx? getAdmin()
         {
-            Ice.ObjectAdapter adminAdapter;
-            Ice.Identity adminIdentity;
+            ObjectAdapter adminAdapter;
+            Identity adminIdentity;
 
             lock (this)
             {
                 if (_state == StateDestroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 if (_adminAdapter != null)
                 {
-                    return _adminAdapter.CreateProxy(_adminIdentity);
+                    Debug.Assert(_adminIdentity != null);
+                    return _adminAdapter.CreateProxy(_adminIdentity.Value);
                 }
                 else if (_adminEnabled)
                 {
-                    if (_initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
+                    if (Properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                     {
-                        adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null);
+                        adminAdapter = _objectAdapterFactory!.createObjectAdapter("Ice.Admin", null);
                     }
                     else
                     {
                         return null;
                     }
-                    adminIdentity = new Ice.Identity("admin", _initData.properties.getProperty("Ice.Admin.InstanceName"));
+                    adminIdentity = new Identity("admin", Properties.getProperty("Ice.Admin.InstanceName"));
                     if (adminIdentity.category.Length == 0)
                     {
-                        adminIdentity.category = System.Guid.NewGuid().ToString();
+                        adminIdentity.category = Guid.NewGuid().ToString();
                     }
 
                     _adminIdentity = adminIdentity;
@@ -815,7 +811,7 @@ namespace Ice
             {
                 adminAdapter.Activate();
             }
-            catch (Ice.LocalException)
+            catch (LocalException)
             {
                 //
                 // We cleanup _adminAdapter, however this error is not recoverable
@@ -843,20 +839,21 @@ namespace Ice
         /// <param name="servant">The servant that implements the new Admin facet.
         /// </param>
         /// <param name="facet">The name of the new Admin facet.</param>
-        public void addAdminFacet<T, Traits>(T servant, string facet) where Traits : struct, IInterfaceTraits<T>
+        public void AddAdminFacet<T, Traits>(T servant, string facet) where Traits : struct, IInterfaceTraits<T>
         {
             Traits traits = default;
-            Ice.Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
-            addAdminFacet(servant, disp, facet);
+            Disp disp = (incoming, current) => traits.Dispatch(servant, incoming, current);
+            Debug.Assert(servant != null);
+            AddAdminFacet(servant, disp, facet);
         }
 
-        public void addAdminFacet(object servant, Disp disp, string facet)
+        public void AddAdminFacet(object servant, Disp disp, string facet)
         {
             lock (this)
             {
                 if (_state == StateDestroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 if (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet))
@@ -885,7 +882,7 @@ namespace Ice
         /// <param name="facet">The name of the Admin facet.
         /// </param>
         /// <returns>The servant associated with this Admin facet.</returns>
-        public (object servant, Disp disp) removeAdminFacet(string facet)
+        public (object servant, Disp disp) RemoveAdminFacet(string facet)
         {
             lock (this)
             {
@@ -902,7 +899,8 @@ namespace Ice
                 _adminFacets.Remove(facet);
                 if (_adminAdapter != null)
                 {
-                    _adminAdapter.Remove(_adminIdentity, facet);
+                    Debug.Assert(_adminIdentity != null);
+                    _adminAdapter.Remove(_adminIdentity.Value, facet);
                 }
                 return result;
             }
@@ -915,7 +913,7 @@ namespace Ice
         /// </param>
         /// <returns>The servant associated with this Admin facet, or
         /// null if no facet is registered with the given name.</returns>
-        public (object servant, Disp disp) findAdminFacet(string facet)
+        public (object servant, Disp disp) FindAdminFacet(string facet)
         {
             lock (this)
             {
@@ -943,7 +941,7 @@ namespace Ice
         /// servants of the Admin object.
         ///
         /// </returns>
-        public Dictionary<string, (object servant, Disp disp)> findAllAdminFacets()
+        public Dictionary<string, (object servant, Disp disp)> FindAllAdminFacets()
         {
             lock (this)
             {
@@ -960,7 +958,11 @@ namespace Ice
             destroy();
         }
 
-        internal Communicator(InitializationData initData)
+        public Communicator(InitializationData initData) : this(initData, ref _emptyArgs)
+        {
+        }
+
+        public Communicator(InitializationData initData, ref string[] args)
         {
             _state = StateActive;
             _initData = initData;
@@ -969,7 +971,7 @@ namespace Ice
             {
                 if (_initData.properties == null)
                 {
-                    _initData.properties = Ice.Util.createProperties();
+                    _initData.properties = Util.createProperties();
                 }
 
                 lock (_staticLock)
@@ -979,7 +981,7 @@ namespace Ice
                         string stdOut = _initData.properties.getProperty("Ice.StdOut");
                         string stdErr = _initData.properties.getProperty("Ice.StdErr");
 
-                        System.IO.StreamWriter outStream = null;
+                        System.IO.StreamWriter? outStream = null;
 
                         if (stdOut.Length > 0)
                         {
@@ -997,6 +999,7 @@ namespace Ice
                             Console.Out.Close();
                             Console.SetOut(outStream);
                         }
+
                         if (stdErr.Length > 0)
                         {
                             if (stdErr.Equals(stdOut))
@@ -1005,7 +1008,7 @@ namespace Ice
                             }
                             else
                             {
-                                System.IO.StreamWriter errStream = null;
+                                System.IO.StreamWriter errStream;
                                 try
                                 {
                                     errStream = System.IO.File.AppendText(stdErr);
@@ -1095,15 +1098,15 @@ namespace Ice
                 string toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
                 if (toStringModeStr == "Unicode")
                 {
-                    _toStringMode = Ice.ToStringMode.Unicode;
+                    _toStringMode = ToStringMode.Unicode;
                 }
                 else if (toStringModeStr == "ASCII")
                 {
-                    _toStringMode = Ice.ToStringMode.ASCII;
+                    _toStringMode = ToStringMode.ASCII;
                 }
                 else if (toStringModeStr == "Compat")
                 {
-                    _toStringMode = Ice.ToStringMode.Compat;
+                    _toStringMode = ToStringMode.Compat;
                 }
                 else
                 {
@@ -1205,22 +1208,7 @@ namespace Ice
                 {
                     AssemblyUtil.preloadAssemblies();
                 }
-            }
-            catch (Ice.LocalException)
-            {
-                destroy();
-                throw;
-            }
-        }
 
-        //
-        // Certain initialization tasks need to be completed after the
-        // constructor.
-        //
-        internal void finishSetup(ref string[] args)
-        {
-            try
-            {
                 //
                 // Load plug-ins.
                 //
@@ -1241,16 +1229,16 @@ namespace Ice
                 // since one of these plugins can be a Logger plugin that sets a new logger during loading
                 //
 
-                if (_initData.properties.getProperty("Ice.Admin.Enabled").Length == 0)
+                if (Properties.getProperty("Ice.Admin.Enabled").Length == 0)
                 {
-                    _adminEnabled = _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0;
+                    _adminEnabled = Properties.getProperty("Ice.Admin.Endpoints").Length > 0;
                 }
                 else
                 {
-                    _adminEnabled = _initData.properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+                    _adminEnabled = Properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
                 }
 
-                _adminFacetFilter = new HashSet<string>(_initData.properties.getPropertyAsList("Ice.Admin.Facets").Distinct());
+                _adminFacetFilter = new HashSet<string>(Properties.getPropertyAsList("Ice.Admin.Facets").Distinct());
 
                 if (_adminEnabled)
                 {
@@ -1272,7 +1260,7 @@ namespace Ice
                     string loggerFacetName = "Logger";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                     {
-                        LoggerAdminLogger logger = new LoggerAdminLoggerI(_initData.properties, _initData.logger);
+                        LoggerAdminLogger logger = new LoggerAdminLoggerI(Properties, Logger);
                         setLogger(logger);
                         Ice.LoggerAdminTraits traits = default;
                         Ice.LoggerAdmin servant = logger.getFacet();
@@ -1333,12 +1321,12 @@ namespace Ice
                 try
                 {
                     _timer = new IceInternal.Timer(this, IceInternal.Util.stringToThreadPriority(
-                                                    _initData.properties.getProperty("Ice.ThreadPriority")));
+                                                   Properties.getProperty("Ice.ThreadPriority")));
                 }
                 catch (System.Exception ex)
                 {
                     string s = "cannot create thread for timer:\n" + ex;
-                    _initData.logger.error(s);
+                    Logger.error(s);
                     throw;
                 }
 
@@ -1349,7 +1337,7 @@ namespace Ice
                 catch (System.Exception ex)
                 {
                     string s = "cannot create thread for endpoint host resolver:\n" + ex;
-                    _initData.logger.error(s);
+                    Logger.error(s);
                     throw;
                 }
                 _clientThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Client", 0);
@@ -1360,7 +1348,7 @@ namespace Ice
                 //
                 if (getDefaultRouter() == null)
                 {
-                    if (!string.IsNullOrEmpty(_initData.properties.getProperty("Ice.Default.Router")))
+                    if (!string.IsNullOrEmpty(Properties.getProperty("Ice.Default.Router")))
                     {
                         setDefaultRouter(RouterPrx.ParseProperty("Ice.Default.Router", this));
                     }
@@ -1368,7 +1356,7 @@ namespace Ice
 
                 if (getDefaultLocator() == null)
                 {
-                    if (!string.IsNullOrEmpty(_initData.properties.getProperty("Ice.Default.Locator")))
+                    if (!string.IsNullOrEmpty(Properties.getProperty("Ice.Default.Locator")))
                     {
                         setDefaultLocator(LocatorPrx.ParseProperty("Ice.Default.Locator", this));
                     }
@@ -1379,7 +1367,7 @@ namespace Ice
                 //
                 lock (this)
                 {
-                    if (!_printProcessIdDone && _initData.properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
+                    if (!_printProcessIdDone && Properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
                     {
                         using (var p = System.Diagnostics.Process.GetCurrentProcess())
                         {
@@ -1398,7 +1386,7 @@ namespace Ice
                 // initialization until after it has interacted directly with the
                 // plug-ins.
                 //
-                if (_initData.properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+                if (Properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
                 {
                     pluginManagerImpl.initializePlugins();
                 }
@@ -1408,7 +1396,7 @@ namespace Ice
                 // and eventually registers a process proxy with the Ice locator (allowing
                 // remote clients to invoke on Ice.Admin facets as soon as it's registered).
                 //
-                if (_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+                if (Properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
                 {
                     getAdmin();
                 }
@@ -1426,7 +1414,7 @@ namespace Ice
             {
                 if (_state == StateDestroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 Debug.Assert(_objectAdapterFactory != null);
@@ -1594,19 +1582,28 @@ namespace Ice
             }
         }
 
-        internal int protocolSupport()
+        internal int ProtocolSupport
         {
-            return _protocolSupport;
+            get
+            {
+                return _protocolSupport;
+            }
         }
 
-        internal bool preferIPv6()
+        internal bool PreferIPv6
         {
-            return _preferIPv6;
+            get
+            {
+                return _preferIPv6;
+            }
         }
 
-        internal NetworkProxy networkProxy()
+        internal NetworkProxy? NetworkProxy
         {
-            return _networkProxy;
+            get
+            {
+                return _networkProxy;
+            }
         }
 
         internal IceInternal.ThreadPool clientThreadPool()
@@ -1638,7 +1635,7 @@ namespace Ice
                     {
                         throw new CommunicatorDestroyedException();
                     }
-                    int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
+                    int timeout = Properties.getPropertyAsInt("Ice.ServerIdleTime");
                     _serverThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Server", timeout);
                 }
 
@@ -1805,6 +1802,7 @@ namespace Ice
                 }
                 if (_timer != null)
                 {
+                    Debug.Assert(_initData.observer != null);
                     _timer.updateObserver(_initData.observer);
                 }
             }
@@ -1817,6 +1815,7 @@ namespace Ice
         {
             lock (this)
             {
+                Debug.Assert(_adminAdapter != null);
                 foreach (var entry in _adminFacets)
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
@@ -1829,9 +1828,9 @@ namespace Ice
 
         internal void setServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
-            IObjectPrx admin = adminAdapter.CreateProxy(adminIdentity);
-            LocatorPrx locator = adminAdapter.GetLocator();
-            string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+            IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity);
+            LocatorPrx? locator = adminAdapter.GetLocator();
+            string serverId = Properties.getProperty("Ice.Admin.ServerId");
 
             if (locator != null && serverId.Length > 0)
             {
@@ -1851,7 +1850,7 @@ namespace Ice
                         StringBuilder s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
                         s.Append("the server is not known to the locator registry");
-                        _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                        Logger.trace(_traceLevels.locationCat, s.ToString());
                     }
 
                     throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
@@ -1862,7 +1861,7 @@ namespace Ice
                     {
                         StringBuilder s = new StringBuilder();
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
-                        _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                        Logger.trace(_traceLevels.locationCat, s.ToString());
                     }
                     throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                 }
@@ -1871,12 +1870,12 @@ namespace Ice
                 {
                     StringBuilder s = new StringBuilder();
                     s.Append("registered server `" + serverId + "' with the locator registry");
-                    _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                    Logger.trace(_traceLevels.locationCat, s.ToString());
                 }
             }
         }
 
-        private NetworkProxy createNetworkProxy(Ice.Properties props, int protocolSupport)
+        private NetworkProxy? createNetworkProxy(Ice.Properties props, int protocolSupport)
         {
             string proxyHost;
 
@@ -1902,7 +1901,7 @@ namespace Ice
 
         internal int CheckRetryAfterException(LocalException ex, Reference @ref, ref int cnt)
         {
-            Ice.Logger logger = _initData.logger;
+            Ice.Logger logger = Logger;
 
             if (@ref.getMode() == InvocationMode.BatchOneway || @ref.getMode() == InvocationMode.BatchDatagram)
             {
@@ -1913,7 +1912,8 @@ namespace Ice
             if (ex is ObjectNotExistException)
             {
                 ObjectNotExistException one = (ObjectNotExistException)ex;
-                if (@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
+                RouterInfo? ri = @ref.getRouterInfo();
+                if (ri != null && one.operation.Equals("ice_add_proxy"))
                 {
                     //
                     // If we have a router, an ObjectNotExistException with an
@@ -1924,7 +1924,7 @@ namespace Ice
                     // to the router.
                     //
 
-                    @ref.getRouterInfo().clearCache(@ref);
+                    ri.clearCache(@ref);
 
                     if (_traceLevels.retry >= 1)
                     {
@@ -1942,11 +1942,7 @@ namespace Ice
 
                     if (@ref.isWellKnown())
                     {
-                        LocatorInfo li = @ref.getLocatorInfo();
-                        if (li != null)
-                        {
-                            li.clearCache(@ref);
-                        }
+                        @ref.getLocatorInfo()?.clearCache(@ref);
                     }
                 }
                 else
@@ -2036,11 +2032,6 @@ namespace Ice
         internal Reference
         CreateReference(Identity ident, string facet, Reference tmpl, EndpointI[] endpoints)
         {
-            if (ident.name.Length == 0 && ident.category.Length == 0)
-            {
-                return null;
-            }
-
             return CreateReference(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
                           endpoints, null, null);
         }
@@ -2048,25 +2039,15 @@ namespace Ice
         internal Reference
         CreateReference(Identity ident, string facet, Reference tmpl, string adapterId)
         {
-            if (ident.name.Length == 0 && ident.category.Length == 0)
-            {
-                return null;
-            }
-
             //
             // Create new reference
             //
             return CreateReference(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
-                          null, adapterId, null);
+                          Array.Empty<EndpointI>(), adapterId, null);
         }
 
         internal Reference CreateReference(Identity ident, ConnectionI connection)
         {
-            if (ident.name.Length == 0 && ident.category.Length == 0)
-            {
-                return null;
-            }
-
             //
             // Create new reference
             //
@@ -2086,11 +2067,6 @@ namespace Ice
 
         public Reference CreateReference(string s, string? propertyPrefix = null)
         {
-            if (s.Length == 0)
-            {
-                return null;
-            }
-
             const string delim = " \t\n\r";
 
             int beg;
@@ -2099,22 +2075,18 @@ namespace Ice
             beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
             if (beg == -1)
             {
-                ProxyParseException e = new ProxyParseException();
-                e.str = "no non-whitespace characters found in `" + s + "'";
-                throw e;
+                throw new FormatException($"no non-whitespace characters found in `{s}'");
             }
 
             //
             // Extract the identity, which may be enclosed in single
             // or double quotation marks.
             //
-            string idstr = null;
+            string idstr;
             end = IceUtilInternal.StringUtil.checkQuote(s, beg);
             if (end == -1)
             {
-                ProxyParseException e = new ProxyParseException();
-                e.str = "mismatched quotes around identity in `" + s + "'";
-                throw e;
+                throw new FormatException($"mismatched quotes around identity in `{s} '");
             }
             else if (end == 0)
             {
@@ -2134,52 +2106,20 @@ namespace Ice
 
             if (beg == end)
             {
-                ProxyParseException e = new ProxyParseException();
-                e.str = "no identity in `" + s + "'";
-                throw e;
+                throw new FormatException($"no identity in `{s}'");
             }
 
             //
-            // Parsing the identity may raise IdentityParseException.
+            // Parsing the identity may raise FormatException.
             //
-            Identity ident = Ice.Util.stringToIdentity(idstr);
-
-            if (ident.name.Length == 0)
-            {
-                //
-                // An identity with an empty name and a non-empty
-                // category is illegal.
-                //
-                if (ident.category.Length > 0)
-                {
-                    IllegalIdentityException e = new IllegalIdentityException();
-                    e.id = ident;
-                    throw e;
-                }
-                //
-                // Treat a stringified proxy containing two double
-                // quotes ("") the same as an empty string, i.e.,
-                // a null proxy, but only if nothing follows the
-                // quotes.
-                //
-                else if (IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
-                {
-                    ProxyParseException e = new ProxyParseException();
-                    e.str = "invalid characters after identity in `" + s + "'";
-                    throw e;
-                }
-                else
-                {
-                    return null;
-                }
-            }
+            Identity ident = Identity.Parse(idstr);
 
             string facet = "";
             InvocationMode mode = InvocationMode.Twoway;
             bool secure = false;
             EncodingVersion encoding = _defaultsAndOverrides.defaultEncoding;
             ProtocolVersion protocol = Ice.Util.Protocol_1_0;
-            string adapter = "";
+            string adapter;
 
             while (true)
             {
@@ -2208,9 +2148,7 @@ namespace Ice
                 string option = s.Substring(beg, end - beg);
                 if (option.Length != 2 || option[0] != '-')
                 {
-                    ProxyParseException e = new ProxyParseException();
-                    e.str = "expected a proxy option but found `" + option + "' in `" + s + "'";
-                    throw e;
+                    throw new FormatException("expected a proxy option but found `{option}' in `{s}'");
                 }
 
                 //
@@ -2218,7 +2156,7 @@ namespace Ice
                 // argument may be enclosed in single or double
                 // quotation marks.
                 //
-                string argument = null;
+                string? argument = null;
                 int argumentBeg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
                 if (argumentBeg != -1)
                 {
@@ -2229,9 +2167,7 @@ namespace Ice
                         end = IceUtilInternal.StringUtil.checkQuote(s, beg);
                         if (end == -1)
                         {
-                            ProxyParseException e = new ProxyParseException();
-                            e.str = "mismatched quotes around value for " + option + " option in `" + s + "'";
-                            throw e;
+                            throw new FormatException($"mismatched quotes around value for {option} option in `{s}'");
                         }
                         else if (end == 0)
                         {
@@ -2261,21 +2197,10 @@ namespace Ice
                         {
                             if (argument == null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "no argument provided for -f option in `" + s + "'";
-                                throw e;
+                                throw new FormatException($"no argument provided for -f option in `{s}'");
                             }
 
-                            try
-                            {
-                                facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
-                            }
-                            catch (ArgumentException argEx)
-                            {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "invalid facet in `" + s + "': " + argEx.Message;
-                                throw e;
-                            }
+                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
                             break;
                         }
 
@@ -2283,9 +2208,8 @@ namespace Ice
                         {
                             if (argument != null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "unexpected argument `" + argument + "' provided for -t option in `" + s + "'";
-                                throw e;
+                                throw new FormatException(
+                                    $"unexpected argument `{argument}' provided for -t option in `{s}'");
                             }
                             mode = InvocationMode.Twoway;
                             break;
@@ -2295,9 +2219,8 @@ namespace Ice
                         {
                             if (argument != null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "unexpected argument `" + argument + "' provided for -o option in `" + s + "'";
-                                throw e;
+                                throw new FormatException(
+                                    $"unexpected argument `{argument}' provided for -o option in `{s}'");
                             }
                             mode = InvocationMode.Oneway;
                             break;
@@ -2307,9 +2230,8 @@ namespace Ice
                         {
                             if (argument != null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "unexpected argument `" + argument + "' provided for -O option in `" + s + "'";
-                                throw e;
+                                throw new FormatException(
+                                    $"unexpected argument `{argument}' provided for -O option in `{s}'");
                             }
                             mode = InvocationMode.BatchOneway;
                             break;
@@ -2319,9 +2241,8 @@ namespace Ice
                         {
                             if (argument != null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "unexpected argument `" + argument + "' provided for -d option in `" + s + "'";
-                                throw e;
+                                throw new FormatException(
+                                    $"unexpected argument `{argument}' provided for -d option in `{s}'");
                             }
                             mode = InvocationMode.Datagram;
                             break;
@@ -2331,9 +2252,8 @@ namespace Ice
                         {
                             if (argument != null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "unexpected argument `" + argument + "' provided for -D option in `" + s + "'";
-                                throw e;
+                                throw new FormatException(
+                                    $"unexpected argument `{argument}' provided for -D option in `{s}'");
                             }
                             mode = InvocationMode.BatchDatagram;
                             break;
@@ -2343,9 +2263,8 @@ namespace Ice
                         {
                             if (argument != null)
                             {
-                                ProxyParseException e = new ProxyParseException();
-                                e.str = "unexpected argument `" + argument + "' provided for -s option in `" + s + "'";
-                                throw e;
+                                throw new FormatException(
+                                    $"unexpected argument `{argument}' provided for -s option in `{s}'");
                             }
                             secure = true;
                             break;
@@ -2355,18 +2274,10 @@ namespace Ice
                         {
                             if (argument == null)
                             {
-                                throw new ProxyParseException("no argument provided for -e option `" + s + "'");
+                                throw new FormatException($"no argument provided for -e option in `{s}'");
                             }
 
-                            try
-                            {
-                                encoding = Ice.Util.stringToEncodingVersion(argument);
-                            }
-                            catch (VersionParseException e)
-                            {
-                                throw new ProxyParseException("invalid encoding version `" + argument + "' in `" + s +
-                                                                  "':\n" + e.str);
-                            }
+                            encoding = Ice.Util.stringToEncodingVersion(argument);
                             break;
                         }
 
@@ -2374,33 +2285,24 @@ namespace Ice
                         {
                             if (argument == null)
                             {
-                                throw new ProxyParseException("no argument provided for -p option `" + s + "'");
+                                throw new FormatException($"no argument provided for -p option `{s}'");
                             }
 
-                            try
-                            {
-                                protocol = Ice.Util.stringToProtocolVersion(argument);
-                            }
-                            catch (VersionParseException e)
-                            {
-                                throw new ProxyParseException("invalid protocol version `" + argument + "' in `" + s +
-                                                                  "':\n" + e.str);
-                            }
+                            protocol = Ice.Util.stringToProtocolVersion(argument);
                             break;
                         }
 
                     default:
                         {
-                            ProxyParseException e = new ProxyParseException();
-                            e.str = "unknown option `" + option + "' in `" + s + "'";
-                            throw e;
+                            throw new FormatException("unknown option `{option}' in `{s}'");
                         }
                 }
             }
 
             if (beg == -1)
             {
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
+                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<EndpointI>(),
+                    null, propertyPrefix);
             }
 
             List<EndpointI> endpoints = new List<EndpointI>();
@@ -2476,7 +2378,7 @@ namespace Ice
                     throw e2;
                 }
                 else if (unknownEndpoints.Count != 0 &&
-                         _initData.properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+                         Properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
                 {
                     StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
                     int sz = unknownEndpoints.Count;
@@ -2486,7 +2388,7 @@ namespace Ice
                         msg.Append(unknownEndpoints[idx]);
                         msg.Append("'");
                     }
-                    _initData.logger.warning(msg.ToString());
+                    Logger.warning(msg.ToString());
                 }
 
                 EndpointI[] ep = endpoints.ToArray();
@@ -2497,18 +2399,14 @@ namespace Ice
                 beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, beg + 1);
                 if (beg == -1)
                 {
-                    ProxyParseException e = new ProxyParseException();
-                    e.str = "missing adapter id in `" + s + "'";
-                    throw e;
+                    throw new ArgumentException($"missing adapter id in `{s}'");
                 }
 
-                string adapterstr = null;
+                string adapterstr;
                 end = IceUtilInternal.StringUtil.checkQuote(s, beg);
                 if (end == -1)
                 {
-                    ProxyParseException e = new ProxyParseException();
-                    e.str = "mismatched quotes around adapter id in `" + s + "'";
-                    throw e;
+                    throw new ArgumentException($"mismatched quotes around adapter id in `{s}'");
                 }
                 else if (end == 0)
                 {
@@ -2528,33 +2426,21 @@ namespace Ice
 
                 if (end != s.Length && IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
                 {
-                    ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = "invalid trailing characters after `" + s.Substring(0, end + 1) + "' in `" + s + "'";
-                    throw e;
+                    throw new ArgumentException(
+                        $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
-                try
-                {
-                    adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
-                }
-                catch (ArgumentException argEx)
-                {
-                    ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = "invalid adapter id in `" + s + "': " + argEx.Message;
-                    throw e;
-                }
+                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
+
                 if (adapter.Length == 0)
                 {
-                    ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = "empty adapter id in `" + s + "'";
-                    throw e;
+                    throw new ArgumentException($"empty adapter id in `{s}'");
                 }
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
+                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<EndpointI>(),
+                    adapter, propertyPrefix);
             }
 
-            Ice.ProxyParseException ex = new Ice.ProxyParseException();
-            ex.str = "malformed proxy `" + s + "'";
-            throw ex;
+            throw new ArgumentException($"malformed proxy `{s}'");
         }
 
         public Reference CreateReference(Identity ident, InputStream s)
@@ -2564,15 +2450,10 @@ namespace Ice
             // constructor read the identity, and pass it as a parameter.
             //
 
-            if (ident.name.Length == 0 && ident.category.Length == 0)
-            {
-                return null;
-            }
-
             //
             // For compatibility with the old FacetPath.
             //
-            string[] facetPath = s.readStringSeq();
+            string[] facetPath = s.ReadStringSeq();
             string facet;
             if (facetPath.Length > 0)
             {
@@ -2587,17 +2468,17 @@ namespace Ice
                 facet = "";
             }
 
-            int mode = s.readByte();
+            int mode = s.ReadByte();
             if (mode < 0 || mode > (int)InvocationMode.Last)
             {
                 throw new ProxyUnmarshalException();
             }
 
-            bool secure = s.readBool();
+            bool secure = s.ReadBool();
 
             ProtocolVersion protocol;
             EncodingVersion encoding;
-            if (!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (!s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol = new ProtocolVersion();
                 protocol.ice_readMembers(s);
@@ -2610,10 +2491,10 @@ namespace Ice
                 encoding = Ice.Util.Encoding_1_0;
             }
 
-            EndpointI[] endpoints = null;
+            EndpointI[] endpoints;
             string adapterId = "";
 
-            int sz = s.readSize();
+            int sz = s.ReadSize();
             if (sz > 0)
             {
                 endpoints = new EndpointI[sz];
@@ -2624,7 +2505,8 @@ namespace Ice
             }
             else
             {
-                adapterId = s.readString();
+                endpoints = Array.Empty<EndpointI>();
+                adapterId = s.ReadString();
             }
 
             return CreateReference(ident, facet, (InvocationMode)mode, secure, protocol, encoding, endpoints, adapterId, null);
@@ -2658,8 +2540,7 @@ namespace Ice
             }
 
             List<string> unknownProps = new List<string>();
-            Dictionary<string, string> props
-                = _initData.properties.getPropertiesForPrefix(prefix + ".");
+            Dictionary<string, string> props = Properties.getPropertiesForPrefix(prefix + ".");
             foreach (string prop in props.Keys)
             {
                 bool valid = false;
@@ -2689,24 +2570,25 @@ namespace Ice
                     message.Append("\n    ");
                     message.Append(s);
                 }
-                _initData.logger.warning(message.ToString());
+                Logger.warning(message.ToString());
             }
         }
 
-        private Reference CreateReference(Identity ident,
-                                 string facet,
-                                 InvocationMode mode,
-                                 bool secure,
-                                 ProtocolVersion protocol,
-                                 EncodingVersion encoding,
-                                 EndpointI[] endpoints,
-                                 string adapterId,
-                                 string propertyPrefix)
+        private Reference CreateReference(
+            Identity ident,
+            string facet,
+            InvocationMode mode,
+            bool secure,
+            ProtocolVersion protocol,
+            EncodingVersion encoding,
+            EndpointI[] endpoints,
+            string? adapterId,
+            string? propertyPrefix)
         {
             //
             // Default local proxy options.
             //
-            LocatorInfo locatorInfo = null;
+            LocatorInfo? locatorInfo = null;
             if (_defaultLocator != null)
             {
                 if (!_defaultLocator.IceReference.getEncoding().Equals(encoding))
@@ -2718,21 +2600,25 @@ namespace Ice
                     locatorInfo = locatorManager().get(_defaultLocator);
                 }
             }
-            RouterInfo routerInfo = routerManager().get(_defaultRouter);
+            RouterInfo? routerInfo = null;
+            if (_defaultRouter != null)
+            {
+                routerInfo = routerManager().get(_defaultRouter);
+            }
             bool collocOptimized = _defaultsAndOverrides.defaultCollocationOptimization;
             bool cacheConnection = true;
             bool preferSecure = _defaultsAndOverrides.defaultPreferSecure;
             EndpointSelectionType endpointSelection = _defaultsAndOverrides.defaultEndpointSelection;
             int locatorCacheTimeout = _defaultsAndOverrides.defaultLocatorCacheTimeout;
             int invocationTimeout = _defaultsAndOverrides.defaultInvocationTimeout;
-            Dictionary<string, string> context = null;
+            Dictionary<string, string>? context = null;
 
             //
             // Override the defaults with the proxy properties if a property prefix is defined.
             //
             if (propertyPrefix != null && propertyPrefix.Length > 0)
             {
-                Ice.Properties properties = _initData.properties;
+                Properties properties = Properties;
 
                 //
                 // Warn about unknown properties.
@@ -2762,9 +2648,7 @@ namespace Ice
                     RouterPrx router = RouterPrx.ParseProperty(property, this);
                     if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
                     {
-                        string s = "`" + property + "=" + properties.getProperty(property) +
-                            "': cannot set a router on a router; setting ignored";
-                        _initData.logger.warning(s);
+                        Logger.warning($"`{property}={properties.getProperty(property)}': cannot set a router on a router; setting ignored");
                     }
                     else
                     {
@@ -2795,8 +2679,7 @@ namespace Ice
                     }
                     else
                     {
-                        throw new EndpointSelectionTypeParseException(
-                            $"illegal value `{type}'; expected `Random' or `Ordered'");
+                        throw new ArgumentException($"illegal value `{type}'; expected `Random' or `Ordered'");
                     }
                 }
 
@@ -2814,7 +2697,7 @@ namespace Ice
                         msg.Append(" `");
                         msg.Append(properties.getProperty(property));
                         msg.Append("': defaulting to -1");
-                        _initData.logger.warning(msg.ToString());
+                        Logger.warning(msg.ToString());
                     }
                 }
 
@@ -2832,7 +2715,7 @@ namespace Ice
                         msg.Append(" `");
                         msg.Append(properties.getProperty(property));
                         msg.Append("': defaulting to -1");
-                        _initData.logger.warning(msg.ToString());
+                        Logger.warning(msg.ToString());
                     }
                 }
 
@@ -2875,45 +2758,47 @@ namespace Ice
         private const int StateDestroyInProgress = 1;
         private const int StateDestroyed = 2;
         private int _state;
-        private InitializationData _initData; // Immutable, not reset by destroy().
-        private TraceLevels _traceLevels; // Immutable, not reset by destroy().
-        private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
-        private int _messageSizeMax; // Immutable, not reset by destroy().
-        private int _classGraphDepthMax; // Immutable, not reset by destroy().
-        private ToStringMode _toStringMode; // Immutable, not reset by destroy().
-        private int _cacheMessageBuffers; // Immutable, not reset by destroy().
-        private ACMConfig _clientACM; // Immutable, not reset by destroy().
-        private ACMConfig _serverACM; // Immutable, not reset by destroy().
-        private ImplicitContextI _implicitContext; // Immutable
-        private RouterManager _routerManager;
-        private LocatorManager _locatorManager;
-        private RequestHandlerFactory _requestHandlerFactory;
-        private OutgoingConnectionFactory _outgoingConnectionFactory;
-        private ObjectAdapterFactory _objectAdapterFactory;
-        private int _protocolSupport;
-        private bool _preferIPv6;
-        private NetworkProxy _networkProxy;
-        private IceInternal.ThreadPool _clientThreadPool;
-        private IceInternal.ThreadPool _serverThreadPool;
-        private AsyncIOThread _asyncIOThread;
-        private EndpointHostResolver _endpointHostResolver;
-        private IceInternal.Timer _timer;
-        private RetryQueue _retryQueue;
-        private EndpointFactoryManager _endpointFactoryManager;
-        private PluginManager _pluginManager;
-        private bool _adminEnabled = false;
-        private ObjectAdapter _adminAdapter;
-        private Dictionary<string, (object servant, Disp disp)> _adminFacets = new Dictionary<string, (object servant, Disp disp)>();
-        private HashSet<string> _adminFacetFilter = new HashSet<string>();
-        private Identity _adminIdentity;
-        private Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
+        private readonly InitializationData _initData; // Immutable, not reset by destroy().
+        private readonly TraceLevels _traceLevels; // Immutable, not reset by destroy().
+        private readonly DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
+        private readonly int _messageSizeMax; // Immutable, not reset by destroy().
+        private readonly int _classGraphDepthMax; // Immutable, not reset by destroy().
+        private readonly ToStringMode _toStringMode; // Immutable, not reset by destroy().
+        private readonly int _cacheMessageBuffers; // Immutable, not reset by destroy().
+        private readonly ACMConfig _clientACM; // Immutable, not reset by destroy().
+        private readonly ACMConfig _serverACM; // Immutable, not reset by destroy().
+        private readonly ImplicitContextI _implicitContext; // Immutable
+        private RouterManager? _routerManager;
+        private LocatorManager? _locatorManager;
+        private RequestHandlerFactory? _requestHandlerFactory;
+        private OutgoingConnectionFactory? _outgoingConnectionFactory;
+        private ObjectAdapterFactory? _objectAdapterFactory;
+        private readonly int _protocolSupport;
+        private readonly bool _preferIPv6;
+        private readonly NetworkProxy? _networkProxy;
+        private IceInternal.ThreadPool? _clientThreadPool;
+        private IceInternal.ThreadPool? _serverThreadPool;
+        private AsyncIOThread? _asyncIOThread;
+        private EndpointHostResolver? _endpointHostResolver;
+        private IceInternal.Timer? _timer;
+        private RetryQueue? _retryQueue;
+        private EndpointFactoryManager? _endpointFactoryManager;
+        private PluginManager? _pluginManager;
+        private readonly bool _adminEnabled = false;
+        private ObjectAdapter? _adminAdapter;
+        private readonly Dictionary<string, (object servant, Disp disp)> _adminFacets = new Dictionary<string, (object servant, Disp disp)>();
+        private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
+        private Identity? _adminIdentity;
+        private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
         private static bool _printProcessIdDone = false;
         private static bool _oneOffDone = false;
-        private static object _staticLock = new object();
+        private static readonly object _staticLock = new object();
 
-        private int[] _retryIntervals;
+        private readonly int[] _retryIntervals;
 
-        private RouterPrx _defaultRouter;
-        private LocatorPrx _defaultLocator;
+        private RouterPrx? _defaultRouter;
+        private LocatorPrx? _defaultLocator;
+
+        private static string[] _emptyArgs = Array.Empty<string>();
     }
 }

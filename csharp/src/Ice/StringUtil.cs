@@ -72,7 +72,7 @@ namespace IceUtilInternal
         }
 
         private static void
-        encodeChar(char c, StringBuilder sb, string special, Ice.ToStringMode toStringMode)
+        encodeChar(char c, StringBuilder sb, string? special, Ice.ToStringMode toStringMode)
         {
             switch (c)
             {
@@ -208,7 +208,7 @@ namespace IceUtilInternal
         //
         // Add escape sequences (such as "\n", or "\007") to the input string
         //
-        public static string escapeString(string s, string special, Ice.ToStringMode toStringMode)
+        public static string escapeString(string s, string? special, Ice.ToStringMode toStringMode)
         {
             if (special != null)
             {
@@ -534,15 +534,12 @@ namespace IceUtilInternal
         {
             Debug.Assert(start >= 0 && start <= end && end <= s.Length);
 
-            if (special != null)
+            for (int i = 0; i < special.Length; ++i)
             {
-                for (int i = 0; i < special.Length; ++i)
+                if (special[i] < 32 || special[i] > 126)
                 {
-                    if (special[i] < 32 || special[i] > 126)
-                    {
-                        throw new System.ArgumentException("special characters must be in ASCII range 32-126",
-                                                           nameof(special));
-                    }
+                    throw new System.ArgumentException("special characters must be in ASCII range 32-126",
+                                                        nameof(special));
                 }
             }
 
@@ -571,7 +568,7 @@ namespace IceUtilInternal
         //
         // Split string helper; returns null for unmatched quotes
         //
-        public static string[] splitString(string str, string delim)
+        public static string[]? splitString(string str, string delim)
         {
             List<string> l = new List<string>();
             char[] arr = new char[str.Length];

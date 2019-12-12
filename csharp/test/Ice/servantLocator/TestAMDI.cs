@@ -101,7 +101,7 @@ namespace Ice
 
                 public Task shutdownAsync(Ice.Current current)
                 {
-                    current.adapter.Deactivate();
+                    current.Adapter.Deactivate();
                     return null;
                 }
             }

@@ -18,16 +18,16 @@ namespace Ice
                 {
                     try
                     {
-                        Communicator communicator = current.adapter.GetCommunicator();
+                        Communicator communicator = current.Adapter.Communicator;
                         string endpoints = endpts;
                         if (endpoints.IndexOf("-p") < 0)
                         {
-                            endpoints = global::Test.TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpoints);
+                            endpoints = global::Test.TestHelper.getTestEndpoint(communicator.Properties, _nextPort++, endpoints);
                         }
 
-                        communicator.getProperties().setProperty(name + ".ThreadPool.Size", "1");
+                        communicator.Properties.setProperty(name + ".ThreadPool.Size", "1");
                         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
-                        return current.adapter.Add(new RemoteObjectAdapterI(adapter));
+                        return current.Adapter.Add(new RemoteObjectAdapterI(adapter));
                     }
                     catch (SocketException)
                     {
@@ -48,7 +48,7 @@ namespace Ice
             public void
             shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             private int _nextPort = 10;

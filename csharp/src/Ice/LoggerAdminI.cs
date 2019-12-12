@@ -23,7 +23,7 @@ namespace IceInternal
             var remoteLogger = prx.Clone(oneway: false);
 
             Filters filters = new Filters(messageTypes, categories);
-            LinkedList<Ice.LogMessage> initLogMessages = null;
+            LinkedList<LogMessage> initLogMessages = null;
 
             lock (this)
             {
@@ -31,11 +31,11 @@ namespace IceInternal
                 {
                     if (_destroyed)
                     {
-                        throw new Ice.ObjectNotExistException();
+                        throw new ObjectNotExistException();
                     }
 
                     _sendLogCommunicator =
-                        createSendLogCommunicator(current.adapter.GetCommunicator(), _logger.getLocalLogger());
+                        createSendLogCommunicator(current.Adapter.Communicator, _logger.getLocalLogger());
                 }
 
                 Ice.Identity remoteLoggerId = remoteLogger.Identity;
@@ -403,7 +403,7 @@ namespace IceInternal
             initData.logger = logger;
             initData.properties = Ice.Util.createProperties();
 
-            Ice.Properties mainProps = communicator.getProperties();
+            Ice.Properties mainProps = communicator.Properties;
 
             copyProperties("Ice.Default.Locator", mainProps, initData.properties);
             copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
@@ -433,8 +433,8 @@ namespace IceInternal
         private readonly int _maxTraceCount;
         private readonly int _traceLevel;
 
-        private LinkedListNode<Ice.LogMessage> _oldestTrace = null;
-        private LinkedListNode<Ice.LogMessage> _oldestLog = null;
+        private LinkedListNode<LogMessage>? _oldestTrace = null;
+        private LinkedListNode<LogMessage>? _oldestLog = null;
 
         private class Filters
         {
@@ -465,7 +465,7 @@ namespace IceInternal
 
         private readonly LoggerAdminLoggerI _logger;
 
-        private Ice.Communicator _sendLogCommunicator = null;
+        private Ice.Communicator? _sendLogCommunicator = null;
         private bool _destroyed = false;
         private const string _traceCategory = "Admin.Logger";
     }

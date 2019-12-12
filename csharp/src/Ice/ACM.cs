@@ -65,7 +65,7 @@ namespace IceInternal
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
 
         public int timeout;
@@ -79,7 +79,7 @@ namespace IceInternal
         void remove(Ice.ConnectionI con);
         void reap(Ice.ConnectionI con);
 
-        ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h);
+        ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
         Ice.ACM getACM();
     }
 
@@ -154,6 +154,7 @@ namespace IceInternal
             {
                 if (_connections.Count == 0)
                 {
+                    Debug.Assert(_communicator != null);
                     _connections.Add(connection);
                     _communicator.timer().scheduleRepeated(this, _config.timeout / 2);
                 }
@@ -186,7 +187,7 @@ namespace IceInternal
             }
         }
 
-        public ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h)
+        public ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
         {
             Debug.Assert(_communicator != null);
 
@@ -208,11 +209,12 @@ namespace IceInternal
 
         public Ice.ACM getACM()
         {
-            Ice.ACM acm = new Ice.ACM();
-            acm.timeout = _config.timeout / 1000;
-            acm.close = _config.close;
-            acm.heartbeat = _config.heartbeat;
-            return acm;
+            return new Ice.ACM
+            {
+                timeout = _config.timeout / 1000,
+                close = _config.close,
+                heartbeat = _config.heartbeat
+            };
         }
 
         internal List<Ice.ConnectionI>? swapReapedConnections()
@@ -286,15 +288,15 @@ namespace IceInternal
                 {
                     return;
                 }
-                _communicator.initializationData().logger.error("exception in connection monitor:\n" + ex);
+                _communicator.Logger.error("exception in connection monitor:\n" + ex);
             }
         }
 
-        private Ice.Communicator _communicator;
+        private Ice.Communicator? _communicator;
         private readonly ACMConfig _config;
 
-        private HashSet<Ice.ConnectionI> _connections = new HashSet<Ice.ConnectionI>();
-        private List<Change> _changes = new List<Change>();
+        private readonly HashSet<Ice.ConnectionI> _connections = new HashSet<Ice.ConnectionI>();
+        private readonly List<Change> _changes = new List<Change>();
         private List<Ice.ConnectionI> _reapedConnections = new List<Ice.ConnectionI>();
     }
 
@@ -338,18 +340,19 @@ namespace IceInternal
             _parent.reap(connection);
         }
 
-        public ACMMonitor acm(Ice.Optional<int> timeout, Ice.Optional<Ice.ACMClose> c, Ice.Optional<Ice.ACMHeartbeat> h)
+        public ACMMonitor acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
         {
             return _parent.acm(timeout, c, h);
         }
 
         public Ice.ACM getACM()
         {
-            Ice.ACM acm = new Ice.ACM();
-            acm.timeout = _config.timeout / 1000;
-            acm.close = _config.close;
-            acm.heartbeat = _config.heartbeat;
-            return acm;
+            return new Ice.ACM
+            {
+                timeout = _config.timeout / 1000,
+                close = _config.close,
+                heartbeat = _config.heartbeat
+            };
         }
 
         public void runTimerTask()
