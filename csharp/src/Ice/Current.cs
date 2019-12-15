@@ -14,7 +14,7 @@ namespace Ice
         public string Facet { get; private set; }
         public string Operation { get; private set; }
         public OperationMode Mode { get; private set; }
-        public Dictionary<string, string>? Context { get; private set; }
+        public Dictionary<string, string> Context { get; private set; }
         public int RequestId { get; private set; }
         public EncodingVersion Encoding { get; internal set; }
 
