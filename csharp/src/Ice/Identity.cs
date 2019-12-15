@@ -89,7 +89,7 @@ namespace Ice
             return new Identity(name, category);
         }
 
-        public static bool TryParse(string s, out Identity? identity)
+        public static bool TryParse(string s, out Identity identity)
         {
             try
             {
@@ -98,7 +98,7 @@ namespace Ice
             }
             catch (Exception)
             {
-                identity = null;
+                identity = default;
                 return false;
             }
         }
