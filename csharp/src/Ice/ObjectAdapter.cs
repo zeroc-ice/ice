@@ -1360,7 +1360,7 @@ namespace Ice
                     {
                         AlreadyRegisteredException ex = new AlreadyRegisteredException();
                         ex.kindOfObject = "object adapter with router";
-                        ex.id = router.Identity.ToString(_communicator);
+                        ex.id = router.Identity.ToString(_communicator.ToStringMode);
                         throw ex;
                     }
 

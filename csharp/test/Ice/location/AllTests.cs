@@ -582,7 +582,7 @@ namespace Ice
                 adapter.Activate();
 
                 // Ensure that calls on the well-known proxy is collocated.
-                HelloPrx? helloPrx = HelloPrx.Parse("\"" + id.ToString(communicator) + "\"", communicator);
+                HelloPrx? helloPrx = HelloPrx.Parse("\"" + id.ToString(communicator.ToStringMode) + "\"", communicator);
                 test(helloPrx.GetConnection() == null);
 
                 // Ensure that calls on the indirect proxy (with adapter ID) is collocated

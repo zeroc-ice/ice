@@ -460,7 +460,7 @@ namespace IceDiscovery
                     {
                         StringBuilder s = new StringBuilder();
                         s.Append("failed to lookup object `");
-                        s.Append(request.getId().ToString(_lookup.Communicator));
+                        s.Append(request.getId().ToString(_lookup.Communicator.ToStringMode));
                         s.Append("' with lookup proxy `");
                         s.Append(_lookup);
                         s.Append("':\n");

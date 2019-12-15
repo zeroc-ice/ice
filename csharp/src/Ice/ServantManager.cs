@@ -32,7 +32,7 @@ namespace IceInternal
                     if (m.ContainsKey(facet))
                     {
                         Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                        ex.id = ident.ToString(_communicator);
+                        ex.id = ident.ToString(_communicator.ToStringMode);
                         ex.kindOfObject = "servant";
                         if (facet.Length > 0)
                         {
@@ -75,7 +75,7 @@ namespace IceInternal
                 if (m == null || !m.ContainsKey(facet))
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = ident.ToString(_communicator);
+                    ex.id = ident.ToString(_communicator.ToStringMode);
                     ex.kindOfObject = "servant";
                     if (facet.Length > 0)
                     {
@@ -123,7 +123,7 @@ namespace IceInternal
                 if (m == null)
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = ident.ToString(_communicator);
+                    ex.id = ident.ToString(_communicator.ToStringMode);
                     ex.kindOfObject = "servant";
                     throw ex;
                 }

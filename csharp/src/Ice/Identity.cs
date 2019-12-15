@@ -108,11 +108,6 @@ namespace Ice
             return ToString(ToStringMode.Unicode);
         }
 
-        public string ToString(Communicator communicator)
-        {
-            return ToString(communicator.ToStringMode);
-        }
-
         /// <summary>
         /// Converts an object identity to a string.
         /// </summary>

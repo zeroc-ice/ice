@@ -306,15 +306,15 @@ namespace Ice
                 // Test for bug ICE-5543: escaped escapes in stringToIdentity
                 //
                 var id = new Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-                var id2 = Identity.Parse(id.ToString(communicator));
+                var id2 = Identity.Parse(id.ToString(communicator.ToStringMode));
                 test(id.Equals(id2));
 
                 id = new Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-                id2 = Identity.Parse(id.ToString(communicator));
+                id2 = Identity.Parse(id.ToString(communicator.ToStringMode));
                 test(id.Equals(id2));
 
                 id = new Identity("/test", "cat/");
-                string idStr = id.ToString(communicator);
+                string idStr = id.ToString(communicator.ToStringMode);
                 test(idStr == "cat\\//\\/test");
                 id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
@@ -362,7 +362,7 @@ namespace Ice
                 id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
 
-                id2 = Identity.Parse(id.ToString(communicator));
+                id2 = Identity.Parse(id.ToString(communicator.ToStringMode));
                 test(id.Equals(id2));
 
                 // More unicode character
