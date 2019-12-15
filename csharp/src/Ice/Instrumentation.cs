@@ -242,7 +242,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The thread observer to instrument the thread.</returns>
-            ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver o);
+            ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver? o);
 
             /// <summary>
             /// This method should return an invocation observer for the given
@@ -290,7 +290,7 @@ namespace Ice
             ///
             /// </summary>
             /// <param name="updater">The observer updater object.</param>
-            void setObserverUpdater(ObserverUpdater updater);
+            void setObserverUpdater(ObserverUpdater? updater);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Ice
             public static void allTests(global::Test.TestHelper helper)
             {
                 Communicator communicator = helper.communicator();
-                communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
+                communicator.Properties.setProperty("ReplyAdapter.Endpoints", "udp");
                 ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
                 PingReplyI replyI = new PingReplyI();
                 PingReplyPrx reply = adapter.Add(replyI).Clone(invocationMode: InvocationMode.Datagram);
@@ -90,7 +90,7 @@ namespace Ice
                 }
                 test(ret == true);
 
-                if (communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
+                if (communicator.Properties.getPropertyAsInt("Ice.Override.Compress") == 0)
                 {
                     //
                     // Only run this test if compression is disabled, the test expect fixed message size
@@ -117,7 +117,7 @@ namespace Ice
                         test(seq.Length > 16384);
                     }
                     obj.GetConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-                    communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
+                    communicator.Properties.setProperty("Ice.UDP.SndSize", "64000");
                     seq = new byte[50000];
                     try
                     {
@@ -149,7 +149,7 @@ namespace Ice
                 //
                 // Use loopback to prevent other machines to answer.
                 //
-                if (communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+                if (communicator.Properties.getProperty("Ice.IPv6").Equals("1"))
                 {
                     endpoint.Append("udp -h \"ff15::1:1\"");
                     if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)

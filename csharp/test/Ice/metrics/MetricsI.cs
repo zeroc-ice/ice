@@ -35,7 +35,7 @@ public sealed class MetricsI : Metrics
 
     public void fail(Ice.Current current)
     {
-        current.con.close(Ice.ConnectionClose.Forcefully);
+        current.Connection.close(Ice.ConnectionClose.Forcefully);
     }
 
     public void opWithUserException(Ice.Current current)
@@ -64,11 +64,11 @@ public sealed class MetricsI : Metrics
 
     public Ice.IObjectPrx getAdmin(Ice.Current current)
     {
-        return current.adapter.GetCommunicator().getAdmin();
+        return current.Adapter.Communicator.getAdmin();
     }
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 }

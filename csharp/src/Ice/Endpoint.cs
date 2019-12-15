@@ -53,7 +53,7 @@ namespace Ice
     [System.Serializable]
     public abstract class EndpointInfo
     {
-        public EndpointInfo underlying;
+        public EndpointInfo? underlying;
         public int timeout;
         public bool compress;
 
@@ -79,7 +79,7 @@ namespace Ice
         {
         }
 
-        protected EndpointInfo(EndpointInfo underlying, int timeout, bool compress)
+        protected EndpointInfo(EndpointInfo? underlying, int timeout, bool compress)
         {
             this.underlying = underlying;
             this.timeout = timeout;
@@ -194,7 +194,7 @@ namespace Ice
             this.rawEncoding = new EncodingVersion();
         }
 
-        protected OpaqueEndpointInfo(EndpointInfo underlying,
+        protected OpaqueEndpointInfo(EndpointInfo? underlying,
                                      int timeout,
                                      bool compress,
                                      EncodingVersion rawEncoding,

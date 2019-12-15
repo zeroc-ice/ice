@@ -12,7 +12,7 @@ namespace Ice
         {
             public void shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             public byte[] opAByteS(byte[] i, out byte[] o, Ice.Current current)

@@ -45,14 +45,14 @@ namespace Ice
                     try
                     {
                         byte[] seq = new byte[32 * 1024];
-                        Test.TestIntfPrx.UncheckedCast(current.con.createProxy(id)).sendByteSeq(seq, null);
+                        Test.TestIntfPrx.UncheckedCast(current.Connection.createProxy(id)).sendByteSeq(seq, null);
                     }
                     catch (Ice.DatagramLimitException)
                     {
                         // Expected.
                     }
 
-                    Test.PingReplyPrx.UncheckedCast(current.con.createProxy(id)).reply();
+                    Test.PingReplyPrx.UncheckedCast(current.Connection.createProxy(id)).reply();
                 }
                 catch (Ice.LocalException)
                 {
@@ -62,7 +62,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
         }
     }

@@ -2,11 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace IceInternal
 {
-    using System;
-    using System.Collections.Generic;
-
     internal sealed class WSEndpoint : EndpointI
     {
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, string res)
@@ -16,7 +17,9 @@ namespace IceInternal
             _resource = res;
         }
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         internal WSEndpoint(ProtocolInstance instance, EndpointI del, List<string> args)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _instance = instance;
             _delegate = del;
@@ -34,7 +37,7 @@ namespace IceInternal
             _instance = instance;
             _delegate = del;
 
-            _resource = s.readString();
+            _resource = s.ReadString();
         }
 
         private sealed class InfoI : Ice.WSEndpointInfo
@@ -59,7 +62,7 @@ namespace IceInternal
                 return _endpoint.secure();
             }
 
-            private EndpointI _endpoint;
+            private readonly EndpointI _endpoint;
         }
 
         public override Ice.EndpointInfo getInfo()
@@ -85,7 +88,7 @@ namespace IceInternal
         public override void streamWriteImpl(Ice.OutputStream s)
         {
             _delegate.streamWriteImpl(s);
-            s.writeString(_resource);
+            s.WriteString(_resource);
         }
 
         public override int timeout()
@@ -149,7 +152,7 @@ namespace IceInternal
             return _delegate.secure();
         }
 
-        public override Transceiver transceiver()
+        public override Transceiver? transceiver()
         {
             return null;
         }
@@ -179,10 +182,10 @@ namespace IceInternal
                 _callback.exception(ex);
             }
 
-            private ProtocolInstance _instance;
-            private string _host;
-            private string _resource;
-            private EndpointI_connectors _callback;
+            private readonly ProtocolInstance _instance;
+            private readonly string _host;
+            private readonly string _resource;
+            private readonly EndpointI_connectors _callback;
         }
 
         public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
@@ -190,10 +193,10 @@ namespace IceInternal
             string host = "";
             for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
             {
-                if (p is Ice.IPEndpointInfo)
+                if (p is Ice.IPEndpointInfo ipInfo)
                 {
-                    Ice.IPEndpointInfo ipInfo = (Ice.IPEndpointInfo)p;
                     host = ipInfo.host + ":" + ipInfo.port;
+                    break;
                 }
             }
             _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, _resource, callback));
@@ -201,7 +204,9 @@ namespace IceInternal
 
         public override Acceptor acceptor(string adapterName)
         {
-            return new WSAcceptor(this, _instance, _delegate.acceptor(adapterName));
+            var acceptor = _delegate.acceptor(adapterName);
+            Debug.Assert(acceptor != null);
+            return new WSAcceptor(this, _instance, acceptor);
         }
 
         public WSEndpoint endpoint(EndpointI delEndp)
@@ -226,7 +231,7 @@ namespace IceInternal
             return l;
         }
 
-        public override List<EndpointI> expandHost(out EndpointI publish)
+        public override List<EndpointI> expandHost(out EndpointI? publish)
         {
             List<EndpointI> l = new List<EndpointI>();
             foreach (EndpointI e in _delegate.expandHost(out publish))
@@ -308,19 +313,14 @@ namespace IceInternal
             return _delegate.CompareTo(p._delegate);
         }
 
-        protected override bool checkOption(string option, string argument, string endpoint)
+        protected override bool checkOption(string option, string? argument, string endpoint)
         {
             switch (option[1])
             {
                 case 'r':
                     {
-                        if (argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "no argument provided for -r option in endpoint " + endpoint + _delegate.options();
-                            throw e;
-                        }
-                        _resource = argument;
+                        _resource = argument ?? throw new Ice.EndpointParseException(
+                                $"no argument provided for -r option in endpoint {endpoint}{_delegate.options()}");
                         return true;
                     }
 
@@ -331,8 +331,8 @@ namespace IceInternal
             }
         }
 
-        private ProtocolInstance _instance;
-        private EndpointI _delegate;
+        private readonly ProtocolInstance _instance;
+        private readonly EndpointI _delegate;
         private string _resource;
     }
 

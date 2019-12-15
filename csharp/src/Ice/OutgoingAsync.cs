@@ -357,9 +357,9 @@ namespace IceInternal
 
         protected void warning(System.Exception ex)
         {
-            if (communicator_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+            if (communicator_.Properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
             {
-                communicator_.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
+                communicator_.Logger.warning("exception raised by AMI callback:\n" + ex);
             }
         }
 
@@ -680,7 +680,7 @@ namespace IceInternal
                 case Ice.InvocationMode.Oneway:
                 case Ice.InvocationMode.Datagram:
                     {
-                        os_.writeBlob(Protocol.requestHdr);
+                        os_.WriteBlob(Protocol.requestHdr);
                         break;
                     }
 
@@ -702,24 +702,24 @@ namespace IceInternal
             string facet = rf.getFacet();
             if (facet == null || facet.Length == 0)
             {
-                os_.writeStringSeq(null);
+                os_.WriteStringSeq(null);
             }
             else
             {
                 string[] facetPath = { facet };
-                os_.writeStringSeq(facetPath);
+                os_.WriteStringSeq(facetPath);
             }
 
-            os_.writeString(operation);
+            os_.WriteString(operation);
 
-            os_.writeByte((byte)mode);
+            os_.WriteByte((byte)mode);
 
             if (context != null)
             {
                 //
                 // Explicit context
                 //
-                Ice.ContextHelper.write(os_, context);
+                Ice.ContextHelper.Write(os_, context);
             }
             else
             {
@@ -731,7 +731,7 @@ namespace IceInternal
 
                 if (implicitContext == null)
                 {
-                    Ice.ContextHelper.write(os_, prxContext);
+                    Ice.ContextHelper.Write(os_, prxContext);
                 }
                 else
                 {
@@ -763,7 +763,7 @@ namespace IceInternal
             byte replyStatus;
             try
             {
-                replyStatus = is_.readByte();
+                replyStatus = is_.ReadByte();
 
                 switch (replyStatus)
                 {
@@ -790,7 +790,7 @@ namespace IceInternal
                             //
                             // For compatibility with the old FacetPath.
                             //
-                            string[] facetPath = is_.readStringSeq();
+                            string[] facetPath = is_.ReadStringSeq();
                             ;
                             string facet;
                             if (facetPath.Length > 0)
@@ -806,7 +806,7 @@ namespace IceInternal
                                 facet = "";
                             }
 
-                            string operation = is_.readString();
+                            string operation = is_.ReadString();
 
                             Ice.RequestFailedException ex = null;
                             switch (replyStatus)
@@ -846,7 +846,7 @@ namespace IceInternal
                     case ReplyStatus.replyUnknownLocalException:
                     case ReplyStatus.replyUnknownUserException:
                         {
-                            string unknown = is_.readString();
+                            string unknown = is_.ReadString();
 
                             Ice.UnknownException ex = null;
                             switch (replyStatus)
@@ -950,13 +950,13 @@ namespace IceInternal
                 prepare(operation, mode, context);
                 if (write != null)
                 {
-                    os_.startEncapsulation(encoding_, format);
+                    os_.StartEncapsulation(encoding_, format);
                     write(os_);
-                    os_.endEncapsulation();
+                    os_.EndEncapsulation();
                 }
                 else
                 {
-                    os_.writeEmptyEncapsulation(encoding_);
+                    os_.WriteEmptyEncapsulation(encoding_);
                 }
                 invoke(operation, synchronous);
             }
@@ -970,12 +970,12 @@ namespace IceInternal
         {
             try
             {
-                is_.startEncapsulation();
-                is_.throwException();
+                is_.StartEncapsulation();
+                is_.ThrowException();
             }
             catch (Ice.UserException ex)
             {
-                is_.endEncapsulation();
+                is_.EndEncapsulation();
                 if (userException_ != null)
                 {
                     userException_.Invoke(ex);
@@ -986,7 +986,7 @@ namespace IceInternal
 
         public override void cacheMessageBuffers()
         {
-            if (proxy_.Communicator.cacheMessageBuffers() > 0)
+            if (proxy_.Communicator.CacheMessageBuffers > 0)
             {
                 lock (this)
                 {
@@ -999,9 +999,9 @@ namespace IceInternal
 
                 if (is_ != null)
                 {
-                    is_.reset();
+                    is_.Reset();
                 }
-                os_.reset();
+                os_.Reset();
 
                 proxy_.CacheMessageBuffers(is_, os_);
 
@@ -1055,15 +1055,15 @@ namespace IceInternal
                         }
                         else
                         {
-                            is_.skipEmptyEncapsulation();
+                            is_.SkipEmptyEncapsulation();
                         }
                         return default(T);
                     }
                     else
                     {
-                        is_.startEncapsulation();
+                        is_.StartEncapsulation();
                         T r = read_(is_);
-                        is_.endEncapsulation();
+                        is_.EndEncapsulation();
                         return r;
                     }
                 }

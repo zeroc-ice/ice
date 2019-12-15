@@ -18,7 +18,7 @@ namespace Ice
         /// Returns the {@link Current} object for this the request.
         /// </summary>
         /// <returns>The Current object for this request.</returns>
-        Current getCurrent();
+        Current? getCurrent();
     }
 
     /// <summary>
@@ -62,14 +62,13 @@ namespace Ice
         public static Task<OutputStream> iceD_ice_isA(IObject obj, IceInternal.Incoming inS, Current current)
         {
             InputStream istr = inS.startReadParams();
-            var id = istr.readString();
+            var id = istr.ReadString();
             inS.endReadParams();
             var ret = obj.IceIsA(id, current);
             var ostr = inS.startWriteParams();
-            ostr.writeBool(ret);
+            ostr.WriteBool(ret);
             inS.endWriteParams(ostr);
-            inS.setResult(ostr);
-            return null;
+            return inS.setResult(ostr)!;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -87,7 +86,7 @@ namespace Ice
             inS.readEmptyParams();
             var ret = obj.IceIds(current);
             var ostr = inS.startWriteParams();
-            ostr.writeStringSeq(ret);
+            ostr.WriteStringSeq(ret);
             inS.endWriteParams(ostr);
             inS.setResult(ostr);
             return null;
@@ -99,7 +98,7 @@ namespace Ice
             inS.readEmptyParams();
             var ret = obj.IceId(current);
             var ostr = inS.startWriteParams();
-            ostr.writeString(ret);
+            ostr.WriteString(ret);
             inS.endWriteParams(ostr);
             inS.setResult(ostr);
             return null;

@@ -25,54 +25,13 @@ namespace Ice
     /// </summary>
     public class InputStream
     {
-
-        /// <summary>
-        /// Constructing an InputStream without providing a communicator means the stream will
-        /// use the default encoding version. A communicator is required in order to unmarshal
-        /// proxies. You can supply a communicator later by calling initialize().
-        /// </summary>
-        public InputStream()
-        {
-            initialize(Util.currentEncoding);
-            _buf = new IceInternal.Buffer();
-        }
-
-        /// <summary>
-        /// Constructing an InputStream without providing a communicator means the stream will
-        /// use the default encoding version. A communicator is required in order to unmarshal
-        /// proxies. You can supply a communicator later by calling initialize().
-        /// </summary>
-        /// <param name="data">The byte array containing encoded Slice types.</param>
-        public InputStream(byte[] data)
-        {
-            initialize(Util.currentEncoding);
-            _buf = new IceInternal.Buffer(data);
-        }
-
-        public InputStream(IceInternal.ByteBuffer buf)
-        {
-            initialize(Util.currentEncoding);
-            _buf = new IceInternal.Buffer(buf);
-        }
-
-        public InputStream(IceInternal.Buffer buf) :
-            this(buf, false)
-        {
-        }
-
-        public InputStream(IceInternal.Buffer buf, bool adopt)
-        {
-            initialize(Util.currentEncoding);
-            _buf = new IceInternal.Buffer(buf, adopt);
-        }
-
         /// <summary>
         /// This constructor uses the communicator's default encoding version.
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         public InputStream(Communicator communicator)
         {
-            initialize(communicator);
+            Initialize(communicator);
             _buf = new IceInternal.Buffer();
         }
 
@@ -83,13 +42,13 @@ namespace Ice
         /// <param name="data">The byte array containing encoded Slice types.</param>
         public InputStream(Communicator communicator, byte[] data)
         {
-            initialize(communicator);
+            Initialize(communicator);
             _buf = new IceInternal.Buffer(data);
         }
 
         public InputStream(Communicator communicator, IceInternal.ByteBuffer buf)
         {
-            initialize(communicator);
+            Initialize(communicator);
             _buf = new IceInternal.Buffer(buf);
         }
 
@@ -100,45 +59,7 @@ namespace Ice
 
         public InputStream(Communicator communicator, IceInternal.Buffer buf, bool adopt)
         {
-            initialize(communicator);
-            _buf = new IceInternal.Buffer(buf, adopt);
-        }
-
-        /// <summary>
-        /// This constructor uses the given encoding version.
-        /// </summary>
-        /// <param name="encoding">The desired encoding version.</param>
-        public InputStream(EncodingVersion encoding)
-        {
-            initialize(encoding);
-            _buf = new IceInternal.Buffer();
-        }
-
-        /// <summary>
-        /// This constructor uses the given encoding version.
-        /// </summary>
-        /// <param name="encoding">The desired encoding version.</param>
-        /// <param name="data">The byte array containing encoded Slice types.</param>
-        public InputStream(EncodingVersion encoding, byte[] data)
-        {
-            initialize(encoding);
-            _buf = new IceInternal.Buffer(data);
-        }
-
-        public InputStream(EncodingVersion encoding, IceInternal.ByteBuffer buf)
-        {
-            initialize(encoding);
-            _buf = new IceInternal.Buffer(buf);
-        }
-
-        public InputStream(EncodingVersion encoding, IceInternal.Buffer buf) :
-            this(encoding, buf, false)
-        {
-        }
-
-        public InputStream(EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
-        {
-            initialize(encoding);
+            Initialize(communicator);
             _buf = new IceInternal.Buffer(buf, adopt);
         }
 
@@ -149,7 +70,7 @@ namespace Ice
         /// <param name="encoding">The desired encoding version.</param>
         public InputStream(Communicator communicator, EncodingVersion encoding)
         {
-            initialize(communicator, encoding);
+            Initialize(communicator, encoding);
             _buf = new IceInternal.Buffer();
         }
 
@@ -161,13 +82,13 @@ namespace Ice
         /// <param name="data">The byte array containing encoded Slice types.</param>
         public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data)
         {
-            initialize(communicator, encoding);
+            Initialize(communicator, encoding);
             _buf = new IceInternal.Buffer(data);
         }
 
         public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.ByteBuffer buf)
         {
-            initialize(communicator, encoding);
+            Initialize(communicator, encoding);
             _buf = new IceInternal.Buffer(buf);
         }
 
@@ -178,7 +99,7 @@ namespace Ice
 
         public InputStream(Communicator communicator, EncodingVersion encoding, IceInternal.Buffer buf, bool adopt)
         {
-            initialize(communicator, encoding);
+            Initialize(communicator, encoding);
             _buf = new IceInternal.Buffer(buf, adopt);
         }
 
@@ -186,31 +107,23 @@ namespace Ice
         /// Initializes the stream to use the communicator's default encoding version.
         /// </summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        public void initialize(Communicator communicator)
+        public void Initialize(Communicator communicator)
         {
             Debug.Assert(communicator != null);
-            initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding);
+            Initialize(communicator, communicator.defaultsAndOverrides().defaultEncoding);
         }
 
-        private void initialize(Ice.Communicator communicator, EncodingVersion encoding)
+        private void Initialize(Ice.Communicator communicator, EncodingVersion encoding)
         {
-            initialize(encoding);
+            _encoding = encoding;
 
             _communicator = communicator;
             _traceSlicing = _communicator.traceLevels().slicing > 0;
             _classGraphDepthMax = _communicator.classGraphDepthMax();
-            _logger = _communicator.initializationData().logger;
+            _logger = _communicator.Logger;
             _classResolver = _communicator.resolveClass;
-        }
-
-        private void initialize(EncodingVersion encoding)
-        {
-            _communicator = null;
-            _encoding = encoding;
             _encapsStack = null;
             _encapsCache = null;
-            _traceSlicing = false;
-            _classGraphDepthMax = 0x7fffffff;
             _closure = null;
             _sliceValues = true;
             _startSeq = -1;
@@ -221,16 +134,16 @@ namespace Ice
         /// Resets this stream. This method allows the stream to be reused, to avoid creating
         /// unnecessary garbage.
         /// </summary>
-        public void reset()
+        public void Reset()
         {
             _buf.reset();
-            clear();
+            Clear();
         }
 
         /// <summary>
         /// Releases any data retained by encapsulations. Internally calls clear().
         /// </summary>
-        public void clear()
+        public void Clear()
         {
             if (_encapsStack != null)
             {
@@ -251,7 +164,7 @@ namespace Ice
         /// be used by default.
         /// </summary>
         /// <param name="logger">The logger to use for logging trace messages.</param>
-        public void setLogger(Logger logger)
+        public void SetLogger(Logger logger)
         {
             _logger = logger;
         }
@@ -262,7 +175,7 @@ namespace Ice
         /// resolver will be used by default.
         /// </summary>
         /// <param name="r">The compact ID resolver.</param>
-        public void setCompactIdResolver(System.Func<int, string> r)
+        public void SetCompactIdResolver(Func<int, string> r)
         {
             _compactIdResolver = r;
         }
@@ -273,7 +186,7 @@ namespace Ice
         /// resolver will be used by default.
         /// </summary>
         /// <param name="r">The class resolver.</param>
-        public void setClassResolver(System.Func<string, Type> r)
+        public void SetClassResolver(Func<string, Type> r)
         {
             _classResolver = r;
         }
@@ -287,7 +200,7 @@ namespace Ice
         /// slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
         /// during decoding for which no value factory is installed, it raises NoValueFactoryException.
         /// </param>
-        public void setSliceValues(bool b)
+        public void SetSliceValues(bool b)
         {
             _sliceValues = b;
         }
@@ -296,7 +209,7 @@ namespace Ice
         /// Determines whether the stream logs messages about slicing instances of Slice values.
         /// </summary>
         /// <param name="b">True to enable logging, false to disable logging.</param>
-        public void setTraceSlicing(bool b)
+        public void SetTraceSlicing(bool b)
         {
             _traceSlicing = b;
         }
@@ -305,7 +218,7 @@ namespace Ice
         /// Set the maximum depth allowed for graph of Slice class instances.
         /// </summary>
         /// <param name="classGraphDepthMax">The maximum depth.</param>
-        public void setClassGraphDepthMax(int classGraphDepthMax)
+        public void SetClassGraphDepthMax(int classGraphDepthMax)
         {
             if (classGraphDepthMax < 1)
             {
@@ -317,28 +230,7 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Retrieves the closure object associated with this stream.
-        /// </summary>
-        /// <returns>The closure object.</returns>
-        public object getClosure()
-        {
-            return _closure;
-        }
-
-        /// <summary>
-        /// Associates a closure object with this stream.
-        /// </summary>
-        /// <param name="p">The new closure object.</param>
-        /// <returns>The previous closure object, or null.</returns>
-        public object setClosure(object p)
-        {
-            object prev = _closure;
-            _closure = p;
-            return prev;
-        }
-
-        public Ice.Communicator communicator()
+        public Communicator? Communicator()
         {
             return _communicator;
         }
@@ -347,7 +239,7 @@ namespace Ice
         /// Swaps the contents of one stream with another.
         /// </summary>
         /// <param name="other">The other stream.</param>
-        public void swap(InputStream other)
+        public void Swap(InputStream other)
         {
             Debug.Assert(_communicator == other._communicator);
 
@@ -363,7 +255,7 @@ namespace Ice
             other._traceSlicing = _traceSlicing;
             _traceSlicing = tmpTraceSlicing;
 
-            object tmpClosure = other._closure;
+            object? tmpClosure = other._closure;
             other._closure = _closure;
             _closure = tmpClosure;
 
@@ -380,8 +272,8 @@ namespace Ice
             // encapsulations might still be set in case un-marshalling failed. We just
             // reset the encapsulations if there are still some set.
             //
-            resetEncapsulation();
-            other.resetEncapsulation();
+            ResetEncapsulation();
+            other.ResetEncapsulation();
 
             int tmpStartSeq = other._startSeq;
             other._startSeq = _startSeq;
@@ -395,16 +287,16 @@ namespace Ice
             other._logger = _logger;
             _logger = tmpLogger;
 
-            System.Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
+            Func<int, string> tmpCompactIdResolver = other._compactIdResolver;
             other._compactIdResolver = _compactIdResolver;
             _compactIdResolver = tmpCompactIdResolver;
 
-            System.Func<string, Type> tmpClassResolver = other._classResolver;
+            Func<string, Type?> tmpClassResolver = other._classResolver;
             other._classResolver = _classResolver;
             _classResolver = tmpClassResolver;
         }
 
-        private void resetEncapsulation()
+        private void ResetEncapsulation()
         {
             _encapsStack = null;
         }
@@ -413,13 +305,13 @@ namespace Ice
         /// Resizes the stream to a new size.
         /// </summary>
         /// <param name="sz">The new size.</param>
-        public void resize(int sz)
+        public void Resize(int sz)
         {
             _buf.resize(sz, true);
             _buf.b.position(sz);
         }
 
-        public IceInternal.Buffer getBuffer()
+        public IceInternal.Buffer GetBuffer()
         {
             return _buf;
         }
@@ -427,7 +319,7 @@ namespace Ice
         /// <summary>
         /// Marks the start of a class instance.
         /// </summary>
-        public void startValue()
+        public void StartValue()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             _encapsStack.decoder.startInstance(SliceType.ValueSlice);
@@ -438,7 +330,7 @@ namespace Ice
         /// </summary>
         /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endValue(bool preserve)
+        public SlicedData EndValue(bool preserve)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             return _encapsStack.decoder.endInstance(preserve);
@@ -447,7 +339,7 @@ namespace Ice
         /// <summary>
         /// Marks the start of a user exception.
         /// </summary>
-        public void startException()
+        public void StartException()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             _encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
@@ -458,7 +350,7 @@ namespace Ice
         /// </summary>
         /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endException(bool preserve)
+        public SlicedData EndException(bool preserve)
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             return _encapsStack.decoder.endInstance(preserve);
@@ -468,7 +360,7 @@ namespace Ice
         /// Reads the start of an encapsulation.
         /// </summary>
         /// <returns>The encapsulation encoding version.</returns>
-        public EncodingVersion startEncapsulation()
+        public EncodingVersion StartEncapsulation()
         {
             Encaps curr = _encapsCache;
             if (curr != null)
@@ -490,7 +382,7 @@ namespace Ice
             // I must know in advance how many bytes the size information will require in the data
             // stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
             //
-            int sz = readInt();
+            int sz = ReadInt();
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
@@ -512,7 +404,7 @@ namespace Ice
         /// <summary>
         /// Ends the previous encapsulation.
         /// </summary>
-        public void endEncapsulation()
+        public void EndEncapsulation()
         {
             Debug.Assert(_encapsStack != null);
 
@@ -558,9 +450,9 @@ namespace Ice
         /// Skips an empty encapsulation.
         /// </summary>
         /// <returns>The encapsulation's encoding version.</returns>
-        public EncodingVersion skipEmptyEncapsulation()
+        public EncodingVersion SkipEmptyEncapsulation()
         {
-            int sz = readInt();
+            int sz = ReadInt();
             if (sz < 6)
             {
                 throw new EncapsulationException();
@@ -596,9 +488,9 @@ namespace Ice
         /// </summary>
         /// <param name="encoding">The encapsulation's encoding version.</param>
         /// <returns>The encoded encapsulation.</returns>
-        public byte[] readEncapsulation(out EncodingVersion encoding)
+        public byte[] ReadEncapsulation(out EncodingVersion encoding)
         {
-            int sz = readInt();
+            int sz = ReadInt();
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
@@ -629,7 +521,7 @@ namespace Ice
         /// Determines the current encoding version.
         /// </summary>
         /// <returns>The encoding version.</returns>
-        public EncodingVersion getEncoding()
+        public EncodingVersion GetEncoding()
         {
             return _encapsStack != null ? _encapsStack.encoding : _encoding;
         }
@@ -638,7 +530,7 @@ namespace Ice
         /// Determines the size of the current encapsulation, excluding the encapsulation header.
         /// </summary>
         /// <returns>The size of the encapsulated data.</returns>
-        public int getEncapsulationSize()
+        public int GetEncapsulationSize()
         {
             Debug.Assert(_encapsStack != null);
             return _encapsStack.sz - 6;
@@ -648,9 +540,9 @@ namespace Ice
         /// Skips over an encapsulation.
         /// </summary>
         /// <returns>The encoding version of the skipped encapsulation.</returns>
-        public EncodingVersion skipEncapsulation()
+        public EncodingVersion SkipEncapsulation()
         {
-            int sz = readInt();
+            int sz = ReadInt();
             if (sz < 6)
             {
                 throw new UnmarshalOutOfBoundsException();
@@ -672,7 +564,7 @@ namespace Ice
         /// Reads the start of a class instance or exception slice.
         /// </summary>
         /// <returns>The Slice type ID for this slice.</returns>
-        public string startSlice() // Returns type ID of next slice
+        public string StartSlice() // Returns type ID of next slice
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             return _encapsStack.decoder.startSlice();
@@ -681,7 +573,7 @@ namespace Ice
         /// <summary>
         /// Indicates that the end of a class instance or exception slice has been reached.
         /// </summary>
-        public void endSlice()
+        public void EndSlice()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             _encapsStack.decoder.endSlice();
@@ -690,7 +582,7 @@ namespace Ice
         /// <summary>
         /// Skips over a class instance or exception slice.
         /// </summary>
-        public void skipSlice()
+        public void SkipSlice()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
             _encapsStack.decoder.skipSlice();
@@ -702,7 +594,7 @@ namespace Ice
         /// calls to the System.Action delegates to inform the application that unmarshaling of an instance
         /// is complete.
         /// </summary>
-        public void readPendingValues()
+        public void ReadPendingValues()
         {
             if (_encapsStack != null && _encapsStack.decoder != null)
             {
@@ -727,7 +619,7 @@ namespace Ice
         /// Extracts a size from the stream.
         /// </summary>
         /// <returns>The extracted size.</returns>
-        public int readSize()
+        public int ReadSize()
         {
             try
             {
@@ -756,9 +648,9 @@ namespace Ice
         /// Reads and validates a sequence size.
         /// </summary>
         /// <returns>The extracted size.</returns>
-        public int readAndCheckSeqSize(int minSize)
+        public int ReadAndCheckSeqSize(int minSize)
         {
-            int sz = readSize();
+            int sz = ReadSize();
 
             if (sz == 0)
             {
@@ -809,7 +701,7 @@ namespace Ice
         /// Reads a blob of bytes from the stream. The length of the given array determines how many bytes are read.
         /// </summary>
         /// <param name="v">Bytes from the stream.</param>
-        public void readBlob(byte[] v)
+        public void ReadBlob(byte[] v)
         {
             try
             {
@@ -826,7 +718,7 @@ namespace Ice
         /// </summary>
         /// <param name="sz">The number of bytes to read.</param>
         /// <returns>The requested bytes as a byte array.</returns>
-        public byte[] readBlob(int sz)
+        public byte[] ReadBlob(int sz)
         {
             if (_buf.b.remaining() < sz)
             {
@@ -850,7 +742,7 @@ namespace Ice
         /// <param name="tag">The tag associated with the value.</param>
         /// <param name="expectedFormat">The optional format for the value.</param>
         /// <returns>True if the value is present, false otherwise.</returns>
-        public bool readOptional(int tag, OptionalFormat expectedFormat)
+        public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
             Debug.Assert(_encapsStack != null);
             if (_encapsStack.decoder != null)
@@ -867,7 +759,7 @@ namespace Ice
         /// Extracts a byte value from the stream.
         /// </summary>
         /// <returns>The extracted byte.</returns>
-        public byte readByte()
+        public byte ReadByte()
         {
             try
             {
@@ -884,33 +776,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<byte> readByte(int tag)
+        public byte? ReadByte(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F1))
+            if (ReadOptional(tag, OptionalFormat.F1))
             {
-                return new Optional<byte>(readByte());
+                return ReadByte();
             }
             else
             {
-                return new Optional<byte>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional byte value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readByte(int tag, out bool isset, out byte v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F1))
-            {
-                v = readByte();
-            }
-            else
-            {
-                v = 0;
+                return null;
             }
         }
 
@@ -918,11 +792,11 @@ namespace Ice
         /// Extracts a sequence of byte values from the stream.
         /// </summary>
         /// <returns>The extracted byte sequence.</returns>
-        public byte[] readByteSeq()
+        public byte[] ReadByteSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(1);
+                int sz = ReadAndCheckSeqSize(1);
                 byte[] v = new byte[sz];
                 _buf.b.get(v);
                 return v;
@@ -937,55 +811,55 @@ namespace Ice
         /// Extracts a sequence of byte values from the stream.
         /// </summary>
         /// <param name="l">The extracted byte sequence as a list.</param>
-        public void readByteSeq(out List<byte> l)
+        public void ReadByteSeq(out List<byte> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<byte>(readByteSeq());
+            l = new List<byte>(ReadByteSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of byte values from the stream.
         /// </summary>
         /// <param name="l">The extracted byte sequence as a linked list.</param>
-        public void readByteSeq(out LinkedList<byte> l)
+        public void ReadByteSeq(out LinkedList<byte> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new LinkedList<byte>(readByteSeq());
+            l = new LinkedList<byte>(ReadByteSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of byte values from the stream.
         /// </summary>
         /// <param name="l">The extracted byte sequence as a queue.</param>
-        public void readByteSeq(out Queue<byte> l)
+        public void ReadByteSeq(out Queue<byte> l)
         {
             //
             // Reading into an array and copy-constructing the
             // queue is faster than constructing the queue
             // and adding to it one element at a time.
             //
-            l = new Queue<byte>(readByteSeq());
+            l = new Queue<byte>(ReadByteSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of byte values from the stream.
         /// </summary>
         /// <param name="l">The extracted byte sequence as a stack.</param>
-        public void readByteSeq(out Stack<byte> l)
+        public void ReadByteSeq(out Stack<byte> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            byte[] array = readByteSeq();
+            byte[] array = ReadByteSeq();
             Array.Reverse(array);
             l = new Stack<byte>(array);
         }
@@ -995,33 +869,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<byte[]> readByteSeq(int tag)
+        public byte[]? ReadByteSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                return new Optional<byte[]>(readByteSeq());
+                return ReadByteSeq();
             }
             else
             {
-                return new Optional<byte[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional byte sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readByteSeq(int tag, out bool isset, out byte[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                v = readByteSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -1029,9 +885,9 @@ namespace Ice
         /// Extracts a serializable object from the stream.
         /// </summary>
         /// <returns>The serializable object.</returns>
-        public object readSerializable()
+        public object? ReadSerializable()
         {
-            int sz = readAndCheckSeqSize(1);
+            int sz = ReadAndCheckSeqSize(1);
             if (sz == 0)
             {
                 return null;
@@ -1051,7 +907,7 @@ namespace Ice
         /// Extracts a boolean value from the stream.
         /// </summary>
         /// <returns>The extracted boolean.</returns>
-        public bool readBool()
+        public bool ReadBool()
         {
             try
             {
@@ -1068,33 +924,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<bool> readBool(int tag)
+        public bool? ReadBool(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F1))
+            if (ReadOptional(tag, OptionalFormat.F1))
             {
-                return new Optional<bool>(readBool());
+                return ReadBool();
             }
             else
             {
-                return new Optional<bool>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional boolean value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readBool(int tag, out bool isset, out bool v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F1))
-            {
-                v = readBool();
-            }
-            else
-            {
-                v = false;
+                return null;
             }
         }
 
@@ -1102,11 +940,11 @@ namespace Ice
         /// Extracts a sequence of boolean values from the stream.
         /// </summary>
         /// <returns>The extracted boolean sequence.</returns>
-        public bool[] readBoolSeq()
+        public bool[] ReadBoolSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(1);
+                int sz = ReadAndCheckSeqSize(1);
                 bool[] v = new bool[sz];
                 _buf.b.getBoolSeq(v);
                 return v;
@@ -1121,55 +959,55 @@ namespace Ice
         /// Extracts a sequence of boolean values from the stream.
         /// </summary>
         /// <param name="l">The extracted boolean sequence as a list.</param>
-        public void readBoolSeq(out List<bool> l)
+        public void ReadBoolSeq(out List<bool> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<bool>(readBoolSeq());
+            l = new List<bool>(ReadBoolSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of boolean values from the stream.
         /// </summary>
         /// <param name="l">The extracted boolean sequence as a linked list.</param>
-        public void readBoolSeq(out LinkedList<bool> l)
+        public void ReadBoolSeq(out LinkedList<bool> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new LinkedList<bool>(readBoolSeq());
+            l = new LinkedList<bool>(ReadBoolSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of boolean values from the stream.
         /// </summary>
         /// <param name="l">The extracted boolean sequence as a queue.</param>
-        public void readBoolSeq(out Queue<bool> l)
+        public void ReadBoolSeq(out Queue<bool> l)
         {
             //
             // Reading into an array and copy-constructing the
             // queue is faster than constructing the queue
             // and adding to it one element at a time.
             //
-            l = new Queue<bool>(readBoolSeq());
+            l = new Queue<bool>(ReadBoolSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of boolean values from the stream.
         /// </summary>
         /// <param name="l">The extracted boolean sequence as a stack.</param>
-        public void readBoolSeq(out Stack<bool> l)
+        public void ReadBoolSeq(out Stack<bool> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            bool[] array = readBoolSeq();
+            bool[] array = ReadBoolSeq();
             Array.Reverse(array);
             l = new Stack<bool>(array);
         }
@@ -1179,33 +1017,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<bool[]> readBoolSeq(int tag)
+        public bool[]? ReadBoolSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                return new Optional<bool[]>(readBoolSeq());
+                return ReadBoolSeq();
             }
             else
             {
-                return new Optional<bool[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional boolean sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readBoolSeq(int tag, out bool isset, out bool[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                v = readBoolSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -1213,7 +1033,7 @@ namespace Ice
         /// Extracts a short value from the stream.
         /// </summary>
         /// <returns>The extracted short.</returns>
-        public short readShort()
+        public short ReadShort()
         {
             try
             {
@@ -1230,33 +1050,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<short> readShort(int tag)
+        public short? ReadShort(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F2))
+            if (ReadOptional(tag, OptionalFormat.F2))
             {
-                return new Optional<short>(readShort());
+                return ReadShort();
             }
             else
             {
-                return new Optional<short>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional short value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readShort(int tag, out bool isset, out short v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F2))
-            {
-                v = readShort();
-            }
-            else
-            {
-                v = 0;
+                return null;
             }
         }
 
@@ -1264,11 +1066,11 @@ namespace Ice
         /// Extracts a sequence of short values from the stream.
         /// </summary>
         /// <returns>The extracted short sequence.</returns>
-        public short[] readShortSeq()
+        public short[] ReadShortSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(2);
+                int sz = ReadAndCheckSeqSize(2);
                 short[] v = new short[sz];
                 _buf.b.getShortSeq(v);
                 return v;
@@ -1283,55 +1085,55 @@ namespace Ice
         /// Extracts a sequence of short values from the stream.
         /// </summary>
         /// <param name="l">The extracted short sequence as a list.</param>
-        public void readShortSeq(out List<short> l)
+        public void ReadShortSeq(out List<short> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<short>(readShortSeq());
+            l = new List<short>(ReadShortSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of short values from the stream.
         /// </summary>
         /// <param name="l">The extracted short sequence as a linked list.</param>
-        public void readShortSeq(out LinkedList<short> l)
+        public void ReadShortSeq(out LinkedList<short> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new LinkedList<short>(readShortSeq());
+            l = new LinkedList<short>(ReadShortSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of short values from the stream.
         /// </summary>
         /// <param name="l">The extracted short sequence as a queue.</param>
-        public void readShortSeq(out Queue<short> l)
+        public void ReadShortSeq(out Queue<short> l)
         {
             //
             // Reading into an array and copy-constructing the
             // queue is faster than constructing the queue
             // and adding to it one element at a time.
             //
-            l = new Queue<short>(readShortSeq());
+            l = new Queue<short>(ReadShortSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of short values from the stream.
         /// </summary>
         /// <param name="l">The extracted short sequence as a stack.</param>
-        public void readShortSeq(out Stack<short> l)
+        public void ReadShortSeq(out Stack<short> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            short[] array = readShortSeq();
+            short[] array = ReadShortSeq();
             Array.Reverse(array);
             l = new Stack<short>(array);
         }
@@ -1341,35 +1143,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<short[]> readShortSeq(int tag)
+        public short[]? ReadShortSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
-                return new Optional<short[]>(readShortSeq());
+                return ReadShortSeq();
             }
             else
             {
-                return new Optional<short[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional short sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readShortSeq(int tag, out bool isset, out short[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                skipSize();
-                v = readShortSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -1377,7 +1160,7 @@ namespace Ice
         /// Extracts an int value from the stream.
         /// </summary>
         /// <returns>The extracted int.</returns>
-        public int readInt()
+        public int ReadInt()
         {
             try
             {
@@ -1394,33 +1177,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<int> readInt(int tag)
+        public int? ReadInt(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F4))
+            if (ReadOptional(tag, OptionalFormat.F4))
             {
-                return new Optional<int>(readInt());
+                return ReadInt();
             }
             else
             {
-                return new Optional<int>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional int value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readInt(int tag, out bool isset, out int v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F4))
-            {
-                v = readInt();
-            }
-            else
-            {
-                v = 0;
+                return null;
             }
         }
 
@@ -1428,11 +1193,11 @@ namespace Ice
         /// Extracts a sequence of int values from the stream.
         /// </summary>
         /// <returns>The extracted int sequence.</returns>
-        public int[] readIntSeq()
+        public int[] ReadIntSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 int[] v = new int[sz];
                 _buf.b.getIntSeq(v);
                 return v;
@@ -1447,25 +1212,25 @@ namespace Ice
         /// Extracts a sequence of int values from the stream.
         /// </summary>
         /// <param name="l">The extracted int sequence as a list.</param>
-        public void readIntSeq(out List<int> l)
+        public void ReadIntSeq(out List<int> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<int>(readIntSeq());
+            l = new List<int>(ReadIntSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of int values from the stream.
         /// </summary>
         /// <param name="l">The extracted int sequence as a linked list.</param>
-        public void readIntSeq(out LinkedList<int> l)
+        public void ReadIntSeq(out LinkedList<int> l)
         {
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new LinkedList<int>();
                 for (int i = 0; i < sz; ++i)
                 {
@@ -1482,7 +1247,7 @@ namespace Ice
         /// Extracts a sequence of int values from the stream.
         /// </summary>
         /// <param name="l">The extracted int sequence as a queue.</param>
-        public void readIntSeq(out Queue<int> l)
+        public void ReadIntSeq(out Queue<int> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1492,7 +1257,7 @@ namespace Ice
             //
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new Queue<int>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
@@ -1509,13 +1274,13 @@ namespace Ice
         /// Extracts a sequence of int values from the stream.
         /// </summary>
         /// <param name="l">The extracted int sequence as a stack.</param>
-        public void readIntSeq(out Stack<int> l)
+        public void ReadIntSeq(out Stack<int> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            int[] array = readIntSeq();
+            int[] array = ReadIntSeq();
             Array.Reverse(array);
             l = new Stack<int>(array);
         }
@@ -1525,35 +1290,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<int[]> readIntSeq(int tag)
+        public int[]? ReadIntSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
-                return new Optional<int[]>(readIntSeq());
+                return ReadIntSeq();
             }
             else
             {
-                return new Optional<int[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional int sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readIntSeq(int tag, out bool isset, out int[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                skipSize();
-                v = readIntSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -1561,7 +1307,7 @@ namespace Ice
         /// Extracts a long value from the stream.
         /// </summary>
         /// <returns>The extracted long.</returns>
-        public long readLong()
+        public long ReadLong()
         {
             try
             {
@@ -1578,33 +1324,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<long> readLong(int tag)
+        public long? ReadLong(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F8))
+            if (ReadOptional(tag, OptionalFormat.F8))
             {
-                return new Optional<long>(readLong());
+                return ReadLong();
             }
             else
             {
-                return new Optional<long>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional long value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readLong(int tag, out bool isset, out long v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F8))
-            {
-                v = readLong();
-            }
-            else
-            {
-                v = 0;
+                return null;
             }
         }
 
@@ -1612,11 +1340,11 @@ namespace Ice
         /// Extracts a sequence of long values from the stream.
         /// </summary>
         /// <returns>The extracted long sequence.</returns>
-        public long[] readLongSeq()
+        public long[] ReadLongSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(8);
+                int sz = ReadAndCheckSeqSize(8);
                 long[] v = new long[sz];
                 _buf.b.getLongSeq(v);
                 return v;
@@ -1631,25 +1359,25 @@ namespace Ice
         /// Extracts a sequence of long values from the stream.
         /// </summary>
         /// <param name="l">The extracted long sequence as a list.</param>
-        public void readLongSeq(out List<long> l)
+        public void ReadLongSeq(out List<long> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<long>(readLongSeq());
+            l = new List<long>(ReadLongSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of long values from the stream.
         /// </summary>
         /// <param name="l">The extracted long sequence as a linked list.</param>
-        public void readLongSeq(out LinkedList<long> l)
+        public void ReadLongSeq(out LinkedList<long> l)
         {
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new LinkedList<long>();
                 for (int i = 0; i < sz; ++i)
                 {
@@ -1666,7 +1394,7 @@ namespace Ice
         /// Extracts a sequence of long values from the stream.
         /// </summary>
         /// <param name="l">The extracted long sequence as a queue.</param>
-        public void readLongSeq(out Queue<long> l)
+        public void ReadLongSeq(out Queue<long> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1676,7 +1404,7 @@ namespace Ice
             //
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new Queue<long>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
@@ -1693,13 +1421,13 @@ namespace Ice
         /// Extracts a sequence of long values from the stream.
         /// </summary>
         /// <param name="l">The extracted long sequence as a stack.</param>
-        public void readLongSeq(out Stack<long> l)
+        public void ReadLongSeq(out Stack<long> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            long[] array = readLongSeq();
+            long[] array = ReadLongSeq();
             Array.Reverse(array);
             l = new Stack<long>(array);
         }
@@ -1709,35 +1437,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<long[]> readLongSeq(int tag)
+        public long[]? ReadLongSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
-                return new Optional<long[]>(readLongSeq());
+                return ReadLongSeq();
             }
             else
             {
-                return new Optional<long[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional long sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readLongSeq(int tag, out bool isset, out long[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                skipSize();
-                v = readLongSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -1745,7 +1454,7 @@ namespace Ice
         /// Extracts a float value from the stream.
         /// </summary>
         /// <returns>The extracted float.</returns>
-        public float readFloat()
+        public float ReadFloat()
         {
             try
             {
@@ -1762,33 +1471,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<float> readFloat(int tag)
+        public float? ReadFloat(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F4))
+            if (ReadOptional(tag, OptionalFormat.F4))
             {
-                return new Optional<float>(readFloat());
+                return ReadFloat();
             }
             else
             {
-                return new Optional<float>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional float value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readFloat(int tag, out bool isset, out float v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F4))
-            {
-                v = readFloat();
-            }
-            else
-            {
-                v = 0;
+                return null;
             }
         }
 
@@ -1796,11 +1487,11 @@ namespace Ice
         /// Extracts a sequence of float values from the stream.
         /// </summary>
         /// <returns>The extracted float sequence.</returns>
-        public float[] readFloatSeq()
+        public float[] ReadFloatSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 float[] v = new float[sz];
                 _buf.b.getFloatSeq(v);
                 return v;
@@ -1815,25 +1506,25 @@ namespace Ice
         /// Extracts a sequence of float values from the stream.
         /// </summary>
         /// <param name="l">The extracted float sequence as a list.</param>
-        public void readFloatSeq(out List<float> l)
+        public void ReadFloatSeq(out List<float> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<float>(readFloatSeq());
+            l = new List<float>(ReadFloatSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of float values from the stream.
         /// </summary>
         /// <param name="l">The extracted float sequence as a linked list.</param>
-        public void readFloatSeq(out LinkedList<float> l)
+        public void ReadFloatSeq(out LinkedList<float> l)
         {
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new LinkedList<float>();
                 for (int i = 0; i < sz; ++i)
                 {
@@ -1850,7 +1541,7 @@ namespace Ice
         /// Extracts a sequence of float values from the stream.
         /// </summary>
         /// <param name="l">The extracted float sequence as a queue.</param>
-        public void readFloatSeq(out Queue<float> l)
+        public void ReadFloatSeq(out Queue<float> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -1860,7 +1551,7 @@ namespace Ice
             //
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new Queue<float>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
@@ -1877,13 +1568,13 @@ namespace Ice
         /// Extracts a sequence of float values from the stream.
         /// </summary>
         /// <param name="l">The extracted float sequence as a stack.</param>
-        public void readFloatSeq(out Stack<float> l)
+        public void ReadFloatSeq(out Stack<float> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            float[] array = readFloatSeq();
+            float[] array = ReadFloatSeq();
             Array.Reverse(array);
             l = new Stack<float>(array);
         }
@@ -1893,35 +1584,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<float[]> readFloatSeq(int tag)
+        public float[]? ReadFloatSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
-                return new Optional<float[]>(readFloatSeq());
+                return ReadFloatSeq();
             }
             else
             {
-                return new Optional<float[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional float sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readFloatSeq(int tag, out bool isset, out float[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                skipSize();
-                v = readFloatSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -1929,7 +1601,7 @@ namespace Ice
         /// Extracts a double value from the stream.
         /// </summary>
         /// <returns>The extracted double.</returns>
-        public double readDouble()
+        public double ReadDouble()
         {
             try
             {
@@ -1946,33 +1618,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<double> readDouble(int tag)
+        public double? ReadDouble(int tag)
         {
-            if (readOptional(tag, OptionalFormat.F8))
+            if (ReadOptional(tag, OptionalFormat.F8))
             {
-                return new Optional<double>(readDouble());
+                return ReadDouble();
             }
             else
             {
-                return new Optional<double>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional double value from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readDouble(int tag, out bool isset, out double v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.F8))
-            {
-                v = readDouble();
-            }
-            else
-            {
-                v = 0;
+                return null;
             }
         }
 
@@ -1980,11 +1634,11 @@ namespace Ice
         /// Extracts a sequence of double values from the stream.
         /// </summary>
         /// <returns>The extracted double sequence.</returns>
-        public double[] readDoubleSeq()
+        public double[] ReadDoubleSeq()
         {
             try
             {
-                int sz = readAndCheckSeqSize(8);
+                int sz = ReadAndCheckSeqSize(8);
                 double[] v = new double[sz];
                 _buf.b.getDoubleSeq(v);
                 return v;
@@ -1999,25 +1653,25 @@ namespace Ice
         /// Extracts a sequence of double values from the stream.
         /// </summary>
         /// <param name="l">The extracted double sequence as a list.</param>
-        public void readDoubleSeq(out List<double> l)
+        public void ReadDoubleSeq(out List<double> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is faster than constructing the list
             // and adding to it one element at a time.
             //
-            l = new List<double>(readDoubleSeq());
+            l = new List<double>(ReadDoubleSeq());
         }
 
         /// <summary>
         /// Extracts a sequence of double values from the stream.
         /// </summary>
         /// <param name="l">The extracted double sequence as a linked list.</param>
-        public void readDoubleSeq(out LinkedList<double> l)
+        public void ReadDoubleSeq(out LinkedList<double> l)
         {
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new LinkedList<double>();
                 for (int i = 0; i < sz; ++i)
                 {
@@ -2034,7 +1688,7 @@ namespace Ice
         /// Extracts a sequence of double values from the stream.
         /// </summary>
         /// <param name="l">The extracted double sequence as a queue.</param>
-        public void readDoubleSeq(out Queue<double> l)
+        public void ReadDoubleSeq(out Queue<double> l)
         {
             //
             // Reading into an array and copy-constructing the
@@ -2044,7 +1698,7 @@ namespace Ice
             //
             try
             {
-                int sz = readAndCheckSeqSize(4);
+                int sz = ReadAndCheckSeqSize(4);
                 l = new Queue<double>(sz);
                 for (int i = 0; i < sz; ++i)
                 {
@@ -2061,13 +1715,13 @@ namespace Ice
         /// Extracts a sequence of double values from the stream.
         /// </summary>
         /// <param name="l">The extracted double sequence as a stack.</param>
-        public void readDoubleSeq(out Stack<double> l)
+        public void ReadDoubleSeq(out Stack<double> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            double[] array = readDoubleSeq();
+            double[] array = ReadDoubleSeq();
             Array.Reverse(array);
             l = new Stack<double>(array);
         }
@@ -2077,35 +1731,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<double[]> readDoubleSeq(int tag)
+        public double[]? ReadDoubleSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
                 skipSize();
-                return new Optional<double[]>(readDoubleSeq());
+                return ReadDoubleSeq();
             }
             else
             {
-                return new Optional<double[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional double sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readDoubleSeq(int tag, out bool isset, out double[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                skipSize();
-                v = readDoubleSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -2115,9 +1750,9 @@ namespace Ice
         /// Extracts a string from the stream.
         /// </summary>
         /// <returns>The extracted string.</returns>
-        public string readString()
+        public string ReadString()
         {
-            int len = readSize();
+            int len = ReadSize();
 
             if (len == 0)
             {
@@ -2160,33 +1795,15 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<string> readString(int tag)
+        public string? ReadString(int tag)
         {
-            if (readOptional(tag, OptionalFormat.VSize))
+            if (ReadOptional(tag, OptionalFormat.VSize))
             {
-                return new Optional<string>(readString());
+                return ReadString();
             }
             else
             {
-                return new Optional<string>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional string from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readString(int tag, out bool isset, out string v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.VSize))
-            {
-                v = readString();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -2194,13 +1811,13 @@ namespace Ice
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <returns>The extracted string sequence.</returns>
-        public string[] readStringSeq()
+        public string[] ReadStringSeq()
         {
-            int sz = readAndCheckSeqSize(1);
+            int sz = ReadAndCheckSeqSize(1);
             string[] v = new string[sz];
             for (int i = 0; i < sz; i++)
             {
-                v[i] = readString();
+                v[i] = ReadString();
             }
             return v;
         }
@@ -2209,18 +1826,18 @@ namespace Ice
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <param name="l">The extracted string sequence as a list.</param>
-        public void readStringSeq(out List<string> l)
+        public void ReadStringSeq(out List<string> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is slower than constructing the list
             // and adding to it one element at a time.
             //
-            int sz = readAndCheckSeqSize(1);
+            int sz = ReadAndCheckSeqSize(1);
             l = new List<string>(sz);
             for (int i = 0; i < sz; ++i)
             {
-                l.Add(readString());
+                l.Add(ReadString());
             }
         }
 
@@ -2228,18 +1845,18 @@ namespace Ice
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <param name="l">The extracted string sequence as a linked list.</param>
-        public void readStringSeq(out LinkedList<string> l)
+        public void ReadStringSeq(out LinkedList<string> l)
         {
             //
             // Reading into an array and copy-constructing the
             // list is slower than constructing the list
             // and adding to it one element at a time.
             //
-            int sz = readAndCheckSeqSize(1);
+            int sz = ReadAndCheckSeqSize(1);
             l = new LinkedList<string>();
             for (int i = 0; i < sz; ++i)
             {
-                l.AddLast(readString());
+                l.AddLast(ReadString());
             }
         }
 
@@ -2247,18 +1864,18 @@ namespace Ice
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <param name="l">The extracted string sequence as a queue.</param>
-        public void readStringSeq(out Queue<string> l)
+        public void ReadStringSeq(out Queue<string> l)
         {
             //
             // Reading into an array and copy-constructing the
             // queue is slower than constructing the queue
             // and adding to it one element at a time.
             //
-            int sz = readAndCheckSeqSize(1);
+            int sz = ReadAndCheckSeqSize(1);
             l = new Queue<string>();
             for (int i = 0; i < sz; ++i)
             {
-                l.Enqueue(readString());
+                l.Enqueue(ReadString());
             }
         }
 
@@ -2266,13 +1883,13 @@ namespace Ice
         /// Extracts a sequence of strings from the stream.
         /// </summary>
         /// <param name="l">The extracted string sequence as a stack.</param>
-        public void readStringSeq(out Stack<string> l)
+        public void ReadStringSeq(out Stack<string> l)
         {
             //
             // Reverse the contents by copying into an array first
             // because the stack is marshaled in top-to-bottom order.
             //
-            string[] array = readStringSeq();
+            string[] array = ReadStringSeq();
             Array.Reverse(array);
             l = new Stack<string>(array);
         }
@@ -2282,35 +1899,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<string[]> readStringSeq(int tag)
+        public string[]? ReadStringSeq(int tag)
         {
-            if (readOptional(tag, OptionalFormat.FSize))
+            if (ReadOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
-                return new Optional<string[]>(readStringSeq());
+                return ReadStringSeq();
             }
             else
             {
-                return new Optional<string[]>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional string sequence from the stream.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void readStringSeq(int tag, out bool isset, out string[] v)
-        {
-            if (isset = readOptional(tag, OptionalFormat.FSize))
-            {
-                skip(4);
-                v = readStringSeq();
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -2322,14 +1920,13 @@ namespace Ice
         {
             Identity ident = new Identity();
             ident.ice_readMembers(this);
-            var reference = _communicator.CreateReference(ident, this);
-            if (reference == null)
+            if (ident.name.Length == 0)
             {
                 return null;
             }
             else
             {
-                return factory(reference);
+                return factory(_communicator.CreateReference(ident, this));
             }
         }
 
@@ -2338,35 +1935,16 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <returns>The optional value.</returns>
-        public Optional<T> ReadProxy<T>(int tag, ProxyFactory<T> factory) where T : class, IObjectPrx
+        public T? ReadProxy<T>(int tag, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            if (readOptional(tag, OptionalFormat.FSize))
+            if (ReadOptional(tag, OptionalFormat.FSize))
             {
                 skip(4);
-                return new Optional<T>(ReadProxy(factory));
+                return ReadProxy(factory);
             }
             else
             {
-                return new Optional<T>();
-            }
-        }
-
-        /// <summary>
-        /// Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
-        /// </summary>
-        /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="isset">True if the optional value is present, false otherwise.</param>
-        /// <param name="v">The optional value.</param>
-        public void ReadProxy<T>(int tag, ProxyFactory<T> factory, out bool isset, out T? v) where T : class, IObjectPrx
-        {
-            if (isset = readOptional(tag, OptionalFormat.FSize))
-            {
-                skip(4);
-                v = ReadProxy(factory);
-            }
-            else
-            {
-                v = null;
+                return null;
             }
         }
 
@@ -2375,26 +1953,26 @@ namespace Ice
         /// </summary>
         /// <param name="maxValue">The maximum enumerator value in the definition.</param>
         /// <returns>The enumerator.</returns>
-        public int readEnum(int maxValue)
+        public int ReadEnum(int maxValue)
         {
-            if (getEncoding().Equals(Util.Encoding_1_0))
+            if (GetEncoding().Equals(Util.Encoding_1_0))
             {
                 if (maxValue < 127)
                 {
-                    return readByte();
+                    return ReadByte();
                 }
                 else if (maxValue < 32767)
                 {
-                    return readShort();
+                    return ReadShort();
                 }
                 else
                 {
-                    return readInt();
+                    return ReadInt();
                 }
             }
             else
             {
-                return readSize();
+                return ReadSize();
             }
         }
 
@@ -2404,13 +1982,13 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readValue<T>(System.Action<T> cb) where T : Value
+        public void ReadValue<T>(Action<T?> cb) where T : Value
         {
-            readValue(v =>
+            ReadValue(v =>
             {
                 if (v == null || v is T)
                 {
-                    cb((T)v);
+                    cb((T?)v);
                 }
                 else
                 {
@@ -2425,7 +2003,7 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available.
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readValue(System.Action<Value> cb)
+        public void ReadValue(Action<Value> cb)
         {
             initEncaps();
             _encapsStack.decoder.readValue(cb);
@@ -2438,13 +2016,13 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readValue<T>(int tag, System.Action<T> cb) where T : Value
+        public void ReadValue<T>(int tag, Action<T?> cb) where T : Value
         {
-            readValue(tag, v =>
+            ReadValue(tag, v =>
             {
                 if (v == null || v is T)
                 {
-                    cb((T)v);
+                    cb((T?)v);
                 }
                 else
                 {
@@ -2460,27 +2038,27 @@ namespace Ice
         /// <param name="cb">The callback to notify the application when the extracted instance is available (if any).
         /// The stream extracts Slice values in stages. The Ice run time invokes the delegate when the
         /// corresponding instance has been fully unmarshaled.</param>
-        public void readValue(int tag, System.Action<Value> cb)
+        public void ReadValue(int tag, System.Action<Value> cb)
         {
-            if (readOptional(tag, OptionalFormat.Class))
+            if (ReadOptional(tag, OptionalFormat.Class))
             {
-                readValue(cb);
+                ReadValue(cb);
             }
         }
 
         /// <summary>
         /// Extracts a user exception from the stream and throws it.
         /// </summary>
-        public void throwException()
+        public void ThrowException()
         {
-            throwException(null);
+            ThrowException(null);
         }
 
         /// <summary>
         /// Extracts a user exception from the stream and throws it.
         /// </summary>
         /// <param name="factory">The user exception factory, or null to use the stream's default behavior.</param>
-        public void throwException(UserExceptionFactory factory)
+        public void ThrowException(UserExceptionFactory? factory)
         {
             initEncaps();
             _encapsStack.decoder.throwException(factory);
@@ -2504,7 +2082,7 @@ namespace Ice
         /// </summary>
         public void skipSize()
         {
-            byte b = readByte();
+            byte b = ReadByte();
             if (b == 255)
             {
                 skip(4);
@@ -2561,7 +2139,7 @@ namespace Ice
                     return false; // End of encapsulation also indicates end of optionals.
                 }
 
-                int v = readByte();
+                int v = ReadByte();
                 if (v == Protocol.OPTIONAL_END_MARKER)
                 {
                     _buf.b.position(_buf.b.position() - 1); // Rewind.
@@ -2572,7 +2150,7 @@ namespace Ice
                 int tag = v >> 3;
                 if (tag == 30)
                 {
-                    tag = readSize();
+                    tag = ReadSize();
                 }
 
                 if (tag > readTag)
@@ -2627,17 +2205,17 @@ namespace Ice
                     }
                 case OptionalFormat.VSize:
                     {
-                        skip(readSize());
+                        skip(ReadSize());
                         break;
                     }
                 case OptionalFormat.FSize:
                     {
-                        skip(readInt());
+                        skip(ReadInt());
                         break;
                     }
                 case OptionalFormat.Class:
                     {
-                        readValue(null);
+                        ReadValue(null);
                         break;
                     }
             }
@@ -2655,7 +2233,7 @@ namespace Ice
                     return false; // End of encapsulation also indicates end of optionals.
                 }
 
-                int v = readByte();
+                int v = ReadByte();
                 if (v == Protocol.OPTIONAL_END_MARKER)
                 {
                     return true;
@@ -2670,9 +2248,9 @@ namespace Ice
             }
         }
 
-        private UserException createUserException(string id)
+        private UserException? createUserException(string id)
         {
-            UserException userEx = null;
+            UserException? userEx = null;
 
             try
             {
@@ -2682,7 +2260,7 @@ namespace Ice
                     if (c != null)
                     {
                         Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                        userEx = (UserException)IceInternal.AssemblyUtil.createInstance(c);
+                        userEx = (UserException?)IceInternal.AssemblyUtil.createInstance(c);
                     }
                 }
             }
@@ -2694,9 +2272,9 @@ namespace Ice
             return userEx;
         }
 
-        private Ice.Communicator _communicator;
+        private Communicator _communicator;
         private IceInternal.Buffer _buf;
-        private object _closure;
+        private object? _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
 
         private enum SliceType { NoSlice, ValueSlice, ExceptionSlice }
@@ -2729,7 +2307,7 @@ namespace Ice
             }
 
             internal abstract void readValue(System.Action<Value> cb);
-            internal abstract void throwException(UserExceptionFactory factory);
+            internal abstract void throwException(UserExceptionFactory? factory);
 
             internal abstract void startInstance(SliceType type);
             internal abstract SlicedData endInstance(bool preserve);
@@ -2755,7 +2333,7 @@ namespace Ice
 
                 if (isIndex)
                 {
-                    int index = _stream.readSize();
+                    int index = _stream.ReadSize();
                     string typeId;
                     if (!_typeIdMap.TryGetValue(index, out typeId))
                     {
@@ -2765,7 +2343,7 @@ namespace Ice
                 }
                 else
                 {
-                    string typeId = _stream.readString();
+                    string typeId = _stream.ReadString();
                     _typeIdMap.Add(++_typeIdIndex, typeId);
                     return typeId;
                 }
@@ -2943,7 +2521,7 @@ namespace Ice
                 //
                 // IObject references are encoded as a negative integer in 1.0.
                 //
-                int index = _stream.readInt();
+                int index = _stream.ReadInt();
                 if (index > 0)
                 {
                     throw new MarshalException("invalid object id");
@@ -2960,7 +2538,7 @@ namespace Ice
                 }
             }
 
-            internal override void throwException(UserExceptionFactory factory)
+            internal override void throwException(UserExceptionFactory? factory)
             {
                 Debug.Assert(_sliceType == SliceType.NoSlice);
 
@@ -2971,7 +2549,7 @@ namespace Ice
                 // This allows reading the pending instances even if some part of
                 // the exception was sliced.
                 //
-                bool usesClasses = _stream.readBool();
+                bool usesClasses = _stream.ReadBool();
 
                 _sliceType = SliceType.ExceptionSlice;
                 _skipFirstSlice = false;
@@ -2983,7 +2561,7 @@ namespace Ice
                 string mostDerivedId = _typeId;
                 while (true)
                 {
-                    UserException userEx = null;
+                    UserException? userEx = null;
 
                     //
                     // Use a factory if one was provided.
@@ -3058,7 +2636,7 @@ namespace Ice
                 if (_sliceType == SliceType.ValueSlice)
                 {
                     startSlice();
-                    int sz = _stream.readSize(); // For compatibility with the old AFM.
+                    int sz = _stream.ReadSize(); // For compatibility with the old AFM.
                     if (sz != 0)
                     {
                         throw new MarshalException("invalid Object slice");
@@ -3090,15 +2668,15 @@ namespace Ice
                 //
                 if (_sliceType == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
                 {
-                    bool isIndex = _stream.readBool();
+                    bool isIndex = _stream.ReadBool();
                     _typeId = readTypeId(isIndex);
                 }
                 else
                 {
-                    _typeId = _stream.readString();
+                    _typeId = _stream.ReadString();
                 }
 
-                _sliceSize = _stream.readInt();
+                _sliceSize = _stream.ReadInt();
                 if (_sliceSize < 4)
                 {
                     throw new UnmarshalOutOfBoundsException();
@@ -3113,10 +2691,10 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if (_stream.communicator().traceLevels().slicing > 0)
+                if (_stream.Communicator().traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.communicator().initializationData().logger;
-                    string slicingCat = _stream.communicator().traceLevels().slicingCat;
+                    Logger logger = _stream.Communicator().initializationData().logger;
+                    string slicingCat = _stream.Communicator().traceLevels().slicingCat;
                     if (_sliceType == SliceType.ValueSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3136,7 +2714,7 @@ namespace Ice
                 int num;
                 do
                 {
-                    num = _stream.readSize();
+                    num = _stream.ReadSize();
                     for (int k = num; k > 0; --k)
                     {
                         readInstance();
@@ -3156,7 +2734,7 @@ namespace Ice
 
             private void readInstance()
             {
-                int index = _stream.readInt();
+                int index = _stream.ReadInt();
 
                 if (index <= 0)
                 {
@@ -3260,7 +2838,7 @@ namespace Ice
 
             internal override void readValue(System.Action<Value> cb)
             {
-                int index = _stream.readSize();
+                int index = _stream.ReadSize();
                 if (index < 0)
                 {
                     throw new MarshalException("invalid object id");
@@ -3404,7 +2982,7 @@ namespace Ice
                     return _current.typeId;
                 }
 
-                _current.sliceFlags = _stream.readByte();
+                _current.sliceFlags = _stream.ReadByte();
 
                 //
                 // Read the type ID, for instance slices the type ID is encoded as a
@@ -3419,7 +2997,7 @@ namespace Ice
                     if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT)
                     {
                         _current.typeId = "";
-                        _current.compactId = _stream.readSize();
+                        _current.compactId = _stream.ReadSize();
                     }
                     else if ((_current.sliceFlags &
                             (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0)
@@ -3436,7 +3014,7 @@ namespace Ice
                 }
                 else
                 {
-                    _current.typeId = _stream.readString();
+                    _current.typeId = _stream.ReadString();
                     _current.compactId = -1;
                 }
 
@@ -3445,7 +3023,7 @@ namespace Ice
                 //
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0)
                 {
-                    _current.sliceSize = _stream.readInt();
+                    _current.sliceSize = _stream.ReadInt();
                     if (_current.sliceSize < 4)
                     {
                         throw new UnmarshalOutOfBoundsException();
@@ -3475,10 +3053,10 @@ namespace Ice
                     //
                     // The table is written as a sequence<size> to conserve space.
                     //
-                    int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
+                    int[] indirectionTable = new int[_stream.ReadAndCheckSeqSize(1)];
                     for (int i = 0; i < indirectionTable.Length; ++i)
                     {
-                        indirectionTable[i] = readInstance(_stream.readSize(), null);
+                        indirectionTable[i] = readInstance(_stream.ReadSize(), null);
                     }
 
                     //
@@ -3517,10 +3095,10 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if (_stream.communicator().traceLevels().slicing > 0)
+                if (_stream.Communicator().traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.communicator().initializationData().logger;
-                    string slicingCat = _stream.communicator().traceLevels().slicingCat;
+                    Logger logger = _stream.Communicator().initializationData().logger;
+                    string slicingCat = _stream.Communicator().traceLevels().slicingCat;
                     if (_current.sliceType == SliceType.ExceptionSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
@@ -3562,15 +3140,14 @@ namespace Ice
                 //
                 // Preserve this slice.
                 //
-                SliceInfo info = new SliceInfo();
-                info.typeId = _current.typeId;
-                info.compactId = _current.compactId;
-                info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-                info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
-                IceInternal.ByteBuffer b = _stream.getBuffer().b;
+                string typeId = _current.typeId;
+                int compactId = _current.compactId;
+                bool hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+                bool isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
+                IceInternal.ByteBuffer b = _stream.GetBuffer().b;
                 int end = b.position();
                 int dataEnd = end;
-                if (info.hasOptionalMembers)
+                if (hasOptionalMembers)
                 {
                     //
                     // Don't include the optional member end marker. It will be re-written by
@@ -3578,10 +3155,12 @@ namespace Ice
                     //
                     --dataEnd;
                 }
-                info.bytes = new byte[dataEnd - start];
+                byte[] bytes = new byte[dataEnd - start];
                 b.position(start);
-                b.get(info.bytes);
+                b.get(bytes);
                 b.position(end);
+
+                var info = new SliceInfo(typeId, compactId, bytes, Array.Empty<Value>(), hasOptionalMembers, isLastSlice);
 
                 if (_current.slices == null)
                 {
@@ -3596,10 +3175,10 @@ namespace Ice
                 //
                 if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
-                    int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
+                    int[] indirectionTable = new int[_stream.ReadAndCheckSeqSize(1)];
                     for (int i = 0; i < indirectionTable.Length; ++i)
                     {
-                        indirectionTable[i] = readInstance(_stream.readSize(), null);
+                        indirectionTable[i] = readInstance(_stream.ReadSize(), null);
                     }
                     _current.indirectionTables.Add(indirectionTable);
                 }
@@ -3624,7 +3203,7 @@ namespace Ice
                 return false;
             }
 
-            private int readInstance(int index, System.Action<Value> cb)
+            private int readInstance(int index, Action<Value> cb)
             {
                 Debug.Assert(index > 0);
 
@@ -3716,7 +3295,9 @@ namespace Ice
 
                             if (_current.typeId.Length == 0)
                             {
-                                _current.typeId = _stream.communicator().resolveCompactId(_current.compactId);
+                                Communicator? communicator = _stream.Communicator();
+                                Debug.Assert(communicator != null);
+                                _current.typeId = communicator.resolveCompactId(_current.compactId);
                             }
                         }
                     }
@@ -3884,7 +3465,7 @@ namespace Ice
                 internal InstanceData? next;
             }
 
-            private System.Func<int, string> _compactIdResolver;
+            private Func<int, string> _compactIdResolver;
             private InstanceData _current;
             private int _valueIdIndex; // The ID of the next instance to unmarshal.
             private Dictionary<int, Type> _compactIdCache;
@@ -3924,7 +3505,7 @@ namespace Ice
             return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.Equals(Util.Encoding_1_0);
         }
 
-        private Encaps _encapsStack;
+        private Encaps? _encapsStack;
         private Encaps _encapsCache;
 
         private void initEncaps()
@@ -3967,8 +3548,8 @@ namespace Ice
         private int _minSeqSize;
 
         private Logger _logger;
-        private System.Func<int, string> _compactIdResolver;
-        private System.Func<string, Type> _classResolver;
+        private Func<int, string> _compactIdResolver;
+        private Func<string, Type?> _classResolver;
     }
 
     /// <summary>

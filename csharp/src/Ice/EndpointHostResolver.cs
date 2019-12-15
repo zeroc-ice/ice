@@ -14,12 +14,12 @@ namespace IceInternal
         internal EndpointHostResolver(Ice.Communicator communicator)
         {
             _communicator = communicator;
-            _protocol = communicator.protocolSupport();
-            _preferIPv6 = communicator.preferIPv6();
+            _protocol = communicator.ProtocolSupport;
+            _preferIPv6 = communicator.PreferIPv6;
             _thread = new HelperThread(this);
             updateObserver();
             _thread.Start(Util.stringToThreadPriority(
-                    communicator.initializationData().properties.getProperty("Ice.ThreadPriority")));
+                    communicator.Properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
@@ -29,7 +29,7 @@ namespace IceInternal
             // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
             // entry and the thread will take care of getting the endpoint addresses.
             //
-            NetworkProxy networkProxy = _communicator.networkProxy();
+            NetworkProxy? networkProxy = _communicator.NetworkProxy;
             if (networkProxy == null)
             {
                 try
@@ -125,7 +125,7 @@ namespace IceInternal
                 try
                 {
 
-                    NetworkProxy networkProxy = _communicator.networkProxy();
+                    NetworkProxy? networkProxy = _communicator.NetworkProxy;
                     int protocol = _protocol;
                     if (networkProxy != null)
                     {
@@ -224,7 +224,7 @@ namespace IceInternal
             internal HelperThread(EndpointHostResolver resolver)
             {
                 _resolver = resolver;
-                _name = _resolver._communicator.initializationData().properties.getProperty("Ice.ProgramName");
+                _name = _resolver._communicator.Properties.getProperty("Ice.ProgramName");
                 if (_name.Length > 0)
                 {
                     _name += "-";
@@ -255,7 +255,7 @@ namespace IceInternal
                 catch (System.Exception ex)
                 {
                     string s = "exception in endpoint host resolver thread " + _name + ":\n" + ex;
-                    _resolver._communicator.initializationData().logger.error(s);
+                    _resolver._communicator.Logger.error(s);
                 }
             }
 

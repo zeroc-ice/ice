@@ -60,26 +60,26 @@ namespace Ice
                 //
                 public bool ice_isA(string id, Current current)
                 {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
+                    test(current.Mode == Ice.OperationMode.Nonmutating);
                     Test.MyDerivedClassTraits myDerivedClassT = default;
                     return myDerivedClassT.Ids.Contains(id);
                 }
 
                 public void IcePing(Ice.Current current)
                 {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
+                    test(current.Mode == Ice.OperationMode.Nonmutating);
                 }
 
                 public string[] ice_ids(Current current)
                 {
-                    test(current.mode == OperationMode.Nonmutating);
+                    test(current.Mode == OperationMode.Nonmutating);
                     Test.MyDerivedClassTraits myDerivedClassT = default;
                     return myDerivedClassT.Ids;
                 }
 
                 public string ice_id(Current current)
                 {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
+                    test(current.Mode == Ice.OperationMode.Nonmutating);
                     Test.MyDerivedClassTraits myDerivedClassT = default;
                     return myDerivedClassT.Id;
                 }
@@ -92,7 +92,7 @@ namespace Ice
                         _opVoidThread = null;
                     }
 
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                     return null;
                 }
 
@@ -103,7 +103,7 @@ namespace Ice
 
                 public Task opVoidAsync(Ice.Current current)
                 {
-                    test(current.mode == Ice.OperationMode.Normal);
+                    test(current.Mode == Ice.OperationMode.Normal);
 
                     while (_opVoidThread != null)
                     {
@@ -280,9 +280,9 @@ namespace Ice
                 opMyClassAsync(Test.MyClassPrx p1, Ice.Current current)
                 {
                     var p2 = p1;
-                    var p3 = Test.MyClassPrx.UncheckedCast(current.adapter.CreateProxy("noSuchIdentity"));
+                    var p3 = Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
                     return Task.FromResult(new Test.MyClass_OpMyClassResult(
-                        Test.MyClassPrx.UncheckedCast(current.adapter.CreateProxy(current.id)), p2, p3));
+                        Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id)), p2, p3));
                 }
 
                 public Task<Test.MyClass_OpMyEnumResult>
@@ -666,7 +666,7 @@ namespace Ice
                 public Task<Dictionary<string, string>>
                 opContextAsync(Ice.Current current)
                 {
-                    return Task.FromResult(current.ctx);
+                    return Task.FromResult(current.Context);
                 }
 
                 public Task
@@ -773,14 +773,14 @@ namespace Ice
                 public Task
                 opIdempotentAsync(Ice.Current current)
                 {
-                    test(current.mode == Ice.OperationMode.Idempotent);
+                    test(current.Mode == Ice.OperationMode.Idempotent);
                     return null;
                 }
 
                 public Task
                 opNonmutatingAsync(Ice.Current current)
                 {
-                    test(current.mode == Ice.OperationMode.Nonmutating);
+                    test(current.Mode == Ice.OperationMode.Nonmutating);
                     return null;
                 }
 

@@ -2,16 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace IceLocatorDiscovery
 {
-    using Ice;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     public sealed class PluginFactory : Ice.PluginFactory
     {
         public Ice.Plugin
@@ -30,9 +30,9 @@ namespace IceLocatorDiscovery
     {
         public Request(LocatorI locator,
                        string operation,
-                       Ice.OperationMode mode,
+                       OperationMode mode,
                        byte[] inParams,
-                       Dictionary<string, string> context)
+                       Dictionary<string, string>? context)
         {
             _locator = locator;
             _operation = operation;
@@ -104,15 +104,15 @@ namespace IceLocatorDiscovery
 
         private readonly LocatorI _locator;
         private readonly string _operation;
-        private readonly Ice.OperationMode _mode;
-        private readonly Dictionary<string, string> _context;
+        private readonly OperationMode _mode;
+        private readonly Dictionary<string, string>? _context;
         private readonly byte[] _inParams;
 
-        private Ice.LocatorPrx _locatorPrx;
-        private System.Exception _exception;
+        private LocatorPrx? _locatorPrx;
+        private System.Exception? _exception;
     }
 
-    internal class VoidLocatorI : Ice.Locator
+    internal class VoidLocatorI : Locator
     {
         public Task<Ice.IObjectPrx>
         findObjectByIdAsync(Ice.Identity id, Current current)
@@ -120,7 +120,7 @@ namespace IceLocatorDiscovery
             return null;
         }
 
-        public Task<Ice.IObjectPrx>
+        public Task<IObjectPrx?>
         findAdapterByIdAsync(string id, Ice.Current current)
         {
             return null;
@@ -131,7 +131,7 @@ namespace IceLocatorDiscovery
         {
             return null;
         }
-    };
+    }
 
     internal class LocatorI : BlobjectAsync, IceInternal.TimerTask
     {
@@ -169,7 +169,7 @@ namespace IceLocatorDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             //
-            var single = new Ice.Endpoint[1];
+            var single = new Endpoint[1];
             foreach (var endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
@@ -210,11 +210,11 @@ namespace IceLocatorDiscovery
         }
 
         public override Task<Ice.Object_Ice_invokeResult>
-        ice_invokeAsync(byte[] inParams, Ice.Current current)
+        ice_invokeAsync(byte[] inParams, Current current)
         {
             lock (this)
             {
-                var request = new Request(this, current.operation, current.mode, inParams, current.ctx);
+                var request = new Request(this, current.Operation, current.Mode, inParams, current.Context);
                 invoke(null, request);
                 return request.Task;
             }
@@ -264,7 +264,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        foundLocator(Ice.LocatorPrx locator)
+        foundLocator(LocatorPrx locator)
         {
             lock (this)
             {
@@ -276,7 +276,7 @@ namespace IceLocatorDiscovery
                         StringBuilder s = new StringBuilder("ignoring locator reply: instance name doesn't match\n");
                         s.Append("expected = ").Append(_instanceName);
                         s.Append("received = ").Append(locator.Identity.category);
-                        _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                        _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                     }
                     return;
                 }
@@ -286,13 +286,13 @@ namespace IceLocatorDiscovery
                 // has the same identity, otherwise ignore it.
                 //
                 if (_pendingRequests.Count > 0 &&
-                   _locator != null && !locator.Identity.category.Equals(_locator.Identity.category))
+                    _locator != null && !locator.Identity.category.Equals(_locator.Identity.category))
                 {
                     if (!_warned)
                     {
                         _warned = true; // Only warn once
 
-                        locator.Communicator.getLogger().warning(
+                        locator.Communicator.Logger.warning(
                             "received Ice locator with different instance name:\n" +
                             "using = `" + _locator.Identity.category + "'\n" +
                             "received = `" + locator.Identity.category + "'\n" +
@@ -319,10 +319,10 @@ namespace IceLocatorDiscovery
                     {
                         s.Append("\ninstance name = ").Append(_instanceName);
                     }
-                    _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                    _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                 }
 
-                Ice.LocatorPrx l = null;
+                LocatorPrx? l = null;
                 if (_pendingRequests.Count == 0)
                 {
                     _locators.TryGetValue(locator.Identity.category, out _locator);
@@ -331,6 +331,7 @@ namespace IceLocatorDiscovery
                 {
                     l = _locator;
                 }
+
                 if (l != null)
                 {
                     //
@@ -390,7 +391,7 @@ namespace IceLocatorDiscovery
         }
 
         public void
-        invoke(Ice.LocatorPrx locator, Request request)
+        invoke(LocatorPrx? locator, Request? request)
         {
             lock (this)
             {
@@ -426,7 +427,7 @@ namespace IceLocatorDiscovery
                                 {
                                     s.Append("\ninstance name = ").Append(_instanceName);
                                 }
-                                _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                                _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                             }
 
                             foreach (var l in _lookups)
@@ -456,7 +457,7 @@ namespace IceLocatorDiscovery
                                     s.Append("\ninstance name = ").Append(_instanceName);
                                 }
                                 s.Append("\n").Append(ex);
-                                _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                                _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                             }
 
                             foreach (Request req in _pendingRequests)
@@ -492,7 +493,7 @@ namespace IceLocatorDiscovery
                         builder.Append(_lookup);
                         builder.Append("':\n");
                         builder.Append(ex);
-                        _lookup.Communicator.getLogger().warning(builder.ToString());
+                        _lookup.Communicator.Logger.warning(builder.ToString());
                         _warnOnce = false;
                     }
 
@@ -505,7 +506,7 @@ namespace IceLocatorDiscovery
                             s.Append("\ninstance name = ").Append(_instanceName);
                         }
                         s.Append("\n").Append(ex);
-                        _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                        _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                     }
 
                     if (_pendingRequests.Count == 0)
@@ -548,7 +549,7 @@ namespace IceLocatorDiscovery
                             {
                                 s.Append("\ninstance name = ").Append(_instanceName);
                             }
-                            _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                            _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                         }
 
                         foreach (var l in _lookups)
@@ -585,7 +586,7 @@ namespace IceLocatorDiscovery
                     {
                         s.Append("\ninstance name = ").Append(_instanceName);
                     }
-                    _lookup.Communicator.getLogger().trace("Lookup", s.ToString());
+                    _lookup.Communicator.Logger.trace("Lookup", s.ToString());
                 }
 
                 if (_pendingRequests.Count == 0)
@@ -604,25 +605,25 @@ namespace IceLocatorDiscovery
             }
         }
 
-        private LookupPrx _lookup;
-        private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
-        private int _timeout;
-        private IceInternal.Timer _timer;
-        private int _traceLevel;
-        private int _retryCount;
-        private int _retryDelay;
+        private readonly LookupPrx _lookup;
+        private readonly Dictionary<LookupPrx, LookupReplyPrx?> _lookups = new Dictionary<LookupPrx, LookupReplyPrx?>();
+        private readonly int _timeout;
+        private readonly IceInternal.Timer _timer;
+        private readonly int _traceLevel;
+        private readonly int _retryCount;
+        private readonly int _retryDelay;
 
         private string _instanceName;
         private bool _warned;
-        private Ice.LocatorPrx _locator;
-        private Ice.LocatorPrx _voidLocator;
-        private Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
+        private LocatorPrx? _locator;
+        private readonly LocatorPrx _voidLocator;
+        private readonly Dictionary<string, LocatorPrx> _locators = new Dictionary<string, LocatorPrx>();
 
         private bool _pending;
         private int _pendingRetryCount;
         private int _failureCount;
         private bool _warnOnce = true;
-        private List<Request> _pendingRequests = new List<Request>();
+        private readonly List<Request> _pendingRequests = new List<Request>();
         private long _nextRetry;
     };
 
@@ -639,7 +640,7 @@ namespace IceLocatorDiscovery
             _locator.foundLocator(locator);
         }
 
-        private LocatorI _locator;
+        private readonly LocatorI _locator;
     }
 
     internal class PluginI : Ice.Plugin
@@ -654,7 +655,7 @@ namespace IceLocatorDiscovery
         public void
         initialize()
         {
-            Ice.Properties properties = _communicator.getProperties();
+            Ice.Properties properties = _communicator.Properties;
 
             bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
             bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
@@ -710,9 +711,7 @@ namespace IceLocatorDiscovery
             LocatorPrx voidLo = _locatorAdapter.Add(new VoidLocatorI());
 
             string instanceName = properties.getProperty(_name + ".InstanceName");
-            Ice.Identity id = new Ice.Identity();
-            id.name = "Locator";
-            id.category = instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString();
+            var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
             _defaultLocator = _communicator.getDefaultLocator();
             _locator = new LocatorI(_name, lookupPrx, properties, instanceName, voidLo);
@@ -738,20 +737,22 @@ namespace IceLocatorDiscovery
             {
                 _locatorAdapter.Destroy();
             }
-            if (_communicator.getDefaultLocator().Equals(_locatorPrx))
+
+            LocatorPrx? defaultLocator = _communicator.getDefaultLocator();
+            if (defaultLocator != null && defaultLocator.Equals(_locatorPrx))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
                 _communicator.setDefaultLocator(_defaultLocator);
             }
         }
 
-        private string _name;
-        private Ice.Communicator _communicator;
-        private Ice.ObjectAdapter _locatorAdapter;
-        private Ice.ObjectAdapter _replyAdapter;
-        private LocatorI _locator;
-        private Ice.LocatorPrx _locatorPrx;
-        private Ice.LocatorPrx _defaultLocator;
+        private readonly string _name;
+        private readonly Communicator _communicator;
+        private ObjectAdapter? _locatorAdapter;
+        private ObjectAdapter? _replyAdapter;
+        private LocatorI? _locator;
+        private LocatorPrx? _locatorPrx;
+        private LocatorPrx? _defaultLocator;
     }
 
     public class Util

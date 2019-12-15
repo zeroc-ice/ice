@@ -55,7 +55,7 @@ public class AllTests : Test.AllTests
             // registries and make sure locator requests are forwarded.
             //
             Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties().Clone();
+            initData.properties = communicator.Properties.Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
@@ -117,7 +117,7 @@ public class AllTests : Test.AllTests
             com.destroy();
 
             string multicast;
-            if (communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            if (communicator.Properties.getProperty("Ice.IPv6").Equals("1"))
             {
                 multicast = "\"ff15::1\"";
             }
@@ -129,7 +129,7 @@ public class AllTests : Test.AllTests
             //
             // Test invalid lookup endpoints
             //
-            initData.properties = communicator.getProperties().Clone();
+            initData.properties = communicator.Properties.Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
@@ -147,7 +147,7 @@ public class AllTests : Test.AllTests
             }
             com.destroy();
 
-            initData.properties = communicator.getProperties().Clone();
+            initData.properties = communicator.Properties.Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
@@ -166,7 +166,7 @@ public class AllTests : Test.AllTests
             }
             com.destroy();
 
-            initData.properties = communicator.getProperties().Clone();
+            initData.properties = communicator.Properties.Clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
@@ -285,7 +285,7 @@ public class AllTests : Test.AllTests
         IceGrid.RegistryPrx registry = IceGrid.RegistryPrx.Parse(
             communicator.getDefaultLocator().Identity.category + "/Registry", communicator);
         IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
-        session.GetConnection().setACM(registry.getACMTimeout(), Util.None, ACMHeartbeat.HeartbeatAlways);
+        session.GetConnection().setACM(registry.getACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
         IceGrid.AdminPrx admin = session.getAdmin();
         admin.enableServer("server", false);

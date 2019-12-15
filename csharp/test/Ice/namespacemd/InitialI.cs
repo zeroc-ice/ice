@@ -30,7 +30,7 @@ namespace Ice
 
             public void shutdown(Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             public void throwNoNamespaceE2AsE1(Current current)

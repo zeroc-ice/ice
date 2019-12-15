@@ -29,12 +29,12 @@ public class Collocated : Test.TestHelper
 
         using (var communicator = initialize(initData))
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new MetricsI(), "metrics");
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.Add(new ControllerI(adapter), "controller");
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.

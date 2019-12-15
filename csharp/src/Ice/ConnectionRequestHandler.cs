@@ -6,7 +6,7 @@ namespace IceInternal
 {
     public class ConnectionRequestHandler : RequestHandler
     {
-        public RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler)
+        public RequestHandler? update(RequestHandler previousHandler, RequestHandler? newHandler)
         {
             try
             {

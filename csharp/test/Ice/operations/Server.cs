@@ -22,7 +22,7 @@ namespace Ice
                 initData.properties.setProperty("Ice.Warn.Connections", "0");
                 using (var communicator = initialize(initData))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new MyDerivedClassI(), "test");
                     adapter.Activate();

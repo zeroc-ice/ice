@@ -7,9 +7,9 @@ namespace Ice
     [System.Serializable]
     public partial class ConnectionInfo
     {
-        public ConnectionInfo underlying;
+        public ConnectionInfo? underlying;
         public bool incoming;
-        public string adapterName;
+        public string? adapterName;
         public string connectionId;
 
         partial void ice_initialize();
@@ -222,7 +222,7 @@ namespace Ice
         ///
         /// </param>
         /// <param name="heartbeat">The hertbeat condition</param>
-        void setACM(Optional<int> timeout, Optional<ACMClose> close, Optional<ACMHeartbeat> heartbeat);
+        void setACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat);
 
         /// <summary>
         /// Get the ACM parameters.
@@ -385,29 +385,29 @@ namespace Ice
         {
             if (v == null)
             {
-                ostr.writeSize(0);
+                ostr.WriteSize(0);
             }
             else
             {
-                ostr.writeSize(v.Count);
+                ostr.WriteSize(v.Count);
                 foreach (global::System.Collections.Generic.KeyValuePair<string, string> e in v)
                 {
-                    ostr.writeString(e.Key);
-                    ostr.writeString(e.Value);
+                    ostr.WriteString(e.Key);
+                    ostr.WriteString(e.Value);
                 }
             }
         }
 
         public static global::System.Collections.Generic.Dictionary<string, string> read(InputStream istr)
         {
-            int sz = istr.readSize();
+            int sz = istr.ReadSize();
             global::System.Collections.Generic.Dictionary<string, string> r = new global::System.Collections.Generic.Dictionary<string, string>();
             for (int i = 0; i < sz; ++i)
             {
                 string k;
-                k = istr.readString();
+                k = istr.ReadString();
                 string v;
-                v = istr.readString();
+                v = istr.ReadString();
                 r[k] = v;
             }
             return r;

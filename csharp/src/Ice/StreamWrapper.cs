@@ -68,7 +68,7 @@ namespace IceInternal
                         return;
                     }
 
-                    _s.writeSize(255); // Dummy size, until we know how big the stream
+                    _s.WriteSize(255); // Dummy size, until we know how big the stream
                                        // really is and can patch the size.
                     if (_pos > 0)
                     {
@@ -76,7 +76,7 @@ namespace IceInternal
                         // Write the current contents of _bytes.
                         //
                         _s.expand(_pos);
-                        _s.getBuffer().b.put(_bytes, 0, _pos);
+                        _s.GetBuffer().b.put(_bytes, 0, _pos);
                     }
 
                     _bytes = null;
@@ -86,7 +86,7 @@ namespace IceInternal
                 // Write data passed by caller.
                 //
                 _s.expand(count);
-                _s.getBuffer().b.put(array, offset, count);
+                _s.GetBuffer().b.put(array, offset, count);
                 _pos += count;
             }
             catch (System.Exception ex)
@@ -110,7 +110,7 @@ namespace IceInternal
                         return;
                     }
 
-                    _s.writeSize(255); // Dummy size, until we know how big the stream
+                    _s.WriteSize(255); // Dummy size, until we know how big the stream
                                        // really is and can patch the size.
                     if (_pos > 0)
                     {
@@ -118,7 +118,7 @@ namespace IceInternal
                         // Write the current contents of _bytes.
                         //
                         _s.expand(_pos);
-                        _s.getBuffer().b.put(_bytes, 0, _pos);
+                        _s.GetBuffer().b.put(_bytes, 0, _pos);
                     }
 
                     _bytes = null;
@@ -128,7 +128,7 @@ namespace IceInternal
                 // Write data passed by caller.
                 //
                 _s.expand(1);
-                _s.getBuffer().b.put(value);
+                _s.GetBuffer().b.put(value);
                 _pos += 1;
             }
             catch (System.Exception ex)
@@ -169,15 +169,15 @@ namespace IceInternal
                 {
                     Debug.Assert(_pos <= _bytes.Length);
                     _s.pos(_spos);
-                    _s.writeSize(_pos);
+                    _s.WriteSize(_pos);
                     _s.expand(_pos);
-                    _s.getBuffer().b.put(_bytes, 0, _pos);
+                    _s.GetBuffer().b.put(_bytes, 0, _pos);
                 }
                 else
                 {
                     int currentPos = _s.pos();
                     _s.pos(_spos);
-                    _s.writeSize(_pos); // Patch previously-written dummy value.
+                    _s.WriteSize(_pos); // Patch previously-written dummy value.
                     _s.pos(currentPos);
                 }
             }
@@ -222,7 +222,7 @@ namespace IceInternal
 
         private Ice.OutputStream _s;
         private int _spos;
-        private byte[] _bytes;
+        private byte[]? _bytes;
         private int _pos;
         private long _length;
     }
@@ -241,7 +241,7 @@ namespace IceInternal
             Debug.Assert(buffer != null && offset >= 0 && count >= 0 && offset + count <= buffer.Length);
             try
             {
-                _s.getBuffer().b.get(buffer, offset, count);
+                _s.GetBuffer().b.get(buffer, offset, count);
             }
             catch (System.Exception ex)
             {
@@ -254,7 +254,7 @@ namespace IceInternal
         {
             try
             {
-                return _s.getBuffer().b.get();
+                return _s.GetBuffer().b.get();
             }
             catch (System.Exception ex)
             {

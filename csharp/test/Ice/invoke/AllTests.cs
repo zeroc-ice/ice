@@ -32,19 +32,19 @@ namespace Ice
                     }
 
                     OutputStream outS = new OutputStream(communicator);
-                    outS.startEncapsulation();
-                    outS.writeString(testString);
-                    outS.endEncapsulation();
-                    inEncaps = outS.finished();
+                    outS.StartEncapsulation();
+                    outS.WriteString(testString);
+                    outS.EndEncapsulation();
+                    inEncaps = outS.Finished();
 
                     if (cl.Invoke("opString", OperationMode.Normal, inEncaps, out outEncaps))
                     {
                         InputStream inS = new InputStream(communicator, outEncaps);
-                        inS.startEncapsulation();
-                        string s = inS.readString();
+                        inS.StartEncapsulation();
+                        string s = inS.ReadString();
                         test(s.Equals(testString));
-                        s = inS.readString();
-                        inS.endEncapsulation();
+                        s = inS.ReadString();
+                        inS.EndEncapsulation();
                         test(s.Equals(testString));
                     }
                     else
@@ -70,15 +70,14 @@ namespace Ice
                     else
                     {
                         InputStream inS = new InputStream(communicator, outEncaps);
-                        inS.startEncapsulation();
-
+                        inS.StartEncapsulation();
                         try
                         {
-                            inS.throwException();
+                            inS.ThrowException();
                         }
                         catch (Test.MyException)
                         {
-                            inS.endEncapsulation();
+                            inS.EndEncapsulation();
                         }
                         catch (Exception)
                         {
@@ -103,21 +102,21 @@ namespace Ice
                     }
 
                     OutputStream outS = new OutputStream(communicator);
-                    outS.startEncapsulation();
-                    outS.writeString(testString);
-                    outS.endEncapsulation();
-                    byte[] inEncaps = outS.finished();
+                    outS.StartEncapsulation();
+                    outS.WriteString(testString);
+                    outS.EndEncapsulation();
+                    byte[] inEncaps = outS.Finished();
 
                     // begin_ice_invoke with no callback
                     var result = cl.InvokeAsync("opString", OperationMode.Normal, inEncaps).Result;
                     if (result.returnValue)
                     {
                         InputStream inS = new InputStream(communicator, result.outEncaps);
-                        inS.startEncapsulation();
-                        string s = inS.readString();
+                        inS.StartEncapsulation();
+                        string s = inS.ReadString();
                         test(s.Equals(testString));
-                        s = inS.readString();
-                        inS.endEncapsulation();
+                        s = inS.ReadString();
+                        inS.EndEncapsulation();
                         test(s.Equals(testString));
                     }
                     else
@@ -135,14 +134,14 @@ namespace Ice
                     else
                     {
                         InputStream inS = new InputStream(communicator, result.outEncaps);
-                        inS.startEncapsulation();
+                        inS.StartEncapsulation();
                         try
                         {
-                            inS.throwException();
+                            inS.ThrowException();
                         }
                         catch (Test.MyException)
                         {
-                            inS.endEncapsulation();
+                            inS.EndEncapsulation();
                         }
                         catch (Exception)
                         {

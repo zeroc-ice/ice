@@ -11,405 +11,340 @@ namespace Ice
     {
         public class InitialI : Test.Initial
         {
-            public void shutdown(Ice.Current current)
+            public void shutdown(Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
-            public Ice.Value pingPong(Ice.Value obj, Ice.Current current)
+            public Ice.Value pingPong(Ice.Value obj, Current current)
             {
                 return obj;
             }
 
-            public void opOptionalException(Ice.Optional<int> a,
-                                            Ice.Optional<string> b,
-                                            Ice.Optional<Test.OneOptional> o,
-                                            Ice.Current current)
+            public void opOptionalException(int? a,
+                                            string? b,
+                                            Test.OneOptional? o,
+                                            Current current)
             {
                 throw new Test.OptionalException(false, a, b, o);
             }
 
-            public void opDerivedException(Ice.Optional<int> a,
-                                           Ice.Optional<string> b,
-                                           Ice.Optional<Test.OneOptional> o,
-                                           Ice.Current current)
+            public void opDerivedException(int? a,
+                                           string? b,
+                                           Test.OneOptional? o,
+                                           Current current)
             {
                 throw new Test.DerivedException(false, a, b, o, b, o);
             }
 
-            public void opRequiredException(Ice.Optional<int> a,
-                                            Ice.Optional<string> b,
-                                            Ice.Optional<Test.OneOptional> o,
-                                            Ice.Current current)
+            public void opRequiredException(int? a,
+                                            string? b,
+                                            Test.OneOptional? o,
+                                            Current current)
             {
                 Test.RequiredException e = new Test.RequiredException();
                 e.a = a;
                 e.b = b;
                 e.o = o;
-                if (b.HasValue)
+                if (b != null)
                 {
-                    e.ss = b.Value;
+                    e.ss = b;
                 }
-                if (o.HasValue)
+
+                if (o != null)
                 {
-                    e.o2 = o.Value;
+                    e.o2 = o;
                 }
                 throw e;
             }
 
-            public Ice.Optional<byte> opByte(Ice.Optional<byte> p1,
-                                             out Ice.Optional<byte> p3,
-                                             Ice.Current current)
+            public byte? opByte(byte? p1, out byte? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<bool> opBool(Ice.Optional<bool> p1,
-                                             out Ice.Optional<bool> p3,
-                                             Ice.Current current)
+            public bool? opBool(bool? p1, out bool? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<short> opShort(Ice.Optional<short> p1,
-                                               out Ice.Optional<short> p3,
-                                               Ice.Current current)
+            public short? opShort(short? p1, out short? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<int> opInt(Ice.Optional<int> p1,
-                                           out Ice.Optional<int> p3,
-                                           Ice.Current current)
+            public int? opInt(int? p1, out int? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<long> opLong(Ice.Optional<long> p1,
-                                             out Ice.Optional<long> p3,
-                                             Ice.Current current)
+            public long? opLong(long? p1, out long? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<float> opFloat(Ice.Optional<float> p1,
-                                               out Ice.Optional<float> p3,
-                                               Ice.Current current)
+            public float? opFloat(float? p1, out float? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<double> opDouble(Ice.Optional<double> p1,
-                                                 out Ice.Optional<double> p3,
-                                                 Ice.Current current)
+            public double? opDouble(double? p1, out double? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<string> opString(Ice.Optional<string> p1,
-                                                 out Ice.Optional<string> p3,
-                                                 Ice.Current current)
+            public string? opString(string? p1, out string? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.MyEnum> opMyEnum(Ice.Optional<Test.MyEnum> p1,
-                                                      out Ice.Optional<Test.MyEnum> p3,
-                                                      Ice.Current current)
+            public Test.MyEnum? opMyEnum(Test.MyEnum? p1, out Test.MyEnum? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.SmallStruct> opSmallStruct(Ice.Optional<Test.SmallStruct> p1,
-                                                                out Ice.Optional<Test.SmallStruct> p3,
-                                                                Ice.Current current)
+            public Test.SmallStruct? opSmallStruct(Test.SmallStruct? p1, out Test.SmallStruct? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.FixedStruct> opFixedStruct(Ice.Optional<Test.FixedStruct> p1,
-                                                                out Ice.Optional<Test.FixedStruct> p3,
-                                                                Ice.Current current)
+            public Test.FixedStruct? opFixedStruct(Test.FixedStruct? p1, out Test.FixedStruct? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.VarStruct> opVarStruct(Ice.Optional<Test.VarStruct> p1,
-                                                            out Ice.Optional<Test.VarStruct> p3,
-                                                            Ice.Current current)
+            public Test.VarStruct? opVarStruct(Test.VarStruct? p1, out Test.VarStruct? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.OneOptional> opOneOptional(Ice.Optional<Test.OneOptional> p1,
-                                                                out Ice.Optional<Test.OneOptional> p3,
-                                                                Ice.Current current)
+            public Test.OneOptional? opOneOptional(Test.OneOptional? p1, out Test.OneOptional? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Ice.IObjectPrx>
-            opOneOptionalProxy(Ice.Optional<Ice.IObjectPrx> p1,
-                               out Ice.Optional<Ice.IObjectPrx> p3,
-                               Ice.Current current)
+            public IObjectPrx?
+            opOneOptionalProxy(IObjectPrx? p1, out IObjectPrx? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<byte[]> opByteSeq(Ice.Optional<byte[]> p1,
-                                                  out Ice.Optional<byte[]> p3,
-                                                  Ice.Current current)
+            public byte[]? opByteSeq(byte[]? p1, out byte[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<bool[]> opBoolSeq(Ice.Optional<bool[]> p1,
-                                                  out Ice.Optional<bool[]> p3,
-                                                  Ice.Current current)
+            public bool[]? opBoolSeq(bool[]? p1, out bool[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<short[]> opShortSeq(Ice.Optional<short[]> p1,
-                                                    out Ice.Optional<short[]> p3,
-                                                    Ice.Current current)
+            public short[]? opShortSeq(short[]? p1, out short[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<int[]> opIntSeq(Ice.Optional<int[]> p1,
-                                                out Ice.Optional<int[]> p3,
-                                                Ice.Current current)
+            public int[]? opIntSeq(int[]? p1, out int[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<long[]> opLongSeq(Ice.Optional<long[]> p1,
-                                                  out Ice.Optional<long[]> p3,
-                                                  Ice.Current current)
+            public long[]? opLongSeq(long[]? p1, out long[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<float[]> opFloatSeq(Ice.Optional<float[]> p1,
-                                                    out Ice.Optional<float[]> p3,
-                                                    Ice.Current current)
+            public float[]? opFloatSeq(float[]? p1, out float[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<double[]> opDoubleSeq(Ice.Optional<double[]> p1,
-                                                      out Ice.Optional<double[]> p3,
-                                                      Ice.Current current)
+            public double[]? opDoubleSeq(double[]? p1, out double[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<String[]> opStringSeq(Ice.Optional<String[]> p1,
-                                                      out Ice.Optional<String[]> p3,
-                                                      Ice.Current current)
+            public string[]? opStringSeq(string[]? p1, out string[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.SmallStruct[]>
-            opSmallStructSeq(Ice.Optional<Test.SmallStruct[]> p1,
-                             out Ice.Optional<Test.SmallStruct[]> p3,
-                             Ice.Current current)
+            public Test.SmallStruct[]?
+            opSmallStructSeq(Test.SmallStruct[]? p1, out Test.SmallStruct[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<List<Test.SmallStruct>>
-            opSmallStructList(Ice.Optional<List<Test.SmallStruct>> p1,
-                              out Ice.Optional<List<Test.SmallStruct>> p3,
-                              Ice.Current current)
+            public List<Test.SmallStruct>?
+            opSmallStructList(List<Test.SmallStruct>? p1, out List<Test.SmallStruct>? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.FixedStruct[]>
-            opFixedStructSeq(Ice.Optional<Test.FixedStruct[]> p1,
-                             out Ice.Optional<Test.FixedStruct[]> p3,
-                             Ice.Current current)
+            public Test.FixedStruct[]?
+            opFixedStructSeq(Test.FixedStruct[]? p1, out Test.FixedStruct[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<LinkedList<Test.FixedStruct>>
-            opFixedStructList(Ice.Optional<LinkedList<Test.FixedStruct>> p1,
-                              out Ice.Optional<LinkedList<Test.FixedStruct>> p3,
-                              Ice.Current current)
+            public LinkedList<Test.FixedStruct>?
+            opFixedStructList(LinkedList<Test.FixedStruct>? p1, out LinkedList<Test.FixedStruct>? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.VarStruct[]>
-            opVarStructSeq(Ice.Optional<Test.VarStruct[]> p1,
-                           out Ice.Optional<Test.VarStruct[]> p3,
-                           Ice.Current current)
+            public Test.VarStruct[]?
+            opVarStructSeq(Test.VarStruct[]? p1, out Test.VarStruct[]? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Test.SerializableClass>
-            opSerializable(Ice.Optional<Test.SerializableClass> p1,
-                           out Ice.Optional<Test.SerializableClass> p3,
-                           Ice.Current current)
+            public Test.SerializableClass?
+            opSerializable(Test.SerializableClass? p1, out Test.SerializableClass? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Dictionary<int, int>>
-            opIntIntDict(Ice.Optional<Dictionary<int, int>> p1,
-                         out Ice.Optional<Dictionary<int, int>> p3,
-                         Ice.Current current)
+            public Dictionary<int, int>?
+            opIntIntDict(Dictionary<int, int>? p1, out Dictionary<int, int>? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Dictionary<string, int>>
-            opStringIntDict(Ice.Optional<Dictionary<string, int>> p1,
-                            out Ice.Optional<Dictionary<string, int>> p3,
-                            Ice.Current current)
+            public Dictionary<string, int>?
+            opStringIntDict(Dictionary<string, int>? p1, out Dictionary<string, int>? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public Ice.Optional<Dictionary<int, Test.OneOptional>>
-            opIntOneOptionalDict(Ice.Optional<Dictionary<int, Test.OneOptional>> p1,
-                                 out Ice.Optional<Dictionary<int, Test.OneOptional>> p3,
-                                 Ice.Current current)
+            public Dictionary<int, Test.OneOptional>?
+            opIntOneOptionalDict(Dictionary<int, Test.OneOptional>? p1, out Dictionary<int, Test.OneOptional>? p3, Current current)
             {
                 p3 = p1;
                 return p1;
             }
 
-            public void opClassAndUnknownOptional(Test.A p, Ice.Current current)
+            public void opClassAndUnknownOptional(Test.A p, Current current)
             {
             }
 
-            public void sendOptionalClass(bool req,
-                                          Ice.Optional<Test.OneOptional> o,
-                                          Ice.Current current)
+            public void sendOptionalClass(bool req, Test.OneOptional? o, Current current)
             {
             }
 
-            public void returnOptionalClass(bool req,
-                                            out Ice.Optional<Test.OneOptional> o,
-                                            Ice.Current current)
+            public void returnOptionalClass(bool req, out Test.OneOptional? o, Current current)
             {
                 o = new Test.OneOptional(53);
             }
 
-            public Test.G opG(Test.G g, Ice.Current current)
+            public Test.G opG(Test.G g, Current current)
             {
                 return g;
             }
 
-            public void opVoid(Ice.Current current)
+            public void opVoid(Current current)
             {
             }
 
             public Test.Initial_OpMStruct1MarshaledResult
-            opMStruct1(Ice.Current current)
+            opMStruct1(Current current)
             {
                 return new Test.Initial_OpMStruct1MarshaledResult(new Test.SmallStruct(), current);
             }
 
             public Test.Initial_OpMStruct2MarshaledResult
-            opMStruct2(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
+            opMStruct2(Test.SmallStruct? p1, Current current)
             {
                 return new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
             }
 
             public Test.Initial_OpMSeq1MarshaledResult
-            opMSeq1(Ice.Current current)
+            opMSeq1(Current current)
             {
                 return new Test.Initial_OpMSeq1MarshaledResult(new string[0], current);
             }
 
             public Test.Initial_OpMSeq2MarshaledResult
-            opMSeq2(Ice.Optional<string[]> p1, Ice.Current current)
+            opMSeq2(string[]? p1, Current current)
             {
                 return new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
             }
 
             public Test.Initial_OpMDict1MarshaledResult
-            opMDict1(Ice.Current current)
+            opMDict1(Current current)
             {
                 return new Test.Initial_OpMDict1MarshaledResult(new Dictionary<string, int>(), current);
             }
 
             public Test.Initial_OpMDict2MarshaledResult
-            opMDict2(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
+            opMDict2(Dictionary<string, int>? p1, Current current)
             {
                 return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
             }
 
             public Test.Initial_OpMG1MarshaledResult
-            opMG1(Ice.Current current)
+            opMG1(Current current)
             {
                 return new Test.Initial_OpMG1MarshaledResult(new Test.G(), current);
             }
 
             public Test.Initial_OpMG2MarshaledResult
-            opMG2(Ice.Optional<Test.G> p1, Ice.Current current)
+            opMG2(Test.G? p1, Current current)
             {
                 return new Test.Initial_OpMG2MarshaledResult(p1, p1, current);
             }
 
-            public bool supportsRequiredParams(Ice.Current current)
+            public bool supportsRequiredParams(Current current)
             {
                 return false;
             }
 
-            public bool supportsJavaSerializable(Ice.Current current)
+            public bool supportsJavaSerializable(Current current)
             {
                 return false;
             }
 
-            public bool supportsCsharpSerializable(Ice.Current current)
+            public bool supportsCsharpSerializable(Current current)
             {
                 return true;
             }
 
-            public bool supportsCppStringView(Ice.Current current)
+            public bool supportsCppStringView(Current current)
             {
                 return false;
             }
 
-            public bool supportsNullOptional(Ice.Current current)
+            public bool supportsNullOptional(Current current)
             {
                 return true;
             }

@@ -8,36 +8,27 @@ namespace Ice
 
     public class Current
     {
-        public ObjectAdapter adapter;
-        public Connection con;
-        public Identity id;
-        public string facet;
-        public string operation;
-        public OperationMode mode;
-        public Dictionary<string, string> ctx;
-        public int requestId;
-        public EncodingVersion encoding;
+        public ObjectAdapter Adapter { get; private set; }
+        public Connection? Connection { get; private set; }
+        public Identity Id { get; private set; }
+        public string Facet { get; private set; }
+        public string Operation { get; private set; }
+        public OperationMode Mode { get; private set; }
+        public Dictionary<string, string> Context { get; private set; }
+        public int RequestId { get; private set; }
+        public EncodingVersion Encoding { get; internal set; }
 
-        public Current()
+        public Current(ObjectAdapter adapter, Identity id, string facet, string operation,
+            OperationMode mode, Dictionary<string, string> ctx, int requestId, Connection? conn)
         {
-            id = new Identity();
-            facet = "";
-            operation = "";
-            encoding = new EncodingVersion();
-        }
-
-        public Current(ObjectAdapter adapter, Connection con, Identity id, string facet, string operation,
-                       OperationMode mode, Dictionary<string, string> ctx, int requestId, EncodingVersion encoding)
-        {
-            this.adapter = adapter;
-            this.con = con;
-            this.id = id;
-            this.facet = facet;
-            this.operation = operation;
-            this.mode = mode;
-            this.ctx = ctx;
-            this.requestId = requestId;
-            this.encoding = encoding;
+            Adapter = adapter;
+            Id = id;
+            Facet = facet;
+            Operation = operation;
+            Mode = mode;
+            Context = ctx;
+            RequestId = requestId;
+            Connection = conn;
         }
     }
 }

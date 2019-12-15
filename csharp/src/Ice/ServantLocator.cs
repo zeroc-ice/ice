@@ -78,7 +78,7 @@ namespace Ice
         /// and the run time will marshal it as the result of the invocation.
         ///
         /// </exception>
-        void finished(Current curr, Disp servant, object cookie);
+        void finished(Current curr, Disp servant, object? cookie);
 
         /// <summary>
         /// Called when the object adapter in which this servant locator is

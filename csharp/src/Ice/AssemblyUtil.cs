@@ -107,25 +107,19 @@ namespace IceInternal
         private static void loadAssemblies()
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            List<Assembly> newAssemblies = null;
+            List<Assembly> newAssemblies = new List<Assembly>();
             foreach (Assembly a in assemblies)
             {
                 if (!_loadedAssemblies.Contains(a.FullName))
                 {
-                    if (newAssemblies == null)
-                    {
-                        newAssemblies = new List<Assembly>();
-                    }
                     newAssemblies.Add(a);
                     _loadedAssemblies[a.FullName] = a;
                 }
             }
-            if (newAssemblies != null)
+
+            foreach (Assembly a in newAssemblies)
             {
-                foreach (Assembly a in newAssemblies)
-                {
-                    loadReferencedAssemblies(a);
-                }
+                loadReferencedAssemblies(a);
             }
         }
 

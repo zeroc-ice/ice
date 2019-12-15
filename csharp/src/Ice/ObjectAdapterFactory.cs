@@ -126,7 +126,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx router)
+        public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx? router)
         {
             lock (this)
             {

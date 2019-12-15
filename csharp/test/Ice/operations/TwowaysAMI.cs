@@ -190,14 +190,14 @@ namespace Ice
 
                 public void opMyClass(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
                 {
-                    test(c1.Identity.Equals(Util.stringToIdentity("test")));
-                    test(c2.Identity.Equals(Util.stringToIdentity("noSuchIdentity")));
-                    test(r.Identity.Equals(Util.stringToIdentity("test")));
+                    test(c1.Identity.Equals(Identity.Parse("test")));
+                    test(c2.Identity.Equals(Identity.Parse("noSuchIdentity")));
+                    test(r.Identity.Equals(Identity.Parse("test")));
 
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (_communicator.getProperties().getPropertyAsInt("ThreadPool.Client.Serialize") == 0)
+                    if (_communicator.Properties.getPropertyAsInt("ThreadPool.Client.Serialize") == 0)
                     {
                         r.opVoid();
                         c1.opVoid();
@@ -224,7 +224,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (_communicator.getProperties().getPropertyAsInt("ThreadPool.Client.Serialize") == 0)
+                    if (_communicator.Properties.getPropertyAsInt("ThreadPool.Client.Serialize") == 0)
                     {
                         so.p.opVoid();
                     }
@@ -487,7 +487,7 @@ namespace Ice
                     Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
                     di1[10] = true;
                     di1[100] = false;
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 4);
                     test(ro[10] == true);
                     test(ro[11] == false);
@@ -501,7 +501,7 @@ namespace Ice
                     Dictionary<short, int> di1 = new Dictionary<short, int>();
                     di1[110] = -1;
                     di1[1100] = 123123;
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 4);
                     test(ro[110] == -1);
                     test(ro[111] == -100);
@@ -515,7 +515,7 @@ namespace Ice
                     Dictionary<long, float> di1 = new Dictionary<long, float>();
                     di1[999999110L] = -1.1f;
                     di1[999999111L] = 123123.2f;
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 4);
                     test(ro[999999110L] == -1.1f);
                     test(ro[999999120L] == -100.4f);
@@ -529,7 +529,7 @@ namespace Ice
                     Dictionary<string, string> di1 = new Dictionary<string, string>();
                     di1["foo"] = "abc -1.1";
                     di1["bar"] = "abc 123123.2";
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 4);
                     test(ro["foo"].Equals("abc -1.1"));
                     test(ro["FOO"].Equals("abc -100.4"));
@@ -543,7 +543,7 @@ namespace Ice
                     var di1 = new Dictionary<string, Test.MyEnum>();
                     di1["abc"] = Test.MyEnum.enum1;
                     di1[""] = Test.MyEnum.enum2;
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 4);
                     test(ro["abc"] == Test.MyEnum.enum1);
                     test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -556,7 +556,7 @@ namespace Ice
                 {
                     var di1 = new Dictionary<Test.MyEnum, string>();
                     di1[Test.MyEnum.enum1] = "abc";
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     test(ro.Count == 3);
                     test(ro[Test.MyEnum.enum1].Equals("abc"));
                     test(ro[Test.MyEnum.enum2].Equals("Hello!!"));
@@ -572,7 +572,7 @@ namespace Ice
                     var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
                     di1[s11] = Test.MyEnum.enum1;
                     di1[s12] = Test.MyEnum.enum2;
-                    test(CollectionComparer.Equals(_do, di1));
+                    test(Collections.Equals(_do, di1));
                     var s22 = new Test.MyStruct(2, 2);
                     var s23 = new Test.MyStruct(2, 3);
                     test(ro.Count == 4);
@@ -961,13 +961,13 @@ namespace Ice
 
                 public void opContextNotEqual(Dictionary<string, string> r)
                 {
-                    test(!CollectionComparer.Equals(r, _d));
+                    test(!Collections.Equals(r, _d));
                     called();
                 }
 
                 public void opContextEqual(Dictionary<string, string> r)
                 {
-                    test(CollectionComparer.Equals(r, _d));
+                    test(Collections.Equals(r, _d));
                     called();
                 }
 
@@ -1650,7 +1650,7 @@ namespace Ice
                     }
                     {
                         var p2 = p.Clone(context: ctx);
-                        test(CollectionComparer.Equals(p2.Context, ctx));
+                        test(Collections.Equals(p2.Context, ctx));
                         var cb = new Callback(ctx);
                         cb.opContextEqual(p2.opContextAsync().Result);
                     }
@@ -1670,7 +1670,7 @@ namespace Ice
                     for (int i = 0; i < 2; i++)
                     {
                         InitializationData initData = new InitializationData();
-                        initData.properties = communicator.getProperties().Clone();
+                        initData.properties = communicator.Properties.Clone();
                         initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
                         Communicator ic = helper.initialize(initData);
@@ -1683,16 +1683,16 @@ namespace Ice
                         var p3 = Test.MyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", ic);
 
                         ic.getImplicitContext().setContext(ctx);
-                        test(CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
+                        test(Collections.Equals(ic.getImplicitContext().getContext(), ctx));
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, ctx));
+                            test(Collections.Equals(p3.opContextAsync().Result, ctx));
                         }
 
                         ic.getImplicitContext().put("zero", "ZERO");
 
                         ctx = ic.getImplicitContext().getContext();
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, ctx));
+                            test(Collections.Equals(p3.opContextAsync().Result, ctx));
                         }
 
                         Dictionary<string, string> prxContext = new Dictionary<string, string>();
@@ -1717,12 +1717,12 @@ namespace Ice
 
                         ic.getImplicitContext().setContext(null);
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, prxContext));
+                            test(Collections.Equals(p3.opContextAsync().Result, prxContext));
                         }
 
                         ic.getImplicitContext().setContext(ctx);
                         {
-                            test(CollectionComparer.Equals(p3.opContextAsync().Result, combined));
+                            test(Collections.Equals(p3.opContextAsync().Result, combined));
                         }
 
                         //ic.getImplicitContext().setContext(null);
@@ -1774,8 +1774,8 @@ namespace Ice
                         var p1 = new string[1];
                         p1[0] = "test";
                         var r = await p.opMSeq2Async(p1);
-                        test(CollectionComparer.Equals(r.p2, p1) &&
-                             CollectionComparer.Equals(r.returnValue, p1));
+                        test(Collections.Equals(r.p2, p1) &&
+                             Collections.Equals(r.returnValue, p1));
                     }
 
                     {
@@ -1784,8 +1784,8 @@ namespace Ice
                         var p1 = new Dictionary<string, string>();
                         p1["test"] = "test";
                         var r = await p.opMDict2Async(p1);
-                        test(CollectionComparer.Equals(r.p2, p1) &&
-                             CollectionComparer.Equals(r.returnValue, p1));
+                        test(Collections.Equals(r.p2, p1) &&
+                             Collections.Equals(r.returnValue, p1));
                     }
                 };
             }

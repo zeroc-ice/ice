@@ -41,7 +41,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("\"test -f facet'", communicator);
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (FormatException)
                 {
                 }
                 b1 = IObjectPrx.Parse("\"test -f facet\"", communicator);
@@ -58,7 +58,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("test test", communicator);
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (FormatException)
                 {
                 }
                 b1 = IObjectPrx.Parse("test\\040test", communicator);
@@ -68,7 +68,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("test\\777", communicator);
                     test(false);
                 }
-                catch (IdentityParseException)
+                catch (FormatException)
                 {
                 }
                 b1 = IObjectPrx.Parse("test\\40test", communicator);
@@ -102,7 +102,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("", communicator);
                     test(false);
                 }
-                catch (ArgumentException)
+                catch (FormatException)
                 {
                 }
 
@@ -111,7 +111,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("\"\"", communicator);
                     test(false);
                 }
-                catch (ArgumentException)
+                catch (FormatException)
                 {
                 }
 
@@ -120,7 +120,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("\"\" test", communicator); // Invalid trailing characters.
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -141,7 +141,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("id@adapter test", communicator);
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (ArgumentException)
                 {
                 }
                 b1 = IObjectPrx.Parse("category/test@adapter", communicator);
@@ -180,7 +180,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("id -f \"facet x", communicator);
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (FormatException)
                 {
                 }
                 try
@@ -188,7 +188,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("id -f \'facet x", communicator);
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (FormatException)
                 {
                 }
                 b1 = IObjectPrx.Parse("test -f facet:tcp", communicator);
@@ -211,7 +211,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("test -f facet@test @test", communicator);
                     test(false);
                 }
-                catch (ProxyParseException)
+                catch (ArgumentException)
                 {
                 }
                 b1 = IObjectPrx.Parse("test", communicator);
@@ -306,80 +306,80 @@ namespace Ice
                 // Test for bug ICE-5543: escaped escapes in stringToIdentity
                 //
                 var id = new Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-                var id2 = Util.stringToIdentity(communicator.identityToString(id));
+                var id2 = Identity.Parse(id.ToString(communicator.ToStringMode));
                 test(id.Equals(id2));
 
                 id = new Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-                id2 = Util.stringToIdentity(communicator.identityToString(id));
+                id2 = Identity.Parse(id.ToString(communicator.ToStringMode));
                 test(id.Equals(id2));
 
                 id = new Identity("/test", "cat/");
-                string idStr = communicator.identityToString(id);
+                string idStr = id.ToString(communicator.ToStringMode);
                 test(idStr == "cat\\//\\/test");
-                id2 = Util.stringToIdentity(idStr);
+                id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
 
                 // Input string with various pitfalls
-                id = Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
+                id = Identity.Parse("\\342\\x82\\254\\60\\x9\\60\\");
                 test(id.name == "€0\t0\\" && id.category == "");
 
                 try
                 {
                     // Illegal character < 32
-                    id = Util.stringToIdentity("xx\01FooBar");
+                    id = Identity.Parse("xx\01FooBar");
                     test(false);
                 }
-                catch (IdentityParseException)
+                catch (FormatException)
                 {
                 }
 
                 try
                 {
                     // Illegal surrogate
-                    id = Util.stringToIdentity("xx\\ud911");
+                    id = Identity.Parse("xx\\ud911");
                     test(false);
                 }
-                catch (IdentityParseException)
+                catch (FormatException)
                 {
                 }
 
                 // Testing bytes 127(\x7F, \177) and €
                 id = new Identity("test", "\x7f€");
 
-                idStr = Util.identityToString(id, ToStringMode.Unicode);
+                idStr = id.ToString(ToStringMode.Unicode);
                 test(idStr == "\\u007f€/test");
-                id2 = Util.stringToIdentity(idStr);
+                id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
-                test(Util.identityToString(id) == idStr);
+                test(id.ToString() == idStr);
 
-                idStr = Util.identityToString(id, ToStringMode.ASCII);
+                idStr = id.ToString(ToStringMode.ASCII);
                 test(idStr == "\\u007f\\u20ac/test");
-                id2 = Util.stringToIdentity(idStr);
+                id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
 
-                idStr = Util.identityToString(id, ToStringMode.Compat);
+                idStr = id.ToString(ToStringMode.Compat);
                 test(idStr == "\\177\\342\\202\\254/test");
-                id2 = Util.stringToIdentity(idStr);
+                id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
 
-                id2 = Util.stringToIdentity(communicator.identityToString(id));
+                id2 = Identity.Parse(id.ToString(communicator.ToStringMode));
                 test(id.Equals(id2));
 
                 // More unicode character
                 id = new Identity("banana \x0E-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
 
-                idStr = Util.identityToString(id, ToStringMode.Unicode);
+                idStr = id.ToString(ToStringMode.Unicode);
                 test(idStr == "greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$");
-                id2 = Util.stringToIdentity(idStr);
+                id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
 
-                idStr = Util.identityToString(id, ToStringMode.ASCII);
+                idStr = id.ToString(ToStringMode.ASCII);
                 test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$");
-                id2 = Util.stringToIdentity(idStr);
+                id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
 
-                idStr = Util.identityToString(id, ToStringMode.Compat);
-                id2 = Util.stringToIdentity(idStr);
+                idStr = id.ToString(ToStringMode.Compat);
+                id2 = Identity.Parse(idStr);
                 test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
                 test(id.Equals(id2));
 
@@ -393,7 +393,7 @@ namespace Ice
 
                 if (b1.GetConnection() != null) // not colloc-optimized target
                 {
-                    b2 = b1.GetConnection().createProxy(Util.stringToIdentity("fixed"));
+                    b2 = b1.GetConnection().createProxy(Identity.Parse("fixed"));
                     string str = b2.ToString();
                     test(b2.ToString() == str);
                     string str2 = b1.Clone(b2.Identity).Clone(secure: b2.IsSecure).ToString();
@@ -407,7 +407,7 @@ namespace Ice
 
                 output.Write("testing propertyToProxy... ");
                 output.Flush();
-                var prop = communicator.getProperties();
+                var prop = communicator.Properties;
                 string propertyPrefix = "Foo.Proxy";
                 prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
                 b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
@@ -686,7 +686,7 @@ namespace Ice
                 output.Write("testing proxy comparison... ");
                 output.Flush();
 
-                test(IObjectPrx.Parse("foo", communicator).Equals(IObjectPrx.Parse("foo", communicator)));
+                test(object.Equals(IObjectPrx.Parse("foo", communicator), IObjectPrx.Parse("foo", communicator)));
                 test(!IObjectPrx.Parse("foo", communicator).Equals(IObjectPrx.Parse("foo2", communicator)));
 
                 var compObj = IObjectPrx.Parse("foo", communicator);
@@ -827,7 +827,7 @@ namespace Ice
                 c["two"] = "world";
                 cl = Test.MyClassPrx.CheckedCast(baseProxy, c);
                 Dictionary<string, string> c2 = cl.getContext();
-                test(CollectionComparer.Equals(c, c2));
+                test(Collections.Equals(c, c2));
                 output.WriteLine("ok");
 
                 output.Write("testing ice_fixed... ");
@@ -916,9 +916,9 @@ namespace Ice
                     // Send request with bogus 1.2 encoding.
                     EncodingVersion version = new EncodingVersion(1, 2);
                     OutputStream os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.endEncapsulation();
-                    byte[] inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.EndEncapsulation();
+                    byte[] inEncaps = os.Finished();
                     inEncaps[4] = version.major;
                     inEncaps[5] = version.minor;
                     byte[] outEncaps;
@@ -936,9 +936,9 @@ namespace Ice
                     // Send request with bogus 2.0 encoding.
                     EncodingVersion version = new EncodingVersion(2, 0);
                     OutputStream os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.endEncapsulation();
-                    byte[] inEncaps = os.finished();
+                    os.StartEncapsulation();
+                    os.EndEncapsulation();
+                    byte[] inEncaps = os.Finished();
                     inEncaps[4] = version.major;
                     inEncaps[5] = version.minor;
                     byte[] outEncaps;
@@ -1113,11 +1113,11 @@ namespace Ice
                     communicator);
                 test(p2.ToString().Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
-                if (communicator.getProperties().getPropertyAsInt("IPv6") == 0)
+                if (communicator.Properties.getPropertyAsInt("IPv6") == 0)
                 {
                     // Working?
-                    bool ssl = communicator.getProperties().getProperty("Default.Protocol").Equals("ssl");
-                    bool tcp = communicator.getProperties().getProperty("Default.Protocol").Equals("tcp");
+                    bool ssl = communicator.Properties.getProperty("Default.Protocol").Equals("ssl");
+                    bool tcp = communicator.Properties.getProperty("Default.Protocol").Equals("tcp");
 
                     // Two legal TCP endpoints expressed as opaque endpoints
                     p1 = IObjectPrx.Parse("test -e 1.0:" + "" +

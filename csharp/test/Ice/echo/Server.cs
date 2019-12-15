@@ -20,7 +20,7 @@ public class Server : Test.TestHelper
 
         public void shutdown(Ice.Current current)
         {
-            current.adapter.GetCommunicator().shutdown();
+            current.Adapter.Communicator.shutdown();
         }
 
         private BlobjectI _blob;
@@ -30,7 +30,7 @@ public class Server : Test.TestHelper
     {
         using (var communicator = initialize(ref args))
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             BlobjectI blob = new BlobjectI();
             adapter.AddDefaultServant((incoming, current) => blob.Dispatch(incoming, current), "");

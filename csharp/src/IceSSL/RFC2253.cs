@@ -5,21 +5,18 @@
 //
 // See RFC 2253 and RFC 1779.
 //
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
 namespace IceSSL
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Text;
-
     internal class RFC2253
     {
         public class ParseException : Exception
         {
-            internal ParseException()
-            {
-            }
-
             internal ParseException(string reason)
             {
                 this.reason = reason;
@@ -492,7 +489,7 @@ namespace IceSSL
             }
         }
 
-        private static string special = ",=+<>#;";
-        private static string hexvalid = "0123456789abcdefABCDEF";
+        private const string special = ",=+<>#;";
+        private const string hexvalid = "0123456789abcdefABCDEF";
     }
 }

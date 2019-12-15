@@ -61,7 +61,7 @@ namespace Ice
                 {
                     try
                     {
-                        p.plugin.initialize();
+                        p.Plugin.initialize();
                     }
                     catch (PluginInitializationException)
                     {
@@ -69,9 +69,9 @@ namespace Ice
                     }
                     catch (System.Exception ex)
                     {
-                        throw new PluginInitializationException(string.Format("plugin `{0}' initialization failed", p.name), ex);
+                        throw new PluginInitializationException($"plugin `{p.Name}' initialization failed", ex);
                     }
-                    initializedPlugins.Add(p.plugin);
+                    initializedPlugins.Add(p.Plugin);
                 }
             }
             catch (System.Exception)
@@ -105,7 +105,7 @@ namespace Ice
                 ArrayList names = new ArrayList();
                 foreach (PluginInfo p in _plugins)
                 {
-                    names.Add(p.name);
+                    names.Add(p.Name);
                 }
                 return (string[])names.ToArray(typeof(string));
             }
@@ -120,7 +120,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                Plugin p = findPlugin(name);
+                Plugin? p = findPlugin(name);
                 if (p != null)
                 {
                     return p;
@@ -150,10 +150,7 @@ namespace Ice
                     throw ex;
                 }
 
-                PluginInfo info = new PluginInfo();
-                info.name = name;
-                info.plugin = plugin;
-                _plugins.Add(info);
+                _plugins.Add(new PluginInfo(name, plugin));
             }
         }
 
@@ -171,16 +168,15 @@ namespace Ice
                         {
                             try
                             {
-                                p.plugin.destroy();
+                                p.Plugin.destroy();
                             }
                             catch (System.Exception ex)
                             {
-                                Util.getProcessLogger().warning("unexpected exception raised by plug-in `" +
-                                                                p.name + "' destruction:\n" + ex.ToString());
+                                Util.getProcessLogger().warning(
+                                    $"unexpected exception raised by plug-in `{p.Name}' destruction:\n{ex}");
                             }
                         }
                     }
-
                     _communicator = null;
                 }
             }
@@ -197,7 +193,7 @@ namespace Ice
         {
             Debug.Assert(_communicator != null);
             string prefix = "Ice.Plugin.";
-            Properties properties = _communicator.getProperties();
+            Properties properties = _communicator.Properties;
             Dictionary<string, string> plugins = properties.getPropertiesForPrefix(prefix);
 
             //
@@ -210,7 +206,7 @@ namespace Ice
             foreach (var name in _loadOnInitialization)
             {
                 string key = "Ice.Plugin." + name + ".clr";
-                string r = null;
+                string? r;
                 plugins.TryGetValue(key, out r);
                 if (r != null)
                 {
@@ -266,7 +262,7 @@ namespace Ice
                 }
 
                 string key = "Ice.Plugin." + loadOrder[i] + ".clr";
-                string value = null;
+                string? value;
                 plugins.TryGetValue(key, out value);
                 if (value != null)
                 {
@@ -352,8 +348,8 @@ namespace Ice
         {
             Debug.Assert(_communicator != null);
 
-            string[] args = null;
-            string entryPoint = null;
+            string[] args = Array.Empty<string>();
+            string? entryPoint = null;
             if (pluginSpec.Length > 0)
             {
                 //
@@ -388,18 +384,18 @@ namespace Ice
                 // configuration, then we convert the options from the
                 // application command-line.
                 //
-                Properties properties = _communicator.getProperties();
+                Properties properties = _communicator.Properties;
                 args = properties.parseCommandLineOptions(name, args);
                 cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
             }
-
-            string err = "unable to load plug-in `" + entryPoint + "': ";
+            Debug.Assert(entryPoint != null);
+            string err = $"unable to load plug-in `{entryPoint}': ";
             //
             // Always check the static plugin factory table first, it takes
             // precedence over the the entryPoint specified in the plugin
             // property value.
             //
-            PluginFactory pluginFactory = null;
+            PluginFactory? pluginFactory = null;
             if (!_factories.TryGetValue(name, out pluginFactory))
             {
                 //
@@ -424,7 +420,7 @@ namespace Ice
                     throw e;
                 }
 
-                System.Reflection.Assembly pluginAssembly = null;
+                System.Reflection.Assembly? pluginAssembly = null;
                 string assemblyName = entryPoint.Substring(0, sepPos);
                 string className = entryPoint.Substring(sepPos + 1);
 
@@ -467,7 +463,7 @@ namespace Ice
                 //
                 // Instantiate the class.
                 //
-                System.Type c = null;
+                Type c;
                 try
                 {
                     c = pluginAssembly.GetType(className, true);
@@ -481,7 +477,7 @@ namespace Ice
 
                 try
                 {
-                    pluginFactory = (PluginFactory)IceInternal.AssemblyUtil.createInstance(c);
+                    pluginFactory = (PluginFactory?)IceInternal.AssemblyUtil.createInstance(c);
                     if (pluginFactory == null)
                     {
                         PluginInitializationException e = new PluginInitializationException();
@@ -509,7 +505,7 @@ namespace Ice
                 }
             }
 
-            Plugin plugin = null;
+            Plugin? plugin = null;
             try
             {
                 plugin = pluginFactory.create(_communicator, name, args);
@@ -533,19 +529,16 @@ namespace Ice
                 throw ex;
             }
 
-            PluginInfo info = new PluginInfo();
-            info.name = name;
-            info.plugin = plugin;
-            _plugins.Add(info);
+            _plugins.Add(new PluginInfo(name, plugin));
         }
 
-        private Plugin findPlugin(string name)
+        private Plugin? findPlugin(string name)
         {
             foreach (PluginInfo p in _plugins)
             {
-                if (name.Equals(p.name))
+                if (name.Equals(p.Name))
                 {
-                    return p.plugin;
+                    return p.Plugin;
                 }
             }
             return null;
@@ -553,11 +546,33 @@ namespace Ice
 
         internal class PluginInfo
         {
-            internal string name;
-            internal Plugin plugin;
+            internal PluginInfo(string name, Plugin plugin)
+            {
+                this.name = name;
+                this.plugin = plugin;
+            }
+
+            internal string Name
+            {
+                get
+                {
+                    return name;
+                }
+            }
+
+            internal Plugin Plugin
+            {
+                get
+                {
+                    return plugin;
+                }
+            }
+
+            private string name;
+            private Plugin plugin;
         }
 
-        private Communicator _communicator;
+        private Communicator? _communicator;
         private ArrayList _plugins;
         private bool _initialized;
 

@@ -51,7 +51,7 @@ namespace Ice
             public void
             close(Test.CloseMode mode, Ice.Current current)
             {
-                current.con.close((Ice.ConnectionClose)((int)mode));
+                current.Connection.close((Ice.ConnectionClose)((int)mode));
             }
 
             public void
@@ -71,7 +71,7 @@ namespace Ice
                         _pending.SetResult(null);
                         _pending = null;
                     }
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                 }
             }
 
@@ -115,7 +115,7 @@ namespace Ice
             public void
             pingBiDir(Test.PingReplyPrx reply, Ice.Current current)
             {
-                reply = reply.Clone(fixedConnection: current.con);
+                reply = reply.Clone(fixedConnection: current.Connection);
                 Thread dispatchThread = Thread.CurrentThread;
                 reply.replyAsync().ContinueWith(
                    (t) =>
@@ -130,7 +130,7 @@ namespace Ice
             Test.TestIntfPrx
             self(Ice.Current current)
             {
-                return Test.TestIntfPrx.UncheckedCast(current.adapter.CreateProxy(current.id));
+                return Test.TestIntfPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id));
             }
 
             public Task

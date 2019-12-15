@@ -397,8 +397,8 @@ namespace IceMX
         {
             lock (this)
             {
-                List<MetricsMap<T>.Entry> metricsObjects = null;
-                O old = null;
+                List<MetricsMap<T>.Entry>? metricsObjects = null;
+                O? old = null;
                 try
                 {
                     old = (O)observer;
@@ -408,7 +408,7 @@ namespace IceMX
                 }
                 foreach (MetricsMap<T> m in _maps)
                 {
-                    MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
+                    MetricsMap<T>.Entry? e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
                     if (e != null)
                     {
                         if (metricsObjects == null)
@@ -482,7 +482,7 @@ namespace IceMX
             }
         }
 
-        private readonly MetricsAdminI _metrics;
+        private readonly MetricsAdminI? _metrics;
         private readonly string _name;
         private List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
         private volatile bool _enabled;

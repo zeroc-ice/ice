@@ -15,10 +15,10 @@ public class Server : Test.TestHelper
     {
         using (var communicator = initialize(ref args))
         {
-            communicator.getProperties().setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
+            communicator.Properties.setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
             communicator.createObjectAdapter("DeactivatedAdapter");
 
-            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
+            communicator.Properties.setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
             var callbackI = new CallbackI();
             adapter.Add(callbackI, "callback");

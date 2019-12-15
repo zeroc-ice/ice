@@ -40,7 +40,7 @@ public class TestI : TestIntf
     shutdown(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 }
 

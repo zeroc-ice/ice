@@ -17,19 +17,19 @@ namespace Ice
                 {
                     Timer timer = new Timer();
 
-                    communicator.getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
-                    communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
-                    communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
-                    communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
-                    communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
+                    communicator.Properties.setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
+                    communicator.Properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
+                    communicator.Properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
+                    communicator.Properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
                     Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
                     adapter1.Add(new HoldI(timer, adapter1), "hold");
 
-                    communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
-                    communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
-                    communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
-                    communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-                    communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
+                    communicator.Properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
+                    communicator.Properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
+                    communicator.Properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
+                    communicator.Properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
+                    communicator.Properties.setProperty("TestAdapter2.ThreadPool.Serialize", "1");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
                     adapter2.Add(new HoldI(timer, adapter2), "hold");
 

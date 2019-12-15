@@ -32,11 +32,11 @@ namespace IceInternal
                     if (m.ContainsKey(facet))
                     {
                         Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                        ex.id = Ice.Util.identityToString(ident, _communicator.toStringMode());
+                        ex.id = ident.ToString(_communicator.ToStringMode);
                         ex.kindOfObject = "servant";
                         if (facet.Length > 0)
                         {
-                            ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.toStringMode());
+                            ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.ToStringMode);
                         }
                         throw ex;
                     }
@@ -75,11 +75,11 @@ namespace IceInternal
                 if (m == null || !m.ContainsKey(facet))
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = Ice.Util.identityToString(ident, _communicator.toStringMode());
+                    ex.id = ident.ToString(_communicator.ToStringMode);
                     ex.kindOfObject = "servant";
                     if (facet.Length > 0)
                     {
-                        ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.toStringMode());
+                        ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.ToStringMode);
                     }
                     throw ex;
                 }
@@ -123,7 +123,7 @@ namespace IceInternal
                 if (m == null)
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = Ice.Util.identityToString(ident, _communicator.toStringMode());
+                    ex.id = ident.ToString(_communicator.ToStringMode);
                     ex.kindOfObject = "servant";
                     throw ex;
                 }
@@ -229,7 +229,7 @@ namespace IceInternal
                 if (l != null)
                 {
                     Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.toStringMode());
+                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.ToStringMode);
                     ex.kindOfObject = "servant locator";
                     throw ex;
                 }
@@ -249,7 +249,7 @@ namespace IceInternal
                 if (l == null)
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.toStringMode());
+                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.ToStringMode);
                     ex.kindOfObject = "servant locator";
                     throw ex;
                 }
@@ -303,7 +303,7 @@ namespace IceInternal
                     return;
                 }
 
-                logger = _communicator.initializationData().logger;
+                logger = _communicator.Logger;
 
                 _servantMapMap.Clear();
 

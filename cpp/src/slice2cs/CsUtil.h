@@ -11,6 +11,17 @@
 namespace Slice
 {
 
+enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
+
+bool isNullable(const TypePtr&);
+
+bool isCollectionType(const TypePtr&);
+bool isProxyType(const TypePtr&);
+bool isClassType(const TypePtr&);
+bool isValueType(const TypePtr&);
+bool isImmutableType(const TypePtr&);
+bool isReferenceType(const TypePtr&);
+
 class CsGenerator : private ::IceUtil::noncopyable
 {
 public:
@@ -37,6 +48,8 @@ public:
                                       const std::string& package = "",
                                       const std::string& prefix = "",
                                       const std::string& suffix = "");
+    static std::string typeToString(const TypePtr&, const std::string&, bool = false);
+    static std::string fixId(const std::string&, unsigned int = 0);
 
 protected:
 
@@ -49,13 +62,9 @@ protected:
     static std::string resultStructName(const std::string&, const std::string&, bool = false);
     static std::string resultType(const OperationPtr&, const std::string&, bool = false);
     static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);
-    static std::string fixId(const std::string&, unsigned int = 0, bool = false);
-    static std::string fixId(const ContainedPtr&, unsigned int = 0, bool = false);
+
     static std::string getOptionalFormat(const TypePtr&, const std::string&);
     static std::string getStaticId(const TypePtr&);
-    static std::string typeToString(const TypePtr&, const std::string&, bool = false);
-    static bool isClassType(const TypePtr&);
-    static bool isValueType(const TypePtr&);
 
     //
     // Generate code to marshal or unmarshal a type
@@ -68,10 +77,6 @@ protected:
                                            const std::string&, bool, bool, const std::string& = "");
     void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
                                                    const std::string&, int, bool, const std::string& = "");
-
-    void writeSerializeDeserializeCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&,
-                                       const std::string&, bool, int, bool);
-
 private:
 
     class MetaDataVisitor : public ParserVisitor

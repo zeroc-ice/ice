@@ -33,7 +33,7 @@ namespace Ice
                 {
                     incoming.startOver();
                     string context;
-                    if (current.ctx.TryGetValue("raiseBeforeDispatch", out context))
+                    if (current.Context.TryGetValue("raiseBeforeDispatch", out context))
                     {
                         if (context.Equals("user"))
                         {
@@ -49,7 +49,7 @@ namespace Ice
                         }
                     }
 
-                    lastOperation_ = current.operation;
+                    lastOperation_ = current.Operation;
 
                     if (lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
                     {
@@ -75,9 +75,9 @@ namespace Ice
                             }
                         }
 
-                        current.ctx["retry"] = "no";
+                        current.Context["retry"] = "no";
                     }
-                    else if (current.ctx.TryGetValue("retry", out context) && context.Equals("yes"))
+                    else if (current.Context.TryGetValue("retry", out context) && context.Equals("yes"))
                     {
                         //
                         // Retry the dispatch to ensure that abandoning the result of the dispatch
@@ -90,7 +90,7 @@ namespace Ice
                     var task = traits_.Dispatch(servant_, incoming, current);
                     lastStatus_ = task != null;
 
-                    if (current.ctx.TryGetValue("raiseAfterDispatch", out context))
+                    if (current.Context.TryGetValue("raiseAfterDispatch", out context))
                     {
                         if (context.Equals("user"))
                         {
@@ -115,7 +115,7 @@ namespace Ice
                     // encoding version used by the client to eventually marshal the user exception. It's also needed
                     // if we dispatch a batch oneway request to read the next batch request.
                     //
-                    if (current.encoding == null || (current.encoding.major == 0 && current.encoding.minor == 0))
+                    if (current.Encoding == null || (current.Encoding.major == 0 && current.Encoding.minor == 0))
                     {
                         incoming.skipReadParams();
                     }

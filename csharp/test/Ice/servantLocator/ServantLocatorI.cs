@@ -41,22 +41,22 @@ namespace Ice
                     test(!_deactivated);
                 }
 
-                test(current.id.category.Equals(_category) || _category.Length == 0);
+                test(current.Id.category.Equals(_category) || _category.Length == 0);
 
-                if (current.id.name.Equals("unknown"))
+                if (current.Id.name.Equals("unknown"))
                 {
                     cookie = null;
                     return null;
                 }
 
-                if (current.id.name.Equals("invalidReturnValue") || current.id.name.Equals("invalidReturnType"))
+                if (current.Id.name.Equals("invalidReturnValue") || current.Id.name.Equals("invalidReturnType"))
                 {
                     cookie = null;
                     return null;
                 }
 
-                test(current.id.name.Equals("locate") || current.id.name.Equals("finished"));
-                if (current.id.name.Equals("locate"))
+                test(current.Id.name.Equals("locate") || current.Id.name.Equals("finished"));
+                if (current.Id.name.Equals("locate"))
                 {
                     exception(current);
                 }
@@ -65,7 +65,7 @@ namespace Ice
                 // Ensure locate() is only called once per request.
                 //
                 test(_requestId == -1);
-                _requestId = current.requestId;
+                _requestId = current.RequestId;
 
                 cookie = new Cookie();
 
@@ -84,13 +84,13 @@ namespace Ice
                 //
                 // Ensure finished() is only called once per request.
                 //
-                test(_requestId == current.requestId);
+                test(_requestId == current.RequestId);
                 _requestId = -1;
 
-                test(current.id.category.Equals(_category) || _category.Length == 0);
-                test(current.id.name.Equals("locate") || current.id.name.Equals("finished"));
+                test(current.Id.category.Equals(_category) || _category.Length == 0);
+                test(current.Id.name.Equals("locate") || current.Id.name.Equals("finished"));
 
-                if (current.id.name.Equals("finished"))
+                if (current.Id.name.Equals("finished"))
                 {
                     exception(current);
                 }
@@ -111,63 +111,63 @@ namespace Ice
 
             private void exception(Current current)
             {
-                if (current.operation.Equals("ice_ids"))
+                if (current.Operation.Equals("ice_ids"))
                 {
                     throw new Test.TestIntfUserException();
                 }
-                else if (current.operation.Equals("requestFailedException"))
+                else if (current.Operation.Equals("requestFailedException"))
                 {
                     throw new Ice.ObjectNotExistException();
                 }
-                else if (current.operation.Equals("unknownUserException"))
+                else if (current.Operation.Equals("unknownUserException"))
                 {
                     var ex = new Ice.UnknownUserException();
                     ex.unknown = "reason";
                     throw ex;
                 }
-                else if (current.operation.Equals("unknownLocalException"))
+                else if (current.Operation.Equals("unknownLocalException"))
                 {
                     var ex = new Ice.UnknownLocalException();
                     ex.unknown = "reason";
                     throw ex;
                 }
-                else if (current.operation.Equals("unknownException"))
+                else if (current.Operation.Equals("unknownException"))
                 {
                     var ex = new Ice.UnknownException();
                     ex.unknown = "reason";
                     throw ex;
                 }
-                else if (current.operation.Equals("userException"))
+                else if (current.Operation.Equals("userException"))
                 {
                     throw new Test.TestIntfUserException();
                 }
-                else if (current.operation.Equals("localException"))
+                else if (current.Operation.Equals("localException"))
                 {
                     var ex = new Ice.SocketException();
                     ex.error = 0;
                     throw ex;
                 }
-                else if (current.operation.Equals("csException"))
+                else if (current.Operation.Equals("csException"))
                 {
                     throw new System.Exception("message");
                 }
-                else if (current.operation.Equals("unknownExceptionWithServantException"))
+                else if (current.Operation.Equals("unknownExceptionWithServantException"))
                 {
                     throw new Ice.UnknownException("reason");
                 }
-                else if (current.operation.Equals("impossibleException"))
+                else if (current.Operation.Equals("impossibleException"))
                 {
                     throw new Test.TestIntfUserException(); // Yes, it really is meant to be TestIntfException.
                 }
-                else if (current.operation.Equals("intfUserException"))
+                else if (current.Operation.Equals("intfUserException"))
                 {
                     throw new Test.TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
                 }
-                else if (current.operation.Equals("asyncResponse"))
+                else if (current.Operation.Equals("asyncResponse"))
                 {
                     throw new Test.TestImpossibleException();
                 }
-                else if (current.operation.Equals("asyncException"))
+                else if (current.Operation.Equals("asyncException"))
                 {
                     throw new Test.TestImpossibleException();
                 }

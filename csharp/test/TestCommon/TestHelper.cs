@@ -30,7 +30,7 @@ namespace Test
 
         public string getTestEndpoint(int num = 0, string protocol = "")
         {
-            return getTestEndpoint(_communicator.getProperties(), num, protocol);
+            return getTestEndpoint(_communicator.Properties, num, protocol);
         }
 
         static public string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
@@ -45,7 +45,7 @@ namespace Test
 
         public string getTestHost()
         {
-            return getTestHost(_communicator.getProperties());
+            return getTestHost(_communicator.Properties);
         }
 
         static public string getTestHost(Ice.Properties properties)
@@ -55,7 +55,7 @@ namespace Test
 
         public String getTestProtocol()
         {
-            return getTestProtocol(_communicator.getProperties());
+            return getTestProtocol(_communicator.Properties);
         }
 
         static public String getTestProtocol(Ice.Properties properties)
@@ -65,7 +65,7 @@ namespace Test
 
         public int getTestPort(int num)
         {
-            return getTestPort(_communicator.getProperties(), num);
+            return getTestPort(_communicator.Properties, num);
         }
 
         static public int getTestPort(Ice.Properties properties, int num)

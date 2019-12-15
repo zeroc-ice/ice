@@ -260,7 +260,7 @@ namespace IceInternal
         {
             _communicator = communicator;
             _destroyed = false;
-            _monitor = new FactoryACMMonitor(communicator, communicator.clientACM());
+            _monitor = new FactoryACMMonitor(communicator, communicator.ClientACM);
             _pendingConnectCount = 0;
         }
 
@@ -670,7 +670,7 @@ namespace IceInternal
                     }
                 }
                 s.Append(ex);
-                _communicator.initializationData().logger.trace(traceLevels.networkCat, s.ToString());
+                _communicator.Logger.trace(traceLevels.networkCat, s.ToString());
             }
         }
 
@@ -750,7 +750,7 @@ namespace IceInternal
                     }
                 }
                 s.Append(ex);
-                _communicator.initializationData().logger.trace(traceLevels.networkCat, s.ToString());
+                _communicator.Logger.trace(traceLevels.networkCat, s.ToString());
             }
         }
 
@@ -991,7 +991,7 @@ namespace IceInternal
                             s.Append(_current.endpoint.protocol());
                             s.Append(" connection to ");
                             s.Append(_current.connector.ToString());
-                            _factory._communicator.initializationData().logger.trace(
+                            _factory._communicator.Logger.trace(
                                                 _factory._communicator.traceLevels().networkCat, s.ToString());
                         }
 
@@ -1008,7 +1008,7 @@ namespace IceInternal
                             s.Append(_current.connector.ToString());
                             s.Append("\n");
                             s.Append(ex);
-                            _factory._communicator.initializationData().logger.trace(
+                            _factory._communicator.Logger.trace(
                                                 _factory._communicator.traceLevels().networkCat, s.ToString());
                         }
 
@@ -1044,28 +1044,28 @@ namespace IceInternal
                 return false;
             }
 
-            private OutgoingConnectionFactory _factory;
-            private bool _hasMore;
-            private CreateConnectionCallback _callback;
-            private List<EndpointI> _endpoints;
-            private Ice.EndpointSelectionType _selType;
+            private readonly OutgoingConnectionFactory _factory;
+            private readonly bool _hasMore;
+            private readonly CreateConnectionCallback _callback;
+            private readonly List<EndpointI> _endpoints;
+            private readonly Ice.EndpointSelectionType _selType;
             private int _endpointsIter;
             private EndpointI? _currentEndpoint;
-            private List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
+            private readonly List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
             private int _iter;
             private ConnectorInfo? _current;
             private Ice.Instrumentation.Observer? _observer;
         }
 
-        private Ice.Communicator _communicator;
-        private FactoryACMMonitor _monitor;
+        private readonly Ice.Communicator _communicator;
+        private readonly FactoryACMMonitor _monitor;
         private bool _destroyed;
 
-        private MultiDictionary<Connector, Ice.ConnectionI> _connections =
+        private readonly MultiDictionary<Connector, Ice.ConnectionI> _connections =
             new MultiDictionary<Connector, Ice.ConnectionI>();
-        private MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint =
+        private readonly MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint =
             new MultiDictionary<EndpointI, Ice.ConnectionI>();
-        private Dictionary<Connector, HashSet<ConnectCallback>> _pending =
+        private readonly Dictionary<Connector, HashSet<ConnectCallback>> _pending =
             new Dictionary<Connector, HashSet<ConnectCallback>>();
         private int _pendingConnectCount;
     }
@@ -1084,7 +1084,7 @@ namespace IceInternal
                 _factory.startAcceptor();
             }
 
-            private IncomingConnectionFactory _factory;
+            private readonly IncomingConnectionFactory _factory;
         }
 
         public void startAcceptor()
@@ -1103,7 +1103,7 @@ namespace IceInternal
                 catch (Exception ex)
                 {
                     Debug.Assert(_acceptor != null);
-                    _communicator.initializationData().logger.error($"acceptor creation failed:\n{ex}\n{_acceptor}");
+                    _communicator.Logger.error($"acceptor creation failed:\n{ex}\n{_acceptor}");
                     _communicator.timer().schedule(new StartAcceptor(this), 1000);
                 }
             }
@@ -1316,7 +1316,7 @@ namespace IceInternal
             catch (Ice.LocalException ex)
             {
                 _acceptorException = null;
-                _communicator.initializationData().logger.error($"couldn't accept connection:\n{ex}\n{_acceptor}");
+                _communicator.Logger.error($"couldn't accept connection:\n{ex}\n{_acceptor}");
                 if (_acceptorStarted)
                 {
                     _acceptorStarted = false;
@@ -1382,14 +1382,14 @@ namespace IceInternal
                             s.Append(_endpoint.protocol());
                             s.Append(" connection\n");
                             s.Append(transceiver.ToString());
-                            _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                            _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                         }
                     }
                     catch (Ice.SocketException ex)
                     {
                         if (Network.noMoreFds(ex.InnerException))
                         {
-                            _communicator.initializationData().logger.error(
+                            _communicator.Logger.error(
                                 $"can't accept more connections:\n{ex}\n{_acceptor}");
                             Debug.Assert(_acceptorStarted);
                             _acceptorStarted = false;
@@ -1518,7 +1518,7 @@ namespace IceInternal
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
-            _warn = _communicator.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
+            _warn = _communicator.Properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _connections = new HashSet<Ice.ConnectionI>();
             _state = StateHolding;
             _acceptorStarted = false;
@@ -1546,7 +1546,7 @@ namespace IceInternal
                         s.Append(_endpoint.protocol());
                         s.Append(" socket\n");
                         s.Append(_transceiver.ToString());
-                        _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                        _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                     }
                     _endpoint = _transceiver.bind();
 
@@ -1619,7 +1619,7 @@ namespace IceInternal
                                 s.Append(_endpoint.protocol());
                                 s.Append(" connections at ");
                                 s.Append(_acceptor.ToString());
-                                _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat,
+                                _communicator.Logger.trace(_communicator.traceLevels().networkCat,
                                                                             s.ToString());
                             }
                             _adapter!.getThreadPool().register(this, SocketOperation.Read);
@@ -1646,7 +1646,7 @@ namespace IceInternal
                                 s.Append(_endpoint.protocol());
                                 s.Append(" connections at ");
                                 s.Append(_acceptor.ToString());
-                                _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat,
+                                _communicator.Logger.trace(_communicator.traceLevels().networkCat,
                                                                             s.ToString());
                             }
                             _adapter!.getThreadPool().unregister(this, SocketOperation.Read);
@@ -1704,7 +1704,7 @@ namespace IceInternal
                     s.Append(_endpoint.protocol());
                     s.Append(" socket ");
                     s.Append(_acceptor.ToString());
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                 }
                 _endpoint = _acceptor.listen();
 
@@ -1714,7 +1714,7 @@ namespace IceInternal
                     s.Append(_endpoint.protocol());
                     s.Append(" connections\n");
                     s.Append(_acceptor.toDetailedString());
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
                 }
 
                 _adapter.getThreadPool().initialize(this);
@@ -1746,7 +1746,7 @@ namespace IceInternal
                 s.Append(_endpoint.protocol());
                 s.Append(" connections at ");
                 s.Append(_acceptor.ToString());
-                _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
             }
 
             Debug.Assert(!_acceptorStarted);
@@ -1755,11 +1755,11 @@ namespace IceInternal
 
         private void warning(Ice.LocalException ex)
         {
-            _communicator.initializationData().logger.warning($"connection exception:\n{ex}\n{_acceptor}");
+            _communicator.Logger.warning($"connection exception:\n{ex}\n{_acceptor}");
         }
 
-        private Ice.Communicator _communicator;
-        private FactoryACMMonitor _monitor;
+        private readonly Ice.Communicator _communicator;
+        private readonly FactoryACMMonitor _monitor;
 
         private Acceptor? _acceptor;
         private readonly Transceiver _transceiver;
@@ -1770,7 +1770,7 @@ namespace IceInternal
 
         private readonly bool _warn;
 
-        private HashSet<Ice.ConnectionI> _connections;
+        private readonly HashSet<Ice.ConnectionI> _connections;
 
         private int _state;
         private bool _acceptorStarted;

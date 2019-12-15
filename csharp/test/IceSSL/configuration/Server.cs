@@ -21,7 +21,7 @@ public class Server : Test.TestHelper
                 throw new ArgumentException("Usage: server testdir");
             }
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
+            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new ServerFactoryI(args[0] + "/../certs"), "factory");
             adapter.Activate();

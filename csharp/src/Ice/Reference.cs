@@ -13,7 +13,7 @@ using IceUtilInternal;
 
 namespace IceInternal
 {
-    public abstract class Reference
+    public abstract class Reference : IEquatable<Reference>
     {
         public interface GetConnectionCallback
         {
@@ -82,8 +82,8 @@ namespace IceInternal
 
         public abstract EndpointI[] getEndpoints();
         public abstract string getAdapterId();
-        public abstract LocatorInfo getLocatorInfo();
-        public abstract RouterInfo getRouterInfo();
+        public abstract LocatorInfo? getLocatorInfo();
+        public abstract RouterInfo? getRouterInfo();
         public abstract bool getCollocationOptimized();
         public abstract bool getCacheConnection();
         public abstract bool getPreferSecure();
@@ -158,19 +158,19 @@ namespace IceInternal
             //
             if (_facet.Length == 0)
             {
-                s.writeStringSeq(null);
+                s.WriteStringSeq(null);
             }
             else
             {
                 string[] facetPath = { _facet };
-                s.writeStringSeq(facetPath);
+                s.WriteStringSeq(facetPath);
             }
 
-            s.writeByte((byte)_mode);
+            s.WriteByte((byte)_mode);
 
-            s.writeBool(secure_);
+            s.WriteBool(secure_);
 
-            if (!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (!s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 _protocol.ice_writeMembers(s);
                 _encoding.ice_writeMembers(s);
@@ -193,14 +193,12 @@ namespace IceInternal
             //
             StringBuilder s = new StringBuilder();
 
-            ToStringMode toStringMode = _communicator.toStringMode();
-
             //
             // If the encoded identity string contains characters which
             // the reference parser uses as separators, then we enclose
             // the identity string in quotes.
             //
-            string id = Ice.Util.identityToString(_identity, toStringMode);
+            string id = _identity.ToString(_communicator.ToStringMode);
             if (StringUtil.findFirstOf(id, " :@") != -1)
             {
                 s.Append('"');
@@ -220,7 +218,7 @@ namespace IceInternal
                 // the facet string in quotes.
                 //
                 s.Append(" -f ");
-                string fs = StringUtil.escapeString(_facet, "", toStringMode);
+                string fs = StringUtil.escapeString(_facet, "", _communicator.ToStringMode);
                 if (StringUtil.findFirstOf(fs, " :@") != -1)
                 {
                     s.Append('"');
@@ -300,59 +298,82 @@ namespace IceInternal
 
         public abstract RequestHandler getRequestHandler(IObjectPrx proxy);
 
+        public static bool operator ==(Reference? lhs, Reference? rhs)
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null))
+            {
+                return false;
+            }
+            return rhs.Equals(lhs);
+
+        }
+
+        public static bool operator !=(Reference? lhs, Reference? rhs)
+        {
+            return !(lhs == rhs);
+        }
+
         public override bool Equals(object obj)
+        {
+            return Equals(obj as Reference);
+        }
+
+        public virtual bool Equals(Reference? other)
         {
             //
             // Note: if(this == obj) and type test are performed by each non-abstract derived class.
             //
-
-            Reference r = (Reference)obj; // Guaranteed to succeed.
-
-            if (_mode != r._mode)
+            Debug.Assert(other != null);
+            if (_mode != other._mode)
             {
                 return false;
             }
 
-            if (secure_ != r.secure_)
+            if (secure_ != other.secure_)
             {
                 return false;
             }
 
-            if (!_identity.Equals(r._identity))
+            if (!_identity.Equals(other._identity))
             {
                 return false;
             }
 
-            if (!CollectionComparer.Equals(_context, r._context))
+            if (!Collections.Equals(_context, other._context))
             {
                 return false;
             }
 
-            if (!_facet.Equals(r._facet))
+            if (!_facet.Equals(other._facet))
             {
                 return false;
             }
 
-            if (overrideCompress_ != r.overrideCompress_)
+            if (overrideCompress_ != other.overrideCompress_)
             {
                 return false;
             }
-            if (overrideCompress_ && compress_ != r.compress_)
-            {
-                return false;
-            }
-
-            if (!_protocol.Equals(r._protocol))
+            if (overrideCompress_ && compress_ != other.compress_)
             {
                 return false;
             }
 
-            if (!_encoding.Equals(r._encoding))
+            if (!_protocol.Equals(other._protocol))
             {
                 return false;
             }
 
-            if (_invocationTimeout != r._invocationTimeout)
+            if (!_encoding.Equals(other._encoding))
+            {
+                return false;
+            }
+
+            if (_invocationTimeout != other._invocationTimeout)
             {
                 return false;
             }
@@ -410,7 +431,7 @@ namespace IceInternal
                 {
                     reference = Clone();
                 }
-                reference._identity = (Identity)identity.Clone();
+                reference._identity = identity.Value;
             }
 
             if (facet != null && !facet.Equals(_facet))
@@ -516,7 +537,7 @@ namespace IceInternal
                             ProtocolVersion protocol,
                             EncodingVersion encoding,
                             int invocationTimeout,
-                            Dictionary<string, string> context)
+                            Dictionary<string, string>? context)
         {
             //
             // Validate string arguments.
@@ -575,12 +596,12 @@ namespace IceInternal
             return "";
         }
 
-        public override LocatorInfo getLocatorInfo()
+        public override LocatorInfo? getLocatorInfo()
         {
             return null;
         }
 
-        public override RouterInfo getRouterInfo()
+        public override RouterInfo? getRouterInfo()
         {
             return null;
         }
@@ -881,14 +902,15 @@ namespace IceInternal
             return proxy.IceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(Reference? other)
         {
-            if (ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }
-            FixedReference? rhs = obj as FixedReference;
-            if (rhs == null)
+
+            FixedReference? rhs = other as FixedReference;
+            if (ReferenceEquals(rhs, null))
             {
                 return false;
             }
@@ -919,15 +941,15 @@ namespace IceInternal
 
         public override string getAdapterId()
         {
-            return _adapterId;
+            return _adapterId!;
         }
 
-        public override LocatorInfo getLocatorInfo()
+        public override LocatorInfo? getLocatorInfo()
         {
             return _locatorInfo;
         }
 
-        public override RouterInfo getRouterInfo()
+        public override RouterInfo? getRouterInfo()
         {
             return _routerInfo;
         }
@@ -1236,26 +1258,26 @@ namespace IceInternal
 
         public override bool isWellKnown()
         {
-            return _endpoints.Length == 0 && _adapterId.Length == 0;
+            return _endpoints.Length == 0 && _adapterId!.Length == 0;
         }
 
         public override void streamWrite(OutputStream s)
         {
             base.streamWrite(s);
 
-            s.writeSize(_endpoints.Length);
+            s.WriteSize(_endpoints.Length);
             if (_endpoints.Length > 0)
             {
-                Debug.Assert(_adapterId.Length == 0);
+                Debug.Assert(_adapterId!.Length == 0);
                 foreach (EndpointI endpoint in _endpoints)
                 {
-                    s.writeShort(endpoint.type());
+                    s.WriteShort(endpoint.type());
                     endpoint.streamWrite(s);
                 }
             }
             else
             {
-                s.writeString(_adapterId); // Adapter id.
+                s.WriteString(_adapterId); // Adapter id.
             }
         }
 
@@ -1283,7 +1305,7 @@ namespace IceInternal
                     }
                 }
             }
-            else if (_adapterId.Length > 0)
+            else if (_adapterId!.Length > 0)
             {
                 s.Append(" @ ");
 
@@ -1292,8 +1314,8 @@ namespace IceInternal
                 // the reference parser uses as separators, then we enclose
                 // the adapter id string in quotes.
                 //
-                string a = IceUtilInternal.StringUtil.escapeString(_adapterId, null, _communicator.toStringMode());
-                if (IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
+                string a = StringUtil.escapeString(_adapterId, null, _communicator.ToStringMode);
+                if (StringUtil.findFirstOf(a, " :@") != -1)
                 {
                     s.Append('"');
                     s.Append(a);
@@ -1360,7 +1382,7 @@ namespace IceInternal
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(Reference? obj)
         {
             if (ReferenceEquals(this, obj))
             {
@@ -1368,7 +1390,7 @@ namespace IceInternal
             }
 
             RoutableReference? rhs = obj as RoutableReference;
-            if (rhs == null)
+            if (ReferenceEquals(rhs, null))
             {
                 return false;
             }
@@ -1418,11 +1440,11 @@ namespace IceInternal
             {
                 return false;
             }
-            if (!_adapterId.Equals(rhs._adapterId))
+            if (!_adapterId!.Equals(rhs._adapterId))
             {
                 return false;
             }
-            if (!Arrays.Equals(_endpoints, rhs._endpoints))
+            if (!Collections.Equals(_endpoints, rhs._endpoints))
             {
                 return false;
             }
@@ -1542,7 +1564,7 @@ namespace IceInternal
                         {
                             string s = "connection to cached endpoints failed\n" +
                                        "removing endpoints from cache and trying again\n" + ex;
-                            _ir._communicator.initializationData().logger.trace(traceLevels.retryCat, s);
+                            _ir._communicator.Logger.trace(traceLevels.retryCat, s);
                         }
                         _ir.getConnectionNoRouterInfo(_cb); // Retry.
                         return;
@@ -1582,7 +1604,7 @@ namespace IceInternal
                                  ProtocolVersion protocol,
                                  EncodingVersion encoding,
                                  EndpointI[] endpoints,
-                                 string adapterId,
+                                 string? adapterId,
                                  LocatorInfo? locatorInfo,
                                  RouterInfo? routerInfo,
                                  bool collocationOptimized,
@@ -1740,33 +1762,23 @@ namespace IceInternal
             DefaultsAndOverrides overrides = _communicator.defaultsAndOverrides();
             if (overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
             {
-                List<EndpointI> tmp = new List<EndpointI>();
-                foreach (EndpointI endpoint in endpoints)
-                {
-                    if (endpoint.secure())
-                    {
-                        tmp.Add(endpoint);
-                    }
-                }
-                endpoints = tmp;
+                endpoints = endpoints.Where(endpoint => endpoint.secure()).ToList();
             }
             else if (getPreferSecure())
             {
-                IceUtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
+                endpoints = endpoints.OrderByDescending(endpoint => endpoint.secure()).ToList();
             }
             else
             {
-                IceUtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
+                endpoints = endpoints.OrderBy(endpoint => endpoint.secure()).ToList();
             }
 
-            EndpointI[] arr = new EndpointI[endpoints.Count];
-            endpoints.CopyTo(arr);
-            return arr;
+            return endpoints.Select(e => e).ToArray();
         }
 
         private sealed class CreateConnectionCallback : OutgoingConnectionFactory.CreateConnectionCallback
         {
-            internal CreateConnectionCallback(RoutableReference rr, EndpointI[] endpoints, GetConnectionCallback cb)
+            internal CreateConnectionCallback(RoutableReference rr, EndpointI[]? endpoints, GetConnectionCallback cb)
             {
                 _rr = rr;
                 _endpoints = endpoints;
@@ -1806,7 +1818,7 @@ namespace IceInternal
             }
 
             private RoutableReference _rr;
-            private EndpointI[] _endpoints;
+            private EndpointI[]? _endpoints;
             private GetConnectionCallback _callback;
             private int _i = 0;
             private LocalException? _exception = null;
@@ -1896,7 +1908,7 @@ namespace IceInternal
         private static EndpointI[] _emptyEndpoints = Array.Empty<EndpointI>();
 
         private EndpointI[] _endpoints;
-        private string _adapterId;
+        private string? _adapterId;
         private LocatorInfo? _locatorInfo; // Null if no locator is used.
         private RouterInfo? _routerInfo; // Null if no router is used.
         private bool _collocationOptimized;

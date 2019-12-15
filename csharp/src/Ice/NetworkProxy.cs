@@ -160,9 +160,9 @@ namespace IceInternal
             return Network.EnableIPv4;
         }
 
-        private readonly string _host;
+        private readonly string? _host;
         private readonly int _port;
-        private readonly EndPoint _address;
+        private readonly EndPoint? _address;
     }
 
     public sealed class HTTPNetworkProxy : NetworkProxy
@@ -274,9 +274,9 @@ namespace IceInternal
             return _protocolSupport;
         }
 
-        private readonly string _host;
+        private readonly string? _host;
         private readonly int _port;
-        private readonly EndPoint _address;
+        private readonly EndPoint? _address;
         private readonly int _protocolSupport;
     }
 }

@@ -10,7 +10,7 @@ namespace Ice
         {
             public void transient(Ice.Current current)
             {
-                Ice.Communicator communicator = current.adapter.GetCommunicator();
+                Ice.Communicator communicator = current.Adapter.Communicator;
 
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 adapter.Activate();
@@ -19,7 +19,7 @@ namespace Ice
 
             public void deactivate(Ice.Current current)
             {
-                current.adapter.Deactivate();
+                current.Adapter.Deactivate();
                 System.Threading.Thread.Sleep(100);
             }
         }

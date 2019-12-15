@@ -165,23 +165,23 @@ namespace Ice
         /// un-marshaling, null is returned otherwise.
         /// </summary>
         /// <returns>The sliced data or null.</returns>
-        public virtual Ice.SlicedData ice_getSlicedData()
+        public virtual Ice.SlicedData? ice_getSlicedData()
         {
             return null;
         }
 
         public virtual void iceWrite(OutputStream ostr)
         {
-            ostr.startException(null);
+            ostr.StartException(null);
             iceWriteImpl(ostr);
-            ostr.endException();
+            ostr.EndException();
         }
 
         public virtual void iceRead(InputStream istr)
         {
-            istr.startException();
+            istr.StartException();
             iceReadImpl(istr);
-            istr.endException(false);
+            istr.EndException(false);
         }
 
         public virtual bool iceUsesClasses()

@@ -145,9 +145,7 @@ namespace IceInternal
             }
             else
             {
-                Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
-                ex.str = "illegal value `" + val + "'; expected `Random' or `Ordered'";
-                throw ex;
+                throw new ArgumentException($"illegal value `{val}'; expected `Random' or `Ordered'");
             }
 
             defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
@@ -191,8 +189,8 @@ namespace IceInternal
             defaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
         }
 
-        public string defaultHost;
-        public EndPoint defaultSourceAddress;
+        public string? defaultHost;
+        public EndPoint? defaultSourceAddress;
         public string defaultProtocol;
         public bool defaultCollocationOptimization;
         public Ice.EndpointSelectionType defaultEndpointSelection;

@@ -20,7 +20,7 @@ namespace Ice.location
 
             using (var communicator = initialize(properties))
             {
-                communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+                communicator.Properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
                 ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
                 //
                 // We also register a sample server locator which implements the

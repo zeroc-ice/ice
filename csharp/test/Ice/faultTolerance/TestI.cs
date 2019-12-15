@@ -43,7 +43,7 @@ public sealed class TestI : TestIntf
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 
     private Process _p;

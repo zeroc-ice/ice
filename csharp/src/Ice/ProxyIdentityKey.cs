@@ -48,15 +48,15 @@ namespace Ice
         /// <param name="obj2">A proxy to compare.</param>
         /// <returns>&lt; 0 if obj1 is less than obj2; &gt; 0 if obj1 is greater than obj2;
         /// 0, otherwise.</returns>
-        public int Compare(object obj1, object obj2)
+        public int Compare(object? obj1, object? obj2)
         {
-            IObjectPrx proxy1 = obj1 as IObjectPrx;
+            IObjectPrx? proxy1 = obj1 as IObjectPrx;
             if (obj1 != null && proxy1 == null)
             {
                 throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj1));
             }
 
-            IObjectPrx proxy2 = obj2 as IObjectPrx;
+            IObjectPrx? proxy2 = obj2 as IObjectPrx;
             if (obj2 != null && proxy2 == null)
             {
                 throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", nameof(obj2));

@@ -11,7 +11,7 @@ namespace Ice
     using System.Threading.Tasks;
     using IceInternal;
 
-    public delegate Task<OutputStream> Disp(Incoming inS, Current current);
+    public delegate Task<OutputStream>? Disp(Incoming inS, Current current);
 
     public sealed class ObjectAdapter
     {
@@ -33,9 +33,17 @@ namespace Ice
         /// <returns>This object adapter's communicator.
         ///
         /// </returns>
-        public Communicator GetCommunicator()
+        public Communicator Communicator
         {
-            return _communicator;
+            get
+            {
+                lock (this)
+                {
+                    checkForDeactivation();
+                    Debug.Assert(_communicator != null);
+                    return _communicator;
+                }
+            }
         }
 
         /// <summary>
@@ -78,16 +86,14 @@ namespace Ice
                 locatorInfo = _locatorInfo;
                 if (!_noConfig)
                 {
-                    Properties properties = _communicator.initializationData().properties;
+                    Properties properties = _communicator.Properties;
                     printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
 
             try
             {
-                Identity dummy = new Identity();
-                dummy.name = "dummy";
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(dummy));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", "")));
             }
             catch (LocalException)
             {
@@ -208,6 +214,7 @@ namespace Ice
                     return;
                 }
                 _state = StateDeactivating;
+                Debug.Assert(_communicator != null);
             }
 
             //
@@ -413,7 +420,7 @@ namespace Ice
         /// </returns>
         public IObjectPrx Add(Disp disp, string id, string facet = "")
         {
-            return Add(disp, Util.stringToIdentity(id), facet);
+            return Add(disp, Identity.Parse(id), facet);
         }
 
         /// <summary>
@@ -438,28 +445,18 @@ namespace Ice
         /// adapter.
         ///
         /// </returns>
-        public IObjectPrx Add(Disp disp, Identity? ident = null, string facet = "")
+        public IObjectPrx Add(Disp disp, Identity? id = null, string facet = "")
         {
             lock (this)
             {
-                ident = ident ?? new Identity(Guid.NewGuid().ToString(), "");
+                id = id ?? new Identity(Guid.NewGuid().ToString(), "");
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(id.Value);
                 CheckServant(disp);
 
-                //
-                // Create a copy of the Identity argument, in case the caller
-                // reuses it.
-                //
-                // TODO remove this copy once we make Identity a value type
-                //
-                Identity id = new Identity();
-                id.category = ident.category;
-                id.name = ident.name;
+                _servantManager.addServant(disp, id.Value, facet);
 
-                _servantManager.addServant(disp, id, facet);
-
-                return newProxy(id, facet);
+                return newProxy(id.Value, facet);
             }
         }
 
@@ -524,7 +521,7 @@ namespace Ice
         /// <returns>The removed servant.</returns>
         public Disp Remove(string id, string facet = "")
         {
-            return Remove(Util.stringToIdentity(id), facet);
+            return Remove(Identity.Parse(id), facet);
         }
 
         public Disp Remove(Identity ident, string facet = "")
@@ -553,9 +550,9 @@ namespace Ice
         /// servants of the removed Ice object.
         ///
         /// </returns>
-        public Dictionary<string, Disp> RemoveAllFacets(string ident)
+        public Dictionary<string, Disp> RemoveAllFacets(string id)
         {
-            return RemoveAllFacets(Util.stringToIdentity(ident));
+            return RemoveAllFacets(Identity.Parse(id));
         }
 
         public Dictionary<string, Disp> RemoveAllFacets(Identity ident)
@@ -632,9 +629,9 @@ namespace Ice
         /// facet for the given identity.
         ///
         /// </returns>
-        public Dictionary<string, Disp> FindAllFacets(string ident)
+        public Dictionary<string, Disp> FindAllFacets(string id)
         {
-            return FindAllFacets(Util.stringToIdentity(ident));
+            return FindAllFacets(Identity.Parse(id));
         }
 
         /// <summary>
@@ -650,14 +647,14 @@ namespace Ice
         /// facet for the given identity.
         ///
         /// </returns>
-        public Dictionary<string, Disp> FindAllFacets(Identity ident)
+        public Dictionary<string, Disp> FindAllFacets(Identity id)
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(id);
 
-                return _servantManager.findAllFacets(ident);
+                return _servantManager.findAllFacets(id);
             }
         }
 
@@ -795,9 +792,9 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateProxy(string ident)
+        public IObjectPrx CreateProxy(string id)
         {
-            return CreateProxy(Util.stringToIdentity(ident));
+            return CreateProxy(Identity.Parse(id));
         }
 
         /// <summary>
@@ -817,14 +814,14 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateProxy(Identity ident)
+        public IObjectPrx CreateProxy(Identity id)
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(id);
 
-                return newProxy(ident, "");
+                return newProxy(id, "");
             }
         }
 
@@ -840,9 +837,9 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateDirectProxy(string ident)
+        public IObjectPrx CreateDirectProxy(string id)
         {
-            return CreateDirectProxy(Util.stringToIdentity(ident));
+            return CreateDirectProxy(Identity.Parse(id));
         }
 
         /// <summary>
@@ -857,14 +854,14 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateDirectProxy(Identity ident)
+        public IObjectPrx CreateDirectProxy(Identity id)
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(id);
 
-                return newDirectProxy(ident, "");
+                return newDirectProxy(id, "");
             }
         }
 
@@ -881,9 +878,9 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateIndirectProxy(string ident)
+        public IObjectPrx CreateIndirectProxy(string id)
         {
-            return CreateIndirectProxy(Util.stringToIdentity(ident));
+            return CreateIndirectProxy(Identity.Parse(id));
         }
 
         /// <summary>
@@ -899,14 +896,14 @@ namespace Ice
         /// <returns>A proxy for the object with the given identity.
         ///
         /// </returns>
-        public IObjectPrx CreateIndirectProxy(Identity ident)
+        public IObjectPrx CreateIndirectProxy(Identity id)
         {
             lock (this)
             {
                 checkForDeactivation();
-                checkIdentity(ident);
+                checkIdentity(id);
 
-                return newIndirectProxy(ident, "", _id);
+                return newIndirectProxy(id, "", _id);
             }
         }
 
@@ -920,10 +917,10 @@ namespace Ice
         /// using the AdapterId property.
         ///
         /// </summary>
-        /// <param name="loc">The locator used by this object adapter.
+        /// <param name="locator">The locator used by this object adapter.
         ///
         /// </param>
-        public void SetLocator(LocatorPrx locator)
+        public void SetLocator(LocatorPrx? locator)
         {
             lock (this)
             {
@@ -931,7 +928,7 @@ namespace Ice
 
                 if (locator != null)
                 {
-                    _locatorInfo = _communicator.locatorManager().get(locator);
+                    _locatorInfo = _communicator!.locatorManager().get(locator);
                 }
                 else
                 {
@@ -1010,9 +1007,7 @@ namespace Ice
 
             try
             {
-                Identity dummy = new Identity();
-                dummy.name = "dummy";
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(dummy));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", "")));
             }
             catch (LocalException)
             {
@@ -1070,9 +1065,7 @@ namespace Ice
 
             try
             {
-                Identity dummy = new Identity();
-                dummy.name = "dummy";
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(dummy));
+                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", "")));
             }
             catch (LocalException)
             {
@@ -1275,11 +1268,11 @@ namespace Ice
                 _id = "";
                 _replicaGroupId = "";
                 _reference = _communicator.CreateReference("dummy -t", "");
-                _acm = _communicator.serverACM();
+                _acm = _communicator.ServerACM;
                 return;
             }
 
-            Properties properties = _communicator.initializationData().properties;
+            Properties properties = _communicator.Properties;
             List<string> unknownProps = new List<string>();
             bool noProps = FilterProperties(unknownProps);
 
@@ -1296,7 +1289,7 @@ namespace Ice
                     message.Append("\n    ");
                     message.Append(s);
                 }
-                _communicator.initializationData().logger.warning(message.ToString());
+                _communicator.Logger.warning(message.ToString());
             }
 
             //
@@ -1324,18 +1317,9 @@ namespace Ice
             // when creating new proxies. By default, create twoway proxies.
             //
             string proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
-            try
-            {
-                _reference = _communicator.CreateReference($"dummy {proxyOptions}", "");
-            }
-            catch (ProxyParseException)
-            {
-                InitializationException ex = new InitializationException();
-                ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
-                throw ex;
-            }
+            _reference = _communicator.CreateReference($"dummy {proxyOptions}", "");
 
-            _acm = new ACMConfig(properties, communicator.getLogger(), _name + ".ACM", _communicator.serverACM());
+            _acm = new ACMConfig(properties, communicator.Logger, _name + ".ACM", _communicator.ServerACM);
 
             {
                 int defaultMessageSizeMax = communicator.messageSizeMax() / 1024;
@@ -1368,7 +1352,6 @@ namespace Ice
                 if (router != null)
                 {
                     _routerInfo = _communicator.routerManager().get(router);
-                    Debug.Assert(_routerInfo != null);
 
                     //
                     // Make sure this router is not already registered with another adapter.
@@ -1377,7 +1360,7 @@ namespace Ice
                     {
                         AlreadyRegisteredException ex = new AlreadyRegisteredException();
                         ex.kindOfObject = "object adapter with router";
-                        ex.id = Util.identityToString(router.Identity, _communicator.toStringMode());
+                        ex.id = router.Identity.ToString(_communicator.ToStringMode);
                         throw ex;
                     }
 
@@ -1405,7 +1388,7 @@ namespace Ice
                     foreach (EndpointI endp in endpoints)
                     {
                         EndpointI publishedEndpoint;
-                        foreach (IceInternal.EndpointI expanded in endp.expandHost(out publishedEndpoint))
+                        foreach (EndpointI expanded in endp.expandHost(out publishedEndpoint))
                         {
                             IncomingConnectionFactory factory = new IncomingConnectionFactory(communicator,
                                                                                               expanded,
@@ -1419,7 +1402,7 @@ namespace Ice
                         TraceLevels tl = _communicator.traceLevels();
                         if (tl.network >= 2)
                         {
-                            _communicator.initializationData().logger.trace(tl.networkCat, "created adapter `" + _name +
+                            _communicator.Logger.trace(tl.networkCat, "created adapter `" + _name +
                                                                         "' without endpoints");
                         }
                     }
@@ -1467,7 +1450,7 @@ namespace Ice
             //
             // Create a reference and return a proxy for this reference.
             //
-            return new ObjectPrx(_communicator.CreateReference(ident, facet, _reference, _publishedEndpoints));
+            return new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference, _publishedEndpoints));
         }
 
         private IObjectPrx newIndirectProxy(Identity ident, string facet, string id)
@@ -1476,7 +1459,7 @@ namespace Ice
             // Create a reference with the adapter id and return a
             // proxy for the reference.
             //
-            return new ObjectPrx(_communicator.CreateReference(ident, facet, _reference, id));
+            return new ObjectPrx(_communicator!.CreateReference(ident, facet, _reference, id));
         }
 
         private void checkForDeactivation()
@@ -1511,6 +1494,7 @@ namespace Ice
 
         private List<EndpointI> ParseEndpoints(string endpts, bool oaEndpoints)
         {
+            Debug.Assert(_communicator != null);
             int beg;
             int end = 0;
 
@@ -1593,6 +1577,7 @@ namespace Ice
 
         private EndpointI[] ComputePublishedEndpoints()
         {
+            Debug.Assert(_communicator != null);
             List<EndpointI> endpoints;
             if (_routerInfo != null)
             {
@@ -1614,7 +1599,7 @@ namespace Ice
                 // Parse published endpoints. If set, these are used in proxies
                 // instead of the connection factory endpoints.
                 //
-                string endpts = _communicator.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
+                string endpts = _communicator.Properties.getProperty(_name + ".PublishedEndpoints");
                 endpoints = ParseEndpoints(endpts, false);
                 if (endpoints.Count == 0)
                 {
@@ -1656,13 +1641,13 @@ namespace Ice
                     s.Append(endpoint.ToString());
                     first = false;
                 }
-                _communicator.initializationData().logger.trace(_communicator.traceLevels().networkCat, s.ToString());
+                _communicator.Logger.trace(_communicator.traceLevels().networkCat, s.ToString());
             }
 
             return endpoints.ToArray();
         }
 
-        private void UpdateLocatorRegistry(LocatorInfo locatorInfo, IObjectPrx proxy)
+        private void UpdateLocatorRegistry(LocatorInfo? locatorInfo, IObjectPrx proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
             {
@@ -1678,6 +1663,7 @@ namespace Ice
             {
                 return;
             }
+            Debug.Assert(_communicator != null);
 
             try
             {
@@ -1697,7 +1683,7 @@ namespace Ice
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter is not known to the locator registry");
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
                 }
 
                 NotRegisteredException ex1 = new NotRegisteredException();
@@ -1712,7 +1698,7 @@ namespace Ice
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
                 }
 
                 NotRegisteredException ex1 = new NotRegisteredException();
@@ -1727,7 +1713,7 @@ namespace Ice
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append("the object adapter endpoints are already set");
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
                 }
 
                 ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
@@ -1749,7 +1735,7 @@ namespace Ice
                     StringBuilder s = new StringBuilder();
                     s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
                     s.Append(e.ToString());
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                    _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
                 }
                 throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
             }
@@ -1771,7 +1757,7 @@ namespace Ice
                         }
                     }
                 }
-                _communicator.initializationData().logger.trace(_communicator.traceLevels().locationCat, s.ToString());
+                _communicator.Logger.trace(_communicator.traceLevels().locationCat, s.ToString());
             }
         }
 
@@ -1818,6 +1804,7 @@ namespace Ice
 
         private bool FilterProperties(List<string> unknownProps)
         {
+            Debug.Assert(_communicator != null);
             //
             // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
             //
@@ -1833,8 +1820,7 @@ namespace Ice
             }
 
             bool noProps = true;
-            Dictionary<string, string> props =
-                _communicator.initializationData().properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> props = _communicator.Properties.getPropertiesForPrefix(prefix);
             foreach (string prop in props.Keys)
             {
                 bool valid = false;
@@ -1853,7 +1839,6 @@ namespace Ice
                     unknownProps.Add(prop);
                 }
             }
-
             return noProps;
         }
 
@@ -1869,14 +1854,14 @@ namespace Ice
         private int _state = StateUninitialized;
         private Communicator? _communicator;
         private ObjectAdapterFactory _objectAdapterFactory;
-        private ThreadPool _threadPool;
+        private ThreadPool? _threadPool;
         private ACMConfig _acm;
         private ServantManager _servantManager;
         private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
         private Reference _reference;
-        private List<IncomingConnectionFactory> _incomingConnectionFactories;
+        private List<IncomingConnectionFactory>? _incomingConnectionFactories;
         private RouterInfo _routerInfo;
         private EndpointI[] _publishedEndpoints;
         private LocatorInfo? _locatorInfo;

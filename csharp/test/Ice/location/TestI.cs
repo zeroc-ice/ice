@@ -22,7 +22,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                _adapter1.GetCommunicator().shutdown();
+                _adapter1.Communicator.shutdown();
             }
 
             public Test.HelloPrx getHello(Ice.Current current)
@@ -37,7 +37,7 @@ namespace Ice
 
             public void migrateHello(Ice.Current current)
             {
-                Ice.Identity id = Ice.Util.stringToIdentity("hello");
+                Ice.Identity id = Identity.Parse("hello");
                 try
                 {
                     _registry.addObject(_adapter2.Add(_adapter1.Remove(id), id), current);

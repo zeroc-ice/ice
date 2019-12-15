@@ -83,7 +83,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.Deactivate();
+                current.Adapter.Deactivate();
             }
         }
     }

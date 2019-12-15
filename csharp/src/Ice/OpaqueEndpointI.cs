@@ -33,10 +33,10 @@ namespace IceInternal
         public OpaqueEndpointI(short type, Ice.InputStream s)
         {
             _type = type;
-            _rawEncoding = s.getEncoding();
-            int sz = s.getEncapsulationSize();
+            _rawEncoding = s.GetEncoding();
+            int sz = s.GetEncapsulationSize();
             _rawBytes = new byte[sz];
-            s.readBlob(_rawBytes);
+            s.ReadBlob(_rawBytes);
 
             calcHashValue();
         }
@@ -46,9 +46,9 @@ namespace IceInternal
         //
         public override void streamWrite(Ice.OutputStream s)
         {
-            s.startEncapsulation(_rawEncoding, Ice.FormatType.DefaultFormat);
-            s.writeBlob(_rawBytes);
-            s.endEncapsulation();
+            s.StartEncapsulation(_rawEncoding, Ice.FormatType.DefaultFormat);
+            s.WriteBlob(_rawBytes);
+            s.EndEncapsulation();
         }
 
         public override void streamWriteImpl(Ice.OutputStream s)
@@ -59,7 +59,7 @@ namespace IceInternal
         //
         // Convert the endpoint to its string form
         //
-        public override string ice_toString_()
+        public override string ToString()
         {
             string val = System.Convert.ToBase64String(_rawBytes);
             return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
@@ -194,7 +194,7 @@ namespace IceInternal
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        public override Transceiver transceiver()
+        public override Transceiver? transceiver()
         {
             return null;
         }
@@ -212,7 +212,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor acceptor(string adapterName)
+        public override Acceptor? acceptor(string adapterName)
         {
             return null;
         }
@@ -224,17 +224,13 @@ namespace IceInternal
         //
         public override List<EndpointI> expandIfWildcard()
         {
-            List<EndpointI> endps = new List<EndpointI>();
-            endps.Add(this);
-            return endps;
+            return new List<EndpointI> { this };
         }
 
-        public override List<EndpointI> expandHost(out EndpointI publishedEndpoint)
+        public override List<EndpointI> expandHost(out EndpointI? publishedEndpoint)
         {
             publishedEndpoint = null;
-            List<EndpointI> endps = new List<EndpointI>();
-            endps.Add(this);
-            return endps;
+            return new List<EndpointI>() { this };
         }
 
         //
@@ -331,7 +327,7 @@ namespace IceInternal
             return 0;
         }
 
-        protected override bool checkOption(string option, string argument, string endpoint)
+        protected override bool checkOption(string option, string? argument, string endpoint)
         {
             switch (option[1])
             {

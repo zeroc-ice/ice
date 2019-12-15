@@ -21,7 +21,7 @@ namespace Ice
                 public Task
                 shutdownAsync(Ice.Current current)
                 {
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                     return null;
                 }
 

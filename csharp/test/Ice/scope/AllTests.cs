@@ -167,34 +167,34 @@ namespace Ice
                     Task.Run(async () =>
                         {
                             Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
-                            Test.Inner.I_OpSResult opSResult = await i.opSAsync(s1);
+                            var opSResult = await i.opSAsync(s1);
                             test(s1.Equals(opSResult.returnValue));
                             test(s1.Equals(opSResult.s2));
 
                             Test.Inner.Inner2.S[] sseq1 = new Test.Inner.Inner2.S[] { s1 };
-                            Test.Inner.I_OpSSeqResult opSSeqResult = await i.opSSeqAsync(sseq1);
+                            var opSSeqResult = await i.opSSeqAsync(sseq1);
                             test(opSSeqResult.returnValue[0].Equals(s1));
                             test(opSSeqResult.s2[0].Equals(s1));
 
                             Dictionary<String, Test.Inner.Inner2.S> smap1 = new Dictionary<String, Test.Inner.Inner2.S>();
                             smap1["a"] = s1;
-                            Test.Inner.I_OpSMapResult opSMapResult = await i.opSMapAsync(smap1);
+                            var opSMapResult = await i.opSMapAsync(smap1);
                             test(opSMapResult.returnValue["a"].Equals(s1));
                             test(opSMapResult.s2["a"].Equals(s1));
 
                             Test.Inner.Inner2.C c1 = new Test.Inner.Inner2.C(s1);
-                            Test.Inner.I_OpCResult opCResult = await i.opCAsync(c1);
+                            var opCResult = await i.opCAsync(c1);
                             test(c1.s.Equals(opCResult.returnValue.s));
                             test(c1.s.Equals(opCResult.c2.s));
 
                             Test.Inner.Inner2.C[] cseq1 = new Test.Inner.Inner2.C[] { c1 };
-                            Test.Inner.I_OpCSeqResult opCSeqResult = await i.opCSeqAsync(cseq1);
+                            var opCSeqResult = await i.opCSeqAsync(cseq1);
                             test(opCSeqResult.returnValue[0].s.Equals(s1));
                             test(opCSeqResult.c2[0].s.Equals(s1));
 
                             Dictionary<String, Test.Inner.Inner2.C> cmap1 = new Dictionary<String, Test.Inner.Inner2.C>();
                             cmap1["a"] = c1;
-                            Test.Inner.I_OpCMapResult opCMapResult = await i.opCMapAsync(cmap1);
+                            var opCMapResult = await i.opCMapAsync(cmap1);
                             test(opCMapResult.returnValue["a"].s.Equals(s1));
                             test(opCMapResult.c2["a"].s.Equals(s1));
                         }).Wait();
@@ -245,39 +245,40 @@ namespace Ice
 
                 {
                     var obj = IObjectPrx.Parse($"i3:{helper.getTestEndpoint()}", communicator);
-                    Test.Inner.Inner2.IPrx i = Test.Inner.Inner2.IPrx.CheckedCast(obj);
+                    Test.Inner.Inner2.IPrx? i = Test.Inner.Inner2.IPrx.CheckedCast(obj);
+                    System.Diagnostics.Debug.Assert(i != null);
 
                     Task.Run(async () =>
                         {
                             Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
-                            Test.Inner.Inner2.I_OpSResult opSResult = await i.opSAsync(s1);
+                            var opSResult = await i.opSAsync(s1);
                             test(s1.Equals(opSResult.returnValue));
                             test(s1.Equals(opSResult.s2));
 
                             Test.Inner.Inner2.S[] sseq1 = new Test.Inner.Inner2.S[] { s1 };
-                            Test.Inner.Inner2.I_OpSSeqResult opSSeqResult = await i.opSSeqAsync(sseq1);
+                            var opSSeqResult = await i.opSSeqAsync(sseq1);
                             test(opSSeqResult.returnValue[0].Equals(s1));
                             test(opSSeqResult.s2[0].Equals(s1));
 
                             Dictionary<String, Test.Inner.Inner2.S> smap1 = new Dictionary<String, Test.Inner.Inner2.S>();
                             smap1["a"] = s1;
-                            Test.Inner.Inner2.I_OpSMapResult opSMapResult = await i.opSMapAsync(smap1);
+                            var opSMapResult = await i.opSMapAsync(smap1);
                             test(opSMapResult.returnValue["a"].Equals(s1));
                             test(opSMapResult.s2["a"].Equals(s1));
 
                             Test.Inner.Inner2.C c1 = new Test.Inner.Inner2.C(s1);
-                            Test.Inner.Inner2.I_OpCResult opCResult = await i.opCAsync(c1);
+                            var opCResult = await i.opCAsync(c1);
                             test(c1.s.Equals(opCResult.returnValue.s));
                             test(c1.s.Equals(opCResult.c2.s));
 
                             Test.Inner.Inner2.C[] cseq1 = new Test.Inner.Inner2.C[] { c1 };
-                            Test.Inner.Inner2.I_OpCSeqResult opCSeqResult = await i.opCSeqAsync(cseq1);
+                            var opCSeqResult = await i.opCSeqAsync(cseq1);
                             test(opCSeqResult.returnValue[0].s.Equals(s1));
                             test(opCSeqResult.c2[0].s.Equals(s1));
 
                             Dictionary<String, Test.Inner.Inner2.C> cmap1 = new Dictionary<String, Test.Inner.Inner2.C>();
                             cmap1["a"] = c1;
-                            Test.Inner.Inner2.I_OpCMapResult opCMapResult = await i.opCMapAsync(cmap1);
+                            var opCMapResult = await i.opCMapAsync(cmap1);
                             test(opCMapResult.returnValue["a"].s.Equals(s1));
                             test(opCMapResult.c2["a"].s.Equals(s1));
                         }).Wait();
@@ -333,34 +334,34 @@ namespace Ice
                     Task.Run(async () =>
                         {
                             Test.S s1 = new Test.S(0);
-                            Inner.Test.Inner2.I_OpSResult opSResult = await i.opSAsync(s1);
+                            var opSResult = await i.opSAsync(s1);
                             test(s1.Equals(opSResult.returnValue));
                             test(s1.Equals(opSResult.s2));
 
                             Test.S[] sseq1 = new Test.S[] { s1 };
-                            Inner.Test.Inner2.I_OpSSeqResult opSSeqResult = await i.opSSeqAsync(sseq1);
+                            var opSSeqResult = await i.opSSeqAsync(sseq1);
                             test(opSSeqResult.returnValue[0].Equals(s1));
                             test(opSSeqResult.s2[0].Equals(s1));
 
                             Dictionary<String, Test.S> smap1 = new Dictionary<String, Test.S>();
                             smap1["a"] = s1;
-                            Inner.Test.Inner2.I_OpSMapResult opSMapResult = await i.opSMapAsync(smap1);
+                            var opSMapResult = await i.opSMapAsync(smap1);
                             test(opSMapResult.returnValue["a"].Equals(s1));
                             test(opSMapResult.s2["a"].Equals(s1));
 
                             Test.C c1 = new Test.C(s1);
-                            Inner.Test.Inner2.I_OpCResult opCResult = await i.opCAsync(c1);
+                            var opCResult = await i.opCAsync(c1);
                             test(c1.s.Equals(opCResult.returnValue.s));
                             test(c1.s.Equals(opCResult.c2.s));
 
                             Test.C[] cseq1 = new Test.C[] { c1 };
-                            Inner.Test.Inner2.I_OpCSeqResult opCSeqResult = await i.opCSeqAsync(cseq1);
+                            var opCSeqResult = await i.opCSeqAsync(cseq1);
                             test(opCSeqResult.returnValue[0].s.Equals(s1));
                             test(opCSeqResult.c2[0].s.Equals(s1));
 
                             Dictionary<String, Test.C> cmap1 = new Dictionary<String, Test.C>();
                             cmap1["a"] = c1;
-                            Inner.Test.Inner2.I_OpCMapResult opCMapResult = await i.opCMapAsync(cmap1);
+                            var opCMapResult = await i.opCMapAsync(cmap1);
                             test(opCMapResult.returnValue["a"].s.Equals(s1));
                             test(opCMapResult.c2["a"].s.Equals(s1));
                         }).Wait();

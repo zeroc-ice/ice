@@ -15,7 +15,7 @@ namespace IceInternal
             if (tl.protocol >= 1)
             {
                 int p = str.pos();
-                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.getEncoding(), str.getBuffer(), false);
+                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.GetEncoding(), str.GetBuffer(), false);
                 iss.pos(0);
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -50,7 +50,7 @@ namespace IceInternal
             if (tl.protocol >= 1)
             {
                 int p = str.pos();
-                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.getEncoding(), str.getBuffer(), false);
+                Ice.InputStream iss = new Ice.InputStream(str.communicator(), str.GetEncoding(), str.GetBuffer(), false);
                 iss.pos(0);
 
                 using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
@@ -105,7 +105,7 @@ namespace IceInternal
             stream.pos(0);
 
             byte[] data = new byte[stream.size()];
-            stream.readBlob(data);
+            stream.ReadBlob(data);
             dumpOctets(data);
 
             stream.pos(pos);
@@ -170,24 +170,20 @@ namespace IceInternal
         {
             try
             {
-                Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
-                if (str.communicator() != null)
-                {
-                    toStringMode = str.communicator().toStringMode();
-                }
+                Ice.ToStringMode toStringMode = str.Communicator()?.ToStringMode ?? Ice.ToStringMode.Unicode;
 
                 Ice.Identity identity = new Ice.Identity();
                 identity.ice_readMembers(str);
-                s.Write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));
+                s.Write("\nidentity = " + identity.ToString(toStringMode));
 
-                string[] facet = str.readStringSeq();
+                string[] facet = str.ReadStringSeq();
                 s.Write("\nfacet = ");
                 if (facet.Length > 0)
                 {
                     s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
                 }
 
-                string operation = str.readString();
+                string operation = str.ReadString();
                 s.Write("\noperation = " + operation);
             }
             catch (System.IO.IOException)
@@ -198,7 +194,7 @@ namespace IceInternal
 
         private static void printRequest(System.IO.StringWriter s, Ice.InputStream str)
         {
-            int requestId = str.readInt();
+            int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
             if (requestId == 0)
             {
@@ -210,7 +206,7 @@ namespace IceInternal
 
         private static void printBatchRequest(System.IO.StringWriter s, Ice.InputStream str)
         {
-            int batchRequestNum = str.readInt();
+            int batchRequestNum = str.ReadInt();
             s.Write("\nnumber of requests = " + batchRequestNum);
 
             for (int i = 0; i < batchRequestNum; ++i)
@@ -222,10 +218,10 @@ namespace IceInternal
 
         private static void printReply(System.IO.StringWriter s, Ice.InputStream str)
         {
-            int requestId = str.readInt();
+            int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
 
-            byte replyStatus = str.readByte();
+            byte replyStatus = str.ReadByte();
             s.Write("\nreply status = " + (int)replyStatus + ' ');
 
             switch (replyStatus)
@@ -308,7 +304,7 @@ namespace IceInternal
                                 }
                         }
 
-                        string unknown = str.readString();
+                        string unknown = str.ReadString();
                         s.Write("\nunknown = " + unknown);
                         break;
                     }
@@ -322,7 +318,7 @@ namespace IceInternal
 
             if (replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException)
             {
-                Ice.EncodingVersion v = str.skipEncapsulation();
+                Ice.EncodingVersion v = str.SkipEncapsulation();
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
@@ -337,7 +333,7 @@ namespace IceInternal
 
             try
             {
-                byte mode = str.readByte();
+                byte mode = str.ReadByte();
                 s.Write("\nmode = " + (int)mode + ' ');
                 switch ((Ice.OperationMode)mode)
                 {
@@ -366,12 +362,12 @@ namespace IceInternal
                         }
                 }
 
-                int sz = str.readSize();
+                int sz = str.ReadSize();
                 s.Write("\ncontext = ");
                 while (sz-- > 0)
                 {
-                    string key = str.readString();
-                    string val = str.readString();
+                    string key = str.ReadString();
+                    string val = str.ReadString();
                     s.Write(key + '/' + val);
                     if (sz > 0)
                     {
@@ -379,7 +375,7 @@ namespace IceInternal
                     }
                 }
 
-                Ice.EncodingVersion v = str.skipEncapsulation();
+                Ice.EncodingVersion v = str.SkipEncapsulation();
                 if (!v.Equals(Ice.Util.Encoding_1_0))
                 {
                     s.Write("\nencoding = ");
@@ -396,27 +392,27 @@ namespace IceInternal
         {
             try
             {
-                str.readByte(); // Don't bother printing the magic number
-                str.readByte();
-                str.readByte();
-                str.readByte();
+                str.ReadByte(); // Don't bother printing the magic number
+                str.ReadByte();
+                str.ReadByte();
+                str.ReadByte();
 
                 /* byte pMajor = */
-                str.readByte();
+                str.ReadByte();
                 /* byte pMinor = */
-                str.readByte();
+                str.ReadByte();
                 //s.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
 
                 /* byte eMajor = */
-                str.readByte();
+                str.ReadByte();
                 /* byte eMinor = */
-                str.readByte();
+                str.ReadByte();
                 //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
-                byte type = str.readByte();
+                byte type = str.ReadByte();
                 s.Write("\nmessage type = " + (int)type + " (" + getMessageTypeAsString(type) + ')');
 
-                byte compress = str.readByte();
+                byte compress = str.ReadByte();
                 s.Write("\ncompression status = " + (int)compress + ' ');
                 switch (compress)
                 {
@@ -445,7 +441,7 @@ namespace IceInternal
                         }
                 }
 
-                int size = str.readInt();
+                int size = str.ReadInt();
                 s.Write("\nmessage size = " + size);
                 return type;
             }

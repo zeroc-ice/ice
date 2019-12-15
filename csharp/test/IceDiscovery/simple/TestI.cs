@@ -11,8 +11,8 @@ public sealed class ControllerI : Test.Controller
     public void
     activateObjectAdapter(string name, string adapterId, string replicaGroupId, Ice.Current current)
     {
-        Ice.Communicator communicator = current.adapter.GetCommunicator();
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Communicator communicator = current.Adapter.Communicator;
+        Ice.Properties properties = communicator.Properties;
         properties.setProperty(name + ".AdapterId", adapterId);
         properties.setProperty(name + ".ReplicaGroupId", replicaGroupId);
         properties.setProperty(name + ".Endpoints", "default");
@@ -32,9 +32,7 @@ public sealed class ControllerI : Test.Controller
     addObject(string oaName, string id, Ice.Current current)
     {
         Debug.Assert(_adapters.ContainsKey(oaName));
-        Ice.Identity identity = new Ice.Identity();
-        identity.name = id;
-        _adapters[oaName].Add(new TestIntfI(), identity);
+        _adapters[oaName].Add(new TestIntfI(), id);
     }
 
     public void
@@ -47,7 +45,7 @@ public sealed class ControllerI : Test.Controller
     public void
     shutdown(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 
     private Dictionary<string, Ice.ObjectAdapter> _adapters = new Dictionary<string, Ice.ObjectAdapter>();
@@ -58,6 +56,6 @@ public sealed class TestIntfI : Test.TestIntf
     public string
     getAdapterId(Ice.Current current)
     {
-        return current.adapter.GetCommunicator().getProperties().getProperty(current.adapter.GetName() + ".AdapterId");
+        return current.Adapter.Communicator.Properties.getProperty(current.Adapter.GetName() + ".AdapterId");
     }
 }

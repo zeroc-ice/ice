@@ -23,7 +23,7 @@ namespace IceBox
         private static int run(Ice.Communicator communicator, string[] args)
         {
             const string prefix = "IceBox.Service.";
-            Ice.Properties properties = communicator.getProperties();
+            Ice.Properties properties = communicator.Properties;
             Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
 
             var argSeq = new List<string>(args);

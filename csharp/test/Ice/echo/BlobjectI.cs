@@ -3,6 +3,7 @@
 //
 
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Ice;
 
 public class BlobjectI : Ice.BlobjectAsync
@@ -10,7 +11,8 @@ public class BlobjectI : Ice.BlobjectAsync
     public override Task<Ice.Object_Ice_invokeResult>
     ice_invokeAsync(byte[] inEncaps, Ice.Current current)
     {
-        var prx = current.con.createProxy(current.id).Clone(facet: current.facet, oneway: current.requestId == 0);
-        return prx.InvokeAsync(current.operation, current.mode, inEncaps, current.ctx);
+        Debug.Assert(current.Connection != null);
+        var prx = current.Connection.createProxy(current.Id).Clone(facet: current.Facet, oneway: current.RequestId == 0);
+        return prx.InvokeAsync(current.Operation, current.Mode, inEncaps, current.Context);
     }
 }

@@ -50,11 +50,11 @@ namespace Ice
                     properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
                     using (var communicator = initialize(properties))
                     {
-                        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                        communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
-                        communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0");
-                        communicator.getProperties().setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
-                        communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1");
+                        communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                        communicator.Properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
+                        communicator.Properties.setProperty("TestAdapter2.MessageSizeMax", "0");
+                        communicator.Properties.setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
+                        communicator.Properties.setProperty("TestAdapter3.MessageSizeMax", "1");
 
                         ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                         ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");

@@ -28,8 +28,8 @@ namespace IceInternal
         public TcpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            _timeout = s.readInt();
-            _compress = s.readBool();
+            _timeout = s.ReadInt();
+            _compress = s.ReadBool();
         }
 
         private sealed class InfoI : Ice.TCPEndpointInfo
@@ -60,8 +60,8 @@ namespace IceInternal
         public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
-            s.writeInt(_timeout);
-            s.writeBool(_compress);
+            s.WriteInt(_timeout);
+            s.WriteBool(_compress);
         }
 
         public override Ice.EndpointInfo getInfo()

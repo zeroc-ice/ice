@@ -19,7 +19,7 @@ public sealed class TestI : TestIntf
 
     public void shutdown(Ice.Current current)
     {
-        current.adapter.GetCommunicator().shutdown();
+        current.Adapter.Communicator.shutdown();
     }
 
     public Ice.Value SBaseAsObject(Ice.Current current)
@@ -78,13 +78,14 @@ public sealed class TestI : TestIntf
 
     public void checkSUnknown(Ice.Value obj, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(obj is SUnknown));
         }
         else
         {
-            SUnknown su = obj as SUnknown;
+            test(obj is SUnknown);
+            SUnknown su = (SUnknown)obj;
             test(su.su.Equals("SUnknown.su"));
         }
     }
@@ -284,7 +285,7 @@ public sealed class TestI : TestIntf
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
-        if (!current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (!current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             //
             // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
@@ -297,7 +298,7 @@ public sealed class TestI : TestIntf
 
     public void checkPBSUnknown(Preserved p, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
@@ -305,7 +306,8 @@ public sealed class TestI : TestIntf
         }
         else
         {
-            PSUnknown pu = p as PSUnknown;
+            test(p is PSUnknown);
+            PSUnknown pu = (PSUnknown)p;
             test(pu.pi == 5);
             test(pu.ps.Equals("preserved"));
             test(pu.psu.Equals("unknown"));
@@ -330,7 +332,7 @@ public sealed class TestI : TestIntf
 
     public void checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
@@ -338,7 +340,8 @@ public sealed class TestI : TestIntf
         }
         else
         {
-            PSUnknown pu = p as PSUnknown;
+            test(p is PSUnknown);
+            PSUnknown pu = (PSUnknown)p;
             test(pu.pi == 5);
             test(pu.ps.Equals("preserved"));
             test(pu.psu.Equals("unknown"));
@@ -360,7 +363,7 @@ public sealed class TestI : TestIntf
 
     public void checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
     {
-        if (current.encoding.Equals(Ice.Util.Encoding_1_0))
+        if (current.Encoding.Equals(Ice.Util.Encoding_1_0))
         {
             test(!(p is PSUnknown2));
             test(p.pi == 5);
@@ -368,7 +371,8 @@ public sealed class TestI : TestIntf
         }
         else
         {
-            PSUnknown2 pu = p as PSUnknown2;
+            test(p is PSUnknown2);
+            PSUnknown2 pu = (PSUnknown2)p;
             test(pu.pi == 5);
             test(pu.ps.Equals("preserved"));
             test(pu.pb == pu);

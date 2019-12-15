@@ -13,7 +13,7 @@ namespace IceInternal
         private void
         fillInValue(Ice.OutputStream os, int pos, int value)
         {
-            os.rewriteInt(value, pos);
+            os.RewriteInt(value, pos);
         }
 
         public
@@ -91,7 +91,7 @@ namespace IceInternal
                 }
 
                 // Adopt the OutputStream's buffer.
-                Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.getEncoding(), os.getBuffer(), true);
+                Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), true);
 
                 iss.pos(Protocol.replyHdr.Length + 4);
 
@@ -102,7 +102,7 @@ namespace IceInternal
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    outAsync.getIs().swap(iss);
+                    outAsync.getIs().Swap(iss);
                     if (!outAsync.response())
                     {
                         outAsync = null;
@@ -252,7 +252,7 @@ namespace IceInternal
                 TraceUtil.traceSend(os, _logger, _traceLevels);
             }
 
-            Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.getEncoding(), os.getBuffer(), false);
+            Ice.InputStream iss = new Ice.InputStream(os.communicator(), os.GetEncoding(), os.GetBuffer(), false);
 
             iss.pos(Protocol.requestHdr.Length);
 
@@ -278,7 +278,7 @@ namespace IceInternal
                         break;
                     }
 
-                    Incoming inS = new Incoming(_reference.getCommunicator(), this, null, _adapter, _response, (byte)0,
+                    Incoming inS = new Incoming(_reference.getCommunicator(), this, null, _adapter, _response, 0,
                                                 requestId);
                     inS.invoke(servantManager, iss);
                     --invokeNum;

@@ -36,7 +36,7 @@ namespace IceInternal
             {
                 if (_communicator.traceLevels().retry >= 1)
                 {
-                    _communicator.initializationData().logger.trace(_communicator.traceLevels().retryCat,
+                    _communicator.Logger.trace(_communicator.traceLevels().retryCat,
                                                                 string.Format("operation retry canceled\n{0}", ex));
                 }
                 if (_outAsync.exception(ex))

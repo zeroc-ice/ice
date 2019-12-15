@@ -17,7 +17,7 @@ namespace Ice
                 properties.setProperty("Ice.ServerIdleTime", "30");
                 using (var communicator = initialize(properties))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new RemoteCommunicatorI(), "communicator");
                     adapter.Activate();

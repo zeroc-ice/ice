@@ -2,15 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Ice;
+
 namespace IceDiscovery
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Ice;
     internal abstract class Request<T>
     {
         protected Request(LookupI lookup, T id, int retryCount)
@@ -37,7 +38,7 @@ namespace IceDiscovery
             return --retryCount_ >= 0;
         }
 
-        public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
+        public void invoke(string domainId, Dictionary<LookupPrx, LookupReplyPrx?> lookups)
         {
             _lookupCount = lookups.Count;
             _failureCount = 0;
@@ -63,17 +64,17 @@ namespace IceDiscovery
             return _requestId;
         }
 
-        public abstract void finished(Ice.IObjectPrx proxy);
+        public abstract void finished(IObjectPrx? proxy);
 
         protected abstract void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
 
-        private string _requestId;
+        private readonly string _requestId;
 
         protected LookupI lookup_;
         protected int retryCount_;
         protected int _lookupCount;
         protected int _failureCount;
-        protected List<TaskCompletionSource<Ice.IObjectPrx>> callbacks_ = new List<TaskCompletionSource<Ice.IObjectPrx>>();
+        protected List<TaskCompletionSource<IObjectPrx?>> callbacks_ = new List<TaskCompletionSource<IObjectPrx?>>();
 
         protected T _id;
     };
@@ -111,7 +112,7 @@ namespace IceDiscovery
             return true;
         }
 
-        public override void finished(Ice.IObjectPrx proxy)
+        public override void finished(IObjectPrx? proxy)
         {
             if (proxy != null || _proxies.Count == 0)
             {
@@ -158,7 +159,7 @@ namespace IceDiscovery
             }, lookup.Scheduler);
         }
 
-        private void sendResponse(Ice.IObjectPrx proxy)
+        private void sendResponse(IObjectPrx? proxy)
         {
             foreach (var cb in callbacks_)
             {
@@ -172,8 +173,8 @@ namespace IceDiscovery
         // the same proxy if it's accessible through multiple network interfaces and if we
         // also sent the request to multiple interfaces.
         //
-        private HashSet<Ice.IObjectPrx> _proxies = new HashSet<Ice.IObjectPrx>();
-        private long _start;
+        private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
+        private readonly long _start;
         private long _latency;
     };
 
@@ -183,12 +184,12 @@ namespace IceDiscovery
         {
         }
 
-        public void response(Ice.IObjectPrx proxy)
+        public void response(IObjectPrx proxy)
         {
             finished(proxy);
         }
 
-        public override void finished(Ice.IObjectPrx proxy)
+        public override void finished(IObjectPrx? proxy)
         {
             foreach (var cb in callbacks_)
             {
@@ -343,7 +344,7 @@ namespace IceDiscovery
                         request.invoke(_domainId, _lookups);
                         _timer.schedule(request, _timeout);
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                         request.finished(null);
                         _objectRequests.Remove(id);
@@ -372,7 +373,7 @@ namespace IceDiscovery
                         request.invoke(_domainId, _lookups);
                         _timer.schedule(request, _timeout);
                     }
-                    catch (Ice.LocalException)
+                    catch (LocalException)
                     {
                         request.finished(null);
                         _adapterRequests.Remove(adapterId);
@@ -459,12 +460,12 @@ namespace IceDiscovery
                     {
                         StringBuilder s = new StringBuilder();
                         s.Append("failed to lookup object `");
-                        s.Append(_lookup.Communicator.identityToString(request.getId()));
+                        s.Append(request.getId().ToString(_lookup.Communicator.ToStringMode));
                         s.Append("' with lookup proxy `");
                         s.Append(_lookup);
                         s.Append("':\n");
                         s.Append(ex.ToString());
-                        _lookup.Communicator.getLogger().warning(s.ToString());
+                        _lookup.Communicator.Logger.warning(s.ToString());
                         _warnOnce = false;
                     }
                     _timer.cancel(request);
@@ -523,7 +524,7 @@ namespace IceDiscovery
                         s.Append(_lookup);
                         s.Append("':\n");
                         s.Append(ex.ToString());
-                        _lookup.Communicator.getLogger().warning(s.ToString());
+                        _lookup.Communicator.Logger.warning(s.ToString());
                         _warnOnce = false;
                     }
                     _timer.cancel(request);
@@ -542,18 +543,18 @@ namespace IceDiscovery
             return _latencyMultiplier;
         }
 
-        private LocatorRegistryI _registry;
-        private LookupPrx _lookup;
-        private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
+        private readonly LocatorRegistryI _registry;
+        private readonly LookupPrx _lookup;
+        private readonly Dictionary<LookupPrx, LookupReplyPrx?> _lookups = new Dictionary<LookupPrx, LookupReplyPrx?>();
         private readonly int _timeout;
         private readonly int _retryCount;
         private readonly int _latencyMultiplier;
         private readonly string _domainId;
 
-        private IceInternal.Timer _timer;
+        private readonly IceInternal.Timer _timer;
         private bool _warnOnce = true;
-        private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
-        private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
+        private readonly Dictionary<Identity, ObjectRequest> _objectRequests = new Dictionary<Identity, ObjectRequest>();
+        private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     };
 
     internal class LookupReplyI : LookupReply
@@ -563,17 +564,17 @@ namespace IceDiscovery
             _lookup = lookup;
         }
 
-        public void foundObjectById(Ice.Identity id, Ice.IObjectPrx proxy, Ice.Current c)
+        public void foundObjectById(Identity id, IObjectPrx proxy, Current c)
         {
-            _lookup.foundObject(id, c.id.name, proxy);
+            _lookup.foundObject(id, c.Id.name, proxy);
         }
 
         public void foundAdapterById(string adapterId, Ice.IObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
         {
-            _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
+            _lookup.foundAdapter(adapterId, c.Id.name, proxy, isReplicaGroup);
         }
 
-        private LookupI _lookup;
+        private readonly LookupI _lookup;
     };
 
 }

@@ -197,7 +197,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             String multicast;
-            if (communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            if (communicator.Properties.getProperty("Ice.IPv6").Equals("1"))
             {
                 multicast = "\"ff15::1\"";
             }
@@ -208,7 +208,7 @@ public class AllTests : Test.AllTests
 
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().Clone();
+                initData.properties = communicator.Properties.Clone();
                 initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 test(comm.getDefaultLocator() != null);
@@ -224,7 +224,7 @@ public class AllTests : Test.AllTests
             }
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().Clone();
+                initData.properties = communicator.Properties.Clone();
                 string intf = initData.properties.getProperty("IceDiscovery.Interface");
                 if (!intf.Equals(""))
                 {

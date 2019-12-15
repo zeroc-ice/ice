@@ -154,7 +154,7 @@ namespace IceInternal
     {
         public ThreadPool(Ice.Communicator communicator, string prefix, int timeout)
         {
-            Ice.Properties properties = communicator.initializationData().properties;
+            Ice.Properties properties = communicator.Properties;
 
             _communicator = communicator;
             _dispatcher = communicator.initializationData().dispatcher;
@@ -184,7 +184,7 @@ namespace IceInternal
             if (size < 1)
             {
                 string s = _prefix + ".Size < 1; Size adjusted to 1";
-                _communicator.initializationData().logger.warning(s);
+                _communicator.Logger.warning(s);
                 size = 1;
             }
 
@@ -192,7 +192,7 @@ namespace IceInternal
             if (sizeMax < size)
             {
                 string s = _prefix + ".SizeMax < " + _prefix + ".Size; SizeMax adjusted to Size (" + size + ")";
-                _communicator.initializationData().logger.warning(s);
+                _communicator.Logger.warning(s);
                 sizeMax = size;
             }
 
@@ -200,14 +200,14 @@ namespace IceInternal
             if (sizeWarn != 0 && sizeWarn < size)
             {
                 string s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
-                _communicator.initializationData().logger.warning(s);
+                _communicator.Logger.warning(s);
                 sizeWarn = size;
             }
             else if (sizeWarn > sizeMax)
             {
                 string s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax ("
                     + sizeMax + ")";
-                _communicator.initializationData().logger.warning(s);
+                _communicator.Logger.warning(s);
                 sizeWarn = sizeMax;
             }
 
@@ -215,7 +215,7 @@ namespace IceInternal
             if (threadIdleTime < 0)
             {
                 string s = _prefix + ".ThreadIdleTime < 0; ThreadIdleTime adjusted to 0";
-                _communicator.initializationData().logger.warning(s);
+                _communicator.Logger.warning(s);
                 threadIdleTime = 0;
             }
 
@@ -228,7 +228,7 @@ namespace IceInternal
             if (stackSize < 0)
             {
                 string s = _prefix + ".StackSize < 0; Size adjusted to OS default";
-                _communicator.initializationData().logger.warning(s);
+                _communicator.Logger.warning(s);
                 stackSize = 0;
             }
             _stackSize = stackSize;
@@ -241,7 +241,7 @@ namespace IceInternal
             {
                 string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
                            _sizeWarn;
-                _communicator.initializationData().logger.trace(_communicator.traceLevels().threadPoolCat, s);
+                _communicator.Logger.trace(_communicator.traceLevels().threadPoolCat, s);
             }
 
             _workItems = new Queue<ThreadPoolWorkItem>();
@@ -259,7 +259,7 @@ namespace IceInternal
             catch (System.Exception ex)
             {
                 string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-                _communicator.initializationData().logger.error(s);
+                _communicator.Logger.error(s);
 
                 destroy();
                 joinWithAllThreads();
@@ -376,7 +376,7 @@ namespace IceInternal
             }
         }
 
-        public void dispatchFromThisThread(System.Action call, Ice.Connection con)
+        public void dispatchFromThisThread(System.Action call, Ice.Connection? con)
         {
             if (_dispatcher != null)
             {
@@ -386,10 +386,10 @@ namespace IceInternal
                 }
                 catch (System.Exception ex)
                 {
-                    if (_communicator.initializationData().properties.getPropertyAsIntWithDefault(
+                    if (_communicator.Properties.getPropertyAsIntWithDefault(
                            "Ice.Warn.Dispatch", 1) > 1)
                     {
-                        _communicator.initializationData().logger.warning("dispatch exception:\n" + ex);
+                        _communicator.Logger.warning("dispatch exception:\n" + ex);
                     }
                 }
             }
@@ -399,7 +399,7 @@ namespace IceInternal
             }
         }
 
-        public void dispatch(System.Action call, Ice.Connection con, bool useDispatcher = true)
+        public void dispatch(System.Action call, Ice.Connection? con, bool useDispatcher = true)
         {
             lock (this)
             {
@@ -430,7 +430,7 @@ namespace IceInternal
                     if (_communicator.traceLevels().threadPool >= 1)
                     {
                         string s = "growing " + _prefix + ": Size = " + (_threads.Count + 1);
-                        _communicator.initializationData().logger.trace(_communicator.traceLevels().threadPoolCat, s);
+                        _communicator.Logger.trace(_communicator.traceLevels().threadPoolCat, s);
                     }
 
                     try
@@ -442,7 +442,7 @@ namespace IceInternal
                     catch (System.Exception ex)
                     {
                         string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-                        _communicator.initializationData().logger.error(s);
+                        _communicator.Logger.error(s);
                     }
                 }
             }
@@ -509,7 +509,7 @@ namespace IceInternal
 
         private void run(WorkerThread thread)
         {
-            ThreadPoolWorkItem workItem = null;
+            ThreadPoolWorkItem? workItem = null;
             while (true)
             {
                 lock (this)
@@ -553,7 +553,7 @@ namespace IceInternal
                                     if (_communicator.traceLevels().threadPool >= 1)
                                     {
                                         string s = "shrinking " + _prefix + ": Size=" + (_threads.Count - 1);
-                                        _communicator.initializationData().logger.trace(
+                                        _communicator.Logger.trace(
                                             _communicator.traceLevels().threadPoolCat, s);
                                     }
 
@@ -605,7 +605,7 @@ namespace IceInternal
                     {
                         string s = "thread pool `" + _prefix + "' is running low on threads\n"
                             + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
-                        _communicator.initializationData().logger.warning(s);
+                        _communicator.Logger.warning(s);
                     }
                 }
 
@@ -616,7 +616,7 @@ namespace IceInternal
                 catch (System.Exception ex)
                 {
                     string s = "exception in `" + _prefix + "' while calling on work item:\n" + ex + '\n';
-                    _communicator.initializationData().logger.error(s);
+                    _communicator.Logger.error(s);
                 }
             }
         }
@@ -743,7 +743,7 @@ namespace IceInternal
             catch (System.Exception ex)
             {
                 string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current._handler.ToString();
-                _communicator.initializationData().logger.error(s);
+                _communicator.Logger.error(s);
             }
         }
 
@@ -762,7 +762,7 @@ namespace IceInternal
         }
 
         private Ice.Communicator _communicator;
-        private System.Action<System.Action, Ice.Connection> _dispatcher;
+        private System.Action<System.Action, Ice.Connection?>? _dispatcher;
         private bool _destroyed;
         private readonly string _prefix;
         private readonly string _threadPrefix;
@@ -770,7 +770,7 @@ namespace IceInternal
         private sealed class WorkerThread
         {
             private ThreadPool _threadPool;
-            private Ice.Instrumentation.ThreadObserver _observer;
+            private Ice.Instrumentation.ThreadObserver? _observer;
             private Ice.Instrumentation.ThreadState _state;
 
             internal WorkerThread(ThreadPool threadPool, string name) : base()
@@ -784,7 +784,7 @@ namespace IceInternal
             public void updateObserver()
             {
                 // Must be called with the thread pool mutex locked
-                Ice.Instrumentation.CommunicatorObserver obsv = _threadPool._communicator.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver? obsv = _threadPool._communicator.initializationData().observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);
@@ -810,11 +810,13 @@ namespace IceInternal
 
             public Thread getThread()
             {
+                Debug.Assert(_thread != null);
                 return _thread;
             }
 
             public void join()
             {
+                Debug.Assert(_thread != null);
                 _thread.Join();
             }
 
@@ -836,23 +838,26 @@ namespace IceInternal
 
             public void Run()
             {
+                Debug.Assert(_threadPool != null);
+                Debug.Assert(_thread != null);
                 //
                 // Set the default synchronization context to allow async/await to run
                 // continuations on the thread pool.
                 //
                 SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
 
-                if (_threadPool._communicator.initializationData().threadStart != null)
+                var threadStart = _threadPool._communicator.initializationData().threadStart;
+                if (threadStart != null)
                 {
                     try
                     {
-                        _threadPool._communicator.initializationData().threadStart();
+                        threadStart();
                     }
                     catch (System.Exception ex)
                     {
                         string s = "thread hook start() method raised an unexpected exception in `";
                         s += _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-                        _threadPool._communicator.initializationData().logger.error(s);
+                        _threadPool._communicator.Logger.error(s);
                     }
                 }
 
@@ -863,7 +868,7 @@ namespace IceInternal
                 catch (System.Exception ex)
                 {
                     string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-                    _threadPool._communicator.initializationData().logger.error(s);
+                    _threadPool._communicator.Logger.error(s);
                 }
 
                 if (_observer != null)
@@ -871,23 +876,24 @@ namespace IceInternal
                     _observer.detach();
                 }
 
-                if (_threadPool._communicator.initializationData().threadStop != null)
+                var threadStop = _threadPool._communicator.initializationData().threadStop;
+                if (threadStop != null)
                 {
                     try
                     {
-                        _threadPool._communicator.initializationData().threadStop();
+                        threadStop();
                     }
                     catch (System.Exception ex)
                     {
                         string s = "thread hook stop() method raised an unexpected exception in `";
                         s += _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-                        _threadPool._communicator.initializationData().logger.error(s);
+                        _threadPool._communicator.Logger.error(s);
                     }
                 }
             }
 
             private readonly string _name;
-            private Thread _thread;
+            private Thread? _thread;
         }
 
         private readonly int _size; // Number of threads that are pre-created.

@@ -11,7 +11,7 @@ namespace IceInternal
 
     public interface RequestHandler : CancellationHandler
     {
-        RequestHandler update(RequestHandler previousHandler, RequestHandler newHandler);
+        RequestHandler? update(RequestHandler previousHandler, RequestHandler? newHandler);
 
         int sendAsyncRequest(ProxyOutgoingAsyncBase @out);
 

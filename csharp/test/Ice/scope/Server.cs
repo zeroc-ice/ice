@@ -80,7 +80,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                 }
             }
 
@@ -132,7 +132,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                 }
             }
 
@@ -184,7 +184,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                 }
             }
 
@@ -236,7 +236,7 @@ namespace Ice
 
                 public void shutdown(Ice.Current current)
                 {
-                    current.adapter.GetCommunicator().shutdown();
+                    current.Adapter.Communicator.shutdown();
                 }
             }
 
@@ -247,7 +247,7 @@ namespace Ice
                 initData.properties = createTestProperties(ref args);
                 using (var communicator = initialize(initData))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new I1(), "i1");
                     adapter.Add(new I2(), "i2");

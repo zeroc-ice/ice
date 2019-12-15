@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net.Security;
+using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+
 namespace IceSSL
 {
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Net.Security;
-    using System.Net.Sockets;
-    using System.Security.Authentication;
-    using System.Security.Cryptography.X509Certificates;
-
     internal sealed class TransceiverI : IceInternal.Transceiver
     {
-        public Socket fd()
+        public Socket? fd()
         {
             return _delegate.fd();
         }
@@ -31,7 +31,10 @@ namespace IceSSL
                 _isConnected = true;
             }
 
-            IceInternal.Network.setBlock(fd(), true); // SSL requires a blocking socket
+            Socket? fd = _delegate.fd();
+            Debug.Assert(fd != null);
+
+            IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket
 
             //
             // For timeouts to work properly, we need to receive/send
@@ -40,14 +43,14 @@ namespace IceSSL
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
-            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
+            _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd));
+            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd));
 
             if (_sslStream == null)
             {
                 try
                 {
-                    _sslStream = new SslStream(new NetworkStream(_delegate.fd(), false),
+                    _sslStream = new SslStream(new NetworkStream(fd, false),
                                                false,
                                                new RemoteCertificateValidationCallback(validationCallback),
                                                new LocalCertificateSelectionCallback(selectCertificate));
@@ -79,7 +82,7 @@ namespace IceSSL
             return IceInternal.SocketOperation.None;
         }
 
-        public int closing(bool initiator, Ice.LocalException ex)
+        public int closing(bool initiator, Ice.LocalException? ex)
         {
             return _delegate.closing(initiator, ex);
         }
@@ -374,6 +377,7 @@ namespace IceSSL
 
         private bool startAuthenticate(IceInternal.AsyncCallback callback, object state)
         {
+            Debug.Assert(_sslStream != null);
             try
             {
                 _writeCallback = callback;
@@ -396,9 +400,9 @@ namespace IceSSL
                     //
                     // Get the certificate collection and select the first one.
                     //
-                    X509Certificate2Collection certs = _instance.certs();
-                    X509Certificate2 cert = null;
-                    if (certs.Count > 0)
+                    X509Certificate2Collection? certs = _instance.certs();
+                    X509Certificate2? cert = null;
+                    if (certs != null && certs.Count > 0)
                     {
                         cert = certs[0];
                     }
@@ -441,6 +445,7 @@ namespace IceSSL
         private void finishAuthenticate()
         {
             Debug.Assert(_writeResult != null);
+            Debug.Assert(_sslStream != null);
 
             try
             {
@@ -477,8 +482,11 @@ namespace IceSSL
             }
         }
 
-        private X509Certificate selectCertificate(object sender, string targetHost, X509CertificateCollection certs,
-                                                  X509Certificate remoteCertificate, string[] acceptableIssuers)
+        private X509Certificate? selectCertificate(object sender,
+            string targetHost,
+            X509CertificateCollection? certs,
+            X509Certificate remoteCertificate,
+            string[]? acceptableIssuers)
         {
             if (certs == null || certs.Count == 0)
             {
@@ -516,7 +524,7 @@ namespace IceSSL
                     chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                 }
 
-                X509Certificate2Collection caCerts = _instance.engine().caCerts();
+                X509Certificate2Collection? caCerts = _instance.engine().caCerts();
                 if (caCerts != null)
                 {
                     //
@@ -545,11 +553,11 @@ namespace IceSSL
                         {
                             if (_verifyPeer > 0)
                             {
-                                message = message + "\npuntrusted root certificate";
+                                message += "\npuntrusted root certificate";
                             }
                             else
                             {
-                                message = message + "\nuntrusted root certificate (ignored)";
+                                message += "\nuntrusted root certificate (ignored)";
                                 _verified = false;
                             }
                             errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
@@ -588,7 +596,7 @@ namespace IceSSL
                             return false;
                         }
                         errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                        message = message + "\nremote certificate not provided (ignored)";
+                        message += "\nremote certificate not provided (ignored)";
                     }
                 }
 
@@ -640,12 +648,12 @@ namespace IceSSL
                             {
                                 if (_verifyPeer > 0)
                                 {
-                                    message = message + "\npuntrusted root certificate";
+                                    message += "\npuntrusted root certificate";
                                     ++errorCount;
                                 }
                                 else
                                 {
-                                    message = message + "\nuntrusted root certificate (ignored)";
+                                    message += "\nuntrusted root certificate (ignored)";
                                 }
                             }
                             else
@@ -657,12 +665,12 @@ namespace IceSSL
                         {
                             if (_instance.checkCRL() > 0)
                             {
-                                message = message + "\ncertificate revoked";
+                                message += "\ncertificate revoked";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\ncertificate revoked (ignored)";
+                                message += "\ncertificate revoked (ignored)";
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
@@ -673,24 +681,24 @@ namespace IceSSL
                             //
                             if (_instance.checkCRL() > 1)
                             {
-                                message = message + "\ncertificate revocation status unknown";
+                                message += "\ncertificate revocation status unknown";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\ncertificate revocation status unknown (ignored)";
+                                message += "\ncertificate revocation status unknown (ignored)";
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.PartialChain)
                         {
                             if (_verifyPeer > 0)
                             {
-                                message = message + "\npartial certificate chain";
+                                message += "\npartial certificate chain";
                                 ++errorCount;
                             }
                             else
                             {
-                                message = message + "\npartial certificate chain (ignored)";
+                                message += "\npartial certificate chain (ignored)";
                             }
                         }
                         else if (status.Status != X509ChainStatusFlags.NoError)
@@ -755,6 +763,7 @@ namespace IceSSL
         {
             if (!result.CompletedSynchronously)
             {
+                Debug.Assert(_readCallback != null);
                 _readCallback(result.AsyncState);
             }
         }
@@ -763,6 +772,7 @@ namespace IceSSL
         {
             if (!result.CompletedSynchronously)
             {
+                Debug.Assert(_writeCallback != null);
                 _writeCallback(result.AsyncState);
             }
         }
@@ -777,23 +787,23 @@ namespace IceSSL
             return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
         }
 
-        private Instance _instance;
-        private IceInternal.Transceiver _delegate;
-        private string _host = "";
-        private string _adapterName = "";
-        private bool _incoming;
-        private SslStream _sslStream;
-        private int _verifyPeer;
+        private readonly Instance _instance;
+        private readonly IceInternal.Transceiver _delegate;
+        private readonly string? _host;
+        private readonly string? _adapterName;
+        private readonly bool _incoming;
+        private SslStream? _sslStream;
+        private readonly int _verifyPeer;
         private bool _isConnected;
         private bool _authenticated;
-        private IAsyncResult _writeResult;
-        private IAsyncResult _readResult;
-        private IceInternal.AsyncCallback _readCallback;
-        private IceInternal.AsyncCallback _writeCallback;
+        private IAsyncResult? _writeResult;
+        private IAsyncResult? _readResult;
+        private IceInternal.AsyncCallback? _readCallback;
+        private IceInternal.AsyncCallback? _writeCallback;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
-        private string _cipher;
-        private X509Certificate2[] _certs;
+        private string? _cipher;
+        private X509Certificate2[]? _certs;
         private bool _verified;
     }
 }

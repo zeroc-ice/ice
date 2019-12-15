@@ -370,7 +370,7 @@ namespace IceInternal
             }
             if (uncompressedSize > messageSizeMax)
             {
-                IceInternal.Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
+                Ex.throwMemoryLimitException(uncompressedSize, messageSizeMax);
             }
 
             int compressedLen = buf.size() - headerSize - 4;

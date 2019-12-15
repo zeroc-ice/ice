@@ -31,9 +31,9 @@ namespace Ice
                 properties.setProperty("Ice.TCP.RcvSize", "50000");
                 using (var communicator = initialize(properties))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                    communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new TimeoutI(), "timeout");

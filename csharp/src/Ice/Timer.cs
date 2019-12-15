@@ -123,7 +123,7 @@ namespace IceInternal
         {
             _communicator = communicator;
 
-            string threadName = _communicator.initializationData().properties.getProperty("Ice.ProgramName");
+            string threadName = _communicator.Properties.getProperty("Ice.ProgramName");
             if (threadName.Length > 0)
             {
                 threadName += "-";
@@ -229,7 +229,7 @@ namespace IceInternal
                 {
                     try
                     {
-                        Ice.Instrumentation.ThreadObserver threadObserver = _observer;
+                        Ice.Instrumentation.ThreadObserver? threadObserver = _observer;
                         if (threadObserver != null)
                         {
                             threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
@@ -256,7 +256,7 @@ namespace IceInternal
                             if (_communicator != null)
                             {
                                 string s = "unexpected exception from task run method in timer thread:\n" + ex;
-                                _communicator.initializationData().logger.error(s);
+                                _communicator.Logger.error(s);
                             }
                         }
                     }
@@ -328,7 +328,7 @@ namespace IceInternal
 
         private IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
-        private Ice.Communicator _communicator;
+        private Ice.Communicator? _communicator;
         private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
         private Thread _thread;

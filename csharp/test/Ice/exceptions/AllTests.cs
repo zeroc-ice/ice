@@ -27,7 +27,7 @@ namespace Ice
                         // Expected
                     }
 
-                    communicator.getProperties().setProperty("TestAdapter0.Endpoints", "tcp -h *");
+                    communicator.Properties.setProperty("TestAdapter0.Endpoints", "tcp -h *");
                     first = communicator.createObjectAdapter("TestAdapter0");
                     try
                     {
@@ -60,7 +60,7 @@ namespace Ice
 
                 {
                     output.Write("testing servant registration exceptions... ");
-                    communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *");
+                    communicator.Properties.setProperty("TestAdapter1.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
                     var obj = new EmptyI();
                     adapter.Add(obj, "x");
@@ -78,14 +78,13 @@ namespace Ice
                         adapter.Add(obj, "");
                         test(false);
                     }
-                    catch (IllegalIdentityException e)
+                    catch (FormatException)
                     {
-                        test(e.id.name.Equals(""));
                     }
 
                     try
                     {
-                        adapter.Add(null, "x");
+                        adapter.Add(null!, "x");
                         test(false);
                     }
                     catch (IllegalServantException)
@@ -107,7 +106,7 @@ namespace Ice
 
                 {
                     output.Write("testing servant locator registration exceptions... ");
-                    communicator.getProperties().setProperty("TestAdapter2.Endpoints", "tcp -h *");
+                    communicator.Properties.setProperty("TestAdapter2.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
                     ServantLocator loc = new ServantLocatorI();
                     adapter.AddServantLocator(loc, "x");
@@ -417,7 +416,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Identity id = Util.stringToIdentity("does not exist");
+                    Identity id = Identity.Parse("does not exist");
                     try
                     {
                         var thrower2 = ThrowerPrx.UncheckedCast(thrower.Clone(id));
@@ -834,7 +833,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Identity id = Util.stringToIdentity("does not exist");
+                    Identity id = Identity.Parse("does not exist");
                     var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(id));
                     try
                     {
@@ -1078,7 +1077,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Identity id = Util.stringToIdentity("does not exist");
+                    Identity id = Identity.Parse("does not exist");
                     var thrower2 = Test.ThrowerPrx.UncheckedCast(thrower.Clone(id));
                     try
                     {

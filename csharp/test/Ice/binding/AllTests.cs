@@ -722,7 +722,7 @@ namespace Ice
                     }
                 }
                 output.WriteLine("ok");
-                if (communicator.getProperties().getProperty("Plugin.IceSSL").Length > 0)
+                if (communicator.Properties.getProperty("Plugin.IceSSL").Length > 0)
                 {
                     output.Write("testing unsecure vs. secure endpoints... ");
                     output.Flush();

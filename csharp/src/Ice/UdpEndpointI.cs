@@ -31,17 +31,17 @@ namespace IceInternal
         public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s) :
             base(instance, s)
         {
-            if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                s.readByte();
-                s.readByte();
-                s.readByte();
-                s.readByte();
+                s.ReadByte();
+                s.ReadByte();
+                s.ReadByte();
+                s.ReadByte();
             }
             // Not transmitted.
             //_connect = s.readBool();
             _connect = false;
-            _compress = s.readBool();
+            _compress = s.ReadBool();
         }
 
         private sealed class InfoI : Ice.UDPEndpointInfo
@@ -146,7 +146,7 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        public override Acceptor acceptor(string adapterName)
+        public override Acceptor? acceptor(string adapterName)
         {
             return null;
         }
@@ -285,14 +285,14 @@ namespace IceInternal
         public override void streamWriteImpl(Ice.OutputStream s)
         {
             base.streamWriteImpl(s);
-            if (s.getEncoding().Equals(Ice.Util.Encoding_1_0))
+            if (s.GetEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 Ice.Util.Protocol_1_0.ice_writeMembers(s);
                 Ice.Util.Encoding_1_0.ice_writeMembers(s);
             }
             // Not transmitted.
             //s.writeBool(_connect);
-            s.writeBool(_compress);
+            s.WriteBool(_compress);
         }
 
         public override void hashInit(ref int h)
@@ -475,7 +475,7 @@ namespace IceInternal
             return new UdpEndpointFactory(instance);
         }
 
-        private ProtocolInstance _instance;
+        private ProtocolInstance? _instance;
     }
 
 }

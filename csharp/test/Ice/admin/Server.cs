@@ -15,7 +15,7 @@ namespace Ice
             {
                 using (var communicator = initialize(ref args))
                 {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
+                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new RemoteCommunicatorFactoryI(), "factory");
                     adapter.Activate();

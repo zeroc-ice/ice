@@ -26,33 +26,33 @@ namespace Ice
 
             public bool IceIsA(string id, Current current)
             {
-                test(current.mode == OperationMode.Nonmutating);
+                test(current.Mode == OperationMode.Nonmutating);
                 Test.MyDerivedClassTraits myDerivedClassT = default;
                 return myDerivedClassT.Ids.Contains(id);
             }
 
             public void IcePing(Current current)
             {
-                test(current.mode == OperationMode.Nonmutating);
+                test(current.Mode == OperationMode.Nonmutating);
             }
 
             public string[] IceIds(Current current)
             {
-                test(current.mode == OperationMode.Nonmutating);
+                test(current.Mode == OperationMode.Nonmutating);
                 Test.MyDerivedClassTraits myDerivedClassT = default;
                 return myDerivedClassT.Ids;
             }
 
             public string IceId(Current current)
             {
-                test(current.mode == OperationMode.Nonmutating);
+                test(current.Mode == OperationMode.Nonmutating);
                 Test.MyDerivedClassTraits myDerivedClassT = default;
                 return myDerivedClassT.Id;
             }
 
             public void shutdown(Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             public bool supportsCompress(Current current)
@@ -62,7 +62,7 @@ namespace Ice
 
             public void opVoid(Current current)
             {
-                test(current.mode == OperationMode.Normal);
+                test(current.Mode == OperationMode.Normal);
             }
 
             public bool opBool(bool p1, bool p2, out bool p3, Current current)
@@ -224,8 +224,8 @@ namespace Ice
                                                       Current current)
             {
                 p2 = p1;
-                p3 = Test.MyClassPrx.UncheckedCast(current.adapter.CreateProxy("noSuchIdentity"));
-                return Test.MyClassPrx.UncheckedCast(current.adapter.CreateProxy(current.id));
+                p3 = Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy("noSuchIdentity"));
+                return Test.MyClassPrx.UncheckedCast(current.Adapter.CreateProxy(current.Id));
             }
 
             public Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Current current)
@@ -671,7 +671,7 @@ namespace Ice
 
             public Dictionary<string, string> opContext(Current current)
             {
-                return current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
+                return current.Context == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.Context);
             }
 
             public void opDoubleMarshaling(double p1, double[] p2, Current current)
@@ -753,12 +753,12 @@ namespace Ice
 
             public void opIdempotent(Current current)
             {
-                test(current.mode == Ice.OperationMode.Idempotent);
+                test(current.Mode == Ice.OperationMode.Idempotent);
             }
 
             public void opNonmutating(Current current)
             {
-                test(current.mode == Ice.OperationMode.Nonmutating);
+                test(current.Mode == Ice.OperationMode.Nonmutating);
             }
 
             public void opDerived(Current current)

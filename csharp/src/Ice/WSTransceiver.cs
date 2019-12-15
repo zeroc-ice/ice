@@ -233,7 +233,7 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
-        public int closing(bool initiator, Ice.LocalException reason)
+        public int closing(bool initiator, Ice.LocalException? reason)
         {
             if (_instance.traceLevel() >= 1)
             {
@@ -675,9 +675,8 @@ namespace IceInternal
         }
 
         internal
-        WSTransceiver(ProtocolInstance instance, Transceiver del, string host, string resource)
+        WSTransceiver(ProtocolInstance instance, Transceiver del, string host, string resource) : this(instance, del)
         {
-            init(instance, del);
             _host = host;
             _resource = resource;
             _incoming = false;
@@ -699,20 +698,6 @@ namespace IceInternal
         }
 
         internal WSTransceiver(ProtocolInstance instance, Transceiver del)
-        {
-            init(instance, del);
-            _host = "";
-            _resource = "";
-            _incoming = true;
-
-            //
-            // Write and read buffer size must be large enough to hold the frame header!
-            //
-            Debug.Assert(_writeBufferSize > 256);
-            Debug.Assert(_readBufferSize > 256);
-        }
-
-        private void init(ProtocolInstance instance, Transceiver del)
         {
             _instance = instance;
             _delegate = del;
@@ -736,6 +721,15 @@ namespace IceInternal
             _key = "";
             _pingPayload = Array.Empty<byte>();
             _rand = new Random();
+            _host = "";
+            _resource = "";
+            _incoming = true;
+
+            //
+            // Write and read buffer size must be large enough to hold the frame header!
+            //
+            Debug.Assert(_writeBufferSize > 256);
+            Debug.Assert(_readBufferSize > 256);
         }
 
         private void handleRequest(Buffer responseBuffer)
@@ -798,16 +792,17 @@ namespace IceInternal
             val = _parser.getHeader("Sec-WebSocket-Protocol", true);
             if (val != null)
             {
-                string[] protocols = IceUtilInternal.StringUtil.splitString(val, ",");
+                string[]? protocols = IceUtilInternal.StringUtil.splitString(val, ",");
                 if (protocols == null)
                 {
-                    throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+                    throw new WebSocketException($"invalid value `{val}' for WebSocket protocol");
                 }
+
                 foreach (string p in protocols)
                 {
                     if (!p.Trim().Equals(_iceProtocol))
                     {
-                        throw new WebSocketException("unknown value `" + p + "' for WebSocket protocol");
+                        throw new WebSocketException($"unknown value `{p}' for WebSocket protocol");
                     }
                     addProtocol = true;
                 }
@@ -826,7 +821,7 @@ namespace IceInternal
             byte[] decodedKey = Convert.FromBase64String(key);
             if (decodedKey.Length != 16)
             {
-                throw new WebSocketException("invalid value `" + key + "' for WebSocket key");
+                throw new WebSocketException($"invalid value `{key}' for WebSocket key");
             }
 
             //
@@ -843,7 +838,7 @@ namespace IceInternal
             @out.Append("Connection: Upgrade\r\n");
             if (addProtocol)
             {
-                @out.Append("Sec-WebSocket-Protocol: " + _iceProtocol + "\r\n");
+                @out.Append($"Sec-WebSocket-Protocol: {_iceProtocol}\r\n");
             }
 
             //
@@ -1603,11 +1598,11 @@ namespace IceInternal
             }
         }
 
-        private ProtocolInstance _instance;
-        private Transceiver _delegate;
-        private string _host;
+        private readonly ProtocolInstance _instance;
+        private readonly Transceiver _delegate;
+        private readonly string _host;
         private string _resource;
-        private bool _incoming;
+        private readonly bool _incoming;
 
         private const int StateInitializeDelegate = 0;
         private const int StateConnected = 1;
@@ -1623,7 +1618,7 @@ namespace IceInternal
         private int _state;
         private int _nextState;
 
-        private HttpParser _parser;
+        private readonly HttpParser _parser;
         private string _key;
 
         private const int ReadStateOpcode = 0;
@@ -1632,9 +1627,9 @@ namespace IceInternal
         private const int ReadStatePayload = 3;
 
         private int _readState;
-        private Buffer _readBuffer;
+        private readonly Buffer _readBuffer;
         private int _readBufferPos;
-        private int _readBufferSize;
+        private readonly int _readBufferSize;
 
         private bool _readLastFrame;
         private int _readOpCode;
@@ -1642,7 +1637,7 @@ namespace IceInternal
         private int _readPayloadLength;
         private int _readStart;
         private int _readFrameStart;
-        private byte[] _readMask;
+        private readonly byte[] _readMask;
 
         private const int WriteStateHeader = 0;
         private const int WriteStatePayload = 1;
@@ -1650,9 +1645,9 @@ namespace IceInternal
         private const int WriteStateFlush = 3;
 
         private int _writeState;
-        private Buffer _writeBuffer;
-        private int _writeBufferSize;
-        private byte[] _writeMask;
+        private readonly Buffer _writeBuffer;
+        private readonly int _writeBufferSize;
+        private readonly byte[] _writeMask;
         private int _writePayloadLength;
 
         private bool _closingInitiator;
@@ -1664,7 +1659,7 @@ namespace IceInternal
 
         private byte[] _pingPayload;
 
-        private Random _rand;
+        private readonly Random _rand;
 
         //
         // WebSocket opcodes
@@ -1696,6 +1691,6 @@ namespace IceInternal
         private const string _iceProtocol = "ice.zeroc.com";
         private const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-        private static UTF8Encoding _utf8 = new UTF8Encoding(false, true);
+        private static readonly UTF8Encoding _utf8 = new UTF8Encoding(false, true);
     }
 }

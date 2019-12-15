@@ -22,7 +22,7 @@ namespace IceInternal
     {
         internal PropertiesAdminI(Ice.Communicator communicator)
         {
-            _properties = communicator.initializationData().properties;
+            _properties = communicator.Properties;
             _logger = communicator.initializationData().logger;
         }
 

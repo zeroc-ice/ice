@@ -75,7 +75,7 @@ namespace Glacier2
         /// Returns the session's communicator object.
         /// </summary>
         /// <returns>The communicator.</returns>
-        public Ice.Communicator
+        public Communicator?
         communicator()
         {
             lock (_mutex)
@@ -101,7 +101,7 @@ namespace Glacier2
                 {
                     throw new SessionNotExistException();
                 }
-
+                Debug.Assert(_category != null);
                 return _category;
             }
         }
@@ -113,8 +113,8 @@ namespace Glacier2
         /// <param name="servant">The servant to add.</param>
         /// <returns>The proxy for the servant. Throws SessionNotExistException
         /// if no session exists.</returns>
-        public Ice.IObjectPrx
-        addWithUUID(Ice.Disp servant)
+        public IObjectPrx
+        addWithUUID(Disp servant)
         {
             lock (_mutex)
             {
@@ -122,7 +122,7 @@ namespace Glacier2
                 {
                     throw new SessionNotExistException();
                 }
-
+                Debug.Assert(_category != null);
                 return internalObjectAdapter().Add(servant, new Ice.Identity(Guid.NewGuid().ToString(), _category));
             }
         }
@@ -132,7 +132,7 @@ namespace Glacier2
         /// established yet or the session has already been destroyed.
         /// </summary>
         /// <returns>The session proxy, or null if no session exists.</returns>
-        public Glacier2.SessionPrx
+        public SessionPrx?
         session()
         {
             lock (_mutex)
@@ -159,13 +159,13 @@ namespace Glacier2
         /// </summary>
         /// <return>The object adapter. Throws SessionNotExistException
         /// if no session exists.</return>
-        public Ice.ObjectAdapter
+        public ObjectAdapter
         objectAdapter()
         {
             return internalObjectAdapter();
         }
 
-        private Ice.ObjectAdapter
+        private ObjectAdapter
         internalObjectAdapter()
         {
             lock (_mutex)
@@ -176,9 +176,10 @@ namespace Glacier2
                 }
                 if (!_useCallbacks)
                 {
-                    throw new Ice.InitializationException(
+                    throw new InitializationException(
                         "Object adapter not available, call SessionFactoryHelper.setUseCallbacks(true)");
                 }
+                Debug.Assert(_adapter != null);
                 return _adapter;
             }
         }
@@ -192,7 +193,7 @@ namespace Glacier2
         /// </summary>
         /// <param name="context">The request context to use when creating the session.</param>
         internal void
-        connect(Dictionary<string, string> context)
+        connect(Dictionary<string, string>? context)
         {
             lock (_mutex)
             {
@@ -210,7 +211,7 @@ namespace Glacier2
         /// <param name="password">The password.</param>
         /// <param name="context">The request context to use when creating the session.</param>
         internal void
-        connect(string username, string password, Dictionary<string, string> context)
+        connect(string username, string password, Dictionary<string, string>? context)
         {
             lock (_mutex)
             {
@@ -225,7 +226,8 @@ namespace Glacier2
             // Remote invocation should be done without acquiring a mutex lock.
             //
             Debug.Assert(router != null);
-            Ice.Connection conn = router.GetCachedConnection();
+            Debug.Assert(_communicator != null);
+            Connection? conn = router.GetCachedConnection();
             string category = router.getCategoryForClient();
             int acmTimeout = 0;
             try
@@ -281,9 +283,9 @@ namespace Glacier2
 
                 if (acmTimeout > 0)
                 {
-                    Ice.Connection connection = _router.GetCachedConnection();
+                    Connection? connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
-                    connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                    connection.setACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
                     connection.setCloseCallback(_ => destroy());
                 }
             }
@@ -305,7 +307,7 @@ namespace Glacier2
         destroyInternal()
         {
             RouterPrx router;
-            Communicator communicator;
+            Communicator? communicator;
             lock (_mutex)
             {
                 Debug.Assert(_destroy);
@@ -342,7 +344,7 @@ namespace Glacier2
                 //
                 // Not expected.
                 //
-                communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
+                communicator.Logger.warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
             }
 
             communicator.destroy();
@@ -354,11 +356,12 @@ namespace Glacier2
         private void
         destroyCommunicator()
         {
-            Communicator communicator;
+            Communicator? communicator;
             lock (_mutex)
             {
                 communicator = _communicator;
             }
+            Debug.Assert(communicator != null);
             communicator.destroy();
         }
 
@@ -399,7 +402,7 @@ namespace Glacier2
                         dispatchCallback(() => _callback.connectFailed(this, ex), null);
                         return;
                     }
-                    catch (System.Exception ex)
+                    catch (System.Exception)
                     {
                         //
                         // In case of error getting router identity from RouterFinder use default identity.
@@ -412,8 +415,9 @@ namespace Glacier2
                 try
                 {
                     dispatchCallbackAndWait(() => _callback.createdCommunicator(this));
-
-                    RouterPrx routerPrx = RouterPrx.UncheckedCast(_communicator.getDefaultRouter());
+                    Ice.RouterPrx? defaultRouter = _communicator.getDefaultRouter();
+                    Debug.Assert(defaultRouter != null);
+                    RouterPrx routerPrx = RouterPrx.UncheckedCast(defaultRouter);
                     SessionPrx session = factory(routerPrx);
                     connected(routerPrx, session);
                 }
@@ -426,7 +430,7 @@ namespace Glacier2
         }
 
         private void
-        dispatchCallback(Action callback, Ice.Connection conn)
+        dispatchCallback(Action callback, Connection? conn)
         {
             if (_initData.dispatcher != null)
             {
@@ -457,13 +461,13 @@ namespace Glacier2
             }
         }
 
-        private readonly Ice.InitializationData _initData;
-        private Ice.Communicator _communicator;
-        private Ice.ObjectAdapter _adapter;
-        private RouterPrx _router;
-        private SessionPrx _session;
+        private readonly InitializationData _initData;
+        private Communicator? _communicator;
+        private ObjectAdapter? _adapter;
+        private RouterPrx? _router;
+        private SessionPrx? _session;
         private bool _connected = false;
-        private string _category;
+        private string? _category;
         private string _finderStr;
         private bool _useCallbacks;
 

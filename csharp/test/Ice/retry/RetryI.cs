@@ -18,9 +18,9 @@ namespace Ice
             {
                 if (kill)
                 {
-                    if (current.con != null)
+                    if (current.Connection != null)
                     {
-                        current.con.close(Ice.ConnectionClose.Forcefully);
+                        current.Connection.close(Ice.ConnectionClose.Forcefully);
                     }
                     else
                     {
@@ -58,7 +58,7 @@ namespace Ice
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             private int _counter;

@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 
@@ -85,7 +86,7 @@ namespace Glacier2
         /// Returns the object identity of the Glacier2 router.
         /// </summary>
         /// <returns> The Glacier2 router's identity.</returns>
-        public Ice.Identity
+        public Ice.Identity?
         getRouterIdentity()
         {
             lock (this)
@@ -322,11 +323,12 @@ namespace Glacier2
             // Clone the initialization data and properties.
             //
             Ice.InitializationData initData = (Ice.InitializationData)_initData.Clone();
+            Debug.Assert(initData.properties != null);
             initData.properties = initData.properties.Clone();
 
             if (initData.properties.getProperty("Ice.Default.Router").Length == 0 && _identity != null)
             {
-                initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity));
+                initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity.Value));
             }
 
             //
@@ -355,7 +357,7 @@ namespace Glacier2
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("\"");
-            sb.Append(Ice.Util.identityToString(ident, Ice.ToStringMode.Unicode));
+            sb.Append(ident);
             sb.Append("\":");
             sb.Append(_protocol + " -p ");
             sb.Append(getPortInternal());
@@ -373,17 +375,18 @@ namespace Glacier2
         private void
         setDefaultProperties()
         {
+            Debug.Assert(_initData.properties != null);
             _initData.properties.setProperty("Ice.RetryIntervals", "-1");
         }
 
         private SessionCallback _callback;
         private string _routerHost = "localhost";
         private Ice.InitializationData _initData;
-        private Ice.Identity _identity = null;
+        private Ice.Identity? _identity = null;
         private string _protocol = "ssl";
         private int _port = 0;
         private int _timeout = 10000;
-        private Dictionary<string, string> _context;
+        private Dictionary<string, string>? _context;
         private bool _useCallbacks = true;
         private static int GLACIER2_SSL_PORT = 4064;
         private static int GLACIER2_TCP_PORT = 4063;

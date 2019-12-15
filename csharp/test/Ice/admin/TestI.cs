@@ -39,22 +39,22 @@ namespace Ice
 
             public void print(string message, Ice.Current current)
             {
-                _communicator.getLogger().print(message);
+                _communicator.Logger.print(message);
             }
 
             public void trace(string category, string message, Ice.Current current)
             {
-                _communicator.getLogger().trace(category, message);
+                _communicator.Logger.trace(category, message);
             }
 
             public void warning(string message, Ice.Current current)
             {
-                _communicator.getLogger().warning(message);
+                _communicator.Logger.warning(message);
             }
 
             public void error(string message, Ice.Current current)
             {
-                _communicator.getLogger().error(message);
+                _communicator.Logger.error(message);
             }
 
             public void shutdown(Ice.Current current)
@@ -117,7 +117,7 @@ namespace Ice
                 //
                 try
                 {
-                    communicator.addAdminFacet<TestFacet, TestFacetTraits>(new TestFacetI(), "TestFacet");
+                    communicator.AddAdminFacet<TestFacet, TestFacetTraits>(new TestFacetI(), "TestFacet");
                 }
                 catch (System.ArgumentException ex)
                 {
@@ -128,7 +128,7 @@ namespace Ice
                 // Set the callback on the admin facet.
                 //
                 RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
-                var propFacet = communicator.findAdminFacet("Properties").servant;
+                var propFacet = communicator.FindAdminFacet("Properties").servant;
 
                 if (propFacet != null)
                 {
@@ -137,12 +137,12 @@ namespace Ice
                     admin.addUpdateCallback(servant.updated);
                 }
 
-                return current.adapter.Add(servant);
+                return current.Adapter.Add(servant);
             }
 
             public void shutdown(Ice.Current current)
             {
-                current.adapter.GetCommunicator().shutdown();
+                current.Adapter.Communicator.shutdown();
             }
 
             private class NullLogger : Ice.Logger
