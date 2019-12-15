@@ -13,7 +13,7 @@ using IceUtilInternal;
 
 namespace IceInternal
 {
-    public abstract class Reference
+    public abstract class Reference : IEquatable<Reference>
     {
         public interface GetConnectionCallback
         {
@@ -298,59 +298,82 @@ namespace IceInternal
 
         public abstract RequestHandler getRequestHandler(IObjectPrx proxy);
 
+        public static bool operator ==(Reference? lhs, Reference? rhs)
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null))
+            {
+                return false;
+            }
+            return rhs.Equals(lhs);
+
+        }
+
+        public static bool operator !=(Reference? lhs, Reference? rhs)
+        {
+            return !(lhs == rhs);
+        }
+
         public override bool Equals(object obj)
+        {
+            return Equals(obj as Reference);
+        }
+
+        public virtual bool Equals(Reference? other)
         {
             //
             // Note: if(this == obj) and type test are performed by each non-abstract derived class.
             //
-
-            Reference r = (Reference)obj; // Guaranteed to succeed.
-
-            if (_mode != r._mode)
+            Debug.Assert(other != null);
+            if (_mode != other._mode)
             {
                 return false;
             }
 
-            if (secure_ != r.secure_)
+            if (secure_ != other.secure_)
             {
                 return false;
             }
 
-            if (!_identity.Equals(r._identity))
+            if (!_identity.Equals(other._identity))
             {
                 return false;
             }
 
-            if (!Collections.Equals(_context, r._context))
+            if (!Collections.Equals(_context, other._context))
             {
                 return false;
             }
 
-            if (!_facet.Equals(r._facet))
+            if (!_facet.Equals(other._facet))
             {
                 return false;
             }
 
-            if (overrideCompress_ != r.overrideCompress_)
+            if (overrideCompress_ != other.overrideCompress_)
             {
                 return false;
             }
-            if (overrideCompress_ && compress_ != r.compress_)
-            {
-                return false;
-            }
-
-            if (!_protocol.Equals(r._protocol))
+            if (overrideCompress_ && compress_ != other.compress_)
             {
                 return false;
             }
 
-            if (!_encoding.Equals(r._encoding))
+            if (!_protocol.Equals(other._protocol))
             {
                 return false;
             }
 
-            if (_invocationTimeout != r._invocationTimeout)
+            if (!_encoding.Equals(other._encoding))
+            {
+                return false;
+            }
+
+            if (_invocationTimeout != other._invocationTimeout)
             {
                 return false;
             }
@@ -879,14 +902,15 @@ namespace IceInternal
             return proxy.IceSetRequestHandler(new ConnectionRequestHandler(this, _fixedConnection, compress));
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(Reference? other)
         {
-            if (ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }
-            FixedReference? rhs = obj as FixedReference;
-            if (rhs == null)
+
+            FixedReference? rhs = other as FixedReference;
+            if (ReferenceEquals(rhs, null))
             {
                 return false;
             }
@@ -1358,7 +1382,7 @@ namespace IceInternal
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(Reference? obj)
         {
             if (ReferenceEquals(this, obj))
             {
@@ -1366,7 +1390,7 @@ namespace IceInternal
             }
 
             RoutableReference? rhs = obj as RoutableReference;
-            if (rhs == null)
+            if (ReferenceEquals(rhs, null))
             {
                 return false;
             }

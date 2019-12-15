@@ -561,7 +561,7 @@ namespace Ice
                 return true;
             }
 
-            if (lhs == null || rhs == null)
+            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null))
             {
                 return false;
             }
@@ -1020,17 +1020,7 @@ namespace Ice
         /// <returns>True if this proxy is equal to r; false, otherwise.</returns>
         public bool Equals(IObjectPrx? other)
         {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            if (other == null)
-            {
-                return false;
-            }
-
-            return IceReference.Equals(other.IceReference);
+            return other != null && IceReference.Equals(other.IceReference);
         }
     }
 
