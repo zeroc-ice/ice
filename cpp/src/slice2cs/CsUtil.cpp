@@ -42,7 +42,7 @@ namespace
 {
 
 string
-mangleName(const string& name, int baseTypes)
+mangleName(const string& name, unsigned int baseTypes)
 {
     static const char* ObjectNames[] = { "Equals", "Finalize", "GetHashCode", "GetType", "MemberwiseClone",
                                          "ReferenceEquals", "ToString", 0 };
