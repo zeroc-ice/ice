@@ -459,10 +459,10 @@ Slice::splitScopedName(const string& scoped)
 }
 
 bool
-Slice::ciequals(const string& a, const string& b)
+Slice::ciequals(const string& lhs, const string& rhs)
 {
-    return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char a, char b)
-                                                              {
-                                                                  return tolower(a) == tolower(b);
-                                                              });
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char a, char b)
+                                                                      {
+                                                                          return tolower(a) == tolower(b);
+                                                                      });
 }
