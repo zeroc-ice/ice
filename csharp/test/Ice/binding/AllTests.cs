@@ -722,7 +722,7 @@ namespace Ice
                     }
                 }
                 output.WriteLine("ok");
-                if (communicator.Properties.getProperty("Plugin.IceSSL").Length > 0)
+                if (communicator.GetProperty("Plugin.IceSSL") != null)
                 {
                     output.Write("testing unsecure vs. secure endpoints... ");
                     output.Flush();
@@ -785,69 +785,78 @@ namespace Ice
                     output.Write("testing ipv4 & ipv6 connections... ");
                     output.Flush();
 
-                    Properties ipv4 = Util.createProperties();
-                    ipv4.setProperty("IPv4", "1");
-                    ipv4.setProperty("IPv6", "0");
-                    ipv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
+                    var ipv4 = new Dictionary<string, string>()
+                    {
+                        { "IPv4", "1" },
+                        { "IPv6", "0" },
+                        { "Adapter.Endpoints", "tcp -h localhost" }
+                     };
 
-                    Properties ipv6 = Util.createProperties();
-                    ipv6.setProperty("IPv4", "0");
-                    ipv6.setProperty("IPv6", "1");
-                    ipv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
+                    var ipv6 = new Dictionary<string, string>()
+                    {
+                        { "IPv4", "0" },
+                        { "IPv6", "1" },
+                        { "Adapter.Endpoints", "tcp -h localhost" }
+                    };
 
-                    Properties bothPreferIPv4 = Util.createProperties();
-                    bothPreferIPv4.setProperty("IPv4", "1");
-                    bothPreferIPv4.setProperty("IPv6", "1");
-                    bothPreferIPv4.setProperty("PreferIPv6Address", "0");
-                    bothPreferIPv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
+                    var bothPreferIPv4 = new Dictionary<string, string>()
+                    {
+                        { "IPv4", "1" },
+                        { "IPv6", "1" },
+                        { "PreferIPv6Address", "0" },
+                        { "Adapter.Endpoints", "tcp -h localhost" }
+                    };
 
-                    Properties bothPreferIPv6 = Util.createProperties();
-                    bothPreferIPv6.setProperty("IPv4", "1");
-                    bothPreferIPv6.setProperty("IPv6", "1");
-                    bothPreferIPv6.setProperty("PreferIPv6Address", "1");
-                    bothPreferIPv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
+                    var bothPreferIPv6 = new Dictionary<string, string>()
+                    {
+                        { "IPv4", "1" },
+                        { "IPv6", "1" },
+                        { "PreferIPv6Address", "1" },
+                        { "Adapter.Endpoints", "tcp -h localhost" }
+                    };
 
-                    List<Properties> clientProps = new List<Properties>();
-                    clientProps.Add(ipv4);
-                    clientProps.Add(ipv6);
-                    clientProps.Add(bothPreferIPv4);
-                    clientProps.Add(bothPreferIPv6);
+                    Dictionary<string, string>[] clientProps =
+                    {
+                        ipv4, ipv6, bothPreferIPv4, bothPreferIPv6
+                    };
 
                     string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
 
-                    Properties anyipv4 = ipv4.Clone();
-                    anyipv4.setProperty("Adapter.Endpoints", endpoint);
-                    anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
+                    var anyipv4 = new Dictionary<string, string>(ipv4);
+                    anyipv4["Adapter.Endpoints"] = endpoint;
+                    anyipv4["Adapter.PublishedEndpoints"] = $"{endpoint} -h 127.0.0.1";
 
-                    Properties anyipv6 = ipv6.Clone();
-                    anyipv6.setProperty("Adapter.Endpoints", endpoint);
-                    anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
+                    var anyipv6 = new Dictionary<string, string>(ipv6);
+                    anyipv6["Adapter.Endpoints"] = endpoint;
+                    anyipv6["Adapter.PublishedEndpoints"] = $"{endpoint} -h \".1\"";
 
-                    Properties anyboth = Util.createProperties();
-                    anyboth.setProperty("IPv4", "1");
-                    anyboth.setProperty("IPv6", "1");
-                    anyboth.setProperty("Adapter.Endpoints", endpoint);
-                    anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
+                    var anyboth = new Dictionary<string, string>()
+                    {
+                        { "IPv4", "1" },
+                        { "IPv6", "1"},
+                        { "Adapter.Endpoints", endpoint },
+                        { "Adapter.PublishedEndpoints", $"{endpoint} -h \"::1\":{endpoint} -h 127.0.0.1" }
+                    };
 
-                    Properties localipv4 = ipv4.Clone();
-                    localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
+                    var localipv4 = new Dictionary<string, string>(ipv4);
+                    localipv4["Adapter.Endpoints"] = "tcp -h 127.0.0.1";
 
-                    Properties localipv6 = ipv6.Clone();
-                    localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
+                    var localipv6 = new Dictionary<string, string>(ipv6);
+                    localipv6["Adapter.Endpoints"] = "tcp -h \"::1\"";
 
-                    List<Properties> serverProps = new List<Properties>(clientProps);
-                    serverProps.Add(anyipv4);
-                    serverProps.Add(anyipv6);
-                    serverProps.Add(anyboth);
-                    serverProps.Add(localipv4);
-                    serverProps.Add(localipv6);
+                    Dictionary<string, string>[] serverProps =
+                    {
+                        anyipv4,
+                        anyipv6,
+                        anyboth,
+                        localipv4,
+                        localipv6
+                    };
 
                     bool ipv6NotSupported = false;
-                    foreach (Properties p in serverProps)
+                    foreach (var p in serverProps)
                     {
-                        InitializationData serverInitData = new InitializationData();
-                        serverInitData.properties = p;
-                        Communicator serverCommunicator = Util.initialize(serverInitData);
+                        Communicator serverCommunicator = new Communicator(p);
                         ObjectAdapter oa;
                         try
                         {
@@ -881,11 +890,9 @@ namespace Ice
                         }
 
                         string strPrx = prx.ToString();
-                        foreach (Properties q in clientProps)
+                        foreach (var q in clientProps)
                         {
-                            InitializationData clientInitData = new InitializationData();
-                            clientInitData.properties = q;
-                            Communicator clientCommunicator = Util.initialize(clientInitData);
+                            Communicator clientCommunicator = new Communicator(q);
                             prx = IObjectPrx.Parse(strPrx, clientCommunicator);
                             try
                             {

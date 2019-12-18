@@ -6,7 +6,7 @@ namespace IceInternal
 {
     public sealed class TraceLevels
     {
-        internal TraceLevels(Ice.Properties properties)
+        internal TraceLevels(Ice.Communicator communicator)
         {
             networkCat = "Network";
             protocolCat = "Protocol";
@@ -17,12 +17,12 @@ namespace IceInternal
 
             string keyBase = "Ice.Trace.";
 
-            network = properties.getPropertyAsInt(keyBase + networkCat);
-            protocol = properties.getPropertyAsInt(keyBase + protocolCat);
-            retry = properties.getPropertyAsInt(keyBase + retryCat);
-            location = properties.getPropertyAsInt(keyBase + locationCat);
-            slicing = properties.getPropertyAsInt(keyBase + slicingCat);
-            threadPool = properties.getPropertyAsInt(keyBase + threadPoolCat);
+            network = communicator.GetPropertyAsInt(keyBase + networkCat) ?? 0;
+            protocol = communicator.GetPropertyAsInt(keyBase + protocolCat) ?? 0;
+            retry = communicator.GetPropertyAsInt(keyBase + retryCat) ?? 0;
+            location = communicator.GetPropertyAsInt(keyBase + locationCat) ?? 0;
+            slicing = communicator.GetPropertyAsInt(keyBase + slicingCat) ?? 0;
+            threadPool = communicator.GetPropertyAsInt(keyBase + threadPoolCat) ?? 0;
         }
 
         public readonly int network;

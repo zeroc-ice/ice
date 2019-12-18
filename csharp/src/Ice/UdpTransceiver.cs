@@ -796,7 +796,7 @@ namespace IceInternal
                 //
                 if (sizeRequested == -1)
                 {
-                    sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+                    sizeRequested = _instance.communicator().GetPropertyAsInt(prop) ?? dfltSize;
                 }
                 //
                 // Check for sanity.

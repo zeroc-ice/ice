@@ -15,12 +15,12 @@ namespace Ice.location
             // 'server'(a server isn't a different process, it's just a new
             // communicator and object adapter).
             //
-            Properties properties = createTestProperties(ref args);
-            properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+            var properties = createTestProperties(ref args);
+            properties["Ice.ThreadPool.Server.Size"] = "2";
 
             using (var communicator = initialize(properties))
             {
-                communicator.Properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+                communicator.SetProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
                 ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
                 //
                 // We also register a sample server locator which implements the

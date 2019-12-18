@@ -3,9 +3,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+
+using Ice;
 
 namespace Test
 {
@@ -30,47 +33,80 @@ namespace Test
 
         public string getTestEndpoint(int num = 0, string protocol = "")
         {
-            return getTestEndpoint(_communicator.Properties, num, protocol);
+            return getTestEndpoint(_communicator.GetProperties(), num, protocol);
         }
 
-        static public string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
+        static public string getTestEndpoint(Dictionary<string, string> properties, int num = 0, string protocol = "")
         {
+            string? value;
+            if (protocol == "")
+            {
+                if (!properties.TryGetValue("Ice.Default.Protocol", out value))
+                {
+                    value = "default";
+                }
+            }
+            else
+            {
+                value = protocol;
+            }
+
             StringBuilder sb = new StringBuilder();
-            sb.Append(protocol == "" ? properties.getPropertyWithDefault("Ice.Default.Protocol", "default") :
-                                       protocol);
+            sb.Append(value);
             sb.Append(" -p ");
-            sb.Append(properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num);
+            int basePort;
+            if (!properties.TryGetValue("Test.BasePort", out value) || !int.TryParse(value, out basePort))
+            {
+                basePort = 12010;
+            }
+            sb.Append(basePort + num);
             return sb.ToString();
         }
 
         public string getTestHost()
         {
-            return getTestHost(_communicator.Properties);
+            return getTestHost(_communicator.GetProperties());
         }
 
-        static public string getTestHost(Ice.Properties properties)
+        static public string getTestHost(Dictionary<string, string> properties)
         {
-            return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+            string? host;
+            if (!properties.TryGetValue("Ice.Default.Host", out host))
+            {
+                host = "127.0.0.1";
+            }
+            return host;
         }
 
-        public String getTestProtocol()
+        public string getTestProtocol()
         {
-            return getTestProtocol(_communicator.Properties);
+            return getTestProtocol(_communicator.GetProperties());
         }
 
-        static public String getTestProtocol(Ice.Properties properties)
+        static public String getTestProtocol(Dictionary<string, string> properties)
         {
-            return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            string? protocol;
+            if (!properties.TryGetValue("Ice.Default.Protocol", out protocol))
+            {
+                protocol = "tcp";
+            }
+            return protocol;
         }
 
         public int getTestPort(int num)
         {
-            return getTestPort(_communicator.Properties, num);
+            return getTestPort(_communicator.GetProperties(), num);
         }
 
-        static public int getTestPort(Ice.Properties properties, int num)
+        static public int getTestPort(Dictionary<string, string> properties, int num)
         {
-            return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
+            string? value;
+            int basePort = 12010;
+            if (properties.TryGetValue("Test.BasePort", out value))
+            {
+                basePort = int.Parse(value);
+            }
+            return basePort + num;
         }
 
         public TextWriter getWriter()
@@ -90,30 +126,32 @@ namespace Test
             _writer = writer;
         }
 
-        public Ice.Properties createTestProperties(ref string[] args)
+        public Dictionary<string, string> createTestProperties(
+            ref string[] args,
+            Dictionary<string, string>? defaults = null)
         {
-            Ice.Properties properties = Ice.Util.createProperties(ref args);
-            args = properties.parseCommandLineOptions("Test", args);
+            var properties = defaults == null ? new Dictionary<string, string>() : new Dictionary<string, string>(defaults);
+            properties.ParseIceArgs(ref args);
+            properties.ParseArgs(ref args, "Test");
             return properties;
         }
 
-        public Ice.Communicator initialize(ref string[] args)
+        public Communicator initialize(ref string[] args,
+            Dictionary<string, string>? defaults = null,
+            Action<Action, Connection?>? dispatcher = null,
+            Ice.Instrumentation.CommunicatorObserver? observer = null,
+            string[]? typeIdNamespaces = null)
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = createTestProperties(ref args);
-            return initialize(initData);
+            return initialize(createTestProperties(ref args, defaults), dispatcher, observer, typeIdNamespaces);
         }
 
-        public Ice.Communicator initialize(Ice.Properties properties)
+        public Communicator initialize(
+            Dictionary<string, string> properties,
+            Action<Action, Connection?>? dispatcher = null,
+            Ice.Instrumentation.CommunicatorObserver? observer = null,
+            string[]? typeIdNamespaces = null)
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = properties;
-            return initialize(initData);
-        }
-
-        public Ice.Communicator initialize(Ice.InitializationData initData)
-        {
-            Ice.Communicator communicator = Ice.Util.initialize(initData);
+            var communicator = new Communicator(properties, dispatcher: dispatcher, observer: observer, typeIdNamespaces: typeIdNamespaces);
             if (_communicator == null)
             {
                 _communicator = communicator;
@@ -135,7 +173,7 @@ namespace Test
             if (!b)
             {
                 Debug.Assert(false);
-                throw new Exception();
+                throw new System.Exception();
             }
         }
 
@@ -164,7 +202,7 @@ namespace Test
             if (!b)
             {
                 Debug.Assert(false);
-                throw new Exception();
+                throw new System.Exception();
             }
         }
     }
@@ -180,7 +218,7 @@ namespace Test
                 T h = new T();
                 h.run(args);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Console.WriteLine(ex);
                 status = 1;

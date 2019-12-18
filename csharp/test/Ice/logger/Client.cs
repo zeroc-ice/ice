@@ -20,11 +20,11 @@ public class Client : Test.TestHelper
         {
             File.Delete("log.txt");
         }
-        var initData = new Ice.InitializationData();
-        initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.LogFile", "log.txt");
-        using (var communicator = initialize(initData))
+
         {
+            var properties = createTestProperties(ref args);
+            properties["Ice.LogFile"] = "log.txt";
+            using var communicator = initialize(properties);
             communicator.Logger.trace("info", "my logger");
         }
         test(File.Exists("log.txt"));

@@ -92,15 +92,8 @@ internal sealed class ServerFactoryI : ServerFactory
 
     public ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
-        foreach (string key in props.Keys)
-        {
-            initData.properties.setProperty(key, props[key]);
-        }
-        initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-        string[] args = new string[0];
-        Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
+        props["IceSSL.DefaultDir"] = _defaultDir;
+        Ice.Communicator communicator = new Ice.Communicator(props);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
         var prx = adapter.Add(server);
@@ -111,12 +104,11 @@ internal sealed class ServerFactoryI : ServerFactory
 
     public void destroyServer(ServerPrx srv, Ice.Current current)
     {
-        Ice.Identity key = srv.Identity;
-        if (_servers.Contains(key))
+        ServerI? server;
+        if (_servers.TryGetValue(srv.Identity, out server))
         {
-            ServerI server = _servers[key] as ServerI;
             server.destroy();
-            _servers.Remove(key);
+            _servers.Remove(srv.Identity);
         }
     }
 
@@ -127,5 +119,5 @@ internal sealed class ServerFactoryI : ServerFactory
     }
 
     private string _defaultDir;
-    private Hashtable _servers = new Hashtable();
+    private Dictionary<Ice.Identity, ServerI> _servers = new Dictionary<Ice.Identity, ServerI>();
 }

@@ -13,8 +13,7 @@ namespace IceInternal
             communicator_ = communicator;
             traceLevel_ = communicator_.traceLevels().network;
             traceCategory_ = communicator_.traceLevels().networkCat;
-            logger_ = communicator_.initializationData().logger;
-            properties_ = communicator_.Properties;
+            logger_ = communicator_.Logger;
             type_ = type;
             protocol_ = protocol;
             secure_ = secure;
@@ -55,9 +54,9 @@ namespace IceInternal
             return secure_;
         }
 
-        public Ice.Properties properties()
+        public Ice.Communicator communicator()
         {
-            return properties_;
+            return communicator_;
         }
 
         public bool preferIPv6()
@@ -72,10 +71,10 @@ namespace IceInternal
 
         public string defaultHost()
         {
-            return communicator_.defaultsAndOverrides().defaultHost;
+            return communicator_.defaultsAndOverrides().defaultHost ?? "";
         }
 
-        public EndPoint defaultSourceAddress()
+        public EndPoint? defaultSourceAddress()
         {
             return communicator_.defaultsAndOverrides().defaultSourceAddress;
         }
@@ -125,7 +124,6 @@ namespace IceInternal
         protected int traceLevel_;
         protected string traceCategory_;
         protected Ice.Logger logger_;
-        protected Ice.Properties properties_;
         protected string protocol_;
         protected short type_;
         protected bool secure_;

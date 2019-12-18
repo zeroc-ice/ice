@@ -13,8 +13,8 @@ namespace Ice
             public override void run(string[] args)
             {
                 var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Warn.Connections", "0");
-                properties.setProperty("Ice.UDP.SndSize", "16384");
+                properties["Ice.Warn.Connections"] = "0";
+                properties["Ice.UDP.SndSize"] = "16384";
                 using (var communicator = initialize(properties))
                 {
                     AllTests.allTests(this);
@@ -22,7 +22,7 @@ namespace Ice
                     int num;
                     try
                     {
-                        num = args.Length == 1 ? Int32.Parse(args[0]) : 1;
+                        num = args.Length == 1 ? int.Parse(args[0]) : 1;
                     }
                     catch (FormatException)
                     {

@@ -3275,34 +3275,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "public static new " <<p->name() << "Prx ParseProperty("
-         << "string prefix, "
-         << getUnqualified("Ice.Communicator", ns) << " communicator)";
-    _out << sb;
-    _out << nl << "string proxy = communicator.Properties.getProperty(prefix);";
-    _out << nl << "return new _" << p->name() << "Prx(communicator.CreateReference(proxy, prefix));";
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "public static bool TryParseProperty("
-         << "string prefix, "
-         << getUnqualified("Ice.Communicator", ns) << " communicator, "
-         << "out " << p->name() << "Prx? prx)";
-    _out << sb;
-    _out << nl << "try";
-    _out << sb;
-    _out << nl << "string proxy = communicator.Properties.getProperty(prefix);";
-    _out << nl << "prx = new _" << p->name() << "Prx(communicator.CreateReference(proxy, prefix));";
-    _out << eb;
-    _out << nl << "catch (global::System.Exception)";
-    _out << sb;
-    _out << nl << "prx = null;";
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << "return true;";
-    _out << eb;
-
-    _out << sp;
     _out << nl << "public static ";
     if(!bases.empty())
     {

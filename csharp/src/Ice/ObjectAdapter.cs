@@ -86,8 +86,7 @@ namespace Ice
                 locatorInfo = _locatorInfo;
                 if (!_noConfig)
                 {
-                    Properties properties = _communicator.Properties;
-                    printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+                    printAdapterReady = _communicator.GetPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
 
@@ -1251,7 +1250,7 @@ namespace Ice
         //
         internal ObjectAdapter(Communicator communicator,
                                ObjectAdapterFactory objectAdapterFactory, string name,
-                               RouterPrx router, bool noConfig)
+                               RouterPrx? router, bool noConfig)
         {
             _communicator = communicator;
             _objectAdapterFactory = objectAdapterFactory;
@@ -1272,14 +1271,13 @@ namespace Ice
                 return;
             }
 
-            Properties properties = _communicator.Properties;
             List<string> unknownProps = new List<string>();
             bool noProps = FilterProperties(unknownProps);
 
             //
             // Warn about unknown object adapter properties.
             //
-            if (unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+            if (unknownProps.Count != 0 && (_communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
             {
                 StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
                 message.Append(_name);
@@ -1303,27 +1301,24 @@ namespace Ice
                 _state = StateDestroyed;
                 _communicator = null;
                 _incomingConnectionFactories = null;
-
-                InitializationException ex = new InitializationException();
-                ex.reason = "object adapter `" + _name + "' requires configuration";
-                throw ex;
+                System.Console.WriteLine($"object adapter `{_name}' requires configuration");
+                throw new InitializationException($"object adapter `{_name}' requires configuration");
             }
 
-            _id = properties.getProperty(_name + ".AdapterId");
-            _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
+            _id = _communicator.GetProperty($"{_name}.AdapterId") ?? "";
+            _replicaGroupId = _communicator.GetProperty($"{_name}.ReplicaGroupId") ?? "";
 
             //
             // Setup a reference to be used to get the default proxy options
             // when creating new proxies. By default, create twoway proxies.
             //
-            string proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
+            string proxyOptions = _communicator.GetProperty($"{_name}.ProxyOptions") ?? "-t";
             _reference = _communicator.CreateReference($"dummy {proxyOptions}", "");
 
-            _acm = new ACMConfig(properties, communicator.Logger, _name + ".ACM", _communicator.ServerACM);
-
+            _acm = new ACMConfig(communicator, communicator.Logger, $"{_name}.ACM", _communicator.ServerACM);
             {
                 int defaultMessageSizeMax = communicator.messageSizeMax() / 1024;
-                int num = properties.getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+                int num = communicator.GetPropertyAsInt($"{_name}.MessageSizeMax") ?? defaultMessageSizeMax;
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
                     _messageSizeMax = 0x7fffffff;
@@ -1336,18 +1331,14 @@ namespace Ice
 
             try
             {
-                int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-                int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+                int threadPoolSize = communicator.GetPropertyAsInt($"{_name}.ThreadPool.Size") ?? 0;
+                int threadPoolSizeMax = communicator.GetPropertyAsInt($"{_name}.ThreadPool.SizeMax") ?? 0;
                 if (threadPoolSize > 0 || threadPoolSizeMax > 0)
                 {
                     _threadPool = new ThreadPool(_communicator, _name + ".ThreadPool", 0);
                 }
 
-                string property = _name + ".Router";
-                if (router == null && !string.IsNullOrEmpty(properties.getProperty(property)))
-                {
-                    router = RouterPrx.ParseProperty(property, communicator);
-                }
+                router ??= communicator.GetPropertyAsProxy($"{_name}.Router", RouterPrx.Factory);
 
                 if (router != null)
                 {
@@ -1384,7 +1375,7 @@ namespace Ice
                     // Parse the endpoints, but don't store them in the adapter. The connection
                     // factory might change it, for example, to fill in the real port number.
                     //
-                    List<EndpointI> endpoints = ParseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                    List<EndpointI> endpoints = ParseEndpoints(communicator.GetProperty($"{_name}.Endpoints") ?? "", true);
                     foreach (EndpointI endp in endpoints)
                     {
                         EndpointI publishedEndpoint;
@@ -1412,10 +1403,10 @@ namespace Ice
                 // Parse published endpoints.
                 //
                 _publishedEndpoints = ComputePublishedEndpoints();
-                property = _name + ".Locator";
-                if (!string.IsNullOrEmpty(properties.getProperty(property)))
+                LocatorPrx? locator = communicator.GetPropertyAsProxy($"{_name}.Locator", LocatorPrx.Factory);
+                if (locator != null)
                 {
-                    SetLocator(LocatorPrx.ParseProperty(property, communicator));
+                    SetLocator(locator);
                 }
                 else
                 {
@@ -1599,8 +1590,7 @@ namespace Ice
                 // Parse published endpoints. If set, these are used in proxies
                 // instead of the connection factory endpoints.
                 //
-                string endpts = _communicator.Properties.getProperty(_name + ".PublishedEndpoints");
-                endpoints = ParseEndpoints(endpts, false);
+                endpoints = ParseEndpoints(_communicator.GetProperty($"{_name}.PublishedEndpoints") ?? "", false);
                 if (endpoints.Count == 0)
                 {
                     //
@@ -1820,7 +1810,7 @@ namespace Ice
             }
 
             bool noProps = true;
-            Dictionary<string, string> props = _communicator.Properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> props = _communicator.GetProperties(forPrefix: prefix);
             foreach (string prop in props.Keys)
             {
                 bool valid = false;
@@ -1852,7 +1842,7 @@ namespace Ice
         private const int StateDestroyed = 7;
 
         private int _state = StateUninitialized;
-        private Communicator? _communicator;
+        private Communicator _communicator;
         private ObjectAdapterFactory _objectAdapterFactory;
         private ThreadPool? _threadPool;
         private ACMConfig _acm;
@@ -1862,7 +1852,7 @@ namespace Ice
         private readonly string _replicaGroupId;
         private Reference _reference;
         private List<IncomingConnectionFactory>? _incomingConnectionFactories;
-        private RouterInfo _routerInfo;
+        private RouterInfo? _routerInfo;
         private EndpointI[] _publishedEndpoints;
         private LocatorInfo? _locatorInfo;
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.

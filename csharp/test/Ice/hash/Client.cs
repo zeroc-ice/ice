@@ -87,7 +87,7 @@ public class Client : Test.TestHelper
                 test(proxyCollisions < maxCollisions);
                 test(endpointCollisions < maxCollisions);
                 {
-                    Ice.ProxyIdentityKey comparer = new ProxyIdentityKey();
+                    Ice.ProxyIdentityComparer comparer = new ProxyIdentityComparer();
                     proxyCollisions = 0;
                     seenProxy = new Dictionary<int, IObjectPrx>();
                     for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
@@ -124,7 +124,7 @@ public class Client : Test.TestHelper
 
             {
                 Random rand = new Random();
-                Ice.ProxyIdentityFacetKey comparer = new Ice.ProxyIdentityFacetKey();
+                Ice.ProxyIdentityFacetComparer comparer = new Ice.ProxyIdentityFacetComparer();
                 proxyCollisions = 0;
                 seenProxy = new Dictionary<int, IObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
@@ -158,8 +158,8 @@ public class Client : Test.TestHelper
                 test(proxyCollisions < maxCollisions);
             }
 
-            Ice.ProxyIdentityFacetKey iComparer = new Ice.ProxyIdentityFacetKey();
-            Ice.ProxyIdentityFacetKey ifComparer = new Ice.ProxyIdentityFacetKey();
+            Ice.ProxyIdentityComparer iComparer = new Ice.ProxyIdentityComparer();
+            Ice.ProxyIdentityFacetComparer ifComparer = new Ice.ProxyIdentityFacetComparer();
 
             var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator);
             //Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");

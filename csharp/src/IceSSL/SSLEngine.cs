@@ -19,7 +19,7 @@ namespace IceSSL
             _communicator = facade.getCommunicator();
             _logger = _communicator.Logger;
             _facade = facade;
-            _securityTraceLevel = _communicator.Properties.getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+            _securityTraceLevel = _communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             _securityTraceCategory = "Security";
             _initialized = false;
             _trustManager = new TrustManager(_communicator);
@@ -32,16 +32,14 @@ namespace IceSSL
                 return;
             }
 
-            const string prefix = "IceSSL.";
-            Ice.Properties properties = communicator().Properties;
-
+            var ic = communicator();
             //
             // Check for a default directory. We look in this directory for
             // files mentioned in the configuration.
             //
-            _defaultDir = properties.getProperty(prefix + "DefaultDir");
+            _defaultDir = ic.GetProperty("IceSSL.DefaultDir") ?? "";
 
-            string certStoreLocation = properties.getPropertyWithDefault(prefix + "CertStoreLocation", "CurrentUser");
+            string certStoreLocation = ic.GetProperty("IceSSL.CertStoreLocation") ?? "CurrentUser";
             StoreLocation storeLocation;
             if (certStoreLocation == "CurrentUser")
             {
@@ -53,8 +51,7 @@ namespace IceSSL
             }
             else
             {
-                _logger.warning("Invalid IceSSL.CertStoreLocation value `" + certStoreLocation +
-                                "' adjusted to `CurrentUser'");
+                _logger.warning($"Invalid IceSSL.CertStoreLocation value `{certStoreLocation}' adjusted to `CurrentUser'");
                 storeLocation = StoreLocation.CurrentUser;
             }
             _useMachineContext = certStoreLocation == "LocalMachine";
@@ -63,8 +60,8 @@ namespace IceSSL
             // Protocols selects which protocols to enable, by default we only enable TLS1.0
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
-            string[] protocols = properties.getPropertyAsList(prefix + "Protocols");
-            if (protocols.Length > 0)
+            string[]? protocols = ic.GetPropertyAsList("IceSSL.Protocols");
+            if (protocols != null)
             {
                 _protocols = parseProtocols(protocols);
             }
@@ -83,25 +80,25 @@ namespace IceSSL
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
             //
-            _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+            _checkCertName = ic.GetPropertyAsInt("IceSSL.CheckCertName") > 0;
 
             //
             // VerifyDepthMax establishes the maximum length of a peer's certificate
             // chain, including the peer's certificate. A value of 0 means there is
             // no maximum.
             //
-            _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 3);
+            _verifyDepthMax = ic.GetPropertyAsInt("IceSSL.VerifyDepthMax") ?? 3;
 
             //
             // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
             //
-            _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
+            _checkCRL = ic.GetPropertyAsInt("IceSSL.CheckCRL") ?? 0;
 
             //
             // Check for a certificate verifier.
             //
-            string certVerifierClass = properties.getProperty(prefix + "CertVerifier");
-            if (certVerifierClass.Length > 0)
+            string? certVerifierClass = ic.GetProperty("IceSSL.CertVerifier");
+            if (certVerifierClass != null)
             {
                 if (_verifier != null)
                 {
@@ -140,8 +137,8 @@ namespace IceSSL
             //
             // Check for a password callback.
             //
-            string passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
-            if (passwordCallbackClass.Length > 0)
+            string? passwordCallbackClass = ic.GetProperty("IceSSL.PasswordCallback");
+            if (passwordCallbackClass != null)
             {
                 if (_passwordCallback != null)
                 {
@@ -189,13 +186,13 @@ namespace IceSSL
                 //
                 // TODO: tracing?
                 _certs = new X509Certificate2Collection();
-                string certFile = properties.getProperty(prefix + "CertFile");
-                string passwordStr = properties.getProperty(prefix + "Password");
-                string findCert = properties.getProperty(prefix + "FindCert");
-                const string findPrefix = prefix + "FindCert.";
-                Dictionary<string, string> findCertProps = properties.getPropertiesForPrefix(findPrefix);
+                string? certFile = ic.GetProperty("IceSSL.CertFile");
+                string? passwordStr = ic.GetProperty("IceSSL.Password");
+                string? findCert = ic.GetProperty("IceSSL.FindCert");
+                const string findPrefix = "IceSSL.FindCert.";
+                Dictionary<string, string> findCertProps = ic.GetProperties(forPrefix: findPrefix);
 
-                if (certFile.Length > 0)
+                if (certFile != null)
                 {
                     if (!checkPath(ref certFile))
                     {
@@ -205,7 +202,7 @@ namespace IceSSL
                     }
 
                     SecureString? password = null;
-                    if (passwordStr.Length > 0)
+                    if (passwordStr != null)
                     {
                         password = createSecureString(passwordStr);
                     }
@@ -244,9 +241,9 @@ namespace IceSSL
                         throw e;
                     }
                 }
-                else if (findCert.Length > 0)
+                else if (findCert != null)
                 {
-                    string certStore = properties.getPropertyWithDefault("IceSSL.CertStore", "My");
+                    string certStore = ic.GetProperty("IceSSL.CertStore") ?? "My";
                     _certs.AddRange(findCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
                     if (_certs.Count == 0)
                     {
@@ -289,18 +286,18 @@ namespace IceSSL
 
             if (_caCerts == null)
             {
-                string certAuthFile = properties.getProperty(prefix + "CAs");
-                if (certAuthFile.Length == 0)
+                string? certAuthFile = ic.GetProperty("IceSSL.CAs");
+                if (certAuthFile == null)
                 {
-                    certAuthFile = properties.getProperty(prefix + "CertAuthFile");
+                    certAuthFile = ic.GetProperty("IceSSL.CertAuthFile");
                 }
 
-                if (certAuthFile.Length > 0 || properties.getPropertyAsInt(prefix + "UsePlatformCAs") <= 0)
+                if (certAuthFile != null || (ic.GetPropertyAsInt("IceSSL.UsePlatformCAs") ?? 0) <= 0)
                 {
                     _caCerts = new X509Certificate2Collection();
                 }
 
-                if (certAuthFile.Length > 0)
+                if (certAuthFile != null)
                 {
                     if (!checkPath(ref certAuthFile))
                     {

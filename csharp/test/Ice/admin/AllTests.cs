@@ -147,11 +147,10 @@ namespace Ice
                     //
                     // Test: Exercise AddAdminFacet, FindAdminFacet, RemoveAdminFacet with a typical configuration.
                     //
-                    InitializationData init = new InitializationData();
-                    init.properties = Util.createProperties();
-                    init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-                    init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-                    Communicator com = Util.initialize(init);
+                    var properties = new Dictionary<string, string>();
+                    properties["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
+                    properties["Ice.Admin.InstanceName"] = "Test";
+                    var com = new Communicator(properties);
                     testFacets(com, true, false);
                     com.destroy();
                 }
@@ -159,12 +158,11 @@ namespace Ice
                     //
                     // Test: Verify that the operations work correctly in the presence of facet filters.
                     //
-                    Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
-                    init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-                    init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-                    init.properties.setProperty("Ice.Admin.Facets", "Properties");
-                    Ice.Communicator com = Ice.Util.initialize(init);
+                    var properties = new Dictionary<string, string>();
+                    properties["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
+                    properties["Ice.Admin.InstanceName"] = "Test";
+                    properties["Ice.Admin.Facets"] = "Properties";
+                    Communicator com = new Communicator(properties);
                     testFacets(com, false, true);
                     com.destroy();
                 }
@@ -172,7 +170,7 @@ namespace Ice
                     //
                     // Test: Verify that the operations work correctly with the Admin object disabled.
                     //
-                    Ice.Communicator com = Ice.Util.initialize();
+                    var com = new Communicator();
                     testFacets(com, false, false);
                     com.destroy();
                 }
@@ -180,18 +178,18 @@ namespace Ice
                     //
                     // Test: Verify that the operations work correctly with Ice.Admin.Enabled=1
                     //
-                    Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
-                    init.properties.setProperty("Ice.Admin.Enabled", "1");
-                    Ice.Communicator com = Ice.Util.initialize(init);
+                    var properties = new Dictionary<string, string>() {
+                        { "Ice.Admin.Enabled", "1" }
+                    };
+                    Communicator com = new Communicator(properties);
                     test(com.getAdmin() == null);
-                    Ice.Identity id = Identity.Parse("test-admin");
+                    Identity id = Identity.Parse("test-admin");
                     try
                     {
                         com.CreateAdmin(null, id);
                         test(false);
                     }
-                    catch (Ice.InitializationException)
+                    catch (InitializationException)
                     {
                     }
 
@@ -206,12 +204,14 @@ namespace Ice
                     //
                     // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
                     //
-                    Ice.InitializationData init = new Ice.InitializationData();
-                    init.properties = Ice.Util.createProperties();
-                    init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
-                    init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-                    init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-                    Ice.Communicator com = Ice.Util.initialize(init);
+                    var properties = new Dictionary<string, string>()
+                    {
+                        { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
+                        { "Ice.Admin.InstanceName", "Test" },
+                        { "Ice.Admin.DelayCreation", "1" }
+                    };
+
+                    Communicator com = new Communicator(properties);
                     testFacets(com, true, false);
                     com.getAdmin();
                     testFacets(com, true, false);
@@ -256,19 +256,20 @@ namespace Ice
                     //
                     // Test: PropertiesAdmin::getProperty()
                     //
-                    test(pa.getProperty("Prop2").Equals("2"));
-                    test(pa.getProperty("Bogus").Equals(""));
+                    test(pa.getProperty("Prop2") == "2");
+                    test(pa.getProperty("Bogus") == "");
 
                     //
                     // Test: PropertiesAdmin::getProperties()
                     //
                     Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
-                    test(pd.Count == 5);
-                    test(pd["Ice.Admin.Endpoints"].Equals("tcp -h 127.0.0.1"));
-                    test(pd["Ice.Admin.InstanceName"].Equals("Test"));
-                    test(pd["Prop1"].Equals("1"));
-                    test(pd["Prop2"].Equals("2"));
-                    test(pd["Prop3"].Equals("3"));
+                    test(pd.Count == 6);
+                    test(pd["Ice.ProgramName"] == "server");
+                    test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1");
+                    test(pd["Ice.Admin.InstanceName"] == "Test");
+                    test(pd["Prop1"] == "1");
+                    test(pd["Prop2"] == "2");
+                    test(pd["Prop3"] == "3");
 
                     Dictionary<string, string> changes;
 

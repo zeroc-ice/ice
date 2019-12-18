@@ -23,15 +23,11 @@ public class AllTests : Test.AllTests
         Ice.Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
         var obj = IObjectPrx.Parse(sref, communicator);
-        test(obj != null);
 
-        int proxyPort = communicator.Properties.getPropertyAsInt("Ice.HTTPProxyPort");
-        if (proxyPort == 0)
-        {
-            proxyPort = communicator.Properties.getPropertyAsInt("Ice.SOCKSProxyPort");
-        }
+        int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??
+                        communicator.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 0;
 
-        Test.TestIntfPrx testPrx = Test.TestIntfPrx.CheckedCast(obj);
+        Test.TestIntfPrx? testPrx = Test.TestIntfPrx.CheckedCast(obj);
         var output = helper.getWriter();
         output.Write("testing connection... ");
         output.Flush();

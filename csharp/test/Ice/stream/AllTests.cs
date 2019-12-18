@@ -245,7 +245,7 @@ namespace Ice
                     var o2 = (Test.OptionalClass)cb.obj;
                     test(o2.bo == o.bo);
                     test(o2.by == o.by);
-                    if (communicator.Properties.getProperty("Ice.Default.EncodingVersion").Equals("1.0"))
+                    if (communicator.GetProperty("Ice.Default.EncodingVersion") == "1.0")
                     {
                         test(!o2.sh.HasValue);
                         test(!o2.i.HasValue);

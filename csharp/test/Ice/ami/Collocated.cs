@@ -16,24 +16,24 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
+                var properties = createTestProperties(ref args);
 
-                properties.setProperty("Ice.Warn.AMICallback", "0");
+                properties["Ice.Warn.AMICallback"] = "0";
                 //
                 // Limit the send buffer size, this test relies on the socket
                 // send() blocking after sending a given amount of data.
                 //
-                properties.setProperty("Ice.TCP.SndSize", "50000");
+                properties["Ice.TCP.SndSize"] = "50000";
                 //
                 // We use a client thread pool with more than one thread to test
                 // that task inlining works.
                 //
-                properties.setProperty("Ice.ThreadPool.Client.Size", "5");
+                properties["Ice.ThreadPool.Client.Size"] = "5";
                 using (var communicator = initialize(properties))
                 {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                    communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                    communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");

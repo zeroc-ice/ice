@@ -268,11 +268,10 @@ namespace Ice
                     // Test Ice.Override.Timeout. This property overrides all
                     // endpoint timeouts.
                     //
-                    var initData = new Ice.InitializationData();
-                    initData.properties = communicator.Properties.Clone();
-                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
-                    initData.properties.setProperty("Ice.Override.Timeout", "100");
-                    var comm = helper.initialize(initData);
+                    var properties = communicator.GetProperties();
+                    properties["Ice.Override.ConnectTimeout"] = "250";
+                    properties["Ice.Override.Timeout"] = "100";
+                    var comm = helper.initialize(properties);
                     var to = TimeoutPrx.Parse(sref, comm);
                     connect(to);
                     controller.holdAdapter(-1);
@@ -311,10 +310,9 @@ namespace Ice
                     //
                     // Test Ice.Override.ConnectTimeout.
                     //
-                    var initData = new InitializationData();
-                    initData.properties = communicator.Properties.Clone();
-                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
-                    var comm = helper.initialize(initData);
+                    var properties = communicator.GetProperties();
+                    properties["Ice.Override.ConnectTimeout"] = "250";
+                    var comm = helper.initialize(properties);
                     controller.holdAdapter(-1);
                     var to = TimeoutPrx.Parse(sref, comm);
                     try
@@ -369,10 +367,9 @@ namespace Ice
                     //
                     // Test Ice.Override.CloseTimeout.
                     //
-                    var initData = new InitializationData();
-                    initData.properties = communicator.Properties.Clone();
-                    initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
-                    var comm = helper.initialize(initData);
+                    var properties = communicator.GetProperties();
+                    properties["Ice.Override.CloseTimeout"] = "100";
+                    var comm = helper.initialize(properties);
                     IObjectPrx.Parse(sref, comm).GetConnection();
                     controller.holdAdapter(-1);
                     long begin = System.DateTime.Now.Ticks;
@@ -385,7 +382,7 @@ namespace Ice
                 output.Write("testing invocation timeouts with collocated calls... ");
                 output.Flush();
                 {
-                    communicator.Properties.setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
+                    communicator.SetProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
                     var adapter = communicator.createObjectAdapter("TimeoutCollocated");
                     adapter.Activate();

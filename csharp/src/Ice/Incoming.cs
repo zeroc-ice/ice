@@ -138,7 +138,7 @@ namespace IceInternal
                 context[first] = second;
             }
             _current = new Ice.Current(_adapter, id, facet, operation, (Ice.OperationMode)mode, context, _requestId, _connection);
-            Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.initializationData().observer;
+            Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.Observer;
             if (obsv != null)
             {
                 // Read the encapsulation size.
@@ -678,7 +678,7 @@ namespace IceInternal
                     ex.operation = _current.Operation;
                 }
 
-                if (_communicator.Properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                if (_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 1)
                 {
                     warning(ex);
                 }
@@ -739,7 +739,7 @@ namespace IceInternal
             }
             catch (Ice.UnknownLocalException ex)
             {
-                if (_communicator.Properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
                     warning(ex);
                 }
@@ -769,7 +769,7 @@ namespace IceInternal
             }
             catch (Ice.UnknownUserException ex)
             {
-                if (_communicator.Properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
                     warning(ex);
                 }
@@ -800,7 +800,7 @@ namespace IceInternal
             }
             catch (Ice.UnknownException ex)
             {
-                if (_communicator.Properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
                     warning(ex);
                 }
@@ -857,7 +857,7 @@ namespace IceInternal
             }
             catch (Ice.Exception ex)
             {
-                if (_communicator.Properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
                     warning(ex);
                 }
@@ -887,7 +887,7 @@ namespace IceInternal
             }
             catch (Exception ex)
             {
-                if (_communicator.Properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 0)
                 {
                     warning(ex);
                 }

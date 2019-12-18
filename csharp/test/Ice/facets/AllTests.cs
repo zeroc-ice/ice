@@ -17,31 +17,31 @@ namespace Ice
                 Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
                 output.Write("testing Ice.Admin.Facets property... ");
-                test(communicator.Properties.getPropertyAsList("Ice.Admin.Facets").Length == 0);
-                communicator.Properties.setProperty("Ice.Admin.Facets", "foobar");
-                string[] facetFilter = communicator.Properties.getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
-                communicator.Properties.setProperty("Ice.Admin.Facets", "foo\\'bar");
-                facetFilter = communicator.Properties.getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 1 && facetFilter[0].Equals("foo'bar"));
-                communicator.Properties.setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
-                facetFilter = communicator.Properties.getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 3 && facetFilter[0].Equals("foo bar") && facetFilter[1].Equals("toto")
-                     && facetFilter[2].Equals("titi"));
-                communicator.Properties.setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
-                facetFilter = communicator.Properties.getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 2 && facetFilter[0].Equals("foo bar' toto") && facetFilter[1].Equals("titi"));
-                // communicator.Properties.setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
+                test(communicator.GetPropertyAsList("Ice.Admin.Facets") == null);
+                communicator.SetProperty("Ice.Admin.Facets", "foobar");
+                string[]? facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
+                test(facetFilter != null && facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
+                communicator.SetProperty("Ice.Admin.Facets", "foo\\'bar");
+                facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
+                test(facetFilter != null && facetFilter.Length == 1 && facetFilter[0].Equals("foo'bar"));
+                communicator.SetProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
+                facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
+                test(facetFilter != null && facetFilter.Length == 3 && facetFilter[0].Equals("foo bar") &&
+                     facetFilter[1].Equals("toto") && facetFilter[2].Equals("titi"));
+                communicator.SetProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
+                facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
+                test(facetFilter != null && facetFilter.Length == 2 && facetFilter[0].Equals("foo bar' toto") &&
+                     facetFilter[1].Equals("titi"));
+                // communicator.SetProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
                 // facetFilter = communicator.Properties.getPropertyAsList("Ice.Admin.Facets");
                 // test(facetFilter.Length == 0);
-                communicator.Properties.setProperty("Ice.Admin.Facets", "");
+                communicator.SetProperty("Ice.Admin.Facets", "");
                 output.WriteLine("ok");
 
                 output.Write("testing facet registration exceptions... ");
-                communicator.Properties.setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *");
+                communicator.SetProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *");
                 ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
 
-                var emptyT = default(EmptyTraits);
                 var obj = new EmptyI();
 
                 adapter.Add(obj, "d");

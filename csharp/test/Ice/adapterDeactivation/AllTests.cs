@@ -62,9 +62,7 @@ namespace Ice
                     output.Flush();
                     for (int i = 0; i < 10; ++i)
                     {
-                        var initData = new InitializationData();
-                        initData.properties = communicator.Properties.Clone();
-                        var comm = Util.initialize(initData);
+                        var comm = new Communicator(communicator.GetProperties());
                         IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator).IcePingAsync();
                         comm.destroy();
                     }
@@ -74,7 +72,7 @@ namespace Ice
                 output.Write("testing object adapter published endpoints... ");
                 output.Flush();
                 {
-                    communicator.Properties.setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
+                    communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
                     var adapter = communicator.createObjectAdapter("PAdapter");
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
@@ -87,7 +85,7 @@ namespace Ice
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].Equals(endpt));
-                    communicator.Properties.setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
+                    communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
                     adapter.RefreshPublishedEndpoints();
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString().Equals("tcp -h localhost -p 12345 -t 20000"));

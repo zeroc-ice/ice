@@ -49,6 +49,18 @@ namespace Ice
         }
 
         /// <summary>
+        /// Convert a proxy to a set of proxy properties.
+        /// </summary>
+        /// <param name="property">
+        /// The base property name.
+        /// </param>
+        /// <returns>The property set.</returns>
+        public Dictionary<string, string> ToProperty(string property)
+        {
+            return IceReference.ToProperty(property);
+        }
+
+        /// <summary>
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
@@ -583,27 +595,6 @@ namespace Ice
                 prx = new ObjectPrx(communicator.CreateReference(s));
             }
             catch (System.Exception)
-            {
-                prx = null;
-                return false;
-            }
-            return true;
-        }
-
-        public static IObjectPrx ParseProperty(string prefix, Communicator communicator)
-        {
-            string proxy = communicator.Properties.getProperty(prefix);
-            return new ObjectPrx(communicator.CreateReference(proxy, prefix));
-        }
-
-        public static bool TryParseProperty(string prefix, Communicator communicator, out IObjectPrx? prx)
-        {
-            try
-            {
-                string proxy = communicator.Properties.getProperty(prefix);
-                prx = new ObjectPrx(communicator.CreateReference(proxy, prefix));
-            }
-            catch (LocalException)
             {
                 prx = null;
                 return false;

@@ -12,17 +12,13 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.scope.TypeId" };
-                initData.properties = createTestProperties(ref args);
-                using (var communicator = initialize(initData))
-                {
-                    var output = getWriter();
-                    output.Write("test using same type name in different Slice modules... ");
-                    output.Flush();
-                    AllTests.allTests(this);
-                    output.WriteLine("ok");
-                }
+                using var communicator = initialize(createTestProperties(ref args),
+                    typeIdNamespaces: new string[] { "Ice.scope.TypeId" });
+                var output = getWriter();
+                output.Write("test using same type name in different Slice modules... ");
+                output.Flush();
+                AllTests.allTests(this);
+                output.WriteLine("ok");
             }
 
             public static int Main(string[] args)

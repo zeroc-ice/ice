@@ -2691,10 +2691,10 @@ namespace Ice
 
             internal override void skipSlice()
             {
-                if (_stream.Communicator().traceLevels().slicing > 0)
+                if (_stream.Communicator()!.traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.Communicator().initializationData().logger;
-                    string slicingCat = _stream.Communicator().traceLevels().slicingCat;
+                    Logger logger = _stream.Communicator()!.Logger;
+                    string slicingCat = _stream.Communicator()!.traceLevels().slicingCat;
                     if (_sliceType == SliceType.ValueSlice)
                     {
                         IceInternal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3097,7 +3097,7 @@ namespace Ice
             {
                 if (_stream.Communicator().traceLevels().slicing > 0)
                 {
-                    Logger logger = _stream.Communicator().initializationData().logger;
+                    Logger logger = _stream.Communicator().Logger;
                     string slicingCat = _stream.Communicator().traceLevels().slicingCat;
                     if (_current.sliceType == SliceType.ExceptionSlice)
                     {

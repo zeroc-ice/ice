@@ -10,24 +10,16 @@ namespace IceInternal
 {
     public sealed class DefaultsAndOverrides
     {
-        internal DefaultsAndOverrides(Ice.Properties properties, Ice.Logger logger)
+        internal DefaultsAndOverrides(Ice.Communicator communicator, Ice.Logger logger)
         {
-            string val;
+            string? val;
 
-            defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            defaultProtocol = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
 
-            val = properties.getProperty("Ice.Default.Host");
-            if (val.Length != 0)
-            {
-                defaultHost = val;
-            }
-            else
-            {
-                defaultHost = null;
-            }
+            defaultHost = communicator.GetProperty("Ice.Default.Host");
 
-            val = properties.getProperty("Ice.Default.SourceAddress");
-            if (val.Length > 0)
+            val = communicator.GetProperty("Ice.Default.SourceAddress");
+            if (val != null)
             {
                 defaultSourceAddress = Network.getNumericAddress(val);
                 if (defaultSourceAddress == null)
@@ -41,16 +33,16 @@ namespace IceInternal
                 defaultSourceAddress = null;
             }
 
-            val = properties.getProperty("Ice.Override.Timeout");
-            if (val.Length > 0)
+            val = communicator.GetProperty("Ice.Override.Timeout");
+            if (val != null)
             {
                 overrideTimeout = true;
-                overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+                overrideTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.Timeout") ?? 0;
                 if (overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
                 {
                     overrideTimeoutValue = -1;
                     StringBuilder msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
-                    msg.Append(properties.getProperty("Ice.Override.Timeout"));
+                    msg.Append(communicator.GetProperty("Ice.Override.Timeout"));
                     msg.Append("': defaulting to -1");
                     logger.warning(msg.ToString());
                 }
@@ -61,16 +53,16 @@ namespace IceInternal
                 overrideTimeoutValue = -1;
             }
 
-            val = properties.getProperty("Ice.Override.ConnectTimeout");
-            if (val.Length > 0)
+            val = communicator.GetProperty("Ice.Override.ConnectTimeout");
+            if (val != null)
             {
                 overrideConnectTimeout = true;
-                overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+                overrideConnectTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.ConnectTimeout") ?? -1;
                 if (overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
                 {
                     overrideConnectTimeoutValue = -1;
                     StringBuilder msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
-                    msg.Append(properties.getProperty("Ice.Override.ConnectTimeout"));
+                    msg.Append(communicator.GetProperty("Ice.Override.ConnectTimeout"));
                     msg.Append("': defaulting to -1");
                     logger.warning(msg.ToString());
                 }
@@ -81,16 +73,16 @@ namespace IceInternal
                 overrideConnectTimeoutValue = -1;
             }
 
-            val = properties.getProperty("Ice.Override.CloseTimeout");
-            if (val.Length > 0)
+            val = communicator.GetProperty("Ice.Override.CloseTimeout");
+            if (val != null)
             {
                 overrideCloseTimeout = true;
-                overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+                overrideCloseTimeoutValue = communicator.GetPropertyAsInt("Ice.Override.CloseTimeout") ?? -1;
                 if (overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
                 {
                     overrideCloseTimeoutValue = -1;
                     StringBuilder msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
-                    msg.Append(properties.getProperty("Ice.Override.CloseTimeout"));
+                    msg.Append(communicator.GetProperty("Ice.Override.CloseTimeout"));
                     msg.Append("': defaulting to -1");
                     logger.warning(msg.ToString());
                 }
@@ -101,11 +93,11 @@ namespace IceInternal
                 overrideCloseTimeoutValue = -1;
             }
 
-            val = properties.getProperty("Ice.Override.Compress");
-            if (val.Length > 0)
+            val = communicator.GetProperty("Ice.Override.Compress");
+            if (val != null)
             {
                 overrideCompress = true;
-                overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
+                overrideCompressValue = communicator.GetPropertyAsInt("Ice.Override.Compress") > 0;
                 if (!BZip2.supported() && overrideCompressValue)
                 {
                     string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
@@ -119,11 +111,11 @@ namespace IceInternal
                 overrideCompressValue = false;
             }
 
-            val = properties.getProperty("Ice.Override.Secure");
-            if (val.Length > 0)
+            val = communicator.GetProperty("Ice.Override.Secure");
+            if (val != null)
             {
                 overrideSecure = true;
-                overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
+                overrideSecureValue = communicator.GetPropertyAsInt("Ice.Override.Secure") > 0;
             }
             else
             {
@@ -131,10 +123,9 @@ namespace IceInternal
                 overrideSecureValue = false;
             }
 
-            defaultCollocationOptimization =
-                properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
+            defaultCollocationOptimization = (communicator.GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
 
-            val = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
+            val = communicator.GetProperty("Ice.Default.EndpointSelection") ?? "Random";
             if (val.Equals("Random"))
             {
                 defaultEndpointSelection = Ice.EndpointSelectionType.Random;
@@ -148,44 +139,43 @@ namespace IceInternal
                 throw new ArgumentException($"illegal value `{val}'; expected `Random' or `Ordered'");
             }
 
-            defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+            defaultTimeout = communicator.GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
             if (defaultTimeout < 1 && defaultTimeout != -1)
             {
                 defaultTimeout = 60000;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
-                msg.Append(properties.getProperty("Ice.Default.Timeout"));
+                msg.Append(communicator.GetProperty("Ice.Default.Timeout"));
                 msg.Append("': defaulting to 60000");
                 logger.warning(msg.ToString());
             }
 
-            defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+            defaultLocatorCacheTimeout = communicator.GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
             if (defaultLocatorCacheTimeout < -1)
             {
                 defaultLocatorCacheTimeout = -1;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
-                msg.Append(properties.getProperty("Ice.Default.LocatorCacheTimeout"));
+                msg.Append(communicator.GetProperty("Ice.Default.LocatorCacheTimeout"));
                 msg.Append("': defaulting to -1");
                 logger.warning(msg.ToString());
             }
 
-            defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+            defaultInvocationTimeout = communicator.GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
             if (defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1 && defaultInvocationTimeout != -2)
             {
                 defaultInvocationTimeout = -1;
                 StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
-                msg.Append(properties.getProperty("Ice.Default.InvocationTimeout"));
+                msg.Append(communicator.GetProperty("Ice.Default.InvocationTimeout"));
                 msg.Append("': defaulting to -1");
                 logger.warning(msg.ToString());
             }
 
-            defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
+            defaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-            val = properties.getPropertyWithDefault("Ice.Default.EncodingVersion",
-                                                    Ice.Util.encodingVersionToString(Ice.Util.currentEncoding));
+            val = communicator.GetProperty("Ice.Default.EncodingVersion") ?? Ice.Util.encodingVersionToString(Ice.Util.currentEncoding);
             defaultEncoding = Ice.Util.stringToEncodingVersion(val);
             Protocol.checkSupportedEncoding(defaultEncoding);
 
-            bool slicedFormat = properties.getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
+            bool slicedFormat = communicator.GetPropertyAsInt("Ice.Default.SlicedFormat") > 0;
             defaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
         }
 

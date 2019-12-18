@@ -13,27 +13,22 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.operations.TypeId" };
-                initData.properties = createTestProperties(ref args);
-                initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-                initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+                var properties = createTestProperties(ref args);
+                properties["Ice.ThreadPool.Client.Size"] = "2";
+                properties["Ice.ThreadPool.Client.SizeWarn"] = "0";
 
-                using (var communicator = initialize(initData))
+                using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
+                communicator.SetProperty("TestAdapter.AdapterId", "test");
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                var prx = adapter.Add(new MyDerivedClassI(), "test");
+                //adapter.activate(); // Don't activate OA to ensure collocation is used.
+
+                if (prx.GetConnection() != null)
                 {
-                    communicator.Properties.setProperty("TestAdapter.AdapterId", "test");
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    var prx = adapter.Add(new MyDerivedClassI(), "test");
-                    //adapter.activate(); // Don't activate OA to ensure collocation is used.
-
-                    if (prx.GetConnection() != null)
-                    {
-                        throw new System.Exception();
-                    }
-
-                    AllTests.allTests(this);
+                    throw new System.Exception();
                 }
+                AllTests.allTests(this);
             }
 
             public static int Main(string[] args)

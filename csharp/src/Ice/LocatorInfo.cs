@@ -533,7 +533,7 @@ namespace IceInternal
             }
         }
 
-        private void getEndpointsTrace(Reference reference, EndpointI[] endpoints, bool cached)
+        private void getEndpointsTrace(Reference reference, EndpointI[]? endpoints, bool cached)
         {
             if (endpoints != null && endpoints.Length > 0)
             {
@@ -732,11 +732,11 @@ namespace IceInternal
             private Ice.EncodingVersion _encoding;
         }
 
-        internal LocatorManager(Ice.Properties properties)
+        internal LocatorManager(Ice.Communicator communicator)
         {
             _table = new Dictionary<Ice.LocatorPrx, LocatorInfo>();
             _locatorTables = new Dictionary<LocatorKey, LocatorTable>();
-            _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
+            _background = communicator.GetPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         }
 
         internal void destroy()

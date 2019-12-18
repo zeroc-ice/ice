@@ -14,12 +14,12 @@ namespace Ice
             {
                 using (var communicator = initialize(ref args))
                 {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
                     //
                     // 2 threads are necessary to dispatch the collocated transient() call with AMI
                     //
-                    communicator.Properties.setProperty("TestAdapter.ThreadPool.Size", "2");
+                    communicator.SetProperty("TestAdapter.ThreadPool.Size", "2");
 
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     var locator = new ServantLocatorI();

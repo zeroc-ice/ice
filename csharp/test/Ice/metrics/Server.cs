@@ -14,22 +14,22 @@ public class Server : TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        properties.setProperty("Ice.Admin.InstanceName", "server");
-        properties.setProperty("Ice.Warn.Connections", "0");
-        properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.MessageSizeMax", "50000");
-        properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        var properties = createTestProperties(ref args);
+        properties["Ice.Admin.Endpoints"] = "tcp";
+        properties["Ice.Admin.InstanceName"] = "server";
+        properties["Ice.Warn.Connections"] = "0";
+        properties["Ice.Warn.Dispatch"] = "0";
+        properties["Ice.MessageSizeMax"] = "50000";
+        properties["Ice.Default.Host"] = "127.0.0.1";
 
         using (var communicator = initialize(properties))
         {
-            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new MetricsI(), "metrics");
             adapter.Activate();
 
-            communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.Add(new ControllerI(adapter), "controller");
             controllerAdapter.Activate();

@@ -12,23 +12,23 @@ namespace Ice
     //
     public abstract class ImplicitContextI : ImplicitContext
     {
-        public static ImplicitContextI? create(string kind)
+        public static ImplicitContextI? Create(string? kind)
         {
-            if (kind.Equals("None") || kind.Length == 0)
+            if (string.IsNullOrEmpty(kind) || kind == "None")
             {
                 return null;
             }
-            else if (kind.Equals("Shared"))
+            else if (kind == "Shared")
             {
                 return new SharedImplicitContext();
             }
-            else if (kind.Equals("PerThread"))
+            else if (kind == "PerThread")
             {
                 return new PerThreadImplicitContext();
             }
             else
             {
-                throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
+                throw new InitializationException($"'{kind}' is not a valid value for Ice.ImplicitContext");
             }
         }
 

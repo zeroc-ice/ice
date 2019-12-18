@@ -197,7 +197,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (_communicator.Properties.getPropertyAsInt("ThreadPool.Client.Serialize") == 0)
+                    if (_communicator.GetPropertyAsInt("ThreadPool.Client.Serialize") == 0)
                     {
                         r.opVoid();
                         c1.opVoid();
@@ -224,7 +224,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (_communicator.Properties.getPropertyAsInt("ThreadPool.Client.Serialize") == 0)
+                    if (_communicator.GetPropertyAsInt("ThreadPool.Client.Serialize") == 0)
                     {
                         so.p.opVoid();
                     }
@@ -1669,11 +1669,10 @@ namespace Ice
                     string[] impls = { "Shared", "PerThread" };
                     for (int i = 0; i < 2; i++)
                     {
-                        InitializationData initData = new InitializationData();
-                        initData.properties = communicator.Properties.Clone();
-                        initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+                        var properties = communicator.GetProperties();
+                        properties["Ice.ImplicitContext"] = impls[i];
 
-                        Communicator ic = helper.initialize(initData);
+                        Communicator ic = helper.initialize(properties);
 
                         Dictionary<string, string> ctx = new Dictionary<string, string>();
                         ctx["one"] = "ONE";

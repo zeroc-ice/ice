@@ -16,16 +16,15 @@ public class Collocated : Test.TestHelper
     {
         try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = createTestProperties(ref args);
-            initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-            initData.dispatcher = new Dispatcher().dispatch;
+            var properties = createTestProperties(ref args);
+            properties["Ice.Warn.AMICallback"] = "0";
+            var dispatcher = new Dispatcher();
 
-            using (var communicator = initialize(initData))
+            using (var communicator = initialize(properties, dispatcher.dispatch))
             {
-                communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");

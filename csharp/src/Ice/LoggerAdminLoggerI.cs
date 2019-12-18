@@ -83,20 +83,17 @@ namespace IceInternal
             _loggerAdmin.destroy();
         }
 
-        internal LoggerAdminLoggerI(Ice.Properties props, Ice.Logger localLogger)
+        internal LoggerAdminLoggerI(Ice.Communicator communicator, Ice.Logger localLogger)
         {
-            LoggerAdminLoggerI wrapper = localLogger as LoggerAdminLoggerI;
-
-            if (wrapper != null)
+            if (localLogger is LoggerAdminLoggerI)
             {
-                _localLogger = wrapper.getLocalLogger();
+                _localLogger = ((LoggerAdminLoggerI)localLogger).getLocalLogger();
             }
             else
             {
                 _localLogger = localLogger;
             }
-
-            _loggerAdmin = new LoggerAdminI(props, this);
+            _loggerAdmin = new LoggerAdminI(communicator, this);
         }
 
         internal Ice.Logger getLocalLogger()
@@ -208,8 +205,7 @@ namespace IceInternal
 
         private static long now()
         {
-            TimeSpan t = DateTime.UtcNow - _unixEpoch;
-            return Convert.ToInt64(t.TotalMilliseconds * 1000);
+            return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
         }
 
         private class Job
@@ -230,7 +226,6 @@ namespace IceInternal
         private Thread _sendLogThread;
         private readonly Queue<Job> _jobQueue = new Queue<Job>();
 
-        private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private const string _traceCategory = "Admin.Logger";
     }
 

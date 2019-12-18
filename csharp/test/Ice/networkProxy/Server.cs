@@ -23,7 +23,7 @@ public class Server : Test.TestHelper
     {
         using (var communicator = initialize(ref args))
         {
-            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new TestI(), "test");
             adapter.Activate();

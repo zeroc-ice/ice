@@ -78,7 +78,7 @@ public class AllTests : Test.AllTests
     static string
     getPort(PropertiesAdminPrx p)
     {
-        return TestHelper.getTestPort(p.Communicator.Properties, 0).ToString();
+        return TestHelper.getTestPort(p.Communicator.GetProperties(), 0).ToString();
     }
 
     static private Dictionary<string, string>
@@ -399,15 +399,15 @@ public class AllTests : Test.AllTests
         string hostAndPort = host + ":" + port;
         string protocol = helper.getTestProtocol();
         string endpoint = protocol + " -h " + host + " -p " + port;
-        string timeout = communicator.Properties.getPropertyWithDefault("Ice.Default.Timeout", "60000");
+        string timeout = communicator.GetProperty("Ice.Default.Timeout") ?? "60000";
 
         MetricsPrx metrics = MetricsPrx.Parse($"metrics:{endpoint}", communicator);
         bool collocated = metrics.GetConnection() == null;
         var output = helper.getWriter();
         output.Write("testing metrics admin facet checkedCast... ");
         output.Flush();
-        Ice.IObjectPrx admin = communicator.getAdmin();
-        Ice.PropertiesAdminPrx clientProps = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
+        IObjectPrx admin = communicator.getAdmin();
+        PropertiesAdminPrx clientProps = PropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
         IceMX.MetricsAdminPrx clientMetrics = IceMX.MetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
         test(clientProps != null && clientMetrics != null);
 

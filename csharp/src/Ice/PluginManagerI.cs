@@ -193,8 +193,7 @@ namespace Ice
         {
             Debug.Assert(_communicator != null);
             string prefix = "Ice.Plugin.";
-            Properties properties = _communicator.Properties;
-            Dictionary<string, string> plugins = properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> plugins = _communicator.GetProperties(forPrefix: prefix);
 
             //
             // First, load static plugin factories which were setup to load on
@@ -246,7 +245,7 @@ namespace Ice
             // remaining plug-ins.
             //
 
-            string[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
+            string[] loadOrder = _communicator.GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
             for (int i = 0; i < loadOrder.Length; ++i)
             {
                 if (loadOrder[i].Length == 0)
@@ -384,9 +383,13 @@ namespace Ice
                 // configuration, then we convert the options from the
                 // application command-line.
                 //
-                Properties properties = _communicator.Properties;
-                args = properties.parseCommandLineOptions(name, args);
-                cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                properties.ParseArgs(ref args, name);
+                properties.ParseArgs(ref cmdArgs, name);
+                foreach (var p in properties)
+                {
+                    _communicator.SetProperty(p.Key, p.Value);
+                }
             }
             Debug.Assert(entryPoint != null);
             string err = $"unable to load plug-in `{entryPoint}': ";

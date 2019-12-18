@@ -13,7 +13,7 @@ namespace Ice
             override public void run(string[] args)
             {
                 var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Warn.Dispatch", "0");
+                properties["Ice.Warn.Dispatch"] = "0";
                 using (var communicator = initialize(properties))
                 {
                     var initial = AllTests.allTests(this);

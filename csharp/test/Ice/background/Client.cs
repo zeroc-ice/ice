@@ -13,27 +13,31 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.Properties properties = createTestProperties(ref args);
+        var properties = createTestProperties(ref args);
 
         //
         // For this test, we want to disable retries.
         //
-        properties.setProperty("Ice.RetryIntervals", "-1");
+        properties["Ice.RetryIntervals"] = "-1";
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        properties.setProperty("Ice.Warn.Connections", "0");
+        properties["Ice.Warn.Connections"] = "0";
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
-        properties.setProperty("Ice.TCP.SndSize", "50000");
+        properties["Ice.TCP.SndSize"] = "50000";
 
         //
         // Setup the test transport plug-in.
         //
-        properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+        string? protocol;
+        if (!properties.TryGetValue("Ice.Default.Protocol", out protocol))
+        {
+            protocol = "tcp";
+        }
+        properties["Ice.Default.Protocol"] = $"test-{protocol}";
 
         using (var communicator = initialize(properties))
         {

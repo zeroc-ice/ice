@@ -205,279 +205,276 @@ public class Client : Test.TestHelper
 
     public override void run(string[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Default.Router",
-                                        "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
-        initData.dispatcher = delegate (Action action, Connection connection)
+        var properties = createTestProperties(ref args);
+        properties["Ice.Warn.Connections"] = "0";
+        properties["Ice.Default.Router"] = $"Glacier2/router:{getTestEndpoint(properties, 50)}";
+
+        Action<Action, Connection?> dispatcher = (Action action, Connection? connection) =>
             {
                 action();
             };
+        using var communicator = initialize(properties, dispatcher);
 
-        using (var communicator = initialize(initData))
+        string protocol = getTestProtocol();
+        string host = getTestHost();
+
+        Glacier2.SessionFactoryHelper factory = new Glacier2.SessionFactoryHelper(new SessionCallback1(this), properties, dispatcher: dispatcher);
+        Glacier2.SessionHelper? session = null;
+
+        //
+        // Test to create a session with wrong userid/password
+        //
+        lock (this)
         {
-            string protocol = getTestProtocol();
-            string host = getTestHost();
+            Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
+            Console.Out.Flush();
 
-            Glacier2.SessionFactoryHelper factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback1(this));
-            Glacier2.SessionHelper session = null;
-
-            //
-            // Test to create a session with wrong userid/password
-            //
-            lock (this)
+            factory.setProtocol(protocol);
+            session = factory.connect("userid", "xxx");
+            while (true)
             {
-                Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
-                Console.Out.Flush();
-
-                factory.setProtocol(protocol);
-                session = factory.connect("userid", "xxx");
-                while (true)
-                {
-                    try
-                    {
-                        if (!Monitor.Wait(this, 30000))
-                        {
-                            test(false);
-                        }
-                        break;
-                    }
-                    catch (ThreadInterruptedException)
-                    {
-                    }
-                }
-                test(!session.isConnected());
-            }
-
-            initData.properties.setProperty("Ice.Default.Router", "");
-            factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback4(this));
-            lock (this)
-            {
-                Console.Out.Write("testing SessionHelper connect interrupt... ");
-                Console.Out.Flush();
-                factory.setRouterHost(host);
-                factory.setPort(getTestPort(1));
-                factory.setProtocol(protocol);
-                session = factory.connect("userid", "abc123");
-
-                Thread.Sleep(100);
-                session.destroy();
-
-                while (true)
-                {
-                    try
-                    {
-                        if (!Monitor.Wait(this, 30000))
-                        {
-                            test(false);
-                        }
-                        break;
-                    }
-                    catch (ThreadInterruptedException)
-                    {
-                    }
-                }
-                test(!session.isConnected());
-            }
-
-            factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback2(this));
-            lock (this)
-            {
-                Console.Out.Write("testing SessionHelper connect... ");
-                Console.Out.Flush();
-                factory.setRouterHost(host);
-                factory.setPort(getTestPort(50));
-                factory.setProtocol(protocol);
-                session = factory.connect("userid", "abc123");
-                while (true)
-                {
-                    try
-                    {
-                        if (!Monitor.Wait(this, 30000))
-                        {
-                            test(false);
-                        }
-                        break;
-                    }
-                    catch (ThreadInterruptedException)
-                    {
-                    }
-                }
-
-                Console.Out.Write("testing SessionHelper isConnected after connect... ");
-                Console.Out.Flush();
-                test(session.isConnected());
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("testing SessionHelper categoryForClient after connect... ");
-                Console.Out.Flush();
                 try
                 {
-                    test(!session.categoryForClient().Equals(""));
+                    if (!Monitor.Wait(this, 30000))
+                    {
+                        test(false);
+                    }
+                    break;
                 }
-                catch (Glacier2.SessionNotExistException)
+                catch (ThreadInterruptedException)
                 {
-                    test(false);
                 }
-                Console.Out.WriteLine("ok");
+            }
+            test(!session.isConnected());
+        }
 
-                test(session.session() == null);
+        properties.Remove("Ice.Default.Router");
+        factory = new Glacier2.SessionFactoryHelper(new SessionCallback4(this), properties, dispatcher: dispatcher);
+        lock (this)
+        {
+            Console.Out.Write("testing SessionHelper connect interrupt... ");
+            Console.Out.Flush();
+            factory.setRouterHost(host);
+            factory.setPort(getTestPort(1));
+            factory.setProtocol(protocol);
+            session = factory.connect("userid", "abc123");
 
-                Console.Out.Write("testing stringToProxy for server object... ");
-                Console.Out.Flush();
-                var @base = IObjectPrx.Parse($"callback:{getTestEndpoint(0)}", session.communicator());
-                Console.Out.WriteLine("ok");
+            Thread.Sleep(100);
+            session.destroy();
 
-                Console.Out.Write("pinging server after session creation... ");
-                Console.Out.Flush();
-                @base.IcePing();
-                Console.Out.WriteLine("ok");
+            while (true)
+            {
+                try
+                {
+                    if (!Monitor.Wait(this, 30000))
+                    {
+                        test(false);
+                    }
+                    break;
+                }
+                catch (ThreadInterruptedException)
+                {
+                }
+            }
+            test(!session.isConnected());
+        }
 
-                Console.Out.Write("testing checked cast for server object... ");
-                Console.Out.Flush();
-                CallbackPrx twoway = CallbackPrx.CheckedCast(@base);
-                Console.Out.WriteLine("ok");
+        factory = new Glacier2.SessionFactoryHelper(new SessionCallback2(this), properties, dispatcher: dispatcher);
+        lock (this)
+        {
+            Console.Out.Write("testing SessionHelper connect... ");
+            Console.Out.Flush();
+            factory.setRouterHost(host);
+            factory.setPort(getTestPort(50));
+            factory.setProtocol(protocol);
+            session = factory.connect("userid", "abc123");
+            while (true)
+            {
+                try
+                {
+                    if (!Monitor.Wait(this, 30000))
+                    {
+                        test(false);
+                    }
+                    break;
+                }
+                catch (ThreadInterruptedException)
+                {
+                }
+            }
 
-                Console.Out.Write("testing server shutdown... ");
-                Console.Out.Flush();
-                twoway.shutdown();
-                Console.Out.WriteLine("ok");
+            Console.Out.Write("testing SessionHelper isConnected after connect... ");
+            Console.Out.Flush();
+            test(session.isConnected());
+            Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing SessionHelper categoryForClient after connect... ");
+            Console.Out.Flush();
+            try
+            {
+                test(!session.categoryForClient().Equals(""));
+            }
+            catch (Glacier2.SessionNotExistException)
+            {
+                test(false);
+            }
+            Console.Out.WriteLine("ok");
+
+            test(session.session() == null);
+
+            Console.Out.Write("testing stringToProxy for server object... ");
+            Console.Out.Flush();
+            var @base = IObjectPrx.Parse($"callback:{getTestEndpoint(0)}", session.communicator());
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("pinging server after session creation... ");
+            Console.Out.Flush();
+            @base.IcePing();
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing checked cast for server object... ");
+            Console.Out.Flush();
+            CallbackPrx twoway = CallbackPrx.CheckedCast(@base);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing server shutdown... ");
+            Console.Out.Flush();
+            twoway.shutdown();
+            Console.Out.WriteLine("ok");
+
+            test(session.communicator() != null);
+            Console.Out.Write("testing SessionHelper destroy... ");
+            Console.Out.Flush();
+            session.destroy();
+            while (true)
+            {
+                try
+                {
+                    if (!Monitor.Wait(this, 30000))
+                    {
+                        test(false);
+                    }
+                    break;
+                }
+                catch (ThreadInterruptedException)
+                {
+                }
+            }
+
+            Console.Out.Write("testing SessionHelper isConnected after destroy... ");
+            Console.Out.Flush();
+            test(session.isConnected() == false);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing SessionHelper categoryForClient after destroy... ");
+            Console.Out.Flush();
+            try
+            {
+                test(!session.categoryForClient().Equals(""));
+                test(false);
+            }
+            catch (Glacier2.SessionNotExistException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing SessionHelper session after destroy... ");
+            test(session.session() == null);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing SessionHelper communicator after destroy... ");
+            Console.Out.Flush();
+            try
+            {
                 test(session.communicator() != null);
-                Console.Out.Write("testing SessionHelper destroy... ");
-                Console.Out.Flush();
-                session.destroy();
-                while (true)
-                {
-                    try
-                    {
-                        if (!Monitor.Wait(this, 30000))
-                        {
-                            test(false);
-                        }
-                        break;
-                    }
-                    catch (ThreadInterruptedException)
-                    {
-                    }
-                }
-
-                Console.Out.Write("testing SessionHelper isConnected after destroy... ");
-                Console.Out.Flush();
-                test(session.isConnected() == false);
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("testing SessionHelper categoryForClient after destroy... ");
-                Console.Out.Flush();
-                try
-                {
-                    test(!session.categoryForClient().Equals(""));
-                    test(false);
-                }
-                catch (Glacier2.SessionNotExistException)
-                {
-                }
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("testing SessionHelper session after destroy... ");
-                test(session.session() == null);
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("testing SessionHelper communicator after destroy... ");
-                Console.Out.Flush();
-                try
-                {
-                    test(session.communicator() != null);
-                    IObjectPrx.Parse("dummy", session.communicator());
-                    test(false);
-                }
-                catch (Ice.CommunicatorDestroyedException)
-                {
-                }
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("uninstalling router with communicator... ");
-                Console.Out.Flush();
-                communicator.setDefaultRouter(null);
-                Console.Out.WriteLine("ok");
-
-                IObjectPrx processBase;
-                {
-                    Console.Out.Write("testing stringToProxy for process object... ");
-                    processBase = IObjectPrx.Parse($"Glacier2/admin -f Process:{getTestEndpoint(51)}", communicator);
-                    Console.Out.WriteLine("ok");
-                }
-
-                ProcessPrx process;
-                {
-                    Console.Out.Write("testing checked cast for admin object... ");
-                    process = Ice.ProcessPrx.CheckedCast(processBase);
-                    test(process != null);
-                    Console.Out.WriteLine("ok");
-                }
-
-                Console.Out.Write("testing Glacier2 shutdown... ");
-                process.shutdown();
-                try
-                {
-                    process.IcePing();
-                    test(false);
-                }
-                catch (LocalException)
-                {
-                    Console.Out.WriteLine("ok");
-                }
+                IObjectPrx.Parse("dummy", session.communicator());
+                test(false);
             }
-
-            factory = new Glacier2.SessionFactoryHelper(initData, new SessionCallback3(this));
-            lock (this)
+            catch (Ice.CommunicatorDestroyedException)
             {
-                Console.Out.Write("testing SessionHelper connect after router shutdown... ");
-                Console.Out.Flush();
+            }
+            Console.Out.WriteLine("ok");
 
-                factory.setRouterHost(host);
-                factory.setPort(getTestPort(50));
-                factory.setProtocol(protocol);
-                session = factory.connect("userid", "abc123");
-                while (true)
-                {
-                    try
-                    {
-                        if (!Monitor.Wait(this, 30000))
-                        {
-                            test(false);
-                        }
-                        break;
-                    }
-                    catch (ThreadInterruptedException)
-                    {
-                    }
-                }
+            Console.Out.Write("uninstalling router with communicator... ");
+            Console.Out.Flush();
+            communicator.setDefaultRouter(null);
+            Console.Out.WriteLine("ok");
 
-                Console.Out.Write("testing SessionHelper isConnect after connect failure... ");
-                Console.Out.Flush();
-                test(session.isConnected() == false);
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("testing SessionHelper communicator after connect failure... ");
-                Console.Out.Flush();
-                try
-                {
-                    test(session.communicator() != null);
-                    IObjectPrx.Parse("dummy", session.communicator());
-                    test(false);
-                }
-                catch (CommunicatorDestroyedException)
-                {
-                }
-                Console.Out.WriteLine("ok");
-
-                Console.Out.Write("testing SessionHelper destroy after connect failure... ");
-                Console.Out.Flush();
-                session.destroy();
+            IObjectPrx processBase;
+            {
+                Console.Out.Write("testing stringToProxy for process object... ");
+                processBase = IObjectPrx.Parse($"Glacier2/admin -f Process:{getTestEndpoint(51)}", communicator);
                 Console.Out.WriteLine("ok");
             }
+
+            ProcessPrx process;
+            {
+                Console.Out.Write("testing checked cast for admin object... ");
+                process = Ice.ProcessPrx.CheckedCast(processBase);
+                test(process != null);
+                Console.Out.WriteLine("ok");
+            }
+
+            Console.Out.Write("testing Glacier2 shutdown... ");
+            process.shutdown();
+            try
+            {
+                process.IcePing();
+                test(false);
+            }
+            catch (LocalException)
+            {
+                Console.Out.WriteLine("ok");
+            }
+        }
+
+        factory = new Glacier2.SessionFactoryHelper(new SessionCallback3(this), properties, dispatcher: dispatcher);
+        lock (this)
+        {
+            Console.Out.Write("testing SessionHelper connect after router shutdown... ");
+            Console.Out.Flush();
+
+            factory.setRouterHost(host);
+            factory.setPort(getTestPort(50));
+            factory.setProtocol(protocol);
+            session = factory.connect("userid", "abc123");
+            while (true)
+            {
+                try
+                {
+                    if (!Monitor.Wait(this, 30000))
+                    {
+                        test(false);
+                    }
+                    break;
+                }
+                catch (ThreadInterruptedException)
+                {
+                }
+            }
+
+            Console.Out.Write("testing SessionHelper isConnect after connect failure... ");
+            Console.Out.Flush();
+            test(session.isConnected() == false);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing SessionHelper communicator after connect failure... ");
+            Console.Out.Flush();
+            try
+            {
+                test(session.communicator() != null);
+                IObjectPrx.Parse("dummy", session.communicator());
+                test(false);
+            }
+            catch (CommunicatorDestroyedException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing SessionHelper destroy after connect failure... ");
+            Console.Out.Flush();
+            session.destroy();
+            Console.Out.WriteLine("ok");
         }
     }
 

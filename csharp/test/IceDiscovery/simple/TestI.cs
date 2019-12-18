@@ -12,10 +12,9 @@ public sealed class ControllerI : Test.Controller
     activateObjectAdapter(string name, string adapterId, string replicaGroupId, Ice.Current current)
     {
         Ice.Communicator communicator = current.Adapter.Communicator;
-        Ice.Properties properties = communicator.Properties;
-        properties.setProperty(name + ".AdapterId", adapterId);
-        properties.setProperty(name + ".ReplicaGroupId", replicaGroupId);
-        properties.setProperty(name + ".Endpoints", "default");
+        communicator.SetProperty($"{name}.AdapterId", adapterId);
+        communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
+        communicator.SetProperty($"{name}.Endpoints", "default");
         Ice.ObjectAdapter oa = communicator.createObjectAdapter(name);
         _adapters[name] = oa;
         oa.Activate();
@@ -56,6 +55,6 @@ public sealed class TestIntfI : Test.TestIntf
     public string
     getAdapterId(Ice.Current current)
     {
-        return current.Adapter.Communicator.Properties.getProperty(current.Adapter.GetName() + ".AdapterId");
+        return current.Adapter.Communicator.GetProperty($"{current.Adapter.GetName()}.AdapterId") ?? "";
     }
 }

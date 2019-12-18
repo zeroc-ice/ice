@@ -76,19 +76,23 @@ public class Server : TestHelper
         //
         // This test kills connections, so we don't want warnings.
         //
-        properties.setProperty("Ice.Warn.Connections", "0");
+        properties["Ice.Warn.Connections"] = "0";
 
-        properties.setProperty("Ice.MessageSizeMax", "50000");
+        properties["Ice.MessageSizeMax"] = "50000";
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
-        properties.setProperty("Ice.TCP.RcvSize", "50000");
+        properties["Ice.TCP.RcvSize"] = "50000";
 
         //
         // Setup the test transport plug-in.
         //
-        properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+        string? protocol;
+        if (!properties.TryGetValue("Ice.Default.Protocol", out protocol))
+        {
+            protocol = "tcp";
+        }
+        properties["Ice.Default.Protocol"] = $"test-{protocol}";
 
         using (var communicator = initialize(properties))
         {
@@ -101,15 +105,15 @@ public class Server : TestHelper
             // overridden by configuration. If it isn't then we assume
             // defaults.
             //
-            if (communicator.Properties.getProperty("TestAdapter.Endpoints").Length == 0)
+            if (communicator.GetProperty("TestAdapter.Endpoints") == null)
             {
-                communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             }
 
-            if (communicator.Properties.getProperty("ControllerAdapter.Endpoints").Length == 0)
+            if (communicator.GetProperty("ControllerAdapter.Endpoints") == null)
             {
-                communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
-                communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+                communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
             }
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

@@ -122,16 +122,15 @@ namespace IceInternal
         internal Timer(Ice.Communicator communicator, ThreadPriority priority = ThreadPriority.Normal)
         {
             _communicator = communicator;
-
-            string threadName = _communicator.Properties.getProperty("Ice.ProgramName");
-            if (threadName.Length > 0)
+            string? threadName = _communicator.GetProperty("Ice.ProgramName");
+            if (threadName != null)
             {
                 threadName += "-";
             }
 
             _thread = new Thread(new ThreadStart(Run));
             _thread.IsBackground = true;
-            _thread.Name = threadName + "Ice.Timer";
+            _thread.Name = $"{threadName}Ice.Timer";
             _thread.Priority = priority;
             _thread.Start();
         }

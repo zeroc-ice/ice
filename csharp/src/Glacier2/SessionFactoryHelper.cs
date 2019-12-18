@@ -23,49 +23,29 @@ namespace Glacier2
         /// <summary>
         /// Creates a SessionFactory object.
         /// </summary>
-        /// <param name="callback">The callback object for notifications.</param>
-        public
-        SessionFactoryHelper(SessionCallback callback)
-        {
-            _callback = callback;
-            _initData = new Ice.InitializationData();
-            _initData.properties = Ice.Util.createProperties();
-            setDefaultProperties();
-        }
-
-        /// <summary>
-        /// Creates a SessionFactory object.
-        /// </summary>
-        /// <param name="initData">The initialization data to use when creating the communicator.</param>
-        /// <param name="callback">The callback object for notifications.</param>
-        public
-        SessionFactoryHelper(Ice.InitializationData initData, SessionCallback callback)
-        {
-            _callback = callback;
-            _initData = initData;
-            if (_initData.properties == null)
-            {
-                _initData.properties = Ice.Util.createProperties();
-            }
-            setDefaultProperties();
-        }
-
-        /// <summary>
-        /// Creates a SessionFactory object.
-        /// </summary>
         /// <param name="properties">The properties to use when creating the communicator.</param>
         /// <param name="callback">The callback object for notifications.</param>
         public
-        SessionFactoryHelper(Ice.Properties properties, SessionCallback callback)
+        SessionFactoryHelper(SessionCallback callback,
+                             Dictionary<string, string> properties,
+                             Func<int, string>? compactIdResolver = null,
+                             Action<Action, Ice.Connection?>? dispatcher = null,
+                             Ice.Logger? logger = null,
+                             Ice.Instrumentation.CommunicatorObserver? observer = null,
+                             Action? threadStart = null,
+                             Action? threadStop = null,
+                             string[]? typeIdNamespaces = null)
         {
-            if (properties == null)
-            {
-                throw new Ice.InitializationException(
-                                            "Attempt to create a SessionFactoryHelper with a null Properties argument");
-            }
             _callback = callback;
-            _initData = new Ice.InitializationData();
-            _initData.properties = properties;
+            _properties = properties;
+            _compactIdResolver = compactIdResolver;
+            _dispatcher = dispatcher;
+            _logger = logger;
+            _observer = observer;
+            _threadStart = threadStart;
+            _threadStop = threadStop;
+            _typeIdNamespaces = typeIdNamespaces;
+
             setDefaultProperties();
         }
 
@@ -221,20 +201,6 @@ namespace Glacier2
                                   _protocol.Equals("wss")) ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
         }
 
-        /**
-         * Returns the initialization data used to initialize the communicator.
-         *
-         * @return The initialization data.
-         */
-        public Ice.InitializationData
-        getInitializationData()
-        {
-            lock (this)
-            {
-                return _initData;
-            }
-        }
-
         /// <summary>
         /// Sets the request context to use while establishing a connection to the Glacier2 router.
         /// </summary>
@@ -289,7 +255,17 @@ namespace Glacier2
         {
             lock (this)
             {
-                SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
+                SessionHelper session = new SessionHelper(_callback,
+                    getRouterFinderStr(),
+                    _useCallbacks,
+                    CreateProperties(),
+                    _compactIdResolver,
+                    _dispatcher,
+                    _logger,
+                    _observer,
+                    _threadStart,
+                    _threadStop,
+                    _typeIdNamespaces);
                 session.connect(_context);
                 return session;
             }
@@ -310,25 +286,34 @@ namespace Glacier2
         {
             lock (this)
             {
-                SessionHelper session = new SessionHelper(_callback, createInitData(), getRouterFinderStr(), _useCallbacks);
+                SessionHelper session = new SessionHelper(_callback,
+                    getRouterFinderStr(),
+                    _useCallbacks,
+                    CreateProperties(),
+                    _compactIdResolver,
+                    _dispatcher,
+                    _logger,
+                    _observer,
+                    _threadStart,
+                    _threadStop,
+                    _typeIdNamespaces);
                 session.connect(username, password, _context);
                 return session;
             }
         }
 
-        private Ice.InitializationData
-        createInitData()
+        private Dictionary<string, string>
+        CreateProperties()
         {
             //
             // Clone the initialization data and properties.
             //
-            Ice.InitializationData initData = (Ice.InitializationData)_initData.Clone();
-            Debug.Assert(initData.properties != null);
-            initData.properties = initData.properties.Clone();
+            Debug.Assert(_properties != null);
+            var properties = new Dictionary<string, string>(_properties);
 
-            if (initData.properties.getProperty("Ice.Default.Router").Length == 0 && _identity != null)
+            if (!properties.ContainsKey("Ice.Default.Router") && _identity != null)
             {
-                initData.properties.setProperty("Ice.Default.Router", createProxyStr(_identity.Value));
+                properties["Ice.Default.Router"] = createProxyStr(_identity.Value);
             }
 
             //
@@ -336,52 +321,51 @@ namespace Glacier2
             // plug-in has already been setup we don't want to override the
             // configuration so it can be loaded from a custom location.
             //
-            if ((_protocol.Equals("ssl") || _protocol.Equals("wss")) &&
-               initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
+            if ((_protocol.Equals("ssl") || _protocol.Equals("wss")) && !properties.ContainsKey("Ice.Plugin.IceSSL"))
             {
-                initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
+                properties["Ice.Plugin.IceSSL"] = "IceSSL:IceSSL.PluginFactory";
             }
 
-            return initData;
+            return properties;
         }
 
         private string
         getRouterFinderStr()
         {
-            Ice.Identity ident = new Ice.Identity("RouterFinder", "Ice");
-            return createProxyStr(ident);
+            return createProxyStr(new Ice.Identity("RouterFinder", "Ice"));
         }
 
         private string
         createProxyStr(Ice.Identity ident)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("\"");
-            sb.Append(ident);
-            sb.Append("\":");
-            sb.Append(_protocol + " -p ");
-            sb.Append(getPortInternal());
-            sb.Append(" -h \"");
-            sb.Append(_routerHost);
-            sb.Append("\"");
             if (_timeout > 0)
             {
-                sb.Append(" -t ");
-                sb.Append(_timeout);
+                return $"\"{ident}\":{_protocol} -p {getPortInternal()} -h \"{_routerHost}\" -t {_timeout}";
             }
-            return sb.ToString();
+            else
+            {
+                return $"\"{ident}\":{_protocol} -p {getPortInternal()} -h \"{_routerHost}\"";
+            }
         }
 
         private void
         setDefaultProperties()
         {
-            Debug.Assert(_initData.properties != null);
-            _initData.properties.setProperty("Ice.RetryIntervals", "-1");
+            Debug.Assert(_properties != null);
+            _properties["Ice.RetryIntervals"] = "-1";
         }
 
         private SessionCallback _callback;
+        private Dictionary<string, string> _properties;
+        private Func<int, string>? _compactIdResolver;
+        private Action<Action, Ice.Connection?>? _dispatcher;
+        private Ice.Logger? _logger;
+        private Ice.Instrumentation.CommunicatorObserver? _observer;
+        private Action? _threadStart;
+        private Action? _threadStop;
+        private string[]? _typeIdNamespaces;
+
         private string _routerHost = "localhost";
-        private Ice.InitializationData _initData;
         private Ice.Identity? _identity = null;
         private string _protocol = "ssl";
         private int _port = 0;

@@ -1026,10 +1026,10 @@ namespace IceInternal
 
     public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     {
-        public CommunicatorObserverI(Ice.InitializationData initData)
+        public CommunicatorObserverI(Communicator communicator, Logger logger)
         {
-            _metrics = new MetricsAdminI(initData.properties, initData.logger);
-            _delegate = initData.observer;
+            _metrics = new MetricsAdminI(communicator, logger);
+            _delegate = communicator.Observer;
             _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
                 Ice.Instrumentation.ConnectionObserver>(_metrics, "Connection");
             _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
@@ -1055,13 +1055,13 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.Observer getConnectionEstablishmentObserver(Ice.Endpoint endpt, string connector)
+        public Ice.Instrumentation.Observer? getConnectionEstablishmentObserver(Endpoint endpt, string connector)
         {
             if (_connects.isEnabled())
             {
                 try
                 {
-                    Ice.Instrumentation.Observer del = null;
+                    Ice.Instrumentation.Observer? del = null;
                     if (_delegate != null)
                     {
                         del = _delegate.getConnectionEstablishmentObserver(endpt, connector);
@@ -1076,13 +1076,13 @@ namespace IceInternal
             return null;
         }
 
-        public Ice.Instrumentation.Observer getEndpointLookupObserver(Ice.Endpoint endpt)
+        public Ice.Instrumentation.Observer? getEndpointLookupObserver(Endpoint endpt)
         {
             if (_endpointLookups.isEnabled())
             {
                 try
                 {
-                    Ice.Instrumentation.Observer del = null;
+                    Ice.Instrumentation.Observer? del = null;
                     if (_delegate != null)
                     {
                         del = _delegate.getEndpointLookupObserver(endpt);
@@ -1097,8 +1097,8 @@ namespace IceInternal
             return null;
         }
 
-        public Ice.Instrumentation.ConnectionObserver getConnectionObserver(Ice.ConnectionInfo c,
-                                                                            Ice.Endpoint e,
+        public Ice.Instrumentation.ConnectionObserver? getConnectionObserver(ConnectionInfo c,
+                                                                            Endpoint e,
                                                                             Ice.Instrumentation.ConnectionState s,
                                                                             Ice.Instrumentation.ConnectionObserver obsv)
         {
@@ -1106,8 +1106,8 @@ namespace IceInternal
             {
                 try
                 {
-                    Ice.Instrumentation.ConnectionObserver del = null;
-                    ConnectionObserverI o = obsv is ConnectionObserverI ? (ConnectionObserverI)obsv : null;
+                    Ice.Instrumentation.ConnectionObserver? del = null;
+                    ConnectionObserverI? o = obsv is ConnectionObserverI ? (ConnectionObserverI)obsv : null;
                     if (_delegate != null)
                     {
                         del = _delegate.getConnectionObserver(c, e, s, o != null ? o.getDelegate() : obsv);

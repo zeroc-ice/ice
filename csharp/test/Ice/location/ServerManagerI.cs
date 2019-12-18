@@ -35,13 +35,12 @@ namespace Ice
                 // its endpoints with the locator and create references containing
                 // the adapter id instead of the endpoints.
                 //
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = _helper.communicator().Properties.Clone();
-                initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
-                initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-                initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+                var properties = _helper.communicator().GetProperties();
+                properties["TestAdapter.AdapterId"] = "TestAdapter";
+                properties["TestAdapter.ReplicaGroupId"] = "ReplicatedAdapter";
+                properties["TestAdapter2.AdapterId"] = "TestAdapter2";
 
-                Ice.Communicator serverCommunicator = _helper.initialize(initData);
+                Communicator serverCommunicator = _helper.initialize(properties);
                 _communicators.Add(serverCommunicator);
 
                 //
@@ -55,9 +54,9 @@ namespace Ice
                     ObjectAdapter? adapter2 = null;
                     try
                     {
-                        serverCommunicator.Properties.setProperty("TestAdapter.Endpoints",
+                        serverCommunicator.SetProperty("TestAdapter.Endpoints",
                                                                   _helper.getTestEndpoint(_nextPort++));
-                        serverCommunicator.Properties.setProperty("TestAdapter2.Endpoints",
+                        serverCommunicator.SetProperty("TestAdapter2.Endpoints",
                                                                   _helper.getTestEndpoint(_nextPort++));
 
                         adapter = serverCommunicator.createObjectAdapter("TestAdapter");

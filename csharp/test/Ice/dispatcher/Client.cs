@@ -15,16 +15,15 @@ public class Client : Test.TestHelper
     {
         try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = createTestProperties(ref args);
-            initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+            var properties = createTestProperties(ref args);
+            properties["Ice.Warn.AMICallback"] = "0";
             //
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.
             //
-            initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-            initData.dispatcher = new Dispatcher().dispatch;
-            using (var communicator = initialize(initData))
+            properties["Ice.TCP.SndSize"] = "50000";
+            var dispatcher = new Dispatcher();
+            using (var communicator = initialize(properties, dispatcher.dispatch))
             {
                 AllTests.allTests(this);
             }

@@ -15,18 +15,14 @@ namespace Ice
             {
                 public override void run(string[] args)
                 {
-                    var initData = new InitializationData();
-                    initData.typeIdNamespaces = new string[] { "Ice.seqMapping.AMD.TypeId" };
-                    initData.properties = createTestProperties(ref args);
-                    using (var communicator = initialize(initData))
-                    {
-                        communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                        var adapter = communicator.createObjectAdapter("TestAdapter");
-                        adapter.Add(new MyClassI(), "test");
-                        adapter.Activate();
-                        serverReady();
-                        communicator.waitForShutdown();
-                    }
+                    using var communicator = initialize(createTestProperties(ref args),
+                        typeIdNamespaces: new string[] { "Ice.seqMapping.AMD.TypeId" });
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    var adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.Add(new MyClassI(), "test");
+                    adapter.Activate();
+                    serverReady();
+                    communicator.waitForShutdown();
                 }
 
                 public static int Main(string[] args)

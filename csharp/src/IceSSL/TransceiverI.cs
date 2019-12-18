@@ -372,7 +372,7 @@ namespace IceSSL
 
             _sslStream = null;
 
-            _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+            _verifyPeer = _instance.communicator().GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
         }
 
         private bool startAuthenticate(IceInternal.AsyncCallback callback, object state)

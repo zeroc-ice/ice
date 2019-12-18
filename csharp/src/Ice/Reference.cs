@@ -294,7 +294,7 @@ namespace IceInternal
             // Derived class writes the remainder of the string.
         }
 
-        public abstract Dictionary<string, string> toProperty(string prefix);
+        public abstract Dictionary<string, string> ToProperty(string prefix);
 
         public abstract RequestHandler getRequestHandler(IObjectPrx proxy);
 
@@ -837,7 +837,7 @@ namespace IceInternal
             throw new NotSupportedException("You cannot marshal a fixed proxy");
         }
 
-        public override Dictionary<string, string> toProperty(string prefix)
+        public override Dictionary<string, string> ToProperty(string prefix)
         {
             throw new NotSupportedException("You cannot convert a fixed proxy to propery dictionary");
         }
@@ -1329,7 +1329,7 @@ namespace IceInternal
             return s.ToString();
         }
 
-        public override Dictionary<string, string> toProperty(string prefix)
+        public override Dictionary<string, string> ToProperty(string prefix)
         {
             Dictionary<string, string> properties = new Dictionary<string, string>();
 
@@ -1345,7 +1345,7 @@ namespace IceInternal
             if (_routerInfo != null)
             {
                 var h = _routerInfo.getRouter();
-                Dictionary<string, string> routerProperties = h.IceReference.toProperty(prefix + ".Router");
+                Dictionary<string, string> routerProperties = h.IceReference.ToProperty(prefix + ".Router");
                 foreach (KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1355,7 +1355,7 @@ namespace IceInternal
             if (_locatorInfo != null)
             {
                 var h = _locatorInfo.getLocator();
-                Dictionary<string, string> locatorProperties = h.IceReference.toProperty(prefix + ".Locator");
+                Dictionary<string, string> locatorProperties = h.IceReference.ToProperty(prefix + ".Locator");
                 foreach (KeyValuePair<string, string> entry in locatorProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -1903,8 +1903,6 @@ namespace IceInternal
             private bool _preferSecure;
         }
 
-        private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
-        private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
         private static EndpointI[] _emptyEndpoints = Array.Empty<EndpointI>();
 
         private EndpointI[] _endpoints;

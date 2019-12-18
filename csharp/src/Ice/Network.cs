@@ -926,8 +926,8 @@ namespace IceInternal
             {
                 dfltBufSize = 128 * 1024;
             }
-            int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-            int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+            int rcvSize = instance.communicator().GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
+            int sndSize = instance.communicator().GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
             setTcpBufSize(socket, rcvSize, sndSize, instance);
         }
 

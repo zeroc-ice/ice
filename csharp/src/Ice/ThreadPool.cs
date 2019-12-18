@@ -154,19 +154,17 @@ namespace IceInternal
     {
         public ThreadPool(Ice.Communicator communicator, string prefix, int timeout)
         {
-            Ice.Properties properties = communicator.Properties;
-
             _communicator = communicator;
-            _dispatcher = communicator.initializationData().dispatcher;
+            _dispatcher = communicator.Dispatcher;
             _destroyed = false;
             _prefix = prefix;
             _threadIndex = 0;
             _inUse = 0;
-            _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
+            _serialize = _communicator.GetPropertyAsInt($"{_prefix}.Serialize") > 0;
             _serverIdleTime = timeout;
 
-            string programName = properties.getProperty("Ice.ProgramName");
-            if (programName.Length > 0)
+            string? programName = _communicator.GetProperty("Ice.ProgramName");
+            if (programName != null)
             {
                 _threadPrefix = programName + "-" + _prefix;
             }
@@ -180,7 +178,7 @@ namespace IceInternal
             // possible setting, still allows one level of nesting, and
             // doesn't require to make the servants thread safe.
             //
-            int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
+            int size = _communicator.GetPropertyAsInt($"{_prefix}.Size") ?? 1;
             if (size < 1)
             {
                 string s = _prefix + ".Size < 1; Size adjusted to 1";
@@ -188,34 +186,31 @@ namespace IceInternal
                 size = 1;
             }
 
-            int sizeMax = properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+            int sizeMax = _communicator.GetPropertyAsInt($"{_prefix}.SizeMax") ?? size;
             if (sizeMax < size)
             {
-                string s = _prefix + ".SizeMax < " + _prefix + ".Size; SizeMax adjusted to Size (" + size + ")";
-                _communicator.Logger.warning(s);
+                _communicator.Logger.warning($"{_prefix}.SizeMax < {_prefix}.Size; SizeMax adjusted to Size ({size})");
                 sizeMax = size;
             }
 
-            int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
+            int sizeWarn = _communicator.GetPropertyAsInt($"{_prefix}.SizeWarn") ?? 0;
             if (sizeWarn != 0 && sizeWarn < size)
             {
-                string s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
-                _communicator.Logger.warning(s);
+                _communicator.Logger.warning(
+                    $"{_prefix}.SizeWarn < {_prefix}.Size; adjusted SizeWarn to Size ({size})");
                 sizeWarn = size;
             }
             else if (sizeWarn > sizeMax)
             {
-                string s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax ("
-                    + sizeMax + ")";
-                _communicator.Logger.warning(s);
+                _communicator.Logger.warning(
+                    "${_prefix}.SizeWarn > {_prefix}.SizeMax; adjusted SizeWarn to SizeMax ({sizeMax})");
                 sizeWarn = sizeMax;
             }
 
-            int threadIdleTime = properties.getPropertyAsIntWithDefault(_prefix + ".ThreadIdleTime", 60);
+            int threadIdleTime = _communicator.GetPropertyAsInt($"{_prefix}.ThreadIdleTime") ?? 60;
             if (threadIdleTime < 0)
             {
-                string s = _prefix + ".ThreadIdleTime < 0; ThreadIdleTime adjusted to 0";
-                _communicator.Logger.warning(s);
+                _communicator.Logger.warning($"{_prefix}.ThreadIdleTime < 0; ThreadIdleTime adjusted to 0");
                 threadIdleTime = 0;
             }
 
@@ -224,24 +219,21 @@ namespace IceInternal
             _sizeWarn = sizeWarn;
             _threadIdleTime = threadIdleTime;
 
-            int stackSize = properties.getPropertyAsInt(_prefix + ".StackSize");
+            int stackSize = communicator.GetPropertyAsInt($"{_prefix }.StackSize") ?? 0;
             if (stackSize < 0)
             {
-                string s = _prefix + ".StackSize < 0; Size adjusted to OS default";
-                _communicator.Logger.warning(s);
+                _communicator.Logger.warning($"{_prefix}.StackSize < 0; Size adjusted to OS default");
                 stackSize = 0;
             }
             _stackSize = stackSize;
 
-            _priority = properties.getProperty(_prefix + ".ThreadPriority").Length > 0 ?
-                Util.stringToThreadPriority(properties.getProperty(_prefix + ".ThreadPriority")) :
-                Util.stringToThreadPriority(properties.getProperty("Ice.ThreadPriority"));
+            _priority = Util.stringToThreadPriority(_communicator.GetProperty($"{_prefix}.ThreadPriority") ??
+                                                    _communicator.GetProperty("Ice.ThreadPriority"));
 
             if (_communicator.traceLevels().threadPool >= 1)
             {
-                string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
-                           _sizeWarn;
-                _communicator.Logger.trace(_communicator.traceLevels().threadPoolCat, s);
+                _communicator.Logger.trace(_communicator.traceLevels().threadPoolCat,
+                    $"creating {_prefix}: Size = {_size}, SizeMax = {_sizeMax}, SizeWarn = {_sizeWarn}");
             }
 
             _workItems = new Queue<ThreadPoolWorkItem>();
@@ -386,8 +378,7 @@ namespace IceInternal
                 }
                 catch (System.Exception ex)
                 {
-                    if (_communicator.Properties.getPropertyAsIntWithDefault(
-                           "Ice.Warn.Dispatch", 1) > 1)
+                    if ((_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") ?? 1) > 1)
                     {
                         _communicator.Logger.warning("dispatch exception:\n" + ex);
                     }
@@ -784,7 +775,7 @@ namespace IceInternal
             public void updateObserver()
             {
                 // Must be called with the thread pool mutex locked
-                Ice.Instrumentation.CommunicatorObserver? obsv = _threadPool._communicator.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver? obsv = _threadPool._communicator.Observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);
@@ -846,7 +837,7 @@ namespace IceInternal
                 //
                 SynchronizationContext.SetSynchronizationContext(new ThreadPoolSynchronizationContext(_threadPool));
 
-                var threadStart = _threadPool._communicator.initializationData().threadStart;
+                var threadStart = _threadPool._communicator.ThreadStart;
                 if (threadStart != null)
                 {
                     try
@@ -876,7 +867,7 @@ namespace IceInternal
                     _observer.detach();
                 }
 
-                var threadStop = _threadPool._communicator.initializationData().threadStop;
+                var threadStop = _threadPool._communicator.ThreadStop;
                 if (threadStop != null)
                 {
                     try

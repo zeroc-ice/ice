@@ -10,13 +10,9 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.stream.TypeId" };
-                initData.properties = createTestProperties(ref args);
-                using (var communicator = initialize(initData))
-                {
-                    AllTests.allTests(this);
-                }
+                using var communicator = initialize(createTestProperties(ref args),
+                    typeIdNamespaces: new string[] { "Ice.stream.TypeId" });
+                AllTests.allTests(this);
             }
 
             public static int Main(string[] args)

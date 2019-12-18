@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
+
 namespace Ice
 {
     namespace Instrumentation
@@ -178,7 +180,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the connection establishment.</returns>
-            Observer getConnectionEstablishmentObserver(global::Ice.Endpoint endpt, string connector);
+            Observer? getConnectionEstablishmentObserver(Endpoint endpt, string connector);
 
             /// <summary>
             /// This method should return an observer for the given endpoint
@@ -194,7 +196,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the endpoint lookup.</returns>
-            Observer getEndpointLookupObserver(global::Ice.Endpoint endpt);
+            Observer? getEndpointLookupObserver(Endpoint endpt);
 
             /// <summary>
             /// This method should return a connection observer for the given
@@ -218,7 +220,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The connection observer to instrument the connection.</returns>
-            ConnectionObserver getConnectionObserver(global::Ice.ConnectionInfo c, global::Ice.Endpoint e, ConnectionState s, ConnectionObserver o);
+            ConnectionObserver? getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver o);
 
             /// <summary>
             /// This method should return a thread observer for the given
@@ -261,7 +263,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The invocation observer to instrument the invocation.</returns>
-            InvocationObserver getInvocationObserver(global::Ice.IObjectPrx prx, string operation, global::System.Collections.Generic.Dictionary<string, string> ctx);
+            InvocationObserver getInvocationObserver(IObjectPrx prx, string operation, Dictionary<string, string> ctx);
 
             /// <summary>
             /// This method should return a dispatch observer for the given
@@ -279,7 +281,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The dispatch observer to instrument the dispatch.</returns>
-            DispatchObserver getDispatchObserver(global::Ice.Current c, int size);
+            DispatchObserver getDispatchObserver(Current c, int size);
 
             /// <summary>
             /// The Ice run-time calls this method when the communicator is

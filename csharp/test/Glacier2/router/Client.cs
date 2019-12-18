@@ -16,14 +16,14 @@ public class Client : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.Properties properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = createTestProperties(ref args);
         //
         // We must disable connection warnings, because we attempt to
         // ping the router before session establishment, as well as
         // after session destruction. Both will cause a
         // ConnectionLostException.
         //
-        properties.setProperty("Ice.Warn.Connections", "0");
+        properties["Ice.Warn.Connections"] = "0";
         using (var communicator = initialize(properties))
         {
             IObjectPrx routerBase;
@@ -196,7 +196,7 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("creating and activating callback receiver adapter... ");
                 Console.Out.Flush();
-                communicator.Properties.setProperty("Ice.PrintAdapterReady", "0");
+                communicator.SetProperty("Ice.PrintAdapterReady", "0");
                 adapter = communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
                 adapter.Activate();
                 Console.Out.WriteLine("ok");

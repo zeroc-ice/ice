@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -25,13 +26,13 @@ public class Client : Test.TestHelper
         {
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.setProperty("Ice.Plugin.Test",
-                pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
-                "'C:\\Program Files\\Application\\db'");
-            using (var communicator = initialize(properties))
+            using var communicator = initialize(new Dictionary<string, string>
             {
-            }
+                {
+                    "Ice.Plugin.Test",
+                    $"{pluginPath }:PluginFactory 'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'"
+                }
+            });
             Console.WriteLine("ok");
         }
 
@@ -40,9 +41,12 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             try
             {
-                Ice.Properties properties = Ice.Util.createProperties();
-                properties.setProperty("Ice.Plugin.Test", pluginPath + ":PluginInitializeFailFactory");
-                initialize(properties);
+                initialize(new Dictionary<string, string>()
+                {
+                    {
+                        "Ice.Plugin.Test", $"{pluginPath}:PluginInitializeFailFactory"
+                    }
+                });
                 test(false);
             }
             catch (Ice.PluginInitializationException ex)
@@ -55,14 +59,14 @@ public class Client : Test.TestHelper
         {
             Console.Write("testing plug-in load order... ");
             Console.Out.Flush();
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
-            properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
-            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            using (var communicator = initialize(properties))
+
+            using var communicator = initialize(new Dictionary<string, string>()
             {
-            }
+                { "Ice.Plugin.PluginOne", $"{pluginPath}:PluginOneFactory" },
+                { "Ice.Plugin.PluginTwo", $"{pluginPath}:PluginTwoFactory" },
+                { "Ice.Plugin.PluginThree", $"{pluginPath}:PluginThreeFactory" },
+                { "Ice.PluginLoadOrder", "PluginOne, PluginTwo" } // Exclude PluginThree
+            });
             Console.WriteLine("ok");
         }
 
@@ -70,16 +74,16 @@ public class Client : Test.TestHelper
             Console.Write("testing plug-in manager... ");
             Console.Out.Flush();
 
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
-            properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
-            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            properties.setProperty("Ice.InitPlugins", "0");
-
-            MyPlugin p4 = null;
-            using (var communicator = initialize(properties))
+            MyPlugin p4;
             {
+                using var communicator = initialize(new Dictionary<string, string>()
+                {
+                    { "Ice.Plugin.PluginOne", $"{pluginPath}:PluginOneFactory" },
+                    { "Ice.Plugin.PluginTwo", $"{pluginPath}:PluginTwoFactory" },
+                    { "Ice.Plugin.PluginThree", $"{pluginPath}:PluginThreeFactory" },
+                    { "Ice.InitPlugins", "0"}
+                });
+
                 Ice.PluginManager pm = communicator.getPluginManager();
                 test(pm.getPlugin("PluginOne") != null);
                 test(pm.getPlugin("PluginTwo") != null);
@@ -102,12 +106,13 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             try
             {
-                Ice.Properties properties = Ice.Util.createProperties();
-                properties.setProperty("Ice.Plugin.PluginOneFail", pluginPath + ":PluginOneFailFactory");
-                properties.setProperty("Ice.Plugin.PluginTwoFail", pluginPath + ":PluginTwoFailFactory");
-                properties.setProperty("Ice.Plugin.PluginThreeFail", pluginPath + ":PluginThreeFailFactory");
-                properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
-                initialize(properties);
+                initialize(new Dictionary<string, string>()
+                {
+                    { "Ice.Plugin.PluginOneFail", $"{pluginPath}:PluginOneFailFactory" },
+                    { "Ice.Plugin.PluginTwoFail", $"{pluginPath}:PluginTwoFailFactory" },
+                    { "Ice.Plugin.PluginThreeFail", $"{pluginPath}:PluginThreeFailFactory" },
+                    { "Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail"}
+                });
             }
             catch (Ice.PluginInitializationException ex)
             {

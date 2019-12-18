@@ -13,26 +13,27 @@ namespace Ice
             public RemoteObjectAdapterPrx
             createObjectAdapter(int timeout, int close, int heartbeat, Ice.Current current)
             {
-                Communicator com = current.Adapter.Communicator;
-                Properties properties = com.Properties;
-                string protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-                string host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+                Communicator communicator = current.Adapter.Communicator;
+                string protocol = communicator.GetProperty("Ice.Default.Protocol") ?? "tcp";
+                string host = communicator.GetProperty("Ice.Default.Host") ?? "127.0.0.1";
 
                 string name = System.Guid.NewGuid().ToString();
                 if (timeout >= 0)
                 {
-                    properties.setProperty(name + ".ACM.Timeout", timeout.ToString());
+                    communicator.SetProperty($"{name}.ACM.Timeout", timeout.ToString());
                 }
+
                 if (close >= 0)
                 {
-                    properties.setProperty(name + ".ACM.Close", close.ToString());
+                    communicator.SetProperty($"{name}.ACM.Close", close.ToString());
                 }
+
                 if (heartbeat >= 0)
                 {
-                    properties.setProperty(name + ".ACM.Heartbeat", heartbeat.ToString());
+                    communicator.SetProperty($"{name}.ACM.Heartbeat", heartbeat.ToString());
                 }
-                properties.setProperty(name + ".ThreadPool.Size", "2");
-                ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h \"" + host + "\"");
+                communicator.SetProperty($"{name}.ThreadPool.Size", "2");
+                ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, $"{protocol} -h \"{host}\"");
                 return current.Adapter.Add(new RemoteObjectAdapterI(adapter));
             }
 

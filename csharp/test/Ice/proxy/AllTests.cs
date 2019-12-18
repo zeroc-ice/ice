@@ -315,6 +315,7 @@ namespace Ice
 
                 id = new Identity("/test", "cat/");
                 string idStr = id.ToString(communicator.ToStringMode);
+
                 test(idStr == "cat\\//\\/test");
                 id2 = Identity.Parse(idStr);
                 test(id.Equals(id2));
@@ -407,112 +408,113 @@ namespace Ice
 
                 output.Write("testing propertyToProxy... ");
                 output.Flush();
-                var prop = communicator.Properties;
+
                 string propertyPrefix = "Foo.Proxy";
-                prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
-                test(b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
+                communicator.SetProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
+                test(b1 != null &&
+                     b1.Identity.name.Equals("test") && b1.Identity.category.Length == 0 &&
                      b1.AdapterId.Length == 0 && b1.Facet.Length == 0);
 
                 string property;
 
                 property = propertyPrefix + ".Locator";
                 test(b1.Locator == null);
-                prop.setProperty(property, "locator:default -p 10000");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
-                test(b1.Locator != null && b1.Locator.Identity.name.Equals("locator"));
-                prop.setProperty(property, "");
+                communicator.SetProperty(property, "locator:default -p 10000");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
+                test(b1 != null && b1.Locator != null && b1.Locator.Identity.name.Equals("locator"));
+                communicator.SetProperty(property, "");
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 test(b1.LocatorCacheTimeout == -1);
-                prop.setProperty(property, "1");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
-                test(b1.LocatorCacheTimeout == 1);
-                prop.setProperty(property, "");
+                communicator.SetProperty(property, "1");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
+                test(b1 != null && b1.LocatorCacheTimeout == 1);
+                communicator.SetProperty(property, "");
 
                 // Now retest with an indirect proxy.
-                prop.setProperty(propertyPrefix, "test");
+                communicator.SetProperty(propertyPrefix, "test");
                 property = propertyPrefix + ".Locator";
-                prop.setProperty(property, "locator:default -p 10000");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
-                test(b1.Locator != null && b1.Locator.Identity.name.Equals("locator"));
-                prop.setProperty(property, "");
+                communicator.SetProperty(property, "locator:default -p 10000");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
+                test(b1 != null && b1.Locator != null && b1.Locator.Identity.name.Equals("locator"));
+                communicator.SetProperty(property, "");
 
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 test(b1.LocatorCacheTimeout == -1);
-                prop.setProperty(property, "1");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
-                test(b1.LocatorCacheTimeout == 1);
-                prop.setProperty(property, "");
+                communicator.SetProperty(property, "1");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
+                test(b1 != null && b1.LocatorCacheTimeout == 1);
+                communicator.SetProperty(property, "");
 
                 // This cannot be tested so easily because the property is cached
                 // on communicator initialization.
                 //
-                //prop.setProperty("Default.LocatorCacheTimeout", "60");
+                //communicator.SetProperty("Default.LocatorCacheTimeout", "60");
                 //b1 = communicator.propertyToProxy(propertyPrefix);
                 //test(b1.LocatorCacheTimeout == 60);
-                //prop.setProperty("Default.LocatorCacheTimeout", "");
+                //communicator.SetProperty("Default.LocatorCacheTimeout", "");
 
-                prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
+                communicator.SetProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
                 property = propertyPrefix + ".Router";
                 test(b1.Router == null);
-                prop.setProperty(property, "router:default -p 10000");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "router:default -p 10000");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.Router != null && b1.Router.Identity.name.Equals("router"));
-                prop.setProperty(property, "");
+                communicator.RemoveProperty(property);
 
                 property = propertyPrefix + ".PreferSecure";
                 test(!b1.IsPreferSecure);
-                prop.setProperty(property, "1");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "1");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.IsPreferSecure);
-                prop.setProperty(property, "");
+                communicator.RemoveProperty(property);
 
                 property = propertyPrefix + ".ConnectionCached";
                 test(b1.IsConnectionCached);
-                prop.setProperty(property, "0");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "0");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(!b1.IsConnectionCached);
-                prop.setProperty(property, "");
+                communicator.RemoveProperty(property);
 
                 property = propertyPrefix + ".InvocationTimeout";
                 test(b1.InvocationTimeout == -1);
-                prop.setProperty(property, "1000");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "1000");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.InvocationTimeout == 1000);
-                prop.setProperty(property, "");
+                communicator.RemoveProperty(property);
 
                 property = propertyPrefix + ".EndpointSelection";
                 test(b1.EndpointSelection == EndpointSelectionType.Random);
-                prop.setProperty(property, "Random");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "Random");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.EndpointSelection == EndpointSelectionType.Random);
-                prop.setProperty(property, "Ordered");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "Ordered");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.EndpointSelection == EndpointSelectionType.Ordered);
-                prop.setProperty(property, "");
+                communicator.RemoveProperty(property);
 
                 property = propertyPrefix + ".CollocationOptimized";
                 test(b1.IsCollocationOptimized);
-                prop.setProperty(property, "0");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "0");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(!b1.IsCollocationOptimized);
-                prop.setProperty(property, "");
+                communicator.RemoveProperty(property);
 
                 property = propertyPrefix + ".Context.c1";
                 test(!b1.Context.ContainsKey("c1"));
-                prop.setProperty(property, "TEST");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "TEST");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.Context["c1"].Equals("TEST"));
 
                 property = propertyPrefix + ".Context.c2";
                 test(!b1.Context.ContainsKey("c2"));
-                prop.setProperty(property, "TEST");
-                b1 = IObjectPrx.ParseProperty(propertyPrefix, communicator);
+                communicator.SetProperty(property, "TEST");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
                 test(b1.Context["c2"].Equals("TEST"));
 
-                prop.setProperty(propertyPrefix + ".Context.c1", "");
-                prop.setProperty(propertyPrefix + ".Context.c2", "");
+                communicator.SetProperty(propertyPrefix + ".Context.c1", "");
+                communicator.SetProperty(propertyPrefix + ".Context.c2", "");
 
                 output.WriteLine("ok");
 
@@ -546,7 +548,7 @@ namespace Ice
                     encodingVersion: new EncodingVersion(1, 0),
                     locator: locator);
 
-                Dictionary<string, string> proxyProps = communicator.proxyToProperty(b1, "Test");
+                Dictionary<string, string> proxyProps = b1.ToProperty("Test");
                 test(proxyProps.Count == 21);
 
                 test(proxyProps["Test"].Equals("test -t -e 1.0"));
@@ -1113,11 +1115,11 @@ namespace Ice
                     communicator);
                 test(p2.ToString().Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
-                if (communicator.Properties.getPropertyAsInt("IPv6") == 0)
+                if ((communicator.GetPropertyAsInt("IPv6") ?? 0) == 0)
                 {
                     // Working?
-                    bool ssl = communicator.Properties.getProperty("Default.Protocol").Equals("ssl");
-                    bool tcp = communicator.Properties.getProperty("Default.Protocol").Equals("tcp");
+                    bool ssl = communicator.GetProperty("Default.Protocol") == "ssl";
+                    bool tcp = communicator.GetProperty("Default.Protocol") == "tcp";
 
                     // Two legal TCP endpoints expressed as opaque endpoints
                     p1 = IObjectPrx.Parse("test -e 1.0:" + "" +
@@ -1146,7 +1148,7 @@ namespace Ice
                 output.Write("testing communicator shutdown/destroy... ");
                 output.Flush();
                 {
-                    Communicator com = Util.initialize();
+                    Communicator com = new Communicator();
                     com.shutdown();
                     test(com.isShutdown());
                     com.waitForShutdown();

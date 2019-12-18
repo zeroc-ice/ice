@@ -128,7 +128,7 @@ namespace IceInternal
         {
             _endpoint = endpoint;
             _instance = instance;
-            _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+            _backlog = instance.communicator().GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
 
             try
             {

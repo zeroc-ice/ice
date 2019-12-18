@@ -22,10 +22,10 @@ namespace Ice
                         string endpoints = endpts;
                         if (endpoints.IndexOf("-p") < 0)
                         {
-                            endpoints = global::Test.TestHelper.getTestEndpoint(communicator.Properties, _nextPort++, endpoints);
+                            endpoints = global::Test.TestHelper.getTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
                         }
 
-                        communicator.Properties.setProperty(name + ".ThreadPool.Size", "1");
+                        communicator.SetProperty(name + ".ThreadPool.Size", "1");
                         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
                         return current.Adapter.Add(new RemoteObjectAdapterI(adapter));
                     }

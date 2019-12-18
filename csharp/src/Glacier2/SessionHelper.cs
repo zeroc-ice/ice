@@ -25,12 +25,29 @@ namespace Glacier2
         /// the communicator.</param>
         /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
         /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
-        internal SessionHelper(SessionCallback callback, Ice.InitializationData initData, string finderStr, bool useCallbacks)
+        internal SessionHelper(SessionCallback callback,
+            string finderStr,
+            bool useCallbacks,
+            Dictionary<string, string> properties,
+            Func<int, string>? compactIdResolver = null,
+            Action<Action, Connection?>? dispatcher = null,
+            Logger? logger = null,
+            Ice.Instrumentation.CommunicatorObserver? observer = null,
+            Action? threadStart = null,
+            Action? threadStop = null,
+            string[]? typeIdNamespaces = null)
         {
             _callback = callback;
-            _initData = initData;
             _finderStr = finderStr;
             _useCallbacks = useCallbacks;
+            _properties = properties;
+            _compactIdResolver = compactIdResolver;
+            _dispatcher = dispatcher;
+            _logger = logger;
+            _observer = observer;
+            _threadStart = threadStart;
+            _threadStop = threadStop;
+            _typeIdNamespaces = typeIdNamespaces;
         }
 
         /// <summary>
@@ -377,7 +394,15 @@ namespace Glacier2
                 {
                     lock (_mutex)
                     {
-                        _communicator = Util.initialize(_initData);
+                        _communicator = new Communicator(
+                            properties: _properties,
+                            compactIdResolver: _compactIdResolver,
+                            dispatcher: _dispatcher,
+                            logger: _logger,
+                            observer: _observer,
+                            threadStart: _threadStart,
+                            threadStop: _threadStop,
+                            typeIdNamespaces: _typeIdNamespaces);
                     }
                 }
                 catch (LocalException ex)
@@ -432,9 +457,9 @@ namespace Glacier2
         private void
         dispatchCallback(Action callback, Connection? conn)
         {
-            if (_initData.dispatcher != null)
+            if (_dispatcher != null)
             {
-                _initData.dispatcher(callback, conn);
+                _dispatcher(callback, conn);
             }
             else
             {
@@ -445,10 +470,10 @@ namespace Glacier2
         private void
         dispatchCallbackAndWait(Action callback)
         {
-            if (_initData.dispatcher != null)
+            if (_dispatcher != null)
             {
                 EventWaitHandle h = new ManualResetEvent(false);
-                _initData.dispatcher(() =>
+                _dispatcher(() =>
                     {
                         callback();
                         h.Set();
@@ -461,7 +486,6 @@ namespace Glacier2
             }
         }
 
-        private readonly InitializationData _initData;
         private Communicator? _communicator;
         private ObjectAdapter? _adapter;
         private RouterPrx? _router;
@@ -470,6 +494,14 @@ namespace Glacier2
         private string? _category;
         private string _finderStr;
         private bool _useCallbacks;
+        private Dictionary<string, string> _properties;
+        private Func<int, string>? _compactIdResolver;
+        private Action<Action, Ice.Connection?>? _dispatcher;
+        private Ice.Logger? _logger;
+        private Ice.Instrumentation.CommunicatorObserver? _observer;
+        private Action? _threadStart;
+        private Action? _threadStop;
+        private string[]? _typeIdNamespaces;
 
         private readonly SessionCallback _callback;
         private bool _destroy = false;

@@ -30,14 +30,14 @@ namespace IceInternal
 
     internal interface ISubMapFactory
     {
-        ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties);
+        ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Communicator communicator);
     }
 
     internal interface IMetricsMapFactory
     {
         void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field) where S : IceMX.Metrics, new();
         void update();
-        IMetricsMap create(string mapPrefix, Ice.Properties properties);
+        IMetricsMap create(string mapPrefix, Ice.Communicator communicator);
     }
 
     internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
@@ -93,9 +93,9 @@ namespace IceInternal
             _field = field;
         }
 
-        public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties)
+        public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Communicator communicator)
         {
-            return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
+            return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, communicator, null), _field);
         }
 
         private readonly System.Reflection.FieldInfo _field;
@@ -228,18 +228,18 @@ namespace IceInternal
             private Dictionary<string, ISubMap>? _subMaps;
         }
 
-        internal MetricsMap(string mapPrefix, Ice.Properties props, Dictionary<string, ISubMapFactory>? subMaps)
+        internal MetricsMap(string mapPrefix, Ice.Communicator communicator, Dictionary<string, ISubMapFactory>? subMaps)
         {
-            MetricsAdminI.validateProperties(mapPrefix, props);
-            _properties = props.getPropertiesForPrefix(mapPrefix);
+            MetricsAdminI.validateProperties(mapPrefix, communicator);
+            _properties = communicator.GetProperties(forPrefix: mapPrefix);
 
-            _retain = props.getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10);
-            _accept = parseRule(props, mapPrefix + "Accept");
-            _reject = parseRule(props, mapPrefix + "Reject");
+            _retain = communicator.GetPropertyAsInt($"{mapPrefix}RetainDetached") ?? 10;
+            _accept = parseRule(communicator, $"{mapPrefix}Accept");
+            _reject = parseRule(communicator, $"{mapPrefix}Reject");
             _groupByAttributes = new List<string>();
             _groupBySeparators = new List<string>();
 
-            string groupBy = props.getPropertyWithDefault(mapPrefix + "GroupBy", "id");
+            string groupBy = communicator.GetProperty($"{mapPrefix}GroupBy") ?? "id";
             if (groupBy.Length > 0)
             {
                 string v = "";
@@ -290,9 +290,9 @@ namespace IceInternal
                     subMapNames.Add(e.Key);
                     string subMapsPrefix = mapPrefix + "Map.";
                     string subMapPrefix = subMapsPrefix + e.Key + '.';
-                    if (props.getPropertiesForPrefix(subMapPrefix).Count == 0)
+                    if (communicator.GetProperties(forPrefix: subMapPrefix).Count == 0)
                     {
-                        if (props.getPropertiesForPrefix(subMapsPrefix).Count == 0)
+                        if (communicator.GetProperties(forPrefix: subMapsPrefix).Count == 0)
                         {
                             subMapPrefix = mapPrefix;
                         }
@@ -302,7 +302,7 @@ namespace IceInternal
                         }
                     }
 
-                    _subMaps.Add(e.Key, e.Value.createCloneFactory(subMapPrefix, props));
+                    _subMaps.Add(e.Key, e.Value.createCloneFactory(subMapPrefix, communicator));
                 }
             }
             else
@@ -503,10 +503,10 @@ namespace IceInternal
             _detachedQueue.AddLast(entry);
         }
 
-        private Dictionary<string, Regex> parseRule(Ice.Properties properties, string name)
+        private Dictionary<string, Regex> parseRule(Ice.Communicator communicator, string name)
         {
             Dictionary<string, Regex> pats = new Dictionary<string, Regex>();
-            Dictionary<string, string> rules = properties.getPropertiesForPrefix(name + '.');
+            Dictionary<string, string> rules = communicator.GetProperties(forPrefix: $"{name}.");
             foreach (KeyValuePair<string, string> e in rules)
             {
                 pats.Add(e.Key.Substring(name.Length + 1), new Regex(e.Value));
@@ -547,7 +547,7 @@ namespace IceInternal
             _name = name;
         }
 
-        internal bool addOrUpdateMap(Ice.Properties properties, string mapName, IMetricsMapFactory factory,
+        internal bool addOrUpdateMap(Ice.Communicator communicator, string mapName, IMetricsMapFactory factory,
                                    Ice.Logger logger)
         {
             //
@@ -555,14 +555,14 @@ namespace IceInternal
             //
             string viewPrefix = "IceMX.Metrics." + _name + ".";
             string mapsPrefix = viewPrefix + "Map.";
-            Dictionary<string, string> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
+            Dictionary<string, string> mapsProps = communicator.GetProperties(forPrefix: mapsPrefix);
 
             string mapPrefix;
             Dictionary<string, string> mapProps = new Dictionary<string, string>();
             if (mapsProps.Count > 0)
             {
                 mapPrefix = mapsPrefix + mapName + ".";
-                mapProps = properties.getPropertiesForPrefix(mapPrefix);
+                mapProps = communicator.GetProperties(forPrefix: mapPrefix);
                 if (mapProps.Count == 0)
                 {
                     // This map isn't configured for this view.
@@ -572,10 +572,10 @@ namespace IceInternal
             else
             {
                 mapPrefix = viewPrefix;
-                mapProps = properties.getPropertiesForPrefix(mapPrefix);
+                mapProps = communicator.GetProperties(forPrefix: mapPrefix);
             }
 
-            if (properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
+            if (communicator.GetPropertyAsInt($"{mapPrefix}Disabled") > 0)
             {
                 // This map is disabled for this view.
                 return _maps.Remove(mapName);
@@ -589,7 +589,7 @@ namespace IceInternal
 
             try
             {
-                _maps[mapName] = factory.create(mapPrefix, properties);
+                _maps[mapName] = factory.create(mapPrefix, communicator);
             }
             catch (Exception ex)
             {
@@ -669,9 +669,9 @@ namespace IceInternal
                 "Map.*",
             };
 
-        public static void validateProperties(string prefix, Ice.Properties properties)
+        public static void validateProperties(string prefix, Ice.Communicator communicator)
         {
-            Dictionary<string, string> props = properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> props = communicator.GetProperties(forPrefix: prefix);
             List<string> unknownProps = new List<string>();
             foreach (string prop in props.Keys)
             {
@@ -691,7 +691,7 @@ namespace IceInternal
                 }
             }
 
-            if (unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+            if (unknownProps.Count != 0 && (communicator.GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
             {
                 StringBuilder message = new StringBuilder("found unknown IceMX properties for `");
                 message.Append(prefix.Substring(0, prefix.Length - 1));
@@ -718,9 +718,9 @@ namespace IceInternal
                 _updater();
             }
 
-            public IMetricsMap create(string mapPrefix, Ice.Properties properties)
+            public IMetricsMap create(string mapPrefix, Ice.Communicator communicator)
             {
-                return new MetricsMap<T>(mapPrefix, properties, _subMaps);
+                return new MetricsMap<T>(mapPrefix, communicator, _subMaps);
             }
 
             public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
@@ -733,10 +733,10 @@ namespace IceInternal
             private readonly Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
         }
 
-        public MetricsAdminI(Ice.Properties properties, Ice.Logger logger)
+        public MetricsAdminI(Ice.Communicator communicator, Ice.Logger logger)
         {
             _logger = logger;
-            _properties = properties;
+            _communicator = communicator;
             updateViews();
         }
 
@@ -746,7 +746,7 @@ namespace IceInternal
             lock (this)
             {
                 string viewsPrefix = "IceMX.Metrics.";
-                Dictionary<string, string> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
+                Dictionary<string, string> viewsProps = _communicator.GetProperties(forPrefix: viewsPrefix);
                 Dictionary<string, MetricsViewI> views = new Dictionary<string, MetricsViewI>();
                 _disabledViews.Clear();
                 foreach (KeyValuePair<string, string> e in viewsProps)
@@ -763,9 +763,9 @@ namespace IceInternal
                         continue; // View already configured.
                     }
 
-                    validateProperties(viewsPrefix + viewName + ".", _properties);
+                    validateProperties($"{viewsPrefix}{viewName}.", _communicator);
 
-                    if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
+                    if (_communicator.GetPropertyAsInt($"{viewsPrefix}{viewName}.Disabled") > 0)
                     {
                         _disabledViews.Add(viewName);
                         continue; // The view is disabled
@@ -783,7 +783,7 @@ namespace IceInternal
 
                     foreach (KeyValuePair<string, IMetricsMapFactory> f in _factories)
                     {
-                        if (v.addOrUpdateMap(_properties, f.Key, f.Value, _logger))
+                        if (v.addOrUpdateMap(_communicator, f.Key, f.Value, _logger))
                         {
                             updatedMaps.Add(f.Value);
                         }
@@ -832,7 +832,7 @@ namespace IceInternal
             lock (this)
             {
                 getMetricsView(name); // Throws if unknown view.
-                _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "0");
+                _communicator.SetProperty($"IceMX.Metrics.{name}.Disabled", "0");
             }
             updateViews();
         }
@@ -842,7 +842,7 @@ namespace IceInternal
             lock (this)
             {
                 getMetricsView(name); // Throws if unknown view.
-                _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "1");
+                _communicator.SetProperty($"IceMX.Metrics.{name}.Disabled", "1");
             }
             updateViews();
         }
@@ -1003,7 +1003,7 @@ namespace IceInternal
             bool updated = false;
             foreach (MetricsViewI v in _views.Values)
             {
-                updated |= v.addOrUpdateMap(_properties, mapName, factory, _logger);
+                updated |= v.addOrUpdateMap(_communicator, mapName, factory, _logger);
             }
             return updated;
         }
@@ -1018,7 +1018,7 @@ namespace IceInternal
             return updated;
         }
 
-        private Ice.Properties _properties;
+        private readonly Ice.Communicator _communicator;
         private readonly Ice.Logger _logger;
         private readonly Dictionary<string, IMetricsMapFactory> _factories =
             new Dictionary<string, IMetricsMapFactory>();

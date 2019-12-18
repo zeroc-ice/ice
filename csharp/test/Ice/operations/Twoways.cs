@@ -238,9 +238,10 @@ namespace Ice
                     Test.MyClassPrx r;
 
                     r = p.opMyClass(p, out c1, out c2);
-                    test(Ice.Util.proxyIdentityAndFacetCompare(c1, p) == 0);
-                    test(Ice.Util.proxyIdentityAndFacetCompare(c2, p) != 0);
-                    test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
+                    ProxyIdentityFacetComparer comparer;
+                    test(comparer.Compare(c1, p) == 0);
+                    test(comparer.Compare(c2, p) != 0);
+                    test(comparer.Compare(r, p) == 0);
                     test(c1.Identity.Equals(Identity.Parse("test")));
                     test(c2.Identity.Equals(Identity.Parse("noSuchIdentity")));
                     test(r.Identity.Equals(Identity.Parse("test")));
@@ -258,7 +259,7 @@ namespace Ice
                     r = p.opMyClass(null, out c1, out c2);
                     test(c1 == null);
                     test(c2 != null);
-                    test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
+                    test(comparer.Compare(r, p) == 0);
                     r.opVoid();
                 }
 
@@ -1431,14 +1432,13 @@ namespace Ice
                     // Test implicit context propagation
                     //
 
-                    String[] impls = { "Shared", "PerThread" };
+                    string[] impls = { "Shared", "PerThread" };
                     for (int i = 0; i < 2; i++)
                     {
-                        Ice.InitializationData initData = new Ice.InitializationData();
-                        initData.properties = communicator.Properties.Clone();
-                        initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+                        var properties = communicator.GetProperties();
+                        properties["Ice.ImplicitContext"] = impls[i];
 
-                        Ice.Communicator ic = helper.initialize(initData);
+                        Communicator ic = helper.initialize(properties);
 
                         Dictionary<string, string> ctx = new Dictionary<string, string>();
                         ctx["one"] = "ONE";

@@ -974,7 +974,7 @@ namespace IceInternal
                         Debug.Assert(_iter < _connectors.Count);
                         _current = _connectors[_iter++];
 
-                        Ice.Instrumentation.CommunicatorObserver obsv = _factory._communicator.initializationData().observer;
+                        Ice.Instrumentation.CommunicatorObserver? obsv = _factory._communicator.Observer;
                         if (obsv != null)
                         {
                             _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
@@ -1518,7 +1518,7 @@ namespace IceInternal
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
-            _warn = _communicator.Properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
+            _warn = _communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
             _connections = new HashSet<Ice.ConnectionI>();
             _state = StateHolding;
             _acceptorStarted = false;

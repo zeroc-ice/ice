@@ -17,24 +17,23 @@ public class Collocated : Test.TestHelper
     public override void run(string[] args)
     {
         CommunicatorObserverI observer = new CommunicatorObserverI();
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.observer = observer;
-        initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        initData.properties.setProperty("Ice.Admin.InstanceName", "client");
-        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        using (var communicator = initialize(initData))
+        var properties = createTestProperties(ref args);
+        properties["Ice.Admin.Endpoints"] = "tcp";
+        properties["Ice.Admin.InstanceName"] = "client";
+        properties["Ice.Admin.DelayCreation"] = "1";
+        properties["Ice.Warn.Connections"] = "0";
+        properties["Ice.Warn.Dispatch"] = "0";
+        properties["Ice.Default.Host"] = "127.0.0.1";
+
+        using (var communicator = initialize(properties, observer: observer))
         {
-            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new MetricsI(), "metrics");
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
             Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
             controllerAdapter.Add(new ControllerI(adapter), "controller");
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.

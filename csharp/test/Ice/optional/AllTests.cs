@@ -541,7 +541,7 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                if (communicator.Properties.getPropertyAsInt("Default.SlicedFormat") > 0)
+                if (communicator.GetPropertyAsInt("Default.SlicedFormat") > 0)
                 {
                     output.Write("testing marshaling with unknown class slices... ");
                     output.Flush();

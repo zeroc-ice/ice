@@ -23,8 +23,7 @@ namespace IceBox
         private static int run(Ice.Communicator communicator, string[] args)
         {
             const string prefix = "IceBox.Service.";
-            Ice.Properties properties = communicator.Properties;
-            Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> services = communicator.GetProperties(forPrefix: prefix);
 
             var argSeq = new List<string>(args);
             foreach (KeyValuePair<string, string> pair in services)
@@ -59,32 +58,25 @@ namespace IceBox
 
         public static int Main(string[] args)
         {
-            int status = 0;
-
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-
             try
             {
-                using (var communicator = Ice.Util.initialize(ref args, initData))
-                {
-                    Console.CancelKeyPress += (sender, eventArgs) =>
-                    {
-                        eventArgs.Cancel = true;
-                        communicator.shutdown();
-                    };
+                using var communicator = new Ice.Communicator(ref args, new Dictionary<string, string>() {
+                    { "Ice.Admin.DelayCreation", "1" }
+                });
 
-                    status = run(communicator, args);
-                }
+                Console.CancelKeyPress += (sender, eventArgs) =>
+                {
+                    eventArgs.Cancel = true;
+                    communicator.shutdown();
+                };
+
+                return run(communicator, args);
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(ex);
-                status = 1;
+                return 1;
             }
-
-            return status;
         }
     }
 

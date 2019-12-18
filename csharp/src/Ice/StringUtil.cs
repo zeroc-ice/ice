@@ -616,7 +616,6 @@ namespace IceUtilInternal
                 {
                     arr[n++] = str[pos++];
                 }
-
             }
 
             if (n > 0)

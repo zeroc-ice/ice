@@ -196,8 +196,8 @@ public class AllTests : Test.AllTests
         output.Write("testing invalid lookup endpoints... ");
         output.Flush();
         {
-            String multicast;
-            if (communicator.Properties.getProperty("Ice.IPv6").Equals("1"))
+            string multicast;
+            if (communicator.GetProperty("Ice.IPv6") == "1")
             {
                 multicast = "\"ff15::1\"";
             }
@@ -207,34 +207,31 @@ public class AllTests : Test.AllTests
             }
 
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.Properties.Clone();
-                initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                var properties = communicator.GetProperties();
+                properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
+                Communicator comm = new Communicator(properties);
                 test(comm.getDefaultLocator() != null);
                 try
                 {
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
                     test(false);
                 }
-                catch (Ice.LocalException)
+                catch (LocalException)
                 {
                 }
                 comm.destroy();
             }
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = communicator.Properties.Clone();
-                string intf = initData.properties.getProperty("IceDiscovery.Interface");
-                if (!intf.Equals(""))
+                var properties = communicator.GetProperties();
+                string intf = communicator.GetProperty("IceDiscovery.Interface") ?? "";
+                if (intf != "")
                 {
-                    intf = " --interface \"" + intf + "\"";
+                    intf = $" --interface \"{intf}\"";
                 }
-                string port = initData.properties.getProperty("IceDiscovery.Port");
-                initData.properties.setProperty("IceDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" +
-                                                 "udp -h " + multicast + " -p " + port + intf);
-                Communicator comm = Util.initialize(initData);
+                string port = communicator.GetProperty("IceDiscovery.Port") ?? "";
+                properties["IceDiscovery.Lookup"] =
+                    $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
+                Communicator comm = new Communicator(properties);
                 test(comm.getDefaultLocator() != null);
                 IObjectPrx.Parse("controller0@control0", comm).IcePing();
                 comm.destroy();

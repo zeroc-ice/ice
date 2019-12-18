@@ -200,7 +200,7 @@ namespace Ice
                     //
                     // Create OA and servants
                     //
-                    communicator.Properties.setProperty("MyOA.AdapterId", "myOA");
+                    communicator.SetProperty("MyOA.AdapterId", "myOA");
 
                     Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
 

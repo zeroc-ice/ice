@@ -221,14 +221,14 @@ namespace IceDiscovery
 
     internal class LookupI : Lookup
     {
-        public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Properties properties)
+        public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Communicator communicator)
         {
             _registry = registry;
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300);
-            _retryCount = properties.getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3);
-            _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
-            _domainId = properties.getProperty("IceDiscovery.DomainId");
+            _timeout = communicator.GetPropertyAsInt("IceDiscovery.Timeout") ?? 300;
+            _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
+            _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
+            _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
             _timer = lookup.Communicator.timer();
 
             //

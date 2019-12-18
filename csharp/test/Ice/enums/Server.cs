@@ -13,11 +13,11 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.ServerIdleTime", "30");
+                var properties = createTestProperties(ref args);
+                properties["Ice.ServerIdleTime"] = "30";
                 using (var communicator = initialize(properties))
                 {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new TestI(), "test");
                     adapter.Activate();

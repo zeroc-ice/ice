@@ -22,20 +22,20 @@ namespace IceInternal
     {
         internal PropertiesAdminI(Ice.Communicator communicator)
         {
-            _properties = communicator.Properties;
-            _logger = communicator.initializationData().logger;
+            _communicator = communicator;
+            _logger = communicator.Logger;
         }
 
         public string
         getProperty(string name, Ice.Current current)
         {
-            return _properties.getProperty(name);
+            return _communicator.GetProperty(name) ?? "";
         }
 
         public Dictionary<string, string>
         getPropertiesForPrefix(string name, Ice.Current current)
         {
-            return _properties.getPropertiesForPrefix(name);
+            return _communicator.GetProperties(forPrefix: name);
         }
 
         public void
@@ -43,8 +43,8 @@ namespace IceInternal
         {
             lock (this)
             {
-                Dictionary<string, string> old = _properties.getPropertiesForPrefix("");
-                int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
+                Dictionary<string, string> old = _communicator.GetProperties();
+                int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 
                 //
                 // Compute the difference between the new property set and the existing property set:
@@ -129,7 +129,7 @@ namespace IceInternal
                                 message.Append(" = ");
                                 message.Append(e.Value);
                                 message.Append(" (old value = ");
-                                message.Append(_properties.getProperty(e.Key));
+                                message.Append(_communicator.GetProperty(e.Key));
                                 message.Append(")");
                             }
                         }
@@ -154,17 +154,17 @@ namespace IceInternal
 
                 foreach (KeyValuePair<string, string> e in added)
                 {
-                    _properties.setProperty(e.Key, e.Value);
+                    _communicator.SetProperty(e.Key, e.Value);
                 }
 
                 foreach (KeyValuePair<string, string> e in changed)
                 {
-                    _properties.setProperty(e.Key, e.Value);
+                    _communicator.SetProperty(e.Key, e.Value);
                 }
 
                 foreach (KeyValuePair<string, string> e in removed)
                 {
-                    _properties.setProperty(e.Key, "");
+                    _communicator.RemoveProperty(e.Key);
                 }
 
                 if (_updateCallbacks.Count > 0)
@@ -180,7 +180,7 @@ namespace IceInternal
                     }
 
                     // Copy callbacks to allow callbacks to update callbacks
-                    foreach (var callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
+                    foreach (var callback in new List<Action<Dictionary<string, string>>>(_updateCallbacks))
                     {
                         try
                         {
@@ -188,7 +188,7 @@ namespace IceInternal
                         }
                         catch (Exception ex)
                         {
-                            if (_properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                            if (_communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 1)
                             {
                                 _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
                             }
@@ -214,7 +214,7 @@ namespace IceInternal
             }
         }
 
-        private readonly Ice.Properties _properties;
+        private readonly Ice.Communicator _communicator;
         private readonly Ice.Logger _logger;
         private List<Action<Dictionary<string, string>>> _updateCallbacks =
             new List<Action<Dictionary<string, string>>>();

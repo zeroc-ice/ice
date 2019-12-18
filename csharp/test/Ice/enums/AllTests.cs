@@ -71,7 +71,7 @@ namespace Ice
                 Ice.OutputStream ostr;
                 byte[] bytes;
 
-                bool encoding_1_0 = communicator.Properties.getProperty("Ice.Default.EncodingVersion").Equals("1.0");
+                bool encoding_1_0 = communicator.GetProperty("Ice.Default.EncodingVersion") == "1.0";
 
                 ostr = new OutputStream(communicator);
                 ostr.WriteEnum((int)Test.ByteEnum.benum11, (int)Test.ByteEnum.benum11);

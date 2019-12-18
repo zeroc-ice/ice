@@ -14,8 +14,8 @@ public class Server : TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.ServerIdleTime", "120");
+        var properties = createTestProperties(ref args);
+        properties["Ice.ServerIdleTime"] = "120";
         int port = 0;
         for (int i = 0; i < args.Length; i++)
         {
@@ -46,7 +46,7 @@ public class Server : TestHelper
 
         using (var communicator = initialize(properties))
         {
-            communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(port));
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.Add(new TestI(), "test");
             adapter.Activate();

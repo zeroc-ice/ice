@@ -296,8 +296,7 @@ namespace Ice
                     return;
                 }
 
-                Debug.Assert(_communicator.initializationData().observer != null);
-                _communicatorObserver = _communicator.initializationData().observer;
+                _communicatorObserver = _communicator.Observer!;
                 _observer = _communicatorObserver.getConnectionObserver(initConnectionInfo(), _endpoint, toConnectionState(_state),
                     _observer);
                 if (_observer != null)
@@ -1638,17 +1637,16 @@ namespace Ice
             _connector = connector;
             _endpoint = endpoint;
             _adapter = adapter;
-            InitializationData initData = communicator.initializationData();
-            _communicatorObserver = initData.observer;
-            _logger = initData.logger; // Cached for better performance.
+            _communicatorObserver = communicator.Observer;
+            _logger = communicator.Logger; // Cached for better performance.
             _traceLevels = communicator.traceLevels(); // Cached for better performance.
             _timer = communicator.timer();
             _writeTimeout = new TimeoutCallback(this);
             _writeTimeoutScheduled = false;
             _readTimeout = new TimeoutCallback(this);
             _readTimeoutScheduled = false;
-            _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
-            _warnUdp = initData.properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+            _warn = communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
+            _warnUdp = communicator.GetPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _cacheBuffers = communicator.CacheMessageBuffers > 0;
             if (_monitor != null && _monitor.getACM().timeout > 0)
             {
@@ -1668,7 +1666,7 @@ namespace Ice
             _dispatchCount = 0;
             _state = StateNotInitialized;
 
-            _compressionLevel = initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+            _compressionLevel = communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
             if (_compressionLevel < 1)
             {
                 _compressionLevel = 1;
@@ -3005,7 +3003,7 @@ namespace Ice
         private bool _readHeader;
         private OutputStream _writeStream;
 
-        private CommunicatorObserver _communicatorObserver;
+        private CommunicatorObserver? _communicatorObserver;
         private ConnectionObserver? _observer;
         private int _readStreamPos;
         private int _writeStreamPos;

@@ -136,26 +136,26 @@ namespace IceLocatorDiscovery
     internal class LocatorI : BlobjectAsync, IceInternal.TimerTask
     {
         public
-        LocatorI(string name, LookupPrx lookup, Properties properties, string instanceName, LocatorPrx voidLocator)
+        LocatorI(string name, LookupPrx lookup, Communicator communicator, string instanceName, LocatorPrx voidLocator)
         {
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+            _timeout = communicator.GetPropertyAsInt($"{name}.Timeout") ?? 300;
             if (_timeout < 0)
             {
                 _timeout = 300;
             }
-            _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+            _retryCount = communicator.GetPropertyAsInt("${name}.RetryCount") ?? 3;
             if (_retryCount < 0)
             {
                 _retryCount = 0;
             }
-            _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
+            _retryDelay = communicator.GetPropertyAsInt($"{name}.RetryDelay") ?? 2000;
             if (_retryDelay < 0)
             {
                 _retryDelay = 0;
             }
             _timer = lookup.Communicator.timer();
-            _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
+            _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.Communicator.getDefaultLocator();
@@ -655,23 +655,22 @@ namespace IceLocatorDiscovery
         public void
         initialize()
         {
-            Ice.Properties properties = _communicator.Properties;
+            bool ipv4 = (_communicator.GetPropertyAsInt("Ice.IPv4") ?? 1) > 0;
+            bool preferIPv6 = _communicator.GetPropertyAsInt("Ice.PreferIPv6Address") > 0;
 
-            bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-            bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
             string address;
             if (ipv4 && !preferIPv6)
             {
-                address = properties.getPropertyWithDefault(_name + ".Address", "239.255.0.1");
+                address = _communicator.GetProperty($"{_name}.Address") ?? "239.255.0.1";
             }
             else
             {
-                address = properties.getPropertyWithDefault(_name + ".Address", "ff15::1");
+                address = _communicator.GetProperty($"{_name}.Address") ?? "ff15::1";
             }
-            int port = properties.getPropertyAsIntWithDefault(_name + ".Port", 4061);
-            string intf = properties.getProperty(_name + ".Interface");
+            int port = _communicator.GetPropertyAsInt($"{_name}.Port") ?? 4061;
+            string intf = _communicator.GetProperty($"{_name}.Interface") ?? "";
 
-            string lookupEndpoints = properties.getProperty(_name + ".Lookup");
+            string lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
                 int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
@@ -686,15 +685,15 @@ namespace IceLocatorDiscovery
                 }
             }
 
-            if (properties.getProperty(_name + ".Reply.Endpoints").Length == 0)
+            if (_communicator.GetProperty($"{_name}.Reply.Endpoints") == null)
             {
-                properties.setProperty(_name + ".Reply.Endpoints",
-                                       "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
+                _communicator.SetProperty($"{_name}.Reply.Endpoints",
+                    intf.Length == 0 ? "udp -h *" : $"udp -h \"{intf}\"");
             }
 
-            if (properties.getProperty(_name + ".Locator.Endpoints").Length == 0)
+            if (_communicator.GetProperty($"{_name}.Locator.Endpoints") == null)
             {
-                properties.setProperty(_name + ".Locator.AdapterId", Guid.NewGuid().ToString());
+                _communicator.SetProperty($"{_name}.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
             _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
@@ -710,11 +709,11 @@ namespace IceLocatorDiscovery
 
             LocatorPrx voidLo = _locatorAdapter.Add(new VoidLocatorI());
 
-            string instanceName = properties.getProperty(_name + ".InstanceName");
+            string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
             _defaultLocator = _communicator.getDefaultLocator();
-            _locator = new LocatorI(_name, lookupPrx, properties, instanceName, voidLo);
+            _locator = new LocatorI(_name, lookupPrx, _communicator, instanceName, voidLo);
             _locatorPrx = LocatorPrx.UncheckedCast(
                 _locatorAdapter.Add((current, incoming) => _locator.Dispatch(current, incoming)));
             _communicator.setDefaultLocator(_locatorPrx);

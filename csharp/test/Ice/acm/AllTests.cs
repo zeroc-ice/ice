@@ -156,25 +156,25 @@ namespace Ice
             {
                 _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat);
 
-                var initData = new InitializationData();
-                initData.properties = _com.Communicator.Properties.Clone();
-                initData.logger = _logger;
-                initData.properties.setProperty("Ice.ACM.Timeout", "2");
+                var properties = _com.Communicator.GetProperties();
+                properties["Ice.ACM.Timeout"] = "2";
                 if (_clientACMTimeout >= 0)
                 {
-                    initData.properties.setProperty("Ice.ACM.Client.Timeout", _clientACMTimeout.ToString());
+                    properties["Ice.ACM.Client.Timeout"] = _clientACMTimeout.ToString();
                 }
+
                 if (_clientACMClose >= 0)
                 {
-                    initData.properties.setProperty("Ice.ACM.Client.Close", _clientACMClose.ToString());
+                    properties["Ice.ACM.Client.Close"] = _clientACMClose.ToString();
                 }
+
                 if (_clientACMHeartbeat >= 0)
                 {
-                    initData.properties.setProperty("Ice.ACM.Client.Heartbeat", _clientACMHeartbeat.ToString());
+                    properties["Ice.ACM.Client.Heartbeat"] = _clientACMHeartbeat.ToString();
                 }
-                //initData.properties.setProperty("Ice.Trace.Protocol", "2");
-                //initData.properties.setProperty("Ice.Trace.Network", "2");
-                _communicator = _helper.initialize(initData);
+                //initData.SetProperty("Ice.Trace.Protocol", "2");
+                //initData.SetProperty("Ice.Trace.Network", "2");
+                _communicator = _helper.initialize(properties);
                 _thread = new Thread(this.run);
             }
 

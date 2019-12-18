@@ -70,7 +70,7 @@ namespace Ice
                 bool async = args.Any(v => v.Equals("--async"));
                 using (var communicator = initialize(ref args))
                 {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     if (async)
                     {

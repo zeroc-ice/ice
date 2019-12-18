@@ -15,17 +15,16 @@ namespace IceSSL
         {
             Debug.Assert(communicator != null);
             _communicator = communicator;
-            Ice.Properties properties = communicator.Properties;
-            _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
+            _traceLevel = _communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             string key = "IceSSL.TrustOnly";
             try
             {
-                parse(properties.getProperty(key), _rejectAll, _acceptAll);
+                parse(_communicator.GetProperty(key) ?? "", _rejectAll, _acceptAll);
                 key = "IceSSL.TrustOnly.Client";
-                parse(properties.getProperty(key), _rejectClient, _acceptClient);
+                parse(_communicator.GetProperty(key) ?? "", _rejectClient, _acceptClient);
                 key = "IceSSL.TrustOnly.Server";
-                parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
-                Dictionary<string, string> dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
+                parse(_communicator.GetProperty(key) ?? "", _rejectAllServer, _acceptAllServer);
+                Dictionary<string, string> dict = _communicator.GetProperties(forPrefix: "IceSSL.TrustOnly.Server.");
                 foreach (KeyValuePair<string, string> entry in dict)
                 {
                     key = entry.Key;

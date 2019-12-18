@@ -15,13 +15,13 @@ namespace Ice
             public override void run(string[] args)
             {
                 var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-                properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-                properties.setProperty("Ice.Warn.Dispatch", "0");
+                properties["Ice.ThreadPool.Client.Size"] = "2"; // For nested AMI.
+                properties["Ice.ThreadPool.Client.SizeWarn"] = "0";
+                properties["Ice.Warn.Dispatch"] = "0";
 
                 using (var communicator = initialize(properties))
                 {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new MyDerivedClassI(), "test");
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.

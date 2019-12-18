@@ -7,7 +7,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public sealed class ACMConfig : System.ICloneable
+    public sealed class ACMConfig
     {
         internal ACMConfig(bool server)
         {
@@ -16,13 +16,13 @@ namespace IceInternal
             close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
         }
 
-        public ACMConfig(Ice.Properties p, Ice.Logger l, string prefix, ACMConfig dflt)
+        public ACMConfig(Ice.Communicator communicator, Ice.Logger logger, string prefix, ACMConfig defaults)
         {
             Debug.Assert(prefix != null);
 
             string timeoutProperty;
-            if ((prefix.Equals("Ice.ACM.Client") || prefix.Equals("Ice.ACM.Server")) &&
-               p.getProperty(prefix + ".Timeout").Length == 0)
+            if ((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") &&
+                communicator.GetProperty($"{prefix}.Timeout") == null)
             {
                 timeoutProperty = prefix; // Deprecated property.
             }
@@ -31,41 +31,39 @@ namespace IceInternal
                 timeoutProperty = prefix + ".Timeout";
             }
 
-            timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To milliseconds
+            timeout = communicator.GetPropertyAsInt(timeoutProperty) * 1000 ?? defaults.timeout;
             if (timeout < 0)
             {
-                l.warning("invalid value for property `" + timeoutProperty + "', default value will be used instead");
-                timeout = dflt.timeout;
+                logger.warning($"invalid value for property `{timeoutProperty}', default value will be used instead");
+                timeout = defaults.timeout;
             }
 
-            int hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", (int)dflt.heartbeat);
+            int hb = communicator.GetPropertyAsInt($"{prefix}.Heartbeat") ?? (int)defaults.heartbeat;
             if (hb >= (int)Ice.ACMHeartbeat.HeartbeatOff && hb <= (int)Ice.ACMHeartbeat.HeartbeatAlways)
             {
                 heartbeat = (Ice.ACMHeartbeat)hb;
             }
             else
             {
-                l.warning("invalid value for property `" + prefix + ".Heartbeat" +
-                          "', default value will be used instead");
-                heartbeat = dflt.heartbeat;
+                logger.warning($"invalid value for property `{prefix}.Heartbeat', default value will be used instead");
+                heartbeat = defaults.heartbeat;
             }
 
-            int cl = p.getPropertyAsIntWithDefault(prefix + ".Close", (int)dflt.close);
+            int cl = communicator.GetPropertyAsInt($"{prefix}.Close") ?? (int)defaults.close;
             if (cl >= (int)Ice.ACMClose.CloseOff && cl <= (int)Ice.ACMClose.CloseOnIdleForceful)
             {
                 close = (Ice.ACMClose)cl;
             }
             else
             {
-                l.warning("invalid value for property `" + prefix + ".Close" +
-                          "', default value will be used instead");
-                close = dflt.close;
+                logger.warning($"invalid value for property `{prefix}.Close', default value will be used instead");
+                close = defaults.close;
             }
         }
 
-        public object Clone()
+        public ACMConfig Clone()
         {
-            return MemberwiseClone();
+            return (ACMConfig)MemberwiseClone();
         }
 
         public int timeout;
@@ -191,7 +189,7 @@ namespace IceInternal
         {
             Debug.Assert(_communicator != null);
 
-            ACMConfig config = (ACMConfig)_config.Clone();
+            ACMConfig config = _config.Clone();
             if (timeout.HasValue)
             {
                 config.timeout = timeout.Value * 1000; // To milliseconds

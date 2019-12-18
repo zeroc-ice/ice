@@ -15,13 +15,18 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Warn.Connections", "0");
-                properties.setProperty("Ice.UDP.RcvSize", "16384");
-                if (IceInternal.AssemblyUtil.isMacOS && properties.getPropertyAsInt("Ice.IPv6") > 0)
+                var properties = createTestProperties(ref args);
+                properties["Ice.Warn.Connections"] = "0";
+                properties["Ice.UDP.RcvSize"] = "16384";
+
+                string? value;
+                int ipv6;
+                if (IceInternal.AssemblyUtil.isMacOS &&
+                    properties.TryGetValue("Ice.IPv6", out value) &&
+                    int.TryParse(value, out ipv6) && ipv6 > 0)
                 {
                     // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
-                    properties.setProperty("Ice.IPv4", "0");
+                    properties["Ice.IPv4"] = "0";
                 }
 
                 using (var communicator = initialize(properties))
@@ -29,20 +34,20 @@ namespace Ice
                     int num = 0;
                     try
                     {
-                        num = args.Length == 1 ? Int32.Parse(args[0]) : 0;
+                        num = args.Length == 1 ? int.Parse(args[0]) : 0;
                     }
                     catch (FormatException)
                     {
                     }
 
-                    communicator.Properties.setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
+                    communicator.SetProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
                     adapter.Add(new TestIntfI(), "control");
                     adapter.Activate();
                     serverReady();
                     if (num == 0)
                     {
-                        communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
+                        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                         Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
                         adapter2.Add(new TestIntfI(), "test");
                         adapter2.Activate();
@@ -52,7 +57,7 @@ namespace Ice
                     //
                     // Use loopback to prevent other machines to answer.
                     //
-                    if (properties.getProperty("Ice.IPv6").Equals("1"))
+                    if (communicator.GetProperty("Ice.IPv6") == "1")
                     {
                         endpoint.Append("udp -h \"ff15::1:1\"");
                         if (IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
@@ -70,7 +75,7 @@ namespace Ice
                     }
                     endpoint.Append(" -p ");
                     endpoint.Append(getTestPort(properties, 10));
-                    communicator.Properties.setProperty("McastTestAdapter.Endpoints", endpoint.ToString());
+                    communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
                     Ice.ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
                     mcastAdapter.Add(new TestIntfI(), "test");
                     mcastAdapter.Activate();

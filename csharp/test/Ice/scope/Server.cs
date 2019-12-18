@@ -242,21 +242,17 @@ namespace Ice
 
             public override void run(string[] args)
             {
-                var initData = new InitializationData();
-                initData.typeIdNamespaces = new string[] { "Ice.scope.TypeId" };
-                initData.properties = createTestProperties(ref args);
-                using (var communicator = initialize(initData))
-                {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new I1(), "i1");
-                    adapter.Add(new I2(), "i2");
-                    adapter.Add(new I3(), "i3");
-                    adapter.Add(new I4(), "i4");
-                    adapter.Activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
+                using var communicator = initialize(createTestProperties(ref args),
+                    typeIdNamespaces: new string[] { "Ice.scope.TypeId" });
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter.Add(new I1(), "i1");
+                adapter.Add(new I2(), "i2");
+                adapter.Add(new I3(), "i3");
+                adapter.Add(new I4(), "i4");
+                adapter.Activate();
+                serverReady();
+                communicator.waitForShutdown();
             }
 
             public static int Main(string[] args)

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -158,11 +159,11 @@ namespace IceInternal
             return logMessages.ToArray();
         }
 
-        internal LoggerAdminI(Ice.Properties props, LoggerAdminLoggerI logger)
+        internal LoggerAdminI(Ice.Communicator communicator, LoggerAdminLoggerI logger)
         {
-            _maxLogCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100);
-            _maxTraceCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100);
-            _traceLevel = props.getPropertyAsInt("Ice.Trace.Admin.Logger");
+            _maxLogCount = communicator.GetPropertyAsInt("Ice.Admin.Logger.KeepLogs") ?? 100;
+            _maxTraceCount = communicator.GetPropertyAsInt("Ice.Admin.Logger.KeepTraces") ?? 100;
+            _traceLevel = communicator.GetPropertyAsInt("Ice.Trace.Admin.Logger") ?? 0;
             _logger = logger;
         }
 
@@ -381,49 +382,18 @@ namespace IceInternal
         //
         private static RemoteLoggerPrx changeCommunicator(Ice.RemoteLoggerPrx prx, Ice.Communicator communicator)
         {
-            if (prx == null)
-            {
-                return null;
-            }
-
             return RemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
         }
 
-        private static void copyProperties(string prefix, Ice.Properties from, Ice.Properties to)
+        private static Communicator createSendLogCommunicator(Communicator communicator, Logger logger)
         {
-            foreach (var p in from.getPropertiesForPrefix(prefix))
-            {
-                to.setProperty(p.Key, p.Value);
-            }
-        }
+            Dictionary<string, string> properties = communicator.GetProperties().Where(
+                p => p.Key == "Ice.Default.Locator" || p.Key == "Ice.Plugin.IceSSL" || p.Key.StartsWith("IceSSL.")
+            ).ToDictionary(p => p.Key, p => p.Value);
 
-        private static Ice.Communicator createSendLogCommunicator(Ice.Communicator communicator, Ice.Logger logger)
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.logger = logger;
-            initData.properties = Ice.Util.createProperties();
-
-            Ice.Properties mainProps = communicator.Properties;
-
-            copyProperties("Ice.Default.Locator", mainProps, initData.properties);
-            copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
-            copyProperties("IceSSL.", mainProps, initData.properties);
-
-            string[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");
-
-            if (extraProps.Length > 0)
-            {
-                for (int i = 0; i < extraProps.Length; ++i)
-                {
-                    string p = extraProps[i];
-                    if (!p.StartsWith("--"))
-                    {
-                        extraProps[i] = "--" + p;
-                    }
-                }
-                initData.properties.parseCommandLineOptions("", extraProps);
-            }
-            return Ice.Util.initialize(initData);
+            string[] args = communicator.GetPropertyAsList("Ice.Admin.Logger.Properties")?.Select(
+                v => v.StartsWith("--") ? v : $"--{v}").ToArray() ?? Array.Empty<string>();
+            return new Communicator(ref args, properties, logger: logger);
         }
 
         private readonly LinkedList<Ice.LogMessage> _queue = new LinkedList<Ice.LogMessage>();

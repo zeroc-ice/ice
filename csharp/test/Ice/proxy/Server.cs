@@ -17,12 +17,12 @@ namespace Ice
                 //
                 // We don't want connection warnings because of the timeout test.
                 //
-                properties.setProperty("Ice.Warn.Connections", "0");
-                properties.setProperty("Ice.Warn.Dispatch", "0");
+                properties["Ice.Warn.Connections"] = "0";
+                properties["Ice.Warn.Dispatch"] = "0";
 
                 using (var communicator = initialize(properties))
                 {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.Add(new MyDerivedClassI(), "test");
                     adapter.Activate();

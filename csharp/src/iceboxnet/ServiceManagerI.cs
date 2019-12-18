@@ -3,10 +3,13 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+
+using Ice;
 
 namespace IceBox
 {
@@ -20,32 +23,23 @@ namespace IceBox
             _communicator = communicator;
             _logger = _communicator.Logger;
 
-            Ice.Properties props = _communicator.Properties;
-
-            if (props.getProperty("Ice.Admin.Enabled").Length == 0)
+            if (_communicator.GetProperty("Ice.Admin.Enabled") == null)
             {
-                _adminEnabled = props.getProperty("Ice.Admin.Endpoints").Length > 0;
+                _adminEnabled = _communicator.GetProperty("Ice.Admin.Endpoints") != null;
             }
             else
             {
-                _adminEnabled = props.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+                _adminEnabled = _communicator.GetPropertyAsInt("Ice.Admin.Enabled") > 0;
             }
 
             if (_adminEnabled)
             {
-                string[] facetFilter = props.getPropertyAsList("Ice.Admin.Facets");
-                if (facetFilter.Length > 0)
-                {
-                    _adminFacetFilter = new HashSet<string>(facetFilter);
-                }
-                else
-                {
-                    _adminFacetFilter = new HashSet<string>();
-                }
+                _adminFacetFilter = new HashSet<string>(
+                    _communicator.GetPropertyAsList("Ice.Admin.Facets") ?? Array.Empty<string>());
             }
 
             _argv = args;
-            _traceServiceObserver = _communicator.Properties.getPropertyAsInt("IceBox.Trace.ServiceObserver");
+            _traceServiceObserver = _communicator.GetPropertyAsInt("IceBox.Trace.ServiceObserver") ?? 0;
         }
 
         public void startService(string name, Ice.Current current)
@@ -82,11 +76,15 @@ namespace IceBox
             bool started = false;
             try
             {
-                info.service.start(info.name, info.communicator == null ? _sharedCommunicator : info.communicator,
-                                   info.args);
+                Debug.Assert(info.service != null);
+                Debug.Assert(info.name != null);
+                Debug.Assert(info.args != null);
+                Ice.Communicator? communicator = info.communicator == null ? _sharedCommunicator : info.communicator;
+                Debug.Assert(communicator != null);
+                info.service.start(info.name, communicator, info.args);
                 started = true;
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 _logger.warning("ServiceManager: exception while starting service " + info.name + ":\n" + e.ToString());
             }
@@ -154,10 +152,11 @@ namespace IceBox
             bool stopped = false;
             try
             {
+                Debug.Assert(info.service != null);
                 info.service.stop();
                 stopped = true;
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 _logger.warning("ServiceManager: exception while stopping service " + info.name + "\n" + e.ToString());
             }
@@ -228,7 +227,7 @@ namespace IceBox
 
             if (activeServices.Count > 0)
             {
-                observer.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t),
+                observer!.servicesStartedAsync(activeServices.ToArray()).ContinueWith((t) => observerCompleted(observer, t),
                     TaskScheduler.Current);
             }
         }
@@ -242,22 +241,17 @@ namespace IceBox
         {
             try
             {
-                Ice.Properties properties = _communicator.Properties;
-
                 //
                 // Create an object adapter. Services probably should NOT share
                 // this object adapter, as the endpoint(s) for this object adapter
                 // will most likely need to be firewalled for security reasons.
                 //
-                Ice.ObjectAdapter adapter = null;
-                if (properties.getProperty("IceBox.ServiceManager.Endpoints").Length != 0)
+                Ice.ObjectAdapter? adapter = null;
+                if (_communicator.GetProperty("IceBox.ServiceManager.Endpoints") != null)
                 {
                     adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
-
-                    Ice.Identity identity = new Ice.Identity();
-                    identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-                    identity.name = "ServiceManager";
-                    adapter.Add(this, identity);
+                    adapter.Add(this, new Ice.Identity("ServiceManager",
+                        _communicator.GetProperty("IceBox.InstanceName") ?? "IceBox"));
                 }
 
                 //
@@ -270,31 +264,28 @@ namespace IceBox
                 // first, then the ones from remaining services.
                 //
                 string prefix = "IceBox.Service.";
-                Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
+                Dictionary<string, string> services = _communicator.GetProperties(forPrefix: prefix);
 
                 if (services.Count == 0)
                 {
                     throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
                 }
 
-                string[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
+                string[] loadOrder = (_communicator.GetPropertyAsList("IceBox.LoadOrder") ?? Array.Empty<string>()).Where(
+                    s => s.Length > 0).ToArray();
                 List<StartServiceInfo> servicesInfo = new List<StartServiceInfo>();
-                for (int i = 0; i < loadOrder.Length; ++i)
+                foreach (var o in loadOrder)
                 {
-                    if (loadOrder[i].Length > 0)
+                    string key = prefix + o;
+                    string? value;
+                    if (!services.TryGetValue(key, out value))
                     {
-                        string key = prefix + loadOrder[i];
-                        string value = services[key];
-                        if (value == null)
-                        {
-                            FailureException ex = new FailureException();
-                            ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
-                            throw ex;
-                        }
-                        servicesInfo.Add(new StartServiceInfo(loadOrder[i], value, _argv));
-                        services.Remove(key);
+                        throw new FailureException($"ServiceManager: no service definition for `{o}'");
                     }
+                    servicesInfo.Add(new StartServiceInfo(o, value, _argv));
+                    services.Remove(key);
                 }
+
                 foreach (KeyValuePair<string, string> entry in services)
                 {
                     string name = entry.Key.Substring(prefix.Length);
@@ -308,54 +299,32 @@ namespace IceBox
                 // is the union of all the service properties (from services that use
                 // the shared communicator).
                 //
-                if (properties.getPropertiesForPrefix("IceBox.UseSharedCommunicator.").Count > 0)
+                if (_communicator.GetProperties(forPrefix: "IceBox.UseSharedCommunicator.").Count > 0)
                 {
-                    Ice.InitializationData initData = new Ice.InitializationData();
-                    initData.properties = createServiceProperties("SharedCommunicator");
+                    Dictionary<string, string> properties = CreateServiceProperties("SharedCommunicator");
                     foreach (StartServiceInfo service in servicesInfo)
                     {
-                        if (properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service.name) <= 0)
+                        if ((_communicator.GetPropertyAsInt($"IceBox.UseSharedCommunicator.{service.name}") ?? 0) <= 0)
                         {
                             continue;
                         }
 
                         //
-                        // Load the service properties using the shared communicator properties as
-                        // the default properties.
+                        // Load the service properties using the shared communicator properties as the default properties.
                         //
-                        Ice.Properties svcProperties = Ice.Util.createProperties(ref service.args, initData.properties);
-
-                        //
-                        // Remove properties from the shared property set that a service explicitly clears.
-                        //
-                        Dictionary<string, string> allProps = initData.properties.getPropertiesForPrefix("");
-                        foreach (string key in allProps.Keys)
-                        {
-                            if (svcProperties.getProperty(key).Length == 0)
-                            {
-                                initData.properties.setProperty(key, "");
-                            }
-                        }
-
-                        //
-                        // Add the service properties to the shared communicator properties.
-                        //
-                        foreach (KeyValuePair<string, string> entry in svcProperties.getPropertiesForPrefix(string.Empty))
-                        {
-                            initData.properties.setProperty(entry.Key, entry.Value);
-                        }
+                        properties.ParseIceArgs(ref service.args);
 
                         //
                         // Parse <service>.* command line options (the Ice command line options
                         // were parsed by the call to createProperties above).
                         //
-                        service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
+                        properties.ParseArgs(ref service.args, service.name);
                     }
 
                     string facetNamePrefix = "IceBox.SharedCommunicator.";
-                    bool addFacets = configureAdmin(initData.properties, facetNamePrefix);
+                    bool addFacets = ConfigureAdmin(properties, facetNamePrefix);
 
-                    _sharedCommunicator = Ice.Util.initialize(initData);
+                    _sharedCommunicator = new Ice.Communicator(properties);
 
                     if (addFacets)
                     {
@@ -398,8 +367,8 @@ namespace IceBox
                 // This must be done after start() has been invoked on the
                 // services.
                 //
-                string bundleName = properties.getProperty("IceBox.PrintServicesReady");
-                if (bundleName.Length > 0)
+                string? bundleName = _communicator.GetProperty("IceBox.PrintServicesReady");
+                if (bundleName != null)
                 {
                     Console.Out.WriteLine(bundleName + " ready");
                 }
@@ -419,7 +388,7 @@ namespace IceBox
             {
                 // Expected if the mmunicator is shutdown
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _logger.error("ServiceManager: caught exception:\n" + ex.ToString());
                 return 1;
@@ -478,13 +447,13 @@ namespace IceBox
                     {
                         serviceAssembly = System.Reflection.Assembly.Load(assemblyName);
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
                         try
                         {
                             serviceAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
                         }
-                        catch (Exception)
+                        catch (System.Exception)
                         {
 #pragma warning disable CA2200 // Rethrow to preserve stack details.
                             throw ex;
@@ -492,7 +461,7 @@ namespace IceBox
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     FailureException e = new FailureException(ex);
                     e.reason = err + "unable to load assembly: " + assemblyName;
@@ -507,7 +476,7 @@ namespace IceBox
                 {
                     c = serviceAssembly.GetType(className, true);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     FailureException e = new FailureException(ex);
                     e.reason = err + "GetType failed for '" + className + "'";
@@ -519,6 +488,7 @@ namespace IceBox
                 info.status = ServiceStatus.Stopped;
                 info.args = args;
 
+                Logger? logger = null;
                 //
                 // If IceBox.UseSharedCommunicator.<name> is defined, create a
                 // communicator for the service. The communicator inherits
@@ -526,8 +496,8 @@ namespace IceBox
                 // defined, add the service properties to the shared
                 // commnunicator property set.
                 //
-                Ice.Communicator communicator;
-                if (_communicator.Properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+                Communicator communicator;
+                if (_communicator.GetPropertyAsInt($"IceBox.UseSharedCommunicator.{service}") > 0)
                 {
                     Debug.Assert(_sharedCommunicator != null);
                     communicator = _sharedCommunicator;
@@ -538,30 +508,30 @@ namespace IceBox
                     // Create the service properties. We use the communicator properties as the default
                     // properties if IceBox.InheritProperties is set.
                     //
-                    Ice.InitializationData initData = new Ice.InitializationData();
-                    initData.properties = createServiceProperties(service);
+                    Dictionary<string, string> properties = CreateServiceProperties(service);
                     if (info.args.Length > 0)
                     {
                         //
                         // Create the service properties with the given service arguments. This should
                         // read the service config file if it's specified with --Ice.Config.
                         //
-                        initData.properties = Ice.Util.createProperties(ref info.args, initData.properties);
+                        properties.ParseIceArgs(ref info.args);
 
                         //
                         // Next, parse the service "<service>.*" command line options (the Ice command
                         // line options were parsed by the createProperties above)
                         //
-                        info.args = initData.properties.parseCommandLineOptions(service, info.args);
+                        properties.ParseArgs(ref info.args, service);
                     }
 
                     //
                     // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
                     // don't set any logger.
                     //
-                    if (initData.properties.getProperty("Ice.LogFile").Length == 0)
+                    string? logFile;
+                    if (properties.TryGetValue("Ice.LogFile", out logFile))
                     {
-                        initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
+                        logger = _logger.cloneWithPrefix(properties.GetValueOrDefault("Ice.ProgramName") ?? "");
                     }
 
                     //
@@ -570,13 +540,13 @@ namespace IceBox
                     // we add these facets to the IceBox Admin object as IceBox.Service.<service>.<facet>.
                     //
                     string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
-                    bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
+                    bool addFacets = ConfigureAdmin(properties, serviceFacetNamePrefix);
 
                     //
                     // Remaining command line options are passed to the communicator. This is
                     // necessary for Ice plug-in properties (e.g.: IceSSL).
                     //
-                    info.communicator = Ice.Util.initialize(ref info.args, initData);
+                    info.communicator = new Ice.Communicator(ref info.args, properties, logger: logger);
                     communicator = info.communicator;
 
                     if (addFacets)
@@ -670,11 +640,9 @@ namespace IceBox
                             throw e;
                         }
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
-                        FailureException e = new FailureException(ex);
-                        e.reason = err + "exception in service constructor " + className;
-                        throw e;
+                        throw new FailureException($"{err} exception in service constructor {className}", ex);
                     }
 
                     try
@@ -685,17 +653,15 @@ namespace IceBox
                     {
                         throw;
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
-                        FailureException e = new FailureException(ex);
-                        e.reason = "exception while starting service " + service;
-                        throw e;
+                        throw new FailureException($"exception while starting service {service}", ex);
                     }
 
                     info.status = ServiceStatus.Started;
                     _services.Add(info);
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     if (info.communicator != null)
                     {
@@ -735,7 +701,7 @@ namespace IceBox
                             info.service.stop();
                             stoppedServices.Add(info.name);
                         }
-                        catch (Exception e)
+                        catch (System.Exception e)
                         {
                             _logger.warning("IceBox.ServiceManager: exception while stopping service " + info.name + ":\n" +
                                             e.ToString());
@@ -756,7 +722,7 @@ namespace IceBox
                     {
                         _sharedCommunicator.destroy();
                     }
-                    catch (Exception e)
+                    catch (System.Exception e)
                     {
                         _logger.warning("ServiceManager: exception while destroying shared communicator:\n" + e.ToString());
                     }
@@ -823,7 +789,7 @@ namespace IceBox
             }
         }
 
-        private void observerRemoved(ServiceObserverPrx observer, Exception ex)
+        private void observerRemoved(ServiceObserverPrx observer, System.Exception ex)
         {
             if (_traceServiceObserver >= 1)
             {
@@ -911,33 +877,21 @@ namespace IceBox
             public string[] args;
         }
 
-        private Ice.Properties createServiceProperties(string service)
+        private Dictionary<string, string> CreateServiceProperties(string service)
         {
-            Ice.Properties properties;
-            Ice.Properties communicatorProperties = _communicator.Properties;
-            if (communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
+            Dictionary<string, string> properties;
+            if ((_communicator.GetPropertyAsInt("IceBox.InheritProperties") ?? 0) > 0)
             {
-                properties = communicatorProperties.Clone();
                 // Inherit all except Ice.Admin.xxx properties
-                foreach (string p in properties.getPropertiesForPrefix("Ice.Admin.").Keys)
-                {
-                    properties.setProperty(p, "");
-                }
+                properties = _communicator.GetProperties().Where(p => !p.Key.StartsWith("Ice.Admin.")).ToDictionary(p => p.Key, p => p.Value);
             }
             else
             {
-                properties = Ice.Util.createProperties();
+                properties = new Dictionary<string, string>();
             }
 
-            string programName = communicatorProperties.getProperty("Ice.ProgramName");
-            if (programName.Length == 0)
-            {
-                properties.setProperty("Ice.ProgramName", service);
-            }
-            else
-            {
-                properties.setProperty("Ice.ProgramName", programName + "-" + service);
-            }
+            string? programName = _communicator.GetProperty("Ice.ProgramName");
+            properties["Ice.ProgramName"] = programName == null ? service : $"{programName}-{service}";
             return properties;
         }
 
@@ -957,7 +911,7 @@ namespace IceBox
                     // the communicator for its own reasons.
                     //
                 }
-                catch (Exception e)
+                catch (System.Exception e)
                 {
                     _logger.warning("ServiceManager: exception while shutting down communicator for service "
                                     + service + "\n" + e.ToString());
@@ -968,9 +922,9 @@ namespace IceBox
             }
         }
 
-        private bool configureAdmin(Ice.Properties properties, string prefix)
+        private bool ConfigureAdmin(Dictionary<string, string> properties, string prefix)
         {
-            if (_adminEnabled && properties.getProperty("Ice.Admin.Enabled").Length == 0)
+            if (_adminEnabled && !properties.ContainsKey("Ice.Admin.Enabled"))
             {
                 List<string> facetNames = new List<string>();
                 Debug.Assert(_adminFacetFilter != null);
@@ -984,12 +938,12 @@ namespace IceBox
 
                 if (_adminFacetFilter.Count == 0 || facetNames.Count > 0)
                 {
-                    properties.setProperty("Ice.Admin.Enabled", "1");
+                    properties["Ice.Admin.Enabled"] = "1";
 
                     if (facetNames.Count > 0)
                     {
                         // TODO: need String.Join with escape!
-                        properties.setProperty("Ice.Admin.Facets", string.Join(" ", facetNames.ToArray()));
+                        properties["Ice.Admin.Facets"] = string.Join(" ", facetNames.ToArray());
                     }
                     return true;
                 }

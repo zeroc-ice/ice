@@ -4,7 +4,7 @@
 
 namespace IceInternal
 {
-    public sealed class Protocol
+    public static class Protocol
     {
         //
         // Size of the Ice protocol header
@@ -174,10 +174,6 @@ namespace IceInternal
         isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported)
         {
             return version.major == supported.major && version.minor <= supported.minor;
-        }
-
-        private Protocol()
-        {
         }
     }
 

@@ -36,20 +36,20 @@ public class AllTests : Test.AllTests
             //
             // Test: PropertiesAdmin::getProperty()
             //
-            test(pa.getProperty("Prop1").Equals("1"));
-            test(pa.getProperty("Bogus").Equals(""));
+            test(pa.getProperty("Prop1") == "1");
+            test(pa.getProperty("Bogus") == "");
 
             //
             // Test: PropertiesAdmin::getProperties()
             //
             Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
             test(pd.Count == 6);
-            test(pd["Prop1"].Equals("1"));
-            test(pd["Prop2"].Equals("2"));
-            test(pd["Prop3"].Equals("3"));
-            test(pd["Ice.Config"].Equals("config.service"));
-            test(pd["Ice.ProgramName"].Equals("IceBox-TestService"));
-            test(pd["Ice.Admin.Enabled"].Equals("1"));
+            test(pd["Prop1"] == "1");
+            test(pd["Prop2"] == "2");
+            test(pd["Prop3"] == "3");
+            test(pd["Ice.Config"] == "config.service");
+            test(pd["Ice.ProgramName"] == "IceBox-TestService");
+            test(pd["Ice.Admin.Enabled"] == "1");
 
             Dictionary<string, string> changes;
 
@@ -63,18 +63,18 @@ public class AllTests : Test.AllTests
             setProps.Add("Prop4", "4"); // Added
             setProps.Add("Prop5", "5"); // Added
             pa.setProperties(setProps);
-            test(pa.getProperty("Prop1").Equals("10"));
-            test(pa.getProperty("Prop2").Equals("20"));
-            test(pa.getProperty("Prop3").Equals(""));
-            test(pa.getProperty("Prop4").Equals("4"));
-            test(pa.getProperty("Prop5").Equals("5"));
+            test(pa.getProperty("Prop1") == "10");
+            test(pa.getProperty("Prop2") == "20");
+            test(pa.getProperty("Prop3") == "");
+            test(pa.getProperty("Prop4") == "4");
+            test(pa.getProperty("Prop5") == "5");
             changes = facet.getChanges();
             test(changes.Count == 5);
-            test(changes["Prop1"].Equals("10"));
-            test(changes["Prop2"].Equals("20"));
-            test(changes["Prop3"].Equals(""));
-            test(changes["Prop4"].Equals("4"));
-            test(changes["Prop5"].Equals("5"));
+            test(changes["Prop1"] == "10");
+            test(changes["Prop2"] == "20");
+            test(changes["Prop3"] == "");
+            test(changes["Prop4"] == "4");
+            test(changes["Prop5"] == "5");
             pa.setProperties(setProps);
             changes = facet.getChanges();
             test(changes.Count == 0);

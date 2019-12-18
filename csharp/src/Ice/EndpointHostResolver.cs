@@ -18,8 +18,7 @@ namespace IceInternal
             _preferIPv6 = communicator.PreferIPv6;
             _thread = new HelperThread(this);
             updateObserver();
-            _thread.Start(Util.stringToThreadPriority(
-                    communicator.Properties.getProperty("Ice.ThreadPriority")));
+            _thread.Start(Util.stringToThreadPriority(communicator.GetProperty("Ice.ThreadPriority")));
         }
 
         public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
@@ -59,7 +58,7 @@ namespace IceInternal
                 entry.endpoint = endpoint;
                 entry.callback = callback;
 
-                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.Observer;
                 if (obsv != null)
                 {
                     entry.observer = obsv.getEndpointLookupObserver(endpoint);
@@ -187,7 +186,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver obsv = _communicator.Observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -224,7 +223,7 @@ namespace IceInternal
             internal HelperThread(EndpointHostResolver resolver)
             {
                 _resolver = resolver;
-                _name = _resolver._communicator.Properties.getProperty("Ice.ProgramName");
+                _name = _resolver._communicator.GetProperty("Ice.ProgramName") ?? "";
                 if (_name.Length > 0)
                 {
                     _name += "-";

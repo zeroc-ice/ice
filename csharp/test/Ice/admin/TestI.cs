@@ -95,22 +95,18 @@ namespace Ice
                 //
                 // Prepare the property set using the given properties.
                 //
-                Ice.InitializationData init = new Ice.InitializationData();
-                init.properties = Ice.Util.createProperties();
-                foreach (KeyValuePair<string, string> e in props)
+                Logger? logger = null;
+                string? value;
+                int nullLogger;
+                if (props.TryGetValue("NullLogger", out value) && int.TryParse(value, out nullLogger) && nullLogger > 0)
                 {
-                    init.properties.setProperty(e.Key, e.Value);
-                }
-
-                if (init.properties.getPropertyAsInt("NullLogger") > 0)
-                {
-                    init.logger = new NullLogger();
+                    logger = new NullLogger();
                 }
 
                 //
                 // Initialize a new communicator.
                 //
-                Ice.Communicator communicator = Ice.Util.initialize(init);
+                var communicator = new Communicator(props, logger: logger);
 
                 //
                 // Install a custom admin facet.

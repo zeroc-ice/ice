@@ -14,23 +14,22 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.ServerIdleTime", "30");
+        var properties = createTestProperties(ref args);
+        properties["Ice.ServerIdleTime"] = "30";
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        properties["Ice.TCP.RcvSize"] = "50000";
         try
         {
-            initData.dispatcher = new Dispatcher().dispatch;
+            var dispatcher = new Dispatcher();
 
-            using (var communicator = initialize(initData))
+            using (var communicator = initialize(properties, dispatcher.dispatch))
             {
-                communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                communicator.Properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                communicator.Properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
                 Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                 Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");

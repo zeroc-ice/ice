@@ -20,11 +20,11 @@ namespace IceInternal
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
-            _dispatcher = _reference.getCommunicator().initializationData().dispatcher != null;
+            _dispatcher = _reference.getCommunicator().Dispatcher != null;
             _response = _reference.getMode() == Ice.InvocationMode.Twoway;
             _adapter = adapter;
 
-            _logger = _reference.getCommunicator().initializationData().logger; // Cached for better performance.
+            _logger = _reference.getCommunicator().Logger; // Cached for better performance.
             _traceLevels = _reference.getCommunicator().traceLevels(); // Cached for better performance.
             _requestId = 0;
         }

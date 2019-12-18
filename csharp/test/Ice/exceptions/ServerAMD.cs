@@ -44,31 +44,29 @@ namespace Ice
             {
                 public override void run(string[] args)
                 {
-                    Ice.Properties properties = createTestProperties(ref args);
-                    properties.setProperty("Ice.Warn.Dispatch", "0");
-                    properties.setProperty("Ice.Warn.Connections", "0");
-                    properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-                    using (var communicator = initialize(properties))
-                    {
-                        communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                        communicator.Properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
-                        communicator.Properties.setProperty("TestAdapter2.MessageSizeMax", "0");
-                        communicator.Properties.setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
-                        communicator.Properties.setProperty("TestAdapter3.MessageSizeMax", "1");
+                    var properties = createTestProperties(ref args);
+                    properties["Ice.Warn.Dispatch"] = "0";
+                    properties["Ice.Warn.Connections"] = "0";
+                    properties["Ice.MessageSizeMax"] = "10"; // 10KB max
+                    using var communicator = initialize(properties);
+                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.SetProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
+                    communicator.SetProperty("TestAdapter2.MessageSizeMax", "0");
+                    communicator.SetProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
+                    communicator.SetProperty("TestAdapter3.MessageSizeMax", "1");
 
-                        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                        ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-                        ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
-                        var obj = new ThrowerI();
-                        adapter.Add(obj, "thrower");
-                        adapter2.Add(obj, "thrower");
-                        adapter3.Add(obj, "thrower");
-                        adapter.Activate();
-                        adapter2.Activate();
-                        adapter3.Activate();
-                        serverReady();
-                        communicator.waitForShutdown();
-                    }
+                    ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+                    ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+                    var obj = new ThrowerI();
+                    adapter.Add(obj, "thrower");
+                    adapter2.Add(obj, "thrower");
+                    adapter3.Add(obj, "thrower");
+                    adapter.Activate();
+                    adapter2.Activate();
+                    adapter3.Activate();
+                    serverReady();
+                    communicator.waitForShutdown();
                 }
 
                 public static int Main(string[] args)

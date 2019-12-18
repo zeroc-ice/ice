@@ -3,7 +3,10 @@
 //
 
 using System.Reflection;
+using System.Collections.Generic;
 using Test;
+
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -13,16 +16,18 @@ public class Server : TestHelper
 {
     public override void run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        var properties = new Dictionary<string, string>();
+        properties.ParseArgs(ref args, "TestAdapter");
+
+        using (var communicator = initialize(ref args, properties))
         {
-            communicator.Properties.parseCommandLineOptions("TestAdapter", args);
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.Add(new TestI(), communicator.Properties.getPropertyWithDefault("Identity", "test"));
+            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.Add(new TestI(), communicator.GetProperty("Identity") ?? "test");
             try
             {
                 adapter.Activate();
             }
-            catch (Ice.ObjectAdapterDeactivatedException)
+            catch (ObjectAdapterDeactivatedException)
             {
             }
             communicator.waitForShutdown();

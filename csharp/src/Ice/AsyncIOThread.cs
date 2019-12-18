@@ -16,8 +16,7 @@ namespace IceInternal
 
             _thread = new HelperThread(this);
             updateObserver();
-            _thread.Start(Util.stringToThreadPriority(
-                                        communicator.Properties.getProperty("Ice.ThreadPriority")));
+            _thread.Start(Util.stringToThreadPriority(communicator.GetProperty("Ice.ThreadPriority")));
         }
 
         public void
@@ -25,7 +24,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver? obsv = _communicator.Observer;
                 if (obsv != null)
                 {
                     _observer = obsv.getThreadObserver("Communicator",
@@ -141,7 +140,7 @@ namespace IceInternal
             internal HelperThread(AsyncIOThread asyncIOThread)
             {
                 _asyncIOThread = asyncIOThread;
-                _name = _asyncIOThread._communicator.Properties.getProperty("Ice.ProgramName");
+                _name = _asyncIOThread._communicator.GetProperty("Ice.ProgramName") ?? "";
                 if (_name.Length > 0)
                 {
                     _name += "-";

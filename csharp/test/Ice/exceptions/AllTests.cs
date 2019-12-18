@@ -27,7 +27,7 @@ namespace Ice
                         // Expected
                     }
 
-                    communicator.Properties.setProperty("TestAdapter0.Endpoints", "tcp -h *");
+                    communicator.SetProperty("TestAdapter0.Endpoints", "tcp -h *");
                     first = communicator.createObjectAdapter("TestAdapter0");
                     try
                     {
@@ -60,7 +60,7 @@ namespace Ice
 
                 {
                     output.Write("testing servant registration exceptions... ");
-                    communicator.Properties.setProperty("TestAdapter1.Endpoints", "tcp -h *");
+                    communicator.SetProperty("TestAdapter1.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
                     var obj = new EmptyI();
                     adapter.Add(obj, "x");
@@ -106,7 +106,7 @@ namespace Ice
 
                 {
                     output.Write("testing servant locator registration exceptions... ");
-                    communicator.Properties.setProperty("TestAdapter2.Endpoints", "tcp -h *");
+                    communicator.SetProperty("TestAdapter2.Endpoints", "tcp -h *");
                     ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
                     ServantLocator loc = new ServantLocatorI();
                     adapter.AddServantLocator(loc, "x");

@@ -13,16 +13,14 @@ namespace Ice
             public override void run(string[] args)
             {
                 var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "AboveNormal");
-                using (var communicator = initialize(properties))
-                {
-                    communicator.Properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.Add(new PriorityI(), "test");
-                    adapter.Activate();
-                    serverReady();
-                    communicator.waitForShutdown();
-                }
+                properties["Ice.ThreadPool.Server.ThreadPriority"] = "AboveNormal";
+                using var communicator = initialize(properties);
+                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                var adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter.Add(new PriorityI(), "test");
+                adapter.Activate();
+                serverReady();
+                communicator.waitForShutdown();
             }
 
             public static int Main(string[] args)

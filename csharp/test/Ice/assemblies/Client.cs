@@ -20,8 +20,8 @@ public class Client : Test.TestHelper
         Console.Out.Flush();
         User.UserInfo info = new User.UserInfo();
 
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.PreloadAssemblies", "0");
+        var properties = createTestProperties(ref args);
+        properties["Ice.PreloadAssemblies"] = "0";
 
         string assembly =
             String.Format("{0}/core.dll",
@@ -33,7 +33,7 @@ public class Client : Test.TestHelper
                         return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
                     }) == null);
         }
-        properties.setProperty("Ice.PreloadAssemblies", "1");
+        properties["Ice.PreloadAssemblies"] = "1";
         using (var communicator = initialize(properties))
         {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
