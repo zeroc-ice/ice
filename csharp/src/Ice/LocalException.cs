@@ -446,41 +446,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception is raised if there was an error while parsing a
-    /// version.
-    /// </summary>
-    public class VersionParseException : LocalException
-    {
-
-        public string str;
-
-        public VersionParseException()
-        {
-            this.str = "";
-        }
-
-        public VersionParseException(global::System.Exception ex) : base(ex)
-        {
-            this.str = "";
-        }
-
-        public VersionParseException(string str)
-        {
-            this.str = str;
-        }
-
-        public VersionParseException(string str, global::System.Exception ex) : base(ex)
-        {
-            this.str = str;
-        }
-
-        public override string ice_id()
-        {
-            return "::Ice::VersionParseException";
-        }
-    }
-
-    /// <summary>
     /// This exception is raised if an illegal identity is encountered.
     /// </summary>
     public class IllegalIdentityException : LocalException

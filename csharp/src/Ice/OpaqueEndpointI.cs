@@ -397,7 +397,7 @@ namespace IceInternal
                         {
                             _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
                         }
-                        catch (Ice.VersionParseException ex)
+                        catch (FormatException ex)
                         {
                             throw new FormatException($"invalid encoding version `{argument}' in endpoint {endpoint}", ex);
                         }

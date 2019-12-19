@@ -356,7 +356,7 @@ namespace IceInternal
                         instance_.logger().warning("deprecated udp endpoint option: " + option);
                     }
                 }
-                catch (Ice.VersionParseException ex)
+                catch (FormatException ex)
                 {
                     throw new FormatException("invalid version `{argument}' in endpoint {endpoint}", ex);
                 }

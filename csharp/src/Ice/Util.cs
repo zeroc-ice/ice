@@ -112,7 +112,7 @@ namespace Ice
             int pos = str.IndexOf('.');
             if (pos == -1)
             {
-                throw new VersionParseException("malformed version value `" + str + "'");
+                throw new FormatException($"malformed version value `{str}'");
             }
 
             string majStr = str.Substring(0, (pos) - (0));
@@ -126,12 +126,12 @@ namespace Ice
             }
             catch (FormatException)
             {
-                throw new VersionParseException("invalid version value `" + str + "'");
+                throw new FormatException($"invalid version value `{str}'");
             }
 
             if (majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
             {
-                throw new VersionParseException("range error in version `" + str + "'");
+                throw new FormatException($"range error in version `{str}'");
             }
 
             major = (byte)majVersion;
