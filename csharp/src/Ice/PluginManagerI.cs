@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -27,9 +26,9 @@ namespace Ice
         Plugin create(Communicator communicator, string name, string[] args);
     }
 
-    public sealed class PluginManagerI : PluginManager
+    public sealed partial class Communicator
     {
-        internal static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
+        public static void RegisterPluginFactory(string name, PluginFactory factory, bool loadOnInit)
         {
             if (!_factories.ContainsKey(name))
             {
@@ -41,7 +40,7 @@ namespace Ice
             }
         }
 
-        public void initializePlugins()
+        public void InitializePlugins()
         {
             if (_initialized)
             {
@@ -56,7 +55,7 @@ namespace Ice
             List<Plugin> initializedPlugins = new List<Plugin>();
             try
             {
-                foreach (PluginInfo p in _plugins)
+                foreach (var p in _plugins)
                 {
                     try
                     {
@@ -97,94 +96,54 @@ namespace Ice
             _initialized = true;
         }
 
-        public string[] getPlugins()
+        public string[] GetPlugins()
         {
             lock (this)
             {
+                if (_state == StateDestroyed)
+                {
+                    throw new CommunicatorDestroyedException();
+                }
+
                 return _plugins.Select(p => p.Name).ToArray();
             }
         }
 
-        public Plugin getPlugin(string name)
+        public Plugin? GetPlugin(string name)
         {
             lock (this)
             {
-                if (_communicator == null)
+                if (_state == StateDestroyed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
 
-                Plugin? p = findPlugin(name);
-                if (p != null)
-                {
-                    return p;
-                }
-
-                NotRegisteredException ex = new NotRegisteredException();
-                ex.id = name;
-                ex.kindOfObject = "plugin";
-                throw ex;
+                return FindPlugin(name);
             }
         }
 
-        public void addPlugin(string name, Plugin plugin)
+        public void AddPlugin(string name, Plugin plugin)
         {
             lock (this)
             {
-                if (_communicator == null)
+                if (_state == StateDestroyed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (findPlugin(name) != null)
+                if (FindPlugin(name) != null)
                 {
                     throw new ArgumentException("A plugin named `{name}' is already resgistered", nameof(name));
                 }
 
-                _plugins.Add(new PluginInfo(name, plugin));
+                _plugins.Add((name, plugin));
             }
         }
 
-        public void destroy()
+        public void LoadPlugins(ref string[] cmdArgs)
         {
-            lock (this)
-            {
-                if (_communicator != null)
-                {
-                    if (_initialized)
-                    {
-                        var plugins = new List<PluginInfo>(_plugins);
-                        plugins.Reverse();
-                        foreach (PluginInfo p in plugins)
-                        {
-                            try
-                            {
-                                p.Plugin.destroy();
-                            }
-                            catch (System.Exception ex)
-                            {
-                                Util.getProcessLogger().warning(
-                                    $"unexpected exception raised by plug-in `{p.Name}' destruction:\n{ex}");
-                            }
-                        }
-                    }
-                    _communicator = null;
-                }
-            }
-        }
-
-        public PluginManagerI(Communicator communicator)
-        {
-            _communicator = communicator;
-            _plugins = new List<PluginInfo>();
-            _initialized = false;
-        }
-
-        public void loadPlugins(ref string[] cmdArgs)
-        {
-            Debug.Assert(_communicator != null);
-            string prefix = "Ice.Plugin.";
-            Dictionary<string, string> plugins = _communicator.GetProperties(forPrefix: prefix);
+            const string prefix = "Ice.Plugin.";
+            Dictionary<string, string> plugins = GetProperties(forPrefix: prefix);
 
             //
             // First, load static plugin factories which were setup to load on
@@ -195,27 +154,23 @@ namespace Ice
             //
             foreach (var name in _loadOnInitialization)
             {
-                string key = "Ice.Plugin." + name + ".clr";
+                string key = $"Ice.Plugin.{name}.clr";
                 string? r;
                 plugins.TryGetValue(key, out r);
-                if (r != null)
+                if (r == null)
                 {
-                    plugins.Remove("Ice.Plugin." + name);
-                }
-                else
-                {
-                    key = "Ice.Plugin." + name;
+                    key = $"Ice.Plugin.{name}";
                     plugins.TryGetValue(key, out r);
                 }
 
                 if (r != null)
                 {
-                    loadPlugin(name, r, ref cmdArgs);
+                    LoadPlugin(name, r, ref cmdArgs);
                     plugins.Remove(key);
                 }
                 else
                 {
-                    loadPlugin(name, "", ref cmdArgs);
+                    LoadPlugin(name, "", ref cmdArgs);
                 }
             }
 
@@ -236,7 +191,7 @@ namespace Ice
             // remaining plug-ins.
             //
 
-            string[] loadOrder = _communicator.GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
+            string[] loadOrder = GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
             foreach (var name in loadOrder)
             {
                 if (name.Length == 0)
@@ -244,7 +199,7 @@ namespace Ice
                     continue;
                 }
 
-                if (findPlugin(name) != null)
+                if (FindPlugin(name) != null)
                 {
                     throw new PluginInitializationException($"plug-in `{name}' already loaded");
                 }
@@ -260,7 +215,7 @@ namespace Ice
 
                 if (value != null)
                 {
-                    loadPlugin(name, value, ref cmdArgs);
+                    LoadPlugin(name, value, ref cmdArgs);
                     plugins.Remove(key);
                 }
                 else
@@ -294,7 +249,7 @@ namespace Ice
                     else if (suffix == "clr")
                     {
                         name = name.Substring(0, dotPos);
-                        loadPlugin(name, val, ref cmdArgs);
+                        LoadPlugin(name, val, ref cmdArgs);
                         plugins.Remove(key);
                         plugins.Remove($"Ice.Plugin.{name}");
 
@@ -321,15 +276,13 @@ namespace Ice
                         val = plugins[clrKey];
                         plugins.Remove(clrKey);
                     }
-                    loadPlugin(name, val, ref cmdArgs);
+                    LoadPlugin(name, val, ref cmdArgs);
                 }
             }
         }
 
-        private void loadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
+        private void LoadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
         {
-            Debug.Assert(_communicator != null);
-
             string[] args = Array.Empty<string>();
             string? entryPoint = null;
             if (pluginSpec.Length > 0)
@@ -369,7 +322,7 @@ namespace Ice
                 properties.ParseArgs(ref cmdArgs, name);
                 foreach (var p in properties)
                 {
-                    _communicator.SetProperty(p.Key, p.Value);
+                    SetProperty(p.Key, p.Value);
                 }
             }
             Debug.Assert(entryPoint != null);
@@ -379,7 +332,7 @@ namespace Ice
             // precedence over the the entryPoint specified in the plugin
             // property value.
             //
-            PluginFactory? pluginFactory = null;
+            PluginFactory? pluginFactory;
             if (!_factories.TryGetValue(name, out pluginFactory))
             {
                 //
@@ -478,7 +431,7 @@ namespace Ice
             Plugin? plugin;
             try
             {
-                plugin = pluginFactory.create(_communicator, name, args);
+                plugin = pluginFactory.create(this, name, args);
             }
             catch (PluginInitializationException ex)
             {
@@ -499,44 +452,15 @@ namespace Ice
                 throw ex;
             }
 
-            _plugins.Add(new PluginInfo(name, plugin));
+            _plugins.Add((name, plugin));
         }
 
-        private Plugin? findPlugin(string name)
+        private Plugin? FindPlugin(string name)
         {
-            return _plugins.FirstOrDefault(p => p.Name == name)?.Plugin;
+            return _plugins.FirstOrDefault(p => p.Name == name).Plugin;
         }
 
-        internal class PluginInfo
-        {
-            internal PluginInfo(string name, Plugin plugin)
-            {
-                this.name = name;
-                this.plugin = plugin;
-            }
-
-            internal string Name
-            {
-                get
-                {
-                    return name;
-                }
-            }
-
-            internal Plugin Plugin
-            {
-                get
-                {
-                    return plugin;
-                }
-            }
-
-            private string name;
-            private Plugin plugin;
-        }
-
-        private Communicator? _communicator;
-        private List<PluginInfo> _plugins;
+        private readonly List<(string Name, Plugin Plugin)> _plugins = new List<(string Name, Plugin Plugin)>();
         private bool _initialized;
 
         private static Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();

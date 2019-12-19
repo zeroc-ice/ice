@@ -143,11 +143,6 @@ namespace Ice
             return string.Format("{0}.{1}", major, minor);
         }
 
-        public static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
-        {
-            PluginManagerI.registerPluginFactory(name, factory, loadOnInit);
-        }
-
         public static readonly ProtocolVersion currentProtocol =
             new ProtocolVersion(IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor);
 

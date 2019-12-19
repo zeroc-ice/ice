@@ -43,7 +43,7 @@ public class Client : Test.TestHelper
         {
             PluginI plugin = new PluginI(communicator);
             plugin.initialize();
-            communicator.getPluginManager().addPlugin("Test", plugin);
+            communicator.AddPlugin("Test", plugin);
             Test.BackgroundPrx background = AllTests.allTests(this);
             background.shutdown();
         }

@@ -84,16 +84,15 @@ public class Client : Test.TestHelper
                     { "Ice.InitPlugins", "0"}
                 });
 
-                Ice.PluginManager pm = communicator.getPluginManager();
-                test(pm.getPlugin("PluginOne") != null);
-                test(pm.getPlugin("PluginTwo") != null);
-                test(pm.getPlugin("PluginThree") != null);
+                test(communicator.GetPlugin("PluginOne") != null);
+                test(communicator.GetPlugin("PluginTwo") != null);
+                test(communicator.GetPlugin("PluginThree") != null);
 
                 p4 = new MyPlugin();
-                pm.addPlugin("PluginFour", p4);
-                test(pm.getPlugin("PluginFour") != null);
+                communicator.AddPlugin("PluginFour", p4);
+                test(communicator.GetPlugin("PluginFour") != null);
 
-                pm.initializePlugins();
+                communicator.InitializePlugins();
 
                 test(p4.isInitialized());
             }

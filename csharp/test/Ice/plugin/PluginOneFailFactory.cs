@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 
 public class PluginOneFailFactory : Ice.PluginFactory
 {
@@ -19,9 +20,13 @@ public class PluginOneFailFactory : Ice.PluginFactory
 
         public override void initialize()
         {
-            _two = (BasePluginFail)_communicator.getPluginManager().getPlugin("PluginTwoFail");
+            BasePluginFail? two = (BasePluginFail?)_communicator.GetPlugin("PluginTwoFail");
+            Debug.Assert(two != null);
+            _two = two;
             test(!_two.isInitialized());
-            _three = (BasePluginFail)_communicator.getPluginManager().getPlugin("PluginThreeFail");
+            BasePluginFail? three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
+            Debug.Assert(three != null);
+            _three = three;
             test(!_three.isInitialized());
             _initialized = true;
         }

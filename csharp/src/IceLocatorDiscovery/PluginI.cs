@@ -759,7 +759,7 @@ namespace IceLocatorDiscovery
         public static void
         registerIceLocatorDiscovery(bool loadOnInitialize)
         {
-            Ice.Util.registerPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
+            Communicator.RegisterPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);
         }
     }
 }

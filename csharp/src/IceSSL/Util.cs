@@ -9,7 +9,7 @@ namespace IceSSL
         public static void
         registerIceSSL(bool loadOnInitialize)
         {
-            Ice.Util.registerPluginFactory("IceSSL", new PluginFactory(), loadOnInitialize);
+            Ice.Communicator.RegisterPluginFactory("IceSSL", new PluginFactory(), loadOnInitialize);
         }
     }
 }

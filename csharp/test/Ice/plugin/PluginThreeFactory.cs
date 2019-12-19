@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
+
 public class PluginThreeFactory : Ice.PluginFactory
 {
     public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
@@ -17,7 +19,9 @@ public class PluginThreeFactory : Ice.PluginFactory
 
         public override void initialize()
         {
-            _other = (BasePlugin)_communicator.getPluginManager().getPlugin("PluginTwo");
+            BasePlugin? other = (BasePlugin?)_communicator.GetPlugin("PluginTwo");
+            Debug.Assert(other != null);
+            _other = other;
             test(_other.isInitialized());
             _initialized = true;
         }

@@ -98,7 +98,7 @@ public class Server : TestHelper
         {
             PluginI plugin = new PluginI(communicator);
             plugin.initialize();
-            communicator.getPluginManager().addPlugin("Test", plugin);
+            communicator.AddPlugin("Test", plugin);
 
             //
             // When running as a MIDlet the properties for the server may be
