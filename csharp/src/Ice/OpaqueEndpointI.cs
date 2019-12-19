@@ -7,6 +7,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System;
 
     internal sealed class OpaqueEndpointI : EndpointI
     {
@@ -20,11 +21,11 @@ namespace IceInternal
 
             if (_type < 0)
             {
-                throw new Ice.EndpointParseException("no -t option in endpoint " + ToString());
+                throw new FormatException($"no -t option in endpoint {this}");
             }
             if (_rawBytes.Length == 0)
             {
-                throw new Ice.EndpointParseException("no -v option in endpoint " + ToString());
+                throw new FormatException($"no -v option in endpoint {this}");
             }
 
             calcHashValue();
@@ -335,11 +336,12 @@ namespace IceInternal
                     {
                         if (_type > -1)
                         {
-                            throw new Ice.EndpointParseException("multiple -t options in endpoint " + endpoint);
+                            throw new FormatException($"multiple -t options in endpoint {endpoint}");
                         }
+
                         if (argument == null)
                         {
-                            throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
+                            throw new FormatException($"no argument provided for -t option in endpoint {endpoint}");
                         }
 
                         int t;
@@ -347,16 +349,14 @@ namespace IceInternal
                         {
                             t = int.Parse(argument, CultureInfo.InvariantCulture);
                         }
-                        catch (System.FormatException)
+                        catch (FormatException ex)
                         {
-                            throw new Ice.EndpointParseException("invalid type value `" + argument + "' in endpoint " +
-                                                                 endpoint);
+                            throw new FormatException($"invalid type value `{argument}' in endpoint {endpoint}", ex);
                         }
 
                         if (t < 0 || t > 65535)
                         {
-                            throw new Ice.EndpointParseException("type value `" + argument + "' out of range in endpoint " +
-                                                                 endpoint);
+                            throw new FormatException($"type value `{argument}' out of range in endpoint {endpoint}");
                         }
 
                         _type = (short)t;
@@ -367,20 +367,20 @@ namespace IceInternal
                     {
                         if (_rawBytes.Length > 0)
                         {
-                            throw new Ice.EndpointParseException("multiple -v options in endpoint " + endpoint);
+                            throw new FormatException($"multiple -v options in endpoint {endpoint}");
                         }
                         if (argument == null)
                         {
-                            throw new Ice.EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
+                            throw new FormatException($"no argument provided for -v option in endpoint {endpoint}");
                         }
 
                         try
                         {
-                            _rawBytes = System.Convert.FromBase64String(argument);
+                            _rawBytes = Convert.FromBase64String(argument);
                         }
-                        catch (System.FormatException ex)
+                        catch (FormatException ex)
                         {
-                            throw new Ice.EndpointParseException("Invalid Base64 input in endpoint " + endpoint, ex);
+                            throw new FormatException("Invalid Base64 input in endpoint {endpoint}", ex);
                         }
 
                         return true;
@@ -390,17 +390,16 @@ namespace IceInternal
                     {
                         if (argument == null)
                         {
-                            throw new Ice.EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
+                            throw new FormatException($"no argument provided for -e option in endpoint {endpoint}");
                         }
 
                         try
                         {
                             _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
                         }
-                        catch (Ice.VersionParseException e)
+                        catch (Ice.VersionParseException ex)
                         {
-                            throw new Ice.EndpointParseException("invalid encoding version `" + argument +
-                                                                 "' in endpoint " + endpoint + ":\n" + e.str);
+                            throw new FormatException($"invalid encoding version `{argument}' in endpoint {endpoint}", ex);
                         }
                         return true;
                     }

@@ -163,8 +163,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    throw new Ice.EndpointParseException("`--interface *' not valid for proxy endpoint `" +
-                                                         ToString() + "'");
+                    throw new FormatException($"`--interface *' not valid for proxy endpoint `{this}'");
                 }
             }
         }
@@ -328,9 +327,7 @@ namespace IceInternal
             {
                 if (argument != null)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "unexpected argument `" + argument + "' provided for -c option in " + endpoint;
-                    throw e;
+                    throw new FormatException($"unexpected argument `{argument} ' provided for -c option in {endpoint}");
                 }
 
                 _connect = true;
@@ -339,9 +336,7 @@ namespace IceInternal
             {
                 if (argument != null)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
-                    throw e;
+                    throw new FormatException($"unexpected argument `{argument}' provided for -z option in {endpoint}");
                 }
 
                 _compress = true;
@@ -350,9 +345,7 @@ namespace IceInternal
             {
                 if (argument == null)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for " + option + " option in endpoint " + endpoint;
-                    throw e;
+                    throw new FormatException($"no argument provided for {option} option in endpoint {endpoint}");
                 }
 
                 try
@@ -365,18 +358,14 @@ namespace IceInternal
                 }
                 catch (Ice.VersionParseException ex)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str;
-                    throw e;
+                    throw new FormatException("invalid version `{argument}' in endpoint {endpoint}", ex);
                 }
             }
             else if (option.Equals("--ttl"))
             {
                 if (argument == null)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for --ttl option in endpoint " + endpoint;
-                    throw e;
+                    throw new FormatException($"no argument provided for --ttl option in endpoint {endpoint}");
                 }
 
                 try
@@ -385,25 +374,19 @@ namespace IceInternal
                 }
                 catch (FormatException ex)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                    e.str = "invalid TTL value `" + argument + "' in endpoint " + endpoint;
-                    throw e;
+                    throw new FormatException($"invalid TTL value `{argument}' in endpoint {endpoint}", ex);
                 }
 
                 if (_mcastTtl < 0)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "TTL value `" + argument + "' out of range in endpoint " + endpoint;
-                    throw e;
+                    throw new FormatException("TTL value `{argument}' out of range in endpoint {endpoint}");
                 }
             }
             else if (option.Equals("--interface"))
             {
                 if (argument == null)
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for --interface option in endpoint " + endpoint;
-                    throw e;
+                    throw new FormatException("no argument provided for --interface option in endpoint {endpoint}");
                 }
                 _mcastInterface = argument;
             }

@@ -246,43 +246,35 @@ namespace Ice
             //
 
             string[] loadOrder = _communicator.GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
-            for (int i = 0; i < loadOrder.Length; ++i)
+            foreach (var name in loadOrder)
             {
-                if (loadOrder[i].Length == 0)
+                if (name.Length == 0)
                 {
                     continue;
                 }
 
-                if (findPlugin(loadOrder[i]) != null)
+                if (findPlugin(name) != null)
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = "plug-in `" + loadOrder[i] + "' already loaded";
-                    throw e;
+                    throw new PluginInitializationException($"plug-in `{name}' already loaded");
                 }
 
-                string key = "Ice.Plugin." + loadOrder[i] + ".clr";
+                string key = $"Ice.Plugin.{name}clr";
                 string? value;
                 plugins.TryGetValue(key, out value);
-                if (value != null)
+                if (value == null)
                 {
-                    plugins.Remove("Ice.Plugin." + loadOrder[i]);
-                }
-                else
-                {
-                    key = "Ice.Plugin." + loadOrder[i];
+                    key = $"Ice.Plugin.{name}";
                     plugins.TryGetValue(key, out value);
                 }
 
                 if (value != null)
                 {
-                    loadPlugin(loadOrder[i], value, ref cmdArgs);
+                    loadPlugin(name, value, ref cmdArgs);
                     plugins.Remove(key);
                 }
                 else
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = "plug-in `" + loadOrder[i] + "' not defined";
-                    throw e;
+                    throw new PluginInitializationException($"plug-in `{name}' not defined");
                 }
             }
 
@@ -301,19 +293,19 @@ namespace Ice
                 if (dotPos != -1)
                 {
                     string suffix = name.Substring(dotPos + 1);
-                    if (suffix.Equals("cpp") || suffix.Equals("java"))
+                    if (suffix == "cpp" || suffix == "java")
                     {
                         //
                         // Ignored
                         //
                         plugins.Remove(key);
                     }
-                    else if (suffix.Equals("clr"))
+                    else if (suffix == "clr")
                     {
                         name = name.Substring(0, dotPos);
                         loadPlugin(name, val, ref cmdArgs);
                         plugins.Remove(key);
-                        plugins.Remove("Ice.Plugin." + name);
+                        plugins.Remove($"Ice.Plugin.{name}");
 
                     }
                     else
@@ -332,7 +324,7 @@ namespace Ice
                     //
                     // Is there a .clr entry?
                     //
-                    string clrKey = "Ice.Plugin." + name + ".clr";
+                    string clrKey = $"Ice.Plugin.{name}.clr";
                     if (plugins.ContainsKey(clrKey))
                     {
                         val = plugins[clrKey];
@@ -361,9 +353,7 @@ namespace Ice
                 }
                 catch (IceUtilInternal.Options.BadQuote ex)
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = "invalid arguments for plug-in `" + name + "':\n" + ex.Message;
-                    throw e;
+                    throw new PluginInitializationException($"invalid arguments for plug-in `{name}':\n{ex.Message}");
                 }
 
                 Debug.Assert(args.Length > 0);
@@ -418,9 +408,7 @@ namespace Ice
                 }
                 if (sepPos == -1)
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = err + "invalid entry point format";
-                    throw e;
+                    throw new PluginInitializationException($"{err}invalid entry point format");
                 }
 
                 System.Reflection.Assembly? pluginAssembly = null;
@@ -458,9 +446,7 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    PluginInitializationException e = new PluginInitializationException();
-                    e.reason = err + "unable to load assembly: `" + assemblyName + "': " + ex.ToString();
-                    throw e;
+                    throw new PluginInitializationException($"unable to load assembly: `{assemblyName} ': {ex}");
                 }
 
                 //
@@ -473,9 +459,7 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    PluginInitializationException e = new PluginInitializationException(ex);
-                    e.reason = err + "GetType failed for `" + className + "'";
-                    throw e;
+                    throw new PluginInitializationException($"{err}GetType failed for `{className}'", ex);
                 }
 
                 try
@@ -483,32 +467,24 @@ namespace Ice
                     pluginFactory = (PluginFactory?)IceInternal.AssemblyUtil.createInstance(c);
                     if (pluginFactory == null)
                     {
-                        PluginInitializationException e = new PluginInitializationException();
-                        e.reason = err + "can't find constructor for `" + className + "'";
-                        throw e;
+                        throw new PluginInitializationException($"{err}can't find constructor for `{className}'");
                     }
                 }
                 catch (InvalidCastException ex)
                 {
-                    PluginInitializationException e = new PluginInitializationException(ex);
-                    e.reason = err + "InvalidCastException to Ice.PluginFactory";
-                    throw e;
+                    throw new PluginInitializationException($"{err}InvalidCastException to Ice.PluginFactory", ex);
                 }
                 catch (UnauthorizedAccessException ex)
                 {
-                    PluginInitializationException e = new PluginInitializationException(ex);
-                    e.reason = err + "UnauthorizedAccessException: " + ex.ToString();
-                    throw e;
+                    throw new PluginInitializationException($"{err}UnauthorizedAccessException: {ex}", ex);
                 }
                 catch (System.Exception ex)
                 {
-                    PluginInitializationException e = new PluginInitializationException(ex);
-                    e.reason = err + "System.Exception: " + ex.ToString();
-                    throw e;
+                    throw new PluginInitializationException($"{err}System.Exception: {ex}", ex);
                 }
             }
 
-            Plugin? plugin = null;
+            Plugin? plugin;
             try
             {
                 plugin = pluginFactory.create(_communicator, name, args);

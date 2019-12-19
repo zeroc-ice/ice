@@ -1098,9 +1098,9 @@ namespace IceInternal
         }
 
         public Ice.Instrumentation.ConnectionObserver? getConnectionObserver(ConnectionInfo c,
-                                                                            Endpoint e,
-                                                                            Ice.Instrumentation.ConnectionState s,
-                                                                            Ice.Instrumentation.ConnectionObserver obsv)
+                                                                             Endpoint e,
+                                                                             Ice.Instrumentation.ConnectionState s,
+                                                                             Ice.Instrumentation.ConnectionObserver obsv)
         {
             if (_connections.isEnabled())
             {

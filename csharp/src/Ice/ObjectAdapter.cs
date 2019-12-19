@@ -112,7 +112,7 @@ namespace Ice
 
             if (printAdapterReady)
             {
-                Console.Out.WriteLine(_name + " ready");
+                Console.Out.WriteLine($"{_name} ready");
             }
 
             lock (this)
@@ -1301,7 +1301,6 @@ namespace Ice
                 _state = StateDestroyed;
                 _communicator = null;
                 _incomingConnectionFactories = null;
-                System.Console.WriteLine($"object adapter `{_name}' requires configuration");
                 throw new InitializationException($"object adapter `{_name}' requires configuration");
             }
 
@@ -1499,7 +1498,7 @@ namespace Ice
                 {
                     if (endpoints.Count != 0)
                     {
-                        throw new EndpointParseException("invalid empty object adapter endpoint");
+                        throw new FormatException("invalid empty object adapter endpoint");
                     }
                     break;
                 }
@@ -1549,14 +1548,14 @@ namespace Ice
 
                 if (end == beg)
                 {
-                    throw new EndpointParseException("invalid empty object adapter endpoint");
+                    throw new FormatException("invalid empty object adapter endpoint");
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
                 EndpointI endp = _communicator.endpointFactoryManager().create(s, oaEndpoints);
                 if (endp == null)
                 {
-                    throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
+                    throw new FormatException($"invalid object adapter endpoint `{s}'");
                 }
                 endpoints.Add(endp);
 

@@ -979,7 +979,7 @@ namespace Ice
         {
         }
 
-            public Communicator(NameValueCollection? appSettings = null,
+        public Communicator(NameValueCollection? appSettings = null,
                             Dictionary<string, string>? properties = null,
                             Func<int, string>? compactIdResolver = null,
                             Action<Action, Connection?>? dispatcher = null,
@@ -2418,9 +2418,7 @@ namespace Ice
                 if (endpoints.Count == 0)
                 {
                     Debug.Assert(unknownEndpoints.Count > 0);
-                    EndpointParseException e2 = new EndpointParseException();
-                    e2.str = "invalid endpoint `" + unknownEndpoints[0] + "' in `" + s + "'";
-                    throw e2;
+                    throw new FormatException($"invalid endpoint `{unknownEndpoints[0]}' in `{s}'");
                 }
                 else if (unknownEndpoints.Count != 0 && (GetPropertyAsInt("Ice.Warn.Endpoints") ?? 1) > 0)
                 {
@@ -2553,7 +2551,8 @@ namespace Ice
                 adapterId = s.ReadString();
             }
 
-            return CreateReference(ident, facet, (InvocationMode)mode, secure, protocol, encoding, endpoints, adapterId, null);
+            return CreateReference(ident, facet, (InvocationMode)mode, secure, protocol, encoding, endpoints, adapterId,
+                                   null);
         }
 
         private static readonly string[] _suffixes =
@@ -2670,7 +2669,7 @@ namespace Ice
                     checkForUnknownProperties(propertyPrefix);
                 }
 
-                string property = propertyPrefix + ".Locator";
+                string property = $"{propertyPrefix}.Locator";
                 LocatorPrx? locator = GetPropertyAsProxy(property, LocatorPrx.Factory);
                 if (locator != null)
                 {
@@ -2684,7 +2683,7 @@ namespace Ice
                     }
                 }
 
-                property = propertyPrefix + ".Router";
+                property = $"{propertyPrefix}.Router";
                 RouterPrx? router = GetPropertyAsProxy(property, RouterPrx.Factory);
                 if (router != null)
                 {
@@ -2698,34 +2697,23 @@ namespace Ice
                     }
                 }
 
-                property = propertyPrefix + ".CollocationOptimized";
+                property = $"{propertyPrefix}.CollocationOptimized";
                 collocOptimized = (GetPropertyAsInt(property) ?? (collocOptimized ? 1 : 0)) > 0;
 
-                property = propertyPrefix + ".ConnectionCached";
+                property = $"{propertyPrefix}.ConnectionCached";
                 cacheConnection = (GetPropertyAsInt(property) ?? (cacheConnection ? 1 : 0)) > 0;
 
-                property = propertyPrefix + ".PreferSecure";
+                property = $"{propertyPrefix}.PreferSecure";
                 preferSecure = (GetPropertyAsInt(property) ?? (preferSecure ? 1 : 0)) > 0;
 
                 property = propertyPrefix + ".EndpointSelection";
                 string? val = GetProperty(property);
                 if (val != null)
                 {
-                    if (val == "Random")
-                    {
-                        endpointSelection = EndpointSelectionType.Random;
-                    }
-                    else if (val == "Ordered")
-                    {
-                        endpointSelection = EndpointSelectionType.Ordered;
-                    }
-                    else
-                    {
-                        throw new ArgumentException($"illegal value `{val}'; expected `Random' or `Ordered'");
-                    }
+                    endpointSelection = Enum.Parse<EndpointSelectionType>(val);
                 }
 
-                property = propertyPrefix + ".LocatorCacheTimeout";
+                property = $"{propertyPrefix}.LocatorCacheTimeout";
                 val = GetProperty(property);
                 if (val != null)
                 {
@@ -2737,7 +2725,7 @@ namespace Ice
                     }
                 }
 
-                property = propertyPrefix + ".InvocationTimeout";
+                property = $"{propertyPrefix}.InvocationTimeout";
                 val = GetProperty(property);
                 if (val != null)
                 {
@@ -2749,7 +2737,7 @@ namespace Ice
                     }
                 }
 
-                property = propertyPrefix + ".Context.";
+                property = $"{propertyPrefix}.Context.";
                 context = GetProperties(forPrefix: property).ToDictionary(e => e.Key.Substring(property.Length),
                                                                           e => e.Value);
             }
@@ -2817,7 +2805,8 @@ namespace Ice
         private PluginManager? _pluginManager;
         private readonly bool _adminEnabled = false;
         private ObjectAdapter? _adminAdapter;
-        private readonly Dictionary<string, (object servant, Disp disp)> _adminFacets = new Dictionary<string, (object servant, Disp disp)>();
+        private readonly Dictionary<string, (object servant, Disp disp)> _adminFacets =
+            new Dictionary<string, (object servant, Disp disp)>();
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Identity? _adminIdentity;
         private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();

@@ -55,19 +55,15 @@ namespace IceInternal
 
         public EndpointI create(string str, bool oaEndpoint)
         {
-            string[] arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+            string[]? arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
             if (arr == null)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "mismatched quote";
-                throw e;
+                throw new System.FormatException("mismatched quote");
             }
 
             if (arr.Length == 0)
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = "value has no non-whitespace characters";
-                throw e;
+                throw new System.FormatException("value has no non-whitespace characters");
             }
 
             List<string> v = new List<string>(arr);
@@ -98,9 +94,7 @@ namespace IceInternal
                 EndpointI e = factory.create(v, oaEndpoint);
                 if (v.Count > 0)
                 {
-                    Ice.EndpointParseException ex = new Ice.EndpointParseException();
-                    ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
-                    throw ex;
+                    throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
                 }
                 return e;
 
@@ -129,9 +123,7 @@ namespace IceInternal
                 EndpointI ue = new OpaqueEndpointI(v);
                 if (v.Count > 0)
                 {
-                    Ice.EndpointParseException ex = new Ice.EndpointParseException();
-                    ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
-                    throw ex;
+                    throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
                 }
                 factory = get(ue.type());
                 if (factory != null)

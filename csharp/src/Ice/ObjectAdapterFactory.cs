@@ -182,7 +182,7 @@ namespace IceInternal
                 }
                 throw;
             }
-            catch (Ice.LocalException)
+            catch (System.Exception)
             {
                 if (name.Length > 0)
                 {

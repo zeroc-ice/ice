@@ -446,41 +446,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// This exception is raised if there was an error while parsing an
-    /// endpoint.
-    /// </summary>
-    public class EndpointParseException : LocalException
-    {
-
-        public string str;
-
-        public EndpointParseException()
-        {
-            this.str = "";
-        }
-
-        public EndpointParseException(global::System.Exception ex) : base(ex)
-        {
-            this.str = "";
-        }
-
-        public EndpointParseException(string str)
-        {
-            this.str = str;
-        }
-
-        public EndpointParseException(string str, global::System.Exception ex) : base(ex)
-        {
-            this.str = str;
-        }
-
-        public override string ice_id()
-        {
-            return "::Ice::EndpointParseException";
-        }
-    }
-
-    /// <summary>
     /// This exception is raised if there was an error while parsing a
     /// version.
     /// </summary>

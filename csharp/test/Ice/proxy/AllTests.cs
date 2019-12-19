@@ -129,7 +129,7 @@ namespace Ice
                     b1 = IObjectPrx.Parse("test:", communicator); // Missing endpoint.
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -250,7 +250,7 @@ namespace Ice
                     IObjectPrx.Parse("test:tcp@adapterId", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
                 // This is an unknown endpoint warning, not a parse exception.
@@ -268,7 +268,7 @@ namespace Ice
                     IObjectPrx.Parse("test: :tcp", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -280,7 +280,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -289,7 +289,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -298,7 +298,7 @@ namespace Ice
                     communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -990,7 +990,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 99 -v abcd -x abc", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1000,7 +1000,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1010,7 +1010,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 1 -t 1 -v abcd", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1020,7 +1020,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 1 -v abcd -v abcd", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1030,7 +1030,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -v abcd", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1040,7 +1040,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 1", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1050,7 +1050,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t -v abcd", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1060,7 +1060,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 1 -v", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1070,7 +1070,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t x -v abcd", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1080,7 +1080,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t -1 -v abcd", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1090,7 +1090,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 99 -v x?c", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 
@@ -1100,7 +1100,7 @@ namespace Ice
                     IObjectPrx.Parse("id:opaque -t 99 -v xc", communicator);
                     test(false);
                 }
-                catch (EndpointParseException)
+                catch (FormatException)
                 {
                 }
 

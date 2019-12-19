@@ -318,16 +318,15 @@ namespace IceInternal
             switch (option[1])
             {
                 case 'r':
-                    {
-                        _resource = argument ?? throw new Ice.EndpointParseException(
-                                $"no argument provided for -r option in endpoint {endpoint}{_delegate.options()}");
-                        return true;
-                    }
-
+                {
+                    _resource = argument ?? throw new FormatException(
+                            $"no argument provided for -r option in endpoint {endpoint}{_delegate.options()}");
+                    return true;
+                }
                 default:
-                    {
-                        return false;
-                    }
+                {
+                    return false;
+                }
             }
         }
 

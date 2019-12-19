@@ -7,6 +7,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Globalization;
     using System.Net;
+    using System;
 
     internal sealed class TcpEndpointI : IPEndpointI
     {
@@ -222,11 +223,10 @@ namespace IceInternal
                     {
                         if (argument == null)
                         {
-                            throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " +
-                                                                 endpoint);
+                            throw new FormatException($"no argument provided for -t option in endpoint {endpoint}");
                         }
 
-                        if (argument.Equals("infinite"))
+                        if (argument == "infinite")
                         {
                             _timeout = -1;
                         }
@@ -235,18 +235,15 @@ namespace IceInternal
                             try
                             {
                                 _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
-                                if (_timeout < 1)
-                                {
-                                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                                    e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                                    throw e;
-                                }
                             }
-                            catch (System.FormatException ex)
+                            catch (FormatException ex)
                             {
-                                Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                                e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                                throw e;
+                                throw new FormatException($"invalid timeout value `{argument}' in endpoint {endpoint}", ex);
+                            }
+
+                            if (_timeout < 1)
+                            {
+                                throw new FormatException($"invalid timeout value `{argument}' in endpoint {endpoint}");
                             }
                         }
 
@@ -257,8 +254,7 @@ namespace IceInternal
                     {
                         if (argument != null)
                         {
-                            throw new Ice.EndpointParseException("unexpected argument `" + argument +
-                                                                 "' provided for -z option in " + endpoint);
+                            throw new FormatException($"unexpected argument `{argument}' provided for -z option in {endpoint}");
                         }
 
                         _compress = true;
