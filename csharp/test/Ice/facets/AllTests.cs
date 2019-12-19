@@ -51,7 +51,7 @@ namespace Ice
                     adapter.Add(obj, "d", "facetABCD");
                     test(false);
                 }
-                catch (AlreadyRegisteredException)
+                catch (System.ArgumentException)
                 {
                 }
                 adapter.Remove("d", "facetABCD");

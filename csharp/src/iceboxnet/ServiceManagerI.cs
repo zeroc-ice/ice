@@ -846,30 +846,7 @@ namespace IceBox
                 Debug.Assert(args.Length > 0);
 
                 entryPoint = args[0];
-
-                //
-                // Shift the arguments.
-                //
-                string[] tmp = new string[args.Length - 1];
-                Array.Copy(args, 1, tmp, 0, args.Length - 1);
-                args = tmp;
-
-                if (serverArgs.Length > 0)
-                {
-                    ArrayList l = new ArrayList();
-                    for (int j = 0; j < args.Length; j++)
-                    {
-                        l.Add(args[j]);
-                    }
-                    for (int j = 0; j < serverArgs.Length; j++)
-                    {
-                        if (serverArgs[j].StartsWith("--" + service + ".", StringComparison.Ordinal))
-                        {
-                            l.Add(serverArgs[j]);
-                        }
-                    }
-                    args = (string[])l.ToArray(typeof(string));
-                }
+                args = args.Skip(1).Concat(serverArgs.Where(arg => arg.StartsWith($"--{service}."))).ToArray();
             }
 
             public string name;

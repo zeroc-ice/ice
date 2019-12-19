@@ -7,6 +7,7 @@ namespace IceInternal
 
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System;
 
     public sealed class ServantManager
     {
@@ -31,14 +32,9 @@ namespace IceInternal
                 {
                     if (m.ContainsKey(facet))
                     {
-                        Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                        ex.id = ident.ToString(_communicator.ToStringMode);
-                        ex.kindOfObject = "servant";
-                        if (facet.Length > 0)
-                        {
-                            ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _communicator.ToStringMode);
-                        }
-                        throw ex;
+                        throw new ArgumentException(
+                            $"Servant `{ident.ToString(_communicator.ToStringMode)}' already has a facet named `{facet}'",
+                            nameof(facet));
                     }
                 }
 
@@ -53,7 +49,8 @@ namespace IceInternal
                 Debug.Assert(_communicator != null); // Must not be called after destruction.
                 if (_defaultServantMap.ContainsKey(category))
                 {
-                    throw new Ice.AlreadyRegisteredException("default servant", category);
+                    throw new ArgumentException($"A default servant for category `{category}' is already registered",
+                                                nameof(category));
                 }
                 _defaultServantMap[category] = servant;
             }
@@ -224,14 +221,9 @@ namespace IceInternal
             {
                 Debug.Assert(_communicator != null); // Must not be called after destruction.
 
-                Ice.ServantLocator l;
-                _locatorMap.TryGetValue(category, out l);
-                if (l != null)
+                if (_locatorMap.ContainsKey(category))
                 {
-                    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                    ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _communicator.ToStringMode);
-                    ex.kindOfObject = "servant locator";
-                    throw ex;
+                    throw new System.ArgumentException($"A servant locator for category {category} is already registered", nameof(category));
                 }
 
                 _locatorMap[category] = locator;

@@ -139,10 +139,8 @@ namespace IceInternal
                 {
                     if (_adapterNamesInUse.Contains(name))
                     {
-                        Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                        ex.kindOfObject = "object adapter";
-                        ex.id = name;
-                        throw ex;
+                        throw new System.ArgumentException($"An object adapter with name `{name}' is already registered",
+                            nameof(name));
                     }
                     _adapterNamesInUse.Add(name);
                 }
@@ -152,7 +150,7 @@ namespace IceInternal
             // Must be called outside the synchronization since initialize can make client invocations
             // on the router if it's set.
             //
-            Ice.ObjectAdapter adapter = null;
+            Ice.ObjectAdapter? adapter = null;
             try
             {
                 if (name.Length == 0)

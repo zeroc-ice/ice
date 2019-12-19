@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
 namespace Ice
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
     /// <summary>
     /// Applications implement this interface to provide a plug-in factory
     /// to the Ice run time.
@@ -28,8 +29,6 @@ namespace Ice
 
     public sealed class PluginManagerI : PluginManager
     {
-        private static string _kindOfObject = "plugin";
-
         internal static void registerPluginFactory(string name, PluginFactory factory, bool loadOnInit)
         {
             if (!_factories.ContainsKey(name))
@@ -54,7 +53,7 @@ namespace Ice
             //
             // Invoke initialize() on the plug-ins, in the order they were loaded.
             //
-            ArrayList initializedPlugins = new ArrayList();
+            List<Plugin> initializedPlugins = new List<Plugin>();
             try
             {
                 foreach (PluginInfo p in _plugins)
@@ -102,12 +101,7 @@ namespace Ice
         {
             lock (this)
             {
-                ArrayList names = new ArrayList();
-                foreach (PluginInfo p in _plugins)
-                {
-                    names.Add(p.Name);
-                }
-                return (string[])names.ToArray(typeof(string));
+                return _plugins.Select(p => p.Name).ToArray();
             }
         }
 
@@ -128,7 +122,7 @@ namespace Ice
 
                 NotRegisteredException ex = new NotRegisteredException();
                 ex.id = name;
-                ex.kindOfObject = _kindOfObject;
+                ex.kindOfObject = "plugin";
                 throw ex;
             }
         }
@@ -144,10 +138,7 @@ namespace Ice
 
                 if (findPlugin(name) != null)
                 {
-                    AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                    ex.id = name;
-                    ex.kindOfObject = _kindOfObject;
-                    throw ex;
+                    throw new ArgumentException("A plugin named `{name}' is already resgistered", nameof(name));
                 }
 
                 _plugins.Add(new PluginInfo(name, plugin));
@@ -162,7 +153,7 @@ namespace Ice
                 {
                     if (_initialized)
                     {
-                        ArrayList plugins = (ArrayList)_plugins.Clone();
+                        var plugins = new List<PluginInfo>(_plugins);
                         plugins.Reverse();
                         foreach (PluginInfo p in plugins)
                         {
@@ -185,7 +176,7 @@ namespace Ice
         public PluginManagerI(Communicator communicator)
         {
             _communicator = communicator;
-            _plugins = new ArrayList();
+            _plugins = new List<PluginInfo>();
             _initialized = false;
         }
 
@@ -513,14 +504,7 @@ namespace Ice
 
         private Plugin? findPlugin(string name)
         {
-            foreach (PluginInfo p in _plugins)
-            {
-                if (name.Equals(p.Name))
-                {
-                    return p.Plugin;
-                }
-            }
-            return null;
+            return _plugins.FirstOrDefault(p => p.Name == name)?.Plugin;
         }
 
         internal class PluginInfo
@@ -552,7 +536,7 @@ namespace Ice
         }
 
         private Communicator? _communicator;
-        private ArrayList _plugins;
+        private List<PluginInfo> _plugins;
         private bool _initialized;
 
         private static Dictionary<string, PluginFactory> _factories = new Dictionary<string, PluginFactory>();

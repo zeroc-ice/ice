@@ -34,7 +34,7 @@ namespace Ice
                         communicator.createObjectAdapter("TestAdapter0");
                         test(false);
                     }
-                    catch (AlreadyRegisteredException)
+                    catch (ArgumentException)
                     {
                         // Expected.
                     }
@@ -50,7 +50,7 @@ namespace Ice
                         //
                         second.Deactivate();
                     }
-                    catch (AlreadyRegisteredException)
+                    catch (ArgumentException)
                     {
                         // Expected
                     }
@@ -69,7 +69,7 @@ namespace Ice
                         adapter.Add(obj, "x");
                         test(false);
                     }
-                    catch (AlreadyRegisteredException)
+                    catch (ArgumentException)
                     {
                     }
 
@@ -106,7 +106,7 @@ namespace Ice
                         adapter.AddServantLocator(loc, "x");
                         test(false);
                     }
-                    catch (AlreadyRegisteredException)
+                    catch (ArgumentException)
                     {
                     }
 

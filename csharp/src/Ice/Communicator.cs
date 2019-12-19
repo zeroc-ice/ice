@@ -839,12 +839,12 @@ namespace Ice
 
                 if (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet))
                 {
-                    throw new ArgumentException($"facet `{facet}' not allow by Ice.Admin.Facets configuration", facet);
+                    throw new ArgumentException($"facet `{facet}' not allow by Ice.Admin.Facets configuration", nameof(facet));
                 }
 
                 if (_adminFacets.ContainsKey(facet))
                 {
-                    throw new Ice.AlreadyRegisteredException("facet", facet);
+                    throw new ArgumentException($"A facet `{facet}' is already registered", nameof(facet));
                 }
                 _adminFacets.Add(facet, (servant, disp));
                 if (_adminAdapter != null)
@@ -869,10 +869,10 @@ namespace Ice
             {
                 if (_state == StateDestroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
-                (object servant, Ice.Disp disp) result = default;
+                (object servant, Disp disp) result = default;
                 if (!_adminFacets.TryGetValue(facet, out result))
                 {
                     throw new Ice.NotRegisteredException("facet", facet);

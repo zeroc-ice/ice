@@ -104,7 +104,7 @@ namespace Ice
                         com.AddAdminFacet<TestFacet, TestFacetTraits>(f1, "Facet1");
                         test(false);
                     }
-                    catch (AlreadyRegisteredException)
+                    catch (ArgumentException)
                     {
                         // Expected
                     }

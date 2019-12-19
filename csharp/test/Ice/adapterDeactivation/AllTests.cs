@@ -38,7 +38,7 @@ namespace Ice
                         communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                         test(false);
                     }
-                    catch (AlreadyRegisteredException)
+                    catch (ArgumentException)
                     {
                     }
                     adapter.Destroy();

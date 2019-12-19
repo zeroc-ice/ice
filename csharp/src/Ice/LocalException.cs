@@ -72,49 +72,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// An attempt was made to register something more than once with
-    /// the Ice run time.
-    /// This exception is raised if an attempt is made to register a
-    /// servant, servant locator, facet, value factory, plug-in, object
-    /// adapter, object, or user exception factory more than once for the
-    /// same ID.
-    /// </summary>
-    public class AlreadyRegisteredException : LocalException
-    {
-        public string kindOfObject;
-        public string id;
-
-        public AlreadyRegisteredException()
-        {
-            this.kindOfObject = "";
-            this.id = "";
-        }
-
-        public AlreadyRegisteredException(global::System.Exception ex) : base(ex)
-        {
-            this.kindOfObject = "";
-            this.id = "";
-        }
-
-        public AlreadyRegisteredException(string kindOfObject, string id)
-        {
-            this.kindOfObject = kindOfObject;
-            this.id = id;
-        }
-
-        public AlreadyRegisteredException(string kindOfObject, string id, global::System.Exception ex) : base(ex)
-        {
-            this.kindOfObject = kindOfObject;
-            this.id = id;
-        }
-
-        public override string ice_id()
-        {
-            return "::Ice::AlreadyRegisteredException";
-        }
-    }
-
-    /// <summary>
     /// An attempt was made to find or deregister something that is not
     /// registered with the Ice run time or Ice locator.
     /// This exception is raised if an attempt is made to remove a servant,

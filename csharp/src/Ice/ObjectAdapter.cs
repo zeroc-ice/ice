@@ -1345,10 +1345,9 @@ namespace Ice
                     //
                     if (_routerInfo.getAdapter() != null)
                     {
-                        AlreadyRegisteredException ex = new AlreadyRegisteredException();
-                        ex.kindOfObject = "object adapter with router";
-                        ex.id = router.Identity.ToString(_communicator.ToStringMode);
-                        throw ex;
+                        throw new ArgumentException(
+                            $"Router `{router.Identity.ToString(_communicator.ToStringMode)}' already registered with an object adater",
+                            nameof(router));
                     }
 
                     //
