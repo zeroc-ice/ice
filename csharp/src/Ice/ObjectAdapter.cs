@@ -451,7 +451,6 @@ namespace Ice
                 id = id ?? new Identity(Guid.NewGuid().ToString(), "");
                 checkForDeactivation();
                 checkIdentity(id.Value);
-                CheckServant(disp);
 
                 _servantManager.addServant(disp, id.Value, facet);
 
@@ -498,8 +497,6 @@ namespace Ice
         /// </param>
         public void AddDefaultServant(Disp servant, string category)
         {
-            CheckServant(servant);
-
             lock (this)
             {
                 checkForDeactivation();
@@ -1464,21 +1461,9 @@ namespace Ice
 
         private static void checkIdentity(Identity ident)
         {
-            if (ident.name == null || ident.name.Length == 0)
+            if (ident.name.Length == 0)
             {
-                throw new IllegalIdentityException(ident);
-            }
-            if (ident.category == null)
-            {
-                ident.category = "";
-            }
-        }
-
-        private static void CheckServant(Disp servant)
-        {
-            if (servant == null)
-            {
-                throw new IllegalServantException("cannot add null servant to Object Adapter");
+                throw new ArgumentException("Identity name cannot be empty", nameof(ident));
             }
         }
 

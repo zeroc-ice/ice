@@ -82,15 +82,6 @@ namespace Ice
                     {
                     }
 
-                    try
-                    {
-                        adapter.Add(null!, "x");
-                        test(false);
-                    }
-                    catch (IllegalServantException)
-                    {
-                    }
-
                     adapter.Remove("x");
                     try
                     {
