@@ -102,17 +102,14 @@ namespace IceSSL
             {
                 if (_verifier != null)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: certificate verifier already installed";
-                    throw e;
+                    throw new InvalidOperationException("IceSSL: certificate verifier already installed");
                 }
 
                 Type cls = _facade.findType(certVerifierClass);
                 if (cls == null)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: unable to load certificate verifier class " + certVerifierClass;
-                    throw e;
+                    throw new InvalidOperationException(
+                        $"IceSSL: unable to load certificate verifier class `{certVerifierClass}'");
                 }
 
                 try
@@ -121,16 +118,14 @@ namespace IceSSL
                 }
                 catch (Exception ex)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
-                    e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
-                    throw e;
+                    throw new InvalidOperationException(
+                        $"IceSSL: unable to instantiate certificate verifier class `{certVerifierClass}", ex);
                 }
 
                 if (_verifier == null)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
-                    throw e;
+                    throw new InvalidOperationException(
+                        $"IceSSL: unable to instantiate certificate verifier class {certVerifierClass}");
                 }
             }
 
@@ -142,17 +137,14 @@ namespace IceSSL
             {
                 if (_passwordCallback != null)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: password callback already installed";
-                    throw e;
+                    throw new InvalidOperationException("IceSSL: password callback already installed");
                 }
 
                 Type cls = _facade.findType(passwordCallbackClass);
                 if (cls == null)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
-                    throw e;
+                    throw new InvalidOperationException(
+                        $"IceSSL: unable to load password callback class {passwordCallbackClass}");
                 }
 
                 try
@@ -161,16 +153,14 @@ namespace IceSSL
                 }
                 catch (Exception ex)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
-                    e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
-                    throw e;
+                    throw new InvalidOperationException(
+                        $"IceSSL: unable to load password callback class {passwordCallbackClass}", ex);
                 }
 
                 if (_passwordCallback == null)
                 {
-                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
-                    throw e;
+                    throw new InvalidOperationException(
+                        $"IceSSL: unable to load password callback class {passwordCallbackClass}");
                 }
             }
 
@@ -196,9 +186,7 @@ namespace IceSSL
                 {
                     if (!checkPath(ref certFile))
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: certificate file not found: " + certFile;
-                        throw e;
+                        throw new FileNotFoundException("IceSSL: certificate file not found: `{certFile}'", certFile);
                     }
 
                     SecureString? password = null;
@@ -236,9 +224,8 @@ namespace IceSSL
                     }
                     catch (CryptographicException ex)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
-                        e.reason = "IceSSL: error while attempting to load certificate from " + certFile;
-                        throw e;
+                        throw new InvalidOperationException(
+                            $"IceSSL: error while attempting to load certificate from `{certFile}'", ex);
                     }
                 }
                 else if (findCert != null)
@@ -247,7 +234,7 @@ namespace IceSSL
                     _certs.AddRange(findCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
                     if (_certs.Count == 0)
                     {
-                        throw new Ice.PluginInitializationException("IceSSL: no certificates found");
+                        throw new InvalidOperationException("IceSSL: no certificates found");
                     }
                 }
                 else if (findCertProps.Count > 0)
@@ -277,9 +264,7 @@ namespace IceSSL
                     }
                     if (_certs.Count == 0)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: no certificates found";
-                        throw e;
+                        throw new InvalidOperationException("IceSSL: no certificates found");
                     }
                 }
             }
@@ -301,9 +286,8 @@ namespace IceSSL
                 {
                     if (!checkPath(ref certAuthFile))
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: CA certificate file not found: " + certAuthFile;
-                        throw e;
+                        throw new FileNotFoundException("IceSSL: CA certificate file not found: `{certAuthFile}'",
+                            certAuthFile);
                     }
 
                     try
@@ -360,9 +344,8 @@ namespace IceSSL
                     }
                     catch (Exception ex)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
-                        e.reason = "IceSSL: error while attempting to load CA certificate from " + certAuthFile;
-                        throw e;
+                        throw new InvalidOperationException(
+                            $"IceSSL: error while attempting to load CA certificate from {certAuthFile}", ex);
                     }
                 }
             }
@@ -383,9 +366,7 @@ namespace IceSSL
         {
             if (_initialized)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: plug-in is already initialized";
-                throw e;
+                throw new InvalidOperationException("IceSSL: plug-in is already initialized");
             }
 
             _caCerts = caCerts;
@@ -395,9 +376,7 @@ namespace IceSSL
         {
             if (_initialized)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: plug-in is already initialized";
-                throw e;
+                throw new InvalidOperationException("IceSSL: plug-in is already initialized");
             }
 
             _certs = certs;
@@ -537,9 +516,7 @@ namespace IceSSL
             int pos = store.IndexOf('.');
             if (pos == -1)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: property `" + prop + "' has invalid format";
-                throw e;
+                throw new FormatException($"IceSSL: property `{prop}' has invalid format");
             }
 
             string sloc = store.Substring(0, pos).ToUpperInvariant();
@@ -553,17 +530,13 @@ namespace IceSSL
             }
             else
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: unknown store location `" + sloc + "' in " + prop;
-                throw e;
+                throw new ArgumentException("IceSSL: unknown store location `{sloc}' in {prop}", nameof(prop));
             }
 
             sname = store.Substring(pos + 1);
             if (sname.Length == 0)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: invalid store name in " + prop;
-                throw e;
+                throw new ArgumentException($"IceSSL: invalid store name in {prop}", nameof(prop));
             }
 
             //
@@ -680,9 +653,7 @@ namespace IceSSL
                             }
                         default:
                             {
-                                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                                e.reason = "IceSSL: unrecognized protocol `" + s + "'";
-                                throw e;
+                                throw new FormatException($"IceSSL: unrecognized protocol `{s}'");
                             }
                     }
 
@@ -691,11 +662,9 @@ namespace IceSSL
                         SslProtocols value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
                         result |= value;
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: unrecognized protocol `" + s + "'";
-                        throw e;
+                        throw new FormatException($"IceSSL: unrecognized protocol `{s}'", ex);
                     }
                 }
             }
@@ -723,9 +692,7 @@ namespace IceSSL
             }
             catch (Exception ex)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
-                e.reason = "IceSSL: failure while opening store specified by " + prop;
-                throw e;
+                throw new InvalidOperationException($"IceSSL: failure while opening store specified by {prop}", ex);
             }
 
             //
@@ -752,9 +719,7 @@ namespace IceSSL
                 {
                     if (value.IndexOf(':') == -1)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: no key in `" + value + "'";
-                        throw e;
+                        throw new FormatException($"IceSSL: no key in `{value}'");
                     }
                     int start = 0;
                     int pos;
@@ -795,9 +760,7 @@ namespace IceSSL
                         }
                         else
                         {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: unknown key in `" + value + "'";
-                            throw e;
+                            throw new FormatException($"IceSSL: unknown key in `{value}'");
                         }
 
                         //
@@ -810,9 +773,7 @@ namespace IceSSL
                         }
                         if (start == value.Length)
                         {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: missing argument in `" + value + "'";
-                            throw e;
+                            throw new FormatException($"IceSSL: missing argument in `{value}'");
                         }
 
                         string arg;
@@ -830,9 +791,7 @@ namespace IceSSL
                             }
                             if (end == value.Length || value[end] != value[start])
                             {
-                                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                                e.reason = "IceSSL: unmatched quote in `" + value + "'";
-                                throw e;
+                                throw new FormatException("IceSSL: unmatched quote in `{value}'");
                             }
                             ++start;
                             arg = value.Substring(start, end - start);

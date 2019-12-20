@@ -132,14 +132,8 @@ public class AllTests
                     p.IcePing();
                     test(false);
                 }
-                catch (PluginInitializationException)
+                catch (System.Exception)
                 {
-                    // Expected.
-                }
-                catch (LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
                 }
                 comm.destroy();
             }
@@ -1371,7 +1365,7 @@ public class AllTests
             {
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                 clientProperties["IceSSL.CAs"] = "cacert1.der";
-                Communicator comm = new Communicator(clientProperties);
+                using var comm = new Communicator(clientProperties);
                 var fact = Test.ServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                 serverProperties["IceSSL.VerifyPeer"] = "2";
@@ -1387,7 +1381,6 @@ public class AllTests
                     test(false);
                 }
                 fact.destroyServer(server);
-                comm.destroy();
             }
             Console.Out.WriteLine("ok");
 
@@ -1405,14 +1398,9 @@ public class AllTests
                     new Communicator(ref args, clientProperties);
                     test(false);
                 }
-                catch (PluginInitializationException)
+                catch (System.Exception)
                 {
                     // Expected.
-                }
-                catch (LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
                 }
             }
             {
@@ -1423,7 +1411,7 @@ public class AllTests
                 clientProperties["Ice.InitPlugins"] = "0";
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
-                Communicator comm = new Communicator(ref args, clientProperties);
+                using var comm = new Communicator(ref args, clientProperties);
                 IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
                 Debug.Assert(plugin != null);
                 PasswordCallbackI cb = new PasswordCallbackI("bogus");
@@ -1433,16 +1421,10 @@ public class AllTests
                     comm.InitializePlugins();
                     test(false);
                 }
-                catch (PluginInitializationException)
+                catch (System.Exception)
                 {
                     // Expected.
                 }
-                catch (Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
-                comm.destroy();
             }
             {
                 //
@@ -2272,14 +2254,9 @@ public class AllTests
                             Communicator comm = new Communicator(ref args, clientProperties);
                             test(false);
                         }
-                        catch (Ice.PluginInitializationException)
+                        catch (System.Exception)
                         {
                             // Expected
-                        }
-                        catch (Ice.LocalException ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
                         }
                     }
 
@@ -2305,14 +2282,9 @@ public class AllTests
                         Communicator comm = new Communicator(ref args, clientProperties);
                         test(false);
                     }
-                    catch (PluginInitializationException)
+                    catch (System.Exception)
                     {
                         // Expected
-                    }
-                    catch (LocalException ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        test(false);
                     }
                 }
             }

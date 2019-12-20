@@ -57,18 +57,7 @@ namespace Ice
             {
                 foreach (var p in _plugins)
                 {
-                    try
-                    {
-                        p.Plugin.initialize();
-                    }
-                    catch (PluginInitializationException)
-                    {
-                        throw;
-                    }
-                    catch (System.Exception ex)
-                    {
-                        throw new PluginInitializationException($"plugin `{p.Name}' initialization failed", ex);
-                    }
+                    p.Plugin.initialize();
                     initializedPlugins.Add(p.Plugin);
                 }
             }
@@ -140,7 +129,7 @@ namespace Ice
             }
         }
 
-        public void LoadPlugins(ref string[] cmdArgs)
+        private void LoadPlugins(ref string[] cmdArgs)
         {
             const string prefix = "Ice.Plugin.";
             Dictionary<string, string> plugins = GetProperties(forPrefix: prefix);
@@ -201,7 +190,7 @@ namespace Ice
 
                 if (FindPlugin(name) != null)
                 {
-                    throw new PluginInitializationException($"plug-in `{name}' already loaded");
+                    throw new InvalidOperationException($"plug-in `{name}' already loaded");
                 }
 
                 string key = $"Ice.Plugin.{name}clr";
@@ -220,7 +209,7 @@ namespace Ice
                 }
                 else
                 {
-                    throw new PluginInitializationException($"plug-in `{name}' not defined");
+                    throw new InvalidOperationException($"plug-in `{name}' not defined");
                 }
             }
 
@@ -295,9 +284,9 @@ namespace Ice
                 {
                     args = IceUtilInternal.Options.split(pluginSpec);
                 }
-                catch (IceUtilInternal.Options.BadQuote ex)
+                catch (FormatException ex)
                 {
-                    throw new PluginInitializationException($"invalid arguments for plug-in `{name}':\n{ex.Message}");
+                    throw new ArgumentException($"invalid arguments for plug-in `{name}", nameof(pluginSpec), ex);
                 }
 
                 Debug.Assert(args.Length > 0);
@@ -326,7 +315,6 @@ namespace Ice
                 }
             }
             Debug.Assert(entryPoint != null);
-            string err = $"unable to load plug-in `{entryPoint}': ";
             //
             // Always check the static plugin factory table first, it takes
             // precedence over the the entryPoint specified in the plugin
@@ -352,10 +340,10 @@ namespace Ice
                 }
                 if (sepPos == -1)
                 {
-                    throw new PluginInitializationException($"{err}invalid entry point format");
+                    throw new FormatException($"error loading plug-in `{entryPoint}': invalid entry point format");
                 }
 
-                System.Reflection.Assembly? pluginAssembly = null;
+                System.Reflection.Assembly? pluginAssembly;
                 string assemblyName = entryPoint.Substring(0, sepPos);
                 string className = entryPoint.Substring(sepPos + 1);
 
@@ -390,7 +378,8 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    throw new PluginInitializationException($"unable to load assembly: `{assemblyName} ': {ex}");
+                    throw new InvalidOperationException(
+                        $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
                 }
 
                 //
@@ -403,56 +392,27 @@ namespace Ice
                 }
                 catch (System.Exception ex)
                 {
-                    throw new PluginInitializationException($"{err}GetType failed for `{className}'", ex);
+                    throw new InvalidOperationException(
+                        $"error loading plug-in `{ entryPoint}': cannot find the plugin factory class `{className}'", ex);
                 }
 
                 try
                 {
                     pluginFactory = (PluginFactory?)IceInternal.AssemblyUtil.createInstance(c);
-                    if (pluginFactory == null)
-                    {
-                        throw new PluginInitializationException($"{err}can't find constructor for `{className}'");
-                    }
-                }
-                catch (InvalidCastException ex)
-                {
-                    throw new PluginInitializationException($"{err}InvalidCastException to Ice.PluginFactory", ex);
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    throw new PluginInitializationException($"{err}UnauthorizedAccessException: {ex}", ex);
                 }
                 catch (System.Exception ex)
                 {
-                    throw new PluginInitializationException($"{err}System.Exception: {ex}", ex);
+                    throw new InvalidOperationException($"error loading plug-in `{entryPoint}'", ex);
+                }
+
+                if (pluginFactory == null)
+                {
+                    throw new InvalidOperationException(
+                        $"error loading plug-in `{ entryPoint}': can't find constructor for `{className}'");
                 }
             }
 
-            Plugin? plugin;
-            try
-            {
-                plugin = pluginFactory.create(this, name, args);
-            }
-            catch (PluginInitializationException ex)
-            {
-                ex.reason = err + ex.reason;
-                throw;
-            }
-            catch (System.Exception ex)
-            {
-                PluginInitializationException e = new PluginInitializationException(ex);
-                e.reason = err + "System.Exception in factory.create: " + ex.ToString();
-                throw e;
-            }
-
-            if (plugin == null)
-            {
-                PluginInitializationException ex = new PluginInitializationException();
-                ex.reason = err + "factory.create returned null plug-in";
-                throw ex;
-            }
-
-            _plugins.Add((name, plugin));
+            _plugins.Add((name, pluginFactory.create(this, name, args)));
         }
 
         private Plugin? FindPlugin(string name)

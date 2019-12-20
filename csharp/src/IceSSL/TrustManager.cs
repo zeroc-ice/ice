@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System;
 
 namespace IceSSL
 {
@@ -42,11 +43,9 @@ namespace IceSSL
                     }
                 }
             }
-            catch (RFC2253.ParseException e)
+            catch (FormatException ex)
             {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: invalid property " + key + ":\n" + e.reason;
-                throw ex;
+                throw new FormatException($"IceSSL: invalid property `{key};", ex);
             }
         }
 
@@ -190,10 +189,10 @@ namespace IceSSL
                         }
                     }
                 }
-                catch (RFC2253.ParseException e)
+                catch (FormatException e)
                 {
                     _communicator.Logger.warning(
-                        "IceSSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + e.reason);
+                        $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
                 }
 
                 //

@@ -836,7 +836,7 @@ namespace IceBox
                 {
                     args = IceUtilInternal.Options.split(value);
                 }
-                catch (IceUtilInternal.Options.BadQuote ex)
+                catch (FormatException ex)
                 {
                     FailureException e = new FailureException();
                     e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.Message;

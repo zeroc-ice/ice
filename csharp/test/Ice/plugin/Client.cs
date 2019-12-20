@@ -49,9 +49,9 @@ public class Client : Test.TestHelper
                 });
                 test(false);
             }
-            catch (Ice.PluginInitializationException ex)
+            catch (System.Exception)
             {
-                test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
+                //Excepted
             }
             Console.WriteLine("ok");
         }
@@ -113,9 +113,9 @@ public class Client : Test.TestHelper
                     { "Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail"}
                 });
             }
-            catch (Ice.PluginInitializationException ex)
+            catch (Exception)
             {
-                test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
+                // Expected
             }
             Console.WriteLine("ok");
         }
