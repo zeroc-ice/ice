@@ -457,26 +457,6 @@ namespace Ice
             return (key, val);
         }
 
-        internal static Dictionary<string, string> LoadConfig(string iceConfig)
-        {
-            Dictionary<string, string> properties = new Dictionary<string, string>();
-            string[] files = iceConfig.Split(",");
-            foreach (var file in files)
-            {
-                using System.IO.StreamReader input = new System.IO.StreamReader(file.Trim());
-                string line;
-                while ((line = input.ReadLine()) != null)
-                {
-                    var result = ParseLine(line);
-                    if (result.Name.Length > 0)
-                    {
-                        properties[result.Name] = result.Value;
-                    }
-                }
-            }
-            return properties;
-        }
-
         private readonly Dictionary<string, PropertyValue> _properties = new Dictionary<string, PropertyValue>();
     }
 
@@ -521,7 +501,10 @@ namespace Ice
 
             if ((prefix == "--" || prefix == "--Ice.") && parsedArgs.TryGetValue("Ice.Config", out string iceConfig))
             {
-                properties.LoadIceConfigFile(iceConfig);
+                foreach (var file in iceConfig.Split(","))
+                {
+                    properties.LoadIceConfigFile(file);
+                }
             }
 
             foreach (var p in parsedArgs)
@@ -534,9 +517,15 @@ namespace Ice
 
         public static void LoadIceConfigFile(this Dictionary<string, string> properties, string configFile)
         {
-            foreach (var p in Communicator.LoadConfig(configFile))
+            using System.IO.StreamReader input = new System.IO.StreamReader(configFile.Trim());
+            string line;
+            while ((line = input.ReadLine()) != null)
             {
-                properties[p.Key] = p.Value;
+                var result = Communicator.ParseLine(line);
+                if (result.Name.Length > 0)
+                {
+                    properties[result.Name] = result.Value;
+                }
             }
         }
     }
