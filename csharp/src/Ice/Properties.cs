@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -296,7 +295,7 @@ namespace Ice
         private const int ParseStateKey = 0;
         private const int ParseStateValue = 1;
 
-        internal static (string? Key, string value) ParseLine(string line)
+        internal static (string Name, string Value) ParseLine(string line)
         {
             string key = "";
             string val = "";
@@ -452,12 +451,7 @@ namespace Ice
 
             if ((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
             {
-                Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
-                return (null, string.Empty);
-            }
-            else if (key.Length == 0)
-            {
-                return (null, string.Empty);
+                throw new FormatException($"invalid config file entry: \"{line}\"");
             }
 
             return (key, val);
@@ -474,9 +468,9 @@ namespace Ice
                 while ((line = input.ReadLine()) != null)
                 {
                     var result = ParseLine(line);
-                    if (result.Key != null)
+                    if (result.Name.Length > 0)
                     {
-                        properties[result.Key] = result.value;
+                        properties[result.Name] = result.Value;
                     }
                 }
             }
@@ -504,41 +498,38 @@ namespace Ice
             }
             prefix = "--" + prefix;
 
-            if (prefix == "--" || prefix == "--Ice.")
+            if ((prefix == "--" || prefix == "--Ice.") && Array.Find(args, arg => arg == "--Ice.Config") != null)
             {
-                string? loadConfigFiles = args.FirstOrDefault(arg => arg.StartsWith("--Ice.Config"));
-                if (loadConfigFiles != null)
-                {
-                    if (loadConfigFiles.IndexOf('=') == -1)
-                    {
-                        loadConfigFiles += "=1";
-                    }
-                    var result = Communicator.ParseLine(loadConfigFiles.Substring(2));
-                    Debug.Assert(result.Key != null);
-                    properties[result.Key] = result.value;
-                    args = args.Where(arg => !arg.StartsWith("--Ice.Config")).ToArray();
-                    foreach (var p in Communicator.LoadConfig(result.value))
-                    {
-                        properties[p.Key] = p.Value;
-                    }
-                }
+                throw new ArgumentException("--Ice.Config requires and argument", nameof(args));
             }
 
-            List<string> unused = new List<string>();
+            var remaining = new List<string>();
+            var parsedArgs = new Dictionary<string, string>();
             foreach (var arg in args)
             {
                 if (arg.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     var r = Communicator.ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
-                    Debug.Assert(r.Key != null);
-                    properties[r.Key] = r.value;
+                    if (r.Name.Length > 0)
+                    {
+                        parsedArgs[r.Name] = r.Value;
+                        continue;
+                    }
                 }
-                else
-                {
-                    unused.Add(arg);
-                }
+                remaining.Add(arg);
             }
-            args = unused.ToArray();
+
+            if ((prefix == "--" || prefix == "--Ice.") && parsedArgs.TryGetValue("Ice.Config", out string iceConfig))
+            {
+                properties.LoadIceConfigFile(iceConfig);
+            }
+
+            foreach (var p in parsedArgs)
+            {
+                properties[p.Key] = p.Value;
+            }
+
+            args = remaining.ToArray();
         }
 
         public static void LoadIceConfigFile(this Dictionary<string, string> properties, string configFile)
