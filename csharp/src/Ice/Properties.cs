@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -129,28 +130,35 @@ namespace Ice
 
             lock (_properties)
             {
-                SetPropertyImpl(key, value);
+                _ = SetPropertyImpl(key, value);
             }
         }
 
         /// <summary>Insert new properties or change the value of existing properties.
         /// Setting the value of a property to the empty string removes this property
         /// if it was present, and does nothing otherwise.</summary>
-        /// <param name="updates">A dictionary that contains the new, updated and removed properties.</param>
-        public void SetProperties(Dictionary<string, string> updates)
+        /// <param name="updates">A dictionary of properties.</param>
+        /// <returns>A subset of the updates parameter with only the new, updated and removed properties. Properties
+        /// that are identical in updates and in the Communicator's properties prior to this update are not included.</returns>
+        public Dictionary<string, string> SetProperties(Dictionary<string, string> updates)
         {
             foreach (var entry in updates)
             {
                 ValidateProperty(entry.Key, entry.Value);
             }
 
+            var result = new Dictionary<string, string>();
             lock (_properties)
             {
                 foreach (var entry in updates)
                 {
-                    SetPropertyImpl(entry.Key, entry.Value);
+                    if (SetPropertyImpl(entry.Key, entry.Value))
+                    {
+                        result.Add(entry.Key, entry.Value);
+                    }
                 }
             }
+            return result;
         }
 
         /// <summary>Remove a property.</summary>
@@ -184,7 +192,9 @@ namespace Ice
             }
         }
 
-        private void SetPropertyImpl(string key, string value)
+        // SetPropertyImpl sets a property and returns true when the property
+        // was added, changed or removed, and false otherwise.
+        private bool SetPropertyImpl(string key, string value)
         {
             // Must be called with validated a validated property and with _properties locked
 
@@ -193,6 +203,7 @@ namespace Ice
             if (value.Length == 0)
             {
                 _properties.Remove(key);
+                return true;
             }
             else
             {
@@ -201,14 +212,21 @@ namespace Ice
 
                 if (_properties.TryGetValue(key, out var pv))
                 {
-                    pv.Val = value;
-                    pv.Used = used;
+                    bool changed = pv.Val != value;
+                    if (changed)
+                    {
+                        pv.Val = value;
+                        pv.Used = used;
+                        return true;
+                    }
                 }
                 else
                 {
                     _properties[key] = new PropertyValue(value, used);
+                    return true;
                 }
             }
+            return false;
         }
 
         private void ValidateProperty(string key, string value)
@@ -246,7 +264,7 @@ namespace Ice
                         {
                             if (prop.deprecated())
                             {
-                                _logger.warning("deprecated property: " + key);
+                                _logger.warning($"deprecated property: `{key}'");
                                 string? deprecatedBy = prop.deprecatedBy();
                                 if (deprecatedBy != null)
                                 {
@@ -271,11 +289,11 @@ namespace Ice
                     }
                     if (!found)
                     {
-                        _logger.warning("unknown property: " + key);
+                        _logger.warning($"unknown property: `{key}'");
                     }
                     else if (mismatchCase)
                     {
-                        _logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
+                        _logger.warning($"unknown property: `{key}'; did you mean `{otherKey}'");
                     }
                 }
             }
@@ -362,25 +380,24 @@ namespace Ice
             }
         }
 
+        internal enum ParseState : byte { Key, Value}
+
         private static (string Name, string Value) ParseLine(string line)
         {
-            const bool ParseStateKey = false;
-            const bool ParseStateValue = true;
+            StringBuilder key = new StringBuilder();
+            StringBuilder val = new StringBuilder();
 
-            string key = "";
-            string val = "";
+            ParseState state = ParseState.Key;
 
-            bool state = ParseStateKey;
-
-            string whitespace = "";
-            string escapedspace = "";
+            StringBuilder whitespace = new StringBuilder();
+            StringBuilder escapedspace = new StringBuilder();
             bool finished = false;
             for (int i = 0; i < line.Length; ++i)
             {
                 char c = line[i];
                 switch (state)
                 {
-                    case ParseStateKey:
+                    case ParseState.Key:
                         {
                             switch (c)
                             {
@@ -393,30 +410,30 @@ namespace Ice
                                             case '\\':
                                             case '#':
                                             case '=':
-                                                key += whitespace;
-                                                whitespace = "";
-                                                key += c;
+                                                key.Append(whitespace);
+                                                whitespace.Clear();
+                                                key.Append(c);
                                                 break;
 
                                             case ' ':
                                                 if (key.Length != 0)
                                                 {
-                                                    whitespace += c;
+                                                    whitespace.Append(c);
                                                 }
                                                 break;
 
                                             default:
-                                                key += whitespace;
-                                                whitespace = "";
-                                                key += '\\';
-                                                key += c;
+                                                key.Append(whitespace);
+                                                whitespace.Clear();
+                                                key.Append('\\');
+                                                key.Append(c);
                                                 break;
                                         }
                                     }
                                     else
                                     {
-                                        key += whitespace;
-                                        key += c;
+                                        key.Append(whitespace);
+                                        key.Append(c);
                                     }
                                     break;
 
@@ -426,13 +443,13 @@ namespace Ice
                                 case '\n':
                                     if (key.Length != 0)
                                     {
-                                        whitespace += c;
+                                        whitespace.Append(c);
                                     }
                                     break;
 
                                 case '=':
-                                    whitespace = "";
-                                    state = ParseStateValue;
+                                    whitespace.Clear();
+                                    state = ParseState.Value;
                                     break;
 
                                 case '#':
@@ -440,15 +457,15 @@ namespace Ice
                                     break;
 
                                 default:
-                                    key += whitespace;
-                                    whitespace = "";
-                                    key += c;
+                                    key.Append(whitespace);
+                                    whitespace.Clear();
+                                    key.Append(c);
                                     break;
                             }
                             break;
                         }
 
-                    case ParseStateValue:
+                    case ParseState.Value:
                         {
                             switch (c)
                             {
@@ -461,30 +478,30 @@ namespace Ice
                                             case '\\':
                                             case '#':
                                             case '=':
-                                                val += val.Length == 0 ? escapedspace : whitespace;
-                                                whitespace = "";
-                                                escapedspace = "";
-                                                val += c;
+                                                val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                                whitespace.Clear();
+                                                escapedspace.Clear();
+                                                val.Append(c);
                                                 break;
 
                                             case ' ':
-                                                whitespace += c;
-                                                escapedspace += c;
+                                                whitespace.Append(c);
+                                                escapedspace.Append(c);
                                                 break;
 
                                             default:
-                                                val += val.Length == 0 ? escapedspace : whitespace;
-                                                whitespace = "";
-                                                escapedspace = "";
-                                                val += '\\';
-                                                val += c;
+                                                val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                                whitespace.Clear();
+                                                escapedspace.Clear();
+                                                val.Append('\\');
+                                                val.Append(c);
                                                 break;
                                         }
                                     }
                                     else
                                     {
-                                        val += val.Length == 0 ? escapedspace : whitespace;
-                                        val += c;
+                                        val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                        val.Append(c);
                                     }
                                     break;
 
@@ -494,7 +511,7 @@ namespace Ice
                                 case '\n':
                                     if (val.Length != 0)
                                     {
-                                        whitespace += c;
+                                        whitespace.Append(c);
                                     }
                                     break;
 
@@ -503,10 +520,10 @@ namespace Ice
                                     break;
 
                                 default:
-                                    val += val.Length == 0 ? escapedspace : whitespace;
-                                    whitespace = "";
-                                    escapedspace = "";
-                                    val += c;
+                                    val.Append(val.Length == 0 ? escapedspace : whitespace);
+                                    whitespace.Clear();
+                                    escapedspace.Clear();
+                                    val.Append(c);
                                     break;
                             }
                             break;
@@ -517,14 +534,14 @@ namespace Ice
                     break;
                 }
             }
-            val += escapedspace;
+            val.Append(escapedspace);
 
-            if ((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
+            if ((state == ParseState.Key && key.Length != 0) || (state == ParseState.Value && key.Length == 0))
             {
                 throw new FormatException($"invalid config file entry: \"{line}\"");
             }
 
-            return (key, val);
+            return (key.ToString(), val.ToString());
         }
     }
 }
