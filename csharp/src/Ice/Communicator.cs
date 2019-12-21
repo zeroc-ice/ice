@@ -1015,48 +1015,38 @@ namespace Ice
             _state = StateActive;
             _compactIdResolver = compactIdResolver;
             _dispatcher = dispatcher;
-            _logger = logger!;
+            _logger = logger ?? Util.getProcessLogger();
             _observer = observer;
             _threadStart = threadStart;
             _threadStop = threadStop;
             _typeIdNamespaces = typeIdNamespaces ?? new string[] { "Ice.TypeId" };
 
-            if (properties != null)
-            {
-                foreach (var entry in properties)
-                {
-                    _properties[entry.Key] = new PropertyValue(entry.Value, false);
-                }
-            }
+            properties ??= new Dictionary<string, string>();
 
             if (appSettings != null)
             {
                 foreach (var key in appSettings.AllKeys)
                 {
                     string[]? values = appSettings.GetValues(key);
-                    if (values != null)
+                    if (values == null)
                     {
-                        _properties[key] = new PropertyValue(string.Join(",", values), false);
+                        properties[key] = "";
+                    }
+                    else
+                    {
+                        // TODO: this join is not sufficient
+                        properties[key] = string.Join(",", values);
                     }
                 }
             }
 
-            PropertyValue pv;
-            if (_properties.TryGetValue("Ice.ProgramName", out pv))
+            if (!properties.ContainsKey("Ice.ProgramName"))
             {
-                pv.Used = true;
-            }
-            else
-            {
-                _properties["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
+                properties["Ice.ProgramName"] = AppDomain.CurrentDomain.FriendlyName;
             }
 
-            properties = new Dictionary<string, string>();
             properties.ParseIceArgs(ref args);
-            foreach (var p in properties)
-            {
-                SetProperty(p.Key, p.Value);
-            }
+            SetProperties(properties);
 
             try
             {
@@ -1131,12 +1121,8 @@ namespace Ice
                         //
                         _logger = new TraceLoggerI(programName, (GetPropertyAsInt("Ice.ConsoleListener") ?? 1) > 0);
                     }
-                    else
-                    {
-                        _logger = Util.getProcessLogger();
-                    }
+                    // else already set to process logger
                 }
-                Debug.Assert(_logger != null);
 
                 _traceLevels = new TraceLevels(this);
 

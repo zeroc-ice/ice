@@ -125,19 +125,100 @@ namespace Ice
         /// <param name="value">The property value.</param>
         public void SetProperty(string key, string value)
         {
-            //
-            // Trim whitespace
-            //
+            ValidateProperty(key, value);
+
+            lock (_properties)
+            {
+                SetPropertyImpl(key, value);
+            }
+        }
+
+        /// <summary>Insert new properties or change the value of existing properties.
+        /// Setting the value of a property to the empty string removes this property
+        /// if it was present, and does nothing otherwise.</summary>
+        /// <param name="updates">A dictionary that contains the new, updated and removed properties.</param>
+        public void SetProperties(Dictionary<string, string> updates)
+        {
+            foreach (var entry in updates)
+            {
+                ValidateProperty(entry.Key, entry.Value);
+            }
+
+            lock (_properties)
+            {
+                foreach (var entry in updates)
+                {
+                    SetPropertyImpl(entry.Key, entry.Value);
+                }
+            }
+        }
+
+        /// <summary>Remove a property.</summary>
+        /// <param name="key">The property key.</param>
+        /// <returns>The property value or null if this property was not set.</returns>
+        public string? RemoveProperty(string key)
+        {
+            if (_properties.TryGetValue(key, out var pv))
+            {
+                _properties.Remove(key);
+                return pv.Val;
+            }
+            return null;
+        }
+
+        /// <summary>Get all properties that were not read.</summary>
+        /// <returns>The properties that were not read as a list of keys.</returns>
+        public List<string> GetUnusedProperties()
+        {
+            lock (_properties)
+            {
+                List<string> unused = new List<string>();
+                foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+                {
+                    if (!entry.Value.Used)
+                    {
+                        unused.Add(entry.Key);
+                    }
+                }
+                return unused;
+            }
+        }
+
+        private void SetPropertyImpl(string key, string value)
+        {
+            // Must be called with validated a validated property and with _properties locked
+
+            key = key.Trim();
+            Debug.Assert(key.Length > 0);
+            if (value.Length == 0)
+            {
+                _properties.Remove(key);
+            }
+            else
+            {
+                // These properties are always marked "used"
+                bool used = (key == "Ice.ConfigFile" || key == "Ice.ProgramName");
+
+                if (_properties.TryGetValue(key, out var pv))
+                {
+                    pv.Val = value;
+                    pv.Used = used;
+                }
+                else
+                {
+                    _properties[key] = new PropertyValue(value, used);
+                }
+            }
+        }
+
+        private void ValidateProperty(string key, string value)
+        {
             key = key.Trim();
             if (key.Length == 0)
             {
                 throw new ArgumentException("Attempt to set property with empty key", nameof(key));
             }
 
-            //
-            // Check if the property is legal.
-            //
-            Logger logger = Util.getProcessLogger();
             int dotPos = key.IndexOf('.');
             if (dotPos != -1)
             {
@@ -165,7 +246,7 @@ namespace Ice
                         {
                             if (prop.deprecated())
                             {
-                                logger.warning("deprecated property: " + key);
+                                _logger.warning("deprecated property: " + key);
                                 string? deprecatedBy = prop.deprecatedBy();
                                 if (deprecatedBy != null)
                                 {
@@ -190,64 +271,13 @@ namespace Ice
                     }
                     if (!found)
                     {
-                        logger.warning("unknown property: " + key);
+                        _logger.warning("unknown property: " + key);
                     }
                     else if (mismatchCase)
                     {
-                        logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
+                        _logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
                     }
                 }
-            }
-
-            lock (_properties)
-            {
-                if (value.Length == 0)
-                {
-                    _properties.Remove(key);
-                }
-                else
-                {
-                    if (_properties.TryGetValue(key, out var pv))
-                    {
-                        pv.Val = value;
-                        pv.Used = false;
-                    }
-                    else
-                    {
-                        _properties[key] = new PropertyValue(value, false);
-                    }
-                }
-            }
-        }
-
-        /// <summary>Remove a property.</summary>
-        /// <param name="key">The property key.</param>
-        /// <returns>The property value or null if this property was not set.</returns>
-        public string? RemoveProperty(string key)
-        {
-            if (_properties.TryGetValue(key, out var pv))
-            {
-                _properties.Remove(key);
-                return pv.Val;
-            }
-            return null;
-        }
-
-        /// <summary>Get all properties that were not read.</summary>
-        /// <returns>The properties that were not read as a list of keys.</returns>
-        public List<string> GetUnusedProperties()
-        {
-            lock (_properties)
-            {
-                List<string> unused = new List<string>();
-                foreach (KeyValuePair<string, PropertyValue> entry in _properties)
-                {
-                    if (!entry.Value.Used && entry.Key != "Ice.Config")
-                    {
-                        unused.Add(entry.Key);
-                    }
-                }
-                return unused;
             }
         }
     }
