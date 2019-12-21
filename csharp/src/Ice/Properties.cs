@@ -12,161 +12,117 @@ namespace Ice
 {
     public sealed partial class Communicator
     {
+        private readonly Dictionary<string, PropertyValue> _properties = new Dictionary<string, PropertyValue>();
+
         private class PropertyValue
         {
-            public PropertyValue(PropertyValue v)
-            {
-                val = v.val;
-                used = v.used;
-            }
+            internal string Val;
+            internal bool Used;
 
-            public PropertyValue(string v, bool u)
+            internal PropertyValue(string v, bool u)
             {
-                val = v;
-                used = u;
+                Val = v;
+                Used = u;
             }
-
-            public string val;
-            public bool used;
         }
 
-        /// <summary>
-        /// Get a property by key.
-        /// If the property is not set, returns null.
-        ///
-        /// </summary>
-        /// <param name="key">The property key.
-        ///
-        /// </param>
-        /// <returns>The property value.
-        ///
-        /// </returns>
+        /// <summary>Get the value of a property. If the property is not set, returns null.</summary>
+        /// <param name="key">The property key.</param>
+        /// <returns>The property value.</returns>
         public string? GetProperty(string key)
         {
             lock (_properties)
             {
-                PropertyValue pv;
-                if (_properties.TryGetValue(key, out pv))
+                if (_properties.TryGetValue(key, out var pv))
                 {
-                    pv.used = true;
-                    return pv.val;
+                    pv.Used = true;
+                    return pv.Val;
                 }
                 return null;
             }
         }
 
-        /// <summary>
-        /// Get a property as an integer.
-        /// If the property is not set, returns null.
-        ///
-        /// </summary>
-        /// <param name="key">The property key.
-        ///
-        /// </param>
-        /// <returns>The property value interpreted as an integer or null.
-        ///
-        /// </returns>
+        /// <summary>Get the value of a property as an integer. If the property is not set, returns null.</summary>
+        /// <param name="key">The property key.</param>
+        /// <returns>The property value parsed into an integer or null.</returns>
         public int? GetPropertyAsInt(string key)
         {
             lock (_properties)
             {
-                PropertyValue pv;
-                if (_properties.TryGetValue(key, out pv))
+                if (_properties.TryGetValue(key, out var pv))
                 {
-                    pv.used = true;
-                    return int.Parse(pv.val, CultureInfo.InvariantCulture);
+                    pv.Used = true;
+                    return int.Parse(pv.Val, CultureInfo.InvariantCulture);
                 }
                 return null;
             }
         }
 
         /// <summary>
-        /// Get a property as a list of strings.
-        /// The strings must be
-        /// separated by whitespace or comma. If the property is not set,
-        /// the default list is returned. The strings in the list can contain
-        /// whitespace and commas if they are enclosed in single or double
-        /// quotes. If quotes are mismatched, the default list is returned.
-        /// Within single quotes or double quotes, you can escape the
-        /// quote in question with \, e.g. O'Reilly can be written as
+        /// Get the value of a property as an array of strings. If the property is not set, returns null.
+        /// The value must contain strings separated by whitespace or comma. These strings can contain
+        /// whitespace and commas if they are enclosed in single or double quotes. Within single quotes or
+        /// double quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as
         /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
-        ///
         /// </summary>
-        /// <param name="key">The property key.
-        ///
-        /// </param>
-        /// <param name="value">The default value to use if the property is not set.
-        ///
-        /// </param>
-        /// <returns>The property value interpreted as list of strings, or the
-        /// default value.
-        ///
-        /// </returns>
+        /// <param name="key">The property key.</param>
+        /// <returns>The property value parsed into an array of strings or null.</returns>
         public string[]? GetPropertyAsList(string key)
         {
             lock (_properties)
             {
-                PropertyValue pv;
-                if (_properties.TryGetValue(key, out pv))
+                if (_properties.TryGetValue(key, out var pv))
                 {
-                    pv.used = true;
-                    return IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
+                    pv.Used = true;
+                    return IceUtilInternal.StringUtil.splitString(pv.Val, ", \t\r\n");
                 }
                 return null;
             }
         }
 
-        /// <summary>
-        /// Get all properties whose keys begins with
-        /// prefix.
-        /// If
-        /// prefix is an empty string,
-        /// then all properties are returned.
-        ///
+        /// <summary>Get all properties whose keys begins with forPrefix.
+        /// If forPrefix is an empty string, then all properties are returned.
         /// </summary>
-        /// <param name="forPrefix">The prefix to search for (empty string if none).
-        /// </param>
+        /// <param name="forPrefix">The prefix to search for (empty string if none).</param>
         /// <returns>The matching property set.</returns>
         public Dictionary<string, string> GetProperties(string forPrefix = "")
         {
             lock (_properties)
             {
-                Dictionary<string, string> result = new Dictionary<string, string>();
+                var result = new Dictionary<string, string>();
 
                 foreach (string s in _properties.Keys)
                 {
                     if (forPrefix.Length == 0 || s.StartsWith(forPrefix, StringComparison.Ordinal))
                     {
                         PropertyValue pv = _properties[s];
-                        pv.used = true;
-                        result[s] = pv.val;
+                        pv.Used = true;
+                        result[s] = pv.Val;
                     }
                 }
                 return result;
             }
         }
 
-        public T? GetPropertyAsProxy<T>(string prefix, ProxyFactory<T> factory) where T : class, IObjectPrx
+        /// <summary>Get the value of a property as a proxy. If the property is not set, returns null.</summary>
+        /// <param name="key">The property key. This key is also used as a prefix for proxy options.</param>
+        /// <param name="factory">The proxy factory. Use IAPrx.Factory to create IAPrx proxies.</param>
+        /// <returns>The property value parsed into a proxy or null.</returns>
+        public T? GetPropertyAsProxy<T>(string key, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            string? proxy = GetProperty(prefix);
+            string? proxy = GetProperty(key);
             if (proxy == null)
             {
                 return null;
             }
-            return factory(CreateReference(proxy, prefix));
+            return factory(CreateReference(proxy, key));
         }
 
-        /// <summary>
-        /// Set a property.
-        /// To unset a property, set it to
-        /// the empty string.
-        ///
-        /// </summary>
-        /// <param name="key">The property key.
-        /// </param>
-        /// <param name="value">The property value.
-        ///
-        /// </param>
+        /// <summary>Insert a new property or change the value of an existing property.
+        /// Setting the value of a property to the empty string removes this property
+        /// if it was present, and does nothing otherwise.</summary>
+        /// <param name="key">The property key.</param>
+        /// <param name="value">The property value.</param>
         public void SetProperty(string key, string value)
         {
             //
@@ -251,31 +207,34 @@ namespace Ice
                 }
                 else
                 {
-                    PropertyValue pv;
-                    if (_properties.TryGetValue(key, out pv))
+                    if (_properties.TryGetValue(key, out var pv))
                     {
-                        pv.val = value;
+                        pv.Val = value;
+                        pv.Used = false;
                     }
                     else
                     {
-                        pv = new PropertyValue(value, false);
+                        _properties[key] = new PropertyValue(value, false);
                     }
-                    _properties[key] = pv;
                 }
             }
         }
 
+        /// <summary>Remove a property.</summary>
+        /// <param name="key">The property key.</param>
+        /// <returns>The property value or null if this property was not set.</returns>
         public string? RemoveProperty(string key)
         {
-            PropertyValue pv;
-            if (_properties.TryGetValue(key, out pv))
+            if (_properties.TryGetValue(key, out var pv))
             {
                 _properties.Remove(key);
-                return pv.val;
+                return pv.Val;
             }
             return null;
         }
 
+        /// <summary>Get all properties that were not read.</summary>
+        /// <returns>The properties that were not read as a list of keys.</returns>
         public List<string> GetUnusedProperties()
         {
             lock (_properties)
@@ -283,7 +242,7 @@ namespace Ice
                 List<string> unused = new List<string>();
                 foreach (KeyValuePair<string, PropertyValue> entry in _properties)
                 {
-                    if (!entry.Value.used && !entry.Key.StartsWith("--Ice.Config"))
+                    if (!entry.Value.Used && entry.Key != "Ice.Config")
                     {
                         unused.Add(entry.Key);
                     }
@@ -291,16 +250,97 @@ namespace Ice
                 return unused;
             }
         }
+    }
 
-        private const int ParseStateKey = 0;
-        private const int ParseStateValue = 1;
-
-        internal static (string Name, string Value) ParseLine(string line)
+    public static class PropertiesExtensions
+    {
+        /// <summary>Extract the reserved Ice properties from command-line args.</summary>
+        /// <param name="into">The property dictionary into which the properties are added.</param>
+        /// <param name="args">The command-line args.</param>
+        public static void ParseIceArgs(this Dictionary<string, string> into, ref string[] args)
         {
+            foreach (var name in IceInternal.PropertyNames.clPropNames)
+            {
+                into.ParseArgs(ref args, name);
+            }
+        }
+
+        /// <summary>Extract properties from command-line args.</summary>
+        /// <param name="into">The property dictionary into which the parsed properties are added.</param>
+        /// <param name="args">The command-line args.</param>
+        /// <param name="prefix">Only arguments that start with --prefix are extracted.</param>
+        public static void ParseArgs(this Dictionary<string, string> into, ref string[] args, string prefix = "")
+        {
+            if (prefix.Length > 0 && !prefix.EndsWith("."))
+            {
+                prefix += '.';
+            }
+            prefix = "--" + prefix;
+
+            if ((prefix == "--" || prefix == "--Ice.") && Array.Find(args, arg => arg == "--Ice.Config") != null)
+            {
+                throw new ArgumentException("--Ice.Config requires a value", nameof(args));
+            }
+
+            var remaining = new List<string>();
+            var parsedArgs = new Dictionary<string, string>();
+            foreach (var arg in args)
+            {
+                if (arg.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    var r = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
+                    if (r.Name.Length > 0)
+                    {
+                        parsedArgs[r.Name] = r.Value;
+                        continue;
+                    }
+                }
+                remaining.Add(arg);
+            }
+
+            if ((prefix == "--" || prefix == "--Ice.") &&
+                    parsedArgs.TryGetValue("Ice.Config", out string configFileList))
+            {
+                foreach (var file in configFileList.Split(","))
+                {
+                    into.LoadIceConfigFile(file);
+                }
+            }
+
+            foreach (var p in parsedArgs)
+            {
+                into[p.Key] = p.Value;
+            }
+
+            args = remaining.ToArray();
+        }
+
+        /// <summary>Load Ice configuration file.</summary>
+        /// <param name="into">The property dictionary into which the loaded properties are added.</param>
+        /// <param name="configFile">The path to the Ice configuration file to load.</param>
+        public static void LoadIceConfigFile(this Dictionary<string, string> into, string configFile)
+        {
+            using System.IO.StreamReader input = new System.IO.StreamReader(configFile.Trim());
+            string line;
+            while ((line = input.ReadLine()) != null)
+            {
+                var result = ParseLine(line);
+                if (result.Name.Length > 0)
+                {
+                    into[result.Name] = result.Value;
+                }
+            }
+        }
+
+        private static (string Name, string Value) ParseLine(string line)
+        {
+            const bool ParseStateKey = false;
+            const bool ParseStateValue = true;
+
             string key = "";
             string val = "";
 
-            int state = ParseStateKey;
+            bool state = ParseStateKey;
 
             string whitespace = "";
             string escapedspace = "";
@@ -455,78 +495,6 @@ namespace Ice
             }
 
             return (key, val);
-        }
-
-        private readonly Dictionary<string, PropertyValue> _properties = new Dictionary<string, PropertyValue>();
-    }
-
-    public static class PropertiesExtensions
-    {
-        public static void ParseIceArgs(this Dictionary<string, string> properties, ref string[] args)
-        {
-            foreach (var name in IceInternal.PropertyNames.clPropNames)
-            {
-                properties.ParseArgs(ref args, name);
-            }
-        }
-
-        public static void ParseArgs(this Dictionary<string, string> properties, ref string[] args, string prefix = "")
-        {
-            if (prefix.Length > 0 && !prefix.EndsWith("."))
-            {
-                prefix += '.';
-            }
-            prefix = "--" + prefix;
-
-            if ((prefix == "--" || prefix == "--Ice.") && Array.Find(args, arg => arg == "--Ice.Config") != null)
-            {
-                throw new ArgumentException("--Ice.Config requires and argument", nameof(args));
-            }
-
-            var remaining = new List<string>();
-            var parsedArgs = new Dictionary<string, string>();
-            foreach (var arg in args)
-            {
-                if (arg.StartsWith(prefix, StringComparison.Ordinal))
-                {
-                    var r = Communicator.ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
-                    if (r.Name.Length > 0)
-                    {
-                        parsedArgs[r.Name] = r.Value;
-                        continue;
-                    }
-                }
-                remaining.Add(arg);
-            }
-
-            if ((prefix == "--" || prefix == "--Ice.") && parsedArgs.TryGetValue("Ice.Config", out string iceConfig))
-            {
-                foreach (var file in iceConfig.Split(","))
-                {
-                    properties.LoadIceConfigFile(file);
-                }
-            }
-
-            foreach (var p in parsedArgs)
-            {
-                properties[p.Key] = p.Value;
-            }
-
-            args = remaining.ToArray();
-        }
-
-        public static void LoadIceConfigFile(this Dictionary<string, string> properties, string configFile)
-        {
-            using System.IO.StreamReader input = new System.IO.StreamReader(configFile.Trim());
-            string line;
-            while ((line = input.ReadLine()) != null)
-            {
-                var result = Communicator.ParseLine(line);
-                if (result.Name.Length > 0)
-                {
-                    properties[result.Name] = result.Value;
-                }
-            }
         }
     }
 }

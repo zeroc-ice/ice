@@ -1044,7 +1044,7 @@ namespace Ice
             PropertyValue pv;
             if (_properties.TryGetValue("Ice.ProgramName", out pv))
             {
-                pv.used = true;
+                pv.Used = true;
             }
             else
             {
