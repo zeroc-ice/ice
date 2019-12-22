@@ -137,28 +137,26 @@ namespace Ice
         /// <summary>Insert new properties or change the value of existing properties.
         /// Setting the value of a property to the empty string removes this property
         /// if it was present, and does nothing otherwise.</summary>
-        /// <param name="updates">A dictionary of properties.</param>
-        /// <returns>A subset of the updates parameter with only the new, updated and removed properties. Properties
-        /// that are identical in updates and in the Communicator's properties prior to this update are not included.</returns>
-        public Dictionary<string, string> SetProperties(Dictionary<string, string> updates)
+        /// <param name="updates">A dictionary of properties. This methods removes properties that did not change anything
+        /// from this dictionary</param>
+        public void SetProperties(Dictionary<string, string> updates)
         {
             foreach (var entry in updates)
             {
                 ValidateProperty(entry.Key, entry.Value);
             }
 
-            var result = new Dictionary<string, string>();
             lock (_properties)
             {
                 foreach (var entry in updates)
                 {
-                    if (SetPropertyImpl(entry.Key, entry.Value))
+                    if (!SetPropertyImpl(entry.Key, entry.Value))
                     {
-                        result.Add(entry.Key, entry.Value);
+                        // Starting with .NET 3.0, Remove does not invalidate enumerators
+                        updates.Remove(entry.Key);
                     }
                 }
             }
-            return result;
         }
 
         /// <summary>Remove a property.</summary>
@@ -202,8 +200,7 @@ namespace Ice
             Debug.Assert(key.Length > 0);
             if (value.Length == 0)
             {
-                _properties.Remove(key);
-                return true;
+                return _properties.Remove(key);
             }
             else
             {

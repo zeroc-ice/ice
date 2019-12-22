@@ -44,7 +44,7 @@ namespace IceInternal
             int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 
             // Update the communicator's properties and remove the properties that did not change from props.
-            props = _communicator.SetProperties(props); 
+            _communicator.SetProperties(props);
 
             if (traceLevel > 0 && props.Count > 0)
             {

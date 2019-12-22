@@ -1036,7 +1036,7 @@ namespace Ice
                     {
                         // TODO: this join is not sufficient to create a string
                         // compatible with GetPropertyAsList
-                        properties[key] = string.Join(",", values); 
+                        properties[key] = string.Join(",", values);
                     }
                 }
             }
@@ -1047,7 +1047,7 @@ namespace Ice
             }
 
             properties.ParseIceArgs(ref args);
-            _ = SetProperties(properties);
+            SetProperties(properties);
 
             try
             {
