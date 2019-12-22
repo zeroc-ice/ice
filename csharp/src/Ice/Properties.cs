@@ -126,96 +126,34 @@ namespace Ice
         /// <param name="value">The property value.</param>
         public void SetProperty(string key, string value)
         {
-            //
-            // Trim whitespace
-            //
-            key = key.Trim();
-            if (key.Length == 0)
+            ValidateProperty(key, value);
+
+            lock (_properties)
             {
-                throw new ArgumentException("Attempt to set property with empty key", nameof(key));
+                _ = SetPropertyImpl(key, value);
             }
+        }
 
-            //
-            // Check if the property is legal.
-            //
-            Logger logger = Util.getProcessLogger();
-            int dotPos = key.IndexOf('.');
-            if (dotPos != -1)
+        /// <summary>Insert new properties or change the value of existing properties.
+        /// Setting the value of a property to the empty string removes this property
+        /// if it was present, and does nothing otherwise.</summary>
+        /// <param name="updates">A dictionary of properties. This methods removes properties that did not change
+        /// anything from this dictionary.</param>
+        public void SetProperties(Dictionary<string, string> updates)
+        {
+            foreach (var entry in updates)
             {
-                string prefix = key.Substring(0, dotPos);
-                foreach (var validProps in IceInternal.PropertyNames.validProps)
-                {
-                    string pattern = validProps[0].pattern();
-                    dotPos = pattern.IndexOf('.');
-                    Debug.Assert(dotPos != -1);
-                    string propPrefix = pattern.Substring(1, dotPos - 2);
-                    bool mismatchCase = false;
-                    string otherKey = "";
-                    if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
-                    {
-                        continue;
-                    }
-
-                    bool found = false;
-                    foreach (var prop in validProps)
-                    {
-                        Regex r = new Regex(prop.pattern());
-                        Match m = r.Match(key);
-                        found = m.Success;
-                        if (found)
-                        {
-                            if (prop.deprecated())
-                            {
-                                logger.warning($"deprecated property: `{key}'");
-                                string? deprecatedBy = prop.deprecatedBy();
-                                if (deprecatedBy != null)
-                                {
-                                    key = deprecatedBy;
-                                }
-                            }
-                            break;
-                        }
-
-                        if (!found)
-                        {
-                            r = new Regex(prop.pattern().ToUpper());
-                            m = r.Match(key.ToUpper());
-                            if (m.Success)
-                            {
-                                found = true;
-                                mismatchCase = true;
-                                otherKey = prop.pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
-                                break;
-                            }
-                        }
-                    }
-                    if (!found)
-                    {
-                        logger.warning($"unknown property: `{key}'");
-                    }
-                    else if (mismatchCase)
-                    {
-                        logger.warning($"unknown property: `{key}'; did you mean `{otherKey}'");
-                    }
-                }
+                ValidateProperty(entry.Key, entry.Value);
             }
 
             lock (_properties)
             {
-                if (value.Length == 0)
+                foreach (var entry in updates)
                 {
-                    _properties.Remove(key);
-                }
-                else
-                {
-                    if (_properties.TryGetValue(key, out var pv))
+                    if (!SetPropertyImpl(entry.Key, entry.Value))
                     {
-                        pv.Val = value;
-                        pv.Used = false;
-                    }
-                    else
-                    {
-                        _properties[key] = new PropertyValue(value, false);
+                        // Starting with .NET 3.0, Remove does not invalidate enumerators
+                        updates.Remove(entry.Key);
                     }
                 }
             }
@@ -243,12 +181,118 @@ namespace Ice
                 List<string> unused = new List<string>();
                 foreach (KeyValuePair<string, PropertyValue> entry in _properties)
                 {
-                    if (!entry.Value.Used && entry.Key != "Ice.Config")
+                    if (!entry.Value.Used)
                     {
                         unused.Add(entry.Key);
                     }
                 }
                 return unused;
+            }
+        }
+
+        // SetPropertyImpl sets a property and returns true when the property
+        // was added, changed or removed, and false otherwise.
+        private bool SetPropertyImpl(string key, string value)
+        {
+            // Must be called with validated a validated property and with _properties locked
+
+            key = key.Trim();
+            Debug.Assert(key.Length > 0);
+            if (value.Length == 0)
+            {
+                return _properties.Remove(key);
+            }
+            else
+            {
+                // These properties are always marked "used"
+                bool used = (key == "Ice.ConfigFile" || key == "Ice.ProgramName");
+
+                if (_properties.TryGetValue(key, out var pv))
+                {
+                    if (!pv.Val.Equals(value))
+                    {
+                        pv.Val = value;
+                        pv.Used = used;
+                        return true;
+                    }
+                    // else Val == value, nothing to do
+                }
+                else
+                {
+                    _properties[key] = new PropertyValue(value, used);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void ValidateProperty(string key, string value)
+        {
+            key = key.Trim();
+            if (key.Length == 0)
+            {
+                throw new ArgumentException("Attempt to set property with empty key", nameof(key));
+            }
+
+            int dotPos = key.IndexOf('.');
+            if (dotPos != -1)
+            {
+                string prefix = key.Substring(0, dotPos);
+                foreach (var validProps in IceInternal.PropertyNames.validProps)
+                {
+                    string pattern = validProps[0].pattern();
+                    dotPos = pattern.IndexOf('.');
+                    Debug.Assert(dotPos != -1);
+                    string propPrefix = pattern.Substring(1, dotPos - 2);
+                    bool mismatchCase = false;
+                    string otherKey = "";
+                    if (!propPrefix.ToUpper().Equals(prefix.ToUpper()))
+                    {
+                        continue;
+                    }
+
+                    bool found = false;
+                    foreach (var prop in validProps)
+                    {
+                        Regex r = new Regex(prop.pattern());
+                        Match m = r.Match(key);
+                        found = m.Success;
+                        if (found)
+                        {
+                            if (prop.deprecated())
+                            {
+                                _logger.warning($"deprecated property: `{key}'");
+                                string? deprecatedBy = prop.deprecatedBy();
+                                if (deprecatedBy != null)
+                                {
+                                    key = deprecatedBy;
+                                }
+                            }
+                            break;
+                        }
+
+                        if (!found)
+                        {
+                            r = new Regex(prop.pattern().ToUpper());
+                            m = r.Match(key.ToUpper());
+                            if (m.Success)
+                            {
+                                found = true;
+                                mismatchCase = true;
+                                otherKey = prop.pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
+                                break;
+                            }
+                        }
+                    }
+                    if (!found)
+                    {
+                        _logger.warning($"unknown property: `{key}'");
+                    }
+                    else if (mismatchCase)
+                    {
+                        _logger.warning($"unknown property: `{key}'; did you mean `{otherKey}'");
+                    }
+                }
             }
         }
     }
