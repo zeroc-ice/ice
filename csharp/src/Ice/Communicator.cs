@@ -1021,7 +1021,16 @@ namespace Ice
             _threadStop = threadStop;
             _typeIdNamespaces = typeIdNamespaces ?? new string[] { "Ice.TypeId" };
 
-            properties ??= new Dictionary<string, string>();
+            if (properties == null)
+            {
+                properties = new Dictionary<string, string>();
+            }
+            else
+            {
+                // clone properties as we don't want to modify the properties given to
+                // this constructor
+                properties = new Dictionary<string, string>(properties);
+            }
 
             if (appSettings != null)
             {
