@@ -137,8 +137,8 @@ namespace Ice
         /// <summary>Insert new properties or change the value of existing properties.
         /// Setting the value of a property to the empty string removes this property
         /// if it was present, and does nothing otherwise.</summary>
-        /// <param name="updates">A dictionary of properties. This methods removes properties that did not change anything
-        /// from this dictionary</param>
+        /// <param name="updates">A dictionary of properties. This methods removes properties that did not change
+        /// anything from this dictionary.</param>
         public void SetProperties(Dictionary<string, string> updates)
         {
             foreach (var entry in updates)
@@ -209,13 +209,13 @@ namespace Ice
 
                 if (_properties.TryGetValue(key, out var pv))
                 {
-                    bool changed = pv.Val != value;
-                    if (changed)
+                    if (!pv.Val.Equals(value))
                     {
                         pv.Val = value;
                         pv.Used = used;
                         return true;
                     }
+                    // else Val == value, nothing to do
                 }
                 else
                 {
