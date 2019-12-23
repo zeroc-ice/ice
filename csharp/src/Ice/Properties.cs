@@ -161,18 +161,13 @@ namespace Ice
         }
 
         /// <summary>Remove a property.</summary>
-        /// <param name="key">The property key.</param>
-        /// <returns>The property value or null if this property was not set.</returns>
-        public string? RemoveProperty(string key)
+        /// <param name="name">The property name.</param>
+        /// <returns>true if the property is successfully found and removed; otherwise false.</returns>
+        public bool RemoveProperty(string name)
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(key, out var pv))
-                {
-                    _properties.Remove(key);
-                    return pv.Val;
-                }
-                return null;
+               return _properties.Remove(name);
             }
         }
 
