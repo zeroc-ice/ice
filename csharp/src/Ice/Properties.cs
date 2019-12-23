@@ -337,9 +337,9 @@ namespace Ice
                 if (arg.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     var r = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
-                    if (r.Name.Length > 0)
+                    if (r.Key.Length > 0)
                     {
-                        parsedArgs[r.Name] = r.Value;
+                        parsedArgs[r.Key] = r.Value;
                         continue;
                     }
                 }
@@ -373,16 +373,16 @@ namespace Ice
             while ((line = input.ReadLine()) != null)
             {
                 var result = ParseLine(line);
-                if (result.Name.Length > 0)
+                if (result.Key.Length > 0)
                 {
-                    into[result.Name] = result.Value;
+                    into[result.Key] = result.Value;
                 }
             }
         }
 
         internal enum ParseState : byte { Key, Value}
 
-        private static (string Name, string Value) ParseLine(string line)
+        private static (string Key, string Value) ParseLine(string line)
         {
             StringBuilder key = new StringBuilder();
             StringBuilder val = new StringBuilder();
