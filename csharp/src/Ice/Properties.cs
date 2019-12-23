@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -181,15 +182,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                List<string> unused = new List<string>();
-                foreach (KeyValuePair<string, PropertyValue> entry in _properties)
-                {
-                    if (!entry.Value.Used)
-                    {
-                        unused.Add(entry.Key);
-                    }
-                }
-                return unused;
+                return _properties.Where(p => !p.Value.Used).Select(p => p.Key).ToList();
             }
         }
 
