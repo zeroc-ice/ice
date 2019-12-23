@@ -92,13 +92,13 @@ namespace Ice
             {
                 var result = new Dictionary<string, string>();
 
-                foreach (string s in _properties.Keys)
+                foreach (string key in _properties.Keys)
                 {
-                    if (forPrefix.Length == 0 || s.StartsWith(forPrefix, StringComparison.Ordinal))
+                    if (forPrefix.Length == 0 || key.StartsWith(forPrefix, StringComparison.Ordinal))
                     {
-                        PropertyValue pv = _properties[s];
+                        PropertyValue pv = _properties[key];
                         pv.Used = true;
-                        result[s] = pv.Val;
+                        result[key] = pv.Val;
                     }
                 }
                 return result;
